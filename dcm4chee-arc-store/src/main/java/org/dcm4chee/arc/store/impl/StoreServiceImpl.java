@@ -284,13 +284,13 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Study addStorageID(String studyIUID, String storageID) {
-        return ejb.addStorageID(studyIUID, storageID);
+    public void addStorageID(String studyIUID, String storageID) {
+        ejb.addStorageID(studyIUID, storageID);
     }
 
     @Override
-    public void scheduleMetadataUpdate(Study study, String seriesIUID) {
-        ejb.scheduleMetadataUpdate(study, seriesIUID);
+    public void scheduleMetadataUpdate(String studyIUID, String seriesIUID) {
+        ejb.scheduleMetadataUpdate(studyIUID, seriesIUID);
     }
 
     @Override

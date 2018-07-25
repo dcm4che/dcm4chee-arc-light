@@ -65,9 +65,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
+import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
@@ -337,19 +335,26 @@ public class QueueManagerEJB {
                 .fetch();
     }
 
-    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
-        return rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
+    public String findDeviceNameByMsgId(String msgId) {
+        try {
+            return em.createNamedQuery(QueueMessage.FIND_DEVICE_BY_MSG_ID, String.class)
+                    .setParameter(1, msgId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
-    public String rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent) {
+    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
+        rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
+    }
+
+    public void rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent) {
         if (entity == null)
-            return null;
+            return;
 
         if (queueEvent != null)
             queueEvent.setQueueMsg(entity);
-
-        if (!device.getDeviceName().equals(entity.getDeviceName()))
-            return entity.getDeviceName();
 
         switch (entity.getStatus()) {
             case SCHEDULED:
@@ -363,20 +368,30 @@ public class QueueManagerEJB {
         entity.setOutcomeMessage(null);
         entity.updateExporterIDInMessageProperties();
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
-        return entity.getDeviceName();
     }
 
     private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {
-        ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
-        sendMessage(descriptor, msg, delay, entity.getPriority());
-        entity.reschedule(msg, new Date(System.currentTimeMillis() + delay));
-        if (entity.getExportTask() != null)
-            entity.getExportTask().setUpdatedTime();
-        if (entity.getRetrieveTask() != null)
-            entity.getRetrieveTask().setUpdatedTime();
-        if (entity.getDiffTask() != null)
-            entity.getDiffTask().setUpdatedTime();
-        LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        try {
+            ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
+            sendMessage(descriptor, msg, delay, entity.getPriority());
+            entity.setMessageID(msg.getJMSMessageID());
+            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay));
+            entity.setStatus(QueueMessage.Status.SCHEDULED);
+            entity.setDeviceName(device.getDeviceName());
+            if (entity.getExportTask() != null)
+                entity.getExportTask().setUpdatedTime();
+            if (entity.getRetrieveTask() != null)
+                entity.getRetrieveTask().setUpdatedTime();
+            if (entity.getDiffTask() != null)
+                entity.getDiffTask().setUpdatedTime();
+            LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        } catch (JMSException e) {
+            throw toJMSRuntimeException(e);
+        }
+    }
+
+    private JMSRuntimeException toJMSRuntimeException(JMSException e) {
+        return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
     }
 
     public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
@@ -450,7 +465,7 @@ public class QueueManagerEJB {
     }
 
     private QueueDescriptor descriptorOf(String queueName) {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
     private QueueMessage findQueueMessage(String msgId) {
@@ -474,6 +489,6 @@ public class QueueManagerEJB {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

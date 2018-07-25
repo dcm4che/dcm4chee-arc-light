@@ -109,7 +109,7 @@ public class MatchTask {
     public static Predicate matchExportTask(List<String> exporterIDs, String deviceName, String studyUID,
                                             String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
-        if (exporterIDs != null)
+        if (!exporterIDs.isEmpty())
             predicate.and(QExportTask.exportTask.exporterID.in(exporterIDs));
         if (deviceName != null)
             predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));

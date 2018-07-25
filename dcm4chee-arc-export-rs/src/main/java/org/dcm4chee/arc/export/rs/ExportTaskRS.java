@@ -40,6 +40,7 @@
 package org.dcm4chee.arc.export.rs;
 
 import com.querydsl.core.types.Predicate;
+import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -64,12 +65,15 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -100,9 +104,6 @@ public class ExportTaskRS {
     private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
-    private UriInfo uriInfo;
-
-    @Context
     private HttpHeaders httpHeaders;
 
     @QueryParam("StudyInstanceUID")
@@ -111,8 +112,11 @@ public class ExportTaskRS {
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
+    @QueryParam("newDeviceName")
+    private String newDeviceName;
+
     @QueryParam("ExporterID")
-    private String exporterID;
+    private List<String> exporterIDs;
 
     @QueryParam("status")
     @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
@@ -153,7 +157,7 @@ public class ExportTaskRS {
 
         QueueMessage.Status status = status();
         ExportTaskQuery tasks = mgr.listExportTasks(status,
-                matchQueueMessage(status, null, null),
+                matchQueueMessage(status, deviceName, null),
                 matchExportTask(updatedTime),
                 MatchTask.exportTaskOrder(orderby),
                 parseInt(offset), parseInt(limit)
@@ -169,7 +173,7 @@ public class ExportTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         return count(mgr.countExportTasks(status,
-                matchQueueMessage(status, null, null),
+                matchQueueMessage(status, deviceName, null),
                 matchExportTask(updatedTime)));
     }
 
@@ -203,7 +207,7 @@ public class ExportTaskRS {
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
-                    matchQueueMessage(status, updatedTime, null),
+                    matchQueueMessage(status, deviceName, updatedTime),
                     matchExportTask(null),
                     status);
             queueEvent.setCount(count);
@@ -220,19 +224,22 @@ public class ExportTaskRS {
     @Path("{taskPK}/reschedule/{ExporterID}")
     public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID) {
         logRequest();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-        if (exporter == null)
-            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
-
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            String devName = mgr.rescheduleExportTask(pk, exporter, queueEvent);
-            return devName == null
-                    ? Response.status(Response.Status.NOT_FOUND).build()
-                    : devName.equals(device.getDeviceName())
-                        ? Response.status(Response.Status.NO_CONTENT).build()
-                        : rsClient.forward(request, devName);
+            String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
+            if (devName == null)
+                return rsp(Response.Status.NOT_FOUND, "Task not found");
+
+            if (!devName.equals(device.getDeviceName()))
+                return rsClient.forward(request, newDeviceName, "");
+
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+            if (exporter == null)
+                return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
+
+            mgr.rescheduleExportTask(pk, exporter, queueEvent);
+            return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(e);
@@ -243,65 +250,76 @@ public class ExportTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleExportTasks() throws Exception {
+    public Response rescheduleExportTasks() {
         return rescheduleTasks(null);
     }
 
     @POST
     @Path("/reschedule/{ExporterID}")
-    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) throws Exception {
+    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) {
         return rescheduleTasks(newExporterID);
     }
 
-    private Response rescheduleTasks(String newExporterID) throws Exception {
+    private Response rescheduleTasks(String newExporterID) {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
+        try {
+            ExporterDescriptor newExporter = null;
+            if (newExporterID != null)
+                newExporter = exporter(newExporterID);
 
-        if (deviceName == null) {
-            List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
-            int count = 0;
-            for (String devName : distinctDeviceNames) {
-                LOG.info("Reschedule tasks on device: {}.", devName);
-                count += count(devName.equals(device.getDeviceName())
-                                ? rescheduleTasks(newExporterID, status, matchQueueMessage)
-                                : rsClient.forward(request, devName));
-            }
-            return count(count);
+            String devName = newDeviceName != null ? newDeviceName : deviceName;
+            if (devName != null && !devName.equals(device.getDeviceName()))
+                return rsClient.forward(request, devName, "");
+
+            Predicate matchExportTask = matchExportTask(updatedTime);
+            return count(devName == null
+                    ? rescheduleOnDistinctDevices(newExporter, status, matchExportTask)
+                    : rescheduleTasks(newExporter, status, matchQueueMessage(status, devName, null), matchExportTask));
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
         }
-        return !deviceName.equals(device.getDeviceName())
-                ? rsClient.forward(request, deviceName)
-                : rescheduleTasks(newExporterID, status, matchQueueMessage);
     }
 
-    private Response rescheduleTasks(String newExporterID, QueueMessage.Status status, Predicate matchQueueMessage) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ExporterDescriptor exporter = null;
-        if (newExporterID != null && (exporter = arcDev.getExporterDescriptor(newExporterID)) == null)
-            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + newExporterID);
+    private int rescheduleOnDistinctDevices(
+            ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchExportTask) throws Exception {
+        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(
+                matchQueueMessage(status, null, null),
+                matchExportTask);
+        int count = 0;
+        for (String devName : distinctDeviceNames)
+            count += devName.equals(device.getDeviceName())
+                    ? rescheduleTasks(newExporter, status, matchQueueMessage(status, devName, null), matchExportTask)
+                    : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
+        return count;
+    }
+
+    private int rescheduleTasks(
+            ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask)
+            throws Exception {
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count = 0;
             try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
-                    matchQueueMessage, matchExportTask(updatedTime), null, 0, 0)) {
+                    matchQueueMessage, matchExportTask, null, 0, 0)) {
                 for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(
-                            task.getPk(),
-                            exporter != null ? exporter : arcDev.getExporterDescriptor(task.getExporterID()),
+                            task,
+                            newExporter != null ? newExporter : exporter(task.getExporterID()),
                             null);
                     count++;
                 }
             }
             queueEvent.setCount(count);
-            return count(count);
-        } catch (IOException e) {
+            LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
+            return count;
+        } catch (Exception e) {
             queueEvent.setException(e);
-            LOG.warn(e.getMessage());
-            return errResponseAsTextPlain(e);
+            throw e;
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -323,7 +341,7 @@ public class ExportTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         QueueMessage.Status status = status();
         int deleted = mgr.deleteTasks(status,
-                matchQueueMessage(status, null, null),
+                matchQueueMessage(status, deviceName, null),
                 matchExportTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
@@ -332,6 +350,10 @@ public class ExportTaskRS {
 
     private static Response rsp(Response.Status status, Object entity) {
         return Response.status(status).entity(entity).build();
+    }
+
+    private Response rsp(Response.Status status) {
+        return Response.status(status).build();
     }
 
     private static Response rsp(boolean result) {
@@ -345,16 +367,21 @@ public class ExportTaskRS {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
-    private int count(Response response) {
+    private int count(Response response, String devName) {
+        int count = 0;
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            String entity = response.getEntity().toString();
-            Integer count = Integer.valueOf(entity.substring(entity.indexOf(':')+1, entity.indexOf('}')));
-            LOG.info("Rescheduling of {} tasks successfully completed.", count);
-            return count;
+            JsonParser parser = Json.createParser(new StringReader(response.readEntity(String.class)));
+            JsonReader reader = new JsonReader(parser);
+            reader.next();
+            reader.expect(JsonParser.Event.START_OBJECT);
+            while (reader.next() == JsonParser.Event.KEY_NAME)
+                count = reader.intValue();
+            LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
+        } else {
+            LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
+                    devName, response.getStatus(), response.getEntity());
         }
-        LOG.warn("Rescheduling of tasks unsuccessful. Response received with status: {} and entity: {}",
-                response.getStatus(), response.getEntity());
-        return 0;
+        return count;
     }
 
     private Output selectMediaType(String accept) {
@@ -437,12 +464,12 @@ public class ExportTaskRS {
     }
 
     private Predicate matchExportTask(String updatedTime) {
-        return MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime);
+        return MatchTask.matchExportTask(exporterIDs, deviceName, studyUID, createdTime, updatedTime);
     }
 
-    private Predicate matchQueueMessage(QueueMessage.Status status, String updatedTime, Date updatedBefore) {
+    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime) {
         return MatchTask.matchQueueMessage(
-                null, deviceName, status, batchID, null, null, updatedTime, updatedBefore);
+                null, devName, status, batchID, null, null, updatedTime, null);
     }
 
     private Response notAcceptable() {
@@ -453,6 +480,10 @@ public class ExportTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private ExporterDescriptor exporter(String exporterID) {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(exporterID);
     }
 
     private void logRequest() {

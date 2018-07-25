@@ -80,11 +80,11 @@ public interface QueueManager {
     long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
-    String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
+    String findDeviceNameByMsgId(String msgId);
+
+    void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
-
-    String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent);
 
     int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize);
 

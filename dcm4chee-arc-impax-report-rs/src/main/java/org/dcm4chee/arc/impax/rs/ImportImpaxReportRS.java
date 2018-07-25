@@ -61,8 +61,6 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -73,15 +71,16 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.WebServiceException;
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -92,10 +91,12 @@ import java.util.Map;
 @RequestScoped
 @Path("aets/{AETitle}/rs")
 public class ImportImpaxReportRS {
+    private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
     private static final Logger LOG = LoggerFactory.getLogger(ImportImpaxReportRS.class);
-    private static final String DEFAULT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/impax-report2sr.xsl ";
-    private static SAXTransformerFactory tranformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
-    private static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    private static final String DEFAULT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/impax-report2sr.xsl";
+    private static final String DEFAULT_DOC_TITLE = "(18748-4, LN, \"Diagnostic Imaging Report\")";
+    private static final String DEFAULT_LANGUAGE = "(en, RFC5646, \"English\")";
+    private static final String DEFAULT_VERIFYING_ORGANIZATION = "N/A";
 
     @Context
     private HttpServletRequest request;
@@ -127,6 +128,13 @@ public class ImportImpaxReportRS {
     private Sequence sopSequence;
     private int instanceNumber;
 
+    private static final int[] TYPE2_TAGS = {
+            Tag.StudyID,
+            Tag.Manufacturer,
+            Tag.ReferencedPerformedProcedureStepSequence,
+            Tag.PerformedProcedureCodeSequence
+    };
+
     @POST
     @Path("/studies/{studyUID}/impax/reports")
     @Produces("application/dicom+json")
@@ -155,7 +163,6 @@ public class ImportImpaxReportRS {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
         propsAttrs = new Attributes();
-        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
         for (Map.Entry<String, String> prop : props.entrySet()) {
             if (prop.getKey().startsWith("SR.")) {
                 int tag = TagUtils.forName(prop.getKey().substring(3));
@@ -208,7 +215,7 @@ public class ImportImpaxReportRS {
     }
 
     private void storeReports() {
-        try (StoreSession session = storeService.newStoreSession(ae, null)) {
+        try (StoreSession session = storeService.newStoreSession(request, ae, null)) {
             for (String report : reports) {
                 storeReport(session, report);
             }
@@ -238,12 +245,18 @@ public class ImportImpaxReportRS {
     }
 
     private void xslt(String report, Attributes attrs) throws Exception {
-        TransformerHandler th = tranformerFactory.newTransformerHandler(tpls);
-        th.setResult(new SAXResult(new ContentHandlerAdapter(attrs)));
-        XMLReader reader = parserFactory.newSAXParser().getXMLReader();
-        reader.setContentHandler(th);
-        reader.setDTDHandler(th);
-        reader.parse(new InputSource(new StringReader(report)));
+        Transformer t = tpls.newTransformer();
+        Code code = new Code(props.getOrDefault("Language", DEFAULT_LANGUAGE));
+        t.setParameter("langCodeValue", code.getCodeValue());
+        t.setParameter("langCodingSchemeDesignator", code.getCodingSchemeDesignator());
+        t.setParameter("langCodeMeaning", code.getCodeMeaning());
+        Code docTitleCode = new Code(props.getOrDefault("DocumentTitle", DEFAULT_DOC_TITLE));
+        t.setParameter("docTitleCodeValue", docTitleCode.getCodeValue());
+        t.setParameter("docTitleCodingSchemeDesignator", docTitleCode.getCodingSchemeDesignator());
+        t.setParameter("docTitleCodeMeaning", docTitleCode.getCodeMeaning());
+        t.setParameter("VerifyingOrganization",
+                props.getOrDefault("VerifyingOrganization", DEFAULT_VERIFYING_ORGANIZATION));
+        t.transform(new StreamSource(new StringReader(report)), new SAXResult(new ContentHandlerAdapter(attrs)));
     }
 
     private void addUIDs(String report, Attributes attrs) {
@@ -261,12 +274,24 @@ public class ImportImpaxReportRS {
         setStringIfMissing(attrs, Tag.SOPClassUID, VR.UI, UID.BasicTextSRStorage);
         setStringIfMissing(attrs, Tag.SeriesNumber, VR.IS, "0");
         setStringIfMissing(attrs, Tag.InstanceNumber, VR.IS, String.valueOf(++instanceNumber));
-        //TODO
+        setDateTimeIfMissing(attrs, Tag.ContentDateAndTime);
+        supplementMissingType2(attrs);
     }
 
     private void setStringIfMissing(Attributes attrs, int tag, VR vr, String value) {
         if (!attrs.containsValue(tag))
             attrs.setString(tag, vr, value);
+    }
+
+    private void setDateTimeIfMissing(Attributes attrs, long tag) {
+        if (attrs.getDate(tag) == null)
+            attrs.setDate(tag, new Date());
+    }
+
+    private void supplementMissingType2(Attributes attrs) {
+        for (int tag : TYPE2_TAGS)
+            if (!attrs.contains(tag))
+                attrs.setNull(tag, dict.vrOf(tag));
     }
 
     private StringBuffer studyRetrieveURL() {

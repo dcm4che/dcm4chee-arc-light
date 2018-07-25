@@ -46,6 +46,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -177,13 +178,28 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.rescheduleRetrieveTask(pk, queueEvent);
+    public String findDeviceNameByPk(Long pk) {
+        return ejb.findDeviceNameByPk(pk);
+    }
+
+    @Override
+    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
+        ejb.rescheduleRetrieveTask(pk, queueEvent);
+    }
+
+    @Override
+    public void rescheduleRetrieveTask(RetrieveTask task) {
+        ejb.rescheduleRetrieveTask(task, null);
     }
 
     @Override
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return ejb.deleteTasks(matchQueueMessage, matchRetrieveTask);
+    }
+
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage, matchRetrieveTask);
     }
 
     @Override

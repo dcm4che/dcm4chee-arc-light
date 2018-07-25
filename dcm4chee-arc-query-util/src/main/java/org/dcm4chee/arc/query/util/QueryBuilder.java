@@ -57,7 +57,6 @@ import org.dcm4chee.arc.entity.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -299,7 +298,7 @@ public class QueryBuilder {
     }
 
     public static Predicate uidsPredicate(StringPath path, String[] values) {
-        if (values == null || values.length == 0 || values[0].equals("*"))
+        if (isUniversalMatching(values))
             return null;
 
         return path.in(values);
@@ -607,6 +606,10 @@ public class QueryBuilder {
 
     static boolean isUniversalMatching(String value) {
         return value == null || value.equals("*");
+    }
+
+    public static boolean isUniversalMatching(String[] values) {
+        return values == null || values.length == 0 || values[0].equals("*");
     }
 
     private static boolean isUniversalMatching(Integer value) {

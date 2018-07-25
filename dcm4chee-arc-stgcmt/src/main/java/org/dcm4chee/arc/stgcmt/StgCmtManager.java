@@ -45,6 +45,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.StgCmtResult;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -64,7 +65,7 @@ public interface StgCmtManager {
 
     int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore);
 
-    Attributes calculateResult(StgCmtContext ctx, Sequence refSopSeq, String transactionUID);
+    void calculateResult(StgCmtContext ctx, Sequence refSopSeq);
 
-    Attributes calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID);
+    void calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 }

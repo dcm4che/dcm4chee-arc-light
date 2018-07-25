@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.stgcmt;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -56,12 +58,13 @@ import javax.servlet.http.HttpServletRequest;
 public class StgCmtContext {
     private final ArchiveAEExtension arcAE;
     private final String localAET;
+    private final Attributes eventInfo = new Attributes(4);
     private ApplicationEntity remoteAE;
     private HttpServletRequest request;
-    private Attributes extendedEventInfo;
     private StgCmtPolicy stgCmtPolicy;
     private boolean stgCmtUpdateLocationStatus;
     private String[] stgCmtStorageIDs;
+    private Throwable exception;
 
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
         this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -73,6 +76,10 @@ public class StgCmtContext {
 
     public String getLocalAET() {
         return localAET;
+    }
+
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return arcAE;
     }
 
     public ApplicationEntity getRemoteAE() {
@@ -93,13 +100,21 @@ public class StgCmtContext {
         return this;
     }
 
-    public Attributes getExtendedEventInfo() {
-        return extendedEventInfo;
+    public StgCmtContext setTransactionUID(String transactionUID) {
+        eventInfo.setString(Tag.TransactionUID, VR.UI, transactionUID);
+        return this;
     }
 
-    public StgCmtContext setExtendedEventInfo(Attributes extendedEventInfo) {
-        this.extendedEventInfo = extendedEventInfo;
-        return this;
+    public Throwable getException() {
+        return exception;
+    }
+
+    public void setException(Throwable exception) {
+        this.exception = exception;
+    }
+
+    public Attributes getEventInfo() {
+        return eventInfo;
     }
 
     public StgCmtPolicy getStgCmtPolicy() {

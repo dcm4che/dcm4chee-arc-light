@@ -60,9 +60,9 @@ public interface StoreService {
 
     void store(StoreContext ctx, InputStream data) throws IOException;
 
-    Study addStorageID(String studyIUID, String storageID);
+    void addStorageID(String studyIUID, String storageID);
 
-    void scheduleMetadataUpdate(Study study, String seriesIUID);
+    void scheduleMetadataUpdate(String studyIUID, String seriesIUID);
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 

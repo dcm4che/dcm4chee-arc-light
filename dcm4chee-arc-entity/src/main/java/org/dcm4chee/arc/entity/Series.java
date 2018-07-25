@@ -180,7 +180,7 @@ import java.util.Date;
 @NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
-                "where se.study = ?1 " +
+                "where se.study in (select st from Study st where st.studyInstanceUID = ?1) " +
                 "and se.seriesInstanceUID = ?2 " +
                 "and se.metadata is not null " +
                 "and se.metadataScheduledUpdateTime is null"),

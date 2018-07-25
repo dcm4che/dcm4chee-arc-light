@@ -47,6 +47,7 @@ import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
@@ -54,10 +55,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,10 +82,24 @@ public class ReportServiceProvider {
     public List<String> queryReportByStudyUid(String studyIUID) throws ConfigurationException {
         Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getImpaxReportProperties();
+        String wget = props.get("wget");
+        if (wget != null) {
+            return Collections.singletonList(wget(wget.replace("{}",studyIUID)));
+        }
         Holder<Boolean> result = new Holder<>();
         Holder<ArrayOfString> xmlReports = new Holder<>();
         port(props).queryReportByStudyUid(studyIUID, result, xmlReports);
         return result.value ? xmlReports.value.getString() : Collections.EMPTY_LIST;
+    }
+
+    private String wget(String url) {
+        try (InputStream in = new URL(url).openStream()) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            StreamUtils.copy(in, out);
+            return new String(out.toByteArray(), "UTF-8");
+        } catch (Exception e) {
+            throw new WebServiceException("Failed to fetch report from " + url, e);
+        }
     }
 
     private ReportServicePortType port(Map<String, String> props) throws ConfigurationException {
