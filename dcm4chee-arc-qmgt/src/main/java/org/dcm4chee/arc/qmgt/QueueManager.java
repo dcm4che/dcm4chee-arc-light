@@ -93,4 +93,6 @@ public interface QueueManager {
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 
     QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
+
+    List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

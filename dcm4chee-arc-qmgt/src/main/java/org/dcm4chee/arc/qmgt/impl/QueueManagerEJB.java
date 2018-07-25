@@ -346,10 +346,7 @@ public class QueueManagerEJB {
     }
 
     public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
-        rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
-    }
-
-    public void rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent) {
+        QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return;
 

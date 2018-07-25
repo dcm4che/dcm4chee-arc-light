@@ -197,4 +197,9 @@ public class QueueManagerImpl implements QueueManager {
     public QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listQueueMessages(matchQueueMessage, order, offset, limit);
     }
+
+    @Override
+    public List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit) {
+        return ejb.getQueueMsgIDs(matchQueueMessage, limit);
+    }
 }

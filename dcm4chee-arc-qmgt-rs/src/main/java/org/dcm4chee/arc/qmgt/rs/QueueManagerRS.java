@@ -250,18 +250,21 @@ public class QueueManagerRS {
         return count;
     }
 
-    private int rescheduleMessages(Predicate matchQueueMessage) throws Exception {
+    private int rescheduleMessages(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        int rescheduleTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         try {
-            int count = 0;
-            try(QueueMessageQuery queueMsgs = mgr.listQueueMessages(matchQueueMessage, null, 0,0)) {
-                for (QueueMessage queueMsg : queueMsgs) {
-                    mgr.rescheduleTask(queueMsg.getMessageID(), queueName, null);
-                    count++;
-                }
-            }
-            queueEvent.setCount(count);
-            LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
+            int count;
+            int rescheduled = 0;
+            do {
+                List<String> queueMsgIDs = mgr.listQueueMsgIDs(matchQueueMessage, rescheduleTaskFetchSize);
+                for (String queueMsgID : queueMsgIDs)
+                    mgr.rescheduleTask(queueMsgID, queueName, null);
+                count = queueMsgIDs.size();
+                rescheduled += count;
+            } while (count >= rescheduleTaskFetchSize);
+            queueEvent.setCount(rescheduled);
+            LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
             return count;
         } catch (Exception e) {
             queueEvent.setException(e);
