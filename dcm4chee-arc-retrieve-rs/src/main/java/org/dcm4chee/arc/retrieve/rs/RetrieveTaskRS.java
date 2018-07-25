@@ -43,7 +43,6 @@ package org.dcm4chee.arc.retrieve.rs;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
@@ -298,16 +297,9 @@ public class RetrieveTaskRS {
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
-        int count;
-        int deleted = 0;
-        do {
-            count = mgr.deleteTasks(
-                    matchQueueMessage(status(), null, null),
-                    matchRetrieveTask(updatedTime),
-                    deleteTaskFetchSize);
-            deleted += count;
-        } while (count >= deleteTaskFetchSize);
+        int deleted = mgr.deleteTasks(
+                matchQueueMessage(status(), null, null),
+                matchRetrieveTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
