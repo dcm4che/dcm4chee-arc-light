@@ -403,11 +403,7 @@ public class QueueManagerEJB {
 
     public int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize) {
         int count = 0;
-        try (CloseableIterator<QueueMessage> iterate = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage)
-                .limit(deleteTaskFetchSize)
-                .iterate()) {
+        try (CloseableIterator<QueueMessage> iterate = createQuery(matchQueueMessage).limit(deleteTaskFetchSize).iterate()) {
             while (iterate.hasNext()) {
                 deleteTask(iterate.next());
                 count++;
