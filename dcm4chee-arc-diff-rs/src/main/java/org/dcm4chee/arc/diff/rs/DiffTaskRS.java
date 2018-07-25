@@ -325,7 +325,7 @@ public class DiffTaskRS {
             } while (count >= rescheduleTasksFetchSize);
             LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
             queueEvent.setCount(rescheduled);
-            return count;
+            return rescheduled;
         } catch (Exception e) {
             queueEvent.setException(e);
             throw e;

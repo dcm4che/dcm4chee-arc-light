@@ -293,7 +293,7 @@ public class RetrieveTaskRS {
             } while (count >= rescheduleTasksFetchSize);
             queueEvent.setCount(rescheduled);
             LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
-            return count;
+            return rescheduled;
         } catch (Exception e) {
             queueEvent.setException(e);
             throw e;
