@@ -86,7 +86,7 @@ public interface QueueManager {
 
     String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent);
 
-    int deleteTasks(String queueName, Predicate matchQueueMessage);
+    int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize);
 
     long countTasks(Predicate matchQueueMessage);
 

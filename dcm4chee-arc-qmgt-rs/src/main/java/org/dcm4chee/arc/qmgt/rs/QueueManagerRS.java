@@ -42,6 +42,7 @@ package org.dcm4chee.arc.qmgt.rs;
 
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -272,7 +273,13 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = mgr.deleteTasks(queueName, matchQueueMessage(status(), null));
+        int deleted = 0;
+        int count;
+        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        do {
+            count = mgr.deleteTasks(matchQueueMessage(status(), null), deleteTaskFetchSize);
+            deleted += count;
+        } while (count >= deleteTaskFetchSize);
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';

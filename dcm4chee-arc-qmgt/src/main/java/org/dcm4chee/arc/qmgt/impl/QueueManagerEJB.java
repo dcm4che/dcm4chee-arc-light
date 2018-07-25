@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -400,16 +401,18 @@ public class QueueManagerEJB {
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
-    public int deleteTasks(Predicate matchQueueMessage) {
+    public int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize) {
         int count = 0;
-        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
-        List<QueueMessage> queueMsgs;
-        do {
-            queueMsgs = createQuery(matchQueueMessage).limit(deleteTaskFetchSize).fetch();
-            for (QueueMessage queueMsg : queueMsgs)
-                deleteTask(queueMsg);
-            count += queueMsgs.size();
-        } while (queueMsgs.size() >= deleteTaskFetchSize);
+        try (CloseableIterator<QueueMessage> iterate = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(matchQueueMessage)
+                .limit(deleteTaskFetchSize)
+                .iterate()) {
+            while (iterate.hasNext()) {
+                deleteTask(iterate.next());
+                count++;
+            }
+        }
         return count;
     }
 

@@ -179,8 +179,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int deleteTasks(String queueName, Predicate matchQueueMessage) {
-        return ejb.deleteTasks(matchQueueMessage);
+    public int deleteTasks(Predicate matchQueueMessage, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(matchQueueMessage, deleteTasksFetchSize);
     }
 
     @Override
