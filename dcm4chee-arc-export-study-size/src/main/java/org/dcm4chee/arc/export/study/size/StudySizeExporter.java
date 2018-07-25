@@ -48,6 +48,7 @@ import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
 public class StudySizeExporter extends AbstractExporter {
@@ -61,9 +62,9 @@ public class StudySizeExporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) {
-        querySizeEJB.calculateStudySize(exportContext.getStudyInstanceUID());
-
-        return new Outcome(QueueMessage.Status.COMPLETED,
-                "Calculated size of Study[uid=" + exportContext.getStudyInstanceUID() + ']');
+        long studySize = querySizeEJB.calculateStudySize(exportContext.getStudyInstanceUID());
+        return new Outcome(QueueMessage.Status.COMPLETED, studySize >= 0
+                ? "Calculated size of Study[uid=" + exportContext.getStudyInstanceUID() + ']'
+                : "No such Study[uid=" + exportContext.getStudyInstanceUID() + ']');
     }
 }
