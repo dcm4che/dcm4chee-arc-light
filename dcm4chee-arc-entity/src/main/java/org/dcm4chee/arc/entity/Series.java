@@ -172,6 +172,12 @@ import java.util.Date;
                 "and se.metadata is not null " +
                 "and se.metadataScheduledUpdateTime is null"),
 @NamedQuery(
+        name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES,
+        query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
+                "where se.pk = ?1 " +
+                "and se.metadata is not null " +
+                "and se.metadataScheduledUpdateTime is null"),
+@NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
                 "where se.study in (select st from Study st where st.studyInstanceUID = ?1) " +
@@ -238,6 +244,7 @@ public class Series {
     public static final String SCHEDULED_PURGE_INSTANCES = "Series.scheduledPurgeInstances";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_PATIENT = "Series.scheduleMetadataUpdateForPatient";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_STUDY = "Series.scheduleMetadataUpdateForStudy";
+    public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES = "Series.scheduleMetadataUpdateForSeries";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID = "Series.scheduleMetadataUpdateForSeriesUID";
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
