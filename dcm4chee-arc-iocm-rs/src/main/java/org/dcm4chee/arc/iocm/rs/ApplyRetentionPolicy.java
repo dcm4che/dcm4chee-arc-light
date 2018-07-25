@@ -166,15 +166,16 @@ public class ApplyRetentionPolicy {
                     if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                         prevStudyInstanceUID = studyInstanceUID;
                         prevStudyExpirationDate = expirationDate;
-                        studyService.updateStudyExpirationDate(createStudyMgtCtx(studyInstanceUID, expirationDate, arcAE));
+                        updateExpirationDate(studyInstanceUID, null, expirationDate, arcAE);
                         count++;
                     } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                         prevStudyExpirationDate = expirationDate;
-                        studyService.updateStudyExpirationDate(createStudyMgtCtx(studyInstanceUID, expirationDate, arcAE));
+                        if (!retentionPolicy.isExpireSeriesIndividually())
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, arcAE);
                     }
 
                     if (retentionPolicy.isExpireSeriesIndividually())
-                        updateSeriesExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, arcAE);
+                        updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, arcAE);
                 }
             } catch (Exception e) {
                 LOG.warn("Unexpected exception:", e);
@@ -236,19 +237,14 @@ public class ApplyRetentionPolicy {
         return queryParam;
     }
 
-    private void updateSeriesExpirationDate(
-            String studyUID, String seriesUID, LocalDate expirationDate, ArchiveAEExtension arcAE) throws Exception {
-        StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
-        ctx.setSeriesInstanceUID(seriesUID);
-        studyService.updateSeriesExpirationDate(ctx);
-    }
-
-    private StudyMgtContext createStudyMgtCtx(String studyUID, LocalDate expirationDate, ArchiveAEExtension arcAE) {
+    private void updateExpirationDate(
+            String studyIUID, String seriesIUID, LocalDate expirationDate, ArchiveAEExtension arcAE) throws Exception {
         StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
-        ctx.setStudyInstanceUID(studyUID);
+        ctx.setStudyInstanceUID(studyIUID);
         ctx.setExpirationDate(expirationDate);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        return ctx;
+        if (seriesIUID != null)
+            ctx.setSeriesInstanceUID(seriesIUID);
+        studyService.updateExpirationDate(ctx);
     }
-
 }

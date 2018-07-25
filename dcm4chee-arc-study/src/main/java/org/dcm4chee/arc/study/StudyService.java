@@ -54,7 +54,5 @@ public interface StudyService {
 
     void updateStudy(StudyMgtContext ctx);
 
-    void updateStudyExpirationDate(StudyMgtContext ctx) throws Exception;
-
-    void updateSeriesExpirationDate(StudyMgtContext ctx) throws Exception;
+    void updateExpirationDate(StudyMgtContext ctx) throws Exception;
 }

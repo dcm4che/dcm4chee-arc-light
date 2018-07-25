@@ -483,11 +483,9 @@ public class IocmRS {
         boolean updateSeriesExpirationDate = seriesUID != null;
         try {
             StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
-            if (updateSeriesExpirationDate) {
+            if (seriesUID != null)
                 ctx.setSeriesInstanceUID(seriesUID);
-                studyService.updateSeriesExpirationDate(ctx);
-            } else
-                studyService.updateStudyExpirationDate(ctx);
+            studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
             return Response.noContent().build();
         } catch (NoResultException e) {
