@@ -181,8 +181,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        return ejb.deleteTasks(matchQueueMessage, matchDiffTask);
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(matchQueueMessage, matchDiffTask, deleteTasksFetchSize);
     }
 
     @Override

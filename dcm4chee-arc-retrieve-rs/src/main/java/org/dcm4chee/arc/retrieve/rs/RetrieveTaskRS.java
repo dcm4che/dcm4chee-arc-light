@@ -44,6 +44,7 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
@@ -313,9 +314,16 @@ public class RetrieveTaskRS {
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = mgr.deleteTasks(
-                matchQueueMessage(status(), deviceName, null),
-                matchRetrieveTask(updatedTime));
+        int deleted = 0;
+        int count;
+        int deleteTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        do {
+            count = mgr.deleteTasks(
+                    matchQueueMessage(status(), deviceName, null),
+                    matchRetrieveTask(updatedTime),
+                    deleteTasksFetchSize);
+            deleted += count;
+        } while (count >= deleteTasksFetchSize);
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';

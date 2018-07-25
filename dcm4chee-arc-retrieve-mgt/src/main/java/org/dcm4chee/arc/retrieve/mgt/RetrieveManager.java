@@ -80,7 +80,7 @@ public interface RetrieveManager {
 
     void rescheduleRetrieveTask(RetrieveTask task);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 

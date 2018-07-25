@@ -46,6 +46,7 @@ import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffTaskQuery;
 import org.dcm4chee.arc.entity.AttributesBlob;
@@ -345,9 +346,16 @@ public class DiffTaskRS {
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = diffService.deleteTasks(
-                matchQueueMessage(status(), deviceName, null),
-                matchDiffTask(updatedTime));
+        int deleted = 0;
+        int count;
+        int deleteTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        do {
+            count = diffService.deleteTasks(
+                    matchQueueMessage(status(), deviceName, null),
+                    matchDiffTask(updatedTime),
+                    deleteTasksFetchSize);
+            deleted += count;
+        } while (count >= deleteTasksFetchSize);
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';

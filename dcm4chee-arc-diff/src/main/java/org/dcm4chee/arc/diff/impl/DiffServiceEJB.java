@@ -198,30 +198,24 @@ public class DiffServiceEJB {
         return true;
     }
 
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        int count = 0;
-        int deleteTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
-        List<Long> referencedQueueMsgs;
-        do {
-            referencedQueueMsgs = createQuery(matchQueueMessage, matchDiffTask)
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize) {
+        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchDiffTask)
                     .select(QDiffTask.diffTask.queueMessage.pk)
                     .limit(deleteTasksFetchSize)
                     .fetch();
-            List<Long> diffTaskPks = new HibernateQuery<DiffTask>(em.unwrap(Session.class))
-                    .select(QDiffTask.diffTask.pk)
-                    .from(QDiffTask.diffTask)
-                    .where(matchDiffTask, QDiffTask.diffTask.queueMessage.pk.in(referencedQueueMsgs))
-                    .fetch();
-            new HibernateDeleteClause(em.unwrap(Session.class), QDiffTaskAttributes.diffTaskAttributes)
-                    .where(QDiffTaskAttributes.diffTaskAttributes.diffTask.pk.in(diffTaskPks))
-                    .execute();
-            new HibernateDeleteClause(em.unwrap(Session.class), QDiffTask.diffTask)
-                    .where(QDiffTask.diffTask.pk.in(diffTaskPks))
-                    .execute();
-            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                    .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= deleteTasksFetchSize);
-        return count;
+        List<Long> diffTaskPks = new HibernateQuery<DiffTask>(em.unwrap(Session.class))
+                .select(QDiffTask.diffTask.pk)
+                .from(QDiffTask.diffTask)
+                .where(matchDiffTask, QDiffTask.diffTask.queueMessage.pk.in(referencedQueueMsgs))
+                .fetch();
+        new HibernateDeleteClause(em.unwrap(Session.class), QDiffTaskAttributes.diffTaskAttributes)
+                .where(QDiffTaskAttributes.diffTaskAttributes.diffTask.pk.in(diffTaskPks))
+                .execute();
+        new HibernateDeleteClause(em.unwrap(Session.class), QDiffTask.diffTask)
+                .where(QDiffTask.diffTask.pk.in(diffTaskPks))
+                .execute();
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
     }
 
     public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask) {

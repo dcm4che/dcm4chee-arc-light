@@ -96,7 +96,7 @@ public interface DiffService {
 
     boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask);
 }
