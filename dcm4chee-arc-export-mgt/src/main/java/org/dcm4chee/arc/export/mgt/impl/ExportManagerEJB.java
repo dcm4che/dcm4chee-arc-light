@@ -337,11 +337,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public long countExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .from(QExportTask.exportTask)
-                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, queuePredicate(status, createQuery(matchQueueMessage)))
-                .fetchCount();
+        return createQuery(status, matchQueueMessage, matchExportTask).fetchCount();
     }
 
     private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
@@ -355,6 +351,13 @@ public class ExportManagerEJB implements ExportManager {
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
                 .where(matchExportTask, QExportTask.exportTask.queueMessage.in(createQuery(matchQueueMessage)));
+    }
+
+    private HibernateQuery<ExportTask> createQuery(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
+        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .from(QExportTask.exportTask)
+                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(matchExportTask, queuePredicate(status, createQuery(matchQueueMessage)));
     }
 
     private Predicate queuePredicate(QueueMessage.Status status, HibernateQuery<QueueMessage> queueMsgQuery) {
@@ -431,50 +434,16 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
-        return status == QueueMessage.Status.TO_SCHEDULE
-                ? deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
-                : status == null
-                    ? deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize) + deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
-                    : deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize);
-    }
+        HibernateQuery<ExportTask> exportTaskQuery = createQuery(status, matchQueueMessage, matchExportTask);
+        List<Long> refQueuePks = exportTaskQuery.select(QExportTask.exportTask.queueMessage.pk).fetch();
 
-    private int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask, int deleteTaskFetchSize) {
-        int count = 0;
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        List<Long> referencedQueueMsgs;
-        do {
-            referencedQueueMsgs = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                    .select(QExportTask.exportTask.queueMessage.pk)
-                    .from(QExportTask.exportTask)
-                    .where(matchExportTask, QExportTask.exportTask.queueMessage.in(queueMsgQuery))
-                    .limit(deleteTaskFetchSize).fetch();
+        int count = (int) new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .where(QExportTask.exportTask.pk.in(exportTaskQuery.select(QExportTask.exportTask.pk)))
+                .execute();
 
-            new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                    .where(QExportTask.exportTask.queueMessage.pk.in(referencedQueueMsgs))
-                    .execute();
+        new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(QQueueMessage.queueMessage.pk.in(refQueuePks)).execute();
 
-            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                    .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
-        return count;
-    }
-
-    private int deleteToScheduleTasks(Predicate matchExportTask, int deleteTaskFetchSize) {
-        int count = 0;
-        List<Long> exportTasks;
-        do {
-            exportTasks = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                    .select(QExportTask.exportTask.pk)
-                    .from(QExportTask.exportTask)
-                    .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
-                    .limit(deleteTaskFetchSize).fetch();
-            count += new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                    .where(QExportTask.exportTask.pk.in(exportTasks))
-                    .execute();
-        } while (exportTasks.size() >= deleteTaskFetchSize);
         return count;
     }
 

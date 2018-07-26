@@ -345,9 +345,15 @@ public class ExportTaskRS {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         QueueMessage.Status status = status();
-        int deleted = mgr.deleteTasks(status,
-                matchQueueMessage(status, deviceName, null),
-                matchExportTask(updatedTime));
+        int deleted = 0;
+        int count;
+        int deleteTasksFetchSize = queueTasksFetchSize();
+        do {
+            count = mgr.deleteTasks(status,
+                    matchQueueMessage(status, deviceName, null),
+                    matchExportTask(updatedTime));
+            deleted += count;
+        } while (count >= deleteTasksFetchSize);
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -501,5 +507,9 @@ public class ExportTaskRS {
         e.printStackTrace(new PrintWriter(sw));
         String exceptionAsString = sw.toString();
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+    }
+
+    private int queueTasksFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
     }
 }
