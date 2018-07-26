@@ -99,12 +99,12 @@ public class AuditScheduler extends Scheduler {
         if (auditSpoolDir == null || duration == null)
             return;
 
+        Path auditSpoolDirPath = Paths.get(StringUtils.replaceSystemProperties(auditSpoolDir));
         for (AuditLogger logger : ext.getAuditLoggers()) {
             if (!logger.isInstalled())
                 continue;
 
-            Path dir = Paths.get(StringUtils.replaceSystemProperties(
-                    auditSpoolDir + "/" + logger.getCommonName().replaceAll(" ", "_")));
+            Path dir = auditSpoolDirPath.resolve(logger.getCommonName().replaceAll("\\W", "_"));
             if (!Files.isDirectory(dir))
                 continue;
 
