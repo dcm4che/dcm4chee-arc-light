@@ -164,6 +164,7 @@ public class RSClientImpl implements RSClient {
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {
         switch (status) {
+            case OK:
             case NO_CONTENT:
                 return new Outcome(QueueMessage.Status.COMPLETED, "Completed : " + st);
             case REQUEST_TIMEOUT:
