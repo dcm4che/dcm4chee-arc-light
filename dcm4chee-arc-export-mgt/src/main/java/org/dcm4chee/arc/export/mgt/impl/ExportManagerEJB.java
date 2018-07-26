@@ -404,20 +404,22 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return;
 
-        rescheduleExportTask(task, exporter, queueEvent);
+        if (task.getQueueMessage() != null)
+            rescheduleExportTask(task, exporter, queueEvent);
+        else
+            throw new IllegalTaskStateException("Cannot reschedule task[pk=" + task.getPk() + "] with status TO SCHEDULE");
     }
 
     @Override
     public void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
         task.setExporterID(exporter.getExporterID());
-        if (task.getQueueMessage() != null)
-            queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
-
+        queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
     }
 

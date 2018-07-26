@@ -2487,7 +2487,6 @@
               "WARNING",
               "FAILED",
               "CANCELED",
-              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS"
             ]
@@ -2520,6 +2519,9 @@
           },
           "400": {
             "description": "Export task status is null"
+          },
+          "409": {
+            "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
           "default": {
             "description": "unexpected error"
@@ -2584,7 +2586,6 @@
               "WARNING",
               "FAILED",
               "CANCELED",
-              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS"
             ]
@@ -2620,6 +2621,9 @@
           },
           "404": {
             "description": "exporter not found"
+          },
+          "409": {
+            "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
           "default": {
             "description": "unexpected error"
@@ -2728,7 +2732,7 @@
             "description": "task or exporter not found"
           },
           "409": {
-            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
+            "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
           "default": {
             "description": "unexpected error"

@@ -240,6 +240,9 @@ public class ExportTaskRS {
 
             mgr.rescheduleExportTask(pk, exporter, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
+        } catch (IllegalTaskStateException e) {
+            queueEvent.setException(e);
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(e);
@@ -265,6 +268,8 @@ public class ExportTaskRS {
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+        if (status == QueueMessage.Status.TO_SCHEDULE)
+            return rsp(Response.Status.CONFLICT, "Cannot reschedule tasks with status : TO SCHEDULE");
 
         try {
             ExporterDescriptor newExporter = null;

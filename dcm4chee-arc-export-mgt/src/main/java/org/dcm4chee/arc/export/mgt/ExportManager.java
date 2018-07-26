@@ -83,7 +83,7 @@ public interface ExportManager {
 
     String findDeviceNameByPk(Long pk);
 
-    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
+    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
     void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
 
