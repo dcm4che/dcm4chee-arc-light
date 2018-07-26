@@ -337,18 +337,24 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public long countExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        return createQuery(status, matchQueueMessage, matchExportTask).fetchCount();
-    }
-
-    private HibernateQuery<ExportTask> createQuery(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-
         return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, queuePredicate(status, queueMsgQuery));
+                .where(matchExportTask, queuePredicate(status, createQuery(matchQueueMessage)))
+                .fetchCount();
+    }
+
+    private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
+        return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(matchQueueMessage);
+    }
+
+    private HibernateQuery<ExportTask> createQuery(Predicate matchQueueMessage, Predicate matchExportTask) {
+        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .from(QExportTask.exportTask)
+                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(matchExportTask, QExportTask.exportTask.queueMessage.in(createQuery(matchQueueMessage)));
     }
 
     private Predicate queuePredicate(QueueMessage.Status status, HibernateQuery<QueueMessage> queueMsgQuery) {
@@ -474,7 +480,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchExportTask) {
-        return createQuery(null, matchQueueMessage, matchExportTask)
+        return createQuery(matchQueueMessage, matchExportTask)
                 .select(QQueueMessage.queueMessage.deviceName)
                 .distinct()
                 .fetch();
@@ -483,7 +489,7 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                                OrderSpecifier<Date> order, int offset, int limit) {
-        HibernateQuery<ExportTask> exportTaskQuery = createQuery(null, matchQueueBatch, matchExportBatch);
+        HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueBatch, matchExportBatch);
         if (limit > 0)
             exportTaskQuery.limit(limit);
         if (offset > 0)
