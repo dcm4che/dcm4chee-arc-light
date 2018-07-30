@@ -1126,7 +1126,9 @@ public class StoreServiceEJB {
                 && (s = attrs.getString(Tag.StudyDate)) != null) {
             try {
                 return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                LOG.warn("Failed parsing study date to get retention start date." + e.getMessage());
+            }
         }
         return LocalDate.now();
     }
