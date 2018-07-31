@@ -6600,12 +6600,6 @@
             "default": "no"
           },
           {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
-            "type": "string"
-          },
-          {
             "name": "includefield",
             "in": "query",
             "description": "includefield={attributeID}",
