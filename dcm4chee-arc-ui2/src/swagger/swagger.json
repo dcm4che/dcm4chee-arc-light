@@ -4995,7 +4995,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -5022,7 +5022,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -5079,7 +5079,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -5106,14 +5106,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -5170,7 +5170,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -5197,21 +5197,21 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
             "type": "string"
           },
           {
-            "name": "objectUID",
+            "name": "SOPInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Object",
             "required": true,
@@ -6701,7 +6701,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}": {
+    "/aets/{aet}/rs/mwlitems/{StudyInstanceUID}/{spsID}": {
       "delete": {
         "tags": [
           "MWL-RS"
@@ -6717,7 +6717,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -6744,7 +6744,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/mwlitems/{StudyInstanceUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS",
@@ -6767,7 +6767,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of Target Study",
             "required": true,
@@ -6856,7 +6856,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}": {
       "delete": {
         "tags": [
           "IOCM-RS"
@@ -6872,7 +6872,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -6892,7 +6892,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/copy": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/copy": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -6914,7 +6914,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of Target Study",
             "required": true,
@@ -6946,7 +6946,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/move/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/move/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -6968,7 +6968,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of Target Study",
             "required": true,
@@ -7014,7 +7014,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/impax/report": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
       "post": {
         "tags": [
           "IMPAX-REPORT-RS"
@@ -7033,7 +7033,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7065,7 +7065,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7081,7 +7081,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7126,7 +7126,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/export/{exporterID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7142,14 +7142,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -7194,7 +7194,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/export/{exporterID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7210,21 +7210,21 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
             "type": "string"
           },
           {
-            "name": "objectUID",
+            "name": "SOPInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Object",
             "required": true,
@@ -7519,7 +7519,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/series": {
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7545,7 +7545,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7776,7 +7776,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/instances": {
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/instances": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7802,7 +7802,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7908,7 +7908,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/series/{seriesUID}/instances": {
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7934,14 +7934,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -8305,7 +8305,851 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/stgcmt/studies": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of Matching Studies",
+        "operationId": "stgcmtMatchingStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Commitment of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/series": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of Matching Series",
+        "operationId": "stgcmtMatchingSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Commitment of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of Matching Series of Study",
+        "operationId": "stgcmtMatchingSeriesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Commitment of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of Matching Instances",
+        "operationId": "stgcmtMatchingInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of Matching Instances of Study",
+        "operationId": "stgcmtMatchingInstancesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of Matching Instances of Series",
+        "operationId": "stgcmtMatchingInstancesOfSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -8321,7 +9165,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -8355,7 +9199,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -8371,14 +9215,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -8412,7 +9256,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -8428,21 +9272,21 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
             "type": "string"
           },
           {
-            "name": "objectUID",
+            "name": "SOPInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Object",
             "required": true,
@@ -8476,7 +9320,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/expire/{expirationDate}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/expire/{expirationDate}": {
       "put": {
         "tags": [
           "IOCM-RS"
@@ -8492,7 +9336,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -8519,7 +9363,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/expire/{expirationDate}": {
       "put": {
         "tags": [
           "IOCM-RS"
@@ -8535,14 +9379,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -9435,7 +10279,7 @@
             ]
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "query",
             "description": "Unique Identifier of the Study to filter by",
             "type": "string"

@@ -53,9 +53,10 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
 import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
@@ -68,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -86,6 +88,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
     private final Logger LOG = LoggerFactory.getLogger(StgCmtManagerImpl.class);
 
     @Inject
+    private Device device;
+
+    @Inject
     private StgCmtEJB ejb;
 
     @Inject
@@ -93,6 +98,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
 
     @Inject
     private StoreService storeService;
+
+    @Inject
+    private Event<StgCmtContext> stgCmtEvent;
 
     @Override
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
@@ -153,6 +161,89 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 checkLocations(ctx, retrCtx);
             }
         }
+    }
+
+    @Override
+    public void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
+            throws QueueSizeLimitExceededException {
+        ejb.scheduleStgVerifyTask(stgCmtTask, httpServletRequestInfo, batchID);
+    }
+
+    @Override
+    public Outcome executeStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo request) throws IOException {
+        String localAET = stgCmtTask.getLocalAET();
+        StgCmtContext ctx = new StgCmtContext(device.getApplicationEntity(localAET, true), localAET)
+                .setRequest(request);
+        if (stgCmtTask.getStgCmtPolicy() != null)
+            ctx.setStgCmtPolicy(stgCmtTask.getStgCmtPolicy());
+        if (stgCmtTask.getUpdateLocationStatus() != null)
+            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtTask.getUpdateLocationStatus()));
+        String[] storageIDs = stgCmtTask.getStorageIDs();
+        if (storageIDs.length > 0)
+            ctx.setStgCmtStorageIDs(storageIDs);
+        try {
+            calculateResult(ctx,
+                    stgCmtTask.getStudyInstanceUID(),
+                    stgCmtTask.getSeriesInstanceUID(),
+                    stgCmtTask.getSOPInstanceUID());
+        } catch (IOException e) {
+            ctx.setException(e);
+            stgCmtEvent.fire(ctx);
+            throw e;
+        }
+        stgCmtEvent.fire(ctx);
+        Attributes eventInfo = ctx.getEventInfo();
+        int completed = sizeOf(eventInfo.getSequence(Tag.ReferencedSOPSequence));
+        int failed = sizeOf(eventInfo.getSequence(Tag.FailedSOPSequence));
+        stgCmtTask.setCompleted(completed);
+        stgCmtTask.setFailed(failed);
+        ejb.updateStgVerifyTask(stgCmtTask);
+        return new Outcome(
+                failed == 0
+                        ? QueueMessage.Status.COMPLETED
+                        : completed == 0
+                        ? QueueMessage.Status.FAILED
+                        : QueueMessage.Status.WARNING,
+                toOutcomeMessage(stgCmtTask, ctx));
+    }
+
+    private String toOutcomeMessage(StgCmtTask stgCmtTask, StgCmtContext ctx) {
+        return (ctx.getStgCmtStorageIDs().length == 0)
+            ? (stgCmtTask.getSeriesInstanceUID() == null)
+                ? String.format("Verify Study[uid=%s] for %s: - completed: %d, failed: %d",
+                    stgCmtTask.getStudyInstanceUID(),
+                    ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
+                : (stgCmtTask.getSOPInstanceUID() == null)
+                    ? String.format("Verify Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
+                        stgCmtTask.getSeriesInstanceUID(),
+                        stgCmtTask.getStudyInstanceUID(),
+                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
+                    :  String.format("Verify Instance[uid=%s] of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
+                        stgCmtTask.getSOPInstanceUID(),
+                        stgCmtTask.getSeriesInstanceUID(),
+                        stgCmtTask.getStudyInstanceUID(),
+                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
+            : (stgCmtTask.getSeriesInstanceUID() == null)
+                ? String.format("Verify Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
+                    stgCmtTask.getStudyInstanceUID(),
+                    Arrays.toString(ctx.getStgCmtStorageIDs()),
+                    ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
+                : (stgCmtTask.getSOPInstanceUID() == null)
+                    ? String.format("Verify Series[uid=%s] of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
+                        stgCmtTask.getSeriesInstanceUID(),
+                        stgCmtTask.getStudyInstanceUID(),
+                        Arrays.toString(ctx.getStgCmtStorageIDs()),
+                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
+                    :  String.format("Verify Instance[uid=%s] of Series[uid=%s] on Storage%s of Study[uid=%s] for %s: - completed: %d, failed: %d",
+                        stgCmtTask.getSOPInstanceUID(),
+                        stgCmtTask.getSeriesInstanceUID(),
+                        stgCmtTask.getStudyInstanceUID(),
+                        Arrays.toString(ctx.getStgCmtStorageIDs()),
+                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed());
+    }
+
+    private static int sizeOf(Sequence seq) {
+        return seq != null ? seq.size() : 0;
     }
 
     private void checkRefSop(StgCmtContext ctx, RetrieveContext retrCtx, Attributes refSop, int numRefSOPs) {

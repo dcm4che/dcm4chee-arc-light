@@ -135,6 +135,7 @@ public class QueueManagerEJB {
                         entity.getMessageID(), entity.getQueueName(), entity.getStatus());
                 entity.setProcessingStartTime(new Date());
                 entity.setStatus(QueueMessage.Status.IN_PROCESS);
+                setUpdateTime(entity);
                 return entity;
             default:
                 LOG.info("Suppress processing of Task[id={}] from Queue {} with Status: {}",
@@ -155,6 +156,7 @@ public class QueueManagerEJB {
         entity.setProcessingEndTime(new Date());
         entity.setOutcomeMessage(outcome.getDescription());
         entity.setStatus(status);
+        setUpdateTime(entity);
         if (status == QueueMessage.Status.COMPLETED
                 || status == QueueMessage.Status.WARNING && !descriptorOf(queueName).isRetryOnWarning()) {
             LOG.info("Finished processing of Task[id={}] at Queue {} with Status {}", msgId, queueName, status);
@@ -189,6 +191,7 @@ public class QueueManagerEJB {
         if (delay < 0) {
             LOG.warn("Failed processing of Task[id={}] at Queue {}:\n", msgId, entity.getQueueName(), e);
             entity.setStatus(QueueMessage.Status.FAILED);
+            setUpdateTime(entity);
         } else {
             LOG.info("Failed processing of Task[id={}] at Queue {} - retry:\n", msgId, entity.getQueueName(), e);
             rescheduleTask(entity, descriptor, delay * 1000L);
@@ -218,14 +221,20 @@ public class QueueManagerEJB {
 
     private void cancelTask(QueueMessage entity) {
         entity.setStatus(QueueMessage.Status.CANCELED);
-        if (entity.getExportTask() != null)
-            entity.getExportTask().setUpdatedTime();
-        if (entity.getRetrieveTask() != null)
-            entity.getRetrieveTask().setUpdatedTime();
-        if (entity.getDiffTask() != null)
-            entity.getDiffTask().setUpdatedTime();
+        setUpdateTime(entity);
         LOG.info("Cancel processing of Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
         messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
+    }
+
+    private void setUpdateTime(QueueMessage entity) {
+        if (entity.getExportTask() != null)
+            entity.getExportTask().setUpdatedTime();
+        else if (entity.getRetrieveTask() != null)
+            entity.getRetrieveTask().setUpdatedTime();
+        else if (entity.getDiffTask() != null)
+            entity.getDiffTask().setUpdatedTime();
+        else if (entity.getStgCmtTask() != null)
+            entity.getStgCmtTask().setUpdatedTime();
     }
 
     public long cancelTasks(Predicate matchQueueMessage) {
@@ -375,12 +384,7 @@ public class QueueManagerEJB {
             entity.setScheduledTime(new Date(System.currentTimeMillis() + delay));
             entity.setStatus(QueueMessage.Status.SCHEDULED);
             entity.setDeviceName(device.getDeviceName());
-            if (entity.getExportTask() != null)
-                entity.getExportTask().setUpdatedTime();
-            if (entity.getRetrieveTask() != null)
-                entity.getRetrieveTask().setUpdatedTime();
-            if (entity.getDiffTask() != null)
-                entity.getDiffTask().setUpdatedTime();
+            setUpdateTime(entity);
             LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
         } catch (JMSException e) {
             throw toJMSRuntimeException(e);
@@ -408,6 +412,8 @@ public class QueueManagerEJB {
             em.remove(entity.getRetrieveTask());
         else if (entity.getDiffTask() != null)
             em.remove(entity.getDiffTask());
+        else if (entity.getStgCmtTask() != null)
+            em.remove(entity.getStgCmtTask());
         else
             em.remove(entity);
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());

@@ -8,3 +8,15 @@ dicomSoftwareVersion: 5.14.0
 replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
+
+dn: dcmQueueName=StgCmtTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Storage Commitment Tasks
+dcmQueueName: StgCmtTasks
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/StgCmtTasks

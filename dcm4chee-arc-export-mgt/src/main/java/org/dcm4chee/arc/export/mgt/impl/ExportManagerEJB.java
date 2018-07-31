@@ -323,11 +323,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void updateExportTask(Long pk) {
-        em.find(ExportTask.class, pk).setUpdatedTime();
-    }
-
-    @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public ExportTaskQuery listExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask,
                                            OrderSpecifier<Date> order, int offset, int limit) {

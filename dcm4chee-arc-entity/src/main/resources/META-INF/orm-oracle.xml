@@ -348,6 +348,16 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.StgCmtTask">
+    <sequence-generator name="stgcmt_task_pk_seq" sequence-name="stgcmt_task_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="stgcmt_task_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.Study">
     <sequence-generator name="study_pk_seq" sequence-name="study_pk_seq" allocation-size="1"/>
     <attributes>

@@ -45,6 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
@@ -133,7 +134,7 @@ public class StorageCmtRS {
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
-                .setRequest(request);
+                .setRequest(HttpServletRequestInfo.valueOf(request));
         if (stgCmtPolicy != null)
             ctx.setStgCmtPolicy(StgCmtPolicy.valueOf(stgCmtPolicy));
         if (stgCmtUpdateLocationStatus != null)

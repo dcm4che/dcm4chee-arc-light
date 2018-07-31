@@ -47,8 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
-
-import javax.servlet.http.HttpServletRequest;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -60,7 +59,7 @@ public class StgCmtContext {
     private final String localAET;
     private final Attributes eventInfo = new Attributes(4);
     private ApplicationEntity remoteAE;
-    private HttpServletRequest request;
+    private HttpServletRequestInfo request;
     private StgCmtPolicy stgCmtPolicy;
     private boolean stgCmtUpdateLocationStatus;
     private String[] stgCmtStorageIDs;
@@ -91,11 +90,11 @@ public class StgCmtContext {
         return this;
     }
 
-    public HttpServletRequest getRequest() {
+    public HttpServletRequestInfo getRequest() {
         return request;
     }
 
-    public StgCmtContext setRequest(HttpServletRequest request) {
+    public StgCmtContext setRequest(HttpServletRequestInfo request) {
         this.request = request;
         return this;
     }

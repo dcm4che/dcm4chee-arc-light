@@ -134,6 +134,7 @@ dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
+dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.73
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
@@ -152,7 +153,6 @@ dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.71
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.79.1
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
-dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
@@ -1318,6 +1318,17 @@ dcmAETitle: LEADING_DCMQRSCP
 dicomTransferRole: SCU
 objectClass: dcmArchiveAttributeCoercion
 cn: Leading DCMQRSCP FIND
+
+dn: dcmQueueName=StgCmtTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Storage Commitment Tasks
+dcmQueueName: StgCmtTasks
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/StgCmtTasks
 
 dn: cn=Leading DCMQRSCP STORE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ

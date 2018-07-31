@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
@@ -53,13 +52,19 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -75,22 +80,6 @@ public class StgCmtEJB {
 
     private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
 
-    private static final Expression<?>[] SELECT = {
-            QLocation.location.pk,
-            QLocation.location.storageID,
-            QLocation.location.storagePath,
-            QLocation.location.size,
-            QLocation.location.digest,
-            QLocation.location.status,
-            QInstance.instance.sopClassUID,
-            QInstance.instance.sopInstanceUID,
-            QInstance.instance.retrieveAETs,
-            QSeries.series.pk,
-            QStudy.study.studyInstanceUID
-    };
-    private static final int BUFFER_SIZE = 8192;
-
-
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -98,7 +87,7 @@ public class StgCmtEJB {
     private Device device;
 
     @Inject
-    private StorageFactory storageFactory;
+    private QueueManager queueManager;
 
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
@@ -169,15 +158,6 @@ public class StgCmtEJB {
         }
         if (studyExternalAETs.size() == 1 && !studyExternalAETs.contains(null))
             instances.get(0).getSeries().getStudy().setExternalRetrieveAET(studyExternalAETs.iterator().next());
-    }
-
-    private Instance nextNotRejected(Iterator<Instance> iter) {
-        while (iter.hasNext()) {
-            Instance next = iter.next();
-            if (!isRejectedOrRejectionNoteDataRetentionPolicyExpired(next))
-                return next;
-        }
-        return null;
     }
 
     private boolean isRejectedOrRejectionNoteDataRetentionPolicyExpired(Instance inst) {
@@ -265,5 +245,35 @@ public class StgCmtEJB {
         if (exporterId != null)
             predicate.and(QStgCmtResult.stgCmtResult.exporterID.eq(exporterId.toUpperCase()));
         return predicate;
+    }
+
+    public void scheduleStgVerifyTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
+                                      String batchID) throws QueueSizeLimitExceededException {
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(0);
+            msg.setStringProperty("LocalAET", stgCmtTask.getLocalAET());
+            msg.setStringProperty("StudyInstanceUID", stgCmtTask.getStudyInstanceUID());
+            if (stgCmtTask.getSeriesInstanceUID() != null) {
+                msg.setStringProperty("SeriesInstanceUID", stgCmtTask.getSeriesInstanceUID());
+                if (stgCmtTask.getSOPInstanceUID() != null) {
+                    msg.setStringProperty("SOPInstanceUID", stgCmtTask.getSOPInstanceUID());
+                }
+            }
+            httpServletRequestInfo.copyTo(msg);
+            QueueMessage queueMessage = queueManager.scheduleMessage(StgCmtManager.QUEUE_NAME, msg,
+                    Message.DEFAULT_PRIORITY, batchID);
+            stgCmtTask.setQueueMessage(queueMessage);
+            em.persist(stgCmtTask);
+        } catch (JMSException e) {
+            throw QueueMessage.toJMSRuntimeException(e);
+        }
+    }
+
+    public int updateStgVerifyTask(StgCmtTask stgCmtTask) {
+        return em.createNamedQuery(StgCmtTask.UPDATE_RESULT_BY_PK)
+                .setParameter(1, stgCmtTask.getPk())
+                .setParameter(2, stgCmtTask.getCompleted())
+                .setParameter(3, stgCmtTask.getFailed())
+                .executeUpdate();
     }
 }

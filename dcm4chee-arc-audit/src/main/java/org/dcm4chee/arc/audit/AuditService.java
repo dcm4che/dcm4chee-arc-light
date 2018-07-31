@@ -1647,19 +1647,19 @@ public class AuditService {
 
     private String storageCmtCallingHost(StgCmtContext stgCmtContext) {
         return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().getRemoteHost()
+                ? stgCmtContext.getRequest().requesterHost
                 : stgCmtContext.getRemoteAE().getConnections().get(0).getHostname();
     }
 
     private String storageCmtCalledAET(StgCmtContext stgCmtContext) {
         return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().getRequestURI()
+                ? stgCmtContext.getRequest().requestURI
                 : stgCmtContext.getLocalAET();
     }
 
     private String storageCmtCallingAET(StgCmtContext stgCmtContext) {
         return stgCmtContext.getRequest() != null
-                ? KeycloakContext.valueOf(stgCmtContext.getRequest()).getUserName()
+                ? stgCmtContext.getRequest().requesterUserID
                 : stgCmtContext.getRemoteAE().getAETitle();
     }
 

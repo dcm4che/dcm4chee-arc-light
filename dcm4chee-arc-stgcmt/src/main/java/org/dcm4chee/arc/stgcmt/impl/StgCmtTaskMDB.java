@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,49 +35,61 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.stgcmt;
+package org.dcm4chee.arc.stgcmt.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.entity.StgCmtResult;
-import org.dcm4chee.arc.entity.StgCmtTask;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Sep 2016
+ * @since Jul 2018
  */
-public interface StgCmtManager {
-    String QUEUE_NAME = "StgCmtTasks";
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+public class StgCmtTaskMDB implements MessageListener {
 
-    void addExternalRetrieveAETs(Attributes eventInfo, Device device);
+    private static final Logger LOG = LoggerFactory.getLogger(StgCmtTaskMDB.class);
 
-    void persistStgCmtResult(StgCmtResult result);
+    @Inject
+    private QueueManager queueManager;
 
-    List<StgCmtResult> listStgCmts(
-            StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit);
+    @Inject
+    private StgCmtManager stgCmtMgr;
 
-    boolean deleteStgCmt(String transactionUID);
+    @Override
+    public void onMessage(Message msg) {
+        String msgID = null;
+        try {
+            msgID = msg.getJMSMessageID();
+        } catch (JMSException e) {
+            LOG.error("Failed to process {}", msg, e);
+        }
+        QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
+        if (queueMessage == null)
+            return;
 
-    int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore);
-
-    void calculateResult(StgCmtContext ctx, Sequence refSopSeq);
-
-    void calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
-
-    void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
-                            String batchID)
-            throws QueueSizeLimitExceededException;
-
-    Outcome executeStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;
+        try {
+            Outcome outcome = stgCmtMgr.executeStgCmtTask(
+                    queueMessage.getStgCmtTask(), HttpServletRequestInfo.valueOf(msg));
+            queueManager.onProcessingSuccessful(msgID, outcome);
+        } catch (Throwable e) {
+            LOG.warn("Failed to process {}", msg, e);
+            queueManager.onProcessingFailed(msgID, e);
+        }
+    }
 }
