@@ -4003,7 +4003,7 @@
         }
       }
     },
-    "/monitor/retrieve/{taskPK}/reschedule": {
+    "/monitor/stgcmt/{taskPK}/reschedule": {
       "post": {
         "tags": [
           "MONITOR-RS",
