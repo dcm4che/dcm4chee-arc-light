@@ -4007,7 +4007,7 @@
       "post": {
         "tags": [
           "MONITOR-RS",
-          "RETRIEVE-RS"
+          "STGCMT-RS"
         ],
         "summary": "Reschedule Storage Commitment Task",
         "operationId": "rescheduleStorageCommitmentTask",
