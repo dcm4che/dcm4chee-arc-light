@@ -3619,8 +3619,8 @@
           "MONITOR-RS",
           "STGCMT-RS"
         ],
-        "summary": "List Retrieve Batches",
-        "operationId": "listRetrieveBatches",
+        "summary": "List Storage Commitment Batches",
+        "operationId": "listStorageCommitmentBatches",
         "produces": [
           "application/json"
         ],
