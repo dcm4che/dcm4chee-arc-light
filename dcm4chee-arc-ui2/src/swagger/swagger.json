@@ -3427,6 +3427,621 @@
         }
       }
     },
+    "/monitor/stgcmt": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "List Storage Commitment Tasks",
+        "operationId": "listStorageCommitmentTasks",
+        "produces": [
+          "application/json",
+          "text/csv"
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Response Content Type",
+            "type": "string",
+            "enum": [
+              "application/json",
+              "text/csv"
+            ]
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped tasks before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of tasks in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "stgcmtTaskList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "Delete Storage Commitment Tasks",
+        "operationId": "deleteStorageCommitmentTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "delete Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "delete Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Deleted"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgcmt/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "List Retrieve Batches",
+        "operationId": "listRetrieveBatches",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "list batches with at least one Storage Commitment Task with the specified Device Name",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "list batches with at least one Storage Commitment Task with the specified Archive AE Title",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "list batches with at least one Storage Commitment Task with the specified status",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list batches with at least one Storage Commitment Task were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list batches with at least one Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped batches before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of batches in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "stgcmtBatchList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgcmt/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "Count Storage Commitment Tasks",
+        "operationId": "countStorageCommitmentTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "count Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "count Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgcmt/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "Cancel Storage Commitment Tasks",
+        "operationId": "cancelStorageCommitmentTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "cancel Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "cancel Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of canceled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "400": {
+            "description": "Invalid status for Cancel of Retrieve tasks"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgcmt/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "Reschedule Storage Commitment Tasks",
+        "operationId": "rescheduleStorageCommitmentTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Archive Device Name",
+            "type": "string"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "reschedule Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "reschedule Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of rescheduled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "400": {
+            "description": "Retrieve tasks status is null"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgcmt/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "Delete Storage Commitment Task",
+        "operationId": "deleteStorageCommitmentTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgcmt/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "STGCMT-RS"
+        ],
+        "summary": "Cancel Storage Commitment Task",
+        "operationId": "cancelStorageCommitmentTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/{taskPK}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Reschedule Storage Commitment Task",
+        "operationId": "rescheduleStorageCommitmentTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/queue": {
       "get": {
         "tags": [
@@ -5520,7 +6135,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully scheduled retrieve of matching Series",
+            "description": "Successfully scheduled stgcmt of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
             }
