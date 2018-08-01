@@ -41,7 +41,11 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -52,15 +56,22 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.stgcmt.StgCmtBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgCmtTaskQuery;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -88,6 +99,20 @@ public class StgCmtEJB {
 
     @Inject
     private QueueManager queueManager;
+
+    private static final Expression<?>[] SELECT = {
+            QQueueMessage.queueMessage.processingStartTime.min(),
+            QQueueMessage.queueMessage.processingStartTime.max(),
+            QQueueMessage.queueMessage.processingEndTime.min(),
+            QQueueMessage.queueMessage.processingEndTime.max(),
+            QQueueMessage.queueMessage.scheduledTime.min(),
+            QQueueMessage.queueMessage.scheduledTime.max(),
+            QStgCmtTask.stgCmtTask.createdTime.min(),
+            QStgCmtTask.stgCmtTask.createdTime.max(),
+            QStgCmtTask.stgCmtTask.updatedTime.min(),
+            QStgCmtTask.stgCmtTask.updatedTime.max(),
+            QQueueMessage.queueMessage.batchID
+    };
 
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
@@ -283,5 +308,200 @@ public class StgCmtEJB {
                 .setParameter(2, seriesIUID)
                 .setParameter(3, failures)
                 .executeUpdate();
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public StgCmtTaskQuery listStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask,
+                                             OrderSpecifier<Date> order, int offset, int limit) {
+        return new StgCmtTaskQueryImpl(
+                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchStgCmtTask, order, offset, limit);
+    }
+
+    private StatelessSession openStatelessSession() {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    public long countStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+        return createQuery(matchQueueMessage, matchStgCmtTask)
+                .fetchCount();
+    }
+
+    private HibernateQuery<StgCmtTask> createQuery(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(matchQueueMessage);
+        return new HibernateQuery<StgCmtTask>(em.unwrap(Session.class))
+                .from(QStgCmtTask.stgCmtTask)
+                .where(matchStgCmtTask, QStgCmtTask.stgCmtTask.queueMessage.in(queueMsgQuery));
+    }
+
+    public boolean cancelStgCmtTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        StgCmtTask task = em.find(StgCmtTask.class, pk);
+        if (task == null)
+            return false;
+
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage == null)
+            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
+
+        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
+        LOG.info("Cancel {}", task);
+        return true;
+    }
+
+    public long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return queueManager.cancelStgCmtTasks(matchQueueMessage, matchStgCmtTask, prev);
+    }
+
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(StgCmtTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public void rescheduleStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
+        StgCmtTask task = em.find(StgCmtTask.class, pk);
+        if (task == null)
+            return;
+
+        LOG.info("Reschedule {}", task);
+        rescheduleStgCmtTask(task.getQueueMessage().getMessageID(), queueEvent);
+    }
+
+    public void rescheduleStgCmtTask(String stgCmtTaskQueueMsgId, QueueMessageEvent queueEvent) {
+        queueManager.rescheduleTask(stgCmtTaskQueueMsgId, StgCmtManager.QUEUE_NAME, queueEvent);
+    }
+
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+        return createQuery(matchQueueMessage, matchStgCmtTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
+    }
+
+    public List<String> listStgCmtTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchStgCmtTask, int limit) {
+        return createQuery(matchQueueMsg, matchStgCmtTask)
+                .select(QQueueMessage.queueMessage.messageID)
+                .limit(limit)
+                .fetch();
+    }
+
+    public boolean deleteStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
+        StgCmtTask task = em.find(StgCmtTask.class, pk);
+        if (task == null)
+            return false;
+
+        queueEvent.setQueueMsg(task.getQueueMessage());
+        em.remove(task);
+        LOG.info("Delete {}", task);
+        return true;
+    }
+
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, int deleteTasksFetchSize) {
+        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchStgCmtTask)
+                .select(QStgCmtTask.stgCmtTask.queueMessage.pk)
+                .limit(deleteTasksFetchSize)
+                .fetch();
+
+        new HibernateDeleteClause(em.unwrap(Session.class), QStgCmtTask.stgCmtTask)
+                .where(matchStgCmtTask, QStgCmtTask.stgCmtTask.queueMessage.pk.in(referencedQueueMsgs))
+                .execute();
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+    }
+
+    public List<StgCmtBatch> listStgCmtBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+                                               OrderSpecifier<Date> order, int offset, int limit) {
+        HibernateQuery<StgCmtTask> stgCmtTaskQuery = createQuery(matchQueueBatch, matchStgCmtBatch);
+        if (limit > 0)
+            stgCmtTaskQuery.limit(limit);
+        if (offset > 0)
+            stgCmtTaskQuery.offset(offset);
+
+        List<Tuple> batches = stgCmtTaskQuery.select(SELECT)
+                .groupBy(QQueueMessage.queueMessage.batchID)
+                .orderBy(order)
+                .fetch();
+
+        List<StgCmtBatch> stgCmtBatches = new ArrayList<>();
+        for (Tuple batch : batches) {
+            StgCmtBatch stgCmtBatch = new StgCmtBatch();
+            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
+            stgCmtBatch.setBatchID(batchID);
+
+            stgCmtBatch.setCreatedTimeRange(
+                    batch.get(QStgCmtTask.stgCmtTask.createdTime.min()),
+                    batch.get(QStgCmtTask.stgCmtTask.createdTime.max()));
+            stgCmtBatch.setUpdatedTimeRange(
+                    batch.get(QStgCmtTask.stgCmtTask.updatedTime.min()),
+                    batch.get(QStgCmtTask.stgCmtTask.updatedTime.max()));
+            stgCmtBatch.setScheduledTimeRange(
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.min()),
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.max()));
+            stgCmtBatch.setProcessingStartTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+            stgCmtBatch.setProcessingEndTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
+
+            stgCmtBatch.setDeviceNames(
+                    batchIDQuery(batchID)
+                            .select(QQueueMessage.queueMessage.deviceName)
+                            .distinct()
+                            .orderBy(QQueueMessage.queueMessage.deviceName.asc())
+                            .fetch());
+            stgCmtBatch.setLocalAETs(
+                    batchIDQuery(batchID)
+                            .select(QStgCmtTask.stgCmtTask.localAET)
+                            .distinct()
+                            .orderBy(QStgCmtTask.stgCmtTask.localAET.asc())
+                            .fetch());
+
+            stgCmtBatch.setCompleted(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                            .fetchCount());
+            stgCmtBatch.setCanceled(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                            .fetchCount());
+            stgCmtBatch.setWarning(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                            .fetchCount());
+            stgCmtBatch.setFailed(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                            .fetchCount());
+            stgCmtBatch.setScheduled(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                            .fetchCount());
+            stgCmtBatch.setInProcess(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                            .fetchCount());
+
+            stgCmtBatches.add(stgCmtBatch);
+        }
+
+        return stgCmtBatches;
+    }
+
+    private HibernateQuery<StgCmtTask> batchIDQuery(String batchID) {
+        return new HibernateQuery<StgCmtTask>(em.unwrap(Session.class))
+                .from(QStgCmtTask.stgCmtTask)
+                .leftJoin(QStgCmtTask.stgCmtTask.queueMessage, QQueueMessage.queueMessage)
+                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
     }
 }

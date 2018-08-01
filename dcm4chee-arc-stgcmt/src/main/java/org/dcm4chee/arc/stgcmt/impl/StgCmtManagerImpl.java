@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
@@ -54,13 +56,17 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.stgcmt.StgCmtBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgCmtTaskQuery;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -81,6 +87,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2018
  */
 @ApplicationScoped
@@ -178,6 +185,69 @@ public class StgCmtManagerImpl implements StgCmtManager {
     public void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
         ejb.scheduleStgCmtTask(stgCmtTask, httpServletRequestInfo, batchID);
+    }
+
+    @Override
+    public StgCmtTaskQuery listStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask,
+                                           OrderSpecifier<Date> order, int offset, int limit) {
+        return ejb.listStgCmtTasks(matchQueueMessage, matchStgCmtTask, order, offset, limit);
+    }
+
+    @Override
+    public long countStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+        return ejb.countStgCmtTasks(matchQueueMessage, matchStgCmtTask);
+    }
+
+    @Override
+    public boolean cancelStgCmtTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        return ejb.cancelStgCmtTask(pk, queueEvent);
+    }
+
+    @Override
+    public long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return ejb.cancelStgCmtTasks(matchQueueMessage, matchStgCmtTask, prev);
+    }
+
+    @Override
+    public String findDeviceNameByPk(Long pk) {
+        return ejb.findDeviceNameByPk(pk);
+    }
+
+    @Override
+    public void rescheduleStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
+        ejb.rescheduleStgCmtTask(pk, queueEvent);
+    }
+
+    @Override
+    public void rescheduleStgCmtTask(String stgCmtTaskQueueMsgId) {
+        ejb.rescheduleStgCmtTask(stgCmtTaskQueueMsgId, null);
+    }
+
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage, matchStgCmtTask);
+    }
+
+    @Override
+    public List<String> listStgCmtTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgCmtTask, int limit) {
+        return ejb.listStgCmtTaskQueueMsgIDs(matchQueueMessage, matchStgCmtTask, limit);
+    }
+
+    @Override
+    public boolean deleteStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
+        return ejb.deleteStgCmtTask(pk, queueEvent);
+    }
+
+    @Override
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(matchQueueMessage, matchStgCmtTask, deleteTasksFetchSize);
+    }
+
+    @Override
+    public List<StgCmtBatch> listStgCmtBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+                                                 OrderSpecifier<Date> order, int offset, int limit) {
+        return ejb.listStgCmtBatches(matchQueueBatch, matchStgCmtBatch, order, offset, limit);
     }
 
     @Override

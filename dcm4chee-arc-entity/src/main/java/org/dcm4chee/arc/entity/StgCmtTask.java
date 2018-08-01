@@ -43,17 +43,20 @@ package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
 
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2018
  */
 @Entity
@@ -256,5 +259,66 @@ public class StgCmtTask {
         queueMessage.writeStatusAsJSONTo(writer, df);
         gen.writeEnd();
         gen.flush();
+    }
+
+    public static void writeCSVHeader(Writer writer, char delimiter) throws IOException {
+        writer.write("pk" + delimiter +
+                "createdTime" + delimiter +
+                "updatedTime" + delimiter +
+                "LocalAET" + delimiter +
+                "StgCmtPolicy" + delimiter +
+                "UpdateLocationStatus" + delimiter +
+                "StorageID" + delimiter +
+                "StudyInstanceUID" + delimiter +
+                "SeriesInstanceUID" + delimiter +
+                "SOPInstanceUID" + delimiter +
+                "completed" + delimiter +
+                "failed" + delimiter +
+                "JMSMessageID" + delimiter +
+                "queue" + delimiter +
+                "dicomDeviceName" + delimiter +
+                "status" + delimiter +
+                "scheduledTime" + delimiter +
+                "failures" + delimiter +
+                "batchID" + delimiter +
+                "processingStartTime" + delimiter +
+                "processingEndTime" + delimiter +
+                "errorMessage" + delimiter +
+                "outcomeMessage\r\n");
+    }
+
+    public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        writer.write(String.valueOf(pk));
+        writer.write(delimiter);
+        writer.write(df.format(createdTime));
+        writer.write(delimiter);
+        writer.write(df.format(updatedTime));
+        writer.write(delimiter);
+        writer.write(localAET);
+        writer.write(delimiter);
+        if (stgCmtPolicy != null)
+            writer.write(stgCmtPolicy.name());
+        writer.write(delimiter);
+        writer.write(String.valueOf(updateLocationStatus));
+        writer.write(delimiter);
+        if (storageIDs != null)
+            writer.write(storageIDs);
+        writer.write(delimiter);
+        writer.write(studyInstanceUID);
+        writer.write(delimiter);
+        if (seriesInstanceUID != null)
+            writer.write(seriesInstanceUID);
+        writer.write(delimiter);
+        if (sopInstanceUID != null)
+            writer.write(sopInstanceUID);
+        writer.write(delimiter);
+        writer.write(String.valueOf(completed));
+        writer.write(delimiter);
+        writer.write(String.valueOf(failed));
+        writer.write(delimiter);
+        queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
+        writer.write('\r');
+        writer.write('\n');
     }
 }

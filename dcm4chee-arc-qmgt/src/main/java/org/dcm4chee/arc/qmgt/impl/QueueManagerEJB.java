@@ -246,6 +246,7 @@ public class QueueManagerEJB {
         updateExportTaskUpdatedTime(queueMessageQuery, now);
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
         updateDiffTaskUpdatedTime(queueMessageQuery, now);
+        updateStgCmtTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
@@ -267,6 +268,13 @@ public class QueueManagerEJB {
         new HibernateUpdateClause(em.unwrap(Session.class), QDiffTask.diffTask)
                 .set(QDiffTask.diffTask.updatedTime, now)
                 .where(QDiffTask.diffTask.queueMessage.pk.in(queueMessageQuery))
+                .execute();
+    }
+
+    private void updateStgCmtTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
+        new HibernateUpdateClause(em.unwrap(Session.class), QStgCmtTask.stgCmtTask)
+                .set(QStgCmtTask.stgCmtTask.updatedTime, now)
+                .where(QStgCmtTask.stgCmtTask.queueMessage.pk.in(queueMessageQuery))
                 .execute();
     }
 
@@ -324,6 +332,18 @@ public class QueueManagerEJB {
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
+    public long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+        Date now = new Date();
+        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
+                .select(QStgCmtTask.stgCmtTask.queueMessage.pk)
+                .from(QStgCmtTask.stgCmtTask)
+                .join(QStgCmtTask.stgCmtTask.queueMessage, QQueueMessage.queueMessage)
+                .on(matchQueueMessage)
+                .where(matchStgCmtTask);
+        updateStgCmtTaskUpdatedTime(queueMessageQuery, now);
+        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+    }
+
     public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
                 .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
@@ -341,6 +361,16 @@ public class QueueManagerEJB {
                 .join(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
                 .on(matchQueueMessage)
                 .where(matchDiffTask)
+                .fetch();
+    }
+
+    public List<String> getStgCmtTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+        return new HibernateQuery<String>(em.unwrap(Session.class))
+                .select(QStgCmtTask.stgCmtTask.queueMessage.messageID)
+                .from(QStgCmtTask.stgCmtTask)
+                .join(QStgCmtTask.stgCmtTask.queueMessage, QQueueMessage.queueMessage)
+                .on(matchQueueMessage)
+                .where(matchStgCmtTask)
                 .fetch();
     }
 

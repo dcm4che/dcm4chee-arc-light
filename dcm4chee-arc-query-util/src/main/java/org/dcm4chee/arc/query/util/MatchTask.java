@@ -148,6 +148,22 @@ public class MatchTask {
         return predicate;
     }
 
+    public static Predicate matchStgCmtTask(String localAET, String studyUID,
+                                              String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QStgCmtTask.stgCmtTask.localAET.eq(localAET));
+        if (studyUID != null)
+            predicate.and(QStgCmtTask.stgCmtTask.studyInstanceUID.eq(studyUID));
+        if (createdTime != null)
+            predicate.and(MatchDateTimeRange.range(
+                    QStgCmtTask.stgCmtTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
+        if (updatedTime != null)
+            predicate.and(MatchDateTimeRange.range(
+                    QStgCmtTask.stgCmtTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
+        return predicate;
+    }
+
     public static OrderSpecifier<Date> queueMessageOrder(String orderby) {
         return taskOrder(orderby, QQueueMessage.queueMessage.createdTime, QQueueMessage.queueMessage.updatedTime);
     }
@@ -174,6 +190,14 @@ public class MatchTask {
 
     public static OrderSpecifier<Date> diffBatchOrder(String orderby) {
         return batchOrder(orderby, QDiffTask.diffTask.createdTime, QDiffTask.diffTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> stgCmtTaskOrder(String orderby) {
+        return taskOrder(orderby, QStgCmtTask.stgCmtTask.createdTime, QStgCmtTask.stgCmtTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> stgCmtBatchOrder(String orderby) {
+        return batchOrder(orderby, QStgCmtTask.stgCmtTask.createdTime, QStgCmtTask.stgCmtTask.updatedTime);
     }
 
     private static OrderSpecifier<Date> taskOrder(
@@ -278,4 +302,18 @@ public class MatchTask {
                     QDiffTask.diffTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
         return predicate;
     }
+
+    public static Predicate matchStgCmtBatch(String localAET, String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QStgCmtTask.stgCmtTask.localAET.eq(localAET));
+        if (createdTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QStgCmtTask.stgCmtTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
+        if (updatedTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QStgCmtTask.stgCmtTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
+        return predicate;
+    }
+
 }

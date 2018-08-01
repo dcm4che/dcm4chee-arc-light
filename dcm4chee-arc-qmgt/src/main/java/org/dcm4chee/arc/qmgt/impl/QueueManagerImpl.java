@@ -164,6 +164,18 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
+    public long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getStgCmtTasksReferencedQueueMsgIDs(matchQueueMessage, matchStgCmtTask);
+            for (String msgID : msgIDs)
+                cancelTask(msgID, null);
+            return msgIDs.size();
+        }
+        return ejb.cancelStgCmtTasks(matchQueueMessage, matchStgCmtTask);
+    }
+
+    @Override
     public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
         ejb.rescheduleTask(msgId, queueName, queueEvent);
     }

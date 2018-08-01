@@ -40,12 +40,17 @@
 
 package org.dcm4chee.arc.stgcmt;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.StgCmtTask;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
@@ -55,6 +60,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
 public interface StgCmtManager {
@@ -80,4 +86,31 @@ public interface StgCmtManager {
             throws QueueSizeLimitExceededException;
 
     Outcome executeStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;
+
+    StgCmtTaskQuery listStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask,
+                                        OrderSpecifier<Date> order, int offset, int limit);
+
+    long countStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask);
+
+    boolean cancelStgCmtTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+
+    long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException;
+
+    String findDeviceNameByPk(Long pk);
+
+    void rescheduleStgCmtTask(Long pk, QueueMessageEvent queueEvent);
+
+    void rescheduleStgCmtTask(String stgCmtTaskQueueMsgId);
+
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgCmtTask);
+
+    List<String> listStgCmtTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgCmtTask, int limit);
+
+    boolean deleteStgCmtTask(Long pk, QueueMessageEvent queueEvent);
+
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, int deleteTasksFetchSize);
+
+    List<StgCmtBatch> listStgCmtBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+                                            OrderSpecifier<Date> order, int offset, int limit);
 }
