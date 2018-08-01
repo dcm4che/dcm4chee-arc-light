@@ -54,6 +54,7 @@
           "RejectInstance",
           "UpdateStudyExpirationDate",
           "UpdateSeriesExpirationDate",
+          "ApplyRetentionPolicy",
           "CreateMWL",
           "UpdateMWL",
           "DeleteMWL"
