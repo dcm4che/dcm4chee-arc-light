@@ -58,6 +58,8 @@ public class RSForwardRule {
 
     private String keycloakServerID;
 
+    private String uriPattern;
+
     private boolean tlsAllowAnyHostname;
 
     private boolean tlsDisableTrustManager;
@@ -116,6 +118,14 @@ public class RSForwardRule {
 
     public void setTlsDisableTrustManager(boolean tlsDisableTrustManager) {
         this.tlsDisableTrustManager = tlsDisableTrustManager;
+    }
+
+    public String getUriPattern() {
+        return uriPattern;
+    }
+
+    public void setUriPattern(String uriPattern) {
+        this.uriPattern = uriPattern;
     }
 
     public boolean match(RSOperation rsOperation) {

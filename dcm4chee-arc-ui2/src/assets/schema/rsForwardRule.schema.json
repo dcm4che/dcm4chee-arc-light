@@ -34,6 +34,11 @@
       "type": "boolean",
       "default": false
     },
+    "dcmURIPattern": {
+      "title": "Request URL Pattern",
+      "description": "Only forward requests which match the given Regular Expression. If prefixed with !, only forward requests which does not match the given Regular Expression.",
+      "type": "string"
+    },
     "dcmRSOperation": {
       "title": "RESTful Operation",
       "description": "Name of RESTful Operation which shall be forwarded to another archive instance.",

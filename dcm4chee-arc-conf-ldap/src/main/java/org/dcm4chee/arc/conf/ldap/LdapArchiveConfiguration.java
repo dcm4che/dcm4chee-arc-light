@@ -2063,6 +2063,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakServerID", rule.getKeycloakServerID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURIPattern", rule.getUriPattern(), null);
         return attrs;
     }
 
@@ -2201,6 +2202,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setKeycloakServerID(LdapUtils.stringValue(attrs.get("dcmKeycloakServerID"), null));
                 rule.setTlsAllowAnyHostname(LdapUtils.booleanValue(attrs.get("dcmTLSAllowAnyHostname"), false));
                 rule.setTlsDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmTLSDisableTrustManager"), false));
+                rule.setUriPattern(LdapUtils.stringValue(attrs.get("dcmURIPattern"), null));
 
                 rules.add(rule);
             }
@@ -2535,6 +2537,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakServerID", prev.getKeycloakServerID(), rule.getKeycloakServerID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURIPattern", prev.getUriPattern(), rule.getUriPattern(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSAllowAnyHostname",
                 prev.isTlsAllowAnyHostname(), rule.isTlsAllowAnyHostname(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSDisableTrustManager",

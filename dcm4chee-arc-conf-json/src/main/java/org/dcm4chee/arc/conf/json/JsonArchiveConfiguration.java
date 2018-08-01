@@ -549,6 +549,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmKeycloakServerID", rule.getKeycloakServerID(), null);
             writer.writeNotDef("dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
             writer.writeNotDef("dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
+            writer.writeNotNullOrDef("dcmURIPattern", rule.getUriPattern(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1819,6 +1820,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmTLSDisableTrustManager":
                         rule.setTlsDisableTrustManager(reader.booleanValue());
+                        break;
+                    case "dcmURIPattern":
+                        rule.setUriPattern(reader.stringValue());
                         break;
                     default:
                         reader.skipUnknownProperty();
