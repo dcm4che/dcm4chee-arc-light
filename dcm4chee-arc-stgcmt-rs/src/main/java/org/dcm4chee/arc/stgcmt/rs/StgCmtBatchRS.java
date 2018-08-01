@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.stgcmt.StgCmtBatch;
@@ -79,9 +78,6 @@ public class StgCmtBatchRS {
 
     @Inject
     private StgCmtManager stgCmtMgr;
-
-    @Inject
-    private Device device;
 
     @QueryParam("dicomDeviceName")
     private String deviceName;
