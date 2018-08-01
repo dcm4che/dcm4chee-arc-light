@@ -215,6 +215,13 @@
             "default": false
           },
           {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "return only Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -399,6 +406,13 @@
             "default": false
           },
           {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -515,6 +529,13 @@
             "name": "retrievefailed",
             "in": "query",
             "description": "return only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },

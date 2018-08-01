@@ -7978,6 +7978,13 @@
             "default": false
           },
           {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "export only Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8060,53 +8067,60 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Series received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Series of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Series of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -8192,53 +8206,60 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Series received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Series of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Series of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -8317,53 +8338,60 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only Instances of expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -8449,53 +8477,60 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only Instances of expired Studies",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -8588,53 +8623,60 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only Instances of expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -8995,6 +9037,13 @@
             "default": false
           },
           {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "match only Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "dcmStgCmtPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9088,45 +9137,52 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "match Studies which includes at least one Series received from <AE Title>",
+            "description": "match Series received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "match Studies which were created between <datetime1>-<datetime2>",
+            "description": "match Series of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "match Studies which are retrieveable from external <AE Title>",
+            "description": "match Series of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "description": "match Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "match only expired Studies",
+            "description": "match only expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "match only Studies which are marked as incomplete",
+            "description": "match only Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "match only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
@@ -9231,45 +9287,52 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "match Studies which includes at least one Series received from <AE Title>",
+            "description": "match Series received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "match Studies which were created between <datetime1>-<datetime2>",
+            "description": "match Series of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "match Studies which are retrieveable from external <AE Title>",
+            "description": "match Series of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "description": "match Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "match only expired Studies",
+            "description": "match only expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "match only Studies which are marked as incomplete",
+            "description": "match only Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "match only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
@@ -9367,45 +9430,52 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "match Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "match Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "match only expired Studies",
+            "description": "match only Instances of expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "match only Studies which are marked as incomplete",
+            "description": "match only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "match only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
@@ -9510,45 +9580,52 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "match Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "match Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "match only expired Studies",
+            "description": "match only Instances of expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "match only Studies which are marked as incomplete",
+            "description": "match only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "match only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
@@ -9660,45 +9737,52 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "match Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "match Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "match only expired Studies",
+            "description": "match only Instances of expired Studies",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "match only Studies which are marked as incomplete",
+            "description": "match only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "match only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "stgcmtfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },

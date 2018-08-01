@@ -140,6 +140,10 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String retrievefailed;
 
+    @QueryParam("stgcmtfailed")
+    @Pattern(regexp = "true|false")
+    private String stgcmtfailed;
+
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
 
@@ -475,6 +479,7 @@ public class QidoRS {
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
+        queryParam.setStgCmtFailed(Boolean.parseBoolean(stgcmtfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);

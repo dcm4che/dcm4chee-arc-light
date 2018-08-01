@@ -422,6 +422,8 @@ public class QueryBuilder {
                 builder.and(QSeries.series.completeness.ne(Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
                 builder.and(QSeries.series.failedRetrieves.gt(0));
+            if (queryParam.isStgCmtFailed())
+                builder.and(QSeries.series.failuresOfLastStorageCommitment.gt(0));
             builder.and(wildCard(QSeries.series.sourceAET,
                     keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
                     false));
@@ -691,6 +693,8 @@ public class QueryBuilder {
             .and(wildCard(QSeries.series.sourceAET,
                 keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
                     false));
+        if (queryParam.isStgCmtFailed())
+            result.and(QSeries.series.failuresOfLastStorageCommitment.gt(0));
         if (!result.hasValue())
             return null;
         return JPAExpressions.selectFrom(QSeries.series)
