@@ -239,7 +239,7 @@ public class StgCmtMatchingRS {
                 query.executeQuery();
                 while (query.hasMoreMatches()) {
                     Attributes match = query.nextMatch();
-                    stgCmtMgr.scheduleStgCmtTask(createStgVerifyTask(match, qrlevel),
+                    stgCmtMgr.scheduleStgCmtTask(createStgCmtTask(match, qrlevel),
                             HttpServletRequestInfo.valueOf(request), batchID);
                     count++;
                 }
@@ -309,7 +309,7 @@ public class StgCmtMatchingRS {
         return queryParam;
     }
 
-    private StgCmtTask createStgVerifyTask(Attributes match, QueryRetrieveLevel2 qrlevel) {
+    private StgCmtTask createStgCmtTask(Attributes match, QueryRetrieveLevel2 qrlevel) {
         StgCmtTask stgCmtTask = new StgCmtTask();
         stgCmtTask.setLocalAET(aet);
         if (stgCmtPolicy != null) {
