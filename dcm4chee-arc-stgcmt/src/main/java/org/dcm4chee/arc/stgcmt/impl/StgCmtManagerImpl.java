@@ -137,7 +137,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 checkRefSop(ctx, retrCtx, refSOP, numRefSOPs);
             }
             if (!retrCtx.getMatches().isEmpty()) {
-                checkLocations(ctx, retrCtx);
+                checkLocations(ctx, retrCtx, null);
             }
         } catch (IOException e) {
             LOG.warn("Failed to calculate Storage Commitment Result\n", e);
@@ -158,7 +158,18 @@ public class StgCmtManagerImpl implements StgCmtManager {
         try (RetrieveContext retrCtx = retrieveService.newRetrieveContext(
                 ctx.getLocalAET(), studyIUID, seriesIUID, sopIUID) ) {
             if (retrieveService.calculateMatches(retrCtx)) {
-                checkLocations(ctx, retrCtx);
+                Map<String, int[]> failuresBySeries = sopIUID == null ? new HashMap<>() : null;
+                checkLocations(ctx, retrCtx, failuresBySeries);
+                if (failuresBySeries != null) {
+                    failuresBySeries.forEach((iuid, failures) -> {
+                        try {
+                            ejb.updateSeries(studyIUID, iuid, failures[0]);
+                        } catch (Exception e) {
+                            LOG.warn("Failed to update time and failures[={}] of last Storage Commitment of Series[uid={}] of Study[uid={}]\n",
+                                    failures[0], iuid, studyIUID, e);
+                        }
+                    });
+                }
             }
         }
     }
@@ -166,7 +177,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
     @Override
     public void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
-        ejb.scheduleStgVerifyTask(stgCmtTask, httpServletRequestInfo, batchID);
+        ejb.scheduleStgCmtTask(stgCmtTask, httpServletRequestInfo, batchID);
     }
 
     @Override
@@ -197,7 +208,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
         int failed = sizeOf(eventInfo.getSequence(Tag.FailedSOPSequence));
         stgCmtTask.setCompleted(completed);
         stgCmtTask.setFailed(failed);
-        ejb.updateStgVerifyTask(stgCmtTask);
+        ejb.updateStgCmtTask(stgCmtTask);
         return new Outcome(
                 failed == 0
                         ? QueueMessage.Status.COMPLETED
@@ -263,7 +274,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 .add(failedSOP(cuid, iuid, failureReason));
     }
 
-    private void checkLocations(StgCmtContext ctx, RetrieveContext retrCtx) {
+    private void checkLocations(StgCmtContext ctx, RetrieveContext retrCtx,
+                                Map<String,int[]> failuresBySeries) {
         List<InstanceLocations> matches = retrCtx.getMatches();
         Attributes eventInfo = ctx.getEventInfo();
         String commonRetrieveAET = matches.stream()
@@ -279,6 +291,12 @@ public class StgCmtManagerImpl implements StgCmtManager {
         for (InstanceLocations inst : matches) {
             String cuid = inst.getSopClassUID();
             String iuid = inst.getSopInstanceUID();
+            Attributes attr = inst.getAttributes();
+            int[] failures = failuresBySeries != null
+                    ? failuresBySeries.computeIfAbsent(
+                            attr.getString(Tag.SeriesInstanceUID),
+                            key -> new int[1])
+                    : null;
             if (ctx.getStgCmtPolicy() == StgCmtPolicy.DB_RECORD_EXISTS
                     || checkLocations(ctx, retrCtx, inst, updateLocations)) {
                 eventInfo.ensureSequence(Tag.ReferencedSOPSequence, retrCtx.getNumberOfMatches())
@@ -287,8 +305,10 @@ public class StgCmtManagerImpl implements StgCmtManager {
             } else {
                 eventInfo.ensureSequence(Tag.FailedSOPSequence, retrCtx.getNumberOfMatches())
                         .add(failedSOP(cuid, iuid, Status.ProcessingFailure));
+                if (failures != null) {
+                    failures[0]++;
+                }
             }
-            Attributes attr = inst.getAttributes();
             if (studyInstanceUIDs.isEmpty()) {
                 eventInfo.setString(Tag.PatientID, VR.LO, attr.getString(Tag.PatientID));
                 eventInfo.setString(Tag.IssuerOfPatientID, VR.LO, attr.getString(Tag.IssuerOfPatientID));

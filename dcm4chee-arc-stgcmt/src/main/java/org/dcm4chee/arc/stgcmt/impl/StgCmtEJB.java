@@ -247,8 +247,8 @@ public class StgCmtEJB {
         return predicate;
     }
 
-    public void scheduleStgVerifyTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
-                                      String batchID) throws QueueSizeLimitExceededException {
+    public void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
+                                   String batchID) throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(0);
             msg.setStringProperty("LocalAET", stgCmtTask.getLocalAET());
@@ -269,11 +269,19 @@ public class StgCmtEJB {
         }
     }
 
-    public int updateStgVerifyTask(StgCmtTask stgCmtTask) {
+    public int updateStgCmtTask(StgCmtTask stgCmtTask) {
         return em.createNamedQuery(StgCmtTask.UPDATE_RESULT_BY_PK)
                 .setParameter(1, stgCmtTask.getPk())
                 .setParameter(2, stgCmtTask.getCompleted())
                 .setParameter(3, stgCmtTask.getFailed())
+                .executeUpdate();
+    }
+
+    public int updateSeries(String studyIUID, String seriesIUID, int failures) {
+        return em.createNamedQuery(Series.UPDATE_STGCMT_TIME_AND_FAILURES)
+                .setParameter(1, studyIUID)
+                .setParameter(2, seriesIUID)
+                .setParameter(3, failures)
                 .executeUpdate();
     }
 }

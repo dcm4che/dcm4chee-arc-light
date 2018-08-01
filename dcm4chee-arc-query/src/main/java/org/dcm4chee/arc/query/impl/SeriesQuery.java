@@ -91,6 +91,8 @@ class SeriesQuery extends AbstractQuery {
             QSeries.series.metadataScheduledUpdateTime,
             QSeries.series.instancePurgeTime,
             QSeries.series.instancePurgeState,
+            QSeries.series.timeOfLastStorageCommitment,
+            QSeries.series.failuresOfLastStorageCommitment,
             QMetadata.metadata.storageID,
             QMetadata.metadata.storagePath,
             QMetadata.metadata.digest,
@@ -223,6 +225,12 @@ class SeriesQuery extends AbstractQuery {
                     results.get(QSeries.series.instancePurgeTime));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 results.get(QSeries.series.instancePurgeState).name());
+        if (results.get(QSeries.series.timeOfLastStorageCommitment) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.Date​Time​Of​Last​StorageCommitmentOfSeries, VR.DT,
+                    results.get(QSeries.series.timeOfLastStorageCommitment));
+        if (results.get(QSeries.series.failuresOfLastStorageCommitment) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.Failures​Of​Last​StorageCommitmentOfSeries, VR.US,
+                    results.get(QSeries.series.failuresOfLastStorageCommitment));
         if (results.get(QMetadata.metadata.storageID) != null) {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
                     results.get(QMetadata.metadata.storageID));

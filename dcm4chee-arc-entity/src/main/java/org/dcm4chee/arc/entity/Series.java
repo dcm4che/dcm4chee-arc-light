@@ -114,6 +114,11 @@ import java.util.Date;
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(
+    name=Series.UPDATE_STGCMT_TIME_AND_FAILURES,
+    query="update Series ser set ser.timeOfLastStorageCommitment = current_timestamp, ser.failuresOfLastStorageCommitment = ?3 " +
+            "where ser.pk in (" +
+            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
+@NamedQuery(
     name=Series.COUNT_SERIES_OF_STUDY,
     query="select count(se) from Series se " +
             "where se.study = ?1"),
@@ -220,7 +225,9 @@ import java.util.Date;
         @Index(columnList = "completeness"),
         @Index(columnList = "metadata_update_time"),
         @Index(columnList = "inst_purge_time"),
-        @Index(columnList = "inst_purge_state")
+        @Index(columnList = "inst_purge_state"),
+        @Index(columnList = "stgcmt_time"),
+        @Index(columnList = "stgcmt_failures")
 })
 public class Series {
 
@@ -249,6 +256,7 @@ public class Series {
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
+    public static final String UPDATE_STGCMT_TIME_AND_FAILURES = "Series.updateStgCmtTimeAndFailures";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -401,6 +409,14 @@ public class Series {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "inst_purge_state")
     private InstancePurgeState instancePurgeState;
+
+    @Basic
+    @Column(name = "stgcmt_time")
+    private Date timeOfLastStorageCommitment;
+
+    @Basic(optional = false)
+    @Column(name = "stgcmt_failures")
+    private int failuresOfLastStorageCommitment;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -629,6 +645,22 @@ public class Series {
 
     public void setInstancePurgeState(InstancePurgeState instancePurgeState) {
         this.instancePurgeState = instancePurgeState;
+    }
+
+    public Date getTime​Of​Last​StorageCommitment() {
+        return time​Of​Last​StorageCommitment;
+    }
+
+    public void setTime​Of​Last​StorageCommitment(Date time​Of​Last​StorageCommitment) {
+        this.time​Of​Last​StorageCommitment = time​Of​Last​StorageCommitment;
+    }
+
+    public int getFailuresOf​Last​StorageCommitment() {
+        return failuresOf​Last​StorageCommitment;
+    }
+
+    public void setFailuresOf​Last​StorageCommitment(int failuresOf​Last​StorageCommitment) {
+        this.failuresOf​Last​StorageCommitment = failuresOf​Last​StorageCommitment;
     }
 
     public Completeness getCompleteness() {
