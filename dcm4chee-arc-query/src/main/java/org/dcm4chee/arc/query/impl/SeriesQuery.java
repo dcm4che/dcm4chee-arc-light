@@ -226,10 +226,10 @@ class SeriesQuery extends AbstractQuery {
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 results.get(QSeries.series.instancePurgeState).name());
         if (results.get(QSeries.series.timeOfLastStorageCommitment) != null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.Date​Time​Of​Last​StorageCommitmentOfSeries, VR.DT,
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.DateTimeOfLastStorageCommitmentOfSeries, VR.DT,
                     results.get(QSeries.series.timeOfLastStorageCommitment));
         if (results.get(QSeries.series.failuresOfLastStorageCommitment) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.Failures​Of​Last​StorageCommitmentOfSeries, VR.US,
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageCommitmentOfSeries, VR.US,
                     results.get(QSeries.series.failuresOfLastStorageCommitment));
         if (results.get(QMetadata.metadata.storageID) != null) {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,

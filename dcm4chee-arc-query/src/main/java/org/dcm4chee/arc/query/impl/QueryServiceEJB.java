@@ -279,10 +279,10 @@ public class QueryServiceEJB {
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 result.get(QSeries.series.instancePurgeState).name());
         if (result.get(QSeries.series.timeOfLastStorageCommitment) != null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.Date​Time​Of​Last​StorageCommitmentOfSeries, VR.DT,
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.DateTimeOfLastStorageCommitmentOfSeries, VR.DT,
                     result.get(QSeries.series.timeOfLastStorageCommitment));
         if (result.get(QSeries.series.failuresOfLastStorageCommitment) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.Failures​Of​Last​StorageCommitmentOfSeries, VR.US,
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageCommitmentOfSeries, VR.US,
                     result.get(QSeries.series.failuresOfLastStorageCommitment));
         if (result.get(QMetadata.metadata.storageID) != null) {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,

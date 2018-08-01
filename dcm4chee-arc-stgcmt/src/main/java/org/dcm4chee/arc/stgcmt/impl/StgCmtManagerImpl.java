@@ -274,8 +274,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 .add(failedSOP(cuid, iuid, failureReason));
     }
 
-    private void checkLocations(StgCmtContext ctx, RetrieveContext retrCtx,
-                                Map<String,int[]> failuresBySeries) {
+    private void checkLocations(StgCmtContext ctx, RetrieveContext retrCtx, Map<String,int[]> failuresBySeries) {
         List<InstanceLocations> matches = retrCtx.getMatches();
         Attributes eventInfo = ctx.getEventInfo();
         String commonRetrieveAET = matches.stream()

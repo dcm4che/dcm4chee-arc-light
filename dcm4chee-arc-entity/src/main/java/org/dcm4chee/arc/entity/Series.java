@@ -647,20 +647,20 @@ public class Series {
         this.instancePurgeState = instancePurgeState;
     }
 
-    public Date getTime​Of​Last​StorageCommitment() {
-        return time​Of​Last​StorageCommitment;
+    public Date getTimeOfLastStorageCommitment() {
+        return timeOfLastStorageCommitment;
     }
 
-    public void setTime​Of​Last​StorageCommitment(Date time​Of​Last​StorageCommitment) {
-        this.time​Of​Last​StorageCommitment = time​Of​Last​StorageCommitment;
+    public void setTimeOfLastStorageCommitment(Date timeOfLastStorageCommitment) {
+        this.timeOfLastStorageCommitment = timeOfLastStorageCommitment;
     }
 
-    public int getFailuresOf​Last​StorageCommitment() {
-        return failuresOf​Last​StorageCommitment;
+    public int getFailuresOfLastStorageCommitment() {
+        return failuresOfLastStorageCommitment;
     }
 
-    public void setFailuresOf​Last​StorageCommitment(int failuresOf​Last​StorageCommitment) {
-        this.failuresOf​Last​StorageCommitment = failuresOf​Last​StorageCommitment;
+    public void setFailuresOfLastStorageCommitment(int failuresOfLastStorageCommitment) {
+        this.failuresOfLastStorageCommitment = failuresOfLastStorageCommitment;
     }
 
     public Completeness getCompleteness() {
