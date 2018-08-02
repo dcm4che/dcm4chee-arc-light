@@ -123,6 +123,48 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmStorageVerificationInitialDelay": {
+      "title": "Storage Verification Initial Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmStorageVerificationPeriod": {
+      "title": "Storage Verification Period",
+      "description": "Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmStorageVerificationSchedule": {
+      "title": "Storage Verification Schedule",
+      "description": "Limits hours a day Storage Verifications are performed",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmStorageVerificationMaxScheduled": {
+      "title": "Maximal scheduled Storage Verifications",
+      "description": "Maximal number of scheduled Storage Verification tasks on this device. Recommended to be set to the expected number of Storage Verification tasks performed by this device in the configured Storage Verification Polling Interval. 0 = no limitation.",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
+    },
+    "dcmStorageVerificationPollingInterval": {
+      "title": "Storage Verification Polling Interval",
+      "description": "Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmStorageVerificationFetchSize": {
+      "title": "Storage Verification Fetch Size",
+      "description": "Maximal number of Series scheduled for Storage Verification fetched by one query.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
       "description": "Query/Retrieve View Identifier. May be overwritten by configured values for particular Archive Network AEs.",
