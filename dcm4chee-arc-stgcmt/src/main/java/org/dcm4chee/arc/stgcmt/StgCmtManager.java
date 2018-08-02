@@ -81,8 +81,8 @@ public interface StgCmtManager {
 
     void calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 
-    void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
-                            String batchID)
+    boolean scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
+                               String batchID)
             throws QueueSizeLimitExceededException;
 
     Outcome executeStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;

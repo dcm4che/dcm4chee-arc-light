@@ -182,9 +182,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
+    public boolean scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
-        ejb.scheduleStgCmtTask(stgCmtTask, httpServletRequestInfo, batchID);
+        return ejb.scheduleStgCmtTask(stgCmtTask, httpServletRequestInfo, batchID);
     }
 
     @Override
@@ -291,31 +291,31 @@ public class StgCmtManagerImpl implements StgCmtManager {
     private String toOutcomeMessage(StgCmtTask stgCmtTask, StgCmtContext ctx) {
         return (ctx.getStgCmtStorageIDs().length == 0)
             ? (stgCmtTask.getSeriesInstanceUID() == null)
-                ? String.format("Verify Study[uid=%s] for %s: - completed: %d, failed: %d",
+                ? String.format("Commit Storage of Study[uid=%s] for %s: - completed: %d, failed: %d",
                     stgCmtTask.getStudyInstanceUID(),
                     ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
                 : (stgCmtTask.getSOPInstanceUID() == null)
-                    ? String.format("Verify Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
+                    ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
                         stgCmtTask.getSeriesInstanceUID(),
                         stgCmtTask.getStudyInstanceUID(),
                         ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
-                    :  String.format("Verify Instance[uid=%s] of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
+                    :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
                         stgCmtTask.getSOPInstanceUID(),
                         stgCmtTask.getSeriesInstanceUID(),
                         stgCmtTask.getStudyInstanceUID(),
                         ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
             : (stgCmtTask.getSeriesInstanceUID() == null)
-                ? String.format("Verify Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
+                ? String.format("Commit Storage of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
                     stgCmtTask.getStudyInstanceUID(),
                     Arrays.toString(ctx.getStgCmtStorageIDs()),
                     ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
                 : (stgCmtTask.getSOPInstanceUID() == null)
-                    ? String.format("Verify Series[uid=%s] of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
+                    ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
                         stgCmtTask.getSeriesInstanceUID(),
                         stgCmtTask.getStudyInstanceUID(),
                         Arrays.toString(ctx.getStgCmtStorageIDs()),
                         ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
-                    :  String.format("Verify Instance[uid=%s] of Series[uid=%s] on Storage%s of Study[uid=%s] for %s: - completed: %d, failed: %d",
+                    :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] on Storage%s of Study[uid=%s] for %s: - completed: %d, failed: %d",
                         stgCmtTask.getSOPInstanceUID(),
                         stgCmtTask.getSeriesInstanceUID(),
                         stgCmtTask.getStudyInstanceUID(),

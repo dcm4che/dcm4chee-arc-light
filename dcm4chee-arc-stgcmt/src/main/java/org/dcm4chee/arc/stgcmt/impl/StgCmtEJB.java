@@ -40,9 +40,11 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
@@ -79,6 +81,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.*;
 
 /**
@@ -272,8 +275,11 @@ public class StgCmtEJB {
         return predicate;
     }
 
-    public void scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
+    public boolean scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
                                    String batchID) throws QueueSizeLimitExceededException {
+        if (isAlreadyScheduled(stgCmtTask))
+            return false;
+
         try {
             ObjectMessage msg = queueManager.createObjectMessage(0);
             msg.setStringProperty("LocalAET", stgCmtTask.getLocalAET());
@@ -291,6 +297,40 @@ public class StgCmtEJB {
             em.persist(stgCmtTask);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
+        }
+        return true;
+    }
+
+    private boolean isAlreadyScheduled(StgCmtTask stgCmtTask) {
+        BooleanBuilder predicate = new BooleanBuilder(QStgCmtTask.stgCmtTask.queueMessage.status.in(
+                QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
+        predicate.and(QStgCmtTask.stgCmtTask.studyInstanceUID.eq(stgCmtTask.getStudyInstanceUID()));
+        if (stgCmtTask.getSeriesInstanceUID() == null) {
+            predicate.and(QStgCmtTask.stgCmtTask.seriesInstanceUID.isNull());
+        } else {
+            predicate.and(ExpressionUtils.or(
+                    QStgCmtTask.stgCmtTask.seriesInstanceUID.isNull(),
+                    QStgCmtTask.stgCmtTask.seriesInstanceUID.eq(stgCmtTask.getSeriesInstanceUID())));
+            if (stgCmtTask.getSOPInstanceUID() == null) {
+                predicate.and(QStgCmtTask.stgCmtTask.sopInstanceUID.isNull());
+            } else {
+                predicate.and(ExpressionUtils.or(
+                    QStgCmtTask.stgCmtTask.sopInstanceUID.isNull(),
+                    QStgCmtTask.stgCmtTask.sopInstanceUID.eq(stgCmtTask.getSOPInstanceUID())));
+            }
+        }
+        if (stgCmtTask.getStgCmtPolicy() != null) {
+            predicate.and(QStgCmtTask.stgCmtTask.stgCmtPolicy.eq(stgCmtTask.getStgCmtPolicy()));
+        }
+        if (stgCmtTask.getStorageIDsAsString() != null) {
+            predicate.and(QStgCmtTask.stgCmtTask.storageIDs.eq(stgCmtTask.getStorageIDsAsString()));
+        }
+        try (CloseableIterator<Long> iterate = new HibernateQuery<>(em.unwrap(Session.class))
+                .select(QStgCmtTask.stgCmtTask.pk)
+                .from(QStgCmtTask.stgCmtTask)
+                .where(predicate)
+                .iterate()) {
+            return iterate.hasNext();
         }
     }
 

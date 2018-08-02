@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -64,10 +65,10 @@ import java.util.Date;
         indexes = {
                 @Index(columnList = "created_time"),
                 @Index(columnList = "updated_time"),
-                @Index(columnList = "study_iuid, series_iuid, sop_iuid") }
+                @Index(columnList = "study_iuid, series_iuid, sop_iuid")}
 )
 @NamedQueries({
-         @NamedQuery(name = StgCmtTask.UPDATE_RESULT_BY_PK,
+        @NamedQuery(name = StgCmtTask.UPDATE_RESULT_BY_PK,
                 query = "update StgCmtTask o set " +
                         "o.updatedTime=current_timestamp, " +
                         "o.completed=?2, " +
@@ -182,14 +183,21 @@ public class StgCmtTask {
         this.updateLocationStatus = updateLocationStatus;
     }
 
+    public String getStorageIDsAsString() {
+        return storageIDs;
+    }
+
     public String[] getStorageIDs() {
         return StringUtils.split(storageIDs, '\\');
     }
 
     public void setStorageIDs(String[] storageIDs) {
-        this.storageIDs = (storageIDs != null && storageIDs.length > 0)
-                ? StringUtils.concat(storageIDs, '\\')
-                : null;
+        if (storageIDs != null && storageIDs.length > 0) {
+            Arrays.sort(storageIDs);
+            this.storageIDs = StringUtils.concat(storageIDs, '\\');
+        } else {
+            this.storageIDs = null;
+        }
     }
 
     public String getStudyInstanceUID() {

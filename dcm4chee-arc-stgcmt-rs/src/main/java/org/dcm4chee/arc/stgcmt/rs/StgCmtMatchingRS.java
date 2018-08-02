@@ -239,9 +239,10 @@ public class StgCmtMatchingRS {
                 query.executeQuery();
                 while (query.hasMoreMatches()) {
                     Attributes match = query.nextMatch();
-                    stgCmtMgr.scheduleStgCmtTask(createStgCmtTask(match, qrlevel),
-                            HttpServletRequestInfo.valueOf(request), batchID);
-                    count++;
+                    if (stgCmtMgr.scheduleStgCmtTask(createStgCmtTask(match, qrlevel),
+                            HttpServletRequestInfo.valueOf(request), batchID)) {
+                        count++;
+                    }
                 }
             } catch (QueueSizeLimitExceededException e) {
                 status = Response.Status.SERVICE_UNAVAILABLE;
