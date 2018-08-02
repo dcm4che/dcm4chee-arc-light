@@ -1311,8 +1311,9 @@ attributetype ( 1.2.40.0.13.1.15.110.3.220 NAME 'dcmStgCmtStorageID'
 
 attributetype ( 1.2.40.0.13.1.15.110.3.221 NAME 'dcmURIPattern'
   DESC 'Only forward requests which match the given Regular Expression. If prefixed with !, only forward requests which does not match the given Regular Expression.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'

@@ -660,7 +660,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.132 NAME 'dcmSeriesMetadataFetchSize
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.133 NAME 'dcmRSOperation'
-  DESC 'Name of RESTful Operation which shall be forwarded to another archive instance. Enumerated values: CreatePatient, UpdatePatient, DeletePatient, UpdateStudy, DeleteStudy, CopyInstances, MoveInstances, RejectStudy, RejectSeries, RejectInstance, UpdateStudyExpirationDate, UpdateSeriesExpirationDate.'
+  DESC 'Name of RESTful Operation which shall be forwarded to another archive instance. Enumerated values: CreatePatient, UpdatePatient, DeletePatient, ChangePatientID, MergePatient, MergePatients, UpdateStudy, DeleteStudy, RejectStudy, RejectSeries, RejectInstance, UpdateStudyExpirationDate, UpdateSeriesExpirationDate, ApplyRetentionPolicy, CreateMWL, UpdateMWL, DeleteMWL'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
@@ -1091,6 +1091,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.220 NAME 'dcmStgCmtStorageID'
   DESC 'Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.221 NAME 'dcmURIPattern'
+  DESC 'Only forward requests which match the given Regular Expression. If prefixed with !, only forward requests which does not match the given Regular Expression.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1495,6 +1500,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
     dcmKeycloakServerID $
     dcmTLSAllowAnyHostname $
     dcmTLSDisableTrustManager $
+    dcmURIPattern $
     dcmRSOperation ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
   DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'

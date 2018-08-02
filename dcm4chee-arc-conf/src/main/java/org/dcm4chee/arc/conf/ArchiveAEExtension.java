@@ -46,6 +46,7 @@ import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -1196,12 +1197,12 @@ public class ArchiveAEExtension extends AEExtension {
         return result;
     }
 
-    public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation) {
+    public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation, HttpServletRequest request) {
         ArrayList<RSForwardRule> result = new ArrayList<>();
         for (Collection<RSForwardRule> rules
                 : new Collection[]{rsForwardRules, getArchiveDeviceExtension().getRSForwardRules()})
             for (RSForwardRule rule : rules)
-                if (rule.match(rsOperation))
+                if (rule.match(rsOperation, request))
                     result.add(rule);
         return result;
     }

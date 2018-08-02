@@ -74,7 +74,7 @@ public class RSForward {
     private RSClient rsClient;
 
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, HttpServletRequest request) {
-        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp);
+        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp, request);
         for (RSForwardRule rule : rules) {
             String baseURI = rule.getBaseURI();
             try {
@@ -95,7 +95,7 @@ public class RSForward {
     }
 
     public void forwardMergeMultiplePatients(RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, HttpServletRequest request) {
-        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp);
+        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp, request);
         for (RSForwardRule rule : rules) {
             String baseURI = rule.getBaseURI();
             try {
