@@ -149,8 +149,10 @@ public class RSForwardRule {
         if (!rsOperations.contains(rsOperation))
             return false;
 
-        boolean matches = requestURLPattern.matcher(request.getRequestURL().toString()).matches();
-        return ifNotRequestURLPattern ? !matches : matches;
+        if (requestURLPattern == null)
+            return true;
+
+        return ifNotRequestURLPattern != requestURLPattern.matcher(request.getRequestURL().toString()).matches();
     }
 
     @Override
