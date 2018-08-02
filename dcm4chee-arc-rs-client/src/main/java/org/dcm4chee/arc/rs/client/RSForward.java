@@ -56,8 +56,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
-import java.net.InetAddress;
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -76,13 +74,14 @@ public class RSForward {
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, HttpServletRequest request) {
         List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp, request);
         for (RSForwardRule rule : rules) {
-            String baseURI = rule.getBaseURI();
             try {
-                if (!request.getRemoteAddr().equals(
-                        InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
+                String targetURI = mkForwardURI(rule.getBaseURI(), rsOp, request);
+                if (!targetURI.equals(request.getRequestURL().toString())) {
+                    if (rsOp == RSOperation.CreatePatient)
+                        targetURI += IDWithIssuer.pidOf(attrs);
                     rsClient.scheduleRequest(
                             getMethod(rsOp),
-                            mkForwardURI(baseURI, rsOp, attrs, request),
+                            targetURI,
                             toContent(attrs),
                             rule.getKeycloakServerID(),
                             rule.isTlsAllowAnyHostname(),
@@ -97,34 +96,26 @@ public class RSForward {
     public void forwardMergeMultiplePatients(RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, HttpServletRequest request) {
         List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp, request);
         for (RSForwardRule rule : rules) {
-            String baseURI = rule.getBaseURI();
             try {
-                if (!request.getRemoteAddr().equals(
-                        InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
+                String targetURI = mkForwardURI(rule.getBaseURI(), rsOp, request);
+                if (!targetURI.equals(request.getRequestURL().toString()))
                     rsClient.scheduleRequest(
                             getMethod(rsOp),
-                            mkForwardURI(baseURI, rsOp, null, request),
+                            targetURI,
                             in,
                             rule.getKeycloakServerID(),
                             rule.isTlsAllowAnyHostname(),
                             rule.isTlsDisableTrustManager());
-                }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);
             }
         }
     }
 
-    private static String mkForwardURI(String baseURI, RSOperation rsOp, Attributes attrs, HttpServletRequest request) {
+    private static String mkForwardURI(String baseURI, RSOperation rsOp, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
-        int requestURIIndex = requestURI.indexOf("/rs");
-        int baseURIIndex = baseURI.indexOf("/rs");
-        StringBuilder sb = new StringBuilder(requestURI.length() + 16);
-        sb.append(baseURI.substring(0, baseURIIndex));
-        sb.append(requestURI.substring(requestURIIndex));
-        if (rsOp == RSOperation.CreatePatient)
-            sb.append(IDWithIssuer.pidOf(attrs));
-        return sb.toString();
+        return baseURI + requestURI.substring(requestURI.indexOf(
+                            rsOp == RSOperation.ApplyRetentionPolicy ? "expire/series" : "rs/"));
     }
 
     private static byte[] toContent(Attributes attrs) {
