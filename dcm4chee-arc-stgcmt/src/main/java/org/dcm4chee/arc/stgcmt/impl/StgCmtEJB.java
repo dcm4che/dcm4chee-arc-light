@@ -81,7 +81,6 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.*;
 
 /**
@@ -343,7 +342,7 @@ public class StgCmtEJB {
     }
 
     public int updateSeries(String studyIUID, String seriesIUID, int failures) {
-        return em.createNamedQuery(Series.UPDATE_STGCMT_TIME_AND_FAILURES)
+        return em.createNamedQuery(Series.UPDATE_STGCMT_FAILURES)
                 .setParameter(1, studyIUID)
                 .setParameter(2, seriesIUID)
                 .setParameter(3, failures)

@@ -39,7 +39,7 @@ DCM4CHE.elementName.addDictionary({
 "7777xx54":"Storage Object Digest",
 "7777xx55":"Other Storage Sequence",
 "7777xx56":"Storage Object Status",
-"7777xx60":"Date Time of Last Storage Commitment of Series",
+"7777xx60":"Scheduled Storage Commitment Date Time of Series",
 "7777xx61":"Failures of Last Storage Commitment of Series",
 "7777xxE0":"X-Road Person Status",
 "7777xxE1":"X-Road Data Status"

@@ -114,8 +114,8 @@ import java.util.Date;
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(
-    name=Series.UPDATE_STGCMT_TIME_AND_FAILURES,
-    query="update Series ser set ser.timeOfLastStorageCommitment = current_timestamp, ser.failuresOfLastStorageCommitment = ?3 " +
+    name=Series.UPDATE_STGCMT_FAILURES,
+    query="update Series ser set ser.failuresOfLastStorageCommitment = ?3 " +
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(
@@ -256,7 +256,7 @@ public class Series {
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
-    public static final String UPDATE_STGCMT_TIME_AND_FAILURES = "Series.updateStgCmtTimeAndFailures";
+    public static final String UPDATE_STGCMT_FAILURES = "Series.updateStgCmtFailures";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -412,7 +412,7 @@ public class Series {
 
     @Basic
     @Column(name = "stgcmt_time")
-    private Date timeOfLastStorageCommitment;
+    private Date storageCommitmentTime;
 
     @Basic(optional = false)
     @Column(name = "stgcmt_failures")
@@ -647,12 +647,12 @@ public class Series {
         this.instancePurgeState = instancePurgeState;
     }
 
-    public Date getTimeOfLastStorageCommitment() {
-        return timeOfLastStorageCommitment;
+    public Date getStorageCommitmentTime() {
+        return storageCommitmentTime;
     }
 
-    public void setTimeOfLastStorageCommitment(Date timeOfLastStorageCommitment) {
-        this.timeOfLastStorageCommitment = timeOfLastStorageCommitment;
+    public void setStorageCommitmentTime(Date storageCommitmentTime) {
+        this.storageCommitmentTime = storageCommitmentTime;
     }
 
     public int getFailuresOfLastStorageCommitment() {
