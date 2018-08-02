@@ -61,6 +61,8 @@ public interface QueueManager {
     QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID)
             throws QueueSizeLimitExceededException;
 
+    long countScheduledMessagesOnThisDevice(String queueName);
+
     QueueMessage onProcessingStart(String msgId);
 
     QueueMessage onProcessingSuccessful(String msgId, Outcome outcome);

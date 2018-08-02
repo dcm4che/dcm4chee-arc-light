@@ -40,7 +40,6 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
@@ -60,9 +59,6 @@ public class QueueManagerImpl implements QueueManager {
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
 
     @Inject
-    private Device device;
-
-    @Inject
     private QueueManagerEJB ejb;
 
     @Override
@@ -73,7 +69,12 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID)
             throws QueueSizeLimitExceededException {
-        return ejb.scheduleMessage(device.getDeviceName(), queueName, message, priority, batchID);
+        return ejb.scheduleMessage(queueName, message, priority, batchID);
+    }
+
+    @Override
+    public long countScheduledMessagesOnThisDevice(String queueName) {
+        return ejb.countScheduledMessagesOnThisDevice(queueName);
     }
 
     @Override

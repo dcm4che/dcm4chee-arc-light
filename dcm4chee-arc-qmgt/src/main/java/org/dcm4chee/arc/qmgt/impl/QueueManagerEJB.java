@@ -102,25 +102,26 @@ public class QueueManagerEJB {
         return jmsCtx.createObjectMessage(object);
     }
 
-    public QueueMessage scheduleMessage(String deviceName, String queueName, ObjectMessage msg, int priority, String batchID)
+    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg, int priority, String batchID)
             throws QueueSizeLimitExceededException {
         QueueDescriptor queueDescriptor = descriptorOf(queueName);
         int maxQueueSize = queueDescriptor.getMaxQueueSize();
-        if (maxQueueSize > 0 && maxQueueSize < countByQueueNameAndStatus(queueName))
+        if (maxQueueSize > 0 && maxQueueSize < countScheduledMessagesOnThisDevice(queueName))
             throw new QueueSizeLimitExceededException(queueDescriptor);
 
         sendMessage(queueDescriptor, msg, 0L, priority);
-        QueueMessage entity = new QueueMessage(deviceName, queueName, msg);
+        QueueMessage entity = new QueueMessage(device.getDeviceName(), queueName, msg);
         entity.setBatchID(batchID);
         em.persist(entity);
         LOG.info("Schedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
         return entity;
     }
 
-    private long countByQueueNameAndStatus(String queueName) {
-        return em.createNamedQuery(QueueMessage.COUNT_BY_QUEUE_NAME_AND_STATUS, Long.class)
-                .setParameter(1, queueName)
-                .setParameter(2, QueueMessage.Status.SCHEDULED).getSingleResult();
+    public long countScheduledMessagesOnThisDevice(String queueName) {
+        return em.createNamedQuery(QueueMessage.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
+                .setParameter(1, device.getDeviceName())
+                .setParameter(2, queueName)
+                .setParameter(3, QueueMessage.Status.SCHEDULED).getSingleResult();
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
