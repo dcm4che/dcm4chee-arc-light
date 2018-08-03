@@ -8761,13 +8761,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Commitment Request Successful",
+            "description": "Storage Verification Successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "Storage Commitment Request Complete - Failures Exist",
+            "description": "Storage Verification Complete - Failures Exist",
             "schema": {
               "type": "file"
             }
@@ -8847,13 +8847,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Commitment Request Successful",
+            "description": "Storage Verification Successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "Storage Commitment Request Complete - Failures Exist",
+            "description": "Storage Verification Complete - Failures Exist",
             "schema": {
               "type": "file"
             }
@@ -8940,13 +8940,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Commitment Request Successful",
+            "description": "Storage Verification Successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "Storage Commitment Request Complete - Failures Exist",
+            "description": "Storage Verification Complete - Failures Exist",
             "schema": {
               "type": "file"
             }
