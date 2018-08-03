@@ -195,7 +195,7 @@ public class StgVerTaskRS {
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            LOG.info("Cancel processing of Storage Commitment Tasks with Status {}", status);
+            LOG.info("Cancel processing of Storage Verification Tasks with Status {}", status);
             long count = stgCmtMgr.cancelStgVerTasks(
                     matchQueueMessage(status, deviceName, updatedTime),
                     matchStgVerTask(null),

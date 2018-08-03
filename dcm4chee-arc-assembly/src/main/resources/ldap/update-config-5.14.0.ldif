@@ -11,7 +11,7 @@ dicomVendorData:< file:vendor-data.zip
 
 dn: dcmQueueName=StgVerTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
-dicomDescription: Storage Commitment Tasks
+dicomDescription: Storage Verification Tasks
 dcmQueueName: StgVerTasks
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200
