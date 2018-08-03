@@ -152,15 +152,15 @@ public class MatchTask {
                                               String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (localAET != null)
-            predicate.and(QStgVerTask.stgVerTask.localAET.eq(localAET));
+            predicate.and(QStorageVerificationTask.storageVerificationTask.localAET.eq(localAET));
         if (studyUID != null)
-            predicate.and(QStgVerTask.stgVerTask.studyInstanceUID.eq(studyUID));
+            predicate.and(QStorageVerificationTask.storageVerificationTask.studyInstanceUID.eq(studyUID));
         if (createdTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QStgVerTask.stgVerTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
+                    QStorageVerificationTask.storageVerificationTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
         if (updatedTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QStgVerTask.stgVerTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
+                    QStorageVerificationTask.storageVerificationTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
         return predicate;
     }
 
@@ -193,11 +193,13 @@ public class MatchTask {
     }
 
     public static OrderSpecifier<Date> stgVerTaskOrder(String orderby) {
-        return taskOrder(orderby, QStgVerTask.stgVerTask.createdTime, QStgVerTask.stgVerTask.updatedTime);
+        return taskOrder(orderby, QStorageVerificationTask.storageVerificationTask.createdTime,
+                QStorageVerificationTask.storageVerificationTask.updatedTime);
     }
 
     public static OrderSpecifier<Date> stgCmtBatchOrder(String orderby) {
-        return batchOrder(orderby, QStgVerTask.stgVerTask.createdTime, QStgVerTask.stgVerTask.updatedTime);
+        return batchOrder(orderby, QStorageVerificationTask.storageVerificationTask.createdTime,
+                QStorageVerificationTask.storageVerificationTask.updatedTime);
     }
 
     private static OrderSpecifier<Date> taskOrder(
@@ -306,13 +308,15 @@ public class MatchTask {
     public static Predicate matchStgCmtBatch(String localAET, String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (localAET != null)
-            predicate.and(QStgVerTask.stgVerTask.localAET.eq(localAET));
+            predicate.and(QStorageVerificationTask.storageVerificationTask.localAET.eq(localAET));
         if (createdTime != null)
             predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QStgVerTask.stgVerTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
+                    QStorageVerificationTask.storageVerificationTask.createdTime, createdTime,
+                    MatchDateTimeRange.FormatDate.DT)));
         if (updatedTime != null)
             predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QStgVerTask.stgVerTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
+                    QStorageVerificationTask.storageVerificationTask.updatedTime, updatedTime,
+                    MatchDateTimeRange.FormatDate.DT)));
         return predicate;
     }
 
