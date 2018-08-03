@@ -151,6 +151,12 @@
       "default": 0,
       "minimum": 0
     },
+    "dcmStorageVerificationAETitle": {
+      "title": "Storage Verification AE Title",
+      "description": "Archive AE Title used for scheduled Storage Verifications.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
     "dcmStorageVerificationPollingInterval": {
       "title": "Storage Verification Polling Interval",
       "description": "Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.",
