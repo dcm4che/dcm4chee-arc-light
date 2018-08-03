@@ -3786,7 +3786,7 @@
       "post": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
         "summary": "Cancel Storage Verification Tasks",
         "operationId": "cancelStorageVerificationTasks",
