@@ -91,7 +91,7 @@ public class QueryAttributes {
                 case "returnempty":
                 case "expired":
                 case "retrievefailed":
-                case "stgcmtfailed":
+                case "storageVerificationFailed":
                 case "incomplete":
                 case "ExternalRetrieveAET":
                 case "ExternalRetrieveAET!":

@@ -180,7 +180,7 @@ public class QueueMessage {
     private DiffTask diffTask;
 
     @OneToOne(mappedBy = "queueMessage")
-    private StgCmtTask stgCmtTask;
+    private StorageVerificationTask storageVerificationTask;
 
     public QueueMessage() {
     }
@@ -303,8 +303,8 @@ public class QueueMessage {
         return diffTask;
     }
 
-    public StgCmtTask getStgCmtTask() {
-        return stgCmtTask;
+    public StorageVerificationTask getStorageVerificationTask() {
+        return storageVerificationTask;
     }
 
     public String getBatchID() {

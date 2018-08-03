@@ -178,7 +178,7 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("IANSCU", "IAN Tasks"),
         newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks"),
         newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks"),
-        newQueueDescriptor("StgCmtTasks", "Storage Commitment Tasks"),
+        newQueueDescriptor("StgVerTasks", "Storage Commitment Tasks"),
         newQueueDescriptor("Export1", "Dicom Export Tasks"),
         newQueueDescriptor("Export2", "WADO Export Tasks"),
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),

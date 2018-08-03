@@ -1,5 +1,5 @@
 {
-  "title": "StorageCommitmentTaskList",
+  "title": "StorageVerificationTaskList",
   "type": "array",
   "items": {
     "required": [
@@ -15,8 +15,8 @@
     ],
     "properties": {
       "pk": {
-        "title": "Retrieve Task PK",
-        "description": "Retrieve Task PK",
+        "title": "Storage Verification Task PK",
+        "description": "Storage Verification Task PK",
         "type": "integer"
       },
       "JMSMessageID": {
@@ -49,7 +49,7 @@
       },
       "LocalAET": {
         "title": "Local AET",
-        "description": "Archive AE Title which was used as Calling AET",
+        "description": "Archive AE Title",
         "type": "string"
       },
       "StudyInstanceUID": {

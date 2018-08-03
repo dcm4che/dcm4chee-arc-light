@@ -4192,14 +4192,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let url = '../aets/' + this.aet + '/rs/studies/';
         switch (mode) {
             case 'study':
-                url += object.attrs['0020000D'].Value[0] + '/stgcmt';
+                url += object.attrs['0020000D'].Value[0] + '/stgver';
                 break;
             case 'series':
-                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgcmt';
+                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgver';
                 break;
             default:
             case 'instance':
-                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgcmt';
+                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgver';
                 break;
         }
         let $this = this;

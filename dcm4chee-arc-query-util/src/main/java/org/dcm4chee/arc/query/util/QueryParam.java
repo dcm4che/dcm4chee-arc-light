@@ -62,7 +62,7 @@ public class QueryParam {
     private boolean withoutStudies = true;
     private boolean incomplete;
     private boolean retrieveFailed;
-    private boolean stgCmtFailed;
+    private boolean storageVerificationFailed;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
 
@@ -168,12 +168,12 @@ public class QueryParam {
         this.retrieveFailed = retrieveFailed;
     }
 
-    public boolean isStgCmtFailed() {
-        return stgCmtFailed;
+    public boolean isStorageVerificationFailed() {
+        return storageVerificationFailed;
     }
 
-    public void setStgCmtFailed(boolean stgCmtFailed) {
-        this.stgCmtFailed = stgCmtFailed;
+    public void setStorageVerificationFailed(boolean storageVerificationFailed) {
+        this.storageVerificationFailed = storageVerificationFailed;
     }
 
     public String getExternalRetrieveAET() {

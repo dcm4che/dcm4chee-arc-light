@@ -53,7 +53,7 @@ import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.StgCmtPolicy;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -63,10 +63,10 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.stgcmt.StgCmtBatch;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.StgCmtTaskQuery;
+import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -182,31 +182,31 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public boolean scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
+    public boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
-        return ejb.scheduleStgCmtTask(stgCmtTask, httpServletRequestInfo, batchID);
+        return ejb.scheduleStgVerTask(storageVerificationTask, httpServletRequestInfo, batchID);
     }
 
     @Override
-    public StgCmtTaskQuery listStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask,
-                                           OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listStgCmtTasks(matchQueueMessage, matchStgCmtTask, order, offset, limit);
+    public StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
+                                                        OrderSpecifier<Date> order, int offset, int limit) {
+        return ejb.listStgVerTasks(matchQueueMessage, matchStgVerTask, order, offset, limit);
     }
 
     @Override
-    public long countStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
-        return ejb.countStgCmtTasks(matchQueueMessage, matchStgCmtTask);
+    public long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        return ejb.countStgVerTasks(matchQueueMessage, matchStgVerTask);
     }
 
     @Override
-    public boolean cancelStgCmtTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelStgCmtTask(pk, queueEvent);
+    public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        return ejb.cancelStgVerTask(pk, queueEvent);
     }
 
     @Override
-    public long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, QueueMessage.Status prev)
+    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return ejb.cancelStgCmtTasks(matchQueueMessage, matchStgCmtTask, prev);
+        return ejb.cancelStgVerTasks(matchQueueMessage, matchStgVerTask, prev);
     }
 
     @Override
@@ -215,58 +215,58 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public void rescheduleStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
-        ejb.rescheduleStgCmtTask(pk, queueEvent);
+    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+        ejb.rescheduleStgVerTask(pk, queueEvent);
     }
 
     @Override
-    public void rescheduleStgCmtTask(String stgCmtTaskQueueMsgId) {
-        ejb.rescheduleStgCmtTask(stgCmtTaskQueueMsgId, null);
+    public void rescheduleStgVerTask(String stgVerTaskQueueMsgId) {
+        ejb.rescheduleStgVerTask(stgVerTaskQueueMsgId, null);
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
-        return ejb.listDistinctDeviceNames(matchQueueMessage, matchStgCmtTask);
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage, matchStgVerTask);
     }
 
     @Override
-    public List<String> listStgCmtTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgCmtTask, int limit) {
-        return ejb.listStgCmtTaskQueueMsgIDs(matchQueueMessage, matchStgCmtTask, limit);
+    public List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask, int limit) {
+        return ejb.listStgVerTaskQueueMsgIDs(matchQueueMessage, matchStgVerTask, limit);
     }
 
     @Override
-    public boolean deleteStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.deleteStgCmtTask(pk, queueEvent);
+    public boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+        return ejb.deleteStgVerTask(pk, queueEvent);
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(matchQueueMessage, matchStgCmtTask, deleteTasksFetchSize);
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(matchQueueMessage, matchStgVerTask, deleteTasksFetchSize);
     }
 
     @Override
-    public List<StgCmtBatch> listStgCmtBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
-                                                 OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listStgCmtBatches(matchQueueBatch, matchStgCmtBatch, order, offset, limit);
+    public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+                                               OrderSpecifier<Date> order, int offset, int limit) {
+        return ejb.listStgVerBatches(matchQueueBatch, matchStgCmtBatch, order, offset, limit);
     }
 
     @Override
-    public Outcome executeStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo request) throws IOException {
-        String localAET = stgCmtTask.getLocalAET();
+    public Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo request) throws IOException {
+        String localAET = storageVerificationTask.getLocalAET();
         StgCmtContext ctx = new StgCmtContext(device.getApplicationEntity(localAET, true), localAET)
                 .setRequest(request);
-        if (stgCmtTask.getStgCmtPolicy() != null)
-            ctx.setStgCmtPolicy(stgCmtTask.getStgCmtPolicy());
-        if (stgCmtTask.getUpdateLocationStatus() != null)
-            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtTask.getUpdateLocationStatus()));
-        String[] storageIDs = stgCmtTask.getStorageIDs();
+        if (storageVerificationTask.getStorageVerificationPolicy() != null)
+            ctx.setStorageVerificationPolicy(storageVerificationTask.getStorageVerificationPolicy());
+        if (storageVerificationTask.getUpdateLocationStatus() != null)
+            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(storageVerificationTask.getUpdateLocationStatus()));
+        String[] storageIDs = storageVerificationTask.getStorageIDs();
         if (storageIDs.length > 0)
             ctx.setStgCmtStorageIDs(storageIDs);
         try {
             calculateResult(ctx,
-                    stgCmtTask.getStudyInstanceUID(),
-                    stgCmtTask.getSeriesInstanceUID(),
-                    stgCmtTask.getSOPInstanceUID());
+                    storageVerificationTask.getStudyInstanceUID(),
+                    storageVerificationTask.getSeriesInstanceUID(),
+                    storageVerificationTask.getSOPInstanceUID());
         } catch (IOException e) {
             ctx.setException(e);
             stgCmtEvent.fire(ctx);
@@ -276,51 +276,51 @@ public class StgCmtManagerImpl implements StgCmtManager {
         Attributes eventInfo = ctx.getEventInfo();
         int completed = sizeOf(eventInfo.getSequence(Tag.ReferencedSOPSequence));
         int failed = sizeOf(eventInfo.getSequence(Tag.FailedSOPSequence));
-        stgCmtTask.setCompleted(completed);
-        stgCmtTask.setFailed(failed);
-        ejb.updateStgCmtTask(stgCmtTask);
+        storageVerificationTask.setCompleted(completed);
+        storageVerificationTask.setFailed(failed);
+        ejb.updateStgVerTask(storageVerificationTask);
         return new Outcome(
                 failed == 0
                         ? QueueMessage.Status.COMPLETED
                         : completed == 0
                         ? QueueMessage.Status.FAILED
                         : QueueMessage.Status.WARNING,
-                toOutcomeMessage(stgCmtTask, ctx));
+                toOutcomeMessage(storageVerificationTask, ctx));
     }
 
-    private String toOutcomeMessage(StgCmtTask stgCmtTask, StgCmtContext ctx) {
+    private String toOutcomeMessage(StorageVerificationTask storageVerificationTask, StgCmtContext ctx) {
         return (ctx.getStgCmtStorageIDs().length == 0)
-            ? (stgCmtTask.getSeriesInstanceUID() == null)
+            ? (storageVerificationTask.getSeriesInstanceUID() == null)
                 ? String.format("Commit Storage of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                    stgCmtTask.getStudyInstanceUID(),
-                    ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
-                : (stgCmtTask.getSOPInstanceUID() == null)
+                    storageVerificationTask.getStudyInstanceUID(),
+                    ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
+                : (storageVerificationTask.getSOPInstanceUID() == null)
                     ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                        stgCmtTask.getSeriesInstanceUID(),
-                        stgCmtTask.getStudyInstanceUID(),
-                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
+                        storageVerificationTask.getSeriesInstanceUID(),
+                        storageVerificationTask.getStudyInstanceUID(),
+                        ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                     :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                        stgCmtTask.getSOPInstanceUID(),
-                        stgCmtTask.getSeriesInstanceUID(),
-                        stgCmtTask.getStudyInstanceUID(),
-                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
-            : (stgCmtTask.getSeriesInstanceUID() == null)
+                        storageVerificationTask.getSOPInstanceUID(),
+                        storageVerificationTask.getSeriesInstanceUID(),
+                        storageVerificationTask.getStudyInstanceUID(),
+                        ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
+            : (storageVerificationTask.getSeriesInstanceUID() == null)
                 ? String.format("Commit Storage of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
-                    stgCmtTask.getStudyInstanceUID(),
+                    storageVerificationTask.getStudyInstanceUID(),
                     Arrays.toString(ctx.getStgCmtStorageIDs()),
-                    ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
-                : (stgCmtTask.getSOPInstanceUID() == null)
+                    ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
+                : (storageVerificationTask.getSOPInstanceUID() == null)
                     ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
-                        stgCmtTask.getSeriesInstanceUID(),
-                        stgCmtTask.getStudyInstanceUID(),
+                        storageVerificationTask.getSeriesInstanceUID(),
+                        storageVerificationTask.getStudyInstanceUID(),
                         Arrays.toString(ctx.getStgCmtStorageIDs()),
-                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed())
+                        ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                     :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] on Storage%s of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                        stgCmtTask.getSOPInstanceUID(),
-                        stgCmtTask.getSeriesInstanceUID(),
-                        stgCmtTask.getStudyInstanceUID(),
+                        storageVerificationTask.getSOPInstanceUID(),
+                        storageVerificationTask.getSeriesInstanceUID(),
+                        storageVerificationTask.getStudyInstanceUID(),
                         Arrays.toString(ctx.getStgCmtStorageIDs()),
-                        ctx.getStgCmtPolicy(), stgCmtTask.getCompleted(), stgCmtTask.getFailed());
+                        ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed());
     }
 
     private static int sizeOf(Sequence seq) {
@@ -366,7 +366,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                             attr.getString(Tag.SeriesInstanceUID),
                             key -> new int[1])
                     : null;
-            if (ctx.getStgCmtPolicy() == StgCmtPolicy.DB_RECORD_EXISTS
+            if (ctx.getStorageVerificationPolicy() == StorageVerificationPolicy.DB_RECORD_EXISTS
                     || checkLocations(ctx, retrCtx, inst, updateLocations)) {
                 eventInfo.ensureSequence(Tag.ReferencedSOPSequence, retrCtx.getNumberOfMatches())
                         .add(refSOP(cuid, iuid,
@@ -525,7 +525,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(l.getStoragePath());
         readContext.setStudyInstanceUID(inst.getAttributes().getString(Tag.StudyInstanceUID));
-        switch (ctx.getStgCmtPolicy()) {
+        switch (ctx.getStorageVerificationPolicy()) {
             case OBJECT_EXISTS:
                 return objectExists(readContext);
             case OBJECT_SIZE:
@@ -537,7 +537,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
             case S3_MD5SUM:
                 return compareS3md5Sum(readContext, inst, l, updateLocations);
         }
-        throw new AssertionError("StgCmtPolicy: " + ctx.getStgCmtPolicy());
+        throw new AssertionError("StgCmtPolicy: " + ctx.getStorageVerificationPolicy());
     }
 
     private static class CheckResult {

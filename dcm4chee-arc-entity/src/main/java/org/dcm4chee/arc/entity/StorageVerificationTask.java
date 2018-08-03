@@ -43,8 +43,7 @@ package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.StgCmtPolicy;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
@@ -61,25 +60,25 @@ import java.util.Date;
  * @since Jul 2018
  */
 @Entity
-@Table(name = "stgcmt_task",
+@Table(name = "stgver_task",
         indexes = {
                 @Index(columnList = "created_time"),
                 @Index(columnList = "updated_time"),
                 @Index(columnList = "study_iuid, series_iuid, sop_iuid")}
 )
 @NamedQueries({
-        @NamedQuery(name = StgCmtTask.UPDATE_RESULT_BY_PK,
-                query = "update StgCmtTask o set " +
+        @NamedQuery(name = StorageVerificationTask.UPDATE_RESULT_BY_PK,
+                query = "update StorageVerificationTask o set " +
                         "o.updatedTime=current_timestamp, " +
                         "o.completed=?2, " +
                         "o.failed=?3 " +
                         "where pk=?1"),
-        @NamedQuery(name = StgCmtTask.FIND_DEVICE_BY_PK,
-                query = "select o.queueMessage.deviceName from StgCmtTask o where o.pk=?1")
+        @NamedQuery(name = StorageVerificationTask.FIND_DEVICE_BY_PK,
+                query = "select o.queueMessage.deviceName from StorageVerificationTask o where o.pk=?1")
 })
-public class StgCmtTask {
-    public static final String UPDATE_RESULT_BY_PK = "StgCmtTask.UpdateResultByPk";
-    public static final String FIND_DEVICE_BY_PK = "StgCmtTask.FindDeviceByPk";
+public class StorageVerificationTask {
+    public static final String UPDATE_RESULT_BY_PK = "StorageVerificationTask.UpdateResultByPk";
+    public static final String FIND_DEVICE_BY_PK = "StorageVerificationTask.FindDeviceByPk";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -101,7 +100,7 @@ public class StgCmtTask {
     private String localAET;
 
     @Column(name = "stgcmt_policy", updatable = false)
-    private StgCmtPolicy stgCmtPolicy;
+    private StorageVerificationPolicy storageVerificationPolicy;
 
     @Column(name = "update_location_status", updatable = false)
     private Boolean updateLocationStatus;
@@ -167,12 +166,12 @@ public class StgCmtTask {
         this.localAET = localAET;
     }
 
-    public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
     }
 
-    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy;
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
     public Boolean getUpdateLocationStatus() {
@@ -256,7 +255,7 @@ public class StgCmtTask {
         writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
         writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
         writer.writeNotNullOrDef("LocalAET", localAET, null);
-        writer.writeNotNullOrDef("StgCmtPolicy", stgCmtPolicy, null);
+        writer.writeNotNullOrDef("StgCmtPolicy", storageVerificationPolicy, null);
         writer.writeNotNull("UpdateLocationStatus", updateLocationStatus);
         writer.writeNotEmpty("StorageID", getStorageIDs());
         writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
@@ -305,8 +304,8 @@ public class StgCmtTask {
         writer.write(delimiter);
         writer.write(localAET);
         writer.write(delimiter);
-        if (stgCmtPolicy != null)
-            writer.write(stgCmtPolicy.name());
+        if (storageVerificationPolicy != null)
+            writer.write(storageVerificationPolicy.name());
         writer.write(delimiter);
         writer.write(String.valueOf(updateLocationStatus));
         writer.write(delimiter);

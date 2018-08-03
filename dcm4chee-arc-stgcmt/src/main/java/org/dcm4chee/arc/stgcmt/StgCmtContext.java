@@ -46,7 +46,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.StgCmtPolicy;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
@@ -60,7 +60,7 @@ public class StgCmtContext {
     private final Attributes eventInfo = new Attributes(4);
     private ApplicationEntity remoteAE;
     private HttpServletRequestInfo request;
-    private StgCmtPolicy stgCmtPolicy;
+    private StorageVerificationPolicy storageVerificationPolicy;
     private boolean stgCmtUpdateLocationStatus;
     private String[] stgCmtStorageIDs;
     private Throwable exception;
@@ -68,7 +68,7 @@ public class StgCmtContext {
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
         this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
         this.localAET = localAET;
-        this.stgCmtPolicy = arcAE.stgCmtPolicy();
+        this.storageVerificationPolicy = arcAE.storageVerificationPolicy();
         this.stgCmtUpdateLocationStatus = arcAE.stgCmtUpdateLocationStatus();
         this.stgCmtStorageIDs = arcAE.stgCmtStorageIDs();
     }
@@ -116,12 +116,12 @@ public class StgCmtContext {
         return eventInfo;
     }
 
-    public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
     }
 
-    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy;
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
     public boolean isStgCmtUpdateLocationStatus() {

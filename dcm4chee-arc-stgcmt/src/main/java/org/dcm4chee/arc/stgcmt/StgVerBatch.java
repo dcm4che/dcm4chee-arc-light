@@ -48,7 +48,7 @@ import java.util.List;
  * @since Aug 2018
  */
 
-public class StgCmtBatch {
+public class StgVerBatch {
     private String batchID;
     private Date[] createdTimeRange = {};
     private Date[] updatedTimeRange = {};

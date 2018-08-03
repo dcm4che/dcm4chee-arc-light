@@ -115,9 +115,9 @@ public class ArchiveAEExtension extends AEExtension {
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
-    private StgCmtPolicy stgCmtPolicy;
-    private Boolean stgCmtUpdateLocationStatus;
-    private String[] stgCmtStorageIDs = {};
+    private StorageVerificationPolicy storageVerificationPolicy;
+    private Boolean storageVerificationUpdateLocationStatus;
+    private String[] storageVerificationStorageIDs = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1059,44 +1059,44 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getInvokeImageDisplayStudyURL();
     }
 
-    public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
     }
 
-    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy;
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
-    public StgCmtPolicy stgCmtPolicy() {
-        return stgCmtPolicy != null
-                ? stgCmtPolicy
-                : getArchiveDeviceExtension().getStgCmtPolicy();
+    public StorageVerificationPolicy storageVerificationPolicy() {
+        return storageVerificationPolicy != null
+                ? storageVerificationPolicy
+                : getArchiveDeviceExtension().getStorageVerificationPolicy();
     }
 
-    public Boolean getStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus;
+    public Boolean getStorageVerificationUpdateLocationStatus() {
+        return storageVerificationUpdateLocationStatus;
     }
 
-    public void setStgCmtUpdateLocationStatus(Boolean stgCmtUpdateLocationStatus) {
-        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    public void setStorageVerificationUpdateLocationStatus(Boolean storageVerificationUpdateLocationStatus) {
+        this.storageVerificationUpdateLocationStatus = storageVerificationUpdateLocationStatus;
     }
 
     public boolean stgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus != null
-                ? stgCmtUpdateLocationStatus
-                : getArchiveDeviceExtension().isStgCmtUpdateLocationStatus();
+        return storageVerificationUpdateLocationStatus != null
+                ? storageVerificationUpdateLocationStatus
+                : getArchiveDeviceExtension().isStorageVerificationUpdateLocationStatus();
     }
 
-    public String[] getStgCmtStorageIDs() {
-        return stgCmtStorageIDs;
+    public String[] getStorageVerificationStorageIDs() {
+        return storageVerificationStorageIDs;
     }
 
-    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
-        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    public void setStorageVerificationStorageIDs(String... storageVerificationStorageIDs) {
+        this.storageVerificationStorageIDs = storageVerificationStorageIDs;
     }
 
     public String[] stgCmtStorageIDs() {
-        return stgCmtStorageIDs != null ? stgCmtStorageIDs : getArchiveDeviceExtension().getStgCmtStorageIDs();
+        return storageVerificationStorageIDs != null ? storageVerificationStorageIDs : getArchiveDeviceExtension().getStorageVerificationStorageIDs();
     }
 
     @Override
@@ -1157,9 +1157,9 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
         invokeImageDisplayPatientURL = aeExt.invokeImageDisplayPatientURL;
         invokeImageDisplayStudyURL = aeExt.invokeImageDisplayStudyURL;
-        stgCmtPolicy = aeExt.stgCmtPolicy;
-        stgCmtUpdateLocationStatus = aeExt.stgCmtUpdateLocationStatus;
-        stgCmtStorageIDs = aeExt.stgCmtStorageIDs;
+        storageVerificationPolicy = aeExt.storageVerificationPolicy;
+        storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
+        storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

@@ -91,8 +91,8 @@ class SeriesQuery extends AbstractQuery {
             QSeries.series.metadataScheduledUpdateTime,
             QSeries.series.instancePurgeTime,
             QSeries.series.instancePurgeState,
-            QSeries.series.storageCommitmentTime,
-            QSeries.series.failuresOfLastStorageCommitment,
+            QSeries.series.storageVerificationTime,
+            QSeries.series.failuresOfLastStorageVerification,
             QMetadata.metadata.storageID,
             QMetadata.metadata.storagePath,
             QMetadata.metadata.digest,
@@ -225,12 +225,12 @@ class SeriesQuery extends AbstractQuery {
                     results.get(QSeries.series.instancePurgeTime));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 results.get(QSeries.series.instancePurgeState).name());
-        if (results.get(QSeries.series.storageCommitmentTime) != null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledStorageCommitmentDateTimeOfSeries, VR.DT,
-                    results.get(QSeries.series.storageCommitmentTime));
-        if (results.get(QSeries.series.failuresOfLastStorageCommitment) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageCommitmentOfSeries, VR.US,
-                    results.get(QSeries.series.failuresOfLastStorageCommitment));
+        if (results.get(QSeries.series.storageVerificationTime) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledStorageVerificationDateTimeOfSeries, VR.DT,
+                    results.get(QSeries.series.storageVerificationTime));
+        if (results.get(QSeries.series.failuresOfLastStorageVerification) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageVerificationOfSeries, VR.US,
+                    results.get(QSeries.series.failuresOfLastStorageVerification));
         if (results.get(QMetadata.metadata.storageID) != null) {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
                     results.get(QMetadata.metadata.storageID));

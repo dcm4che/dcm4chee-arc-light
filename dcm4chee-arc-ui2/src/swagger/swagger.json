@@ -47,6 +47,10 @@
       "description": "Storage Commitment"
     },
     {
+      "name": "STGVER-RS",
+      "description": "Storage Verification"
+    },
+    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -3427,14 +3431,14 @@
         }
       }
     },
-    "/monitor/stgcmt": {
+    "/monitor/stgver": {
       "get": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "List Storage Commitment Tasks",
-        "operationId": "listStorageCommitmentTasks",
+        "summary": "List Storage Verification Tasks",
+        "operationId": "listStorageVerificationTasks",
         "produces": [
           "application/json",
           "text/csv"
@@ -3485,13 +3489,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "list Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "description": "list Storage Verification Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "list Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "list Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -3530,7 +3534,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "stgcmtTaskList.schema.json"
+              "$ref": "stgverTaskList.schema.json"
             }
           },
           "default": {
@@ -3541,10 +3545,10 @@
       "delete": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Delete Storage Commitment Tasks",
-        "operationId": "deleteStorageCommitmentTasks",
+        "summary": "Delete Storage Verification Tasks",
+        "operationId": "deleteStorageVerificationTasks",
         "produces": [
           "application/json"
         ],
@@ -3584,13 +3588,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "delete Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "description": "delete Storage Verification Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "delete Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "delete Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -3613,14 +3617,14 @@
         }
       }
     },
-    "/monitor/stgcmt/batch": {
+    "/monitor/stgver/batch": {
       "get": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "List Storage Commitment Batches",
-        "operationId": "listStorageCommitmentBatches",
+        "summary": "List Storage Verification Batches",
+        "operationId": "listStorageVerificationBatches",
         "produces": [
           "application/json"
         ],
@@ -3628,19 +3632,19 @@
           {
             "name": "dicomDeviceName",
             "in": "query",
-            "description": "list batches with at least one Storage Commitment Task with the specified Device Name",
+            "description": "list batches with at least one Storage Verification Task with the specified Device Name",
             "type": "string"
           },
           {
             "name": "LocalAET",
             "in": "query",
-            "description": "list batches with at least one Storage Commitment Task with the specified Archive AE Title",
+            "description": "list batches with at least one Storage Verification Task with the specified Archive AE Title",
             "type": "string"
           },
           {
             "name": "status",
             "in": "query",
-            "description": "list batches with at least one Storage Commitment Task with the specified status",
+            "description": "list batches with at least one Storage Verification Task with the specified status",
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -3654,13 +3658,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "list batches with at least one Storage Commitment Task were created between <datetime1>-<datetime2>",
+            "description": "list batches with at least one Storage Verification Task were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "list batches with at least one Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "list batches with at least one Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -3693,7 +3697,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "stgcmtBatchList.schema.json"
+              "$ref": "stgverBatchList.schema.json"
             }
           },
           "default": {
@@ -3702,14 +3706,14 @@
         }
       }
     },
-    "/monitor/stgcmt/count": {
+    "/monitor/stgver/count": {
       "get": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Count Storage Commitment Tasks",
-        "operationId": "countStorageCommitmentTasks",
+        "summary": "Count Storage Verification Tasks",
+        "operationId": "countStorageVerificationTasks",
         "produces": [
           "application/json"
         ],
@@ -3749,13 +3753,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "count Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "description": "count Storage Verification Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "count Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "count Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -3778,14 +3782,14 @@
         }
       }
     },
-    "/monitor/stgcmt/cancel": {
+    "/monitor/stgver/cancel": {
       "post": {
         "tags": [
           "MONITOR-RS",
           "STGCMT-RS"
         ],
-        "summary": "Cancel Storage Commitment Tasks",
-        "operationId": "cancelStorageCommitmentTasks",
+        "summary": "Cancel Storage Verification Tasks",
+        "operationId": "cancelStorageVerificationTasks",
         "produces": [
           "application/json"
         ],
@@ -3822,13 +3826,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "cancel Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "description": "cancel Storage Verification Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "cancel Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "cancel Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -3854,14 +3858,14 @@
         }
       }
     },
-    "/monitor/stgcmt/reschedule": {
+    "/monitor/stgver/reschedule": {
       "post": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Reschedule Storage Commitment Tasks",
-        "operationId": "rescheduleStorageCommitmentTasks",
+        "summary": "Reschedule Storage Verification Tasks",
+        "operationId": "rescheduleStorageVerificationTasks",
         "produces": [
           "application/json"
         ],
@@ -3908,13 +3912,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "reschedule Storage Commitment Tasks which were created between <datetime1>-<datetime2>",
+            "description": "reschedule Storage Verification Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "reschedule Storage Commitment Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "reschedule Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -3940,14 +3944,14 @@
         }
       }
     },
-    "/monitor/stgcmt/{taskPK}": {
+    "/monitor/stgver/{taskPK}": {
       "delete": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Delete Storage Commitment Task",
-        "operationId": "deleteStorageCommitmentTask",
+        "summary": "Delete Storage Verification Task",
+        "operationId": "deleteStorageVerificationTask",
         "parameters": [
           {
             "name": "taskPK",
@@ -3970,14 +3974,14 @@
         }
       }
     },
-    "/monitor/stgcmt/{taskPK}/cancel": {
+    "/monitor/stgver/{taskPK}/cancel": {
       "post": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Cancel Storage Commitment Task",
-        "operationId": "cancelStorageCommitmentTask",
+        "summary": "Cancel Storage Verification Task",
+        "operationId": "cancelStorageVerificationTask",
         "parameters": [
           {
             "name": "taskPK",
@@ -4003,14 +4007,14 @@
         }
       }
     },
-    "/monitor/stgcmt/{taskPK}/reschedule": {
+    "/monitor/stgver/{taskPK}/reschedule": {
       "post": {
         "tags": [
           "MONITOR-RS",
-          "STGCMT-RS"
+          "STGCVER-RS"
         ],
-        "summary": "Reschedule Storage Commitment Task",
-        "operationId": "rescheduleStorageCommitmentTask",
+        "summary": "Reschedule Storage Verification Task",
+        "operationId": "rescheduleStorageVerificationTask",
         "parameters": [
           {
             "name": "taskPK",
@@ -4589,7 +4593,7 @@
           "CONFIG-RS",
           "IOCM-RS",
           "EXPORT-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
         "summary": "List Archive AE Titles",
         "operationId": "listArchiveAETs",
@@ -6135,7 +6139,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully scheduled stgcmt of matching Series",
+            "description": "Successfully scheduled retrieve of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -7978,7 +7982,7 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Studies which includes at least one Series with Failures of Last Storage Commitment",
             "type": "boolean",
@@ -8110,7 +8114,7 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Series with Failures of Last Storage Commitment",
             "type": "boolean",
@@ -8249,7 +8253,7 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Series with Failures of Last Storage Commitment",
             "type": "boolean",
@@ -8381,7 +8385,7 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
@@ -8520,7 +8524,7 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
@@ -8666,7 +8670,7 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
@@ -8698,13 +8702,13 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgver": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Request Storage Commitment of Study",
-        "operationId": "StorageCommitmentStudy",
+        "summary": "Verify Storage of Study",
+        "operationId": "VerifyStorageOfStudy",
         "produces": [
           "application/dicom+json",
           "application/json"
@@ -8725,7 +8729,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8739,15 +8743,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -8777,13 +8781,13 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Request Storage Commitment of Series",
-        "operationId": "StorageCommitmentSeries",
+        "summary": "Verify Storage of Series",
+        "operationId": "VerifyStorageOfSeries",
         "produces": [
           "application/dicom+json",
           "application/json"
@@ -8811,7 +8815,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8825,15 +8829,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -8863,13 +8867,13 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgver": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Request Storage Commitment of Instance",
-        "operationId": "StorageCommitmentInstance",
+        "summary": "Verify Storage of Instance",
+        "operationId": "VerifyStorageOfInstance",
         "produces": [
           "application/dicom+json",
           "application/json"
@@ -8904,7 +8908,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8918,15 +8922,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -8956,13 +8960,13 @@
         }
       }
     },
-    "/aets/{aet}/stgcmt/studies": {
+    "/aets/{aet}/stgver/studies": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Schedule Storage Commitment of Matching Studies",
-        "operationId": "stgcmtMatchingStudies",
+        "summary": "Schedule Storage Verification of Studies",
+        "operationId": "ScheduleStorageVerificationOfStudies",
         "produces": [
           "application/json"
         ],
@@ -9037,14 +9041,14 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Studies which includes at least one Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9058,15 +9062,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -9082,7 +9086,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Successfully scheduled Storage Commitment of matching Studies",
+            "description": "Successfully scheduled Storage Verification of Studies",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -9091,7 +9095,7 @@
             "description": "No such Archive AE Title or Exporter ID"
           },
           "503": {
-            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "500": {
             "description": "Internal Server Error"
@@ -9099,13 +9103,13 @@
         }
       }
     },
-    "/aets/{aet}/stgcmt/series": {
+    "/aets/{aet}/stgver/series": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Schedule Storage Commitment of Matching Series",
-        "operationId": "stgcmtMatchingSeries",
+        "summary": "Schedule Storage Verification of Series",
+        "operationId": "ScheduleStorageVerificationOfSeries",
         "produces": [
           "application/json"
         ],
@@ -9180,14 +9184,14 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9201,15 +9205,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -9225,7 +9229,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Successfully scheduled Storage Commitment of matching Series",
+            "description": "Successfully scheduled Storage Verification of Series",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -9234,7 +9238,7 @@
             "description": "No such Archive AE Title or Exporter ID"
           },
           "503": {
-            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "500": {
             "description": "Internal Server Error"
@@ -9242,13 +9246,13 @@
         }
       }
     },
-    "/aets/{aet}/stgcmt/studies/{StudyInstanceUID}/series": {
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Schedule Storage Commitment of Matching Series of Study",
-        "operationId": "stgcmtMatchingSeriesOfStudy",
+        "summary": "Schedule Storage Verification of Series of Study",
+        "operationId": "ScheduleStorageVerificationOfSeriesOfStudy",
         "produces": [
           "application/json"
         ],
@@ -9330,14 +9334,14 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9351,15 +9355,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -9375,7 +9379,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Successfully scheduled Storage Commitment of matching Series",
+            "description": "Successfully scheduled Storage Verification of Series",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -9384,7 +9388,7 @@
             "description": "No such Archive AE Title or Exporter ID"
           },
           "503": {
-            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "500": {
             "description": "Internal Server Error"
@@ -9392,13 +9396,13 @@
         }
       }
     },
-    "/aets/{aet}/stgcmt/instances": {
+    "/aets/{aet}/stgver/instances": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Schedule Storage Commitment of Matching Instances",
-        "operationId": "stgcmtMatchingInstances",
+        "summary": "Schedule Storage Verification of Instances",
+        "operationId": "ScheduleStorageVerificationOfInstances",
         "produces": [
           "application/json"
         ],
@@ -9473,14 +9477,14 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9494,15 +9498,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -9518,7 +9522,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -9527,7 +9531,7 @@
             "description": "No such Archive AE Title or Exporter ID"
           },
           "503": {
-            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "500": {
             "description": "Internal Server Error"
@@ -9535,13 +9539,13 @@
         }
       }
     },
-    "/aets/{aet}/stgcmt/studies/{StudyInstanceUID}/instances": {
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/instances": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Schedule Storage Commitment of Matching Instances of Study",
-        "operationId": "stgcmtMatchingInstancesOfStudy",
+        "summary": "Schedule Storage Verification of Instances of Study",
+        "operationId": "ScheduleStorageVerificationOfInstancesOfStudy",
         "produces": [
           "application/json"
         ],
@@ -9623,14 +9627,14 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9644,15 +9648,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -9668,7 +9672,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -9677,7 +9681,7 @@
             "description": "No such Archive AE Title or Exporter ID"
           },
           "503": {
-            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "500": {
             "description": "Internal Server Error"
@@ -9685,13 +9689,13 @@
         }
       }
     },
-    "/aets/{aet}/stgcmt/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Schedule Storage Commitment of Matching Instances of Series",
-        "operationId": "stgcmtMatchingInstancesOfSeries",
+        "summary": "Schedule Storage Verification of Instances of Series",
+        "operationId": "ScheduleStorageVerificationOfInstancesOfSeries",
         "produces": [
           "application/json"
         ],
@@ -9780,14 +9784,14 @@
             "default": false
           },
           {
-            "name": "stgcmtfailed",
+            "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Storage Commitment",
             "type": "boolean",
             "default": false
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "dcmStorageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9801,15 +9805,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "dcmStorageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "dcmStorageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -9825,7 +9829,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -9834,7 +9838,7 @@
             "description": "No such Archive AE Title or Exporter ID"
           },
           "503": {
-            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "500": {
             "description": "Internal Server Error"

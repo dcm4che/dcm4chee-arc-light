@@ -114,8 +114,8 @@ import java.util.Date;
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(
-    name=Series.UPDATE_STGCMT_FAILURES,
-    query="update Series ser set ser.failuresOfLastStorageCommitment = ?3 " +
+    name=Series.UPDATE_STGVER_FAILURES,
+    query="update Series ser set ser.failuresOfLastStorageVerification = ?3 " +
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(
@@ -226,8 +226,8 @@ import java.util.Date;
         @Index(columnList = "metadata_update_time"),
         @Index(columnList = "inst_purge_time"),
         @Index(columnList = "inst_purge_state"),
-        @Index(columnList = "stgcmt_time"),
-        @Index(columnList = "stgcmt_failures")
+        @Index(columnList = "stgver_time"),
+        @Index(columnList = "stgver_failures")
 })
 public class Series {
 
@@ -256,7 +256,7 @@ public class Series {
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
-    public static final String UPDATE_STGCMT_FAILURES = "Series.updateStgCmtFailures";
+    public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -411,12 +411,12 @@ public class Series {
     private InstancePurgeState instancePurgeState;
 
     @Basic
-    @Column(name = "stgcmt_time")
-    private Date storageCommitmentTime;
+    @Column(name = "stgver_time")
+    private Date storageVerificationTime;
 
     @Basic(optional = false)
-    @Column(name = "stgcmt_failures")
-    private int failuresOfLastStorageCommitment;
+    @Column(name = "stgver_failures")
+    private int failuresOfLastStorageVerification;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -647,20 +647,20 @@ public class Series {
         this.instancePurgeState = instancePurgeState;
     }
 
-    public Date getStorageCommitmentTime() {
-        return storageCommitmentTime;
+    public Date getStorageVerificationTime() {
+        return storageVerificationTime;
     }
 
-    public void setStorageCommitmentTime(Date storageCommitmentTime) {
-        this.storageCommitmentTime = storageCommitmentTime;
+    public void setStorageVerificationTime(Date storageVerificationTime) {
+        this.storageVerificationTime = storageVerificationTime;
     }
 
-    public int getFailuresOfLastStorageCommitment() {
-        return failuresOfLastStorageCommitment;
+    public int getFailuresOfLastStorageVerification() {
+        return failuresOfLastStorageVerification;
     }
 
-    public void setFailuresOfLastStorageCommitment(int failuresOfLastStorageCommitment) {
-        this.failuresOfLastStorageCommitment = failuresOfLastStorageCommitment;
+    public void setFailuresOfLastStorageVerification(int failuresOfLastStorageVerification) {
+        this.failuresOfLastStorageVerification = failuresOfLastStorageVerification;
     }
 
     public Completeness getCompleteness() {

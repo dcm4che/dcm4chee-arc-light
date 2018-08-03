@@ -44,7 +44,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.StgCmtPolicy;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
@@ -62,7 +62,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -75,8 +74,8 @@ import java.util.List;
  */
 @RequestScoped
 @Path("aets/{aet}/rs")
-public class StorageCmtRS {
-    private static final Logger LOG = LoggerFactory.getLogger(StorageCmtRS.class);
+public class StgVerRS {
+    private static final Logger LOG = LoggerFactory.getLogger(StgVerRS.class);
 
     @Inject
     private Device device;
@@ -93,19 +92,19 @@ public class StorageCmtRS {
     @Context
     private HttpServletRequest request;
 
-    @QueryParam("dcmStgCmtPolicy")
+    @QueryParam("dcmStorageVerificationPolicy")
     @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
-    private String stgCmtPolicy;
+    private String storageVerificationPolicy;
 
-    @QueryParam("dcmStgCmtUpdateLocationStatus")
+    @QueryParam("dcmStorageVerificationUpdateLocationStatus")
     @Pattern(regexp = "true|false")
-    private String stgCmtUpdateLocationStatus;
+    private String storageVerificationUpdateLocationStatus;
 
-    @QueryParam("dcmStgCmtStorageID")
-    private List<String> stgCmtStorageIDs;
+    @QueryParam("dcmStorageVerificationStorageID")
+    private List<String> storageVerificationStorageIDs;
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/stgver")
     @Produces("application/dicom+json,application/json")
     public StreamingOutput studyStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID) {
@@ -113,7 +112,7 @@ public class StorageCmtRS {
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver")
     @Produces("application/dicom+json,application/json")
     public StreamingOutput seriesStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
@@ -122,7 +121,7 @@ public class StorageCmtRS {
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgver")
     @Produces("application/dicom+json,application/json")
     public StreamingOutput instanceStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
@@ -135,12 +134,12 @@ public class StorageCmtRS {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
                 .setRequest(HttpServletRequestInfo.valueOf(request));
-        if (stgCmtPolicy != null)
-            ctx.setStgCmtPolicy(StgCmtPolicy.valueOf(stgCmtPolicy));
-        if (stgCmtUpdateLocationStatus != null)
-            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus));
-        if (!stgCmtStorageIDs.isEmpty())
-            ctx.setStgCmtStorageIDs(stgCmtStorageIDs.toArray(StringUtils.EMPTY_STRING));
+        if (storageVerificationPolicy != null)
+            ctx.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(storageVerificationPolicy));
+        if (storageVerificationUpdateLocationStatus != null)
+            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(storageVerificationUpdateLocationStatus));
+        if (!storageVerificationStorageIDs.isEmpty())
+            ctx.setStgCmtStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
         try {
             stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
         } catch (IOException e) {

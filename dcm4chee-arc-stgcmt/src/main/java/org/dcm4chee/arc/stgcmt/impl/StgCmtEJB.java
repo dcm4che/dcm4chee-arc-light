@@ -63,9 +63,9 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.stgcmt.StgCmtBatch;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.StgCmtTaskQuery;
+import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -109,10 +109,10 @@ public class StgCmtEJB {
             QQueueMessage.queueMessage.processingEndTime.max(),
             QQueueMessage.queueMessage.scheduledTime.min(),
             QQueueMessage.queueMessage.scheduledTime.max(),
-            QStgCmtTask.stgCmtTask.createdTime.min(),
-            QStgCmtTask.stgCmtTask.createdTime.max(),
-            QStgCmtTask.stgCmtTask.updatedTime.min(),
-            QStgCmtTask.stgCmtTask.updatedTime.max(),
+            QStorageVerificationTask.storageVerificationTask.createdTime.min(),
+            QStorageVerificationTask.storageVerificationTask.createdTime.max(),
+            QStorageVerificationTask.storageVerificationTask.updatedTime.min(),
+            QStorageVerificationTask.storageVerificationTask.updatedTime.max(),
             QQueueMessage.queueMessage.batchID
     };
 
@@ -274,75 +274,80 @@ public class StgCmtEJB {
         return predicate;
     }
 
-    public boolean scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
-                                   String batchID) throws QueueSizeLimitExceededException {
-        if (isAlreadyScheduled(stgCmtTask))
+    public boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
+                                      String batchID) throws QueueSizeLimitExceededException {
+        if (isAlreadyScheduled(storageVerificationTask))
             return false;
 
         try {
             ObjectMessage msg = queueManager.createObjectMessage(0);
-            msg.setStringProperty("LocalAET", stgCmtTask.getLocalAET());
-            msg.setStringProperty("StudyInstanceUID", stgCmtTask.getStudyInstanceUID());
-            if (stgCmtTask.getSeriesInstanceUID() != null) {
-                msg.setStringProperty("SeriesInstanceUID", stgCmtTask.getSeriesInstanceUID());
-                if (stgCmtTask.getSOPInstanceUID() != null) {
-                    msg.setStringProperty("SOPInstanceUID", stgCmtTask.getSOPInstanceUID());
+            msg.setStringProperty("LocalAET", storageVerificationTask.getLocalAET());
+            msg.setStringProperty("StudyInstanceUID", storageVerificationTask.getStudyInstanceUID());
+            if (storageVerificationTask.getSeriesInstanceUID() != null) {
+                msg.setStringProperty("SeriesInstanceUID", storageVerificationTask.getSeriesInstanceUID());
+                if (storageVerificationTask.getSOPInstanceUID() != null) {
+                    msg.setStringProperty("SOPInstanceUID", storageVerificationTask.getSOPInstanceUID());
                 }
             }
             httpServletRequestInfo.copyTo(msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(StgCmtManager.QUEUE_NAME, msg,
                     Message.DEFAULT_PRIORITY, batchID);
-            stgCmtTask.setQueueMessage(queueMessage);
-            em.persist(stgCmtTask);
+            storageVerificationTask.setQueueMessage(queueMessage);
+            em.persist(storageVerificationTask);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
         return true;
     }
 
-    private boolean isAlreadyScheduled(StgCmtTask stgCmtTask) {
-        BooleanBuilder predicate = new BooleanBuilder(QStgCmtTask.stgCmtTask.queueMessage.status.in(
+    private boolean isAlreadyScheduled(StorageVerificationTask storageVerificationTask) {
+        BooleanBuilder predicate = new BooleanBuilder(QStorageVerificationTask.storageVerificationTask.queueMessage.status.in(
                 QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
-        predicate.and(QStgCmtTask.stgCmtTask.studyInstanceUID.eq(stgCmtTask.getStudyInstanceUID()));
-        if (stgCmtTask.getSeriesInstanceUID() == null) {
-            predicate.and(QStgCmtTask.stgCmtTask.seriesInstanceUID.isNull());
+        predicate.and(QStorageVerificationTask.storageVerificationTask.studyInstanceUID.eq(
+                storageVerificationTask.getStudyInstanceUID()));
+        if (storageVerificationTask.getSeriesInstanceUID() == null) {
+            predicate.and(QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.isNull());
         } else {
             predicate.and(ExpressionUtils.or(
-                    QStgCmtTask.stgCmtTask.seriesInstanceUID.isNull(),
-                    QStgCmtTask.stgCmtTask.seriesInstanceUID.eq(stgCmtTask.getSeriesInstanceUID())));
-            if (stgCmtTask.getSOPInstanceUID() == null) {
-                predicate.and(QStgCmtTask.stgCmtTask.sopInstanceUID.isNull());
+                    QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.isNull(),
+                    QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.eq(
+                            storageVerificationTask.getSeriesInstanceUID())));
+            if (storageVerificationTask.getSOPInstanceUID() == null) {
+                predicate.and(QStorageVerificationTask.storageVerificationTask.sopInstanceUID.isNull());
             } else {
                 predicate.and(ExpressionUtils.or(
-                    QStgCmtTask.stgCmtTask.sopInstanceUID.isNull(),
-                    QStgCmtTask.stgCmtTask.sopInstanceUID.eq(stgCmtTask.getSOPInstanceUID())));
+                    QStorageVerificationTask.storageVerificationTask.sopInstanceUID.isNull(),
+                    QStorageVerificationTask.storageVerificationTask.sopInstanceUID.eq(
+                            storageVerificationTask.getSOPInstanceUID())));
             }
         }
-        if (stgCmtTask.getStgCmtPolicy() != null) {
-            predicate.and(QStgCmtTask.stgCmtTask.stgCmtPolicy.eq(stgCmtTask.getStgCmtPolicy()));
+        if (storageVerificationTask.getStorageVerificationPolicy() != null) {
+            predicate.and(QStorageVerificationTask.storageVerificationTask.storageVerificationPolicy.eq(
+                    storageVerificationTask.getStorageVerificationPolicy()));
         }
-        if (stgCmtTask.getStorageIDsAsString() != null) {
-            predicate.and(QStgCmtTask.stgCmtTask.storageIDs.eq(stgCmtTask.getStorageIDsAsString()));
+        if (storageVerificationTask.getStorageIDsAsString() != null) {
+            predicate.and(QStorageVerificationTask.storageVerificationTask.storageIDs.eq(
+                    storageVerificationTask.getStorageIDsAsString()));
         }
         try (CloseableIterator<Long> iterate = new HibernateQuery<>(em.unwrap(Session.class))
-                .select(QStgCmtTask.stgCmtTask.pk)
-                .from(QStgCmtTask.stgCmtTask)
+                .select(QStorageVerificationTask.storageVerificationTask.pk)
+                .from(QStorageVerificationTask.storageVerificationTask)
                 .where(predicate)
                 .iterate()) {
             return iterate.hasNext();
         }
     }
 
-    public int updateStgCmtTask(StgCmtTask stgCmtTask) {
-        return em.createNamedQuery(StgCmtTask.UPDATE_RESULT_BY_PK)
-                .setParameter(1, stgCmtTask.getPk())
-                .setParameter(2, stgCmtTask.getCompleted())
-                .setParameter(3, stgCmtTask.getFailed())
+    public int updateStgVerTask(StorageVerificationTask storageVerificationTask) {
+        return em.createNamedQuery(StorageVerificationTask.UPDATE_RESULT_BY_PK)
+                .setParameter(1, storageVerificationTask.getPk())
+                .setParameter(2, storageVerificationTask.getCompleted())
+                .setParameter(3, storageVerificationTask.getFailed())
                 .executeUpdate();
     }
 
     public int updateSeries(String studyIUID, String seriesIUID, int failures) {
-        return em.createNamedQuery(Series.UPDATE_STGCMT_FAILURES)
+        return em.createNamedQuery(Series.UPDATE_STGVER_FAILURES)
                 .setParameter(1, studyIUID)
                 .setParameter(2, seriesIUID)
                 .setParameter(3, failures)
@@ -350,10 +355,10 @@ public class StgCmtEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public StgCmtTaskQuery listStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask,
-                                             OrderSpecifier<Date> order, int offset, int limit) {
-        return new StgCmtTaskQueryImpl(
-                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchStgCmtTask, order, offset, limit);
+    public StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
+                                                        OrderSpecifier<Date> order, int offset, int limit) {
+        return new StgVerTaskQueryImpl(
+                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchStgVerTask, order, offset, limit);
     }
 
     private StatelessSession openStatelessSession() {
@@ -364,22 +369,22 @@ public class StgCmtEJB {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 
-    public long countStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
-        return createQuery(matchQueueMessage, matchStgCmtTask)
+    public long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        return createQuery(matchQueueMessage, matchStgVerTask)
                 .fetchCount();
     }
 
-    private HibernateQuery<StgCmtTask> createQuery(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+    private HibernateQuery<StorageVerificationTask> createQuery(Predicate matchQueueMessage, Predicate matchStgVerTask) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
-        return new HibernateQuery<StgCmtTask>(em.unwrap(Session.class))
-                .from(QStgCmtTask.stgCmtTask)
-                .where(matchStgCmtTask, QStgCmtTask.stgCmtTask.queueMessage.in(queueMsgQuery));
+        return new HibernateQuery<StorageVerificationTask>(em.unwrap(Session.class))
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.in(queueMsgQuery));
     }
 
-    public boolean cancelStgCmtTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        StgCmtTask task = em.find(StgCmtTask.class, pk);
+    public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
         if (task == null)
             return false;
 
@@ -392,14 +397,14 @@ public class StgCmtEJB {
         return true;
     }
 
-    public long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, QueueMessage.Status prev)
+    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return queueManager.cancelStgCmtTasks(matchQueueMessage, matchStgCmtTask, prev);
+        return queueManager.cancelStgVerTasks(matchQueueMessage, matchStgVerTask, prev);
     }
 
     public String findDeviceNameByPk(Long pk) {
         try {
-            return em.createNamedQuery(StgCmtTask.FIND_DEVICE_BY_PK, String.class)
+            return em.createNamedQuery(StorageVerificationTask.FIND_DEVICE_BY_PK, String.class)
                     .setParameter(1, pk)
                     .getSingleResult();
         } catch (NoResultException e) {
@@ -407,35 +412,35 @@ public class StgCmtEJB {
         }
     }
 
-    public void rescheduleStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
-        StgCmtTask task = em.find(StgCmtTask.class, pk);
+    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
         if (task == null)
             return;
 
         LOG.info("Reschedule {}", task);
-        rescheduleStgCmtTask(task.getQueueMessage().getMessageID(), queueEvent);
+        rescheduleStgVerTask(task.getQueueMessage().getMessageID(), queueEvent);
     }
 
-    public void rescheduleStgCmtTask(String stgCmtTaskQueueMsgId, QueueMessageEvent queueEvent) {
-        queueManager.rescheduleTask(stgCmtTaskQueueMsgId, StgCmtManager.QUEUE_NAME, queueEvent);
+    public void rescheduleStgVerTask(String stgVerTaskQueueMsgId, QueueMessageEvent queueEvent) {
+        queueManager.rescheduleTask(stgVerTaskQueueMsgId, StgCmtManager.QUEUE_NAME, queueEvent);
     }
 
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
-        return createQuery(matchQueueMessage, matchStgCmtTask)
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        return createQuery(matchQueueMessage, matchStgVerTask)
                 .select(QQueueMessage.queueMessage.deviceName)
                 .distinct()
                 .fetch();
     }
 
-    public List<String> listStgCmtTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchStgCmtTask, int limit) {
-        return createQuery(matchQueueMsg, matchStgCmtTask)
+    public List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchStgVerTask, int limit) {
+        return createQuery(matchQueueMsg, matchStgVerTask)
                 .select(QQueueMessage.queueMessage.messageID)
                 .limit(limit)
                 .fetch();
     }
 
-    public boolean deleteStgCmtTask(Long pk, QueueMessageEvent queueEvent) {
-        StgCmtTask task = em.find(StgCmtTask.class, pk);
+    public boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
         if (task == null)
             return false;
 
@@ -445,102 +450,102 @@ public class StgCmtEJB {
         return true;
     }
 
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchStgCmtTask)
-                .select(QStgCmtTask.stgCmtTask.queueMessage.pk)
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize) {
+        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchStgVerTask)
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.pk)
                 .limit(deleteTasksFetchSize)
                 .fetch();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QStgCmtTask.stgCmtTask)
-                .where(matchStgCmtTask, QStgCmtTask.stgCmtTask.queueMessage.pk.in(referencedQueueMsgs))
+        new HibernateDeleteClause(em.unwrap(Session.class), QStorageVerificationTask.storageVerificationTask)
+                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.pk.in(referencedQueueMsgs))
                 .execute();
         return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
     }
 
-    public List<StgCmtBatch> listStgCmtBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+    public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
                                                OrderSpecifier<Date> order, int offset, int limit) {
-        HibernateQuery<StgCmtTask> stgCmtTaskQuery = createQuery(matchQueueBatch, matchStgCmtBatch);
+        HibernateQuery<StorageVerificationTask> stgVerTaskQuery = createQuery(matchQueueBatch, matchStgCmtBatch);
         if (limit > 0)
-            stgCmtTaskQuery.limit(limit);
+            stgVerTaskQuery.limit(limit);
         if (offset > 0)
-            stgCmtTaskQuery.offset(offset);
+            stgVerTaskQuery.offset(offset);
 
-        List<Tuple> batches = stgCmtTaskQuery.select(SELECT)
+        List<Tuple> batches = stgVerTaskQuery.select(SELECT)
                 .groupBy(QQueueMessage.queueMessage.batchID)
                 .orderBy(order)
                 .fetch();
 
-        List<StgCmtBatch> stgCmtBatches = new ArrayList<>();
+        List<StgVerBatch> stgVerBatches = new ArrayList<>();
         for (Tuple batch : batches) {
-            StgCmtBatch stgCmtBatch = new StgCmtBatch();
+            StgVerBatch stgVerBatch = new StgVerBatch();
             String batchID = batch.get(QQueueMessage.queueMessage.batchID);
-            stgCmtBatch.setBatchID(batchID);
+            stgVerBatch.setBatchID(batchID);
 
-            stgCmtBatch.setCreatedTimeRange(
-                    batch.get(QStgCmtTask.stgCmtTask.createdTime.min()),
-                    batch.get(QStgCmtTask.stgCmtTask.createdTime.max()));
-            stgCmtBatch.setUpdatedTimeRange(
-                    batch.get(QStgCmtTask.stgCmtTask.updatedTime.min()),
-                    batch.get(QStgCmtTask.stgCmtTask.updatedTime.max()));
-            stgCmtBatch.setScheduledTimeRange(
+            stgVerBatch.setCreatedTimeRange(
+                    batch.get(QStorageVerificationTask.storageVerificationTask.createdTime.min()),
+                    batch.get(QStorageVerificationTask.storageVerificationTask.createdTime.max()));
+            stgVerBatch.setUpdatedTimeRange(
+                    batch.get(QStorageVerificationTask.storageVerificationTask.updatedTime.min()),
+                    batch.get(QStorageVerificationTask.storageVerificationTask.updatedTime.max()));
+            stgVerBatch.setScheduledTimeRange(
                     batch.get(QQueueMessage.queueMessage.scheduledTime.min()),
                     batch.get(QQueueMessage.queueMessage.scheduledTime.max()));
-            stgCmtBatch.setProcessingStartTimeRange(
+            stgVerBatch.setProcessingStartTimeRange(
                     batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
                     batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
-            stgCmtBatch.setProcessingEndTimeRange(
+            stgVerBatch.setProcessingEndTimeRange(
                     batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
                     batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
 
-            stgCmtBatch.setDeviceNames(
+            stgVerBatch.setDeviceNames(
                     batchIDQuery(batchID)
                             .select(QQueueMessage.queueMessage.deviceName)
                             .distinct()
                             .orderBy(QQueueMessage.queueMessage.deviceName.asc())
                             .fetch());
-            stgCmtBatch.setLocalAETs(
+            stgVerBatch.setLocalAETs(
                     batchIDQuery(batchID)
-                            .select(QStgCmtTask.stgCmtTask.localAET)
+                            .select(QStorageVerificationTask.storageVerificationTask.localAET)
                             .distinct()
-                            .orderBy(QStgCmtTask.stgCmtTask.localAET.asc())
+                            .orderBy(QStorageVerificationTask.storageVerificationTask.localAET.asc())
                             .fetch());
 
-            stgCmtBatch.setCompleted(
+            stgVerBatch.setCompleted(
                     batchIDQuery(batchID)
                             .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
                             .fetchCount());
-            stgCmtBatch.setCanceled(
+            stgVerBatch.setCanceled(
                     batchIDQuery(batchID)
                             .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
                             .fetchCount());
-            stgCmtBatch.setWarning(
+            stgVerBatch.setWarning(
                     batchIDQuery(batchID)
                             .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
                             .fetchCount());
-            stgCmtBatch.setFailed(
+            stgVerBatch.setFailed(
                     batchIDQuery(batchID)
                             .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
                             .fetchCount());
-            stgCmtBatch.setScheduled(
+            stgVerBatch.setScheduled(
                     batchIDQuery(batchID)
                             .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
                             .fetchCount());
-            stgCmtBatch.setInProcess(
+            stgVerBatch.setInProcess(
                     batchIDQuery(batchID)
                             .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
                             .fetchCount());
 
-            stgCmtBatches.add(stgCmtBatch);
+            stgVerBatches.add(stgVerBatch);
         }
 
-        return stgCmtBatches;
+        return stgVerBatches;
     }
 
-    private HibernateQuery<StgCmtTask> batchIDQuery(String batchID) {
-        return new HibernateQuery<StgCmtTask>(em.unwrap(Session.class))
-                .from(QStgCmtTask.stgCmtTask)
-                .leftJoin(QStgCmtTask.stgCmtTask.queueMessage, QQueueMessage.queueMessage)
+    private HibernateQuery<StorageVerificationTask> batchIDQuery(String batchID) {
+        return new HibernateQuery<StorageVerificationTask>(em.unwrap(Session.class))
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .leftJoin(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
                 .where(QQueueMessage.queueMessage.batchID.eq(batchID));
     }
 }

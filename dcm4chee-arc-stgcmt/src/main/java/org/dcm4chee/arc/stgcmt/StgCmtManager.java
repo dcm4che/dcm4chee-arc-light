@@ -47,7 +47,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
-import org.dcm4chee.arc.entity.StgCmtTask;
+import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -64,7 +64,7 @@ import java.util.List;
  * @since Sep 2016
  */
 public interface StgCmtManager {
-    String QUEUE_NAME = "StgCmtTasks";
+    String QUEUE_NAME = "StgVerTasks";
 
     void addExternalRetrieveAETs(Attributes eventInfo, Device device);
 
@@ -81,36 +81,36 @@ public interface StgCmtManager {
 
     void calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 
-    boolean scheduleStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo,
+    boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
                                String batchID)
             throws QueueSizeLimitExceededException;
 
-    Outcome executeStgCmtTask(StgCmtTask stgCmtTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;
+    Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;
 
-    StgCmtTaskQuery listStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask,
-                                        OrderSpecifier<Date> order, int offset, int limit);
+    StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
+                                                 OrderSpecifier<Date> order, int offset, int limit);
 
-    long countStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask);
+    long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask);
 
-    boolean cancelStgCmtTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+    boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, QueueMessage.Status prev)
+    long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
     String findDeviceNameByPk(Long pk);
 
-    void rescheduleStgCmtTask(Long pk, QueueMessageEvent queueEvent);
+    void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent);
 
-    void rescheduleStgCmtTask(String stgCmtTaskQueueMsgId);
+    void rescheduleStgVerTask(String stgVerTaskQueueMsgId);
 
-    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgCmtTask);
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask);
 
-    List<String> listStgCmtTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgCmtTask, int limit);
+    List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask, int limit);
 
-    boolean deleteStgCmtTask(Long pk, QueueMessageEvent queueEvent);
+    boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask, int deleteTasksFetchSize);
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize);
 
-    List<StgCmtBatch> listStgCmtBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
-                                            OrderSpecifier<Date> order, int offset, int limit);
+    List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+                                        OrderSpecifier<Date> order, int offset, int limit);
 }

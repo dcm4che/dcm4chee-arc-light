@@ -136,9 +136,9 @@ public class ExportMatchingRS {
     @Pattern(regexp = "true|false")
     private String retrievefailed;
 
-    @QueryParam("stgcmtfailed")
+    @QueryParam("storageVerificationFailed")
     @Pattern(regexp = "true|false")
-    private String stgcmtfailed;
+    private String storageVerificationFailed;
 
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
@@ -330,7 +330,7 @@ public class ExportMatchingRS {
         queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-        queryParam.setStgCmtFailed(Boolean.parseBoolean(stgcmtfailed));
+        queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         return queryParam;

@@ -35,7 +35,7 @@ create index FK_bcn0jtvurqutw865pwp34pejb on series_req (req_phys_name_fk) ;
 create index FK_bdkjk6ww0ulrb0nhf41c7liwt on series_req (series_fk) ;
 create index FK_dh7lahwi99hk6bttrk75x4ckc on soundex_code (person_name_fk) ;
 create index FK_js5xqyw5qa9rpttwmck14duow on sps_station_aet (mwl_item_fk) ;
-create index FK_ichfp1g5sfs44cawed96slc7x on stgcmt_task (queue_msg_fk) ;
+create index FK_hch5fanx7ejwew2ag2ividq9r on stgver_task (queue_msg_fk) ;
 create index FK_lp0rdx659kewq8qrqg702yfyv on study (accno_issuer_fk) ;
 create index FK_e3fdaqhw7u60trs5aspf4sna9 on study (patient_fk) ;
 create index FK_49eet5qgcsb32ktsqrf1mj3x2 on study (ref_phys_name_fk) ;

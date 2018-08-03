@@ -45,7 +45,7 @@ package org.dcm4chee.arc.conf;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2018
  */
-public enum StgCmtPolicy {
+public enum StorageVerificationPolicy {
     DB_RECORD_EXISTS,
     OBJECT_EXISTS,
     OBJECT_SIZE,

@@ -140,9 +140,9 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String retrievefailed;
 
-    @QueryParam("stgcmtfailed")
+    @QueryParam("storageVerificationFailed")
     @Pattern(regexp = "true|false")
-    private String stgcmtfailed;
+    private String storageVerificationFailed;
 
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
@@ -479,7 +479,7 @@ public class QidoRS {
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-        queryParam.setStgCmtFailed(Boolean.parseBoolean(stgcmtfailed));
+        queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);

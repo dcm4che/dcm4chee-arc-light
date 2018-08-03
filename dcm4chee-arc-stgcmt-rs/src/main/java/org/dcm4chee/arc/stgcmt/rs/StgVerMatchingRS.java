@@ -50,8 +50,8 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.StgCmtPolicy;
-import org.dcm4chee.arc.entity.StgCmtTask;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
@@ -78,10 +78,10 @@ import java.util.List;
  * @since Jul 2018
  */
 @RequestScoped
-@Path("aets/{AETitle}/stgcmt")
-public class StgCmtMatchingRS {
+@Path("aets/{AETitle}/stgver")
+public class StgVerMatchingRS {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StgCmtMatchingRS.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StgVerMatchingRS.class);
 
     @Context
     private HttpServletRequest request;
@@ -117,9 +117,9 @@ public class StgCmtMatchingRS {
     @Pattern(regexp = "true|false")
     private String retrievefailed;
 
-    @QueryParam("stgcmtfailed")
+    @QueryParam("storageVerificationFailed")
     @Pattern(regexp = "true|false")
-    private String stgcmtfailed;
+    private String storageVerificationFailed;
 
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
@@ -130,16 +130,16 @@ public class StgCmtMatchingRS {
     @QueryParam("batchID")
     private String batchID;
 
-    @QueryParam("dcmStgCmtPolicy")
+    @QueryParam("dcmStorageVerificationPolicy")
     @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
-    private String stgCmtPolicy;
+    private String storageVerificationPolicy;
 
-    @QueryParam("dcmStgCmtUpdateLocationStatus")
+    @QueryParam("dcmStorageVerificationUpdateLocationStatus")
     @Pattern(regexp = "true|false")
-    private String stgCmtUpdateLocationStatus;
+    private String storageVerificationUpdateLocationStatus;
 
-    @QueryParam("dcmStgCmtStorageID")
-    private List<String> stgCmtStorageIDs;
+    @QueryParam("dcmStorageVerificationStorageID")
+    private List<String> storageVerificationStorageIDs;
 
     @Override
     public String toString() {
@@ -149,9 +149,9 @@ public class StgCmtMatchingRS {
     @POST
     @Path("/studies")
     @Produces("application/json")
-    public Response stgcmtMatchingStudies() {
-        return stgcmtMatching(
-                "stgcmtMatchingStudies",
+    public Response verifyStorageOfStudies() {
+        return verifyStorageOf(
+                "verifyStorageOfStudies",
                 QueryRetrieveLevel2.STUDY,
                 null,
                 null);
@@ -160,9 +160,9 @@ public class StgCmtMatchingRS {
     @POST
     @Path("/series")
     @Produces("application/json")
-    public Response stgcmtMatchingSeries() {
-        return stgcmtMatching(
-                "stgcmtMatchingSeries",
+    public Response verifyStorageOfSeries() {
+        return verifyStorageOf(
+                "verifyStorageOfSeries",
                 QueryRetrieveLevel2.SERIES,
                 null,
                 null);
@@ -171,10 +171,10 @@ public class StgCmtMatchingRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
-    public Response stgcmtMatchingSeriesOfStudy(
+    public Response verifyStorageOfSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return stgcmtMatching(
-                "stgcmtMatchingSeriesOfStudy",
+        return verifyStorageOf(
+                "verifyStorageOfSeriesOfStudy",
                 QueryRetrieveLevel2.SERIES,
                 studyInstanceUID,
                 null);
@@ -183,9 +183,9 @@ public class StgCmtMatchingRS {
     @POST
     @Path("/instances")
     @Produces("application/json")
-    public Response stgcmtMatchingInstances() {
-        return stgcmtMatching(
-                "stgcmtMatchingInstances",
+    public Response verifyStorageOfInstances() {
+        return verifyStorageOf(
+                "verifyStorageOfInstances",
                 QueryRetrieveLevel2.IMAGE,
                 null,
                 null);
@@ -194,10 +194,10 @@ public class StgCmtMatchingRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
-    public Response stgcmtMatchingInstancesOfStudy(
+    public Response verifyStorageOfInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return stgcmtMatching(
-                "stgcmtMatchingInstancesOfStudy",
+        return verifyStorageOf(
+                "verifyStorageOfInstancesOfStudy",
                 QueryRetrieveLevel2.IMAGE, studyInstanceUID,
                 null);
     }
@@ -205,17 +205,17 @@ public class StgCmtMatchingRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
-    public Response stgcmtMatchingInstancesOfSeries(
+    public Response verifyStorageOfInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return stgcmtMatching(
-                "stgcmtMatchingInstancesOfSeries",
+        return verifyStorageOf(
+                "verifyStorageOfInstancesOfSeries",
                 QueryRetrieveLevel2.IMAGE,
                 studyInstanceUID,
                 seriesInstanceUID);
     }
 
-    private Response stgcmtMatching(
+    private Response verifyStorageOf(
             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
         LOG.info("Process POST {}?{} from {}@{}",
                 request.getRequestURI(),
@@ -239,7 +239,7 @@ public class StgCmtMatchingRS {
                 query.executeQuery();
                 while (query.hasMoreMatches()) {
                     Attributes match = query.nextMatch();
-                    if (stgCmtMgr.scheduleStgCmtTask(createStgCmtTask(match, qrlevel),
+                    if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(match, qrlevel),
                             HttpServletRequestInfo.valueOf(request), batchID)) {
                         count++;
                     }
@@ -304,30 +304,30 @@ public class StgCmtMatchingRS {
         queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-        queryParam.setStgCmtFailed(Boolean.parseBoolean(stgcmtfailed));
+        queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         return queryParam;
     }
 
-    private StgCmtTask createStgCmtTask(Attributes match, QueryRetrieveLevel2 qrlevel) {
-        StgCmtTask stgCmtTask = new StgCmtTask();
-        stgCmtTask.setLocalAET(aet);
-        if (stgCmtPolicy != null) {
-            stgCmtTask.setStgCmtPolicy(StgCmtPolicy.valueOf(stgCmtPolicy));
+    private StorageVerificationTask createStgVerTask(Attributes match, QueryRetrieveLevel2 qrlevel) {
+        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
+        storageVerificationTask.setLocalAET(aet);
+        if (storageVerificationPolicy != null) {
+            storageVerificationTask.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(storageVerificationPolicy));
         }
-        if (stgCmtUpdateLocationStatus != null) {
-            stgCmtTask.setUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus));
+        if (storageVerificationUpdateLocationStatus != null) {
+            storageVerificationTask.setUpdateLocationStatus(Boolean.valueOf(storageVerificationUpdateLocationStatus));
         }
-        if (!stgCmtStorageIDs.isEmpty()) {
-            stgCmtTask.setStorageIDs(stgCmtStorageIDs.toArray(StringUtils.EMPTY_STRING));
+        if (!storageVerificationStorageIDs.isEmpty()) {
+            storageVerificationTask.setStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
         }
-        stgCmtTask.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
+        storageVerificationTask.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
         if (qrlevel != QueryRetrieveLevel2.STUDY) {
-            stgCmtTask.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
+            storageVerificationTask.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
             if (qrlevel == QueryRetrieveLevel2.IMAGE)
-                stgCmtTask.setSOPInstanceUID(match.getString(Tag.SOPInstanceUID));
+                storageVerificationTask.setSOPInstanceUID(match.getString(Tag.SOPInstanceUID));
         }
-        return stgCmtTask;
+        return storageVerificationTask;
     }
 }

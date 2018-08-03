@@ -192,9 +192,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
     private String rejectionNoteStorageAET;
     private String uiConfigurationDeviceName;
-    private StgCmtPolicy stgCmtPolicy = StgCmtPolicy.OBJECT_CHECKSUM;
-    private boolean stgCmtUpdateLocationStatus;
-    private String[] stgCmtStorageIDs = {};
+    private StorageVerificationPolicy storageVerificationPolicy = StorageVerificationPolicy.OBJECT_CHECKSUM;
+    private boolean storageVerificationUpdateLocationStatus;
+    private String[] storageVerificationStorageIDs = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1743,28 +1743,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.uiConfigurationDeviceName = uiConfigurationDeviceName;
     }
 
-    public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
     }
 
-    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy;
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
-    public boolean isStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus;
+    public boolean isStorageVerificationUpdateLocationStatus() {
+        return storageVerificationUpdateLocationStatus;
     }
 
-    public void setStgCmtUpdateLocationStatus(boolean stgCmtUpdateLocationStatus) {
-        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    public void setStorageVerificationUpdateLocationStatus(boolean storageVerificationUpdateLocationStatus) {
+        this.storageVerificationUpdateLocationStatus = storageVerificationUpdateLocationStatus;
     }
 
-    public String[] getStgCmtStorageIDs() {
-        return stgCmtStorageIDs;
+    public String[] getStorageVerificationStorageIDs() {
+        return storageVerificationStorageIDs;
     }
 
-    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
-        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    public void setStorageVerificationStorageIDs(String... storageVerificationStorageIDs) {
+        this.storageVerificationStorageIDs = storageVerificationStorageIDs;
     }
 
     public Collection<KeycloakServer> getKeycloakServers() {
@@ -1920,9 +1920,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queueTasksFetchSize = arcdev.queueTasksFetchSize;
         rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
         uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
-        stgCmtPolicy = arcdev.stgCmtPolicy;
-        stgCmtUpdateLocationStatus = arcdev.stgCmtUpdateLocationStatus;
-        stgCmtStorageIDs = arcdev.stgCmtStorageIDs;
+        storageVerificationPolicy = arcdev.storageVerificationPolicy;
+        storageVerificationUpdateLocationStatus = arcdev.storageVerificationUpdateLocationStatus;
+        storageVerificationStorageIDs = arcdev.storageVerificationStorageIDs;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

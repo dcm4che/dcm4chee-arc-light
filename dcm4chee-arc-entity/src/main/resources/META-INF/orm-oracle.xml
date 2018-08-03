@@ -348,7 +348,7 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.StgCmtTask">
+  <entity class="StorageVerificationTask">
     <sequence-generator name="stgcmt_task_pk_seq" sequence-name="stgcmt_task_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">

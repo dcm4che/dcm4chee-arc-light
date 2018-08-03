@@ -46,7 +46,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.StgCmtTask;
+import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
@@ -54,7 +54,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.StgCmtTaskQuery;
+import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,10 +78,10 @@ import java.util.Objects;
  * @since Aug 2018
  */
 @RequestScoped
-@Path("monitor/stgcmt")
-public class StgCmtTaskRS {
+@Path("monitor/stgver")
+public class StgVerTaskRS {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StgCmtTaskRS.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StgVerTaskRS.class);
 
     @Inject
     private Device device;
@@ -144,16 +144,16 @@ public class StgCmtTaskRS {
 
     @GET
     @NoCache
-    public Response listStgCmtTasks(@QueryParam("accept") String accept) {
+    public Response listStgVerTasks(@QueryParam("accept") String accept) {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
             return notAcceptable();
 
-        StgCmtTaskQuery tasks = stgCmtMgr.listStgCmtTasks(
+        StgVerTaskQuery tasks = stgCmtMgr.listStgVerTasks(
                 matchQueueMessage(status(), deviceName, null),
-                matchStgCmtTask(updatedTime),
-                MatchTask.stgCmtTaskOrder(orderby), parseInt(offset), parseInt(limit));
+                matchStgVerTask(updatedTime),
+                MatchTask.stgVerTaskOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
     }
 
@@ -161,20 +161,20 @@ public class StgCmtTaskRS {
     @NoCache
     @Path("/count")
     @Produces("application/json")
-    public Response countStgCmtTasks() {
+    public Response countStgVerTasks() {
         logRequest();
-        return count(stgCmtMgr.countStgCmtTasks(
+        return count(stgCmtMgr.countStgVerTasks(
                 matchQueueMessage(status(), deviceName, null),
-                matchStgCmtTask(updatedTime)));
+                matchStgVerTask(updatedTime)));
     }
 
     @POST
     @Path("{taskPK}/cancel")
-    public Response cancelStgCmtTask(@PathParam("taskPK") long pk) {
+    public Response cancelStgVerTask(@PathParam("taskPK") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return rsp(stgCmtMgr.cancelStgCmtTask(pk, queueEvent));
+            return rsp(stgCmtMgr.cancelStgVerTask(pk, queueEvent));
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -185,7 +185,7 @@ public class StgCmtTaskRS {
 
     @POST
     @Path("/cancel")
-    public Response cancelStgCmtTasks() {
+    public Response cancelStgVerTasks() {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
@@ -196,9 +196,9 @@ public class StgCmtTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Storage Commitment Tasks with Status {}", status);
-            long count = stgCmtMgr.cancelStgCmtTasks(
+            long count = stgCmtMgr.cancelStgVerTasks(
                     matchQueueMessage(status, deviceName, updatedTime),
-                    matchStgCmtTask(null),
+                    matchStgVerTask(null),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -223,7 +223,7 @@ public class StgCmtTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, newDeviceName, "");
 
-            stgCmtMgr.rescheduleStgCmtTask(pk, queueEvent);
+            stgCmtMgr.rescheduleStgVerTask(pk, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -235,7 +235,7 @@ public class StgCmtTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleStgCmtTasks() {
+    public Response rescheduleStgVerTasks() {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
@@ -246,38 +246,38 @@ public class StgCmtTaskRS {
             if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            Predicate matchStgCmtTask = matchStgCmtTask(updatedTime);
+            Predicate matchStgVerTask = matchStgVerTask(updatedTime);
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(status, matchStgCmtTask)
-                    : rescheduleTasks(matchQueueMessage(status, devName, null), matchStgCmtTask));
+                    ? rescheduleOnDistinctDevices(status, matchStgVerTask)
+                    : rescheduleTasks(matchQueueMessage(status, devName, null), matchStgVerTask));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(QueueMessage.Status status, Predicate matchStgCmtTask) throws Exception {
+    private int rescheduleOnDistinctDevices(QueueMessage.Status status, Predicate matchStgVerTask) throws Exception {
         List<String> distinctDeviceNames = stgCmtMgr.listDistinctDeviceNames(
                 matchQueueMessage(status, null, null),
-                matchStgCmtTask);
+                matchStgVerTask);
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(matchQueueMessage(status, devName, null), matchStgCmtTask)
+                    ? rescheduleTasks(matchQueueMessage(status, devName, null), matchStgVerTask)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
         return count;
     }
 
-    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
             int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             do {
-                List<String> stgCmtTaskQueueMsgIDs = stgCmtMgr.listStgCmtTaskQueueMsgIDs(matchQueueMessage, matchStgCmtTask, rescheduleTasksFetchSize);
-                for (String stgCmtTaskQueueMsgID : stgCmtTaskQueueMsgIDs)
-                    stgCmtMgr.rescheduleStgCmtTask(stgCmtTaskQueueMsgID);
-                count = stgCmtTaskQueueMsgIDs.size();
+                List<String> stgVerTaskQueueMsgIDs = stgCmtMgr.listStgVerTaskQueueMsgIDs(matchQueueMessage, matchStgVerTask, rescheduleTasksFetchSize);
+                for (String stgVerTaskQueueMsgID : stgVerTaskQueueMsgIDs)
+                    stgCmtMgr.rescheduleStgVerTask(stgVerTaskQueueMsgID);
+                count = stgVerTaskQueueMsgIDs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
             queueEvent.setCount(rescheduled);
@@ -296,9 +296,9 @@ public class StgCmtTaskRS {
     public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        boolean deleteStgCmtTask = stgCmtMgr.deleteStgCmtTask(pk, queueEvent);
+        boolean deleteStgVerTask = stgCmtMgr.deleteStgVerTask(pk, queueEvent);
         queueMsgEvent.fire(queueEvent);
-        return rsp(deleteStgCmtTask);
+        return rsp(deleteStgVerTask);
     }
 
     @DELETE
@@ -311,7 +311,7 @@ public class StgCmtTaskRS {
         do {
             count = stgCmtMgr.deleteTasks(
                     matchQueueMessage(status(), deviceName, null),
-                    matchStgCmtTask(updatedTime),
+                    matchStgVerTask(updatedTime),
                     deleteTasksFetchSize);
             deleted += count;
         } while (count >= deleteTasksFetchSize);
@@ -334,12 +334,12 @@ public class StgCmtTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final StgCmtTaskQuery tasks) {
+            Object entity(final StgVerTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (StgCmtTaskQuery t = tasks) {
+                    try (StgVerTaskQuery t = tasks) {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
-                        for (StgCmtTask task : t)
+                        for (StorageVerificationTask task : t)
                             task.writeAsJSONTo(gen);
                         gen.writeEnd();
                         gen.flush();
@@ -349,12 +349,12 @@ public class StgCmtTaskRS {
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final StgCmtTaskQuery tasks) {
+            Object entity(final StgVerTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (StgCmtTaskQuery t = tasks) {
+                    try (StgVerTaskQuery t = tasks) {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        StgCmtTask.writeCSVHeader(writer, delimiter);
-                        for (StgCmtTask task : t)
+                        StorageVerificationTask.writeCSVHeader(writer, delimiter);
+                        for (StorageVerificationTask task : t)
                             task.writeAsCSVTo(writer, delimiter);
                         writer.flush();
                     }
@@ -384,7 +384,7 @@ public class StgCmtTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final StgCmtTaskQuery tasks);
+        abstract Object entity(final StgVerTaskQuery tasks);
     }
 
     private int count(Response response, String devName) {
@@ -436,8 +436,8 @@ public class StgCmtTaskRS {
                 null, devName, status, batchID, null, null, updatedTime, null);
     }
 
-    private Predicate matchStgCmtTask(String updatedTime) {
-        return MatchTask.matchStgCmtTask(localAET, studyIUID, createdTime, updatedTime);
+    private Predicate matchStgVerTask(String updatedTime) {
+        return MatchTask.matchStgVerTask(localAET, studyIUID, createdTime, updatedTime);
     }
 
     private Response notAcceptable() {

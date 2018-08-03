@@ -99,8 +99,8 @@ public class QueryServiceEJB {
         QSeries.series.metadataScheduledUpdateTime,
         QSeries.series.instancePurgeTime,
         QSeries.series.instancePurgeState,
-        QSeries.series.storageCommitmentTime,
-        QSeries.series.failuresOfLastStorageCommitment,
+        QSeries.series.storageVerificationTime,
+        QSeries.series.failuresOfLastStorageVerification,
         QMetadata.metadata.storageID,
         QMetadata.metadata.storagePath,
         QMetadata.metadata.digest,
@@ -278,12 +278,12 @@ public class QueryServiceEJB {
                     result.get(QSeries.series.instancePurgeTime));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 result.get(QSeries.series.instancePurgeState).name());
-        if (result.get(QSeries.series.storageCommitmentTime) != null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledStorageCommitmentDateTimeOfSeries, VR.DT,
-                    result.get(QSeries.series.storageCommitmentTime));
-        if (result.get(QSeries.series.failuresOfLastStorageCommitment) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageCommitmentOfSeries, VR.US,
-                    result.get(QSeries.series.failuresOfLastStorageCommitment));
+        if (result.get(QSeries.series.storageVerificationTime) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledStorageVerificationDateTimeOfSeries, VR.DT,
+                    result.get(QSeries.series.storageVerificationTime));
+        if (result.get(QSeries.series.failuresOfLastStorageVerification) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageVerificationOfSeries, VR.US,
+                    result.get(QSeries.series.failuresOfLastStorageVerification));
         if (result.get(QMetadata.metadata.storageID) != null) {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
                     result.get(QMetadata.metadata.storageID));

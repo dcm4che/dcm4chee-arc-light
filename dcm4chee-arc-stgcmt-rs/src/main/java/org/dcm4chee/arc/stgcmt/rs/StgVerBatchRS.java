@@ -43,7 +43,7 @@ package org.dcm4chee.arc.stgcmt.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
-import org.dcm4chee.arc.stgcmt.StgCmtBatch;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -72,9 +72,9 @@ import java.util.List;
  * @since Aug 2018
  */
 @RequestScoped
-@Path("monitor/stgcmt/batch")
-public class StgCmtBatchRS {
-    private static final Logger LOG = LoggerFactory.getLogger(StgCmtBatchRS.class);
+@Path("monitor/stgver/batch")
+public class StgVerBatchRS {
+    private static final Logger LOG = LoggerFactory.getLogger(StgVerBatchRS.class);
 
     @Inject
     private StgCmtManager stgCmtMgr;
@@ -116,34 +116,34 @@ public class StgCmtBatchRS {
 
     @GET
     @NoCache
-    public Response listStgCmtBatches() {
+    public Response listStgVerBatches() {
         logRequest();
-        List<StgCmtBatch> stgCmtBatches =  stgCmtMgr.listStgCmtBatches(
+        List<StgVerBatch> stgVerBatches =  stgCmtMgr.listStgVerBatches(
                 MatchTask.matchQueueBatch(deviceName, status(), batchID),
                 MatchTask.matchStgCmtBatch(localAET, createdTime, updatedTime),
                 MatchTask.stgCmtBatchOrder(orderby), parseInt(offset), parseInt(limit));
-        return Response.ok().entity(Output.JSON.entity(stgCmtBatches)).build();
+        return Response.ok().entity(Output.JSON.entity(stgVerBatches)).build();
     }
 
     private enum Output {
         JSON {
             @Override
-            Object entity(final List<StgCmtBatch> stgCmtBatches) {
+            Object entity(final List<StgVerBatch> stgVerBatches) {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    for (StgCmtBatch stgCmtBatch : stgCmtBatches) {
+                    for (StgVerBatch stgVerBatch : stgVerBatches) {
                         JsonWriter writer = new JsonWriter(gen);
                         gen.writeStartObject();
-                        writer.writeNotNullOrDef("batchID", stgCmtBatch.getBatchID(), null);
-                        writeTasks(stgCmtBatch, writer);
-                        writer.writeNotEmpty("dicomDeviceName", stgCmtBatch.getDeviceNames());
-                        writer.writeNotEmpty("LocalAET", stgCmtBatch.getLocalAETs());
-                        writer.writeNotEmpty("createdTimeRange", datesAsStrings(stgCmtBatch.getCreatedTimeRange()));
-                        writer.writeNotEmpty("updatedTimeRange", datesAsStrings(stgCmtBatch.getUpdatedTimeRange()));
-                        writer.writeNotEmpty("scheduledTimeRange", datesAsStrings(stgCmtBatch.getScheduledTimeRange()));
-                        writer.writeNotEmpty("processingStartTimeRange", datesAsStrings(stgCmtBatch.getProcessingStartTimeRange()));
-                        writer.writeNotEmpty("processingEndTimeRange", datesAsStrings(stgCmtBatch.getProcessingEndTimeRange()));
+                        writer.writeNotNullOrDef("batchID", stgVerBatch.getBatchID(), null);
+                        writeTasks(stgVerBatch, writer);
+                        writer.writeNotEmpty("dicomDeviceName", stgVerBatch.getDeviceNames());
+                        writer.writeNotEmpty("LocalAET", stgVerBatch.getLocalAETs());
+                        writer.writeNotEmpty("createdTimeRange", datesAsStrings(stgVerBatch.getCreatedTimeRange()));
+                        writer.writeNotEmpty("updatedTimeRange", datesAsStrings(stgVerBatch.getUpdatedTimeRange()));
+                        writer.writeNotEmpty("scheduledTimeRange", datesAsStrings(stgVerBatch.getScheduledTimeRange()));
+                        writer.writeNotEmpty("processingStartTimeRange", datesAsStrings(stgVerBatch.getProcessingStartTimeRange()));
+                        writer.writeNotEmpty("processingEndTimeRange", datesAsStrings(stgVerBatch.getProcessingEndTimeRange()));
                         gen.writeEnd();
                     }
                     gen.writeEnd();
@@ -151,14 +151,14 @@ public class StgCmtBatchRS {
                 };
             }
 
-            private void writeTasks(StgCmtBatch stgCmtBatch, JsonWriter writer) {
+            private void writeTasks(StgVerBatch stgVerBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
-                writer.writeNotNullOrDef("scheduled", stgCmtBatch.getScheduled(), 0);
-                writer.writeNotNullOrDef("in-process", stgCmtBatch.getInProcess(), 0);
-                writer.writeNotNullOrDef("warning", stgCmtBatch.getWarning(), 0);
-                writer.writeNotNullOrDef("failed", stgCmtBatch.getFailed(), 0);
-                writer.writeNotNullOrDef("canceled", stgCmtBatch.getCanceled(), 0);
-                writer.writeNotNullOrDef("completed", stgCmtBatch.getCompleted(), 0);
+                writer.writeNotNullOrDef("scheduled", stgVerBatch.getScheduled(), 0);
+                writer.writeNotNullOrDef("in-process", stgVerBatch.getInProcess(), 0);
+                writer.writeNotNullOrDef("warning", stgVerBatch.getWarning(), 0);
+                writer.writeNotNullOrDef("failed", stgVerBatch.getFailed(), 0);
+                writer.writeNotNullOrDef("canceled", stgVerBatch.getCanceled(), 0);
+                writer.writeNotNullOrDef("completed", stgVerBatch.getCompleted(), 0);
                 writer.writeEnd();
             }
 
@@ -171,7 +171,7 @@ public class StgCmtBatchRS {
             }
         };
 
-        abstract Object entity(final List<StgCmtBatch> stgCmtBatches);
+        abstract Object entity(final List<StgVerBatch> stgVerBatches);
     }
     
     private QueueMessage.Status status() {

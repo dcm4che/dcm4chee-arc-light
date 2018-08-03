@@ -1081,17 +1081,17 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.217 NAME 'dcmWadoCDA2HtmlTemplateURI
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.218 NAME 'dcmStgCmtPolicy'
-  DESC 'Storage Commitment Policy: DB_RECORD_EXISTS (= only check for existence of DB records), OBJECT_EXISTS (= check if object exists on Storage System), OBJECT_SIZE (= check size of object on Storage System), OBJECT_FETCH (= fetch object from Storage System), OBJECT_CHECKSUM (= recalculate checksum of object on Storage System) or S3_MD5SUM (= check MD5 checksum of object on S3 Storage System). OBJECT_CHECKSUM if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.219 NAME 'dcmStgCmtUpdateLocationStatus'
-  DESC 'Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. False if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.220 NAME 'dcmStgCmtStorageID'
-  DESC 'Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.221 NAME 'dcmURIPattern'
@@ -1099,6 +1099,20 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.221 NAME 'dcmURIPattern'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.222 NAME 'dcmStorageVerificationPolicy'
+  DESC 'Storage Verification Policy: DB_RECORD_EXISTS (= only check for existence of DB records), OBJECT_EXISTS (= check if object exists on Storage System), OBJECT_SIZE (= check size of object on Storage System), OBJECT_FETCH (= fetch object from Storage System), OBJECT_CHECKSUM (= recalculate checksum of object on Storage System) or S3_MD5SUM (= check MD5 checksum of object on S3 Storage System). OBJECT_CHECKSUM if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.223 NAME 'dcmStorageVerificationUpdateLocationStatus'
+  DESC 'Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly. Not effective with Storage Verification Policy: DB_RECORD_EXISTS. False if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.224 NAME 'dcmStorageVerificationStorageID'
+  DESC 'Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification. If absent, storage on any Storage System is sufficient. Not effective with Storage Validation Policy: DB_RECORD_EXISTS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 delete: olcObjectClasses
 -
@@ -1227,6 +1241,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStgCmtPolicy $
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $
+    dcmStorageVerificationPolicy $
+    dcmStorageVerificationUpdateLocationStatus $
+    dcmStorageVerificationStorageID $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
@@ -1309,6 +1326,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStgCmtPolicy $
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $
+    dcmStorageVerificationPolicy $
+    dcmStorageVerificationUpdateLocationStatus $
+    dcmStorageVerificationStorageID $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $

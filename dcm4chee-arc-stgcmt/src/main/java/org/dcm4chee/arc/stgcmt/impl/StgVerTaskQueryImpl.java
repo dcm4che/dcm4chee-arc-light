@@ -47,10 +47,10 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.entity.QQueueMessage;
-import org.dcm4chee.arc.entity.QStgCmtTask;
+import org.dcm4chee.arc.entity.QStorageVerificationTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.StgCmtTask;
-import org.dcm4chee.arc.stgcmt.StgCmtTaskQuery;
+import org.dcm4chee.arc.entity.StorageVerificationTask;
+import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
@@ -63,25 +63,25 @@ import java.util.Iterator;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2018
  */
-class StgCmtTaskQueryImpl implements StgCmtTaskQuery {
-    private static final Logger LOG = LoggerFactory.getLogger(StgCmtTaskQueryImpl.class);
+class StgVerTaskQueryImpl implements StgVerTaskQuery {
+    private static final Logger LOG = LoggerFactory.getLogger(StgVerTaskQueryImpl.class);
     private final StatelessSession session;
-    private final HibernateQuery<StgCmtTask> query;
+    private final HibernateQuery<StorageVerificationTask> query;
     private Transaction transaction;
-    private CloseableIterator<StgCmtTask> iterate;
+    private CloseableIterator<StorageVerificationTask> iterate;
 
-    public StgCmtTaskQueryImpl(StatelessSession session, int fetchSize,
+    public StgVerTaskQueryImpl(StatelessSession session, int fetchSize,
                                Predicate matchQueueMessage,
-                               Predicate matchStgCmtTask,
+                               Predicate matchStgVerTask,
                                OrderSpecifier<Date> order,
                                int offset, int limit) {
         this.session = session;
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(session)
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
-        query = new HibernateQuery<StgCmtTask>(session)
-                .from(QStgCmtTask.stgCmtTask)
-                .where(matchStgCmtTask, QStgCmtTask.stgCmtTask.queueMessage.in(queueMsgQuery));
+        query = new HibernateQuery<StorageVerificationTask>(session)
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.in(queueMsgQuery));
         if (limit > 0)
             query.limit(limit);
         if (offset > 0)
@@ -104,7 +104,7 @@ class StgCmtTaskQueryImpl implements StgCmtTaskQuery {
     }
 
     @Override
-    public Iterator<StgCmtTask> iterator() {
+    public Iterator<StorageVerificationTask> iterator() {
         transaction = session.beginTransaction();
         iterate = query.iterate();
         return iterate;

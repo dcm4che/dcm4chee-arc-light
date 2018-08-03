@@ -42,7 +42,7 @@
     </message-driven>
     <message-driven>
       <ejb-name>StgVerifyMDB</ejb-name>
-      <ejb-class>org.dcm4chee.arc.stgcmt.impl.StgCmtTaskMDB</ejb-class>
+      <ejb-class>org.dcm4chee.arc.stgcmt.impl.StgVerTaskMDB</ejb-class>
       <activation-config>
         <activation-config-property>
           <activation-config-property-name>destinationType</activation-config-property-name>
@@ -50,11 +50,11 @@
         </activation-config-property>
         <activation-config-property>
           <activation-config-property-name>destination</activation-config-property-name>
-          <activation-config-property-value>jms/queue/StgCmtTasks</activation-config-property-value>
+          <activation-config-property-value>jms/queue/StgVerTasks</activation-config-property-value>
         </activation-config-property>
         <activation-config-property>
           <activation-config-property-name>maxSession</activation-config-property-name>
-          <activation-config-property-value>${jms.queue.StgCmtTasks.consumer-count:1}</activation-config-property-value>
+          <activation-config-property-value>${jms.queue.StgVerTasks.consumer-count:1}</activation-config-property-value>
         </activation-config-property>
       </activation-config>
     </message-driven>

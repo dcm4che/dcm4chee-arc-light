@@ -234,8 +234,8 @@ public class QueueManagerEJB {
             entity.getRetrieveTask().setUpdatedTime();
         else if (entity.getDiffTask() != null)
             entity.getDiffTask().setUpdatedTime();
-        else if (entity.getStgCmtTask() != null)
-            entity.getStgCmtTask().setUpdatedTime();
+        else if (entity.getStorageVerificationTask() != null)
+            entity.getStorageVerificationTask().setUpdatedTime();
     }
 
     public long cancelTasks(Predicate matchQueueMessage) {
@@ -247,7 +247,7 @@ public class QueueManagerEJB {
         updateExportTaskUpdatedTime(queueMessageQuery, now);
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
         updateDiffTaskUpdatedTime(queueMessageQuery, now);
-        updateStgCmtTaskUpdatedTime(queueMessageQuery, now);
+        updateStgVerTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
@@ -272,10 +272,10 @@ public class QueueManagerEJB {
                 .execute();
     }
 
-    private void updateStgCmtTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
-        new HibernateUpdateClause(em.unwrap(Session.class), QStgCmtTask.stgCmtTask)
-                .set(QStgCmtTask.stgCmtTask.updatedTime, now)
-                .where(QStgCmtTask.stgCmtTask.queueMessage.pk.in(queueMessageQuery))
+    private void updateStgVerTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
+        new HibernateUpdateClause(em.unwrap(Session.class), QStorageVerificationTask.storageVerificationTask)
+                .set(QStorageVerificationTask.storageVerificationTask.updatedTime, now)
+                .where(QStorageVerificationTask.storageVerificationTask.queueMessage.pk.in(queueMessageQuery))
                 .execute();
     }
 
@@ -333,15 +333,15 @@ public class QueueManagerEJB {
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
-    public long cancelStgCmtTasks(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
         Date now = new Date();
         HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QStgCmtTask.stgCmtTask.queueMessage.pk)
-                .from(QStgCmtTask.stgCmtTask)
-                .join(QStgCmtTask.stgCmtTask.queueMessage, QQueueMessage.queueMessage)
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.pk)
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .join(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
                 .on(matchQueueMessage)
-                .where(matchStgCmtTask);
-        updateStgCmtTaskUpdatedTime(queueMessageQuery, now);
+                .where(matchStgVerTask);
+        updateStgVerTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
@@ -365,13 +365,13 @@ public class QueueManagerEJB {
                 .fetch();
     }
 
-    public List<String> getStgCmtTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgCmtTask) {
+    public List<String> getStgVerTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
-                .select(QStgCmtTask.stgCmtTask.queueMessage.messageID)
-                .from(QStgCmtTask.stgCmtTask)
-                .join(QStgCmtTask.stgCmtTask.queueMessage, QQueueMessage.queueMessage)
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.messageID)
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .join(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
                 .on(matchQueueMessage)
-                .where(matchStgCmtTask)
+                .where(matchStgVerTask)
                 .fetch();
     }
 
@@ -443,8 +443,8 @@ public class QueueManagerEJB {
             em.remove(entity.getRetrieveTask());
         else if (entity.getDiffTask() != null)
             em.remove(entity.getDiffTask());
-        else if (entity.getStgCmtTask() != null)
-            em.remove(entity.getStgCmtTask());
+        else if (entity.getStorageVerificationTask() != null)
+            em.remove(entity.getStorageVerificationTask());
         else
             em.remove(entity);
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
