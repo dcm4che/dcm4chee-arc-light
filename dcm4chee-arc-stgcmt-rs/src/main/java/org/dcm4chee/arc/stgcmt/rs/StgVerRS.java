@@ -92,15 +92,15 @@ public class StgVerRS {
     @Context
     private HttpServletRequest request;
 
-    @QueryParam("dcmStorageVerificationPolicy")
+    @QueryParam("storageVerificationPolicy")
     @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
     private String storageVerificationPolicy;
 
-    @QueryParam("dcmStorageVerificationUpdateLocationStatus")
+    @QueryParam("storageVerificationUpdateLocationStatus")
     @Pattern(regexp = "true|false")
     private String storageVerificationUpdateLocationStatus;
 
-    @QueryParam("dcmStorageVerificationStorageID")
+    @QueryParam("storageVerificationStorageID")
     private List<String> storageVerificationStorageIDs;
 
     @POST

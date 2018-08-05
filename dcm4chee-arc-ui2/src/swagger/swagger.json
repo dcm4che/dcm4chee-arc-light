@@ -8729,7 +8729,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8743,13 +8743,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -8815,7 +8815,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8829,13 +8829,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -8908,7 +8908,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8922,13 +8922,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -9048,7 +9048,7 @@
             "default": false
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9062,13 +9062,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -9191,7 +9191,7 @@
             "default": false
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9205,13 +9205,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -9341,7 +9341,7 @@
             "default": false
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9355,13 +9355,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -9484,7 +9484,7 @@
             "default": false
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9498,13 +9498,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -9634,7 +9634,7 @@
             "default": false
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9648,13 +9648,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
@@ -9791,7 +9791,7 @@
             "default": false
           },
           {
-            "name": "dcmStorageVerificationPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -9805,13 +9805,13 @@
             ]
           },
           {
-            "name": "dcmStorageVerificationUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
             "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStorageVerificationStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
             "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
