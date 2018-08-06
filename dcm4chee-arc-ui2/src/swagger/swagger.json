@@ -4645,8 +4645,7 @@
             "name": "port",
             "in": "query",
             "description": "remote connection port",
-            "type": "integer",
-            "default": 0
+            "type": "integer"
           }
         ],
         "responses": {
