@@ -1,17 +1,29 @@
-import {Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+    AfterContentChecked,
+    Component,
+    EventEmitter,
+    Injector,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output
+} from '@angular/core';
 import {j4care} from "../j4care.service";
 import * as _ from 'lodash';
 
 @Component({
-  selector: 'filter-generator',
-  templateUrl: './filter-generator.component.html'
+    selector: 'filter-generator',
+    templateUrl: './filter-generator.component.html',
+    styleUrls: ['./filter-generator.component.scss']
 })
-export class FilterGeneratorComponent implements OnInit, OnDestroy {
+export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContentChecked {
 
     @Input() schema;
     @Input() model;
     @Output() submit  = new EventEmitter();
     @Output() onChange  = new EventEmitter();
+    cssBlockClass = '';
+    hideLoader = false;
     filterForm;
     constructor(
         private inj:Injector
@@ -44,10 +56,17 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy {
            this.model[filter] = '';
         });
     }
-    ngOnDestroy(){
-        localStorage.setItem(this.parentId, JSON.stringify(this.model));
-    }
     trackByFn(index, item) {
         return index; // or item.id
+    }
+    ngAfterContentChecked(){
+        if(!this.hideLoader){
+            setTimeout(()=>{
+                this.hideLoader = true;
+            },100);
+        }
+    }
+    ngOnDestroy(){
+        localStorage.setItem(this.parentId, JSON.stringify(this.model));
     }
 }

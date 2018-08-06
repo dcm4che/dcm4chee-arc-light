@@ -1,0 +1,19 @@
+.filter{
+  &.filter_loader{
+    position: relative;
+    text-align: center;
+    width: 100%;
+    float: left;
+    //line-height: 90px;
+    .filter_block{
+      border:none;
+      width: 100%;
+    }
+    .fa-spin{
+      position: absolute;
+      top: 50%;
+      margin-top: -20px;
+      font-size: 30px;
+    }
+  }
+}

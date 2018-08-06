@@ -1,4 +1,9 @@
-<div class="filter">
+<div [hidden]="hideLoader" class="filter filter_loader">
+    <div class="filter_block {{cssBlockClass}}">
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+    </div>
+</div>
+<div [hidden]="!hideLoader"  class="filter">
     <a class="clearform_button" title="Clear all filters" href="" (click)="$event.preventDefault();clear()">
         Clear <span class="glyphicon glyphicon-remove"></span>
     </a>
