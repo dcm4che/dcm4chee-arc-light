@@ -1433,6 +1433,7 @@ class ArchiveDeviceFactory {
         ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
         ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
+        ext.setStorageVerificationAETitle("DCM4CHEE");
 
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
         ext.setRejectExpiredStudiesPollingStartTime(REJECT_EXPIRED_STUDIES_START_TIME);

@@ -51,6 +51,7 @@ import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -195,6 +196,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private StorageVerificationPolicy storageVerificationPolicy = StorageVerificationPolicy.OBJECT_CHECKSUM;
     private boolean storageVerificationUpdateLocationStatus;
     private String[] storageVerificationStorageIDs = {};
+    private String storageVerificationAETitle;
+    private Duration storageVerificationInitialDelay;
+    private Period storageVerificationPeriod;
+    private ScheduleExpression[] storageVerificationSchedules = {};
+    private int storageVerificationMaxScheduled;
+    private Duration storageVerificationPollingInterval;
+    private int storageVerificationFetchSize = 100;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1767,6 +1775,62 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storageVerificationStorageIDs = storageVerificationStorageIDs;
     }
 
+    public String getStorageVerificationAETitle() {
+        return storageVerificationAETitle;
+    }
+
+    public void setStorageVerificationAETitle(String storageVerificationAETitle) {
+        this.storageVerificationAETitle = storageVerificationAETitle;
+    }
+
+    public Duration getStorageVerificationInitialDelay() {
+        return storageVerificationInitialDelay;
+    }
+
+    public void setStorageVerificationInitialDelay(Duration storageVerificationInitialDelay) {
+        this.storageVerificationInitialDelay = storageVerificationInitialDelay;
+    }
+
+    public Period getStorageVerificationPeriod() {
+        return storageVerificationPeriod;
+    }
+
+    public void setStorageVerificationPeriod(Period storageVerificationPeriod) {
+        this.storageVerificationPeriod = storageVerificationPeriod;
+    }
+
+    public ScheduleExpression[] getStorageVerificationSchedules() {
+        return storageVerificationSchedules;
+    }
+
+    public void setStorageVerificationSchedules(ScheduleExpression[] storageVerificationSchedules) {
+        this.storageVerificationSchedules = storageVerificationSchedules;
+    }
+
+    public int getStorageVerificationMaxScheduled() {
+        return storageVerificationMaxScheduled;
+    }
+
+    public void setStorageVerificationMaxScheduled(int storageVerificationMaxScheduled) {
+        this.storageVerificationMaxScheduled = storageVerificationMaxScheduled;
+    }
+
+    public Duration getStorageVerificationPollingInterval() {
+        return storageVerificationPollingInterval;
+    }
+
+    public void setStorageVerificationPollingInterval(Duration storageVerificationPollingInterval) {
+        this.storageVerificationPollingInterval = storageVerificationPollingInterval;
+    }
+
+    public int getStorageVerificationFetchSize() {
+        return storageVerificationFetchSize;
+    }
+
+    public void setStorageVerificationFetchSize(int storageVerificationFetchSize) {
+        this.storageVerificationFetchSize = storageVerificationFetchSize;
+    }
+
     public Collection<KeycloakServer> getKeycloakServers() {
         return keycloakServerMap.values();
     }
@@ -1923,6 +1987,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageVerificationPolicy = arcdev.storageVerificationPolicy;
         storageVerificationUpdateLocationStatus = arcdev.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = arcdev.storageVerificationStorageIDs;
+        storageVerificationAETitle = arcdev.storageVerificationAETitle;
+        storageVerificationInitialDelay = arcdev.storageVerificationInitialDelay;
+        storageVerificationPeriod = arcdev.storageVerificationPeriod;
+        storageVerificationSchedules = arcdev.storageVerificationSchedules;
+        storageVerificationMaxScheduled = arcdev.storageVerificationMaxScheduled;
+        storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
+        storageVerificationFetchSize = arcdev.storageVerificationFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

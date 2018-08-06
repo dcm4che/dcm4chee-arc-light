@@ -46,6 +46,8 @@
     "dcmAllowDeletePatient",
     "dcmStorageVerificationPolicy",
     "dcmStorageVerificationUpdateLocationStatus",
+    "dcmStorageVerificationAETitle",
+    "dcmStorageVerificationFetchSize",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -118,54 +120,6 @@
     "dcmPurgeInstanceRecordsFetchSize": {
       "title": "Purge Instance Records Fetch Size",
       "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query. Only effective, if Purge Instance Records = true.",
-      "type": "integer",
-      "default" : 100,
-      "minimum": 0,
-      "exclusiveMinimum": true
-    },
-    "dcmStorageVerificationInitialDelay": {
-      "title": "Storage Verification Initial Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received.",
-      "type": "string",
-      "format": "dcmDuration"
-    },
-    "dcmStorageVerificationPeriod": {
-      "title": "Storage Verification Period",
-      "description": "Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW",
-      "type": "string",
-      "format": "dcmPeriod"
-    },
-    "dcmStorageVerificationSchedule": {
-      "title": "Storage Verification Schedule",
-      "description": "Limits hours a day Storage Verifications are performed",
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "format": "dcmSchedule"
-    },
-    "dcmStorageVerificationMaxScheduled": {
-      "title": "Maximal scheduled Storage Verifications",
-      "description": "Maximal number of scheduled Storage Verification tasks on this device. Recommended to be set to the expected number of Storage Verification tasks performed by this device in the configured Storage Verification Polling Interval. 0 = no limitation.",
-      "type": "integer",
-      "default": 0,
-      "minimum": 0
-    },
-    "dcmStorageVerificationAETitle": {
-      "title": "Storage Verification AE Title",
-      "description": "Archive AE Title used for scheduled Storage Verifications.",
-      "type": "string",
-      "format": "dcmArchiveAETitle"
-    },
-    "dcmStorageVerificationPollingInterval": {
-      "title": "Storage Verification Polling Interval",
-      "description": "Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.",
-      "type": "string",
-      "format": "dcmDuration"
-    },
-    "dcmStorageVerificationFetchSize": {
-      "title": "Storage Verification Fetch Size",
-      "description": "Maximal number of Series scheduled for Storage Verification fetched by one query.",
       "type": "integer",
       "default" : 100,
       "minimum": 0,
@@ -886,6 +840,54 @@
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmStorageID"
+    },
+    "dcmStorageVerificationAETitle": {
+      "title": "Storage Verification AE Title",
+      "description": "Archive AE Title used for scheduled Storage Verifications.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmStorageVerificationInitialDelay": {
+      "title": "Storage Verification Initial Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmStorageVerificationPeriod": {
+      "title": "Storage Verification Period",
+      "description": "Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmStorageVerificationSchedule": {
+      "title": "Storage Verification Schedule",
+      "description": "Limits hours a day Storage Verifications are performed",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmStorageVerificationMaxScheduled": {
+      "title": "Maximal scheduled Storage Verifications",
+      "description": "Maximal number of scheduled Storage Verification tasks on this device. Recommended to be set to the expected number of Storage Verification tasks performed by this device in the configured Storage Verification Polling Interval. 0 = no limitation.",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
+    },
+    "dcmStorageVerificationPollingInterval": {
+      "title": "Storage Verification Polling Interval",
+      "description": "Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmStorageVerificationFetchSize": {
+      "title": "Storage Verification Fetch Size",
+      "description": "Maximal number of Series scheduled for Storage Verification fetched by one query.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "hl7ADTSendingApplication": {
       "title": "HL7 ADT Sending Application",

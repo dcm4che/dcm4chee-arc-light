@@ -158,6 +158,7 @@ objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 objectClass: pkiUser
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
+dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dcmLinkMWLEntryUpdatePolicy: MERGE
 dicomManufacturerModelName: dcm4chee-arc

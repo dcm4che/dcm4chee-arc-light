@@ -218,6 +218,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageVerificationPolicy", ext.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStorageVerificationUpdateLocationStatus", ext.isStorageVerificationUpdateLocationStatus(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStorageVerificationStorageID", ext.getStorageVerificationStorageIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmStorageVerificationAETitle", ext.getStorageVerificationAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmStorageVerificationInitialDelay", ext.getStorageVerificationInitialDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmStorageVerificationPeriod", ext.getStorageVerificationPeriod(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStorageVerificationSchedule", ext.getStorageVerificationSchedules());
+        LdapUtils.storeNotDef(ldapObj, attrs,"dcmStorageVerificationMaxScheduled", ext.getStorageVerificationMaxScheduled(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmStorageVerificationPollingInterval", ext.getStorageVerificationPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs,"dcmStorageVerificationFetchSize", ext.getStorageVerificationFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
@@ -384,6 +391,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.enumValue(StorageVerificationPolicy.class, attrs.get("dcmStorageVerificationPolicy"), StorageVerificationPolicy.OBJECT_CHECKSUM));
         ext.setStorageVerificationUpdateLocationStatus(LdapUtils.booleanValue(attrs.get("dcmStorageVerificationUpdateLocationStatus"), false));
         ext.setStorageVerificationStorageIDs(LdapUtils.stringArray(attrs.get("dcmStorageVerificationStorageID")));
+        ext.setStorageVerificationAETitle(LdapUtils.stringValue(attrs.get("dcmStorageVerificationAETitle"), null));
+        ext.setStorageVerificationInitialDelay(
+                toDuration(attrs.get("dcmStorageVerificationInitialDelay"), null));
+        ext.setStorageVerificationPeriod(toPeriod(attrs.get("dcmStorageVerificationPeriod")));
+        ext.setStorageVerificationSchedules(toScheduleExpressions(
+                LdapUtils.stringArray(attrs.get("dcmStorageVerificationSchedule"))));
+        ext.setStorageVerificationMaxScheduled(
+                LdapUtils.intValue(attrs.get("dcmStorageVerificationMaxScheduled"), 0));
+        ext.setStorageVerificationPollingInterval(
+                toDuration(attrs.get("dcmStorageVerificationPollingInterval"), null));
+        ext.setStorageVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmStorageVerificationFetchSize"), 100));
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
@@ -654,6 +672,21 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isStorageVerificationUpdateLocationStatus(), bb.isStorageVerificationUpdateLocationStatus(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStorageVerificationStorageID",
                 aa.getStorageVerificationStorageIDs(), bb.getStorageVerificationStorageIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmStorageVerificationAETitle",
+                aa.getStorageVerificationAETitle(), bb.getStorageVerificationAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmStorageVerificationInitialDelay",
+                aa.getStorageVerificationInitialDelay(), bb.getStorageVerificationInitialDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmStorageVerificationPeriod",
+                aa.getStorageVerificationPeriod(), bb.getStorageVerificationPeriod(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStorageVerificationSchedule",
+                aa.getStorageVerificationSchedules(), bb.getStorageVerificationSchedules());
+        LdapUtils.storeDiff(ldapObj, mods,"dcmStorageVerificationMaxScheduled",
+                aa.getStorageVerificationMaxScheduled(), bb.getStorageVerificationMaxScheduled(), 0);
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmStorageVerificationPollingInterval",
+                aa.getStorageVerificationPollingInterval(), bb.getStorageVerificationPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods,"dcmStorageVerificationFetchSize",
+                aa.getStorageVerificationFetchSize(), bb.getStorageVerificationFetchSize(), 100);
+
         LdapUtils.storeDiff(ldapObj, mods, "hl7TrackChangedPatientID",
                 aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL",

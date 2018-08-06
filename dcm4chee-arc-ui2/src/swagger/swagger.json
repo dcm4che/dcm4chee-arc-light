@@ -4011,7 +4011,7 @@
       "post": {
         "tags": [
           "MONITOR-RS",
-          "STGCVER-RS"
+          "STGVER-RS"
         ],
         "summary": "Reschedule Storage Verification Task",
         "operationId": "rescheduleStorageVerificationTask",

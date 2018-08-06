@@ -217,6 +217,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorageVerificationPolicy", arcDev.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         writer.writeNotDef("dcmStorageVerificationUpdateLocationStatus", arcDev.isStorageVerificationUpdateLocationStatus(), false);
         writer.writeNotEmpty("dcmStorageVerificationStorageID", arcDev.getStorageVerificationStorageIDs());
+        writer.writeNotNullOrDef("dcmStorageVerificationAETitle", arcDev.getStorageVerificationAETitle(), null);
+        writer.writeNotNullOrDef("dcmStorageVerificationInitialDelay", arcDev.getStorageVerificationInitialDelay(), null);
+        writer.writeNotNullOrDef("dcmStorageVerificationPeriod", arcDev.getStorageVerificationPeriod(), null);
+        writer.writeNotEmpty("dcmStorageVerificationSchedule", arcDev.getStorageVerificationSchedules());
+        writer.writeNotDef("dcmStorageVerificationMaxScheduled", arcDev.getStorageVerificationMaxScheduled(), 0);
+        writer.writeNotNullOrDef("dcmStorageVerificationPollingInterval", arcDev.getStorageVerificationPollingInterval(), null);
+        writer.writeNotDef("dcmStorageVerificationFetchSize", arcDev.getStorageVerificationFetchSize(), 100);
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(), null);
@@ -1031,6 +1038,27 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorageVerificationStorageID":
                     arcDev.setStorageVerificationStorageIDs(reader.stringArray());
+                    break;
+                case "dcmStorageVerificationAETitle":
+                    arcDev.setStorageVerificationAETitle(reader.stringValue());
+                    break;
+                case "dcmStorageVerificationInitialDelay":
+                    arcDev.setStorageVerificationInitialDelay(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmStorageVerificationPeriod":
+                    arcDev.setStorageVerificationPeriod(Period.parse(reader.stringValue()));
+                    break;
+                case "dcmStorageVerificationSchedule":
+                    arcDev.setStorageVerificationSchedules(scheduleExpressions(reader.stringArray()));
+                    break;
+                case "dcmStorageVerificationMaxScheduled":
+                    arcDev.setStorageVerificationMaxScheduled(reader.intValue());
+                    break;
+                case "dcmStorageVerificationPollingInterval":
+                    arcDev.setStorageVerificationPollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmStorageVerificationFetchSize":
+                    arcDev.setStorageVerificationFetchSize(reader.intValue());
                     break;
                 case "hl7TrackChangedPatientID":
                     arcDev.setHl7TrackChangedPatientID(reader.booleanValue());

@@ -8,6 +8,9 @@ dicomSoftwareVersion: 5.14.0
 replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
+add: dcmStorageVerificationAETitle
+dcmStorageVerificationAETitle: DCM4CHEE
+-
 
 dn: dcmQueueName=StgVerTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add

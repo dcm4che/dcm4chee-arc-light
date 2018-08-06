@@ -1113,6 +1113,40 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.224 NAME 'dcmStorageVerificationStor
   DESC 'Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification. If absent, storage on any Storage System is sufficient. Not effective with Storage Validation Policy: DB_RECORD_EXISTS.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.225 NAME 'dcmStorageVerificationAETitle'
+  DESC 'Archive AE Title used for scheduled Storage Verifications.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.226 NAME 'dcmStorageVerificationInitialDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.227 NAME 'dcmStorageVerificationPeriod'
+  DESC 'Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.228 NAME 'dcmStorageVerificationSchedule'
+  DESC 'Limits hours a day Storage Verifications are performed in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.229 NAME 'dcmStorageVerificationMaxScheduled'
+  DESC 'Maximal number of scheduled Storage Verification tasks on this device. Recommended to be set to the expected number of Storage Verification tasks performed by this device in the configured Storage Verification Polling Interval. 0 = no limitation.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.230 NAME 'dcmStorageVerificationPollingInterval'
+  DESC 'Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.231 NAME 'dcmStorageVerificationFetchSize'
+  DESC 'Maximal number of Series scheduled for Storage Verification fetched by one query.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1244,6 +1278,13 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageVerificationPolicy $
     dcmStorageVerificationUpdateLocationStatus $
     dcmStorageVerificationStorageID $
+    dcmStorageVerificationAETitle $
+    dcmStorageVerificationInitialDelay $
+    dcmStorageVerificationPeriod $
+    dcmStorageVerificationSchedule $
+    dcmStorageVerificationMaxScheduled $
+    dcmStorageVerificationPollingInterval $
+    dcmStorageVerificationFetchSize $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
