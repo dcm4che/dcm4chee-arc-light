@@ -87,6 +87,12 @@ public class EchoRS {
     @Context
     private HttpServletRequest request;
 
+    @QueryParam("host")
+    private String host;
+
+    @QueryParam("port")
+    private int port;
+
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
@@ -121,7 +127,7 @@ public class EchoRS {
     public StreamingOutput echo() throws Exception {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = getApplicationEntity();
-        ApplicationEntity remote = getRemoteApplicationEntity();
+        ApplicationEntity remote = isTestConn() ? createRemoteAE() : getRemoteApplicationEntity();
         Association as = null;
         long t1, t2;
         Result result = new Result();
@@ -161,6 +167,25 @@ public class EchoRS {
             }
         }
         return result;
+    }
+
+    private ApplicationEntity createRemoteAE() {
+        Device device = new Device();
+        device.setDeviceName(remoteAET.toLowerCase());
+        device.setInstalled(true);
+        Connection conn = new Connection();
+        conn.setHostname(host);
+        conn.setPort(port);
+        device.addConnection(conn);
+        ApplicationEntity remoteAE = new ApplicationEntity();
+        remoteAE.setAETitle(remoteAET);
+        remoteAE.addConnection(conn);
+        device.addApplicationEntity(remoteAE);
+        return remoteAE;
+    }
+
+    private boolean isTestConn() {
+        return host != null && port > 0;
     }
 
     private static class Result implements StreamingOutput {

@@ -4634,6 +4634,19 @@
             "description": "AE Title of C-ECHO SCP",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "host",
+            "in": "query",
+            "description": "remote connection host",
+            "type": "string"
+          },
+          {
+            "name": "port",
+            "in": "query",
+            "description": "remote connection port",
+            "type": "integer",
+            "default": 0
           }
         ],
         "responses": {
