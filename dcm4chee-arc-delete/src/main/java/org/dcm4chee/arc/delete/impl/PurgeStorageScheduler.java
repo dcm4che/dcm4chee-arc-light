@@ -74,6 +74,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -104,8 +106,10 @@ public class PurgeStorageScheduler extends Scheduler {
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
 
+    private Set<String> inProcess = Collections.synchronizedSet(new HashSet<>());
+
     protected PurgeStorageScheduler() {
-        super(Mode.scheduleWithFixedDelay);
+        super(Mode.scheduleAtFixedRate);
     }
 
     @Override
@@ -132,25 +136,33 @@ public class PurgeStorageScheduler extends Scheduler {
             if (desc.isReadOnly())
                 continue;
 
-            long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
-            long deleteSize = deleteSize(desc, minUsableSpace);
-            if (deleteSize > 0L) {
-                LOG.info("Usable Space on {} below {} - start deleting {}", desc,
-                        BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+            if (!inProcess.add(desc.getStorageID()))
+                continue;
+
+            try {
+                long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
+                long deleteSize = deleteSize(desc, minUsableSpace);
+                if (deleteSize > 0L) {
+                    LOG.info("Usable Space on {} below {} - start deleting {}", desc,
+                            BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+                }
+                for (int i = 0; i == 0 || deleteSize > 0L; i++) {
+                    if (getPollingInterval() == null)
+                        return;
+                    if (deleteSize > 0L) {
+                        if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
+                            deleteSize = 0L;
+                    }
+                    while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
+                    if (deleteSize > 0L) {
+                        deleteSize = deleteSize(desc, minUsableSpace);
+                    }
+                }
+                while (deleteSize > 0L) ;
+                while (deleteSeriesMetadata(desc, fetchSize)) ;
+            } finally {
+                inProcess.remove(desc.getStorageID());
             }
-            for (int i = 0; i == 0 || deleteSize > 0L; i++) {
-                if (getPollingInterval() == null)
-                    return;
-                if (deleteSize > 0L) {
-                    if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
-                        deleteSize = 0L;
-                }
-                while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
-                if (deleteSize > 0L) {
-                    deleteSize = deleteSize(desc, minUsableSpace);
-                }
-            } while (deleteSize > 0L);
-            while (deleteSeriesMetadata(desc, fetchSize));
         }
     }
 
