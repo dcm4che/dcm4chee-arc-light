@@ -224,6 +224,7 @@ public class StoreServiceEJB {
         Series series = instance.getSeries();
         series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
+        series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
         if(rjNote == null) {
             updateSeriesRejectionState(ctx, series);
             if (createLocations && series.getRejectionState() == RejectionState.NONE) {

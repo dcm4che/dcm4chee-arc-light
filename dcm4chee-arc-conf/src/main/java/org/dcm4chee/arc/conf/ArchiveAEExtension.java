@@ -118,6 +118,7 @@ public class ArchiveAEExtension extends AEExtension {
     private StorageVerificationPolicy storageVerificationPolicy;
     private Boolean storageVerificationUpdateLocationStatus;
     private String[] storageVerificationStorageIDs = {};
+    private Duration storageVerificationInitialDelay;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1099,6 +1100,21 @@ public class ArchiveAEExtension extends AEExtension {
         return storageVerificationStorageIDs != null ? storageVerificationStorageIDs : getArchiveDeviceExtension().getStorageVerificationStorageIDs();
     }
 
+    public Duration getStorageVerificationInitialDelay() {
+        return storageVerificationInitialDelay;
+    }
+
+    public void setStorageVerificationInitialDelay(Duration storageVerificationInitialDelay) {
+        this.storageVerificationInitialDelay = storageVerificationInitialDelay;
+    }
+
+    public Duration storageVerificationInitialDelay() {
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        return storageVerificationInitialDelay != null
+                ? storageVerificationInitialDelay
+                : arcdev.getStorageVerificationInitialDelay();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1160,6 +1176,7 @@ public class ArchiveAEExtension extends AEExtension {
         storageVerificationPolicy = aeExt.storageVerificationPolicy;
         storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;
+        storageVerificationInitialDelay = aeExt.storageVerificationInitialDelay;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

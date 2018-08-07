@@ -198,7 +198,18 @@ import java.util.Date;
                 "where se.pk = ?1 and se.instancePurgeState = ?2"),
 @NamedQuery(
         name = Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE,
-        query = "select se from Series se join fetch se.metadata where se.study.pk=?1 and se.instancePurgeState=?2")
+        query = "select se from Series se join fetch se.metadata where se.study.pk=?1 and se.instancePurgeState=?2"),
+@NamedQuery(
+        name = Series.SCHEDULED_STORAGE_VERIFICATION,
+        query = "select new org.dcm4chee.arc.entity.Series$StorageVerification(" +
+                "se.pk, se.storageVerificationTime, se.seriesInstanceUID, se.study.studyInstanceUID) " +
+                "from Series se " +
+                "where se.storageVerificationTime < current_timestamp " +
+                "order by se.storageVerificationTime"),
+@NamedQuery(
+        name=Series.CLAIM_STORAGE_VERIFICATION,
+        query = "update Series se set se.storageVerificationTime = ?3 " +
+                "where se.pk = ?1 and se.storageVerificationTime = ?2")
 })
 @Entity
 @Table(name = "series",
@@ -257,6 +268,8 @@ public class Series {
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
     public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
+    public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";
+    public static final String CLAIM_STORAGE_VERIFICATION = "Series.claimStorageVerification";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -277,6 +290,29 @@ public class Series {
             return "MetadataUpdate[seriesPk=" + seriesPk +
                     ", storageID=" + storageID +
                     ", storagePath=" + storagePath +
+                    "]";
+        }
+    }
+
+    public static class StorageVerification {
+        public final Long seriesPk;
+        public final Date storageVerificationTime;
+        public final String seriesInstanceUID;
+        public final String studyInstanceUID;
+
+        public StorageVerification(Long seriesPk, Date storageVerificationTime,
+                                   String seriesInstanceUID, String studyInstanceUID) {
+            this.seriesPk = seriesPk;
+            this.storageVerificationTime = storageVerificationTime;
+            this.seriesInstanceUID = seriesInstanceUID;
+            this.studyInstanceUID = studyInstanceUID;
+        }
+
+        public String toString() {
+            return "StorageVerification[seriesPk=" + seriesPk +
+                    ", storageVerificationTime=" + storageVerificationTime +
+                    ", studyUID=" + studyInstanceUID +
+                    ", seriesUID=" + seriesInstanceUID +
                     "]";
         }
     }
@@ -653,6 +689,11 @@ public class Series {
 
     public void setStorageVerificationTime(Date storageVerificationTime) {
         this.storageVerificationTime = storageVerificationTime;
+    }
+
+    public void scheduleStorageVerification(Duration delay) {
+        if (delay != null && storageVerificationTime == null)
+            storageVerificationTime = new Date(System.currentTimeMillis() + delay.getSeconds() * 1000L);
     }
 
     public int getFailuresOfLastStorageVerification() {

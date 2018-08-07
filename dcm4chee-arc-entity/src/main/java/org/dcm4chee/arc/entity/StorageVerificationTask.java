@@ -328,4 +328,13 @@ public class StorageVerificationTask {
         writer.write('\r');
         writer.write('\n');
     }
+
+    @Override
+    public String toString() {
+        return "StgVerTask[pk=" + pk
+                + ", LocalAET=" + localAET
+                + ", StudyIUID=" + studyInstanceUID
+                + ", SeriesIUID=" + seriesInstanceUID
+                + "]";
+    }
 }

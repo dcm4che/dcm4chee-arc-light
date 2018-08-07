@@ -847,9 +847,14 @@
       "type": "string",
       "format": "dcmArchiveAETitle"
     },
+    "dcmStorageVerificationBatchID": {
+      "title": "Storage Verification Batch ID",
+      "description": "Batch ID of Storage Verification Tasks triggered by scheduler.",
+      "type": "string"
+    },
     "dcmStorageVerificationInitialDelay": {
       "title": "Storage Verification Initial Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -859,18 +864,9 @@
       "type": "string",
       "format": "dcmPeriod"
     },
-    "dcmStorageVerificationSchedule": {
-      "title": "Storage Verification Schedule",
-      "description": "Limits hours a day Storage Verifications are performed",
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "format": "dcmSchedule"
-    },
     "dcmStorageVerificationMaxScheduled": {
       "title": "Maximal scheduled Storage Verifications",
-      "description": "Maximal number of scheduled Storage Verification tasks on this device. Recommended to be set to the expected number of Storage Verification tasks performed by this device in the configured Storage Verification Polling Interval. 0 = no limitation.",
+      "description": "Maximal number of scheduled Storage Verification tasks on this device. Shall be set > 0 to distribute tasks over nodes of a clustered archive. Can also be used together with a Storage Verification Polling Interval of one day and a Storage Verification Polling Start Time on end of busy hours to schedule tasks outside of the busy hours.",
       "type": "integer",
       "default": 0,
       "minimum": 0
@@ -880,6 +876,12 @@
       "description": "Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.",
       "type": "string",
       "format": "dcmDuration"
+    },
+    "dcmStorageVerificationPollingStartTime": {
+      "title": "Storage Verification Polling Start Time",
+      "description": "Time when the polling interval for Storage Verification starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.",
+      "type": "string",
+      "format": "dcmTime"
     },
     "dcmStorageVerificationFetchSize": {
       "title": "Storage Verification Fetch Size",

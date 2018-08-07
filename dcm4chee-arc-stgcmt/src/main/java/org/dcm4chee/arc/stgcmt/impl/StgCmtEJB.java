@@ -81,6 +81,9 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TemporalType;
+import java.time.Instant;
+import java.time.Period;
 import java.util.*;
 
 /**
@@ -289,7 +292,9 @@ public class StgCmtEJB {
                     msg.setStringProperty("SOPInstanceUID", storageVerificationTask.getSOPInstanceUID());
                 }
             }
-            httpServletRequestInfo.copyTo(msg);
+            if (httpServletRequestInfo != null) {
+                httpServletRequestInfo.copyTo(msg);
+            }
             QueueMessage queueMessage = queueManager.scheduleMessage(StgCmtManager.QUEUE_NAME, msg,
                     Message.DEFAULT_PRIORITY, batchID);
             storageVerificationTask.setQueueMessage(queueMessage);
@@ -547,5 +552,19 @@ public class StgCmtEJB {
                 .from(QStorageVerificationTask.storageVerificationTask)
                 .leftJoin(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
                 .where(QQueueMessage.queueMessage.batchID.eq(batchID));
+    }
+
+    public List<Series.StorageVerification> findSeriesForScheduledStorageVerifications(int fetchSize) {
+        return em.createNamedQuery(Series.SCHEDULED_STORAGE_VERIFICATION, Series.StorageVerification.class)
+                .setMaxResults(fetchSize)
+                .getResultList();
+    }
+
+    public int claimForStorageVerification(Long seriesPk, Date verificationTime, Date nextVerificationTime) {
+        return em.createNamedQuery(Series.CLAIM_STORAGE_VERIFICATION)
+                .setParameter(1, seriesPk)
+                .setParameter(2, verificationTime, TemporalType.TIMESTAMP)
+                .setParameter(3, nextVerificationTime, TemporalType.TIMESTAMP)
+                .executeUpdate();
     }
 }

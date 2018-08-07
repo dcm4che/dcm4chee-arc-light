@@ -1116,22 +1116,23 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.225 NAME 'dcmStorageVerificationAETitle
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.226 NAME 'dcmStorageVerificationInitialDelay'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.226 NAME 'dcmStorageVerificationBatchID'
+  DESC 'Batch ID of Storage Verification Tasks triggered by scheduler.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.227 NAME 'dcmStorageVerificationInitialDelay'
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.227 NAME 'dcmStorageVerificationPeriod'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.228 NAME 'dcmStorageVerificationPeriod'
   DESC 'Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.228 NAME 'dcmStorageVerificationSchedule'
-  DESC 'Limits hours a day Storage Verifications are performed in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.229 NAME 'dcmStorageVerificationMaxScheduled'
-  DESC 'Maximal number of scheduled Storage Verification tasks on this device. Recommended to be set to the expected number of Storage Verification tasks performed by this device in the configured Storage Verification Polling Interval. 0 = no limitation.'
+  DESC 'Maximal number of scheduled Storage Verification tasks on this device. Shall be set > 0 to distribute tasks over nodes of a clustered archive. Can also be used together with a Storage Verification Polling Interval of one day and a Storage Verification Polling Start Time on end of busy hours to schedule tasks outside of the busy hours. No limitation (=0) if absent.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1140,7 +1141,12 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.230 NAME 'dcmStorageVerificationPolling
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.231 NAME 'dcmStorageVerificationFetchSize'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.231 NAME 'dcmStorageVerificationPollingStartTime'
+  DESC 'Time when the polling interval for Storage Verification starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.232 NAME 'dcmStorageVerificationFetchSize'
   DESC 'Maximal number of Series scheduled for Storage Verification fetched by one query.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -1273,11 +1279,12 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageVerificationUpdateLocationStatus $
     dcmStorageVerificationStorageID $
     dcmStorageVerificationAETitle $
+    dcmStorageVerificationBatchID $
     dcmStorageVerificationInitialDelay $
     dcmStorageVerificationPeriod $
-    dcmStorageVerificationSchedule $
     dcmStorageVerificationMaxScheduled $
     dcmStorageVerificationPollingInterval $
+    dcmStorageVerificationPollingStartTime $
     dcmStorageVerificationFetchSize $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
@@ -1364,6 +1371,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorageVerificationPolicy $
     dcmStorageVerificationUpdateLocationStatus $
     dcmStorageVerificationStorageID $
+    dcmStorageVerificationInitialDelay $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $

@@ -197,11 +197,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean storageVerificationUpdateLocationStatus;
     private String[] storageVerificationStorageIDs = {};
     private String storageVerificationAETitle;
+    private String storageVerificationBatchID;
     private Duration storageVerificationInitialDelay;
     private Period storageVerificationPeriod;
-    private ScheduleExpression[] storageVerificationSchedules = {};
     private int storageVerificationMaxScheduled;
     private Duration storageVerificationPollingInterval;
+    private LocalTime storageVerificationPollingStartTime;
     private int storageVerificationFetchSize = 100;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -1783,6 +1784,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storageVerificationAETitle = storageVerificationAETitle;
     }
 
+    public String getStorageVerificationBatchID() {
+        return storageVerificationBatchID;
+    }
+
+    public void setStorageVerificationBatchID(String storageVerificationBatchID) {
+        this.storageVerificationBatchID = storageVerificationBatchID;
+    }
+
     public Duration getStorageVerificationInitialDelay() {
         return storageVerificationInitialDelay;
     }
@@ -1799,12 +1808,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storageVerificationPeriod = storageVerificationPeriod;
     }
 
-    public ScheduleExpression[] getStorageVerificationSchedules() {
-        return storageVerificationSchedules;
+    public LocalTime getStorageVerificationPollingStartTime() {
+        return storageVerificationPollingStartTime;
     }
 
-    public void setStorageVerificationSchedules(ScheduleExpression[] storageVerificationSchedules) {
-        this.storageVerificationSchedules = storageVerificationSchedules;
+    public void setStorageVerificationPollingStartTime(LocalTime storageVerificationPollingStartTime) {
+        this.storageVerificationPollingStartTime = storageVerificationPollingStartTime;
     }
 
     public int getStorageVerificationMaxScheduled() {
@@ -1988,9 +1997,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageVerificationUpdateLocationStatus = arcdev.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = arcdev.storageVerificationStorageIDs;
         storageVerificationAETitle = arcdev.storageVerificationAETitle;
+        storageVerificationBatchID = arcdev.storageVerificationBatchID;
         storageVerificationInitialDelay = arcdev.storageVerificationInitialDelay;
         storageVerificationPeriod = arcdev.storageVerificationPeriod;
-        storageVerificationSchedules = arcdev.storageVerificationSchedules;
+        storageVerificationPollingStartTime = arcdev.storageVerificationPollingStartTime;
         storageVerificationMaxScheduled = arcdev.storageVerificationMaxScheduled;
         storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
         storageVerificationFetchSize = arcdev.storageVerificationFetchSize;
