@@ -29,7 +29,7 @@
                         *ngSwitchCase="'range-picker'"
                         onlyDate="line[index].onlyDate"
                         [model]="model[line[index]?.filterKey]"
-                        (modelChange)="model[line[index]?.filterKey] = $event;filterChange($event)"
+                        (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                         mode="range"
                         placeholder="{{line[index]?.description || line[index]?.placeholder}}"
                         dateFormat="yymmdd"
@@ -40,13 +40,13 @@
                         *ngSwitchCase="'range-picker-limit'"
                         onlyDate="line[index].onlyDate"
                         [model]="model[line[index]?.filterKey]"
-                        (modelChange)="model[line[index]?.filterKey] = $event;filterChange($event)"
+                        (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                         mode="range"
                         placeholder="{{line[index]?.description || line[index]?.placeholder}}"
                         dateFormat="yymmdd"
                         title="{{line[index]?.description}}"
                         dateRange="true"
-                        (splitDateRangeChanged)="model['SplitStudyDateRange'] = $event;filterChange($event);"
+                        (splitDateRangeChanged)="splitDateRangeChanged($event);"
                 ></range-picker>
               </ng-container>
               <div *ngSwitchCase="'dummy'"></div>

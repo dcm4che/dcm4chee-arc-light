@@ -66,6 +66,22 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
             },100);
         }
     }
+    dateChanged(key, e){
+        if(e){
+            this.model[key] = e;
+        }else{
+            delete this.model[key];
+        }
+        this.filterChange(e);
+    }
+    splitDateRangeChanged(e){
+        if(e){
+            this.model['SplitStudyDateRange'] = e;
+        }else{
+            delete this.model['SplitStudyDateRange'];
+        }
+        this.filterChange(e);
+    }
     ngOnDestroy(){
         localStorage.setItem(this.parentId, JSON.stringify(this.model));
     }
