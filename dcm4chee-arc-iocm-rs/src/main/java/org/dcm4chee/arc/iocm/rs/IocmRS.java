@@ -369,10 +369,11 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
+            Patient prevPatient = patientService.findPatient(priorPatientID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
-            ctx.setAttributes(patientID.exportPatientIDWithIssuer(null));
+            ctx.setAttributes(patientID.exportPatientIDWithIssuer(prevPatient.getAttributes()));
             patientService.changePatientID(ctx);
             rsHL7Sender.sendHL7Message("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
