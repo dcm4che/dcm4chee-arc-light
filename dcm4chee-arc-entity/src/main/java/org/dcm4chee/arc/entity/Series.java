@@ -207,6 +207,10 @@ import java.util.Date;
                 "where se.storageVerificationTime < current_timestamp " +
                 "order by se.storageVerificationTime"),
 @NamedQuery(
+        name=Series.CLAIM_METADATA_UPDATE,
+        query = "update Series se set se.metadataScheduledUpdateTime = null " +
+                "where se.pk = ?1 and se.metadataScheduledUpdateTime is not null"),
+@NamedQuery(
         name=Series.CLAIM_STORAGE_VERIFICATION,
         query = "update Series se set se.storageVerificationTime = ?3 " +
                 "where se.pk = ?1 and se.storageVerificationTime = ?2")
@@ -269,6 +273,7 @@ public class Series {
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
     public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
     public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";
+    public static final String CLAIM_METADATA_UPDATE = "Series.claimMetadataUpdate";
     public static final String CLAIM_STORAGE_VERIFICATION = "Series.claimStorageVerification";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }

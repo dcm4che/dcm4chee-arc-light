@@ -64,13 +64,10 @@ public class UpdateMetadataEJB {
                 .getResultList();
     }
 
-    public boolean claim(Long seriesPk) {
-        Series series = em.find(Series.class, seriesPk);
-        if (series.getMetadataScheduledUpdateTime() == null)
-            return false;
-
-        series.setMetadataScheduledUpdateTime(null);
-        return true;
+    public int claim(Long seriesPk) {
+        return em.createNamedQuery(Series.CLAIM_METADATA_UPDATE)
+                .setParameter(1, seriesPk)
+                .executeUpdate();
     }
 
     public void commit(Long seriesPk, Metadata metadata) {
