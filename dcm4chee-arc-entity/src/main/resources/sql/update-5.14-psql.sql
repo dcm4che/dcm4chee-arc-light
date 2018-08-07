@@ -13,7 +13,7 @@ create index UK_s1vceb8cu9c45j0q8tbldgol9 on series (stgver_failures);
 
 create index FK_hch5fanx7ejwew2ag2ividq9r on stgver_task (queue_msg_fk) ;
 
-create sequence stgcmt_task_pk_seq;
+create sequence stgver_task_pk_seq;
 
 -- may be already applied on running archive 5.13 to minimize downtime
 -- and re-applied on stopped archive only on series inserted after the previous update (where series.pk > xxx)
