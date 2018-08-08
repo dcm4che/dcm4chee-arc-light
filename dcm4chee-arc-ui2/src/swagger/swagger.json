@@ -1442,6 +1442,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped batches before first task in returned list",
@@ -2244,6 +2250,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped batches before first task in returned list",
@@ -3017,6 +3029,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped batches before first task in returned list",
@@ -3665,6 +3683,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "list batches with at least one Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           },
           {
