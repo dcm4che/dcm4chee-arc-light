@@ -34,9 +34,8 @@ export class StackedProgressComponent implements OnInit {
             if(key === 'warning'){
                 return ` ( ${this.extractDiffInformation()} )`;
             }
-        }else{
-            return '';
         }
+        return '';
     }
     extractDiffInformation(){
         return [
