@@ -1567,13 +1567,17 @@ public class AuditService {
     }
 
     void spoolStgCmt(StgCmtContext stgCmtContext) {
-        Attributes eventInfo = stgCmtContext.getEventInfo();
-        String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
-                : getArchiveDevice().auditUnknownStudyInstanceUID();
+        try {
+            Attributes eventInfo = stgCmtContext.getEventInfo();
+            String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
+                    ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
+                    : getArchiveDevice().auditUnknownStudyInstanceUID();
 
-        spoolFailedStgcmt(stgCmtContext, studyUID);
-        spoolSuccessStgcmt(stgCmtContext, studyUID);
+            spoolFailedStgcmt(stgCmtContext, studyUID);
+            spoolSuccessStgcmt(stgCmtContext, studyUID);
+        } catch (Exception e) {
+            LOG.warn("Failed to spool storage commitment : " + e.getMessage());
+        }
     }
 
     private void spoolSuccessStgcmt(StgCmtContext stgCmtContext, String studyUID) {
@@ -1648,7 +1652,8 @@ public class AuditService {
     private String storageCmtCallingHost(StgCmtContext stgCmtContext) {
         return stgCmtContext.getRequest() != null
                 ? stgCmtContext.getRequest().requesterHost
-                : stgCmtContext.getRemoteAE().getConnections().get(0).getHostname();
+                : stgCmtContext.getRemoteAE() != null
+                    ? stgCmtContext.getRemoteAE().getConnections().get(0).getHostname() : null;
     }
 
     private String storageCmtCalledAET(StgCmtContext stgCmtContext) {
@@ -1660,7 +1665,8 @@ public class AuditService {
     private String storageCmtCallingAET(StgCmtContext stgCmtContext) {
         return stgCmtContext.getRequest() != null
                 ? stgCmtContext.getRequest().requesterUserID
-                : stgCmtContext.getRemoteAE().getAETitle();
+                : stgCmtContext.getRemoteAE() != null
+                    ? stgCmtContext.getRemoteAE().getAETitle() : null;
     }
 
     private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
@@ -1677,12 +1683,13 @@ public class AuditService {
                 .altUserID(AuditLogger.processID())
                 .roleIDCode(et.destination).build();
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                callingUserID,
-                auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .requester(true)
-                .roleIDCode(et.source).build();
+        if (callingUserID != null)
+            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+                                            callingUserID,
+                                            auditInfo.getField(AuditInfo.CALLING_HOST))
+                                            .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                                            .requester(true)
+                                            .roleIDCode(et.source).build();
        
         String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
 
