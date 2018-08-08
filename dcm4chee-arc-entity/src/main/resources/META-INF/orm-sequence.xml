@@ -295,11 +295,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.StorageVerificationTask">
-    <sequence-generator name="stgcmt_task_pk_seq" sequence-name="stgcmt_task_pk_seq" allocation-size="1"/>
+    <sequence-generator name="stgver_task_pk_seq" sequence-name="stgver_task_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="stgcmt_task_pk_seq"/>
+        <generated-value strategy="SEQUENCE" generator="stgver_task_pk_seq"/>
       </id>
     </attributes>
   </entity>
