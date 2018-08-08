@@ -286,12 +286,18 @@ public class DiffServiceEJB {
                 .getResultList();
     }
 
-    public List<AttributesBlob> getDiffTaskAttributes(String batchID, int offset, int limit) {
-        return em.createNamedQuery(DiffTaskAttributes.FIND_BY_BATCH_ID, AttributesBlob.class)
-                .setParameter(1, batchID)
-                .setFirstResult(offset)
-                .setMaxResults(limit)
-                .getResultList();
+    public List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit) {
+        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueBatch, matchDiffBatch);
+        if (limit > 0)
+            diffTaskQuery.limit(limit);
+        if (offset > 0)
+            diffTaskQuery.offset(offset);
+
+        return new HibernateQuery<DiffTaskAttributes>(em.unwrap(Session.class))
+                .select(QDiffTaskAttributes.diffTaskAttributes.attributesBlob)
+                .from(QDiffTaskAttributes.diffTaskAttributes)
+                .where(QDiffTaskAttributes.diffTaskAttributes.diffTask.in(diffTaskQuery))
+                .fetch();
     }
 
     public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,

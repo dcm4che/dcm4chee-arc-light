@@ -1507,6 +1507,48 @@
             "type": "string"
           },
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified Device Name",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified Archive AE Title",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified AE Title of the primary C-FIND SCP",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified AE Title of the secondary C-FIND SCP",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "list batch results with at least one diff task which do/don't check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "list batch results with at least one diff task which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "list batch results with at least one compare Studies Tasks which compares the specified set of attributes",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped results before first result in returned list",
