@@ -2200,7 +2200,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void loadDelayedCompressionRules(Collection<DelayedCompressionRule> rules, String parentDN)
             throws NamingException {
-        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveCompressionRule)");
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmDelayedCompressionRule)");
         try {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
