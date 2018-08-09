@@ -20,6 +20,7 @@
     "dcmSOPClass": {
       "title": "Source SOP Class",
       "description": "SOP Classes of stored images to which this rule applies.",
+      "type": "array",
       "items": {
         "type": "string"
       },
@@ -37,6 +38,7 @@
     "dcmAETitle": {
       "title": "Source AE Title",
       "description": "Source AE Titles of Series to which this rule applies or does not apply - dependent on Source AE Title Usage Flag.",
+      "type": "array",
       "items": {
         "type": "string"
       },
@@ -55,6 +57,7 @@
     "dcmStationName": {
       "title": "Station Name",
       "description": "Station Names of Series to which this rule applies or does not apply - dependent on Station Name Usage Flag.",
+      "type": "array",
       "items": {
         "type": "string"
       }

@@ -249,6 +249,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmImpaxReportProperty", toStrings(ext.getImpaxReportProperties()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUIConfigurationDeviceName",
                 ext.getUiConfigurationDeviceName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCompressionPollingInterval", ext.getCompressionPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCompressionFetchSize", ext.getCompressionFetchSize(), 100);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCompressionSchedule", ext.getCompressionSchedules());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCompressionThreads", ext.getCompressionThreads(), 1);
     }
 
     @Override
@@ -427,6 +431,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setImpaxReportProperties(LdapUtils.stringArray(attrs.get("dcmImpaxReportProperty")));
         ext.setUiConfigurationDeviceName(LdapUtils.stringValue(
                 attrs.get("dcmUIConfigurationDeviceName"), null));
+        ext.setCompressionPollingInterval(toDuration(attrs.get("dcmCompressionPollingInterval"), null));
+        ext.setCompressionFetchSize(LdapUtils.intValue(attrs.get("dcmCompressionFetchSize"), 100));
+        ext.setCompressionSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmCompressionSchedule"))));
+        ext.setCompressionThreads(LdapUtils.intValue(attrs.get("dcmCompressionThreads"), 1));
     }
 
     @Override
@@ -731,6 +739,18 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUIConfigurationDeviceName",
                 aa.getUiConfigurationDeviceName(), bb.getUiConfigurationDeviceName(),
                 null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCompressionPollingInterval",
+                aa.getCompressionPollingInterval(),
+                bb.getCompressionPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCompressionFetchSize",
+                aa.getCompressionFetchSize(),
+                bb.getCompressionFetchSize(),
+                100);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCompressionSchedule", aa.getCompressionSchedules(), bb.getCompressionSchedules());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCompressionThreads",
+                aa.getCompressionThreads(),
+                bb.getCompressionThreads(),
+                1);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -750,6 +770,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeExporterDescriptors(diffs, deviceDN, arcDev);
         storeExportRules(diffs, arcDev.getExportRules(), deviceDN);
         storeCompressionRules(diffs, arcDev.getCompressionRules(), deviceDN);
+        storeDelayedCompressionRules(diffs, arcDev.getDelayedCompressionRules(), deviceDN);
         storeStoreAccessControlIDRules(diffs, arcDev.getStoreAccessControlIDRules(), deviceDN);
         storeAttributeCoercions(diffs, arcDev.getAttributeCoercions(), deviceDN);
         storeQueryRetrieveViews(diffs, deviceDN, arcDev);
@@ -777,6 +798,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExporterDescriptors(arcdev, deviceDN);
         loadExportRules(arcdev.getExportRules(), deviceDN);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
+        loadDelayedCompressionRules(arcdev.getDelayedCompressionRules(), deviceDN);
         loadStoreAccessControlIDRules(arcdev.getStoreAccessControlIDRules(), deviceDN);
         loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN, device);
         loadQueryRetrieveViews(arcdev, deviceDN);
@@ -812,6 +834,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeExportDescriptors(diffs, aa, bb, deviceDN);
         mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
+        mergeDelayedCompressionRules(diffs, aa.getDelayedCompressionRules(), bb.getDelayedCompressionRules(), deviceDN);
         mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
         mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
         mergeQueryRetrieveViews(diffs, aa, bb, deviceDN);
@@ -1982,6 +2005,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeDelayedCompressionRules(ConfigurationChanges diffs, Collection<DelayedCompressionRule> rules, String parentDN)
+            throws NamingException {
+        for (DelayedCompressionRule rule : rules) {
+            String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+        }
+    }
+
     private void storeStudyRetentionPolicies(ConfigurationChanges diffs, Collection<StudyRetentionPolicy> policies, String parentDN)
             throws NamingException {
         for (StudyRetentionPolicy policy : policies) {
@@ -2066,6 +2099,21 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, DelayedCompressionRule rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmDelayedCompressionRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSOPClass", rule.getSOPClassUIDs());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomTransferSyntax", rule.getSourceTransferSyntaxUIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", rule.getDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTransferSyntax", rule.getTransferSyntax(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAETitle", rule.getSourceAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAETitleUsageFlag", rule.getSourceAETitleUsageFlag(), DelayedCompressionRule.UsageFlag.MATCH);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStationName", rule.getStationNames());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStationNameUsageFlag", rule.getStationNameUsageFlag(), DelayedCompressionRule.UsageFlag.MATCH);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmImageWriteParam", rule.getImageWriteParams());
+        return attrs;
+    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, StoreAccessControlIDRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmStoreAccessControlIDRule");
         attrs.put("cn", rule.getCommonName());
@@ -2143,6 +2191,32 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setTransferSyntax(LdapUtils.stringValue(attrs.get("dicomTransferSyntax"), null));
                 rule.setImageWriteParams(Property.valueOf(LdapUtils.stringArray(attrs.get("dcmImageWriteParam"))));
                 rule.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                rules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadDelayedCompressionRules(Collection<DelayedCompressionRule> rules, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveCompressionRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                DelayedCompressionRule rule = new DelayedCompressionRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setSOPClassUIDs(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
+                rule.setSourceTransferSyntaxUIDs(LdapUtils.stringArray(attrs.get("dicomTransferSyntax")));
+                rule.setDelay(toDuration(attrs.get("dcmDuration"), null));
+                rule.setTransferSyntax(LdapUtils.stringValue(attrs.get("dcmTransferSyntax"), null));
+                rule.setSourceAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
+                rule.setSourceAETitleUsageFlag(LdapUtils.enumValue(
+                        DelayedCompressionRule.UsageFlag.class, attrs.get("dcmAETitleUsageFlag"), DelayedCompressionRule.UsageFlag.MATCH));
+                rule.setStationNames(LdapUtils.stringArray(attrs.get("dcmStationName")));
+                rule.setStationNameUsageFlag(LdapUtils.enumValue(
+                        DelayedCompressionRule.UsageFlag.class, attrs.get("dcmStationNameUsageFlag"), DelayedCompressionRule.UsageFlag.MATCH));
+                rule.setImageWriteParams(Property.valueOf(LdapUtils.stringArray(attrs.get("dcmImageWriteParam"))));
                 rules.add(rule);
             }
         } finally {
@@ -2302,6 +2376,36 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             ArchiveCompressionRule prevRule = findCompressionRuleByCN(prevRules, cn);
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                rule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    private void mergeDelayedCompressionRules(
+            ConfigurationChanges diffs, Collection<DelayedCompressionRule> prevRules, Collection<DelayedCompressionRule> rules, String parentDN)
+            throws NamingException {
+        for (DelayedCompressionRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findDelayedCompressionRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (DelayedCompressionRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            DelayedCompressionRule prevRule = findDelayedCompressionRuleByCN(prevRules, cn);
             if (prevRule == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
@@ -2538,6 +2642,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private List<ModificationItem> storeDiffs(
+            ConfigurationChanges.ModifiedObject ldapObj, DelayedCompressionRule prev, DelayedCompressionRule rule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmTransferSyntax", prev.getTransferSyntax(), rule.getTransferSyntax(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration", prev.getDelay(), rule.getDelay(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSOPClass", prev.getSOPClassUIDs(), rule.getSOPClassUIDs());
+        LdapUtils.storeDiff(ldapObj, mods, "dicomTransferSyntax", prev.getSourceTransferSyntaxUIDs(), rule.getSourceTransferSyntaxUIDs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAETitle", prev.getSourceAETitles(), rule.getSourceAETitles());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAETitleUsageFlag",
+                prev.getSourceAETitleUsageFlag(), rule.getSourceAETitleUsageFlag(), DelayedCompressionRule.UsageFlag.MATCH);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStationName", prev.getStationNames(), rule.getStationNames());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStationNameUsageFlag",
+                prev.getStationNameUsageFlag(), rule.getStationNameUsageFlag(), DelayedCompressionRule.UsageFlag.MATCH);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmImageWriteParam", prev.getImageWriteParams(), rule.getImageWriteParams());
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, StoreAccessControlIDRule prev, StoreAccessControlIDRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
@@ -2613,6 +2733,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private ArchiveCompressionRule findCompressionRuleByCN(Collection<ArchiveCompressionRule> rules, String cn) {
         for (ArchiveCompressionRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
+        return null;
+    }
+
+    private DelayedCompressionRule findDelayedCompressionRuleByCN(Collection<DelayedCompressionRule> rules, String cn) {
+        for (DelayedCompressionRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
         return null;

@@ -1108,7 +1108,7 @@
         "$ref": "archiveCompressionRule.schema.json"
       }
     },
-    "dcmArchiveCompressionRule": {
+    "dcmDelayedCompressionRule": {
       "title": "Delayed Compression Rule",
       "description": "Rules for compression of stored images after a particular delay.",
       "type": "array",
