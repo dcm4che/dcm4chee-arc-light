@@ -59,7 +59,7 @@
         "type": "string"
       }
     },
-    "dcmStationNameFlag": {
+    "dcmStationNameUsageFlag": {
       "title": "Station Name Usage Flag",
       "description": "Controls if the rules applies to Series which Station Name matches one or does not match any of the values specified by Station Name.",
       "type": "string",
