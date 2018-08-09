@@ -204,6 +204,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration storageVerificationPollingInterval;
     private LocalTime storageVerificationPollingStartTime;
     private int storageVerificationFetchSize = 100;
+    private Duration compressionPollingInterval;
+    private int compressionFetchSize = 100;
+    private int compressionThreads = 1;
+    private ScheduleExpression[] compressionSchedules = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -221,6 +225,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
+    private final ArrayList<DelayedCompressionRule> delayedCompressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
@@ -1479,6 +1484,18 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return compressionRules;
     }
 
+    public void clearDelayedCompressionRules() {
+        delayedCompressionRules.clear();
+    }
+
+    public void addDelayedCompressionRule(DelayedCompressionRule rule) {
+        delayedCompressionRules.add(rule);
+    }
+
+    public Collection<DelayedCompressionRule> getDelayedCompressionRules() {
+        return delayedCompressionRules;
+    }
+
     public void removeStudyRetentionPolicy(StudyRetentionPolicy policy) {
         studyRetentionPolicies.remove(policy);
     }
@@ -1840,6 +1857,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storageVerificationFetchSize = storageVerificationFetchSize;
     }
 
+    public Duration getCompressionPollingInterval() {
+        return compressionPollingInterval;
+    }
+
+    public void setCompressionPollingInterval(Duration compressionPollingInterval) {
+        this.compressionPollingInterval = compressionPollingInterval;
+    }
+
+    public int getCompressionFetchSize() {
+        return compressionFetchSize;
+    }
+
+    public void setCompressionFetchSize(int compressionFetchSize) {
+        this.compressionFetchSize = compressionFetchSize;
+    }
+
+    public int getCompressionThreads() {
+        return compressionThreads;
+    }
+
+    public void setCompressionThreads(int compressionThreads) {
+        this.compressionThreads = compressionThreads;
+    }
+
+    public ScheduleExpression[] getCompressionSchedules() {
+        return compressionSchedules;
+    }
+
+    public void setCompressionSchedules(ScheduleExpression[] compressionSchedules) {
+        this.compressionSchedules = compressionSchedules;
+    }
+
     public Collection<KeycloakServer> getKeycloakServers() {
         return keycloakServerMap.values();
     }
@@ -2004,6 +2053,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageVerificationMaxScheduled = arcdev.storageVerificationMaxScheduled;
         storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
         storageVerificationFetchSize = arcdev.storageVerificationFetchSize;
+        compressionPollingInterval = arcdev.compressionPollingInterval;
+        compressionFetchSize = arcdev.compressionFetchSize;
+        compressionSchedules = arcdev.compressionSchedules;
+        compressionThreads = arcdev.compressionThreads;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
@@ -2030,6 +2083,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7NoPatientCreateMessageTypes.addAll(arcdev.hl7NoPatientCreateMessageTypes);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
+        delayedCompressionRules.clear();
+        delayedCompressionRules.addAll(arcdev.delayedCompressionRules);
         studyRetentionPolicies.clear();
         studyRetentionPolicies.addAll(arcdev.studyRetentionPolicies);
         attributeCoercions.clear();

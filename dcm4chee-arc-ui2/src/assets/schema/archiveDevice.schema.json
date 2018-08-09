@@ -48,6 +48,8 @@
     "dcmStorageVerificationUpdateLocationStatus",
     "dcmStorageVerificationAETitle",
     "dcmStorageVerificationFetchSize",
+    "dcmCompressionFetchSize",
+    "dcmCompressionTasks",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -891,6 +893,37 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmCompressionPollingInterval": {
+      "title": "Compression Polling Interval",
+      "description": "Polling Interval for Series to be compressed in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmCompressionFetchSize": {
+      "title": "Compression Fetch Size",
+      "description": "Maximal number of Series fetched for compression by one query.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmCompressionSchedule": {
+      "title": "Compression Schedule",
+      "description": "Limits compression to specified times in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmCompressionThreads": {
+      "title": "Compression Threads",
+      "description": "Number of Threads used for Compression.",
+      "type": "integer",
+      "default" : 1,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "hl7ADTSendingApplication": {
       "title": "HL7 ADT Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.",
@@ -1073,6 +1106,15 @@
       "titleKey":"{cn}",
       "items" : {
         "$ref": "archiveCompressionRule.schema.json"
+      }
+    },
+    "dcmArchiveCompressionRule": {
+      "title": "Delayed Compression Rule",
+      "description": "Rules for compression of stored images after a particular delay.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "delayedCompressionRule.schema.json"
       }
     },
     "dcmArchiveAttributeCoercion": {

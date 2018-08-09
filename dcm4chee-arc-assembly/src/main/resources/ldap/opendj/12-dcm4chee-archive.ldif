@@ -1151,6 +1151,47 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.232 NAME 'dcmStorageVerificationFetchSi
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.233 NAME 'dcmCompressionPollingInterval'
+  DESC 'Polling Interval for Series to be compressed in ISO-8601 duration format PnDTnHnMn.nS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.234 NAME 'dcmCompressionFetchSize'
+  DESC 'Maximal number of Series fetched for compression by one query.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.235 NAME 'dcmCompressionSchedule'
+  DESC 'Limits compression to specified times in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.236 NAME 'dcmCompressionThreads'
+  DESC 'Number of Threads used for Compression. 1 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.237 NAME 'dcmTransferSyntax'
+  DESC 'A single Transfer Syntax UID'
+  EQUALITY  objectIdentifierMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.238 NAME 'dcmStationName'
+   DESC 'Multiple Station Names (0008,1010)'
+   EQUALITY caseIgnoreMatch
+   SUBSTR caseIgnoreSubstringsMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.239 NAME 'dcmAETitleUsageFlag'
+  DESC 'Controls if the rules applies to Series which Source AE Title matches one or does not match any of the values specified by dcmAETitle. Enumerated values: MATCH, NO_MATCH. MATCH if absent.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.240 NAME 'dcmStationNameUsageFlag'
+  DESC 'Controls if the rules applies to Series which Station Name matches one or does not match any of the values specified by dcmStationName. Enumerated values: MATCH, NO_MATCH. MATCH if absent.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1286,6 +1327,10 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageVerificationPollingInterval $
     dcmStorageVerificationPollingStartTime $
     dcmStorageVerificationFetchSize $
+    dcmCompressionPollingInterval $
+    dcmCompressionFetchSize $
+    dcmCompressionSchedule $
+    dcmCompressionThreads $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
@@ -1621,3 +1666,18 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
     dcmTLSDisableTrustManager $
     uid $
     userPassword ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmDelayedCompressionRule'
+  DESC 'Delayed Compression Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmSOPClass $
+    dicomTransferSyntax $
+    dcmDuration $
+    dcmTransferSyntax )
+  MAY (
+    dcmAETitle $
+    dcmAETitleUsageFlag $
+    dcmStationName $
+    dcmStationNameUsageFlag $
+    dcmImageWriteParam ) )
