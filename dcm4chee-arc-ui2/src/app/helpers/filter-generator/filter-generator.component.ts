@@ -20,6 +20,8 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
     @Input() schema;
     @Input() model;
+    @Input() filterTreeHeight;
+    @Input() filterID;
     @Output() submit  = new EventEmitter();
     @Output() onChange  = new EventEmitter();
     cssBlockClass = '';
@@ -30,14 +32,25 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     ) { }
     parentId;
     ngOnInit() {
-        try{
-            this.parentId = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
-        }catch (e){
-            this.parentId = `${location.hostname}-${location.hash.replace(/#/g,'').replace(/\//g,'-')}`;
+        if(this.filterTreeHeight) {
+            this.cssBlockClass = `height_${this.filterTreeHeight}`;
         }
-       let savedFilters = localStorage.getItem(this.parentId);
-       if(savedFilters)
-           this.model = _.merge(this.model,JSON.parse(savedFilters));
+        if(!this.filterID){
+            try{
+                this.filterID = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
+            }catch (e){
+                this.filterID = `${location.hostname}-${location.hash.replace(/#/g,'').replace(/\//g,'-')}`;
+            }
+        }
+       let savedFilters = localStorage.getItem(this.filterID);
+       if(savedFilters){
+           this.model = _.mergeWith(this.model, JSON.parse(savedFilters),(a, b)=>{
+               if(a)
+                   return a;
+               if(!a && b)
+                   return b;
+           });
+       }
     }
     submitEmit(id){
         this.model = j4care.clearEmptyObject(this.model);
@@ -83,6 +96,6 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         this.filterChange(e);
     }
     ngOnDestroy(){
-        localStorage.setItem(this.parentId, JSON.stringify(this.model));
+        localStorage.setItem(this.filterID, JSON.stringify(this.model));
     }
 }
