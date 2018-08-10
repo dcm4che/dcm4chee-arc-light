@@ -224,8 +224,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmStorageVerificationPeriod", ext.getStorageVerificationPeriod(), null);
         LdapUtils.storeNotDef(ldapObj, attrs,"dcmStorageVerificationMaxScheduled", ext.getStorageVerificationMaxScheduled(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmStorageVerificationPollingInterval", ext.getStorageVerificationPollingInterval(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageVerificationPollingStartTime",
-                ext.getStorageVerificationPollingStartTime(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStorageVerificationSchedule", ext.getStorageVerificationSchedules());
         LdapUtils.storeNotDef(ldapObj, attrs,"dcmStorageVerificationFetchSize", ext.getStorageVerificationFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
@@ -406,7 +405,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.intValue(attrs.get("dcmStorageVerificationMaxScheduled"), 0));
         ext.setStorageVerificationPollingInterval(
                 toDuration(attrs.get("dcmStorageVerificationPollingInterval"), null));
-        ext.setStorageVerificationPollingStartTime(toLocalTime(attrs.get("dcmStorageVerificationPollingStartTime")));
+        ext.setStorageVerificationSchedules(
+                toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmStorageVerificationSchedule"))));
         ext.setStorageVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmStorageVerificationFetchSize"), 100));
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
@@ -694,8 +694,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorageVerificationMaxScheduled(), bb.getStorageVerificationMaxScheduled(), 0);
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmStorageVerificationPollingInterval",
                 aa.getStorageVerificationPollingInterval(), bb.getStorageVerificationPollingInterval(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageVerificationPollingStartTime",
-                aa.getStorageVerificationPollingStartTime(), bb.getStorageVerificationPollingStartTime(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStorageVerificationSchedule",
+                aa.getStorageVerificationSchedules(), bb.getStorageVerificationSchedules());
         LdapUtils.storeDiff(ldapObj, mods,"dcmStorageVerificationFetchSize",
                 aa.getStorageVerificationFetchSize(), bb.getStorageVerificationFetchSize(), 100);
 

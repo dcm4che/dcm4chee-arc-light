@@ -4,6 +4,7 @@ import org.dcm4che3.util.StringUtils;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,6 +63,10 @@ public class ScheduleExpression {
 
     public boolean contains(Calendar cal) {
         return containsHour(cal) && containsDayOfWeek(cal);
+    }
+
+    public static boolean emptyOrAnyContains(Calendar cal, ScheduleExpression... expressions) {
+        return expressions.length == 0 || Stream.of(expressions).anyMatch(expr -> expr.contains(cal));
     }
 
     public Calendar ceil(Calendar cal) {

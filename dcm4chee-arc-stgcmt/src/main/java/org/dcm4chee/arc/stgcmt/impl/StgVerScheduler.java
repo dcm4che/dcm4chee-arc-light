@@ -46,6 +46,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.ScheduleExpression;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -56,8 +57,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
-import java.time.LocalTime;
 import java.time.Period;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class StgVerScheduler extends Scheduler {
     private StgCmtManager stgCmtMgr;
 
     protected StgVerScheduler() {
-        super(Mode.scheduleAtFixedRate);
+        super(Mode.scheduleWithFixedDelay);
     }
 
     @Override
@@ -98,14 +99,11 @@ public class StgVerScheduler extends Scheduler {
     }
 
     @Override
-    protected LocalTime getStartTime() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getStorageVerificationPollingStartTime();
-    }
-
-    @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        if (!ScheduleExpression.emptyOrAnyContains(Calendar.getInstance(), arcDev.getStorageVerificationSchedules()))
+            return;
+
         String aet = arcDev.getStorageVerificationAETitle();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled()) {

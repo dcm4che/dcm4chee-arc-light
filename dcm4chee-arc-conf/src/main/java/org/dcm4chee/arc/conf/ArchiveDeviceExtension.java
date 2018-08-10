@@ -202,7 +202,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Period storageVerificationPeriod;
     private int storageVerificationMaxScheduled;
     private Duration storageVerificationPollingInterval;
-    private LocalTime storageVerificationPollingStartTime;
+    private ScheduleExpression[] storageVerificationSchedules;
     private int storageVerificationFetchSize = 100;
     private Duration compressionPollingInterval;
     private int compressionFetchSize = 100;
@@ -852,7 +852,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
         this.rejectExpiredSeriesFetchSize =
-                greaterOrEqualsZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
+                greaterOrEqualsZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");
     }
 
     public Duration getRejectExpiredStudiesPollingInterval() {
@@ -1825,12 +1825,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storageVerificationPeriod = storageVerificationPeriod;
     }
 
-    public LocalTime getStorageVerificationPollingStartTime() {
-        return storageVerificationPollingStartTime;
+    public ScheduleExpression[] getStorageVerificationSchedules() {
+        return storageVerificationSchedules;
     }
 
-    public void setStorageVerificationPollingStartTime(LocalTime storageVerificationPollingStartTime) {
-        this.storageVerificationPollingStartTime = storageVerificationPollingStartTime;
+    public void setStorageVerificationSchedules(ScheduleExpression[] storageVerificationSchedules) {
+        this.storageVerificationSchedules = storageVerificationSchedules;
     }
 
     public int getStorageVerificationMaxScheduled() {
@@ -2049,7 +2049,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageVerificationBatchID = arcdev.storageVerificationBatchID;
         storageVerificationInitialDelay = arcdev.storageVerificationInitialDelay;
         storageVerificationPeriod = arcdev.storageVerificationPeriod;
-        storageVerificationPollingStartTime = arcdev.storageVerificationPollingStartTime;
+        storageVerificationSchedules = arcdev.storageVerificationSchedules;
         storageVerificationMaxScheduled = arcdev.storageVerificationMaxScheduled;
         storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
         storageVerificationFetchSize = arcdev.storageVerificationFetchSize;

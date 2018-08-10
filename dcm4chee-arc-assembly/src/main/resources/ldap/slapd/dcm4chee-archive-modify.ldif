@@ -1143,11 +1143,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.230 NAME 'dcmStorageVerificationPoll
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.231 NAME 'dcmStorageVerificationPollingStartTime'
-  DESC 'Time when the polling interval for Storage Verification starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.231 NAME 'dcmStorageVerificationSchedule'
+  DESC 'Limits Storage Verification to specified times in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.232 NAME 'dcmStorageVerificationFetchSize'
   DESC 'Maximal number of Series scheduled for Storage Verification fetched by one query.'
   EQUALITY integerMatch
@@ -1331,7 +1330,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageVerificationPeriod $
     dcmStorageVerificationMaxScheduled $
     dcmStorageVerificationPollingInterval $
-    dcmStorageVerificationPollingStartTime $
+    dcmStorageVerificationSchedule $
     dcmStorageVerificationFetchSize $
     dcmCompressionPollingInterval $
     dcmCompressionFetchSize $

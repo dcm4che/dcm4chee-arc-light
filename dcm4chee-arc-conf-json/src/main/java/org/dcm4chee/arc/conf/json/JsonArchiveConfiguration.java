@@ -224,8 +224,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStorageVerificationMaxScheduled", arcDev.getStorageVerificationMaxScheduled(), 0);
         writer.writeNotNullOrDef("dcmStorageVerificationPollingInterval",
                 arcDev.getStorageVerificationPollingInterval(), null);
-        writer.writeNotNullOrDef("dcmStorageVerificationPollingStartTime",
-                arcDev.getStorageVerificationPollingStartTime(), null);
+        writer.writeNotEmpty("dcmStorageVerificationSchedule", arcDev.getStorageVerificationSchedules());
         writer.writeNotDef("dcmStorageVerificationFetchSize", arcDev.getStorageVerificationFetchSize(), 100);
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
@@ -1086,8 +1085,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStorageVerificationPollingInterval":
                     arcDev.setStorageVerificationPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
-                case "dcmStorageVerificationPollingStartTime":
-                    arcDev.setStorageVerificationPollingStartTime(LocalTime.parse(reader.stringValue()));
+                case "dcmStorageVerificationSchedule":
+                    arcDev.setStorageVerificationSchedules(scheduleExpressions(reader.stringArray()));
                     break;
                 case "dcmStorageVerificationFetchSize":
                     arcDev.setStorageVerificationFetchSize(reader.intValue());

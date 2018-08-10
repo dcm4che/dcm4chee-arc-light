@@ -879,11 +879,14 @@
       "type": "string",
       "format": "dcmDuration"
     },
-    "dcmStorageVerificationPollingStartTime": {
-      "title": "Storage Verification Polling Start Time",
-      "description": "Time when the polling interval for Storage Verification starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.",
-      "type": "string",
-      "format": "dcmTime"
+    "dcmStorageVerificationSchedule": {
+      "title": "Storage Verification Schedule",
+      "description": "Limits Storage Verification to specified times in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
     },
     "dcmStorageVerificationFetchSize": {
       "title": "Storage Verification Fetch Size",
