@@ -1357,7 +1357,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.228 NAME 'dcmStorageVerificationPeriod'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.229 NAME 'dcmStorageVerificationMaxScheduled'
-  DESC 'Maximal number of scheduled Storage Verification tasks on this device. Shall be set > 0 to distribute tasks over nodes of a clustered archive. Can also be used together with a Storage Verification Polling Interval of one day and a Storage Verification Polling Start Time on end of busy hours to schedule tasks outside of the busy hours. No limitation (=0) if absent.'
+  DESC 'Maximal number of scheduled Storage Verification tasks on this device. Shall be set > 0 to distribute tasks over nodes of a clustered archive. No limitation (=0) if absent.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1931,6 +1931,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmDelayedCompressionRule'
     cn $
     dcmSOPClass $
     dicomTransferSyntax $
+    dicomAETitle $
     dcmDuration $
     dcmTransferSyntax )
   MAY (

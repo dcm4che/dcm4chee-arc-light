@@ -2104,6 +2104,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSOPClass", rule.getSOPClassUIDs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomTransferSyntax", rule.getSourceTransferSyntaxUIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", rule.getAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", rule.getDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTransferSyntax", rule.getTransferSyntax(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAETitle", rule.getSourceAETitles());
@@ -2208,6 +2209,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 DelayedCompressionRule rule = new DelayedCompressionRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setSOPClassUIDs(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
                 rule.setSourceTransferSyntaxUIDs(LdapUtils.stringArray(attrs.get("dicomTransferSyntax")));
+                rule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 rule.setDelay(toDuration(attrs.get("dcmDuration"), null));
                 rule.setTransferSyntax(LdapUtils.stringValue(attrs.get("dcmTransferSyntax"), null));
                 rule.setSourceAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
@@ -2643,6 +2645,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, DelayedCompressionRule prev, DelayedCompressionRule rule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", prev.getAETitle(), rule.getAETitle(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmTransferSyntax", prev.getTransferSyntax(), rule.getTransferSyntax(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration", prev.getDelay(), rule.getDelay(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSOPClass", prev.getSOPClassUIDs(), rule.getSOPClassUIDs());

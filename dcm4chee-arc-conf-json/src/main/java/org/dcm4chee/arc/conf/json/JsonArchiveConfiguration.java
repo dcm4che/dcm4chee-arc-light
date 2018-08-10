@@ -437,6 +437,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (DelayedCompressionRule dcr : delayedCompressionRuleList) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", dcr.getCommonName(), null);
+            writer.writeNotNullOrDef("dicomAETitle", dcr.getAETitle(), null);
             writer.writeNotNullOrDef("dcmTransferSyntax", dcr.getTransferSyntax(), null);
             writer.writeNotEmpty("dicomTransferSyntax", dcr.getSourceTransferSyntaxUIDs());
             writer.writeNotEmpty("dcmSOPClass", dcr.getSOPClassUIDs());
@@ -1581,6 +1582,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 switch (reader.getString()) {
                     case "cn":
                         dcr.setCommonName(reader.stringValue());
+                        break;
+                    case "dicomAETitle":
+                        dcr.setAETitle(reader.stringValue());
                         break;
                     case "dcmTransferSyntax":
                         dcr.setTransferSyntax(reader.stringValue());

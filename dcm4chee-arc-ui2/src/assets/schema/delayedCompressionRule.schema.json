@@ -8,6 +8,7 @@
     "dicomTransferSyntax",
     "dcmAETitleUsageFlag",
     "dcmStationNameUsageFlag",
+    "dicomAETitle",
     "dcmDuration",
     "dcmTransferSyntax"
   ],
@@ -71,6 +72,12 @@
         "MATCH",
         "NO_MATCH"
       ]
+    },
+    "dicomAETitle": {
+      "title": "Archive AE Title",
+      "description": "Title of Archive Application Entity used for storing the compressed object.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmDuration": {
       "title": "Compression Delay",

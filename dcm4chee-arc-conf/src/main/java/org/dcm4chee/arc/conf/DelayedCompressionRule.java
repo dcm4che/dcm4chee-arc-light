@@ -50,6 +50,7 @@ import java.util.Arrays;
  * @since Aug 2018
  */
 public class DelayedCompressionRule {
+
     public enum UsageFlag { MATCH, NO_MATCH };
 
     private String commonName;
@@ -65,6 +66,8 @@ public class DelayedCompressionRule {
     private String[] stationNames = {};
 
     private UsageFlag stationNameUsageFlag = UsageFlag.MATCH;
+
+    private String aeTitle;
 
     private Duration delay;
 
@@ -135,6 +138,14 @@ public class DelayedCompressionRule {
         this.stationNameUsageFlag = stationNameUsageFlag;
     }
 
+    public String getAETitle() {
+        return aeTitle;
+    }
+
+    public void setAETitle(String aeTitle) {
+        this.aeTitle = aeTitle;
+    }
+
     public Duration getDelay() {
         return delay;
     }
@@ -169,6 +180,7 @@ public class DelayedCompressionRule {
                 ", sourceAETitleUsageFlag=" + sourceAETitleUsageFlag +
                 ", stationNames=" + Arrays.toString(stationNames) +
                 ", stationNameUsageFlag=" + stationNameUsageFlag +
+                ", aeTitle=" + aeTitle +
                 ", delay=" + delay +
                 ", transferSyntax=" + transferSyntax +
                 ", imageWriteParams=" + Arrays.toString(imageWriteParams) +
