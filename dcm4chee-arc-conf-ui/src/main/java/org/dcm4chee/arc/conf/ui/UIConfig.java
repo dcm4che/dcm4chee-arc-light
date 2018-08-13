@@ -55,6 +55,7 @@ public class UIConfig {
     private Map<String, UIElasticsearchConfig> elasticsearchConfigs = new HashMap<>();
     private Map<String, UIDeviceURL> deviceURL = new HashMap<>();
     private Map<String, UIDeviceCluster> deviceCluster = new HashMap<>();
+    private Map<String, UIFiltersTemplate> filterTemplatte = new HashMap<>();
 
     public UIConfig() {
     }
@@ -165,5 +166,22 @@ public class UIConfig {
 
     public Collection<UIDeviceCluster> getDeviceClusters() {
         return deviceCluster.values();
+    }
+
+
+    public UIFiltersTemplate getFilterTemplate(String id) {
+        return filterTemplatte.get(id);
+    }
+
+    public void addFilterTemplate(UIFiltersTemplate filtersTemplate) {
+        filterTemplatte.put(filtersTemplate.getFilterGroupID(), filtersTemplate);
+    }
+
+    public UIFiltersTemplate removeFilterTemplate(String name) {
+        return filterTemplatte.remove(name);
+    }
+
+    public Collection<UIFiltersTemplate> getFilterTemplate() {
+        return filterTemplatte.values();
     }
 }

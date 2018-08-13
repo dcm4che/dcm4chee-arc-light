@@ -91,6 +91,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         storeElasticsearchConfigs(diffs, uiConfig, uiConfigDN);
         storeDeviceURL(diffs, uiConfig, uiConfigDN);
         storeDeviceCluster(diffs, uiConfig, uiConfigDN);
+        storeFiltersTemplate(diffs, uiConfig, uiConfigDN);
 
     }
 
@@ -125,6 +126,14 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             config.createSubcontext(uiDeviceClusterDN, storeTo(ldapObj1, uiDeviceCluster, new BasicAttributes(true)));
         }
     }
+    private void storeFiltersTemplate(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        for (UIFiltersTemplate uiFiltersTemplate : uiConfig.getFilterTemplate()) {
+            String uiFilterTemplateDN = LdapUtils.dnOf("dcmuiFilterGroupID", uiFiltersTemplate.getFilterGroupID(), uiConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj1 =
+                    ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiFilterTemplateDN, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(uiFilterTemplateDN, storeTo(ldapObj1, uiFiltersTemplate, new BasicAttributes(true)));
+        }
+    }
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIPermission uiPermission, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiPermission"));
@@ -150,6 +159,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiDeviceClusterInstalled",uiDeviceCluster.isInstalled(),true);
+        return attrs;
+    }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIFiltersTemplate uiFilterTemplate, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiFilterTemplateObject"));
+        attrs.put(new BasicAttribute("dcmuiFilterTemplateID", uiFilterTemplate.getFilterGroupID()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateLoadName", uiFilterTemplate.getFilterGroupName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateDescription", uiFilterTemplate.getFilterGroupDescription(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiFilterTemplateFilters", uiFilterTemplate.getFilters());
+        LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiFilterTemplateDefault",uiFilterTemplate.isDefault(),true);
         return attrs;
     }
 

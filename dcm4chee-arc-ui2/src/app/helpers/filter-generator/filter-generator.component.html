@@ -4,10 +4,15 @@
     </div>
 </div>
 <div [hidden]="!hideLoader"  class="filter">
-    <a class="clearform_button" title="Clear all filters" href="" (click)="$event.preventDefault();clear()">
-        Clear <span class="glyphicon glyphicon-remove"></span>
-    </a>
-    <div class="filter_block" *ngFor="let filter of schema;trackBy:trackByFn">
+    <span class="clearform_button">
+        <ul>
+            <li title="Remove current selected filters-template"><span class="glyphicon glyphicon-minus"></span></li>
+            <li title="Save current filters as template"><span class="glyphicon glyphicon-plus"></span></li>
+            <li title="Select saved filters-template"><span class="glyphicon glyphicon-filter"></span></li>
+            <li title="Clear current filters" (click)="$event.preventDefault();clear()">Clear <span class="glyphicon glyphicon-remove"></span></li>
+        </ul>
+    </span>
+    <div class="filter_block {{cssBlockClass}}" *ngFor="let filter of schema;trackBy:trackByFn">
         <div *ngFor="let line of filter;trackBy:trackByFn" class="line" [ngSwitch]="filter.type">
           <ng-container *ngFor="let index of [0,1]">
             <ng-container *ngIf="line[index]" [ngSwitch]="line[index].tag">

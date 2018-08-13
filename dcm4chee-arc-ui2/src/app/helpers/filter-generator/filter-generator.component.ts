@@ -22,6 +22,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     @Input() model;
     @Input() filterTreeHeight;
     @Input() filterID;
+    @Input() doNotSave;
     @Output() submit  = new EventEmitter();
     @Output() onChange  = new EventEmitter();
     cssBlockClass = '';
@@ -43,12 +44,24 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
             }
         }
        let savedFilters = localStorage.getItem(this.filterID);
+        let parsedFilter = JSON.parse(savedFilters);
+        if(this.doNotSave){
+            this.doNotSave.forEach(f=>{
+                if(parsedFilter[f]){
+                    delete parsedFilter[f];
+                }
+            })
+        }
        if(savedFilters){
-           this.model = _.mergeWith(this.model, JSON.parse(savedFilters),(a, b)=>{
-               if(a)
+           this.model = _.mergeWith(this.model, parsedFilter,(a, b)=>{
+               if(a){
                    return a;
-               if(!a && b)
+               }
+               if(!a && a != '' && b){
                    return b;
+               }else{
+                   return a;
+               }
            });
        }
     }
@@ -96,6 +109,13 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         this.filterChange(e);
     }
     ngOnDestroy(){
+        if(this.doNotSave){
+            this.doNotSave.forEach(f=>{
+                if(this.model[f]){
+                    delete this.model[f];
+                }
+            })
+        }
         localStorage.setItem(this.filterID, JSON.stringify(this.model));
     }
 }
