@@ -127,8 +127,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         }
     }
     private void storeFiltersTemplate(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) throws NamingException {
-        for (UIFiltersTemplate uiFiltersTemplate : uiConfig.getFilterTemplate()) {
-            String uiFilterTemplateDN = LdapUtils.dnOf("dcmuiFilterGroupID", uiFiltersTemplate.getFilterGroupID(), uiConfigDN);
+        for (UIFiltersTemplate uiFiltersTemplate : uiConfig.getFilterTemplates()) {
+            String uiFilterTemplateDN = LdapUtils.dnOf("dcmuiFilterTemplateGroupName", uiFiltersTemplate.getFilterGroupID(), uiConfigDN);
             ConfigurationChanges.ModifiedObject ldapObj1 =
                     ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiFilterTemplateDN, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(uiFilterTemplateDN, storeTo(ldapObj1, uiFiltersTemplate, new BasicAttributes(true)));
@@ -163,8 +163,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     }
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIFiltersTemplate uiFilterTemplate, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiFilterTemplateObject"));
-        attrs.put(new BasicAttribute("dcmuiFilterTemplateID", uiFilterTemplate.getFilterGroupID()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateLoadName", uiFilterTemplate.getFilterGroupName(), null);
+        attrs.put(new BasicAttribute("dcmuiFilterTemplateGroupName", uiFilterTemplate.getFilterGroupName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateID", uiFilterTemplate.getFilterGroupID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateDescription", uiFilterTemplate.getFilterGroupDescription(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiFilterTemplateFilters", uiFilterTemplate.getFilters());
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiFilterTemplateDefault",uiFilterTemplate.isDefault(),true);
@@ -328,6 +328,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         loadElasticsearchConfigs(uiConfig, uiConfigDN);
         loadDeviceURLs(uiConfig, uiConfigDN);
         loadDeviceClusters(uiConfig, uiConfigDN);
+        loadFilterTemplates(uiConfig, uiConfigDN);
         return uiConfig;
     }
 
@@ -379,6 +380,24 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiDeviceCluster.setDevices(LdapUtils.stringArray(attrs.get("dcmuiDeviceClusterDevices")));
                 uiDeviceCluster.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiDeviceClusterInstalled"),true));
                 uiConfig.addDeviceCluster(uiDeviceCluster);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadFilterTemplates(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiFilterTemplateObject)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UIFiltersTemplate uiFiltersTemplate = new UIFiltersTemplate((String) attrs.get("dcmuiFilterTemplateName").get());
+                uiFiltersTemplate.setFilterGroupID(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateID"), null));
+                uiFiltersTemplate.setFilterGroupID(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateDescription"), null));
+                uiFiltersTemplate.setFilters(LdapUtils.stringArray(attrs.get("dcmuiFilterTemplateFilters")));
+                uiFiltersTemplate.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiFilterTemplateDefault"),false));
+                uiConfig.addFilterTemplate(uiFiltersTemplate);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -540,6 +559,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeElasticsearchConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDeviceURL(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDeviceCluster(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeFilterTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
     private void mergePermissions(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
@@ -600,6 +620,35 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             }
         }
     }
+    private void mergeFilterTemplate(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UIFiltersTemplate prevUIFiltersTemplate : prevUIConfig.getFilterTemplates()) {
+            String prevUIFiltersTemplateName = prevUIFiltersTemplate.getFilterGroupName();
+            if (uiConfig.getFilterTemplate(prevUIFiltersTemplateName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiFilterTemplateGroupName", prevUIFiltersTemplateName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIFiltersTemplate uiFiltersTemplate : uiConfig.getFilterTemplates()) {
+            String uiFiltersTemplateGroupName = uiFiltersTemplate.getFilterGroupName();
+            String dn = LdapUtils.dnOf("dcmuiFilterTemplateGroupName", uiFiltersTemplateGroupName, uiConfigDN);
+            UIFiltersTemplate prevUIFiltersTemplate = prevUIConfig.getFilterTemplate(uiFiltersTemplateGroupName);
+            if (prevUIFiltersTemplate == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiFiltersTemplate, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIFiltersTemplate, uiFiltersTemplate,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
     private void mergeDeviceCluster(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
         for (UIDeviceCluster prevUIDeviceCluster : prevUIConfig.getDeviceClusters()) {
@@ -652,6 +701,20 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 prev.getDescription(),
                 uiDeviceURL.getDescription(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDeviceURLInstalled",prev.isInstalled(),uiDeviceURL.isInstalled(),true);
+        return mods;
+    }
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIFiltersTemplate prev,
+                                              UIFiltersTemplate uiFiltersTemplate, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateID",
+                prev.getFilterGroupID(),
+                uiFiltersTemplate.getFilterGroupID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateDescription",
+                prev.getFilterGroupDescription(),
+                uiFiltersTemplate.getFilterGroupDescription(),null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiFilterTemplateFilters",
+                prev.getFilters(),
+                uiFiltersTemplate.getFilters());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiFilterTemplateDefault",prev.isDefault(),uiFiltersTemplate.isDefault(),false);
         return mods;
     }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceCluster prev,

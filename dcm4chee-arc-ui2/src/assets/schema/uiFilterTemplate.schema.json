@@ -1,0 +1,42 @@
+{
+  "title": "UI Filter Template",
+  "description": "Defined filter template",
+  "type": "object",
+  "required": [
+    "dcmuiFilterTemplateGroupName",
+    "dcmuiFilterTemplateID",
+    "dcmuiFilterTemplateFilters"
+  ],
+  "properties": {
+    "dcmuiFilterTemplateGroupName": {
+      "title": "Name",
+      "description": "Name of the template",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateID": {
+      "title": "ID",
+      "description": "ID of the filter where this template can apply",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateDescription": {
+      "title": "Description",
+      "description": "Filter template description",
+      "type": "string",
+      "format": "dcmuiDeviceURLObject"
+    },
+    "dcmuiFilterTemplateFilters": {
+      "title": "Filters",
+      "description": "Default filters in this template, filter pare key=value (example LocalAET=DCM4CHEE). For date filter you can use the predefined keywords 'today' and 'yesterday' so the dynamic values of the filters can be generated.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiFilterTemplateDefault": {
+      "title": "Default",
+      "description": "Use this template as default",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

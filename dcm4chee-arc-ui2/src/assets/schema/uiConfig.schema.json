@@ -19,6 +19,14 @@
       "items" : {
         "$ref": "uiPermission.schema.json"
       }
+    },"dcmuiFilterTemplateObject": {
+      "title": "UI Filter Template",
+      "description": "Defined filter template",
+      "titleKey":"{dcmuiFilterTemplateGroupName} ( {dcmuiFilterTemplateID} )",
+      "type": "array",
+      "items" : {
+        "$ref": "uiFilterTemplate.schema.json"
+      }
     },
     "dcmuiDiffConfig": {
       "title": "Study Diff Configuration",

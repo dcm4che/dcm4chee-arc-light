@@ -11,6 +11,11 @@ public class UIFiltersTemplate {
     private String[] filters;
     private boolean isDefault;
 
+    public UIFiltersTemplate(){}
+    public UIFiltersTemplate(String name){
+        this.setFilterGroupName(name);
+    }
+
     public String getFilterGroupID() {
         return filterGroupID;
     }

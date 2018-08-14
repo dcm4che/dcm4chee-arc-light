@@ -181,7 +181,7 @@ public class UIConfig {
         return filterTemplatte.remove(name);
     }
 
-    public Collection<UIFiltersTemplate> getFilterTemplate() {
+    public Collection<UIFiltersTemplate> getFilterTemplates() {
         return filterTemplatte.values();
     }
 }

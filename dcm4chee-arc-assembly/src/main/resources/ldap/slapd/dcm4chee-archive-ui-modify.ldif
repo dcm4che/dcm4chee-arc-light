@@ -223,6 +223,30 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.41 NAME 'dcmuiCompareSideInstalled'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.45 NAME 'dcmuiFilterTemplateGroupName'
+    DESC 'Filter group name'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.46 NAME 'dcmuiFilterTemplateID'
+    DESC 'Filter group Id'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.47 NAME 'dcmuiFilterTemplateDescription'
+    DESC 'Filter group description'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.48 NAME 'dcmuiFilterTemplateFilters'
+    DESC 'Filters key=value'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.49 NAME 'dcmuiFilterTemplateDefault'
+  DESC 'Indicates if the template is used as default'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -325,3 +349,13 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.10 NAME 'dcmuiCompareSideObjects'
     dcmuiCompareSideInstalled $
     dcmuiCompareSideQueueName $
     dcmuiCompareSideDescription) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.11 NAME 'dcmuiFilterTemplateObject'
+  DESC 'Filter template'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiFilterTemplateGroupName $
+    dcmuiFilterTemplateID $
+    dcmuiFilterTemplateFilters )
+  MAY (
+    dcmuiFilterTemplateDescription $
+    dcmuiFilterTemplateDefault) )
