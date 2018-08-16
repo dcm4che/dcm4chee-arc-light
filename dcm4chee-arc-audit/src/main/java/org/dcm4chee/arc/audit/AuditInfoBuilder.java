@@ -75,7 +75,7 @@ class AuditInfoBuilder {
     final boolean failedIUIDShow;
     final String submissionSetUID;
     final boolean isExport;
-    final boolean isExternalHL7;
+    final boolean isOutgoingHL7;
     final String hl7SenderExternal;
     final String hl7ReceiverExternal;
     final String filters;
@@ -107,7 +107,7 @@ class AuditInfoBuilder {
         private boolean failedIUIDShow;
         private String submissionSetUID;
         private boolean isExport;
-        private boolean isExternalHL7;
+        private boolean isOutgoingHL7;
         private String hl7SenderExternal;
         private String hl7ReceiverExternal;
         private String filters;
@@ -200,8 +200,8 @@ class AuditInfoBuilder {
             isExport = true;
             return this;
         }
-        Builder isExternalHL7() {
-            isExternalHL7 = true;
+        Builder isOutgoingHL7() {
+            isOutgoingHL7 = true;
             return this;
         }
         Builder hl7SenderExternal(String val) {
@@ -260,7 +260,7 @@ class AuditInfoBuilder {
         failedIUIDShow = builder.failedIUIDShow;
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
-        isExternalHL7 = builder.isExternalHL7;
+        isOutgoingHL7 = builder.isOutgoingHL7;
         hl7SenderExternal = builder.hl7SenderExternal;
         hl7ReceiverExternal = builder.hl7ReceiverExternal;
         filters = builder.filters;

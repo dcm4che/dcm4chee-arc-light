@@ -1232,8 +1232,8 @@ public class AuditService {
         try {
             UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
             String[] callingCalledUserIDs = callingCalledUserIDsForPatientRecord(ctx);
-            boolean isExternalHL7 = ctx.getHttpServletRequestInfo() != null && ctx.getUnparsedHL7Message() != null;
-            AuditInfoBuilder auditInfoBuilder = isExternalHL7
+            boolean isOutgoingHL7 = ctx.getHttpServletRequestInfo() != null && hl7msg != null;
+            AuditInfoBuilder auditInfoBuilder = isOutgoingHL7
                     ? externalHL7PatientRecord(ctx, callingCalledUserIDs) : internalPatientRecord(ctx, callingCalledUserIDs);
             AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forHL7(ctx);
             byte[] data = hl7msg != null ? hl7msg.data() : null;
@@ -1242,7 +1242,7 @@ public class AuditService {
             else
                 writeSpoolFile(eventType, auditInfoBuilder);
             if (ctx.getPreviousAttributes() != null) {
-                AuditInfoBuilder prevAuditInfoBuilder = isExternalHL7
+                AuditInfoBuilder prevAuditInfoBuilder = isOutgoingHL7
                         ? externalHL7PreviousPatientRecord(ctx, callingCalledUserIDs)
                         : internalPreviousPatientRecord(ctx, callingCalledUserIDs);
                 AuditServiceUtils.EventType prevEventType = AuditServiceUtils.EventType.PAT_DELETE;
@@ -1287,7 +1287,7 @@ public class AuditService {
                 .calledUserID(callingCalledUserIDs[1])
                 .pIDAndName(attrs, getArchiveDevice())
                 .outcome(outcome(ctx.getException()))
-                .isExternalHL7()
+                .isOutgoingHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
                 .hl7ReceiverExternal(msh.getReceivingApplicationWithFacility())
                 .build();
@@ -1304,7 +1304,7 @@ public class AuditService {
                 .calledUserID(callingCalledUserIDs[1])
                 .pIDAndName(attrs, getArchiveDevice())
                 .outcome(outcome(ctx.getException()))
-                .isExternalHL7()
+                .isOutgoingHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
                 .hl7ReceiverExternal(msh.getReceivingApplicationWithFacility())
                 .build();
@@ -1328,20 +1328,16 @@ public class AuditService {
         UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
         callingCalledUserIDs[0] = httpRequest != null
                         ? httpRequest.requesterUserID
-                        : ctx.getHttpServletRequestInfo() != null
-                            ? ctx.getHttpServletRequestInfo().requesterUserID
-                            : hl7msg != null
-                                ? hl7msg.msh().getSendingApplicationWithFacility()
-                                : association != null
-                                    ? association.getCallingAET() : null;
+                        : hl7msg != null
+                            ? hl7msg.msh().getSendingApplicationWithFacility()
+                            : association != null
+                                ? association.getCallingAET() : null;
         callingCalledUserIDs[1] = httpRequest != null
                         ? httpRequest.requestURI
-                        : ctx.getHttpServletRequestInfo() != null
-                            ? ctx.getHttpServletRequestInfo().requestURI
-                            : hl7msg != null
-                                ? hl7msg.msh().getReceivingApplicationWithFacility()
-                                : association != null
-                                    ? association.getCalledAET() : null;
+                        : hl7msg != null
+                            ? hl7msg.msh().getReceivingApplicationWithFacility()
+                            : association != null
+                                ? association.getCalledAET() : null;
         return callingCalledUserIDs;
     }
 
@@ -1349,7 +1345,11 @@ public class AuditService {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
-        ActiveParticipantBuilder[] activeParticipantBuilder = buildPatientRecordActiveParticipants(auditLogger, et, auditInfo);
+        ActiveParticipantBuilder[] activeParticipantBuilder = isServiceUserTriggered(et.source)
+                ? auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null
+                    ? getExternalPatientRecordActiveParticipants(auditLogger, et, auditInfo)
+                    : getInternalPatientRecordActiveParticipants(auditLogger, et, auditInfo)
+                : getSchedulerTriggeredActiveParticipant(auditLogger, et);
 
         ParticipantObjectIdentificationBuilder patientPOI = new ParticipantObjectIdentificationBuilder.Builder(
                                                                 auditInfo.getField(AuditInfo.P_ID),
@@ -1371,18 +1371,6 @@ public class AuditService {
             detail.setValue(reader.getData());
         }
         return detail;
-    }
-
-    private ActiveParticipantBuilder[] buildPatientRecordActiveParticipants(
-            AuditLogger auditLogger, AuditServiceUtils.EventType et, AuditInfo auditInfo) throws ConfigurationException {
-        if (isServiceUserTriggered(et.source)) {
-            if (auditInfo.getField(AuditInfo.IS_EXTERNAL_HL7) != null) {
-                return getExternalPatientRecordActiveParticipants(auditLogger, et, auditInfo);
-            }
-            else
-                return getInternalPatientRecordActiveParticipants(auditLogger, et, auditInfo);
-        } else
-            return getSchedulerTriggeredActiveParticipant(auditLogger, et);
     }
 
     private ActiveParticipantBuilder[] getSchedulerTriggeredActiveParticipant(AuditLogger auditLogger, AuditServiceUtils.EventType et) {

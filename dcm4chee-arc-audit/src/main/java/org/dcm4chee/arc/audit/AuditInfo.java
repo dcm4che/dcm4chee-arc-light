@@ -70,7 +70,7 @@ class AuditInfo {
     static final int MPPS_UID = 19;
     static final int SUBMISSION_SET_UID = 20;
     static final int IS_EXPORT = 21;
-    static final int IS_EXTERNAL_HL7 = 22;
+    static final int IS_OUTGOING_HL7 = 22;
     static final int HL7_SENDER_EXTERNAL = 23;
     static final int HL7_RECEIVER_EXTERNAL = 24;
     static final int FILTERS = 25;
@@ -105,7 +105,7 @@ class AuditInfo {
                 i.mppsUID,
                 i.submissionSetUID,
                 i.isExport ? String.valueOf(true) : null,
-                i.isExternalHL7 ? String.valueOf(true) : null,
+                i.isOutgoingHL7 ? String.valueOf(true) : null,
                 i.hl7SenderExternal,
                 i.hl7ReceiverExternal,
                 i.filters,
