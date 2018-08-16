@@ -66,6 +66,7 @@ import javax.jms.ObjectMessage;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2016
  */
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -97,15 +98,16 @@ public class HL7SenderMDB implements MessageListener {
             return;
         try {
             byte[] hl7msg = (byte[]) ((ObjectMessage) msg).getObject();
+            String messageType = msg.getStringProperty("MessageType");
             HL7Message ack = hl7Sender.sendMessage(
                     msg.getStringProperty("SendingApplication"),
                     msg.getStringProperty("SendingFacility"),
                     msg.getStringProperty("ReceivingApplication"),
                     msg.getStringProperty("ReceivingFacility"),
-                    msg.getStringProperty("MessageType"),
+                    messageType,
                     msg.getStringProperty("MessageControlID"),
                     hl7msg);
-            outgoingHL7Audit(msg, hl7msg);
+            outgoingHL7Audit(msg, hl7msg, messageType);
             queueManager.onProcessingSuccessful(msgID, toOutcome(ack));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
@@ -113,13 +115,15 @@ public class HL7SenderMDB implements MessageListener {
         }
     }
 
-    private void outgoingHL7Audit(Message msg, byte[] hl7msg) throws JMSException {
-        PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
-        UnparsedHL7Message unparsedHL7Message = new UnparsedHL7Message(hl7msg);
-        ctx.setUnparsedHL7Message(unparsedHL7Message);
-        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
-        ctx.setEventActionCode(eventActionCode(unparsedHL7Message.msh()));
-        patientEvent.fire(ctx);
+    private void outgoingHL7Audit(Message msg, byte[] hl7msg, String messageType) {
+        if (messageType.startsWith("ADT")) {
+            PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
+            ctx.setUnparsedHL7Message(new UnparsedHL7Message(hl7msg));
+            ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
+            ctx.setEventActionCode(messageType.startsWith("ADT^A28")
+                    ? AuditMessages.EventActionCode.Create : AuditMessages.EventActionCode.Update);
+            patientEvent.fire(ctx);
+        }
     }
 
     private Outcome toOutcome(HL7Message ack) {
@@ -132,10 +136,5 @@ public class HL7SenderMDB implements MessageListener {
                             ? QueueMessage.Status.COMPLETED
                             : QueueMessage.Status.WARNING,
                     msa.toString());
-    }
-
-    private String eventActionCode(HL7Segment msh) {
-        return msh.getMessageType().equals("ADT^A28")
-                ? AuditMessages.EventActionCode.Create : AuditMessages.EventActionCode.Update;
     }
 }
