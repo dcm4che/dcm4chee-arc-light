@@ -71,8 +71,8 @@ class AuditInfo {
     static final int SUBMISSION_SET_UID = 20;
     static final int IS_EXPORT = 21;
     static final int IS_OUTGOING_HL7 = 22;
-    static final int HL7_SENDER_EXTERNAL = 23;
-    static final int HL7_RECEIVER_EXTERNAL = 24;
+    static final int OUTGOING_HL7_SENDER = 23;
+    static final int OUTGOING_HL7_RECEIVER = 24;
     static final int FILTERS = 25;
     static final int COUNT = 26;
     static final int QUEUE_MSG = 27;
@@ -106,8 +106,8 @@ class AuditInfo {
                 i.submissionSetUID,
                 i.isExport ? String.valueOf(true) : null,
                 i.isOutgoingHL7 ? String.valueOf(true) : null,
-                i.hl7SenderExternal,
-                i.hl7ReceiverExternal,
+                i.outgoingHL7Sender,
+                i.outgoingHL7Receiver,
                 i.filters,
                 String.valueOf(i.count),
                 i.queueMsg,

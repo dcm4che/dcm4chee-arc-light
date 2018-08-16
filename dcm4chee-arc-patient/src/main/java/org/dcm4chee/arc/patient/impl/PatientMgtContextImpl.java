@@ -240,4 +240,9 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
     }
+
+    @Override
+    public boolean isOutgoingHL7() {
+        return msg != null && as == null && socket == null;
+    }
 }

@@ -76,8 +76,8 @@ class AuditInfoBuilder {
     final String submissionSetUID;
     final boolean isExport;
     final boolean isOutgoingHL7;
-    final String hl7SenderExternal;
-    final String hl7ReceiverExternal;
+    final String outgoingHL7Sender;
+    final String outgoingHL7Receiver;
     final String filters;
     final int count;
     final String queueMsg;
@@ -108,8 +108,8 @@ class AuditInfoBuilder {
         private String submissionSetUID;
         private boolean isExport;
         private boolean isOutgoingHL7;
-        private String hl7SenderExternal;
-        private String hl7ReceiverExternal;
+        private String outgoingHL7Sender;
+        private String outgoingHL7Receiver;
         private String filters;
         private int count;
         private String queueMsg;
@@ -204,12 +204,12 @@ class AuditInfoBuilder {
             isOutgoingHL7 = true;
             return this;
         }
-        Builder hl7SenderExternal(String val) {
-            hl7SenderExternal = val;
+        Builder outgoingHL7Sender(String val) {
+            outgoingHL7Sender = val;
             return this;
         }
-        Builder hl7ReceiverExternal(String val) {
-            hl7ReceiverExternal = val;
+        Builder outgoingHL7Receiver(String val) {
+            outgoingHL7Receiver = val;
             return this;
         }
         Builder filters(String val) {
@@ -261,8 +261,8 @@ class AuditInfoBuilder {
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
         isOutgoingHL7 = builder.isOutgoingHL7;
-        hl7SenderExternal = builder.hl7SenderExternal;
-        hl7ReceiverExternal = builder.hl7ReceiverExternal;
+        outgoingHL7Sender = builder.outgoingHL7Sender;
+        outgoingHL7Receiver = builder.outgoingHL7Receiver;
         filters = builder.filters;
         count = builder.count;
         queueMsg = builder.queueMsg;

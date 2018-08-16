@@ -105,7 +105,7 @@ public class HL7SenderMDB implements MessageListener {
                     msg.getStringProperty("MessageType"),
                     msg.getStringProperty("MessageControlID"),
                     hl7msg);
-            externalHL7Audit(msg, hl7msg);
+            outgoingHL7Audit(msg, hl7msg);
             queueManager.onProcessingSuccessful(msgID, toOutcome(ack));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
@@ -113,15 +113,11 @@ public class HL7SenderMDB implements MessageListener {
         }
     }
 
-    private void externalHL7Audit(Message msg, byte[] hl7msg) throws JMSException {
-        HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(msg);
-        if (httpServletRequestInfo == null)
-            return;
-
+    private void outgoingHL7Audit(Message msg, byte[] hl7msg) throws JMSException {
         PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
         UnparsedHL7Message unparsedHL7Message = new UnparsedHL7Message(hl7msg);
         ctx.setUnparsedHL7Message(unparsedHL7Message);
-        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
+        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
         ctx.setEventActionCode(eventActionCode(unparsedHL7Message.msh()));
         patientEvent.fire(ctx);
     }

@@ -102,4 +102,6 @@ public interface PatientMgtContext {
     HttpServletRequestInfo getHttpServletRequestInfo();
 
     void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
+
+    boolean isOutgoingHL7();
 }

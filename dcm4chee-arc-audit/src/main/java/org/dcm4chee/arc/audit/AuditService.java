@@ -1232,9 +1232,9 @@ public class AuditService {
         try {
             UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
             String[] callingCalledUserIDs = callingCalledUserIDsForPatientRecord(ctx);
-            boolean isOutgoingHL7 = ctx.getHttpServletRequestInfo() != null && hl7msg != null;
+            boolean isOutgoingHL7 = ctx.isOutgoingHL7();
             AuditInfoBuilder auditInfoBuilder = isOutgoingHL7
-                    ? externalHL7PatientRecord(ctx, callingCalledUserIDs) : internalPatientRecord(ctx, callingCalledUserIDs);
+                    ? outgoingHL7PatientRecord(ctx, callingCalledUserIDs) : internalPatientRecord(ctx, callingCalledUserIDs);
             AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forHL7(ctx);
             byte[] data = hl7msg != null ? hl7msg.data() : null;
             if (data != null)
@@ -1243,7 +1243,7 @@ public class AuditService {
                 writeSpoolFile(eventType, auditInfoBuilder);
             if (ctx.getPreviousAttributes() != null) {
                 AuditInfoBuilder prevAuditInfoBuilder = isOutgoingHL7
-                        ? externalHL7PreviousPatientRecord(ctx, callingCalledUserIDs)
+                        ? outgoingHL7PreviousPatientRecord(ctx, callingCalledUserIDs)
                         : internalPreviousPatientRecord(ctx, callingCalledUserIDs);
                 AuditServiceUtils.EventType prevEventType = AuditServiceUtils.EventType.PAT_DELETE;
                 if (data != null)
@@ -1276,7 +1276,7 @@ public class AuditService {
                             .build();
     }
 
-    private AuditInfoBuilder externalHL7PatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
+    private AuditInfoBuilder outgoingHL7PatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
         UnparsedHL7Message unparsedHL7Message = ctx.getUnparsedHL7Message();
         HL7Segment msh = unparsedHL7Message.msh();
         Attributes attrs = ctx.getAttributes() != null
@@ -1288,12 +1288,12 @@ public class AuditService {
                 .pIDAndName(attrs, getArchiveDevice())
                 .outcome(outcome(ctx.getException()))
                 .isOutgoingHL7()
-                .hl7SenderExternal(msh.getSendingApplicationWithFacility())
-                .hl7ReceiverExternal(msh.getReceivingApplicationWithFacility())
+                .outgoingHL7Sender(msh.getSendingApplicationWithFacility())
+                .outgoingHL7Receiver(msh.getReceivingApplicationWithFacility())
                 .build();
     }
 
-    private AuditInfoBuilder externalHL7PreviousPatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
+    private AuditInfoBuilder outgoingHL7PreviousPatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
         UnparsedHL7Message unparsedHL7Message = ctx.getUnparsedHL7Message();
         HL7Segment msh = unparsedHL7Message.msh();
         Attributes attrs = ctx.getPreviousAttributes() != null
@@ -1305,8 +1305,8 @@ public class AuditService {
                 .pIDAndName(attrs, getArchiveDevice())
                 .outcome(outcome(ctx.getException()))
                 .isOutgoingHL7()
-                .hl7SenderExternal(msh.getSendingApplicationWithFacility())
-                .hl7ReceiverExternal(msh.getReceivingApplicationWithFacility())
+                .outgoingHL7Sender(msh.getSendingApplicationWithFacility())
+                .outgoingHL7Receiver(msh.getReceivingApplicationWithFacility())
                 .build();
     }
 
@@ -1347,7 +1347,7 @@ public class AuditService {
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = isServiceUserTriggered(et.source)
                 ? auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null
-                    ? getExternalPatientRecordActiveParticipants(auditLogger, et, auditInfo)
+                    ? getOutgoingPatientRecordActiveParticipants(auditLogger, et, auditInfo)
                     : getInternalPatientRecordActiveParticipants(auditLogger, et, auditInfo)
                 : getSchedulerTriggeredActiveParticipant(auditLogger, et);
 
@@ -1410,44 +1410,57 @@ public class AuditService {
         return activeParticipantBuilder;
     }
 
-    private ActiveParticipantBuilder[] getExternalPatientRecordActiveParticipants(
+    private ActiveParticipantBuilder[] getOutgoingPatientRecordActiveParticipants(
             AuditLogger auditLogger, AuditServiceUtils.EventType et, AuditInfo auditInfo) throws ConfigurationException {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[4];
         HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
 
-        String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
 
-        String hl7SendingAppWithFacility = auditInfo.getField(AuditInfo.HL7_SENDER_EXTERNAL);
-        String hl7ReceivingAppWithFacility = auditInfo.getField(AuditInfo.HL7_RECEIVER_EXTERNAL);
+        String hl7SendingAppWithFacility = auditInfo.getField(AuditInfo.OUTGOING_HL7_SENDER);
+        String hl7ReceivingAppWithFacility = auditInfo.getField(AuditInfo.OUTGOING_HL7_RECEIVER);
 
         HL7Application hl7AppSender = hl7Dev.getHL7Application(hl7SendingAppWithFacility, true);
         HL7Application hl7AppReceiver = hl7AppCache.findHL7Application(hl7ReceivingAppWithFacility);
 
+        boolean isHL7Forward = hl7SendingAppWithFacility.equals(callingUserID)
+                                && hl7ReceivingAppWithFacility.equals(calledUserID);
+
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                                        callingUserID,
-                                        auditInfo.getField(AuditInfo.CALLING_HOST))
-                                        .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                                        .requester(true)
-                                        .build();
-        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                                        archiveUserID,
-                                        getLocalHostName(auditLogger))
-                                        .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                                        .altUserID(AuditLogger.processID())
-                                        .build();
-        activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
                                         hl7SendingAppWithFacility,
                                         hl7AppSender.getConnections().get(0).getHostname())
                                         .userIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility)
                                         .roleIDCode(et.source)
                                         .build();
-        activeParticipantBuilder[3] = new ActiveParticipantBuilder.Builder(
+        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                         hl7ReceivingAppWithFacility,
                                         hl7AppReceiver.getConnections().get(0).getHostname())
                                         .userIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility)
                                         .roleIDCode(et.destination)
                                         .build();
+        if (isHL7Forward)
+            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+                    device.getDeviceName(),
+                    getLocalHostName(auditLogger))
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
+                    .altUserID(AuditLogger.processID())
+                    .requester(true)
+                    .build();
+        else {
+            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+                    callingUserID,
+                    auditInfo.getField(AuditInfo.CALLING_HOST))
+                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                    .requester(true)
+                    .build();
+            activeParticipantBuilder[3] = new ActiveParticipantBuilder.Builder(
+                    calledUserID,
+                    getLocalHostName(auditLogger))
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
+                    .altUserID(AuditLogger.processID())
+                    .build();
+        }
 
         return activeParticipantBuilder;
     }
