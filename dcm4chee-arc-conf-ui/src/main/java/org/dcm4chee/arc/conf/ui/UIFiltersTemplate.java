@@ -9,7 +9,7 @@ public class UIFiltersTemplate {
     private String filterGroupName;
     private String filterGroupDescription;
     private String[] filters;
-    private boolean isDefault;
+    private boolean isDefault = false;
 
     public UIFiltersTemplate(){}
     public UIFiltersTemplate(String name){

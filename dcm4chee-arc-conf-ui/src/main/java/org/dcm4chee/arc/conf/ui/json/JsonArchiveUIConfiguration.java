@@ -150,7 +150,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiFilterTemplateID", uiFiltersTemplate.getFilterGroupID(), null);
             writer.writeNotNullOrDef("dcmuiFilterTemplateDescription", uiFiltersTemplate.getFilterGroupDescription(), null);
             writer.writeNotEmpty("dcmuiFilterTemplateFilters", uiFiltersTemplate.getFilters());
-            writer.writeNotDef("dcmuiFilterTemplateDefault", uiFiltersTemplate.isDefault(), true);
+            writer.writeNotDef("dcmuiFilterTemplateDefault", uiFiltersTemplate.isDefault(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
