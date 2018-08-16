@@ -410,7 +410,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         uiFiltersTemplate.setFilterGroupName(reader.stringValue());
                         break;
                     case "dcmuiFilterTemplateID":
-                        uiFiltersTemplate.setFilterGroupName(reader.stringValue());
+                        uiFiltersTemplate.setFilterGroupID(reader.stringValue());
                         break;
                     case "dcmuiFilterTemplateDescription":
                         uiFiltersTemplate.setFilterGroupDescription(reader.stringValue());
