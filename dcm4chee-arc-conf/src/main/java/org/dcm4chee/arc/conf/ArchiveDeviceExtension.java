@@ -202,7 +202,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Period storageVerificationPeriod;
     private int storageVerificationMaxScheduled;
     private Duration storageVerificationPollingInterval;
-    private ScheduleExpression[] storageVerificationSchedules;
+    private ScheduleExpression[] storageVerificationSchedules = {};
     private int storageVerificationFetchSize = 100;
     private Duration compressionPollingInterval;
     private int compressionFetchSize = 100;
