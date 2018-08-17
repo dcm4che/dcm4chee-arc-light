@@ -49,6 +49,9 @@ import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -79,6 +82,9 @@ import java.net.ConnectException;
 @Path("/hl7apps/{appName}/hl7/{externalAppName}/patients")
 public class HL7RS {
     private static final Logger LOG = LoggerFactory.getLogger(HL7RS.class);
+
+    @Inject
+    private Device device;
 
     @Inject
     private PatientService patientService;
@@ -174,7 +180,10 @@ public class HL7RS {
                 return Response.accepted().build();
             }
             else {
-                HL7Message ack = rsHL7Sender.sendHL7Message(msgType, ctx, appName, externalAppName);
+                HL7Application sender = getSendingHl7Application();
+                byte[] rsp = rsHL7Sender.sendHL7Message(msgType, ctx, sender, externalAppName);
+                ctx.setAck(rsp);
+                HL7Message ack = HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet());
                 patientMgtEvent.fire(ctx);
                 return response(ack);
             }
@@ -187,6 +196,14 @@ public class HL7RS {
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
+    }
+
+    private HL7Application getSendingHl7Application() throws ConfigurationNotFoundException {
+        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
+        HL7Application sender = hl7Dev.getHL7Application(appName, true);
+        if (sender == null)
+            throw new ConfigurationNotFoundException("Sending HL7 Application not configured : " + appName);
+        return sender;
     }
 
     private void logRequest() {

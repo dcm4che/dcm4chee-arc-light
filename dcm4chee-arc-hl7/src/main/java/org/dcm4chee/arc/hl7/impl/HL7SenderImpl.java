@@ -66,6 +66,7 @@ import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2016
  */
 @ApplicationScoped
@@ -139,10 +140,9 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
-    public HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
+    public byte[] sendMessage(HL7Application sender, String receivingApplication,
                               String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
             throws Exception {
-        HL7Application sender = getSendingHl7Application(sendingApplication, sendingFacility);
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         return getAcknowledgeHL7Msg(sender, receiver, hl7msg);
     }
@@ -156,14 +156,14 @@ public class HL7SenderImpl implements HL7Sender {
         return sender;
     }
 
-    private HL7Message getAcknowledgeHL7Msg(HL7Application sender, HL7Application receiver, byte[] hl7msg) throws Exception {
+    private byte[] getAcknowledgeHL7Msg(HL7Application sender, HL7Application receiver, byte[] hl7msg) throws Exception {
         try (MLLPConnection conn = sender.connect(receiver)) {
             conn.writeMessage(hl7msg);
             byte[] rsp = conn.readMessage();
             if (rsp == null)
                 throw new IOException("TCP connection dropped while waiting for response");
 
-            return HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet());
+            return rsp;
         }
     }
 }

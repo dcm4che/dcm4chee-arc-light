@@ -43,11 +43,13 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2016
  */
 public interface HL7Sender {
@@ -61,7 +63,7 @@ public interface HL7Sender {
                          HttpServletRequestInfo httpServletRequestInfo)
             throws ConfigurationException, QueueSizeLimitExceededException;
 
-    HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                        String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+    byte[] sendMessage(HL7Application sender, String receivingApplication,
+                           String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
             throws Exception;
 }

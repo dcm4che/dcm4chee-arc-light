@@ -54,6 +54,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -1238,7 +1239,7 @@ public class AuditService {
             AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forHL7(ctx);
             byte[] data = hl7msg != null ? hl7msg.data() : null;
             if (data != null)
-                writeSpoolFile(eventType, auditInfoBuilder, data);
+                writeSpoolFile(eventType, auditInfoBuilder, data, ctx.getAck());
             else
                 writeSpoolFile(eventType, auditInfoBuilder);
             if (ctx.getPreviousAttributes() != null) {
@@ -1247,7 +1248,7 @@ public class AuditService {
                         : internalPreviousPatientRecord(ctx, callingCalledUserIDs);
                 AuditServiceUtils.EventType prevEventType = AuditServiceUtils.EventType.PAT_DELETE;
                 if (data != null)
-                    writeSpoolFile(prevEventType, prevAuditInfoBuilder, data);
+                    writeSpoolFile(prevEventType, prevAuditInfoBuilder, data, ctx.getAck());
                 else
                     writeSpoolFile(prevEventType, prevAuditInfoBuilder);
             }
@@ -1363,14 +1364,19 @@ public class AuditService {
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, patientPOI);
     }
 
-    private ParticipantObjectDetail getHL7ParticipantObjectDetail(SpoolFileReader reader) {
-        ParticipantObjectDetail detail = null;
-        if (reader.getData().length > 0) {
-            detail = new ParticipantObjectDetail();
-            detail.setType("HL7v2 Message");
-            detail.setValue(reader.getData());
-        }
+    private ParticipantObjectDetail[] getHL7ParticipantObjectDetail(SpoolFileReader reader) {
+        ParticipantObjectDetail[] detail = new ParticipantObjectDetail[2];
+        setParticipantObjectDetail(reader.getData(), 0, detail);
+        setParticipantObjectDetail(reader.getAck(), 1, detail);
         return detail;
+    }
+
+    private void setParticipantObjectDetail(byte[] val, int index, ParticipantObjectDetail[] detail) {
+        if (val.length > 0) {
+            detail[index] = new ParticipantObjectDetail();
+            detail[index].setType("HL7v2 Message");
+            detail[index].setValue(val);
+        }
     }
 
     private ActiveParticipantBuilder[] getSchedulerTriggeredActiveParticipant(AuditLogger auditLogger, AuditServiceUtils.EventType et) {
@@ -1474,7 +1480,7 @@ public class AuditService {
                     ? buildAuditInfoFORHL7(ctx, hl7msg.msh()) : buildAuditInfoForAssociation(ctx);
             AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
             if (hl7msg != null)
-                writeSpoolFile(eventType, info, hl7msg.data());
+                writeSpoolFile(eventType, info, hl7msg.data(), ByteUtils.EMPTY_BYTES);
             else
                 writeSpoolFile(eventType, info);
         } catch (Exception e) {
@@ -1857,7 +1863,8 @@ public class AuditService {
         }
     }
 
-    private void writeSpoolFile(AuditServiceUtils.EventType eventType, AuditInfoBuilder auditInfoBuilder, byte[] data) {
+    private void writeSpoolFile(
+            AuditServiceUtils.EventType eventType, AuditInfoBuilder auditInfoBuilder, byte[] data, byte[] ack) {
         if (auditInfoBuilder == null) {
             LOG.warn("Attempt to write empty file : ", eventType);
             return;
@@ -1874,6 +1881,8 @@ public class AuditService {
                     try (BufferedOutputStream out = new BufferedOutputStream(
                             Files.newOutputStream(file, StandardOpenOption.APPEND))) {
                         out.write(data);
+                        if (ack.length > 0)
+                            out.write(ack);
                         try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                                 StandardOpenOption.APPEND))) {
                             writer.writeLine(new AuditInfo(auditInfoBuilder));

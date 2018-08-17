@@ -41,9 +41,13 @@
 package org.dcm4chee.arc.hl7.impl;
 
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.HL7Sender;
@@ -75,6 +79,9 @@ public class HL7SenderMDB implements MessageListener {
     private static final Logger LOG = LoggerFactory.getLogger(HL7SenderMDB.class);
 
     @Inject
+    private Device device;
+
+    @Inject
     private HL7Sender hl7Sender;
 
     @Inject
@@ -99,35 +106,46 @@ public class HL7SenderMDB implements MessageListener {
         try {
             byte[] hl7msg = (byte[]) ((ObjectMessage) msg).getObject();
             String messageType = msg.getStringProperty("MessageType");
-            HL7Message ack = hl7Sender.sendMessage(
-                    msg.getStringProperty("SendingApplication"),
-                    msg.getStringProperty("SendingFacility"),
+            HL7Application sender = getSendingHl7Application(msg.getStringProperty("SendingApplication"),
+                    msg.getStringProperty("SendingFacility"));
+            byte[] rsp = hl7Sender.sendMessage(
+                    sender,
                     msg.getStringProperty("ReceivingApplication"),
                     msg.getStringProperty("ReceivingFacility"),
                     messageType,
                     msg.getStringProperty("MessageControlID"),
                     hl7msg);
-            outgoingHL7Audit(msg, hl7msg, messageType);
-            queueManager.onProcessingSuccessful(msgID, toOutcome(ack));
+            outgoingHL7Audit(msg, hl7msg, messageType, rsp);
+            queueManager.onProcessingSuccessful(msgID, toOutcome(rsp, sender));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }
     }
 
-    private void outgoingHL7Audit(Message msg, byte[] hl7msg, String messageType) {
+    private void outgoingHL7Audit(Message msg, byte[] hl7msg, String messageType, byte[] rsp) {
         if (messageType.startsWith("ADT")) {
             PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
             ctx.setUnparsedHL7Message(new UnparsedHL7Message(hl7msg));
             ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
             ctx.setEventActionCode(messageType.startsWith("ADT^A28")
                     ? AuditMessages.EventActionCode.Create : AuditMessages.EventActionCode.Update);
+            ctx.setAck(rsp);
             patientEvent.fire(ctx);
         }
     }
 
-    private Outcome toOutcome(HL7Message ack) {
-        HL7Segment msa = ack.getSegment("MSA");
+    private HL7Application getSendingHl7Application(String sendingApplication, String sendingFacility) throws ConfigurationNotFoundException {
+        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
+        String sendingAppWithFacility = sendingApplication + '|' + sendingFacility;
+        HL7Application sender = hl7Dev.getHL7Application(sendingAppWithFacility, true);
+        if (sender == null)
+            throw new ConfigurationNotFoundException("Sending HL7 Application not configured : " + sendingAppWithFacility);
+        return sender;
+    }
+
+    private Outcome toOutcome(byte[] rsp, HL7Application sender) {
+        HL7Segment msa = HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet()).getSegment("MSA");
         if (msa == null)
             return new Outcome(QueueMessage.Status.WARNING, "Missing MSA segment in response message");
 
