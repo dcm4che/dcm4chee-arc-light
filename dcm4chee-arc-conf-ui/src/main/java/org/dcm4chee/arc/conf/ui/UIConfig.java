@@ -174,7 +174,7 @@ public class UIConfig {
     }
 
     public void addFilterTemplate(UIFiltersTemplate filtersTemplate) {
-        filterTemplatte.put(filtersTemplate.getFilterGroupID(), filtersTemplate);
+        filterTemplatte.put(filtersTemplate.getFilterGroupName(), filtersTemplate);
     }
 
     public UIFiltersTemplate removeFilterTemplate(String name) {

@@ -3,16 +3,26 @@
         <i class="fa fa-circle-o-notch fa-spin"></i>
     </div>
 </div>
-<div [hidden]="!hideLoader"  class="filter">
-    <span class="clearform_button">
-        <ul>
-            <li title="Comming soon... ( Remove current selected filters-template )"><span class="glyphicon glyphicon-minus"></span></li>
-            <li title="Comming soon... ( Save current filters as template )"><span class="glyphicon glyphicon-plus"></span></li>
-            <li title="Comming soon... ( Select saved filters-template )"><span class="glyphicon glyphicon-filter"></span></li>
-            <li title="Clear current filters" (click)="$event.preventDefault();clear()">Clear <span class="glyphicon glyphicon-remove"></span></li>
-        </ul>
-    </span>
-    <div class="filter_block {{cssBlockClass}}" *ngFor="let filter of schema;trackBy:trackByFn">
+<div [hidden]="!hideLoader"  class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()" >
+    <div class="filter_template_function">
+        <span class="clearform_button" *ngIf="showFilterButtons">
+            <ul class="buttons">
+                <!--<li title="Remove current selected filters-template" (click)="removeFilterTemplate()"><span class="glyphicon glyphicon-minus"></span></li>-->
+                <li title="Save current filters as template" (click)="saveFilterTemplate()"><span class="glyphicon glyphicon-plus"></span></li>
+                <li title="Select saved filters-template" (click)="openTemplateList()"><span class="glyphicon glyphicon-filter"></span></li>
+                <li title="Clear current filters" (click)="$event.preventDefault();clear()">Clear <span class="glyphicon glyphicon-remove"></span></li>
+            </ul>
+        </span>
+        <div class="template_list" *ngIf="showFilterTemplateList">
+            <span class="loader" *ngIf="!filterTemplates">
+                <i class="fa fa-circle-o-notch fa-spin"></i>
+            </span>
+            <ul class="templates" *ngIf="filterTemplates">
+                <li *ngFor="let filter of filterTemplates"><a  title="{{filter.dcmuiFilterTemplateDescription}}" (click)="$event.preventDefault();openTemplateFilter(filter)">{{filter.dcmuiFilterTemplateGroupName}}</a><span class="glyphicon glyphicon-remove" (click)="removeFilterTemplate(filter)"></span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="filter_block {{cssBlockClass}}" *ngFor="let filter of schema;trackBy:trackByFn" (click)="inFilterClicked()">
         <div *ngFor="let line of filter;trackBy:trackByFn" class="line" [ngSwitch]="filter.type">
           <ng-container *ngFor="let index of [0,1]">
             <ng-container *ngIf="line[index]" [ngSwitch]="line[index].tag">

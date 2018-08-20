@@ -236,7 +236,8 @@ export class DevicesComponent implements OnInit{
                             $this.service.changeHl7ApplicationNameOnClone(device, $this.mainservice.global.hl7);
                             console.log('device afterchange', device);
                             device.dicomDeviceName = parameters.result.input;
-                            $this.$http.post('../devices/' + parameters.result.input, device, headers)
+                            this.service.createDevice(parameters.result.input, device)
+                            // $this.$http.post('../devices/' + parameters.result.input, device, headers)
                                 .subscribe(res => {
                                         console.log('res succes', res);
                                         $this.cfpLoadingBar.complete();
