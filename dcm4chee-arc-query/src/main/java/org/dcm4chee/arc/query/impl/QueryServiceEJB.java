@@ -101,6 +101,8 @@ public class QueryServiceEJB {
         QSeries.series.instancePurgeState,
         QSeries.series.storageVerificationTime,
         QSeries.series.failuresOfLastStorageVerification,
+        QSeries.series.compressionTime,
+        QSeries.series.compressionFailures,
         QMetadata.metadata.storageID,
         QMetadata.metadata.storagePath,
         QMetadata.metadata.digest,
@@ -284,6 +286,12 @@ public class QueryServiceEJB {
         if (result.get(QSeries.series.failuresOfLastStorageVerification) != 0)
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageVerificationOfSeries, VR.US,
                     result.get(QSeries.series.failuresOfLastStorageVerification));
+        if (result.get(QSeries.series.compressionTime) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledCompressionDateTimeOfSeries, VR.DT,
+                    result.get(QSeries.series.compressionTime));
+        if (result.get(QSeries.series.compressionFailures) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastCompressionOfSeries, VR.US,
+                    result.get(QSeries.series.compressionFailures));
         if (result.get(QMetadata.metadata.storageID) != null) {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
                     result.get(QMetadata.metadata.storageID));

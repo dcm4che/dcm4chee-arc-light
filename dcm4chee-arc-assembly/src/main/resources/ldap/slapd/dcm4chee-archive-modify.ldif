@@ -1124,7 +1124,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.226 NAME 'dcmStorageVerificationBatc
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.227 NAME 'dcmStorageVerificationInitialDelay'
-  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received.'
+  DESC 'Delay in ISO-8601 duration format PnYnMnD or PnW of first Storage Verification of a Series after it was received.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1171,27 +1171,15 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.236 NAME 'dcmCompressionThreads'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.237 NAME 'dcmTransferSyntax'
-  DESC 'A single Transfer Syntax UID'
-  EQUALITY  objectIdentifierMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.38
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.237 NAME 'dcmCompressionAETitle'
+  DESC 'Archive AE Title used for delayed Compression.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.238 NAME 'dcmStationName'
-   DESC 'Multiple Station Names (0008,1010)'
-   EQUALITY caseIgnoreMatch
-   SUBSTR caseIgnoreSubstringsMatch
-   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.239 NAME 'dcmAETitleUsageFlag'
-  DESC 'Controls if the rules applies to Series which Source AE Title matches one or does not match any of the values specified by dcmAETitle. Enumerated values: MATCH, NO_MATCH. MATCH if absent.'
-  EQUALITY caseExactMatch
-  SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-  SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.240 NAME 'dcmStationNameUsageFlag'
-  DESC 'Controls if the rules applies to Series which Station Name matches one or does not match any of the values specified by dcmStationName. Enumerated values: MATCH, NO_MATCH. MATCH if absent.'
-  EQUALITY caseExactMatch
-  SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.238 NAME 'dcmCompressionDelay'
+  DESC 'Compression delay in ISO-8601 period format PnYnMnD or PnW.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 -
 delete: olcObjectClasses
@@ -1336,6 +1324,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCompressionFetchSize $
     dcmCompressionSchedule $
     dcmCompressionThreads $
+    dcmCompressionAETitle $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
@@ -1535,6 +1524,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.17 NAME 'dcmArchiveCompressionRule'
     dicomTransferSyntax )
   MAY (
     dcmRulePriority $
+    dcmCompressionDelay $
     dcmProperty $
     dcmImageWriteParam ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
@@ -1671,19 +1661,3 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
     dcmTLSDisableTrustManager $
     uid $
     userPassword ) )
-olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmDelayedCompressionRule'
-  DESC 'Delayed Compression Rule'
-  SUP top STRUCTURAL
-  MUST (
-    cn $
-    dcmSOPClass $
-    dicomTransferSyntax $
-    dicomAETitle $
-    dcmDuration $
-    dcmTransferSyntax )
-  MAY (
-    dcmAETitle $
-    dcmAETitleUsageFlag $
-    dcmStationName $
-    dcmStationNameUsageFlag $
-    dcmImageWriteParam ) )

@@ -198,12 +198,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] storageVerificationStorageIDs = {};
     private String storageVerificationAETitle;
     private String storageVerificationBatchID;
-    private Duration storageVerificationInitialDelay;
+    private Period storageVerificationInitialDelay;
     private Period storageVerificationPeriod;
     private int storageVerificationMaxScheduled;
     private Duration storageVerificationPollingInterval;
     private ScheduleExpression[] storageVerificationSchedules = {};
     private int storageVerificationFetchSize = 100;
+    private String compressionAETitle;
     private Duration compressionPollingInterval;
     private int compressionFetchSize = 100;
     private int compressionThreads = 1;
@@ -225,7 +226,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
-    private final ArrayList<DelayedCompressionRule> delayedCompressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
@@ -1484,18 +1484,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return compressionRules;
     }
 
-    public void clearDelayedCompressionRules() {
-        delayedCompressionRules.clear();
-    }
-
-    public void addDelayedCompressionRule(DelayedCompressionRule rule) {
-        delayedCompressionRules.add(rule);
-    }
-
-    public Collection<DelayedCompressionRule> getDelayedCompressionRules() {
-        return delayedCompressionRules;
-    }
-
     public void removeStudyRetentionPolicy(StudyRetentionPolicy policy) {
         studyRetentionPolicies.remove(policy);
     }
@@ -1809,11 +1797,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storageVerificationBatchID = storageVerificationBatchID;
     }
 
-    public Duration getStorageVerificationInitialDelay() {
+    public Period getStorageVerificationInitialDelay() {
         return storageVerificationInitialDelay;
     }
 
-    public void setStorageVerificationInitialDelay(Duration storageVerificationInitialDelay) {
+    public void setStorageVerificationInitialDelay(Period storageVerificationInitialDelay) {
         this.storageVerificationInitialDelay = storageVerificationInitialDelay;
     }
 
@@ -1855,6 +1843,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setStorageVerificationFetchSize(int storageVerificationFetchSize) {
         this.storageVerificationFetchSize = storageVerificationFetchSize;
+    }
+
+    public String getCompressionAETitle() {
+        return compressionAETitle;
+    }
+
+    public void setCompressionAETitle(String compressionAETitle) {
+        this.compressionAETitle = compressionAETitle;
     }
 
     public Duration getCompressionPollingInterval() {
@@ -2053,6 +2049,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageVerificationMaxScheduled = arcdev.storageVerificationMaxScheduled;
         storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
         storageVerificationFetchSize = arcdev.storageVerificationFetchSize;
+        compressionAETitle = arcdev.compressionAETitle;
         compressionPollingInterval = arcdev.compressionPollingInterval;
         compressionFetchSize = arcdev.compressionFetchSize;
         compressionSchedules = arcdev.compressionSchedules;
@@ -2083,8 +2080,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7NoPatientCreateMessageTypes.addAll(arcdev.hl7NoPatientCreateMessageTypes);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
-        delayedCompressionRules.clear();
-        delayedCompressionRules.addAll(arcdev.delayedCompressionRules);
         studyRetentionPolicies.clear();
         studyRetentionPolicies.addAll(arcdev.studyRetentionPolicies);
         attributeCoercions.clear();

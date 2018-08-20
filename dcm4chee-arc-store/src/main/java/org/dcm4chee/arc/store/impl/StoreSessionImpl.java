@@ -267,8 +267,9 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public void setObjectStorageID(String objectStorageID) {
+    public StoreSession withObjectStorageID(String objectStorageID) {
         this.objectStorageID = objectStorageID;
+        return this;
     }
 
     @Override

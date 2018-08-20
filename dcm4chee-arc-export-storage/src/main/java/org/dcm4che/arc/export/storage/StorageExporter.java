@@ -47,7 +47,6 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -98,7 +97,7 @@ public class StorageExporter extends AbstractExporter {
             retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
             String storageID = descriptor.getExportURI().getSchemeSpecificPart();
             ApplicationEntity ae = retrieveContext.getLocalApplicationEntity();
-            StoreSession storeSession = storeService.newStoreSession(ae, storageID);
+            StoreSession storeSession = storeService.newStoreSession(ae).withObjectStorageID(storageID);
             storeService.restoreInstances(
                     storeSession,
                     studyIUID,

@@ -3,6 +3,7 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.util.Property;
 
+import java.time.Period;
 import java.util.Arrays;
 
 /**
@@ -16,6 +17,8 @@ public class ArchiveCompressionRule {
     private int priority;
 
     private Conditions conditions = new Conditions();
+
+    private Period delay;
 
     private String transferSyntax;
 
@@ -52,6 +55,14 @@ public class ArchiveCompressionRule {
         this.conditions = conditions;
     }
 
+    public Period getDelay() {
+        return delay;
+    }
+
+    public void setDelay(Period delay) {
+        this.delay = delay;
+    }
+
     public String getTransferSyntax() {
         return transferSyntax;
     }
@@ -76,6 +87,7 @@ public class ArchiveCompressionRule {
     public String toString() {
         return "CompressionRule{" +
                 "cn=" + commonName +
+                ", delay=" + delay +
                 ", transferSyntax=" + transferSyntax +
                 ", imageWriteParams=" + Arrays.toString(imageWriteParams) +
                 '}';

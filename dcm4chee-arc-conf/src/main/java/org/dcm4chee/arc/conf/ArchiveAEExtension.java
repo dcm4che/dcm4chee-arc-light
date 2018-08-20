@@ -48,6 +48,7 @@ import org.dcm4che3.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -118,7 +119,7 @@ public class ArchiveAEExtension extends AEExtension {
     private StorageVerificationPolicy storageVerificationPolicy;
     private Boolean storageVerificationUpdateLocationStatus;
     private String[] storageVerificationStorageIDs = {};
-    private Duration storageVerificationInitialDelay;
+    private Period storageVerificationInitialDelay;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1100,15 +1101,15 @@ public class ArchiveAEExtension extends AEExtension {
         return storageVerificationStorageIDs != null ? storageVerificationStorageIDs : getArchiveDeviceExtension().getStorageVerificationStorageIDs();
     }
 
-    public Duration getStorageVerificationInitialDelay() {
+    public Period getStorageVerificationInitialDelay() {
         return storageVerificationInitialDelay;
     }
 
-    public void setStorageVerificationInitialDelay(Duration storageVerificationInitialDelay) {
+    public void setStorageVerificationInitialDelay(Period storageVerificationInitialDelay) {
         this.storageVerificationInitialDelay = storageVerificationInitialDelay;
     }
 
-    public Duration storageVerificationInitialDelay() {
+    public Period storageVerificationInitialDelay() {
         ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
         return storageVerificationInitialDelay != null
                 ? storageVerificationInitialDelay

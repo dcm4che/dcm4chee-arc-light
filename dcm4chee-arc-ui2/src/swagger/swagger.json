@@ -8067,6 +8067,13 @@
             "default": false
           },
           {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8195,6 +8202,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -8338,6 +8352,13 @@
             "default": false
           },
           {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8466,6 +8487,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -8605,6 +8633,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -8751,6 +8786,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -9126,6 +9168,13 @@
             "default": false
           },
           {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9265,6 +9314,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -9419,6 +9475,13 @@
             "default": false
           },
           {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9558,6 +9621,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -9708,6 +9778,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -9865,6 +9942,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },

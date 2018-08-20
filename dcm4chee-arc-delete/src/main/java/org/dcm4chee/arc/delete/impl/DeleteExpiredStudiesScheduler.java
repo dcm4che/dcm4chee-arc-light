@@ -218,7 +218,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        StoreSession session = storeService.newStoreSession(ae, rejectionNoteObjectStorageID);
+        StoreSession session = storeService.newStoreSession(ae).withObjectStorageID(rejectionNoteObjectStorageID);
         StoreContext ctx = storeService.newStoreContext(session);
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));

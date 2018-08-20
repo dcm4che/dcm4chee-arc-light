@@ -121,6 +121,10 @@ public class StgVerMatchingRS {
     @Pattern(regexp = "true|false")
     private String storageVerificationFailed;
 
+    @QueryParam("compressionfailed")
+    @Pattern(regexp = "true|false")
+    private String compressionfailed;
+
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
 
@@ -305,6 +309,7 @@ public class StgVerMatchingRS {
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
+        queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         return queryParam;

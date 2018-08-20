@@ -91,6 +91,7 @@ public class QueryAttributes {
                 case "returnempty":
                 case "expired":
                 case "retrievefailed":
+                case "compressionfailed":
                 case "storageVerificationFailed":
                 case "storageVerificationPolicy":
                 case "storageVerificationUpdateLocationStatus":

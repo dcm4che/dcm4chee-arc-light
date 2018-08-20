@@ -7,9 +7,16 @@ create index UK_iudr0qmrm15i2evq1733h1ace on stgver_task (study_iuid, series_iui
 alter table stgver_task add constraint FK_hch5fanx7ejwew2ag2ividq9r foreign key (queue_msg_fk) references queue_msg;
 alter table series
   add stgver_time timestamp,
-  add stgver_failures int4;
+  add stgver_failures int4,
+  add compress_time timestamp,
+  add compress_tsuid varchar(255),
+  add compress_params varchar(255),
+  add compress_failures int4;
+
 create index UK_ftv3ijh2ud6ogoknneyqc6t9i on series (stgver_time);
 create index UK_s1vceb8cu9c45j0q8tbldgol9 on series (stgver_failures);
+create index UK_38mfgfnjhan2yhnwqtcrawe4 on series (compress_time);
+create index UK_889438ocqfrvybu3k2eo65lpa on series (compress_failures);
 
 create index FK_hch5fanx7ejwew2ag2ividq9r on stgver_task (queue_msg_fk) ;
 
@@ -17,7 +24,9 @@ create sequence stgver_task_pk_seq;
 
 -- may be already applied on running archive 5.13 to minimize downtime
 -- and re-applied on stopped archive only on series inserted after the previous update (where series.pk > xxx)
-update series set stgver_failures = 0;
+update series set stgver_failures = 0, compress_failures = 0;
 
 -- shall be applied on stopped or running archive 5.14
-alter table series alter stgver_failures set not null;
+alter table series
+  alter stgver_failures set not null,
+  alter compress_failures set not null;

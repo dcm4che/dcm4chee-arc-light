@@ -63,6 +63,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -80,6 +81,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -789,6 +791,15 @@ public class StoreServiceEJB {
         return mwlItems;
     }
 
+    public void replaceLocation(StoreContext ctx, InstanceLocations inst) {
+        Instance instance = new Instance();
+        instance.setPk(inst.getInstancePk());
+        createLocation(ctx, instance, Location.ObjectType.DICOM_FILE);
+        for (Location location : inst.getLocations()) {
+            removeOrMarkToDelete(em.find(Location.class, location.getPk()));
+        }
+    }
+
     private static class UpdateInfo {
         int[] prevTags;
         Attributes modified;
@@ -1078,6 +1089,12 @@ public class StoreServiceEJB {
         series.setTransferSyntaxUID(ctx.getStoreTranferSyntax());
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
+        ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
+        if (compressionRule != null && compressionRule.getDelay() != null) {
+            series.setCompressionTime(new Date(Instant.now().plus(compressionRule.getDelay()).toEpochMilli()));
+            series.setCompressionTransferSyntaxUID(compressionRule.getTransferSyntax());
+            series.setCompressionImageWriteParams(compressionRule.getImageWriteParams());
+        }
         if (result.getRejectionNote() == null) {
             if (markOldStudiesAsIncomplete(ctx, study)) {
                 series.setCompleteness(Completeness.UNKNOWN);
@@ -1173,6 +1190,15 @@ public class StoreServiceEJB {
         if (writeContext == null)
             return;
 
+        result.getLocations().add(createLocation(ctx, instance, objectType));
+        if (objectType == Location.ObjectType.DICOM_FILE)
+            instance.getSeries().getStudy()
+                    .addStorageID(writeContext.getStorage().getStorageDescriptor().getStorageID());
+        result.getWriteContexts().add(writeContext);
+    }
+
+    private Location createLocation(StoreContext ctx, Instance instance, Location.ObjectType objectType) {
+        WriteContext writeContext = ctx.getWriteContext(objectType);
         Storage storage = writeContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
         Location location = new Location.Builder()
@@ -1186,10 +1212,7 @@ public class StoreServiceEJB {
         location.setInstance(instance);
         em.persist(location);
         LOG.info("{}: Create {}", ctx.getStoreSession(), location);
-        result.getLocations().add(location);
-        result.getWriteContexts().add(writeContext);
-        if (objectType == Location.ObjectType.DICOM_FILE)
-            instance.getSeries().getStudy().addStorageID(descriptor.getStorageID());
+        return location;
     }
 
     private void copyLocations(StoreContext ctx, Instance instance, UpdateDBResult result) {

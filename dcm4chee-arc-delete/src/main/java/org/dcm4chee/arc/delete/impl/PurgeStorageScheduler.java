@@ -230,7 +230,7 @@ public class PurgeStorageScheduler extends Scheduler {
                             .getPurgeInstanceRecordsDelay();
                     for (Series series : seriesWithPurgedInstances) {
                         try {
-                            storeService.restoreInstances(storeService.newStoreSession(ae, storageID),
+                            storeService.restoreInstances(storeService.newStoreSession(ae).withObjectStorageID(storageID),
                                     series.getStudy().getStudyInstanceUID(),
                                     series.getSeriesInstanceUID(),
                                     purgeInstanceRecordsDelay);

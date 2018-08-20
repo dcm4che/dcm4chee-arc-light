@@ -44,15 +44,20 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
+import org.dcm4che3.util.Property;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Duration;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Stream;
 
 /**
  * @author Damien Evans <damien.daddy@gmail.com>
@@ -118,6 +123,17 @@ import java.util.Date;
     query="update Series ser set ser.failuresOfLastStorageVerification = ?3 " +
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
+@NamedQuery(
+    name=Series.UPDATE_COMPRESSION_FAILURES,
+        query="update Series ser set ser.compressionFailures = ?2 where ser.pk = ?1"),
+@NamedQuery(
+    name=Series.UPDATE_COMPRESSION_FAILURES_AND_TSUID,
+    query="update Series ser set ser.compressionFailures = ?2, ser.transferSyntaxUID = ?3 where ser.pk = ?1"),
+@NamedQuery(
+    name=Series.UPDATE_COMPRESSION_COMPLETED,
+    query="update Series ser set ser.compressionFailures = ?2, ser.transferSyntaxUID = ?3, " +
+            "ser.compressionTransferSyntaxUID = null, ser.compressionImageWriteParams = null " +
+            "where ser.pk = ?1"),
 @NamedQuery(
     name=Series.COUNT_SERIES_OF_STUDY,
     query="select count(se) from Series se " +
@@ -207,13 +223,25 @@ import java.util.Date;
                 "where se.storageVerificationTime < current_timestamp " +
                 "order by se.storageVerificationTime"),
 @NamedQuery(
+        name = Series.SCHEDULED_COMPRESSION,
+        query = "select new org.dcm4chee.arc.entity.Series$Compression(" +
+                "se.study.pk, se.pk, se.instancePurgeState, se.compressionTransferSyntaxUID, " +
+                "se.compressionImageWriteParams, se.seriesInstanceUID, se.study.studyInstanceUID) " +
+                "from Series se " +
+                "where se.compressionTime < current_timestamp " +
+                "order by se.compressionTime"),
+@NamedQuery(
         name=Series.CLAIM_METADATA_UPDATE,
         query = "update Series se set se.metadataScheduledUpdateTime = null " +
                 "where se.pk = ?1 and se.metadataScheduledUpdateTime is not null"),
 @NamedQuery(
         name=Series.CLAIM_STORAGE_VERIFICATION,
         query = "update Series se set se.storageVerificationTime = ?3 " +
-                "where se.pk = ?1 and se.storageVerificationTime = ?2")
+                "where se.pk = ?1 and se.storageVerificationTime = ?2"),
+@NamedQuery(
+        name=Series.CLAIM_COMPRESSION,
+        query = "update Series se set se.compressionTime = null " +
+                "where se.pk = ?1 and se.compressionTime is not null")
 })
 @Entity
 @Table(name = "series",
@@ -242,7 +270,9 @@ import java.util.Date;
         @Index(columnList = "inst_purge_time"),
         @Index(columnList = "inst_purge_state"),
         @Index(columnList = "stgver_time"),
-        @Index(columnList = "stgver_failures")
+        @Index(columnList = "stgver_failures"),
+        @Index(columnList = "compress_time"),
+        @Index(columnList = "compress_failures")
 })
 public class Series {
 
@@ -273,8 +303,13 @@ public class Series {
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
     public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
     public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";
+    public static final String SCHEDULED_COMPRESSION = "Series.scheduledCompression";
     public static final String CLAIM_METADATA_UPDATE = "Series.claimMetadataUpdate";
     public static final String CLAIM_STORAGE_VERIFICATION = "Series.claimStorageVerification";
+    public static final String CLAIM_COMPRESSION = "Series.claimCompression";
+    public static final String UPDATE_COMPRESSION_FAILURES = "Series.updateCompressionFailures";
+    public static final String UPDATE_COMPRESSION_FAILURES_AND_TSUID = "Series.updateCompressionFailuresAndTSUID";
+    public static final String UPDATE_COMPRESSION_COMPLETED = "Series.updateCompressionCompleted";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -319,6 +354,32 @@ public class Series {
                     ", studyUID=" + studyInstanceUID +
                     ", seriesUID=" + seriesInstanceUID +
                     "]";
+        }
+    }
+
+    public static class Compression {
+        public final Long studyPk;
+        public final Long seriesPk;
+        public final InstancePurgeState instancePurgeState;
+        public final String transferSyntaxUID;
+        public final String imageWriteParams;
+        public final String seriesInstanceUID;
+        public final String studyInstanceUID;
+
+        public Compression(Long studyPk, Long seriesPk, InstancePurgeState instancePurgeState,
+                           String transferSyntaxUID, String imageWriteParams,
+                           String seriesInstanceUID, String studyInstanceUID) {
+            this.studyPk = studyPk;
+            this.seriesPk = seriesPk;
+            this.instancePurgeState = instancePurgeState;
+            this.transferSyntaxUID = transferSyntaxUID;
+            this.imageWriteParams = imageWriteParams;
+            this.seriesInstanceUID = seriesInstanceUID;
+            this.studyInstanceUID = studyInstanceUID;
+        }
+
+        public Property[] imageWriteParams() {
+            return parseImageWriteParams(this.imageWriteParams);
         }
     }
 
@@ -458,6 +519,20 @@ public class Series {
     @Basic(optional = false)
     @Column(name = "stgver_failures")
     private int failuresOfLastStorageVerification;
+
+    @Basic
+    @Column(name = "compress_time")
+    private Date compressionTime;
+
+    @Column(name = "compress_tsuid")
+    private String compressionTransferSyntaxUID;
+
+    @Column(name = "compress_params")
+    private String compressionImageWriteParams;
+
+    @Basic(optional = false)
+    @Column(name = "compress_failures")
+    private int compressionFailures;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -696,9 +771,9 @@ public class Series {
         this.storageVerificationTime = storageVerificationTime;
     }
 
-    public void scheduleStorageVerification(Duration delay) {
+    public void scheduleStorageVerification(Period delay) {
         if (delay != null && storageVerificationTime == null)
-            storageVerificationTime = new Date(System.currentTimeMillis() + delay.getSeconds() * 1000L);
+            storageVerificationTime = new Date(Instant.now().plus(delay).toEpochMilli());
     }
 
     public int getFailuresOfLastStorageVerification() {
@@ -707,6 +782,56 @@ public class Series {
 
     public void setFailuresOfLastStorageVerification(int failuresOfLastStorageVerification) {
         this.failuresOfLastStorageVerification = failuresOfLastStorageVerification;
+    }
+
+    public Date getCompressionTime() {
+        return compressionTime;
+    }
+
+    public void setCompressionTime(Date compressionTime) {
+        this.compressionTime = compressionTime;
+    }
+
+    public String getCompressionTransferSyntaxUID() {
+        return compressionTransferSyntaxUID;
+    }
+
+    public void setCompressionTransferSyntaxUID(String compressionTransferSyntaxUID) {
+        this.compressionTransferSyntaxUID = compressionTransferSyntaxUID;
+    }
+
+    public Property[] getCompressionImageWriteParams() {
+        return parseImageWriteParams(this.compressionImageWriteParams);
+    }
+
+    private static Property[] parseImageWriteParams(String params) {
+        return params != null
+                ? Property.valueOf(StringUtils.split(params, '\\'))
+                : new Property[0];
+    }
+
+    public void setCompressionImageWriteParams(Property[] imageWriteParams) {
+        this.compressionImageWriteParams = imageWriteParams.length > 0
+                ? StringUtils.concat(
+                    Stream.of(imageWriteParams).map(Property::toString).toArray(String[]::new),
+                    '\\')
+                : null;
+    }
+
+    public void scheduleCompression(Period delay, String tsuid, Property[] imageWriteParams) {
+        if (delay != null && compressionTime == null) {
+            compressionTime = new Date(Instant.now().plus(delay).toEpochMilli());
+            compressionTransferSyntaxUID = tsuid;
+            setCompressionImageWriteParams(imageWriteParams);
+        }
+    }
+
+    public int getCompressionFailures() {
+        return compressionFailures;
+    }
+
+    public void setCompressionFailures(int compressionFailures) {
+        this.compressionFailures = compressionFailures;
     }
 
     public Completeness getCompleteness() {

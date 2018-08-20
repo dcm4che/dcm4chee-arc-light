@@ -424,6 +424,8 @@ public class QueryBuilder {
                 builder.and(QSeries.series.failedRetrieves.gt(0));
             if (queryParam.isStorageVerificationFailed())
                 builder.and(QSeries.series.failuresOfLastStorageVerification.gt(0));
+            if (queryParam.isCompressionFailed())
+                builder.and(QSeries.series.compressionFailures.gt(0));
             builder.and(wildCard(QSeries.series.sourceAET,
                     keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
                     false));
@@ -695,6 +697,8 @@ public class QueryBuilder {
                     false));
         if (queryParam.isStorageVerificationFailed())
             result.and(QSeries.series.failuresOfLastStorageVerification.gt(0));
+        if (queryParam.isCompressionFailed())
+            result.and(QSeries.series.compressionFailures.gt(0));
         if (!result.hasValue())
             return null;
         return JPAExpressions.selectFrom(QSeries.series)

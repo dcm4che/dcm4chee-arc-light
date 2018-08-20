@@ -48,8 +48,8 @@
     "dcmStorageVerificationUpdateLocationStatus",
     "dcmStorageVerificationAETitle",
     "dcmStorageVerificationFetchSize",
+    "dcmCompressionThreads",
     "dcmCompressionFetchSize",
-    "dcmCompressionTasks",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -856,9 +856,9 @@
     },
     "dcmStorageVerificationInitialDelay": {
       "title": "Storage Verification Initial Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Delay in ISO-8601 duration format PnYnMnD or PnW of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
-      "format": "dcmDuration"
+      "format": "dcmPeriod"
     },
     "dcmStorageVerificationPeriod": {
       "title": "Storage Verification Period",
@@ -896,17 +896,23 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmCompressionAETitle": {
+      "title": "Compression AE Title",
+      "description": "Archive AE Title used for delayed Compression.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
     "dcmCompressionPollingInterval": {
       "title": "Compression Polling Interval",
       "description": "Polling Interval for Series to be compressed in ISO-8601 duration format PnDTnHnMn.nS.",
       "type": "string",
       "format": "dcmDuration"
     },
-    "dcmCompressionFetchSize": {
-      "title": "Compression Fetch Size",
-      "description": "Maximal number of Series fetched for compression by one query.",
+    "dcmCompressionThreads": {
+      "title": "Compression Threads",
+      "description": "Number of Threads used for Compression.",
       "type": "integer",
-      "default" : 100,
+      "default" : 1,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -919,11 +925,11 @@
       },
       "format": "dcmSchedule"
     },
-    "dcmCompressionThreads": {
-      "title": "Compression Threads",
-      "description": "Number of Threads used for Compression.",
+    "dcmCompressionFetchSize": {
+      "title": "Compression Fetch Size",
+      "description": "Maximal number of Series fetched for compression by one query.",
       "type": "integer",
-      "default" : 1,
+      "default" : 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -1109,15 +1115,6 @@
       "titleKey":"{cn}",
       "items" : {
         "$ref": "archiveCompressionRule.schema.json"
-      }
-    },
-    "dcmDelayedCompressionRule": {
-      "title": "Delayed Compression Rule",
-      "description": "Rules for compression of stored images after a particular delay.",
-      "type": "array",
-      "titleKey":"{cn}",
-      "items" : {
-        "$ref": "delayedCompressionRule.schema.json"
       }
     },
     "dcmArchiveAttributeCoercion": {

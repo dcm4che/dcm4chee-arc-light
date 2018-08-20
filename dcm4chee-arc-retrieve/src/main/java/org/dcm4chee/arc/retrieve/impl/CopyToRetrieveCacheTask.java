@@ -48,7 +48,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.storage.Storage;
@@ -108,7 +107,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
     private void restoreInstances(Attributes attrs) throws IOException {
         StoreService storeService = ctx.getRetrieveService().getStoreService();
         for (Instance inst : storeService.restoreInstances(storeService.newStoreSession(ctx
-                        .getLocalApplicationEntity(), storageID),
+                        .getLocalApplicationEntity()).withObjectStorageID(storageID),
                 attrs.getString(Tag.StudyInstanceUID),
                 attrs.getString(Tag.SeriesInstanceUID),
                 ctx.getArchiveAEExtension().purgeInstanceRecordsDelay())) {
@@ -174,7 +173,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
             location = copyTo(match, storage, writeCtx);
             StoreService storeService = ctx.getRetrieveService().getStoreService();
             ApplicationEntity ae = ctx.getLocalApplicationEntity();
-            StoreSession storeSession = storeService.newStoreSession(ae, storageID);
+            StoreSession storeSession = storeService.newStoreSession(ae).withObjectStorageID(storageID);
             storeService.addLocation(storeSession, match.getInstancePk(), location);
             storage.commitStorage(writeCtx);
             match.getLocations().add(location);

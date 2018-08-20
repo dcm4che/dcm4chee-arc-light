@@ -137,7 +137,7 @@ public class StgVerScheduler extends Scheduler {
                 }
             }
         }
-        while (storageVerifications.size() == fetchSize);
+        while (getPollingInterval() != null && storageVerifications.size() == fetchSize);
     }
 
     private int remaining(int maxScheduled) {

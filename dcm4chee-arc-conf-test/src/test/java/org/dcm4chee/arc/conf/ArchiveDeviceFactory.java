@@ -226,7 +226,7 @@ class ArchiveDeviceFactory {
     private static AuditSuppressCriteria suppressAuditQueryFromArchive() {
         AuditSuppressCriteria auditSuppressCriteria = new AuditSuppressCriteria("Suppress Query from own Archive AE");
         auditSuppressCriteria.setEventIDs(AuditMessages.EventID.Query);
-        auditSuppressCriteria.setUserIDs("DCM4CHEE");
+        auditSuppressCriteria.setUserIDs(AE_TITLE);
         auditSuppressCriteria.setUserIsRequestor(true);
         return auditSuppressCriteria;
     }
@@ -980,6 +980,7 @@ class ArchiveDeviceFactory {
             "ORU^R01"
     };
 
+    static final String AE_TITLE = "DCM4CHEE";
     static final String DCM4CHEE_ARC_VERSION = "5.14.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
@@ -1025,7 +1026,6 @@ class ArchiveDeviceFactory {
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.valueOf("PT1H");
-    static final String REJECTION_NOTE_STORAGE_AET = "DCM4CHEE";
 
     static final String CALC_STUDY_SIZE_EXPORTER_ID = "CalculateStudySize";
     static final String CALC_STUDY_SIZE_EXPORTER_DESC = "Calculate Study Size";
@@ -1102,9 +1102,6 @@ class ArchiveDeviceFactory {
     static final Duration REJECT_EXPIRED_STUDIES_POLLING_INTERVAL = Duration.valueOf("P1D");
     static final LocalTime REJECT_EXPIRED_STUDIES_START_TIME = LocalTime.parse("00:00:00");
     static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
-    static final String REJECT_EXPIRED_STUDIES_AE_TITLE = "DCM4CHEE";
-    static final String EXTERNAL_RETRIEVE_AE_DESTINATION = "DCM4CHEE";
-    static final String XDSI_IMAGING_DOCUMENT_SOURCE_AE_TITLE = "DCM4CHEE";
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.valueOf("PT1H");
     static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
@@ -1256,7 +1253,7 @@ class ArchiveDeviceFactory {
         device.setKeyStorePin("secret");
         device.setPrimaryDeviceTypes("ARCHIVE");
 
-        device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
+        device.addApplicationEntity(createAE(AE_TITLE, "Hide instances rejected for Quality Reasons",
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType, USER_AND_ADMIN));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", "Show instances rejected for Quality Reasons",
                 dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType, ONLY_ADMIN));
@@ -1271,7 +1268,7 @@ class ArchiveDeviceFactory {
 
 
         device.addWebApplication(createWebApp("DCM4CHEE-RS", "Hide instances rejected for Quality Reasons",
-                "/dcm4chee-arc/aets/DCM4CHEE/rs", "DCM4CHEE", http, https,
+                "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS));
@@ -1280,7 +1277,7 @@ class ArchiveDeviceFactory {
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS));
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", "Hide instances rejected for Quality Reasons",
-                "/dcm4chee-arc/aets/DCM4CHEE/wado", "DCM4CHEE", http, https,
+                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", "Show instances rejected for Quality Reasons",
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
@@ -1364,7 +1361,7 @@ class ArchiveDeviceFactory {
         HL7Application hl7App = new HL7Application("*");
         hl7App.setDescription("Default HL7 Receiver");
         ArchiveHL7ApplicationExtension hl7AppExt = new ArchiveHL7ApplicationExtension();
-        hl7AppExt.setAETitle("DCM4CHEE");
+        hl7AppExt.setAETitle(AE_TITLE);
         hl7App.addHL7ApplicationExtension(hl7AppExt);
         hl7App.setAcceptedMessageTypes(HL7_MESSAGE_TYPES);
         hl7App.setHL7DefaultCharacterSet("8859/1");
@@ -1398,8 +1395,8 @@ class ArchiveDeviceFactory {
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
         ext.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
-        ext.setExternalRetrieveAEDestination(EXTERNAL_RETRIEVE_AE_DESTINATION);
-        ext.setXDSiImagingDocumentSourceAETitle(XDSI_IMAGING_DOCUMENT_SOURCE_AE_TITLE);
+        ext.setExternalRetrieveAEDestination(AE_TITLE);
+        ext.setXDSiImagingDocumentSourceAETitle(AE_TITLE);
         ext.addQueryRetrieveView(HIDE_REJECTED_VIEW);
         ext.addQueryRetrieveView(REGULAR_USE_VIEW);
         ext.addQueryRetrieveView(IOCM_EXPIRED_VIEW);
@@ -1433,11 +1430,12 @@ class ArchiveDeviceFactory {
         ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
         ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
-        ext.setStorageVerificationAETitle("DCM4CHEE");
+        ext.setStorageVerificationAETitle(AE_TITLE);
+        ext.setCompressionAETitle(AE_TITLE);
 
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
         ext.setRejectExpiredStudiesPollingStartTime(REJECT_EXPIRED_STUDIES_START_TIME);
-        ext.setRejectExpiredStudiesAETitle(REJECT_EXPIRED_STUDIES_AE_TITLE);
+        ext.setRejectExpiredStudiesAETitle(AE_TITLE);
         ext.setRejectExpiredStudiesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
         ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
 
@@ -1537,13 +1535,13 @@ class ArchiveDeviceFactory {
                 REVOKE_REJECTION, RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
-        ext.setRejectionNoteStorageAET(REJECTION_NOTE_STORAGE_AET);
+        ext.setRejectionNoteStorageAET(AE_TITLE);
 
         ExporterDescriptor studySizeExporter = new ExporterDescriptor(CALC_STUDY_SIZE_EXPORTER_ID);
         studySizeExporter.setDescription(CALC_STUDY_SIZE_EXPORTER_DESC);
         studySizeExporter.setExportURI(CALC_STUDY_SIZE_EXPORTER_URI);
         studySizeExporter.setQueueName("Export4");
-        studySizeExporter.setAETitle("DCM4CHEE");
+        studySizeExporter.setAETitle(AE_TITLE);
         ext.addExporterDescriptor(studySizeExporter);
 
         ExportRule calcStudySizeRule = new ExportRule(CALC_STUDY_SIZE_EXPORTER_DESC);
@@ -1556,7 +1554,7 @@ class ArchiveDeviceFactory {
         studySeriesQueryAttrExporter.setDescription(CALC_QUERY_ATTRS_EXPORTER_DESC);
         studySeriesQueryAttrExporter.setExportURI(CALC_QUERY_ATTRS_EXPORTER_URI);
         studySeriesQueryAttrExporter.setQueueName("Export4");
-        studySeriesQueryAttrExporter.setAETitle("DCM4CHEE");
+        studySeriesQueryAttrExporter.setAETitle(AE_TITLE);
         ext.addExporterDescriptor(studySeriesQueryAttrExporter);
 
         ExportRule studySeriesQueryAttrExportRule = new ExportRule(CALC_QUERY_ATTRS_EXPORTER_DESC);
@@ -1604,7 +1602,7 @@ class ArchiveDeviceFactory {
             nearlineExporter.setDescription(NEARLINE_STORAGE_EXPORTER_DESC);
             nearlineExporter.setExportURI(NEARLINE_STORAGE_EXPORTER_URI);
             nearlineExporter.setQueueName("Export5");
-            nearlineExporter.setAETitle("DCM4CHEE");
+            nearlineExporter.setAETitle(AE_TITLE);
             ext.addExporterDescriptor(nearlineExporter);
 
             ExportRule nearlineStorageRule = new ExportRule(NEARLINE_STORAGE_EXPORTER_DESC);
@@ -1618,7 +1616,7 @@ class ArchiveDeviceFactory {
             dicomExporter.setDescription(DICOM_EXPORTER_DESC);
             dicomExporter.setExportURI(DICOM_EXPORT_URI);
             dicomExporter.setQueueName("Export1");
-            dicomExporter.setAETitle("DCM4CHEE");
+            dicomExporter.setAETitle(AE_TITLE);
             ext.addExporterDescriptor(dicomExporter);
 
             ExportRule exportRule = new ExportRule("Forward to STORESCP");
@@ -1633,7 +1631,7 @@ class ArchiveDeviceFactory {
             wadoExportDescriptor.setDescription(WADO_EXPORTER_DESC);
             wadoExportDescriptor.setExportURI(WADO_EXPORT_URI);
             wadoExportDescriptor.setQueueName("Export2");
-            wadoExportDescriptor.setAETitle("DCM4CHEE");
+            wadoExportDescriptor.setAETitle(AE_TITLE);
             wadoExportDescriptor.setProperty("Cache-Control", WADO_CACHE_CONTROL);
             wadoExportDescriptor.setProperty("StorageID", WADO_JPEG_STORAGE_ID);
             wadoExportDescriptor.setProperty("URL.1", WADO_JSON_EXPORT_URL);
@@ -1652,8 +1650,8 @@ class ArchiveDeviceFactory {
             xdsiExportDescriptor.setDescription(XDSI_EXPORTER_DESC);
             xdsiExportDescriptor.setExportURI(XDSI_EXPORT_URI);
             xdsiExportDescriptor.setQueueName("Export3");
-            xdsiExportDescriptor.setAETitle("DCM4CHEE");
-            xdsiExportDescriptor.setRetrieveAETitles("DCM4CHEE");
+            xdsiExportDescriptor.setAETitle(AE_TITLE);
+            xdsiExportDescriptor.setRetrieveAETitles(AE_TITLE);
             xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);
             xdsiExportDescriptor.setProperty("TLS.protocol", XDSI_TLS_PROTOCOL);
             xdsiExportDescriptor.setProperty("TLS.ciphersuites", XDSI_TLS_CIPHERSUITES);
@@ -1769,9 +1767,9 @@ class ArchiveDeviceFactory {
 
     private static void addDiffConfig(UIConfig uiConfig) {
         UIDiffConfig diffConfig = new UIDiffConfig("default");
-        diffConfig.setCallingAET("DCM4CHEE");
+        diffConfig.setCallingAET(AE_TITLE);
         diffConfig.setPrimaryCFindSCP("DCMQRSCP");
-        diffConfig.setSecondaryCFindSCP("DCM4CHEE");
+        diffConfig.setSecondaryCFindSCP(AE_TITLE);
         uiConfig.addDiffConfig(diffConfig);
         diffConfig.addCriteria(createDiffCriteria(
                 1,

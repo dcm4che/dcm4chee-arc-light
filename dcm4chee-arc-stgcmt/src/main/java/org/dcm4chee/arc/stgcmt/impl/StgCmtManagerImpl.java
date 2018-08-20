@@ -172,7 +172,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                         try {
                             ejb.updateSeries(studyIUID, iuid, failures[0]);
                         } catch (Exception e) {
-                            LOG.warn("Failed to update time and failures[={}] of last Storage Commitment of Series[uid={}] of Study[uid={}]\n",
+                            LOG.warn("Failed to update failures[={}] of last Storage Commitment of Series[uid={}] of Study[uid={}]\n",
                                     failures[0], iuid, studyIUID, e);
                         }
                     });
@@ -438,7 +438,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
     private void restoreInstances(ArchiveAEExtension arcAE, String studyIUID, String seriesIUID,
                                   List<UpdateLocation> updateLocations) throws IOException {
         List<Instance> instances = storeService.restoreInstances(storeService.newStoreSession(
-                arcAE.getApplicationEntity(), null),
+                arcAE.getApplicationEntity()),
                 studyIUID,
                 seriesIUID,
                 arcAE.getPurgeInstanceRecordsDelay());

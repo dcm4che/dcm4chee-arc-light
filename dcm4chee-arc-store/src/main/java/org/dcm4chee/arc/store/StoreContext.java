@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.store;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.conf.ArchiveCompressionRule;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
@@ -37,6 +38,10 @@ public interface StoreContext {
     String getStoreTranferSyntax();
 
     void setStoreTranferSyntax(String storeTranferSyntaxUID);
+
+    ArchiveCompressionRule getCompressionRule();
+
+    void setCompressionRule(ArchiveCompressionRule compressionRule);
 
     String getAcceptedStudyInstanceUID();
 

@@ -105,7 +105,7 @@ public interface StoreSession extends Closeable {
 
     String getObjectStorageID();
 
-    void setObjectStorageID(String objectStorageID);
+    StoreSession withObjectStorageID(String objectStorageID);
 
     String getMetadataStorageID();
 

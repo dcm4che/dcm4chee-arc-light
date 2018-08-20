@@ -246,6 +246,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmXRoadProperty", descriptorProperties(arcDev.getXRoadProperties()));
         writer.writeNotEmpty("dcmImpaxReportProperty", descriptorProperties(arcDev.getImpaxReportProperties()));
         writer.writeNotNullOrDef("dcmUIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
+        writer.writeNotNullOrDef("dcmCompressionAETitle", arcDev.getCompressionAETitle(), null);
         writer.writeNotNullOrDef("dcmCompressionPollingInterval", arcDev.getCompressionPollingInterval(), null);
         writer.writeNotDef("dcmCompressionFetchSize", arcDev.getCompressionFetchSize(), 100);
         writer.writeNotEmpty("dcmCompressionSchedule", arcDev.getCompressionSchedules());
@@ -268,7 +269,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
         writeHL7OrderSPSStatus(writer, arcDev.getHL7OrderSPSStatuses());
         writeKeycloakServers(writer, arcDev.getKeycloakServers());
-        writeDelayedCompressionRules(writer, arcDev.getDelayedCompressionRules());
         writer.writeEnd();
     }
 
@@ -422,31 +422,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (ArchiveCompressionRule acr : archiveCompressionRuleList) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", acr.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmCompressionDelay", acr.getDelay(), null);
             writer.writeNotNullOrDef("dicomTransferSyntax", acr.getTransferSyntax(), null);
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(acr.getConditions().getMap()));
             writer.writeNotEmpty("dcmImageWriteParam", acr.getImageWriteParams());
-            writer.writeEnd();
-        }
-        writer.writeEnd();
-    }
-
-    private void writeDelayedCompressionRules(
-            JsonWriter writer, Collection<DelayedCompressionRule> delayedCompressionRuleList) {
-        writer.writeStartArray("dcmArchiveCompressionRule");
-        for (DelayedCompressionRule dcr : delayedCompressionRuleList) {
-            writer.writeStartObject();
-            writer.writeNotNullOrDef("cn", dcr.getCommonName(), null);
-            writer.writeNotNullOrDef("dicomAETitle", dcr.getAETitle(), null);
-            writer.writeNotNullOrDef("dcmTransferSyntax", dcr.getTransferSyntax(), null);
-            writer.writeNotEmpty("dicomTransferSyntax", dcr.getSourceTransferSyntaxUIDs());
-            writer.writeNotEmpty("dcmSOPClass", dcr.getSOPClassUIDs());
-            writer.writeNotEmpty("dcmAETitle", dcr.getSourceAETitles());
-            writer.writeNotEmpty("dcmStationName", dcr.getStationNames());
-            writer.writeNotNullOrDef("dcmDuration", dcr.getDelay(), null);
-            writer.writeNotEmpty("dcmImageWriteParam", dcr.getImageWriteParams());
-            writer.writeNotNullOrDef("dcmAETitleUsageFlag", dcr.getSourceAETitleUsageFlag(), DelayedCompressionRule.UsageFlag.MATCH);
-            writer.writeNotNullOrDef("dcmStationNameUsageFlag", dcr.getStationNameUsageFlag(), DelayedCompressionRule.UsageFlag.MATCH);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -713,8 +693,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     @Override
-    public boolean loadDeviceExtension(Device device, JsonReader reader, ConfigurationDelegate config)
-            throws ConfigurationException {
+    public boolean loadDeviceExtension(Device device, JsonReader reader, ConfigurationDelegate config) {
         if (!reader.getString().equals("dcmArchiveDevice"))
             return false;
 
@@ -727,8 +706,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return true;
     }
 
-    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader,
-                          ConfigurationDelegate config) throws ConfigurationException {
+    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader, ConfigurationDelegate config) {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 case "dcmFuzzyAlgorithmClass":
@@ -1075,7 +1053,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setStorageVerificationBatchID(reader.stringValue());
                     break;
                 case "dcmStorageVerificationInitialDelay":
-                    arcDev.setStorageVerificationInitialDelay(Duration.valueOf(reader.stringValue()));
+                    arcDev.setStorageVerificationInitialDelay(Period.parse(reader.stringValue()));
                     break;
                 case "dcmStorageVerificationPeriod":
                     arcDev.setStorageVerificationPeriod(Period.parse(reader.stringValue()));
@@ -1143,6 +1121,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmUIConfigurationDeviceName":
                     arcDev.setUiConfigurationDeviceName(reader.stringValue());
                     break;
+                case "dcmCompressionAETitle":
+                    arcDev.setCompressionAETitle(reader.stringValue());
+                    break;
                 case "dcmCompressionPollingInterval":
                     arcDev.setCompressionPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
@@ -1175,9 +1156,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmArchiveCompressionRule":
                     loadArchiveCompressionRule(arcDev.getCompressionRules(), reader);
-                    break;
-                case "dcmDelayedCompressionRule":
-                    loadDelayedCompressionRule(arcDev.getDelayedCompressionRules(), reader);
                     break;
                 case "dcmStoreAccessControlIDRule":
                     loadStoreAccessControlIDRule(arcDev.getStoreAccessControlIDRules(), reader);
@@ -1556,6 +1534,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmRulePriority":
                         acr.setPriority(reader.intValue());
                         break;
+                    case "dcmCompressionDelay":
+                        acr.setDelay(Period.parse(reader.stringValue()));
+                        break;
                     case "dcmProperty":
                         acr.setConditions(new Conditions(reader.stringArray()));
                         break;
@@ -1568,57 +1549,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             rules.add(acr);
-        }
-        reader.expect(JsonParser.Event.END_ARRAY);
-    }
-
-    private void loadDelayedCompressionRule(Collection<DelayedCompressionRule> rules, JsonReader reader) {
-        reader.next();
-        reader.expect(JsonParser.Event.START_ARRAY);
-        while (reader.next() == JsonParser.Event.START_OBJECT) {
-            reader.expect(JsonParser.Event.START_OBJECT);
-            DelayedCompressionRule dcr = new DelayedCompressionRule();
-            while (reader.next() == JsonParser.Event.KEY_NAME) {
-                switch (reader.getString()) {
-                    case "cn":
-                        dcr.setCommonName(reader.stringValue());
-                        break;
-                    case "dicomAETitle":
-                        dcr.setAETitle(reader.stringValue());
-                        break;
-                    case "dcmTransferSyntax":
-                        dcr.setTransferSyntax(reader.stringValue());
-                        break;
-                    case "dcmSOPClass":
-                        dcr.setSOPClassUIDs(reader.stringArray());
-                        break;
-                    case "dicomTransferSyntax":
-                        dcr.setSourceTransferSyntaxUIDs(reader.stringArray());
-                        break;
-                    case "dcmDuration":
-                        dcr.setDelay(Duration.valueOf(reader.stringValue()));
-                        break;
-                    case "dcmAETitle":
-                        dcr.setSourceAETitles(reader.stringArray());
-                        break;
-                    case "dcmAETitleUsageFlag":
-                        dcr.setSourceAETitleUsageFlag(DelayedCompressionRule.UsageFlag.valueOf(reader.stringValue()));
-                        break;
-                    case "dcmStationName":
-                        dcr.setStationNames(reader.stringArray());
-                        break;
-                    case "dcmStationNameUsageFlag":
-                        dcr.setStationNameUsageFlag(DelayedCompressionRule.UsageFlag.valueOf(reader.stringValue()));
-                        break;
-                    case "dcmImageWriteParam":
-                        dcr.setImageWriteParams(Property.valueOf(reader.stringArray()));
-                        break;
-                    default:
-                        reader.skipUnknownProperty();
-                }
-            }
-            reader.expect(JsonParser.Event.END_OBJECT);
-            rules.add(dcr);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -1867,7 +1797,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     static void loadScheduledStations(Collection<HL7OrderScheduledStation> stations, JsonReader reader,
-                                      ConfigurationDelegate config) throws ConfigurationException {
+                                      ConfigurationDelegate config) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -2037,7 +1967,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     @Override
     public boolean loadApplicationEntityExtension(Device device, ApplicationEntity ae, JsonReader reader,
-                                                  ConfigurationDelegate config) throws ConfigurationException {
+                                                  ConfigurationDelegate config) {
         if (!reader.getString().equals("dcmArchiveNetworkAE"))
             return false;
 
@@ -2050,8 +1980,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return true;
     }
 
-    private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader, ConfigurationDelegate config)
-        throws ConfigurationException {
+    private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader, ConfigurationDelegate config) {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 case "dcmObjectStorageID":
@@ -2239,7 +2168,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setStorageVerificationStorageIDs(reader.stringArray());
                     break;
                 case "dcmStorageVerificationInitialDelay":
-                    arcAE.setStorageVerificationInitialDelay(Duration.valueOf(reader.stringValue()));
+                    arcAE.setStorageVerificationInitialDelay(Period.parse(reader.stringValue()));
                     break;
                 case "dcmInvokeImageDisplayPatientURL":
                     arcAE.setInvokeImageDisplayPatientURL(reader.stringValue());

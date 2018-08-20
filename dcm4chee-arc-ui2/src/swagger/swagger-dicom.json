@@ -222,6 +222,13 @@
             "default": false
           },
           {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "return only Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -413,6 +420,13 @@
             "default": false
           },
           {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -536,6 +550,13 @@
             "name": "storageVerificationFailed",
             "in": "query",
             "description": "return only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
