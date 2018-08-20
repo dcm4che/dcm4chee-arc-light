@@ -114,7 +114,7 @@ public class AuditService {
     @Inject
     private IHL7ApplicationCache hl7AppCache;
 
-    private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws Exception {
+    private void aggregateAuditMessage(AuditLogger auditLogger, Path path) {
         try {
             AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
             if (path.toFile().length() == 0) {
@@ -195,8 +195,7 @@ public class AuditService {
                 .build();
     }
 
-    private void auditApplicationActivity(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
-            throws IOException {
+    private void auditApplicationActivity(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
         AuditInfo archiveInfo = new AuditInfo(reader.getMainInfo());
@@ -381,8 +380,7 @@ public class AuditService {
         }
     }
 
-    private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
-            throws IOException {
+    private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo info = new AuditInfo(reader.getMainInfo());
 
@@ -454,8 +452,7 @@ public class AuditService {
         return new AuditInfoBuilder.Builder().calledUserID(deviceName).build();
     }
 
-    private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
-            throws IOException {
+    private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
@@ -505,7 +502,7 @@ public class AuditService {
                 .build();
     }
 
-    private void auditDeletion(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) throws IOException {
+    private void auditDeletion(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         boolean userDeleted = eventType.eventClass == AuditServiceUtils.EventClass.USER_DELETED;
@@ -577,8 +574,7 @@ public class AuditService {
         }
     }
 
-    private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
-            throws IOException {
+    private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo i = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toCustomBuildEventIdentification(eventType, i.getField(AuditInfo.OUTCOME),
@@ -632,8 +628,7 @@ public class AuditService {
         }
     }
 
-    private void auditConnectionRejected(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
-            throws IOException {
+    private void auditConnectionRejected(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo crI = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toBuildEventIdentification(eventType, crI.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
@@ -915,8 +910,7 @@ public class AuditService {
         return sopClassMap;
     }
 
-    private void auditStoreError(AuditLogger auditLogger, Path path,
-                                 AuditServiceUtils.EventType eventType) throws IOException {
+    private void auditStoreError(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
@@ -960,8 +954,7 @@ public class AuditService {
                 patientPOI(auditInfo));
     }
 
-    private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path,
-                                          AuditServiceUtils.EventType eventType) throws IOException {
+    private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         if (path.toFile().getName().endsWith("_ERROR")) {
             auditStoreError(auditLogger, path, eventType);
             return;
@@ -1017,8 +1010,7 @@ public class AuditService {
                 .build();
     }
 
-    private void auditWADORetrieve(AuditLogger auditLogger, Path path,
-                                   AuditServiceUtils.EventType eventType) throws IOException {
+    private void auditWADORetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toBuildEventIdentification(
@@ -1082,8 +1074,7 @@ public class AuditService {
         return device.getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
-    private void auditRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
-            throws IOException {
+    private void auditRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo ri = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toCustomBuildEventIdentification(eventType, ri.getField(AuditInfo.OUTCOME),
@@ -1542,7 +1533,7 @@ public class AuditService {
         }
     }
 
-    private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
+    private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo prI = new AuditInfo(reader.getMainInfo());
 
@@ -1598,8 +1589,7 @@ public class AuditService {
         }
     }
 
-    private void auditProvideAndRegister(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et)
-            throws IOException {
+    private void auditProvideAndRegister(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
@@ -1752,7 +1742,7 @@ public class AuditService {
                     ? stgCmtContext.getRemoteAE().getAETitle() : null;
     }
 
-    private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
+    private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
