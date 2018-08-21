@@ -8887,7 +8887,7 @@
             }
           },
           "202": {
-            "description": "Storage Verification dailed for some objects of the Study",
+            "description": "Storage Verification failed for some objects of the Study",
             "schema": {
               "type": "file"
             }
