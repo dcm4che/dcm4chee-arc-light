@@ -1535,7 +1535,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         acr.setPriority(reader.intValue());
                         break;
                     case "dcmCompressionDelay":
-                        acr.setDelay(Period.parse(reader.stringValue()));
+                        acr.setDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmProperty":
                         acr.setConditions(new Conditions(reader.stringArray()));

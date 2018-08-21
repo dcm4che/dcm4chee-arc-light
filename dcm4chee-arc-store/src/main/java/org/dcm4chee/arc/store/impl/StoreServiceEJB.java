@@ -1091,7 +1091,8 @@ public class StoreServiceEJB {
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
         if (compressionRule != null && compressionRule.getDelay() != null) {
-            series.setCompressionTime(new Date(Instant.now().plus(compressionRule.getDelay()).toEpochMilli()));
+            series.setCompressionTime(
+                    new Date(System.currentTimeMillis() + compressionRule.getDelay().getSeconds() * 1000L));
             series.setCompressionTransferSyntaxUID(compressionRule.getTransferSyntax());
             series.setCompressionImageWriteParams(compressionRule.getImageWriteParams());
         }

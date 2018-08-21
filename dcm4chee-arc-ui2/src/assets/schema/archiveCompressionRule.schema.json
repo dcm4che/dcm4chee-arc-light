@@ -13,12 +13,6 @@
       "description": "Arbitrary/Meaningful name of the Archive Compression Rule",
       "type": "string"
     },
-    "dcmCompressionDelay": {
-      "title": "Compression Delay",
-      "description": "Compression delay in ISO-8601 period format PnYnMnD or PnW.",
-      "type": "string",
-      "format": "dcmPeriod"
-    },
     "dicomTransferSyntax": {
       "title": "DICOM Transfer Syntax UID",
       "description": "A Transfer Syntax UID",
@@ -47,6 +41,12 @@
       "items": {
         "type": "string"
       }
+    },
+    "dcmCompressionDelay": {
+      "title": "Compression Delay",
+      "description": "Compression delay in ISO-8601 duration format PnDTnHnMn.nS. Compress on receive if absent.",
+      "type": "string",
+      "format": "dcmDuration"
     }
   }
 }

@@ -1177,7 +1177,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.237 NAME 'dcmCompressionAETitle'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.238 NAME 'dcmCompressionDelay'
-  DESC 'Compression delay in ISO-8601 period format PnYnMnD or PnW.'
+  DESC 'Compression delay in ISO-8601 duration format PnDTnHnMn.nS. Compress on receive if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

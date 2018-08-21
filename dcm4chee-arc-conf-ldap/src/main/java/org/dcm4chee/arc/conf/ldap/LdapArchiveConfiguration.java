@@ -2158,7 +2158,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 ArchiveCompressionRule rule = new ArchiveCompressionRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
-                rule.setDelay(toPeriod(attrs.get("dcmCompressionDelay")));
+                rule.setDelay(toDuration(attrs.get("dcmCompressionDelay"), null));
                 rule.setTransferSyntax(LdapUtils.stringValue(attrs.get("dicomTransferSyntax"), null));
                 rule.setImageWriteParams(Property.valueOf(LdapUtils.stringArray(attrs.get("dcmImageWriteParam"))));
                 rule.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
