@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -106,7 +109,7 @@ public class StgVerRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/stgver")
     @Produces("application/dicom+json,application/json")
-    public StreamingOutput studyStorageCommit(
+    public Response studyStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID) {
         return storageCommit(studyUID, null, null);
     }
@@ -114,7 +117,7 @@ public class StgVerRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver")
     @Produces("application/dicom+json,application/json")
-    public StreamingOutput seriesStorageCommit(
+    public Response seriesStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID) {
         return storageCommit(studyUID, seriesUID, null);
@@ -123,14 +126,14 @@ public class StgVerRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgver")
     @Produces("application/dicom+json,application/json")
-    public StreamingOutput instanceStorageCommit(
+    public Response instanceStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID,
             @PathParam("SOPInstanceUID") String sopUID) {
         return storageCommit(studyUID, seriesUID, sopUID);
     }
 
-    private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
+    private Response storageCommit(String studyUID, String seriesUID, String sopUID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
                 .setRequest(HttpServletRequestInfo.valueOf(request));
@@ -141,28 +144,54 @@ public class StgVerRS {
         if (!storageVerificationStorageIDs.isEmpty())
             ctx.setStgCmtStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
         try {
-            stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
+            if (!stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID)) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("{\"errorMessage\":\"No matching instances\"}")
+                        .build();
+            }
         } catch (IOException e) {
             ctx.setException(e);
             stgCmtEvent.fire(ctx);
-            throw new WebApplicationException(e, errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(e);
         }
         stgCmtEvent.fire(ctx);
-        return out -> {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    JSONWriter writer = new JSONWriter(gen);
-                    gen.writeStartArray();
-                    writer.write(ctx.getEventInfo());
-                    gen.writeEnd();
-                }
-        };
+        Attributes eventInfo = ctx.getEventInfo();
+        return Response.status(toStatus(eventInfo))
+                .entity(toStreamingOutput(eventInfo))
+                .build();
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
+    private static Response errResponseAsTextPlain(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString)
+                .type("text/plain")
+                .build();
+    }
+
+    private static Response.Status toStatus(Attributes eventInfo) {
+        int completed = sizeOf(eventInfo.getSequence(Tag.ReferencedSOPSequence));
+        int failed = sizeOf(eventInfo.getSequence(Tag.FailedSOPSequence));
+        return failed == 0 ? Response.Status.OK
+                : completed == 0 ? Response.Status.CONFLICT
+                : Response.Status.ACCEPTED;
+    }
+
+    private static int sizeOf(Sequence seq) {
+        return seq != null ? seq.size() : 0;
+    }
+
+    private static StreamingOutput toStreamingOutput(Attributes eventInfo) {
+        return out -> {
+            try (JsonGenerator gen = Json.createGenerator(out)) {
+                JSONWriter writer = new JSONWriter(gen);
+                gen.writeStartArray();
+                writer.write(eventInfo);
+                gen.writeEnd();
+            }
+        };
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -170,7 +199,7 @@ public class StgVerRS {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     Response.status(Response.Status.NOT_FOUND)
-                            .entity("{\"errorMessage\":\"" + "No such Application Entity: " + aet + "\"}")
+                            .entity("{\"errorMessage\":\"No such Application Entity: " + aet + "\"}")
                             .build());
         return ae;
     }

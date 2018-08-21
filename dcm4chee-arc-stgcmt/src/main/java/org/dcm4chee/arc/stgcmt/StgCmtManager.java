@@ -79,7 +79,7 @@ public interface StgCmtManager {
 
     void calculateResult(StgCmtContext ctx, Sequence refSopSeq);
 
-    void calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
+    boolean calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 
     boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
                                String batchID)

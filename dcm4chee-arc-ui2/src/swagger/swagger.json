@@ -8881,13 +8881,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Verification Successful",
+            "description": "Storage Verification successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "Storage Verification Complete - Failures Exist",
+            "description": "Storage Verification dailed for some objects of the Study",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "409": {
+            "description": "Storage Verification failed for all objects of the Study",
             "schema": {
               "type": "file"
             }
@@ -8967,13 +8973,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Verification Successful",
+            "description": "Storage Verification successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "Storage Verification Complete - Failures Exist",
+            "description": "Storage Verification failed for some objects of the Series",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "409": {
+            "description": "Storage Verification failed for all objects of the Series",
             "schema": {
               "type": "file"
             }
@@ -9060,13 +9072,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Verification Successful",
+            "description": "Storage Verification successful",
             "schema": {
               "type": "file"
             }
           },
-          "202": {
-            "description": "Storage Verification Complete - Failures Exist",
+          "409": {
+            "description": "Storage Verification failed",
             "schema": {
               "type": "file"
             }

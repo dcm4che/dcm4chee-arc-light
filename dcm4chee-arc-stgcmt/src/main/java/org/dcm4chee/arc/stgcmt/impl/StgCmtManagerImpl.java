@@ -160,25 +160,27 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public void calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID)
+    public boolean calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID)
             throws IOException {
         try (RetrieveContext retrCtx = retrieveService.newRetrieveContext(
                 ctx.getLocalAET(), studyIUID, seriesIUID, sopIUID) ) {
-            if (retrieveService.calculateMatches(retrCtx)) {
-                Map<String, int[]> failuresBySeries = sopIUID == null ? new HashMap<>() : null;
-                checkLocations(ctx, retrCtx, failuresBySeries);
-                if (failuresBySeries != null) {
-                    failuresBySeries.forEach((iuid, failures) -> {
-                        try {
-                            ejb.updateSeries(studyIUID, iuid, failures[0]);
-                        } catch (Exception e) {
-                            LOG.warn("Failed to update failures[={}] of last Storage Commitment of Series[uid={}] of Study[uid={}]\n",
-                                    failures[0], iuid, studyIUID, e);
-                        }
-                    });
-                }
+            if (!retrieveService.calculateMatches(retrCtx)) {
+                return false;
+            }
+            Map<String, int[]> failuresBySeries = sopIUID == null ? new HashMap<>() : null;
+            checkLocations(ctx, retrCtx, failuresBySeries);
+            if (failuresBySeries != null) {
+                failuresBySeries.forEach((iuid, failures) -> {
+                    try {
+                        ejb.updateSeries(studyIUID, iuid, failures[0]);
+                    } catch (Exception e) {
+                        LOG.warn("Failed to update failures[={}] of last Storage Commitment of Series[uid={}] of Study[uid={}]\n",
+                                failures[0], iuid, studyIUID, e);
+                    }
+                });
             }
         }
+        return true;
     }
 
     @Override
