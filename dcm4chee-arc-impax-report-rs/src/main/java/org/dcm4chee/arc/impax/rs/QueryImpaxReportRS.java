@@ -88,6 +88,9 @@ public class QueryImpaxReportRS {
         } catch (WebServiceException e) {
             throw new WebApplicationException(e, Response.Status.BAD_GATEWAY);
         }
+        if (reports.isEmpty()) {
+            throw new WebApplicationException(Response.Status.CONFLICT);
+        }
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         for (String report : reports) {
             output.addPart(report, MediaType.TEXT_XML_TYPE);
