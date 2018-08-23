@@ -30,11 +30,11 @@
         </xsl:call-template>
         <xsl:call-template name="containerValueType"/>
         <xsl:call-template name="continuityOfContent"/>
-        <xsl:variable name="orderDetails" select="agfa:OrderDetails"/>
-        <xsl:apply-templates select="agfa:OrderDetails">
+        <xsl:variable name="orderDetails" select="OrderDetails"/>
+        <xsl:apply-templates select="OrderDetails">
             <xsl:with-param name="orderDetails" select="$orderDetails"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="agfa:ReportDetails"/>
+        <xsl:apply-templates select="ReportDetails"/>
         <xsl:call-template name="contentSeq">
             <xsl:with-param name="orderDetails" select="$orderDetails"/>
         </xsl:call-template>
@@ -58,7 +58,7 @@
         </DicomAttribute>
     </xsl:template>
 
-  <xsl:template match="agfa:OrderDetails">
+  <xsl:template match="OrderDetails">
       <xsl:param name="orderDetails"/>
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">
@@ -67,13 +67,13 @@
           <xsl:call-template name="attr">
               <xsl:with-param name="tag" select="'0020000D'"/>
               <xsl:with-param name="vr" select="'UI'"/>
-              <xsl:with-param name="val" select="$orderDetails/agfa:StudyDetails/agfa:StudyInstanceUID"/>
+              <xsl:with-param name="val" select="$orderDetails/StudyDetails/StudyInstanceUID"/>
           </xsl:call-template>
         <!--Accession Number-->
           <xsl:call-template name="attr">
               <xsl:with-param name="tag" select="'00080050'"/>
               <xsl:with-param name="vr" select="'SH'"/>
-              <xsl:with-param name="val" select="$orderDetails/agfa:AccessionNumber"/>
+              <xsl:with-param name="val" select="$orderDetails/AccessionNumber"/>
           </xsl:call-template>
         <!--Referenced Study Sequence-->
         <DicomAttribute tag="00081110" vr="SQ"/>
@@ -81,7 +81,7 @@
           <xsl:call-template name="attr">
               <xsl:with-param name="tag" select="'00321060'"/>
               <xsl:with-param name="vr" select="'LO'"/>
-              <xsl:with-param name="val" select="$orderDetails/agfa:StudyDetails/agfa:StudyDescription"/>
+              <xsl:with-param name="val" select="$orderDetails/StudyDetails/StudyDescription"/>
           </xsl:call-template>
         <!--Requested Procedure Sequence-->
         <DicomAttribute tag="00321064" vr="SQ"/>
@@ -94,14 +94,14 @@
           <!-- Referring Physician's Name -->
           <xsl:call-template name="pnAttrs">
               <xsl:with-param name="tag" select="'00080090'" />
-              <xsl:with-param name="val" select="$orderDetails/agfa:ReferringPhysician/agfa:Name" />
+              <xsl:with-param name="val" select="$orderDetails/ReferringPhysician/Name" />
           </xsl:call-template>
       </Item>
     </DicomAttribute>
   </xsl:template>
 
-  <xsl:template match="agfa:ReportDetails">
-    <xsl:variable name="resultStatus" select="agfa:ReportStatus"/>
+  <xsl:template match="ReportDetails">
+    <xsl:variable name="resultStatus" select="ReportStatus"/>
     <!--Completion Flag-->
       <xsl:variable name="completionFlag">
           <xsl:choose>
@@ -115,9 +115,9 @@
           <xsl:with-param name="val" select="$completionFlag"/>
       </xsl:call-template>
     <!--Verification Flag-->
-    <xsl:variable name="verifyingObserver" select="agfa:ReportAuthor/agfa:Name"/>
-    <xsl:variable name="date" select="translate(agfa:InterpretationRecordDate, '-', '')"/>
-    <xsl:variable name="time" select="translate(agfa:InterpretationRecordTime, ':', '')"/>
+    <xsl:variable name="verifyingObserver" select="ReportAuthor/Name"/>
+    <xsl:variable name="date" select="translate(InterpretationRecordDate, '-', '')"/>
+    <xsl:variable name="time" select="translate(InterpretationRecordTime, ':', '')"/>
     <xsl:variable name="verificationFlag">
       <xsl:choose>
         <xsl:when test="$resultStatus='Finalized' and $date and $verifyingObserver/text()">VERIFIED</xsl:when>
@@ -179,8 +179,8 @@
 
     <xsl:template name="contentSeq">
         <xsl:param name="orderDetails"/>
-        <xsl:param name="patDetails" select="agfa:PatientDetails"/>
-        <xsl:param name="reportDetails" select="agfa:ReportDetails"/>
+        <xsl:param name="patDetails" select="PatientDetails"/>
+        <xsl:param name="reportDetails" select="ReportDetails"/>
         <DicomAttribute tag="0040A730" vr="SQ">
             <xsl:call-template name="language">
                 <xsl:with-param name="itemNo">1</xsl:with-param>
@@ -190,27 +190,27 @@
             </xsl:call-template>
             <xsl:call-template name="subjectCtxPatName">
                 <xsl:with-param name="itemNo">3</xsl:with-param>
-                <xsl:with-param name="pName" select="$patDetails/agfa:Name"/>
+                <xsl:with-param name="pName" select="$patDetails/Name"/>
             </xsl:call-template>
             <xsl:call-template name="subjectCtxPID">
                 <xsl:with-param name="itemNo">4</xsl:with-param>
-                <xsl:with-param name="pid" select="$patDetails/agfa:Id"/>
+                <xsl:with-param name="pid" select="$patDetails/Id"/>
             </xsl:call-template>
             <xsl:call-template name="subjectCtxPatBirthDate">
                 <xsl:with-param name="itemNo">5</xsl:with-param>
-                <xsl:with-param name="patBirthDate" select="$patDetails/agfa:BirthDate"/>
+                <xsl:with-param name="patBirthDate" select="$patDetails/BirthDate"/>
             </xsl:call-template>
             <xsl:call-template name="subjectCtxPatSex">
                 <xsl:with-param name="itemNo">6</xsl:with-param>
-                <xsl:with-param name="patSex" select="$patDetails/agfa:Sex"/>
+                <xsl:with-param name="patSex" select="$patDetails/Sex"/>
             </xsl:call-template>
             <xsl:call-template name="procedureCtxStudyIUID">
                 <xsl:with-param name="itemNo">7</xsl:with-param>
-                <xsl:with-param name="studyIUID" select="$orderDetails/agfa:StudyDetails/agfa:StudyInstanceUID"/>
+                <xsl:with-param name="studyIUID" select="$orderDetails/StudyDetails/StudyInstanceUID"/>
             </xsl:call-template>
             <xsl:call-template name="procedureCtxAcc">
                 <xsl:with-param name="itemNo">8</xsl:with-param>
-                <xsl:with-param name="accessionNo" select="$orderDetails/agfa:AccessionNumber"/>
+                <xsl:with-param name="accessionNo" select="$orderDetails/AccessionNumber"/>
             </xsl:call-template>
             <xsl:call-template name="reportItem">
                 <xsl:with-param name="itemNo">9</xsl:with-param>
@@ -218,7 +218,7 @@
                 <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Findings'"/></xsl:with-param>
                 <xsl:with-param name="childCode"><xsl:value-of select="'121071'"/></xsl:with-param>
                 <xsl:with-param name="childCodeMeaning"><xsl:value-of select="'Finding'"/></xsl:with-param>
-                <xsl:with-param name="val"><xsl:value-of select="$reportDetails/agfa:ReportBody/text()"/></xsl:with-param>
+                <xsl:with-param name="val"><xsl:value-of select="$reportDetails/ReportBody/text()"/></xsl:with-param>
             </xsl:call-template>
             <xsl:call-template name="reportItem">
                 <xsl:with-param name="itemNo">10</xsl:with-param>
@@ -226,7 +226,7 @@
                 <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Conclusions'"/></xsl:with-param>
                 <xsl:with-param name="childCode"><xsl:value-of select="'121077'"/></xsl:with-param>
                 <xsl:with-param name="childCodeMeaning"><xsl:value-of select="'Conclusion'"/></xsl:with-param>
-                <xsl:with-param name="val"><xsl:value-of select="$reportDetails/agfa:Conclusions/text()"/></xsl:with-param>
+                <xsl:with-param name="val"><xsl:value-of select="$reportDetails/Conclusions/text()"/></xsl:with-param>
             </xsl:call-template>
         </DicomAttribute>
     </xsl:template>
@@ -295,7 +295,7 @@
                 <xsl:with-param name="meaning" select="'Subject ID'"/>
             </xsl:call-template>
             <xsl:call-template name="text">
-                <xsl:with-param name="val" select="$pid/agfa:IdText"/>
+                <xsl:with-param name="val" select="$pid/IdText"/>
             </xsl:call-template>
             <xsl:call-template name="continuityOfContent"/>
             <DicomAttribute tag="0040A730" vr="SQ">
@@ -307,7 +307,7 @@
                         <xsl:with-param name="meaning" select="'Issuer of Identifier'"/>
                     </xsl:call-template>
                     <xsl:call-template name="text">
-                        <xsl:with-param name="val" select="$pid/agfa:IdDomain"/>
+                        <xsl:with-param name="val" select="$pid/IdDomain"/>
                     </xsl:call-template>
                 </Item>
             </DicomAttribute>
@@ -526,11 +526,11 @@
             <Alphabetic>
               <xsl:call-template name="pnComp">
                 <xsl:with-param name="name">FamilyName</xsl:with-param>
-                <xsl:with-param name="val" select="$val/agfa:SingleByteName/agfa:LastName"/>
+                <xsl:with-param name="val" select="$val/SingleByteName/LastName"/>
               </xsl:call-template>
               <xsl:call-template name="pnComp">
                 <xsl:with-param name="name">GivenName</xsl:with-param>
-                <xsl:with-param name="val" select="$val/agfa:SingleByteName/agfa:FirstName"/>
+                <xsl:with-param name="val" select="$val/SingleByteName/FirstName"/>
               </xsl:call-template>
             </Alphabetic>
           </PersonName>
