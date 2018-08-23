@@ -80,41 +80,46 @@ class SpoolFileReader {
             int readData;
             ByteArrayOutputStream mainInfo = new ByteArrayOutputStream();
             ByteArrayOutputStream data = new ByteArrayOutputStream();
-            ByteArrayOutputStream ack = new ByteArrayOutputStream();
+
+            int skipChar = 0;
 
             while ((readMain = in.read()) != -1) {
-                if (readMain == (int)'\n')
+                if (readMain == (int)'\n') {
+                    skipChar++;
                     break;
+                }
                 else
                     mainInfo.write(readMain);
             }
             this.mainInfo = new String(mainInfo.toByteArray());
 
-
-            while ((readData = in.read()) != -1) {
+            if ((readData = in.read()) != -1) {
                 data.write(readData);
-                break;
+                skipChar++;
             }
 
-            int bufLength = (int) file.length() - 2 - this.mainInfo.length(); //-2 : skip first char of MSH of data and \n
-            byte[] buf = new byte[bufLength];
-            int read = in.read(buf);
-            int mshStart = indexOf(MSH, 0, buf, read);
+            if (skipChar == 2) {
+                ByteArrayOutputStream ack = new ByteArrayOutputStream();
+                int bufLength = (int) file.length() - skipChar - this.mainInfo.length(); //skip first char of MSH of data and \n above
+                byte[] buf = new byte[bufLength];
+                int read = in.read(buf);
+                int mshStart = indexOf(MSH, 0, buf, read);
 
-            if (mshStart > 0) {
-                data.write(buf, 0, mshStart);
-                this.data = data.toByteArray();
-                int ackLength = buf.length - this.data.length;
-                ack.write(buf, mshStart, ackLength);
-            } else {
-                data.write(buf);
-                this.data = data.toByteArray();
+                if (mshStart > 0) {
+                    data.write(buf, 0, mshStart);
+                    this.data = data.toByteArray();
+                    int ackLength = buf.length - this.data.length;
+                    ack.write(buf, mshStart, ackLength);
+                } else {
+                    data.write(buf);
+                    this.data = data.toByteArray();
+                }
+                this.ack = ack.toByteArray();
+                ack.close();
             }
 
-            this.ack = ack.toByteArray();
             mainInfo.close();
             data.close();
-            ack.close();
         } catch (Exception e) {
             LOG.warn("Failed to read audit spool file", e);
         }
