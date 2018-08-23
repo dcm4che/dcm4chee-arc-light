@@ -73,8 +73,8 @@ public class ArchiveAssociationHandler extends AssociationHandler {
     @Override
     protected AAssociateAC makeAAssociateAC(Association as, AAssociateRQ rq, UserIdentityAC userIdentity)
             throws IOException {
-        if (as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class).validateCallingAEHostname()
-                && !validateCallingAEHostname(as))
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        if (arcAE != null && arcAE.validateCallingAEHostname() && !validateCallingAEHostname(as))
             throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
                 AAssociateRJ.SOURCE_SERVICE_USER,
                 AAssociateRJ.REASON_CALLING_AET_NOT_RECOGNIZED);
