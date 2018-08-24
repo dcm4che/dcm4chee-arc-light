@@ -40,6 +40,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     filterTemplates;
     showFilterTemplateList = false;
     showFilterButtons = false;
+    hoverActive = false;
     constructor(
         private inj:Injector,
         private appService:AppService,
@@ -221,11 +222,17 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         }
     }
     mouseEnterFilter(){
+        this.hoverActive = true;
         this.showFilterButtons = true;
     }
     mouseLeaveFilter(){
-        this.showFilterTemplateList = false;
-        this.showFilterButtons = false;
+        this.hoverActive = false;
+        setTimeout(()=>{
+            if(this.hoverActive === false){
+                this.showFilterTemplateList = false;
+                this.showFilterButtons = false;
+            }
+        },500);
     }
     inFilterClicked(){
         this.showFilterTemplateList = false;

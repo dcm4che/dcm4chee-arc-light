@@ -453,7 +453,11 @@ mat-grid-list{
   position: relative;
   float: left;
   .clearform_button{
-    right:10px !important;
+    right:9px !important;
+    top: -15px;
+    &:hover{
+      cursor: pointer;
+    }
   }
   .filter_block{
     float: left;
