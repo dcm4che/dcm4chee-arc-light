@@ -1,4 +1,4 @@
-<input type="text" size="5"  [(ngModel)]="model" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+<input type="text" size="5"  [(ngModel)]="model" (keyup)="selectModality(model)" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
 <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
   <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
   <div class="common">
