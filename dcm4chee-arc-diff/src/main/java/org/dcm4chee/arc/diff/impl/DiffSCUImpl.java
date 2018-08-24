@@ -201,21 +201,20 @@ public class DiffSCUImpl implements DiffSCU {
     }
 
     private Attributes findOther(String studyIUID) throws Exception {
-        if (dimseRSP2 == null) {
-            List<Attributes> matches = findSCU.find(as2, ctx.priority(), QueryRetrieveLevel2.STUDY,
-                    studyIUID, null, null, ctx.getReturnKeys());
-            return !matches.isEmpty() ? matches.get(0) : null;
+        if (dimseRSP2 != null) {
+            do {
+                Attributes other = dimseRSP2.getDataset();
+                if (other == null) break;
+                int compare = studyIUID.compareTo(other.getString(Tag.StudyInstanceUID));
+                if (compare == 0) {
+                    dimseRSP2.next();
+                    return other;
+                }
+                if (compare < 0) break;
+            } while (dimseRSP2.next());
         }
-        do {
-            Attributes other = dimseRSP2.getDataset();
-            if (other == null) break;
-            int compare = studyIUID.compareTo(other.getString(Tag.StudyInstanceUID));
-            if (compare == 0) {
-                dimseRSP2.next();
-                return other;
-            }
-            if (compare < 0) break;
-        } while (dimseRSP2.next());
-        return null;
+        List<Attributes> matches = findSCU.find(as2, ctx.priority(), QueryRetrieveLevel2.STUDY,
+                studyIUID, null, null, ctx.getReturnKeys());
+        return !matches.isEmpty() ? matches.get(0) : null;
     }
 }
