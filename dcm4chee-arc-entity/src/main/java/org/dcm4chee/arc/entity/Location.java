@@ -60,11 +60,13 @@ import java.util.Date;
         @NamedQuery(name = Location.FIND_BY_STORAGE_ID_AND_STATUS,
                 query = "select l from Location l where l.storageID=?1 and l.status=?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK,
-                query = "select l from Location l where l.instance.series.study.pk=?1"),
+                query = "select l from Location l join fetch l.instance inst " +
+                        "where inst.series.study.pk=?1"),
         @NamedQuery(name = Location.FIND_BY_SERIES_PK,
                 query = "select l from Location l where l.instance.series.pk=?1"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS,
-                query = "select l from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
+                query = "select l from Location l join fetch l.instance inst " +
+                        "where inst.series.study.pk=?1 and l.storageID in ?2"),
         @NamedQuery(name = Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS,
                 query = "select l.instance.pk from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
         @NamedQuery(name = Location.STORAGE_IDS_BY_STUDY_PK_AND_OBJECT_TYPE,

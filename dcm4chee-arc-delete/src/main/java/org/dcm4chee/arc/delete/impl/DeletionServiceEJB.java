@@ -55,6 +55,7 @@ import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
 
+import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -174,6 +175,9 @@ public class DeletionServiceEJB {
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDs)
                 .getResultList();
+        if (locations.isEmpty()) {
+            throw new EJBException(String.format("Study[pk=%s] has no objects on Storage%s", studyPk, storageIDs));
+        }
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
         Set<Long> seriesPks = new HashSet<>();
         for (Instance inst : insts) {
@@ -183,7 +187,7 @@ public class DeletionServiceEJB {
                     && series.getMetadata() != null)
                 scheduleMetadataUpdate(series.getPk());
         }
-        Study study = insts.iterator().next().getSeries().getStudy();
+        Study study = em.find(Study.class, studyPk);
         for (String storageID : storageIDs) {
             study.removeStorageID(storageID);
         }
