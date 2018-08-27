@@ -78,6 +78,7 @@ class SplitQuery implements DimseRSP {
     private final int maxMins;
     private final RangeType rangeType;
     private DimseRSP dimseRSP;
+    private volatile boolean canceled;
 
     public SplitQuery(Association as, String cuid, int priority, Attributes keys, int autoCancel, int capacity,
                       long startDate, long endDate, Duration splitStudyDateRange)
@@ -146,6 +147,10 @@ class SplitQuery implements DimseRSP {
                 }
                 return true;
             }
+            if (canceled) {
+                dimseRSP.getCommand().setInt(Tag.Status, VR.US, Status.Cancel);
+                return true;
+            }
             cal.add(rangeType.calendarField, 1);
         } while (nextQuery());
         return true;
@@ -163,6 +168,7 @@ class SplitQuery implements DimseRSP {
 
     @Override
     public void cancel(Association a) throws IOException {
+        canceled = true;
         dimseRSP.cancel(a);
     }
 

@@ -77,6 +77,7 @@ public class DiffSCUImpl implements DiffSCU {
     private int missing;
     private int different;
     private int matches;
+    private volatile boolean canceled;
 
     public DiffSCUImpl(DiffContext ctx, CFindSCU findSCU) {
         this.ctx = ctx;
@@ -139,7 +140,9 @@ public class DiffSCUImpl implements DiffSCU {
                     }
                 }
             }
-        } while (next);
+        } while (next && !canceled);
+        waitForOutstandingRSP(as1, dimseRSP);
+        waitForOutstandingRSP(as2, dimseRSP2);
         return null;
     }
 
@@ -156,6 +159,13 @@ public class DiffSCUImpl implements DiffSCU {
     @Override
     public int matches() {
         return matches;
+    }
+
+    @Override
+    public void cancel() {
+        safeCancel(as1, dimseRSP);
+        safeCancel(as2, dimseRSP2);
+        canceled = true;
     }
 
     @Override
@@ -191,7 +201,26 @@ public class DiffSCUImpl implements DiffSCU {
         return status;
     }
 
-    private void safeRelease(Association as) {
+    private static void safeCancel(Association as, DimseRSP rsp) {
+        if (as != null && rsp != null)
+            try {
+                rsp.cancel(as);
+            } catch (IOException e) {
+                LOG.info("{}: Failed to cancel C-FIND at association:\\n", as, e);
+            }
+    }
+
+    private static void waitForOutstandingRSP(Association as, DimseRSP dimseRSP) {
+        if (as != null && dimseRSP != null)
+            try {
+                while (dimseRSP.next())
+                    ;
+            } catch (Exception e) {
+                LOG.info("{}: Failed to wait for outstanding C-FIND RSPs at association:\\n", as, e);
+            }
+    }
+
+    private static void safeRelease(Association as) {
         if (as != null)
             try {
                 as.release();

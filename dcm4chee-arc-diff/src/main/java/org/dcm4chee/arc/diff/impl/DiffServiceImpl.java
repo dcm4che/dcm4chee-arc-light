@@ -56,9 +56,9 @@ import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -67,6 +67,9 @@ import java.util.List;
  */
 @ApplicationScoped
 public class DiffServiceImpl implements DiffService {
+
+    private Map<String,DiffSCU> diffSCUMap = Collections.synchronizedMap(new HashMap<>());;
+
     @Inject
     private Device device;
 
@@ -93,14 +96,24 @@ public class DiffServiceImpl implements DiffService {
     public Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
         ejb.resetDiffTask(diffTask);
+        String messageID = diffTask.getQueueMessage().getMessageID();
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
+            diffSCUMap.put(messageID, diffSCU);
             diffSCU.init();
             Attributes diff;
             while ((diff = diffSCU.nextDiff()) != null)
                 ejb.addDiffTaskAttributes(diffTask, diff);
             ejb.updateDiffTask(diffTask, diffSCU);
             return toOutcome(diffSCU);
+        } finally {
+            diffSCUMap.remove(messageID);
         }
+    }
+
+    public void cancelDiffTask(@Observes MessageCanceled event) {
+        DiffSCU diffSCU = diffSCUMap.get(event.getMessageID());
+        if (diffSCU != null)
+            diffSCU.cancel();
     }
 
     @Override

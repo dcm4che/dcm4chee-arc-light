@@ -68,8 +68,7 @@ public class DicomExporterProvider implements ExporterProvider {
     @Inject
     private CStoreSCU storeSCU;
 
-    private final Map<String, RetrieveTask> retrieveTaskMap =
-            Collections.synchronizedMap(new HashMap<String, RetrieveTask>());
+    private final Map<String, RetrieveTask> retrieveTaskMap = Collections.synchronizedMap(new HashMap<>());
 
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {

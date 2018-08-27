@@ -61,4 +61,6 @@ public interface DiffSCU extends Closeable {
     int different();
 
     int matches();
+
+    void cancel();
 }
