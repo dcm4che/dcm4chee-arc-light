@@ -120,7 +120,7 @@
     <xsl:variable name="time" select="translate(InterpretationRecordTime, ':', '')"/>
     <xsl:variable name="verificationFlag">
       <xsl:choose>
-        <xsl:when test="$resultStatus='Finalized' and $date and $verifyingObserver/text()">VERIFIED</xsl:when>
+        <xsl:when test="$resultStatus='Finalized' and $date and $verifyingObserver/SingleByteName">VERIFIED</xsl:when>
         <xsl:otherwise>UNVERIFIED</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
