@@ -54,8 +54,9 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -72,6 +73,8 @@ import java.util.stream.IntStream;
  */
 @Stateless
 public class DeletionServiceEJB {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DeletionServiceEJB.class);
 
     public static final int MAX_LOCATIONS_PER_INSTANCE = 3;
 
@@ -175,9 +178,6 @@ public class DeletionServiceEJB {
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDs)
                 .getResultList();
-        if (locations.isEmpty()) {
-            throw new EJBException(String.format("Study[pk=%s] has no objects on Storage%s", studyPk, storageIDs));
-        }
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
         Set<Long> seriesPks = new HashSet<>();
         for (Instance inst : insts) {
@@ -188,9 +188,14 @@ public class DeletionServiceEJB {
                 scheduleMetadataUpdate(series.getPk());
         }
         Study study = em.find(Study.class, studyPk);
+        if (locations.isEmpty()) {
+            LOG.warn("{} does not contains objects at Storage{}", study, storageIDs);
+        }
+        String studyEncodedStorageIDs = study.getEncodedStorageIDs();
         for (String storageID : storageIDs) {
             study.removeStorageID(storageID);
         }
+        LOG.info("Update Storage IDs of {} from {} to {}", study, studyEncodedStorageIDs, study.getEncodedStorageIDs());
         return study;
     }
 

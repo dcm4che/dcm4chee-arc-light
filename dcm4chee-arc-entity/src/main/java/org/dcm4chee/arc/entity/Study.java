@@ -363,6 +363,10 @@ public class Study {
         return false;
     }
 
+    public String getEncodedStorageIDs() {
+        return storageIDs;
+    }
+
     public String[] getStorageIDs() {
         return StringUtils.split(storageIDs, '\\');
     }
