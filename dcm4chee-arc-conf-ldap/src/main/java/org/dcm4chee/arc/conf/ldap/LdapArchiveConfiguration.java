@@ -253,6 +253,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCompressionFetchSize", ext.getCompressionFetchSize(), 100);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCompressionSchedule", ext.getCompressionSchedules());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCompressionThreads", ext.getCompressionThreads(), 1);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDiffTaskProgressUpdateInterval",
+                ext.getDiffTaskProgressUpdateInterval(), null);
     }
 
     @Override
@@ -436,6 +438,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setCompressionFetchSize(LdapUtils.intValue(attrs.get("dcmCompressionFetchSize"), 100));
         ext.setCompressionSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmCompressionSchedule"))));
         ext.setCompressionThreads(LdapUtils.intValue(attrs.get("dcmCompressionThreads"), 1));
+        ext.setDiffTaskProgressUpdateInterval(toDuration(attrs.get("dcmDiffTaskProgressUpdateInterval"), null));
     }
 
     @Override
@@ -754,6 +757,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getCompressionThreads(),
                 bb.getCompressionThreads(),
                 1);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDiffTaskProgressUpdateInterval",
+                aa.getDiffTaskProgressUpdateInterval(),
+                bb.getDiffTaskProgressUpdateInterval(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

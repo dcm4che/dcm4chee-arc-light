@@ -47,6 +47,8 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
@@ -59,6 +61,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -97,17 +101,31 @@ public class DiffServiceImpl implements DiffService {
             throws Exception {
         ejb.resetDiffTask(diffTask);
         String messageID = diffTask.getQueueMessage().getMessageID();
+        ScheduledFuture<?> updateDiffTask = null;
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
             diffSCUMap.put(messageID, diffSCU);
             diffSCU.init();
             Attributes diff;
+            updateDiffTask = updateDiffTask(diffTask, diffSCU);
             while ((diff = diffSCU.nextDiff()) != null)
                 ejb.addDiffTaskAttributes(diffTask, diff);
             ejb.updateDiffTask(diffTask, diffSCU);
             return toOutcome(diffSCU);
         } finally {
             diffSCUMap.remove(messageID);
+            if (updateDiffTask != null)
+                updateDiffTask.cancel(false);
         }
+    }
+
+    private ScheduledFuture<?> updateDiffTask(DiffTask diffTask, DiffSCU diffSCU) {
+        Duration interval = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getDiffTaskProgressUpdateInterval();
+        return interval != null
+                ? device.scheduleAtFixedRate(
+                    () -> ejb.updateDiffTask(diffTask, diffSCU),
+                    interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS)
+                : null;
     }
 
     public void cancelDiffTask(@Observes MessageCanceled event) {

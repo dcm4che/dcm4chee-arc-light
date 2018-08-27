@@ -1023,6 +1023,7 @@ class ArchiveDeviceFactory {
     static final String WADO_JSON_PATH_FORMAT = "{0020000D}.json";
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.valueOf("PT5S");
+    static final Duration DIFF_TASK_UPDATE_INTERVAL = Duration.valueOf("PT10S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.valueOf("PT1H");
@@ -1407,6 +1408,7 @@ class ArchiveDeviceFactory {
 
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
         ext.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
+        ext.setDiffTaskProgressUpdateInterval(DIFF_TASK_UPDATE_INTERVAL);
         ext.setWadoSupportedSRClasses(SR_CUIDS);
         ext.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
         ext.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);

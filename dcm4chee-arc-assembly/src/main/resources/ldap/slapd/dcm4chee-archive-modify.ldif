@@ -1181,6 +1181,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.238 NAME 'dcmCompressionDelay'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.239 NAME 'dcmDiffTaskProgressUpdateInterval'
+  DESC 'Interval of updating Diff Tasks in process for progress monitoring in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1325,6 +1330,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCompressionSchedule $
     dcmCompressionThreads $
     dcmCompressionAETitle $
+    dcmDiffTaskProgressUpdateInterval $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $

@@ -209,6 +209,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int compressionFetchSize = 100;
     private int compressionThreads = 1;
     private ScheduleExpression[] compressionSchedules = {};
+    private Duration diffTaskProgressUpdateInterval;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2054,6 +2055,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionFetchSize = arcdev.compressionFetchSize;
         compressionSchedules = arcdev.compressionSchedules;
         compressionThreads = arcdev.compressionThreads;
+        diffTaskProgressUpdateInterval = arcdev.diffTaskProgressUpdateInterval;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
@@ -2094,5 +2096,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         xRoadProperties.putAll(arcdev.xRoadProperties);
         impaxReportProperties.clear();
         impaxReportProperties.putAll(arcdev.impaxReportProperties);
+    }
+
+    public Duration getDiffTaskProgressUpdateInterval() {
+        return diffTaskProgressUpdateInterval;
+    }
+
+    public void setDiffTaskProgressUpdateInterval(Duration diffTaskProgressUpdateInterval) {
+        this.diffTaskProgressUpdateInterval = diffTaskProgressUpdateInterval;
     }
 }

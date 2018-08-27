@@ -251,6 +251,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmCompressionFetchSize", arcDev.getCompressionFetchSize(), 100);
         writer.writeNotEmpty("dcmCompressionSchedule", arcDev.getCompressionSchedules());
         writer.writeNotDef("dcmCompressionThreads", arcDev.getCompressionThreads(), 1);
+        writer.writeNotNullOrDef("dcmDiffTaskProgressUpdateInterval", arcDev.getDiffTaskProgressUpdateInterval(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1135,6 +1136,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmCompressionThreads":
                     arcDev.setCompressionThreads(reader.intValue());
+                    break;
+                case "dcmDiffTaskProgressUpdateInterval":
+                    arcDev.setDiffTaskProgressUpdateInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

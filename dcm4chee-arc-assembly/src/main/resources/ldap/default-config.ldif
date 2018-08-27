@@ -55,6 +55,7 @@ dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dcmLinkMWLEntryUpdatePolicy: MERGE
 dicomManufacturerModelName: dcm4chee-arc
 dcmOverwritePolicy: SAME_SOURCE
+dcmDiffTaskProgressUpdateInterval: PT10S
 dcmSendPendingCGet: TRUE
 hl7OutgoingPatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl
 dcmQueryRetrieveViewID: hideRejected
