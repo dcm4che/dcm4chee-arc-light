@@ -112,8 +112,8 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public List<Long> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Long.class)
+    public List<Study.PKUID> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Study.PKUID.class)
                 .setParameter(1, getStudyStorageIDs(desc))
                 .setMaxResults(limit)
                 .getResultList();
@@ -131,8 +131,8 @@ public class DeletionServiceEJB {
         return onStorage.size();
     }
 
-    public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Long.class)
+    public List<Study.PKUID> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Study.PKUID.class)
                 .setParameter(1, getStudyStorageIDs(desc))
                 .setParameter(2, desc.getExternalRetrieveAETitle())
                 .setMaxResults(limit)

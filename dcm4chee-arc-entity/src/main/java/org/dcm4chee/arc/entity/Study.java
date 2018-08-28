@@ -85,7 +85,7 @@ import java.util.*;
                         "order by st.accessTime"),
         @NamedQuery(
                 name=Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET,
-                query="select st.pk from Study st " +
+                query="select new org.dcm4chee.arc.entity.Study$PKUID(st.pk, st.studyInstanceUID) from Study st " +
                         "where st.storageIDs in ?1 and st.externalRetrieveAET = ?2 " +
                         "order by st.accessTime"),
         @NamedQuery(
@@ -173,6 +173,23 @@ public class Study {
     public static final String FIND_PK_BY_STUDY_UID = "Study.findPkByStudyUID";
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
+
+    public static class PKUID {
+        public final Long pk;
+        public final String uid;
+
+        public PKUID(Long pk, String uid) {
+            this.pk = pk;
+            this.uid = uid;
+        }
+
+        @Override
+        public String toString() {
+            return "Study[pk=" + pk
+                    + ", uid=" + uid
+                    + "]";
+        }
+    }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
