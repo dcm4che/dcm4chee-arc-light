@@ -87,6 +87,7 @@ import { DiffMonitorComponent } from './monitoring/diff-monitor/diff-monitor.com
 import {DiffMonitorService} from "./monitoring/diff-monitor/diff-monitor.service";
 import { LargeIntFormatPipe } from './pipes/large-int-format.pipe';
 import { TableGeneratorComponent } from './helpers/table-generator/table-generator.component';
+import {RangePickerService} from "./widgets/range-picker/range-picker.service";
 
 @NgModule({
     declarations: [
@@ -223,6 +224,7 @@ import { TableGeneratorComponent } from './helpers/table-generator/table-generat
         PermissionService,
         CsvRetrieveService,
         DiffMonitorService,
+        RangePickerService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]
