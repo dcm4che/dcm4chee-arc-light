@@ -157,9 +157,11 @@ public class DiffServiceEJB {
 
     public void updateDiffTask(DiffTask diffTask, DiffSCU diffSCU) {
         diffTask = em.find(DiffTask.class, diffTask.getPk());
-        diffTask.setMatches(diffSCU.matches());
-        diffTask.setMissing(diffSCU.missing());
-        diffTask.setDifferent(diffSCU.different());
+        if (diffTask != null) {
+            diffTask.setMatches(diffSCU.matches());
+            diffTask.setMissing(diffSCU.missing());
+            diffTask.setDifferent(diffSCU.different());
+        }
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
