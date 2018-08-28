@@ -53,7 +53,6 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreService;
-import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
