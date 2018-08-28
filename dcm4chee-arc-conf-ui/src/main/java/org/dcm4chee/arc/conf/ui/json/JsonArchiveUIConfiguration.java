@@ -149,6 +149,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiFilterTemplateGroupName", uiFiltersTemplate.getFilterGroupName(), null);
             writer.writeNotNullOrDef("dcmuiFilterTemplateID", uiFiltersTemplate.getFilterGroupID(), null);
             writer.writeNotNullOrDef("dcmuiFilterTemplateDescription", uiFiltersTemplate.getFilterGroupDescription(), null);
+            writer.writeNotNullOrDef("dcmuiFilterTemplateUsername", uiFiltersTemplate.getFilterGroupUsername(), null);
+            writer.writeNotNullOrDef("dcmuiFilterTemplateRole", uiFiltersTemplate.getFilterGroupRole(), null);
             writer.writeNotEmpty("dcmuiFilterTemplateFilters", uiFiltersTemplate.getFilters());
             writer.writeNotDef("dcmuiFilterTemplateDefault", uiFiltersTemplate.isDefault(), false);
             writer.writeEnd();
@@ -414,6 +416,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiFilterTemplateDescription":
                         uiFiltersTemplate.setFilterGroupDescription(reader.stringValue());
+                        break;
+                    case "dcmuiFilterTemplateUsername":
+                        uiFiltersTemplate.setFilterGroupUsername(reader.stringValue());
+                        break;
+                    case "dcmuiFilterTemplateRole":
+                        uiFiltersTemplate.setFilterGroupRole(reader.stringValue());
                         break;
                     case "dcmuiFilterTemplateFilters":
                         uiFiltersTemplate.setFilters(reader.stringArray());

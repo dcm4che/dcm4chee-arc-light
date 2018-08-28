@@ -166,6 +166,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("dcmuiFilterTemplateGroupName", uiFilterTemplate.getFilterGroupName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateID", uiFilterTemplate.getFilterGroupID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateDescription", uiFilterTemplate.getFilterGroupDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateUsername", uiFilterTemplate.getFilterGroupUsername(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateRole", uiFilterTemplate.getFilterGroupRole(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiFilterTemplateFilters", uiFilterTemplate.getFilters());
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiFilterTemplateDefault",uiFilterTemplate.isDefault(),false);
         return attrs;
@@ -395,6 +397,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 UIFiltersTemplate uiFiltersTemplate = new UIFiltersTemplate((String) attrs.get("dcmuiFilterTemplateGroupName").get());
                 uiFiltersTemplate.setFilterGroupID(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateID"), null));
                 uiFiltersTemplate.setFilterGroupDescription(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateDescription"), null));
+                uiFiltersTemplate.setFilterGroupUsername(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateUsername"), null));
+                uiFiltersTemplate.setFilterGroupRole(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateRole"), null));
                 uiFiltersTemplate.setFilters(LdapUtils.stringArray(attrs.get("dcmuiFilterTemplateFilters")));
                 uiFiltersTemplate.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiFilterTemplateDefault"),false));
                 uiConfig.addFilterTemplate(uiFiltersTemplate);
@@ -710,6 +714,12 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiFiltersTemplate.getFilterGroupID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateDescription",
                 prev.getFilterGroupDescription(),
+                uiFiltersTemplate.getFilterGroupDescription(),null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateUsername",
+                prev.getFilterGroupUsername(),
+                uiFiltersTemplate.getFilterGroupDescription(),null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateRole",
+                prev.getFilterGroupRole(),
                 uiFiltersTemplate.getFilterGroupDescription(),null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiFilterTemplateFilters",
                 prev.getFilters(),

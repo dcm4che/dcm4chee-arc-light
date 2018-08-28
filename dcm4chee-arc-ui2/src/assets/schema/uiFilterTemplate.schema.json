@@ -21,8 +21,17 @@
     "dcmuiFilterTemplateDescription": {
       "title": "Description",
       "description": "Filter template description",
-      "type": "string",
-      "format": "dcmuiDeviceURLObject"
+      "type": "string"
+    },
+    "dcmuiFilterTemplateUsername": {
+      "title": "Username",
+      "description": "Username that can use this template",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateRole": {
+      "title": "Role",
+      "description": "Username role that can use this template",
+      "type": "string"
     },
     "dcmuiFilterTemplateFilters": {
       "title": "Filters",
