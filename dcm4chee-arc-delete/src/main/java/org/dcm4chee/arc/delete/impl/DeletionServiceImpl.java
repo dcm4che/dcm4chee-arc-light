@@ -143,8 +143,8 @@ public class DeletionServiceImpl implements DeletionService {
                        PatientMgtContext pCtx) throws Exception {
         StudyDeleteContext ctx = createStudyDeleteContext(study.getPk(), httpServletRequestInfo);
         try {
-            if (studyDeleted(ctx, study, arcAE, pCtx))
-                LOG.info("Successfully delete {} from database", study);
+            studyDeleted(ctx, study, arcAE, pCtx);
+            LOG.info("Successfully delete {} from database", study);
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", study, e);
             ctx.setException(e);
@@ -173,7 +173,7 @@ public class DeletionServiceImpl implements DeletionService {
         patientMgtEvent.fire(ctx);
     }
 
-    private boolean studyDeleted(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx)
+    private void studyDeleted(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx)
             throws Exception {
         ctx.setStudy(study);
         ctx.setPatient(study.getPatient());
@@ -188,17 +188,12 @@ public class DeletionServiceImpl implements DeletionService {
                     null,
                     device.getDeviceExtension(ArchiveDeviceExtension.class).getPurgeInstanceRecordsDelay());
             ejb.deleteStudy(ctx);
-            return true;
         }
         if (rejectionState == RejectionState.COMPLETE
-                || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
+                || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS)
             ejb.deleteStudy(ctx);
-            return true;
-        }
-        else if (rejectionState == RejectionState.EMPTY) {
+        else if (rejectionState == RejectionState.EMPTY)
             ejb.deleteEmptyStudy(ctx);
-            return true;
-        }
 
         throw new StudyNotEmptyException("Study is not empty.");
     }
