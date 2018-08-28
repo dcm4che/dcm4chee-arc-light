@@ -80,7 +80,7 @@ import java.util.*;
                         "where st.studyInstanceUID = ?1"),
         @NamedQuery(
                 name=Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME,
-                query="select st.pk from Study st " +
+                query="select new org.dcm4chee.arc.entity.Study$PKUID(st.pk, st.studyInstanceUID) from Study st " +
                         "where st.storageIDs in ?1 " +
                         "order by st.accessTime"),
         @NamedQuery(
