@@ -717,10 +717,10 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiFiltersTemplate.getFilterGroupDescription(),null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateUsername",
                 prev.getFilterGroupUsername(),
-                uiFiltersTemplate.getFilterGroupDescription(),null);
+                uiFiltersTemplate.getFilterGroupUsername(),null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateRole",
                 prev.getFilterGroupRole(),
-                uiFiltersTemplate.getFilterGroupDescription(),null);
+                uiFiltersTemplate.getFilterGroupRole(),null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiFilterTemplateFilters",
                 prev.getFilters(),
                 uiFiltersTemplate.getFilters());
