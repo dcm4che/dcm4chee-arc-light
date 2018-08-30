@@ -458,8 +458,8 @@ class StoreServiceImpl implements StoreService {
             t.setParameter("LocalAET", session.getCalledAET());
             if (session.getCallingAET() != null)
                 t.setParameter("RemoteAET", session.getCallingAET());
-
-            t.setParameter("RemoteHost", session.getRemoteHostName());
+            if (session.getRemoteHostName() != null)
+                t.setParameter("RemoteHost", session.getRemoteHostName());
         };
     }
 
