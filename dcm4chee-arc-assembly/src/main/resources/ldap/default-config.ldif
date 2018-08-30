@@ -77,7 +77,7 @@ dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmCompressionAETitle: DCM4CHEE
-dicomSoftwareVersion: 5.14.0
+dicomSoftwareVersion: 5.14.1
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectionNoteStorageAET: DCM4CHEE
 dcmRejectExpiredSeriesFetchSize: 10
