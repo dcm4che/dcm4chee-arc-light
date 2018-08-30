@@ -446,6 +446,11 @@
                     </div>
                     <div class="col-md-6" *ngIf="filterMode != 'diff'">
                     </div>
+                    <div class="col-md-6" *ngIf="filterMode === 'study' && externalInternalAetMode === 'internal'">
+                        <label title="Compression Failed"  >
+                            <input type="checkbox" [(ngModel)]="filter.compressionfailed"> Compression Failed
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>

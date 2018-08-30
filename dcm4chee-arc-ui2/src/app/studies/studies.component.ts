@@ -85,7 +85,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         IssuerOfPatientID:'',
         fuzzymatching:'',
         StudyTime:'',
-        SplitStudyDateRange:''
+        SplitStudyDateRange:'',
+        compressionfailed:false
     };
     diffQueue = false;
     missing = true;
