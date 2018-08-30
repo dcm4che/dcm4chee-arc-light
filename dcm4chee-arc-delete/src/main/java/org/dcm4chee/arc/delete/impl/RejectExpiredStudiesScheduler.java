@@ -75,9 +75,9 @@ import java.util.Optional;
  * @since June 2016
  */
 @ApplicationScoped
-public class DeleteExpiredStudiesScheduler extends Scheduler {
+public class RejectExpiredStudiesScheduler extends Scheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeleteExpiredStudiesScheduler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RejectExpiredStudiesScheduler.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -91,10 +91,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
     @Inject
     private StoreService storeService;
 
-    @Inject
-    private DeletionServiceEJB ejb;
-
-    protected DeleteExpiredStudiesScheduler() {
+    protected RejectExpiredStudiesScheduler() {
         super(Mode.scheduleAtFixedRate);
     }
 
