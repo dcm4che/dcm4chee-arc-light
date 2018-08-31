@@ -57,7 +57,6 @@ import { UtcPipe } from './pipes/utc.pipe';
 import { CustomValidatorDirective } from './helpers/custom-validator/custom-validator.directive';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ControlService} from './control/control.service';
-import { FileUploadModule} from 'ng2-file-upload';
 import { StorageSystemsComponent } from './monitoring/storage-systems/storage-systems.component';
 import {StorageSystemsService} from './monitoring/storage-systems/storage-systems.service';
 import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.service';
@@ -159,7 +158,6 @@ import {RangePickerService} from "./widgets/range-picker/range-picker.service";
         DropdownModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
-        FileUploadModule,
         LoadingBarModule.forRoot(),
         RouterModule.forRoot([
             {

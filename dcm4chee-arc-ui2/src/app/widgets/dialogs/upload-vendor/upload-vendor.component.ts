@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {FileUploader} from 'ng2-file-upload';
+// import {FileUploader} from 'ng2-file-upload';
 import {MatDialogRef} from '@angular/material';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {AppService} from "../../../app.service";

@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {FileUploader} from 'ng2-file-upload';
+// import {FileUploader} from 'ng2-file-upload';
 import {MatDialogRef} from '@angular/material';
 import {Http} from '@angular/http';
 import {UploadDicomService} from './upload-dicom.service';
@@ -23,12 +23,12 @@ export class UploadDicomComponent implements OnInit{
     percentComplete: any;
     webApps;
     selectedWebApp;
-    public vendorUpload: FileUploader = new FileUploader({
+/*    public vendorUpload: FileUploader = new FileUploader({
         url: ``,
         // allowedMimeType:['application/octet-stream','application/zip']
         // headers: [{name: 'Content-Type', value: `multipart/related`}]
         // ,disableMultipart: true
-    });
+    });*/
     constructor(
         public dialogRef: MatDialogRef<UploadDicomComponent>,
         private $http:J4careHttpService,
@@ -48,20 +48,20 @@ export class UploadDicomComponent implements OnInit{
          allowedMimeType:['application/octet-stream','application/zip']
          });*/
         this.percentComplete = {};
-        this.vendorUpload.onAfterAddingFile = (item) => {
+/*        this.vendorUpload.onAfterAddingFile = (item) => {
             item.method = 'POST';
             console.log('this.vendorUpload.optionss', this.vendorUpload.options);
             console.log('item', item);
         };
         this.vendorUpload.onBeforeUploadItem = (item) => {
             this.addFileNameHeader(item.file.name);
-        };
+        };*/
         this.getWebApps();
     }
     addFileNameHeader(fileName) {
         // var boundary=Math.random().toString().substr(2);
-        console.log('this.vendorUpload.progress', this.vendorUpload.progress);
-        console.log('this.vendorUpload.optionss', this.vendorUpload.options);
+/*        console.log('this.vendorUpload.progress', this.vendorUpload.progress);
+        console.log('this.vendorUpload.optionss', this.vendorUpload.options);*/
         // this.vendorUpload.setOptions({headers: [{
         //     name: 'Content-Type', value: `multipart/related`
         // }]});
@@ -168,8 +168,8 @@ export class UploadDicomComponent implements OnInit{
     }
     uploadFile(dialogRef){
 
-        this.vendorUpload.setOptions({url: `../aets/${this._selectedAe}/rs/studies`});
-        this.vendorUpload.uploadAll();
+/*        this.vendorUpload.setOptions({url: `../aets/${this._selectedAe}/rs/studies`});
+        this.vendorUpload.uploadAll();*/
         // dialogRef.close("ok");
     }
     close(dialogRef){
