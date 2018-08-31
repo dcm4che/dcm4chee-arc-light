@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,35 +35,20 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
 package org.dcm4chee.arc.hl7;
 
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jul 2016
+ * @since Aug 2018
  */
-public interface HL7Sender {
-    String QUEUE_NAME = "HL7Send";
-    String JNDI_NAME = "jms/queue/HL7Send";
-
-    void forwardMessage(HL7Segment msh, byte[] hl7msg, String... destinations);
-
-    void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
-                         HttpServletRequestInfo httpServletRequestInfo)
-            throws ConfigurationException, QueueSizeLimitExceededException;
-
-    UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                   String messageType, String messageControlID, UnparsedHL7Message hl7msg)
-            throws Exception;
+public class ArchiveHL7Message extends UnparsedHL7Message {
+    public ArchiveHL7Message(byte[] data) {
+        super(data);
+    }
 }

@@ -42,7 +42,8 @@ package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.*;
-import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.hl7.HL7Exception;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -81,9 +82,11 @@ class ImportReportService extends AbstractHL7Service {
     }
 
     @Override
-    protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
+    protected UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
         if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService) != null)
             importReport(hl7App, s, msg);
+        return new ArchiveHL7Message(
+                HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
     }
 
     private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {

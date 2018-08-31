@@ -81,14 +81,15 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
     HL7Sender hl7sender;
 
     @Override
-    public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+    public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
             throws HL7Exception {
         ArchiveHL7ApplicationExtension arcHl7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         log(msg, arcHl7App.hl7LogFilePattern());
         try {
-            process(hl7App, s, msg);
+            UnparsedHL7Message rsp = process(hl7App, s, msg);
             forwardHL7(arcHl7App, s, msg);
+            return rsp;
         } catch (HL7Exception e) {
             log(msg, arcHl7App.hl7ErrorLogFilePattern());
             throw e;
@@ -98,7 +99,6 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
                     new ERRSegment(msg.msh()).setUserMessage(e.getMessage()),
                     e);
         }
-        return super.onMessage(hl7App, conn, s, msg);
     }
 
     private void forwardHL7(ArchiveHL7ApplicationExtension arcHL7App, Socket s, UnparsedHL7Message msg) {
@@ -173,5 +173,6 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         return sb.toString();
     }
 
-    protected abstract void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception;
+    protected abstract UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg)
+            throws Exception;
 }

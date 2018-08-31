@@ -50,6 +50,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -104,19 +105,19 @@ public class HL7SenderMDB implements MessageListener {
         if (queueManager.onProcessingStart(msgID) == null)
             return;
         try {
-            byte[] hl7msg = (byte[]) ((ObjectMessage) msg).getObject();
+            UnparsedHL7Message hl7msg = new ArchiveHL7Message((byte[]) ((ObjectMessage) msg).getObject());
             String messageType = msg.getStringProperty("MessageType");
             HL7Application sender = getSendingHl7Application(msg.getStringProperty("SendingApplication"),
                     msg.getStringProperty("SendingFacility"));
-            byte[] rsp = hl7Sender.sendMessage(
+            UnparsedHL7Message rsp = hl7Sender.sendMessage(
                     sender,
                     msg.getStringProperty("ReceivingApplication"),
                     msg.getStringProperty("ReceivingFacility"),
                     messageType,
                     msg.getStringProperty("MessageControlID"),
                     hl7msg);
-            outgoingHL7Audit(msg, hl7msg, messageType, rsp);
-            queueManager.onProcessingSuccessful(msgID, toOutcome(rsp, sender));
+            outgoingHL7Audit(msg, hl7msg.data(), messageType, rsp.data());
+            queueManager.onProcessingSuccessful(msgID, toOutcome(rsp.data(), sender));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);

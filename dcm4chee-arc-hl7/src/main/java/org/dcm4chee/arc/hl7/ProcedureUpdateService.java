@@ -44,6 +44,8 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.hl7.HL7Exception;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -90,10 +92,12 @@ public class ProcedureUpdateService extends AbstractHL7Service {
     }
 
     @Override
-    protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
+    protected UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
         Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService);
         if (pat != null)
             updateProcedure(hl7App, s, msg, pat);
+        return new ArchiveHL7Message(
+                HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
     }
 
     private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat)

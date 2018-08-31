@@ -43,12 +43,13 @@ package org.dcm4chee.arc.hl7.impl;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
-import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.hl7.MLLPConnection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7Connection;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -140,30 +141,29 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
-    public byte[] sendMessage(HL7Application sender, String receivingApplication,
-                              String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+    public UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
+                                          String messageType, String messageControlID, UnparsedHL7Message hl7msg)
             throws Exception {
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
-        return getAcknowledgeHL7Msg(sender, receiver, hl7msg);
-    }
-
-    private HL7Application getSendingHl7Application(String sendingApplication, String sendingFacility) throws ConfigurationNotFoundException {
-        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
-        String sendingAppWithFacility = sendingApplication + '|' + sendingFacility;
-        HL7Application sender = hl7Dev.getHL7Application(sendingAppWithFacility, true);
-        if (sender == null)
-            throw new ConfigurationNotFoundException("Sending HL7 Application not configured : " + sendingAppWithFacility);
-        return sender;
-    }
-
-    private byte[] getAcknowledgeHL7Msg(HL7Application sender, HL7Application receiver, byte[] hl7msg) throws Exception {
-        try (MLLPConnection conn = sender.connect(receiver)) {
+        try (HL7Connection conn = sender.open(receiver)) {
             conn.writeMessage(hl7msg);
-            byte[] rsp = conn.readMessage();
+            UnparsedHL7Message rsp = conn.readMessage(hl7msg);
             if (rsp == null)
                 throw new IOException("TCP connection dropped while waiting for response");
 
             return rsp;
         }
     }
+
+    private HL7Application getSendingHl7Application(String sendingApplication, String sendingFacility)
+            throws ConfigurationNotFoundException {
+        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
+        String sendingAppWithFacility = sendingApplication + '|' + sendingFacility;
+        HL7Application sender = hl7Dev.getHL7Application(sendingAppWithFacility, true);
+        if (sender == null)
+            throw new ConfigurationNotFoundException(
+                    "Sending HL7 Application not configured : " + sendingAppWithFacility);
+        return sender;
+    }
+
 }

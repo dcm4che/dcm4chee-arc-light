@@ -78,7 +78,7 @@ public class RESTfulHL7Sender {
 
     public void scheduleHL7Message(String msgType, PatientMgtContext ctx, String sender, String receiver) throws Exception {
         HL7Msg msg = new HL7Msg(sender, receiver);
-        byte[] hl7MsgData = hl7MsgData(msgType, ctx, msg);
+        UnparsedHL7Message hl7MsgData = hl7MsgData(msgType, ctx, msg);
 
         hl7Sender.scheduleMessage(
                 msg.sendingAppWithFacility[0],
@@ -87,13 +87,14 @@ public class RESTfulHL7Sender {
                 msg.receivingAppWithFacility[1],
                 msgType,
                 msg.msgControlID,
-                hl7MsgData,
+                hl7MsgData.data(),
                 ctx.getHttpServletRequestInfo());
     }
 
-    public byte[] sendHL7Message(String msgType, PatientMgtContext ctx, HL7Application sender, String receiver) throws Exception {
+    public UnparsedHL7Message sendHL7Message(String msgType, PatientMgtContext ctx,
+                                             HL7Application sender, String receiver) throws Exception {
         HL7Msg msg = new HL7Msg(sender, receiver);
-        byte[] hl7MsgData = hl7MsgData(msgType, ctx, msg);
+        UnparsedHL7Message hl7MsgData = hl7MsgData(msgType, ctx, msg);
 
         return hl7Sender.sendMessage(
                 sender,
@@ -104,7 +105,7 @@ public class RESTfulHL7Sender {
                 hl7MsgData);
     }
 
-    private byte[] hl7MsgData(String msgType, PatientMgtContext ctx, HL7Msg msg) throws Exception {
+    private UnparsedHL7Message hl7MsgData(String msgType, PatientMgtContext ctx, HL7Msg msg) throws Exception {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         byte[] data = SAXTransformer.transform(
                 ctx.getAttributes(), msg.hl7cs, arcDev.getOutgoingPatientUpdateTemplateURI(), tr -> {
@@ -126,8 +127,9 @@ public class RESTfulHL7Sender {
                         if (msg.hl7UseNullValue && msgType.equals("ADT^A31^ADT_A05"))
                             tr.setParameter("includeNullValues", "\"\"");
                 });
-        ctx.setUnparsedHL7Message(new UnparsedHL7Message(data));
-        return data;
+        UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
+        ctx.setUnparsedHL7Message(hl7Msg);
+        return hl7Msg;
     }
 
     private class HL7Msg {
