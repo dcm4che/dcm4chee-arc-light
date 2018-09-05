@@ -231,7 +231,7 @@ public class ExportTaskRS {
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
             if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName, "");
+                return rsClient.forward(request, devName, "");
 
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);

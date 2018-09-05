@@ -221,7 +221,7 @@ public class StgVerTaskRS {
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
             if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName, "");
+                return rsClient.forward(request, devName, "");
 
             stgCmtMgr.rescheduleStgVerTask(pk, queueEvent);
             return rsp(Response.Status.NO_CONTENT);

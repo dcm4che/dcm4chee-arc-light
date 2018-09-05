@@ -206,7 +206,7 @@ public class QueueManagerRS {
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
             if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName, "");
+                return rsClient.forward(request, devName, "");
 
             mgr.rescheduleTask(msgId, null, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
