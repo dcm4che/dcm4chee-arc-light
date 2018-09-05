@@ -317,7 +317,10 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         $this.cfpLoadingBar.start();
         this.route.params
             .subscribe((params) => {
-
+                if(params.devicereff === "dcmDevice.dcmArchiveDevice" && this.service.device && !_.hasIn(this.service.device,"dcmDevice.dcmArchiveDevice")){
+                    console.log("this.service.device",this.service.device);
+                    _.set(this.service.device,"dcmDevice.dcmArchiveDevice",{});
+                }
                 console.log("allOptions",this.service.allOptions);
                 if (
                     ($this.service.pagination.length < 3) // If the deepest pagination level is the device than go one
