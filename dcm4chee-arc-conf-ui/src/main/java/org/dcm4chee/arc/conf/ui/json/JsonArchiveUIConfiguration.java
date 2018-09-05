@@ -201,6 +201,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), null);
             writer.writeNotNullOrDef("dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(),null);
+            writer.writeNotNullOrDef("dcmuiElasticsearchURLKeycloakServer", uiElasticsearchURL.getElasticsearchURLKeycloakServer(),null);
             writer.writeNotDef("dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
             writer.writeNotDef("dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
             writer.writeEnd();
@@ -475,6 +476,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiElasticsearchURL":
                         uiElasticsearchURL.setUrl(reader.stringValue());
+                        break;
+                    case "dcmuiElasticsearchURLKeycloakServer":
+                        uiElasticsearchURL.setElasticsearchURLKeycloakServer(reader.stringValue());
                         break;
                     case "dcmuiElasticsearchIsDefault":
                         uiElasticsearchURL.setDefault(reader.booleanValue());

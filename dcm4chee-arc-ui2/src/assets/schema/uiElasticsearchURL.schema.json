@@ -19,6 +19,12 @@
       "description": "Access URL of Elastic Search. E.g. http://elasticsearch:9200",
       "type": "string"
     },
+    "dcmuiElasticsearchURLKeycloakServer": {
+      "title": "Keycloak Server",
+      "description": "Select Keycloak Server from where to get the bearer token for accessing the Elasticsearch",
+      "type":  "string",
+      "format": "dcmKeycloakServer"
+    },
     "dcmuiElasticsearchIsDefault": {
       "title": "Is Default",
       "description": "Set this URL to the default one. (Make sure that only one of the urls - siblings child is set to default).",
