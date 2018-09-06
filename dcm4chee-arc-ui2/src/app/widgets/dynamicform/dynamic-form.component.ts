@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import {SearchPipe} from '../../pipes/search.pipe';
 import {AppService} from "../../app.service";
 import {DeviceConfiguratorComponent} from "../../device-configurator/device-configurator.component";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
     selector: 'dynamic-form',
@@ -31,7 +32,12 @@ export class DynamicFormComponent implements OnInit{
     pressedKey = [];
     listStateBeforeSearch: FormElement<any>[];
     filteredFormElements: FormElement<any>[];
-    constructor(private formservice: FormService, private mainservice:AppService){}
+    exceptionValidation = false;
+    constructor(
+        private formservice: FormService,
+        private mainservice:AppService,
+        private route: ActivatedRoute
+    ){}
     // submi(){
     //     console.log("in submitfunctiondynamicform");
     //     this.submitFunction.emmit("test");
@@ -98,9 +104,20 @@ export class DynamicFormComponent implements OnInit{
         this.formelements = orderedGroupClone;
         let formGroup: any = this.formservice.toFormGroup(orderedGroupClone);
         this.form = formGroup;
+        console.log("hr",window.location);
         console.log('after convert form', this.form);
         //Test setting some values
         console.log('this.model=', this.model);
+        this.route.params
+            .subscribe((params) => {
+                console.log("params",params);
+                console.log("this.model",this.model);
+                if(params.devicereff === "dcmDevice.dcmArchiveDevice" && (!this.model || (this.model && !_.hasIn(this.model,"dcmDevice.dcmArchiveDevice")))){
+                    // console.log("this.service.device",this.service.device);
+                    // _.set(this.service.device,"dcmDevice.dcmArchiveDevice",{});
+                    this.exceptionValidation = true;
+                }
+            });
 /*        if(this.model){
             this.form.patchValue(this.model);
         }*/
