@@ -349,13 +349,10 @@ public class StgCmtManagerImpl implements StgCmtManager {
     private void checkLocations(StgCmtContext ctx, RetrieveContext retrCtx, Map<String,int[]> failuresBySeries) {
         List<InstanceLocations> matches = retrCtx.getMatches();
         Attributes eventInfo = ctx.getEventInfo();
-        String commonRetrieveAET = matches.stream()
+        Optional<String> commonRetrieveAET = matches.stream()
                 .map(InstanceLocations::getRetrieveAETs)
-                .reduce((x,y) -> x != null && x.equals(y) ? x : null)
-                .get();
-        if (commonRetrieveAET != null) {
-            eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAET);
-        }
+                .reduce((x,y) -> x != null && x.equals(y) ? x : null);
+        commonRetrieveAET.ifPresent(aet -> eventInfo.setString(Tag.RetrieveAETitle, VR.AE, aet));
 
         Set<String> studyInstanceUIDs = new HashSet<>();
         List<UpdateLocation> updateLocations = new ArrayList<>();
@@ -365,14 +362,14 @@ public class StgCmtManagerImpl implements StgCmtManager {
             Attributes attr = inst.getAttributes();
             int[] failures = failuresBySeries != null
                     ? failuresBySeries.computeIfAbsent(
-                            attr.getString(Tag.SeriesInstanceUID),
-                            key -> new int[1])
+                    attr.getString(Tag.SeriesInstanceUID),
+                    key -> new int[1])
                     : null;
             if (ctx.getStorageVerificationPolicy() == StorageVerificationPolicy.DB_RECORD_EXISTS
                     || checkLocations(ctx, retrCtx, inst, updateLocations)) {
                 eventInfo.ensureSequence(Tag.ReferencedSOPSequence, retrCtx.getNumberOfMatches())
                         .add(refSOP(cuid, iuid,
-                                commonRetrieveAET == null ? inst.getRetrieveAETs() : null));
+                                commonRetrieveAET.isPresent() ? null : inst.getRetrieveAETs()));
             } else {
                 eventInfo.ensureSequence(Tag.FailedSOPSequence, retrCtx.getNumberOfMatches())
                         .add(failedSOP(cuid, iuid, Status.ProcessingFailure));
