@@ -1,0 +1,49 @@
+<div class="main_content queues monitoring">
+  <monitoring-tabs></monitoring-tabs>
+  <div class="tab-content">
+    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
+    <div class="filter">
+      <div class="filter_block auto_reloader">
+        <table>
+          <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
+            <td>{{status}}:</td>
+            <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
+            <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+          </tr>
+        </table>
+
+        <div class="option_block">
+          <div class="interval_block">
+            <label>Interval:</label>
+            <input type="text" placeholder="Interval" [(ngModel)]="interval">
+            <span>s</span>
+          </div>
+          <button class="btn-default submit" (click)="toggleAutoRefresh()">
+            <div class="spinnter_container">
+              <span *ngIf="!timer.started" class="glyphicon glyphicon-refresh"></span>
+              <mat-progress-spinner *ngIf="timer.started" mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
+            </div>
+            <span *ngIf="!timer.started">{{timer.startText}}</span>
+            <span *ngIf="timer.started">{{timer.stopText}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="filter single_block" [permission]="{id:'action-monitoring->external_retrieve-all_action',param:'visible'}">
+      <div class="filter_block">
+        <div class="line">
+          <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
+          <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span class="text">Upload CSV</span></div>
+        </div>
+      </div>
+      <div class="filter_block">
+        <div class="line">
+          <mat-select class="pull-left" [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+            <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
+          </mat-select>
+          <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="externalRetrieveEntries = []">Batch ID grouped</mat-checkbox></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

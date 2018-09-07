@@ -70,14 +70,14 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
+      private $http:J4careHttpService,
+      private route: ActivatedRoute,
       public aeListService:AeListService,
       public service:ExternalRetrieveService,
       public httpErrorHandler:HttpErrorHandler,
       public dialog: MatDialog,
       public config: MatDialogConfig,
-      public viewContainerRef: ViewContainerRef,
-      private $http:J4careHttpService,
-      private route: ActivatedRoute
+      public viewContainerRef: ViewContainerRef
     ) { }
 
     ngOnInit(){

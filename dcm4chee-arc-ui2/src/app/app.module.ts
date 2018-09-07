@@ -87,6 +87,8 @@ import {DiffMonitorService} from "./monitoring/diff-monitor/diff-monitor.service
 import { LargeIntFormatPipe } from './pipes/large-int-format.pipe';
 import { TableGeneratorComponent } from './helpers/table-generator/table-generator.component';
 import {RangePickerService} from "./widgets/range-picker/range-picker.service";
+import { StorageVerificationComponent } from './monitoring/storage-verification/storage-verification.component';
+import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
 
 @NgModule({
     declarations: [
@@ -138,6 +140,7 @@ import {RangePickerService} from "./widgets/range-picker/range-picker.service";
         DiffMonitorComponent,
         LargeIntFormatPipe,
         TableGeneratorComponent,
+        StorageVerificationComponent,
     ],
     imports: [
         BrowserModule,
@@ -180,6 +183,7 @@ import {RangePickerService} from "./widgets/range-picker/range-picker.service";
             { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/storage-verification', component: StorageVerificationComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/diff', component: DiffMonitorComponent,  canActivate: [AuthGuard] },
             { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
             { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
@@ -223,6 +227,7 @@ import {RangePickerService} from "./widgets/range-picker/range-picker.service";
         CsvRetrieveService,
         DiffMonitorService,
         RangePickerService,
+        StorageVerificationService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]
