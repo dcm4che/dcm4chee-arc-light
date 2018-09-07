@@ -3,6 +3,7 @@
   "description": "DICOM Archive Network AE related information",
   "type": "object",
   "required": [
+    "dcmQueryRetrieveViewID",
     "dcmObjectStorageCount"
   ],
   "properties": {
@@ -96,7 +97,7 @@
     },
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
-      "description": "Query/Retrieve View Identifier. Overwrites value specified on Device level.",
+      "description": "Query/Retrieve View Identifier.",
       "type": "string",
       "format": "dcmQueryRetrieveViewID"
     },

@@ -83,7 +83,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
     private ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
     private String bulkDataSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private String queryRetrieveViewID;
     private boolean validateCallingAEHostname = false;
     private boolean sendPendingCGet = false;
     private Duration sendPendingCMoveInterval;
@@ -383,14 +382,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPurgeInstanceRecordsFetchSize(int purgeInstanceRecordsFetchSize) {
         this.purgeInstanceRecordsFetchSize =  greaterZero(purgeInstanceRecordsFetchSize, "purgeInstanceRecordsFetchSize");
-    }
-
-    public String getQueryRetrieveViewID() {
-        return queryRetrieveViewID;
-    }
-
-    public void setQueryRetrieveViewID(String queryRetrieveViewID) {
-        this.queryRetrieveViewID = queryRetrieveViewID;
     }
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
@@ -1952,7 +1943,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
-        queryRetrieveViewID = arcdev.queryRetrieveViewID;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
         validateCallingAEHostname = arcdev.validateCallingAEHostname;
         sendPendingCGet = arcdev.sendPendingCGet;

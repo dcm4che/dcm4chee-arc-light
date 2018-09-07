@@ -4,7 +4,6 @@
   "type": "object",
   "required": [
     "dcmFuzzyAlgorithmClass",
-    "dcmQueryRetrieveViewID",
     "dcmSeriesMetadataFetchSize",
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
@@ -126,12 +125,6 @@
       "default" : 100,
       "minimum": 0,
       "exclusiveMinimum": true
-    },
-    "dcmQueryRetrieveViewID": {
-      "title": "Query/Retrieve View ID",
-      "description": "Query/Retrieve View Identifier. May be overwritten by configured values for particular Archive Network AEs.",
-      "type": "string",
-      "format": "dcmQueryRetrieveViewID"
     },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",

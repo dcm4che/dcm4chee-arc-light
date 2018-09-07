@@ -134,7 +134,6 @@ dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
-dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.73
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
@@ -153,6 +152,7 @@ dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.71
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.79.1
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
+dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
@@ -167,7 +167,6 @@ dcmOverwritePolicy: SAME_SOURCE
 dcmDiffTaskProgressUpdateInterval: PT10S
 dcmSendPendingCGet: TRUE
 hl7OutgoingPatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl
-dcmQueryRetrieveViewID: hideRejected
 dcmAudit2JsonFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl
 dicomDeviceName: dcm4chee-arc
 dcmPurgeStgCmtPollingInterval: PT1H

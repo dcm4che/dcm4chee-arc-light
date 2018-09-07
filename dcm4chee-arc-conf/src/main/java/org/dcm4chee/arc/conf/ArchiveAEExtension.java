@@ -270,12 +270,6 @@ public class ArchiveAEExtension extends AEExtension {
         this.queryRetrieveViewID = queryRetrieveViewID;
     }
 
-    public String queryRetrieveViewID() {
-        return queryRetrieveViewID != null
-                ? queryRetrieveViewID
-                : getArchiveDeviceExtension().getQueryRetrieveViewID();
-    }
-
     public Boolean getValidateCallingAEHostname() {
         return validateCallingAEHostname;
     }
@@ -711,7 +705,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public QueryRetrieveView getQueryRetrieveView() {
-        return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
+        return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(getQueryRetrieveViewID());
     }
 
     public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {

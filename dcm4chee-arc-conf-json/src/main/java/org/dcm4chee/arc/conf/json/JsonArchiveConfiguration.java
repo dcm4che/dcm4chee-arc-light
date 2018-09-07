@@ -92,7 +92,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPurgeInstanceRecordsPollingInterval(), null);
         writer.writeNotDef("dcmPurgeInstanceRecordsFetchSize",
                 arcDev.getPurgeInstanceRecordsFetchSize(), 100);
-        writer.writeNotNullOrDef("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID(), null);
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcDev.getOverwritePolicy(), OverwritePolicy.NEVER);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
                 arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
@@ -756,9 +755,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
-                    break;
-                case "dcmQueryRetrieveViewID":
-                    arcDev.setQueryRetrieveViewID(reader.stringValue());
                     break;
                 case "dcmBulkDataSpoolDirectory":
                     arcDev.setBulkDataSpoolDirectory(reader.stringValue());

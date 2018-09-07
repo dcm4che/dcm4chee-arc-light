@@ -1395,7 +1395,6 @@ class ArchiveDeviceFactory {
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
         ext.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
-        ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setExternalRetrieveAEDestination(AE_TITLE);
         ext.setXDSiImagingDocumentSourceAETitle(AE_TITLE);
         ext.addQueryRetrieveView(HIDE_REJECTED_VIEW);
