@@ -222,6 +222,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
@@ -1405,6 +1406,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exportRules;
     }
 
+    public void removePrefetchRule(PrefetchRule rule) {
+        prefetchRules.remove(rule);
+    }
+
+    public void clearPrefetchRules() {
+        prefetchRules.clear();
+    }
+
+    public void addPrefetchRule(PrefetchRule rule) {
+        prefetchRules.add(rule);
+    }
+
+    public Collection<PrefetchRule> getPrefetchRules() {
+        return prefetchRules;
+    }
+
     public void removeRSForwardRule(RSForwardRule rule) {
         rsForwardRules.remove(rule);
     }
@@ -1886,6 +1903,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.compressionSchedules = compressionSchedules;
     }
 
+    public Duration getDiffTaskProgressUpdateInterval() {
+        return diffTaskProgressUpdateInterval;
+    }
+
+    public void setDiffTaskProgressUpdateInterval(Duration diffTaskProgressUpdateInterval) {
+        this.diffTaskProgressUpdateInterval = diffTaskProgressUpdateInterval;
+    }
+
     public Collection<KeycloakServer> getKeycloakServers() {
         return keycloakServerMap.values();
     }
@@ -2070,6 +2095,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
+        prefetchRules.clear();
+        prefetchRules.addAll(arcdev.prefetchRules);
         rsForwardRules.clear();
         rsForwardRules.addAll(arcdev.rsForwardRules);
         hl7ForwardRules.clear();
@@ -2096,13 +2123,5 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         xRoadProperties.putAll(arcdev.xRoadProperties);
         impaxReportProperties.clear();
         impaxReportProperties.putAll(arcdev.impaxReportProperties);
-    }
-
-    public Duration getDiffTaskProgressUpdateInterval() {
-        return diffTaskProgressUpdateInterval;
-    }
-
-    public void setDiffTaskProgressUpdateInterval(Duration diffTaskProgressUpdateInterval) {
-        this.diffTaskProgressUpdateInterval = diffTaskProgressUpdateInterval;
     }
 }

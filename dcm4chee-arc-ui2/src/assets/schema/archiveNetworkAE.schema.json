@@ -450,11 +450,20 @@
     },
     "dcmExportRule": {
       "title": "Export Rule",
-      "description": "Export Rules. Supplements Export Rules specified on Device level.",
+      "description": "Export Rules applied to DICOM objects received by this AE. Supplements Export Rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
         "$ref": "exportRule.schema.json"
+      }
+    },
+    "dcmPrefetchRule": {
+      "title": "Prefetch Rule",
+      "description": "Prefetch Rules applied to DICOM objects received by this AE. Supplements Prefetch Rules specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "prefetchRule.schema.json"
       }
     },
     "dcmRSForwardRule": {

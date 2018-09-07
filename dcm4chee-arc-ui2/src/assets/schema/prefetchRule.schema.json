@@ -1,28 +1,18 @@
 {
-  "title": "Export Rule",
-  "description": "Export Rule",
+  "title": "Prefetch Rule",
+  "description": "Prefetch Rule",
   "type": "object",
   "required": [
     "cn",
-    "dcmEntity",
     "dcmExporterID",
-    "dcmExportPreviousEntity"
+    "dcmEntitySelector",
+    "dcmDuration"
   ],
   "properties": {
     "cn": {
       "title": "Name",
-      "description": "Arbitrary/Meaningful name of the Export Rule",
+      "description": "Arbitrary/Meaningful name of the Prefetch Rule",
       "type": "string"
-    },
-    "dcmEntity": {
-      "title": "Export Entity",
-      "description": "Entity of Export",
-      "type": "string",
-      "enum": [
-        "Study",
-        "Series",
-        "Instance"
-      ]
     },
     "dcmExporterID": {
       "title": "Exporter ID",
@@ -31,11 +21,12 @@
       "items" : { "type": "string" },
       "format": "dcmExporterID"
     },
-    "dcmExportPreviousEntity": {
-      "title": "Export Previous Entity",
-      "description": "Specifies if the previous Entity of a replaced Instance shall be also exported.",
-      "type": "boolean",
-      "default": false
+    "dcmEntitySelector": {
+      "title": "Entity Selector",
+      "description": "Specifies matching keys used to select entities to prefetch. Format: (study|series)[?{attributeID}={value}[&...][&priors=<n>]].",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmEntitySelector"
     },
     "dcmProperty": {
       "title": "Attribute Conditions",
@@ -55,8 +46,8 @@
       "format": "dcmSchedule"
     },
     "dcmDuration": {
-      "title": "Export Delay",
-      "description": "Delay export of entities to accumulate multiple trigger events to one export task.",
+      "title": "Suppress Duplicate Export Interval",
+      "description": "Suppress Export of entities already exported not earlier than the specified interval to avoid duplicate exports.",
       "type": "string",
       "format": "dcmDuration"
     }

@@ -1096,6 +1096,15 @@
         "$ref": "exportRule.schema.json"
       }
     },
+    "dcmPrefetchRule": {
+      "title": "Prefetch Rule",
+      "description": "Prefetch Rules applied to DICOM objects received by any AE. May be supplemented by configured Prefetch Rules for particular Archive Network AEs.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "prefetchRule.schema.json"
+      }
+    },
     "dcmRSForwardRule": {
       "title": "RESTful Forward Rule",
       "description": "RESTful Forward Rules. May be supplemented by configured RESTful Forward Rules for particular Archive Network AEs.",

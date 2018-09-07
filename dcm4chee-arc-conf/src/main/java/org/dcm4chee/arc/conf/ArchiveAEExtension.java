@@ -51,6 +51,7 @@ import java.io.File;
 import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -123,6 +124,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -778,6 +780,22 @@ public class ArchiveAEExtension extends AEExtension {
         return exportRules;
     }
 
+    public void removePrefetchRule(PrefetchRule rule) {
+        prefetchRules.remove(rule);
+    }
+
+    public void clearPrefetchRules() {
+        prefetchRules.clear();
+    }
+
+    public void addPrefetchRule(PrefetchRule rule) {
+        prefetchRules.add(rule);
+    }
+
+    public Collection<PrefetchRule> getPrefetchRules() {
+        return prefetchRules;
+    }
+
     public void removeRSForwardRule(RSForwardRule rule) {
         rsForwardRules.remove(rule);
     }
@@ -1184,6 +1202,8 @@ public class ArchiveAEExtension extends AEExtension {
         acceptedUserRoles.addAll(aeExt.acceptedUserRoles);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
+        prefetchRules.clear();
+        prefetchRules.addAll(aeExt.prefetchRules);
         rsForwardRules.clear();
         rsForwardRules.addAll(aeExt.rsForwardRules);
         compressionRules.clear();
@@ -1213,6 +1233,10 @@ public class ArchiveAEExtension extends AEExtension {
                             result.put(exporterID, rule);
                     }
         return result;
+    }
+
+    public Stream<PrefetchRule> prefetchRules() {
+        return Stream.concat(prefetchRules.stream(), getArchiveDeviceExtension().getPrefetchRules().stream());
     }
 
     public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation, HttpServletRequest request) {

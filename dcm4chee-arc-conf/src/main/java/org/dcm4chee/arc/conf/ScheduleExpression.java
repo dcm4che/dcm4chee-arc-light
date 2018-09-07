@@ -41,6 +41,13 @@ public class ScheduleExpression {
         return result;
     }
 
+    public static ScheduleExpression[] valuesOf(String... ss) {
+        ScheduleExpression[] schedules = new ScheduleExpression[ss.length];
+        for (int i = 0; i < ss.length; i++)
+            schedules[i] = ScheduleExpression.valueOf(ss[i]);
+        return schedules;
+    }
+
     public ScheduleExpression dayOfWeek(String s) {
         dayOfWeeks = parse(s, 7);
         dayOfWeek = s;
