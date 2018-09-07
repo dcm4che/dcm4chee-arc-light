@@ -32,6 +32,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     submitValue;
     isNew = false;
     searchBreadcrum = [];
+    emptyExtension = false;
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -317,7 +318,11 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         $this.cfpLoadingBar.start();
         this.route.params
             .subscribe((params) => {
-
+                if(this.service.device && !_.hasIn(this.service.device,params.devicereff)){
+                    console.log("this.service.device",this.service.device);
+                    // _.set(this.service.device,"dcmDevice.dcmArchiveDevice",{});
+                    this.emptyExtension = true;
+                }
                 console.log("allOptions",this.service.allOptions);
                 if (
                     ($this.service.pagination.length < 3) // If the deepest pagination level is the device than go one
@@ -386,7 +391,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     console.log('deviceschema', deviceschema);
                                     $this.device = deviceschema[0];
                                     $this.schema = deviceschema[1];
-                                    let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params, this.inClone||this.isNew?'attr':'ext');
+                                    let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params, ( this.inClone || this.isNew || this.emptyExtension) ? 'attr':'ext');
                                     $this.formObj = formObject;
                                     $this.model = {};
                                     setTimeout(() => {
@@ -525,7 +530,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     //TODO
                 }
                 _.set($this.service.schema, params['schema'], newSchema);
-                form = $this.service.convertSchemaToForm($this.model, newSchema, params, this.inClone||this.isNew?'attr':'ext');
+                form = $this.service.convertSchemaToForm($this.model, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
                 $this.formObj = form;
                 setTimeout(() => {
                     $this.showform = true;
@@ -537,7 +542,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             );
         } else {
             // let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
-            form = $this.service.convertSchemaToForm(newModel, newSchema, params, this.inClone||this.isNew?'attr':'ext');
+            form = $this.service.convertSchemaToForm(newModel, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
             _.set($this.service.schema, params['schema'], newSchema);
             $this.formObj = form;
             setTimeout(() => {
@@ -594,7 +599,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 device:'dcm4chee-arc',
                 devicereff:objects.devicereff,
                 schema:objects.schema
-            },this.inClone||this.isNew?'attr':'ext');
+            },(this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
             this.toCompareObject = objects.model;
             this.showCompare = true;
         },1)
