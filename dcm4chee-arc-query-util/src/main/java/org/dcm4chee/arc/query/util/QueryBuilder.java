@@ -598,7 +598,7 @@ public class QueryBuilder {
             if (!isUniversalMatching(entityUID))
                 predicate = ExpressionUtils.and(predicate,
                         ExpressionUtils.or(issuerPath.issuer.universalEntityID.isNull(),
-                            ExpressionUtils.and(QIssuerEntity.issuerEntity.issuer.universalEntityID.eq(entityUID),
+                            ExpressionUtils.and(issuerPath.issuer.universalEntityID.eq(entityUID),
                                     issuerPath.issuer.universalEntityIDType.eq(entityUIDType))));
         }
         return predicate;
