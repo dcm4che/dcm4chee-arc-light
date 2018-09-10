@@ -2240,97 +2240,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
     storageVerification(){
         this.confirm({
-            content: 'Creating new filter-template',
+            content: 'Schedule Storage Verification of matching Studies',
             form_schema:[
                 [
                     [
-                        {
-                            tag:"label",
-                            text:"Archive AE Title"
-                        },
-                        {
-                            tag:"select",
-                            options:this.aes,
-                            showStar:true,
-                            filterKey:"aet",
-                            description:"Archive AE Title"
-                        }
-                    ]
-                    ,[
-                        {
-                            tag:"label",
-                            text:"Fuzzy matching"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"fuzzymatching",
-                            description:"fuzzy semantic matching of person names",
-                            text:"fuzzy semantic matching of person names"
-                        }
-                    ]
-                    ,[
-                        {
-                            tag:"label",
-                            text:"Archive AE Title"
-                        },
-                        {
-                            tag:"select",
-                            options:this.aes,
-                            showStar:true,
-                            filterKey:"SendingApplicationEntityTitleOfSeries",
-                            description:"Match Studies which includes at least one Series received from"
-                        }
-                    ]
-                    ,[
-                        {
-                            tag:"label",
-                            text:"Study Receive Date Time"
-                        },
-                        {
-                            tag:"range-picker",
-                            filterKey:"StudyReceiveDateTime",
-                            description:"Study Rexeive Date"
-                        }
-                    ]
-                    ,
-                    [
-                        {
-                            tag:"label",
-                            text:"External RetrieveAET"
-                        },
-                        {
-                            tag:"select",
-                            options:this.aes,
-                            showStar:true,
-                            filterKey:"ExternalRetrieveAET",
-                            description:"External RetrieveAET"
-                        }
-                    ]
-                    ,
-                    [
-                        {
-                            tag:"label",
-                            text:"Not retrievable External RetrieveAET"
-                        },
-                        {
-                            tag:"select",
-                            options:this.aes,
-                            showStar:true,
-                            filterKey:"ExternalRetrieveAET!",
-                            description:"Ratch Studies which are not retrievable from external"
-                        }
-                    ],[
-                        {
-                            tag:"label",
-                            text:"Only expired Studies"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"expired",
-                            description:"Match only expired Studies",
-                            text:"Match only expired Studies"
-                        }
-                    ],[
                         {
                             tag:"label",
                             text:"Marked as incomplete"
@@ -2338,8 +2251,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         {
                             tag:"checkbox",
                             filterKey:"incomplete",
-                            description:"Match only Studies which are marked as incomplete",
-                            text:"Match only Studies which are marked as incomplete"
                         }
                     ],[
                         {
@@ -2348,9 +2259,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         },
                         {
                             tag:"checkbox",
-                            filterKey:"retrievefailed",
-                            description:"Match only Studies which failed to be retrieved from fallback C-MOVE SCP",
-                            text:"Failed to be retrieved Stuies"
+                            filterKey:"retrievefailed"
                         }
                     ],[
                         {
@@ -2359,9 +2268,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         },
                         {
                             tag:"checkbox",
-                            filterKey:"storageVerificationFailed",
-                            description:"Match only Studies which includes at least one Series with Failures of Last Storage Commitment",
-                            text:"Failed to be retrieved Stuies"
+                            filterKey:"storageVerificationFailed"
                         }
                     ],[
                         {
@@ -2370,42 +2277,60 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         },
                         {
                             tag:"checkbox",
-                            filterKey:"compressionfailed",
-                            description:"Match only Studies which includes at least one Series with Failures of Last Compression",
-                            text:"Compression Failed"
+                            filterKey:"compressionfailed"
                         }
                     ],[
                         {
                             tag:"label",
-                            text:"Compression Failed"
+                            text:"Verification Policy"
                         },
                         {
-                            tag:"checkbox",
+                            tag:"select",
+                            options:[
+                                {
+                                    value:"DB_RECORD_EXISTS",
+                                    text:"DB_RECORD_EXISTS",
+                                    title:"Check for existence of DB records"
+                                },
+                                {
+                                    value:"OBJECT_EXISTS",
+                                    text:"OBJECT_EXISTS",
+                                    title:"check if object exists on Storage System"
+                                },
+                                {
+                                    value:"OBJECT_SIZE",
+                                    text:"OBJECT_SIZE",
+                                    title:"check size of object on Storage System"
+                                },
+                                {
+                                    value:"OBJECT_FETCH",
+                                    text:"OBJECT_FETCH",
+                                    title:"Fetch object from Storage System"
+                                },
+                                {
+                                    value:"OBJECT_CHECKSUM",
+                                    text:"OBJECT_CHECKSUM",
+                                    title:"recalculate checksum of object on Storage System"
+                                },
+                                {
+                                    value:"S3_MD5SUM",
+                                    text:"S3_MD5SUM",
+                                    title:"Check MD5 checksum of object on S3 Storage System"
+                                }
+                            ],
+                            showStar:true,
                             filterKey:"storageVerificationPolicy",
-                            description:"Match only Studies which includes at least one Series with Failures of Last Compression",
-                            text:"Compression Failed"
+                            description:"Verification Policy",
+                            placeholder:"Verification Policy"
                         }
                     ],[
                         {
                             tag:"label",
-                            text:"Updsate Location DB"
+                            text:"Update Location DB"
                         },
                         {
                             tag:"checkbox",
-                            filterKey:"storageVerificationUpdateLocationStatus",
-                            description:"Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly",
-                            text:"Compression Failed"
-                        }
-                    ],[
-                        {
-                            tag:"label",
-                            text:"Updsate Location DB"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"storageVerificationUpdateLocationStatus",
-                            description:"Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly",
-                            text:"Compression Failed"
+                            filterKey:"storageVerificationUpdateLocationStatus"
                         }
                     ],[
                         {
@@ -2428,7 +2353,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             saveButton: 'SAVE'
         }).subscribe((ok)=>{
             if(ok){
-
+                console.log("this.filters")
             }
         });
     }

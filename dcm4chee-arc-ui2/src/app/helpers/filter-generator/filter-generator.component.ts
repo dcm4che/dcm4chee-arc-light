@@ -27,6 +27,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     @Input() model;
     @Input() filterTreeHeight;
     @Input() filterID;
+    @Input() hideClearButtons;
     @Input() filterIdTemplate;
     @Input() doNotSave;
     @Output() submit  = new EventEmitter();

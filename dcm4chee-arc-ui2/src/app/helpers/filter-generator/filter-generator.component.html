@@ -5,7 +5,7 @@
 </div>
 <div [hidden]="!hideLoader"  class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()" >
     <div class="filter_template_function">
-        <span class="clearform_button" *ngIf="showFilterButtons">
+        <span class="clearform_button" *ngIf="showFilterButtons && !hideClearButtons">
             <ul class="buttons">
                 <li title="Clear current filters" (click)="$event.preventDefault();clear()">Clear <span class="glyphicon glyphicon-remove"></span></li>
             </ul>
@@ -33,7 +33,7 @@
                 <span *ngIf="line[index].type === 'checkbox'">{{line[index].text}}</span>
                 <mat-select [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                   <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
-                  <mat-option *ngFor="let option of line[index].options" value="{{option.value}}">{{option.text}}</mat-option>
+                  <mat-option *ngFor="let option of line[index].options" value="{{option.value}}" title="{{option.title}}">{{option.text}}</mat-option>
                 </mat-select>
                 <p-calendar [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[index].description || line[index].placeholder}}" title="{{line[index]?.description}}"></p-calendar>
                 <range-picker
