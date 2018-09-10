@@ -53,7 +53,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
   batchGrouped = false;
     dialogRef: MatDialogRef<any>;
     storageVerifications;
-  constructor(
+    externalRetrieveEntries;
+    constructor(
       private cfpLoadingBar: LoadingBarService,
       private mainservice: AppService,
       private aeListService:AeListService,
@@ -157,6 +158,12 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             this.initSchema();
             this.httpErrorHandler.handleError(err);
         });
+    }
+    uploadCsv(){
+      //TODO
+    }
+    allActionChanged(e){
+      //TODO
     }
     getCounts(){
         let filters = Object.assign({},this.filterObject);

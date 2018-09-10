@@ -2238,6 +2238,200 @@ export class StudiesComponent implements OnDestroy,OnInit{
             "study"
         );
     }
+    storageVerification(){
+        this.confirm({
+            content: 'Creating new filter-template',
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:"Archive AE Title"
+                        },
+                        {
+                            tag:"select",
+                            options:this.aes,
+                            showStar:true,
+                            filterKey:"aet",
+                            description:"Archive AE Title"
+                        }
+                    ]
+                    ,[
+                        {
+                            tag:"label",
+                            text:"Fuzzy matching"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"fuzzymatching",
+                            description:"fuzzy semantic matching of person names",
+                            text:"fuzzy semantic matching of person names"
+                        }
+                    ]
+                    ,[
+                        {
+                            tag:"label",
+                            text:"Archive AE Title"
+                        },
+                        {
+                            tag:"select",
+                            options:this.aes,
+                            showStar:true,
+                            filterKey:"SendingApplicationEntityTitleOfSeries",
+                            description:"Match Studies which includes at least one Series received from"
+                        }
+                    ]
+                    ,[
+                        {
+                            tag:"label",
+                            text:"Study Receive Date Time"
+                        },
+                        {
+                            tag:"range-picker",
+                            filterKey:"StudyReceiveDateTime",
+                            description:"Study Rexeive Date"
+                        }
+                    ]
+                    ,
+                    [
+                        {
+                            tag:"label",
+                            text:"External RetrieveAET"
+                        },
+                        {
+                            tag:"select",
+                            options:this.aes,
+                            showStar:true,
+                            filterKey:"ExternalRetrieveAET",
+                            description:"External RetrieveAET"
+                        }
+                    ]
+                    ,
+                    [
+                        {
+                            tag:"label",
+                            text:"Not retrievable External RetrieveAET"
+                        },
+                        {
+                            tag:"select",
+                            options:this.aes,
+                            showStar:true,
+                            filterKey:"ExternalRetrieveAET!",
+                            description:"Ratch Studies which are not retrievable from external"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Only expired Studies"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"expired",
+                            description:"Match only expired Studies",
+                            text:"Match only expired Studies"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Marked as incomplete"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"incomplete",
+                            description:"Match only Studies which are marked as incomplete",
+                            text:"Match only Studies which are marked as incomplete"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Failed to be retrieved"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"retrievefailed",
+                            description:"Match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+                            text:"Failed to be retrieved Stuies"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Failed storage verification"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationFailed",
+                            description:"Match only Studies which includes at least one Series with Failures of Last Storage Commitment",
+                            text:"Failed to be retrieved Stuies"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Compression Failed"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"compressionfailed",
+                            description:"Match only Studies which includes at least one Series with Failures of Last Compression",
+                            text:"Compression Failed"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Compression Failed"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationPolicy",
+                            description:"Match only Studies which includes at least one Series with Failures of Last Compression",
+                            text:"Compression Failed"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Updsate Location DB"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationUpdateLocationStatus",
+                            description:"Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly",
+                            text:"Compression Failed"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Updsate Location DB"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationUpdateLocationStatus",
+                            description:"Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly",
+                            text:"Compression Failed"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Batch ID"
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"batchID",
+                            description:"Batch ID",
+                            placeholder:"Batch ID"
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: 'SAVE'
+        }).subscribe((ok)=>{
+            if(ok){
+
+            }
+        });
+    }
     exportStudy(study) {
         this.exporter(
             this.studyURL(study.attrs),
