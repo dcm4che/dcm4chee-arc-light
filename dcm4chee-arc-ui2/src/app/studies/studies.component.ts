@@ -2241,6 +2241,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     storageVerification(){
         this.confirm({
             content: 'Schedule Storage Verification of matching Studies',
+            form_id:"storage_verification",
             form_schema:[
                 [
                     [
@@ -2353,7 +2354,19 @@ export class StudiesComponent implements OnDestroy,OnInit{
             saveButton: 'SAVE'
         }).subscribe((ok)=>{
             if(ok){
-                console.log("this.filters")
+                this.cfpLoadingBar.start();
+                this.service.scheduleStorageVerification(_.merge(ok.schema_model , this.createStudyFilterParams()), this.aetmodel.dicomAETitle).subscribe(res=>{
+                    console.log("res");
+                    this.cfpLoadingBar.complete();
+                    this.mainservice.setMessage({
+                        'title': 'Info',
+                        'text': 'Storage Verification scheduled successfully!',
+                        'status': 'info'
+                    });
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
             }
         });
     }
@@ -2570,6 +2583,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 $this.cfpLoadingBar.complete();
             },
             (err) => {
+                $this.cfpLoadingBar.complete();
                 $this.httpErrorHandler.handleError(err);
             }
         );

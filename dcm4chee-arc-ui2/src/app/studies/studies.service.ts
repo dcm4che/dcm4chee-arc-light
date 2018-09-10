@@ -743,4 +743,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
     }
 
+    scheduleStorageVerification(param, aet){
+        return this.$http.post(`../aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{})
+    }
 }
