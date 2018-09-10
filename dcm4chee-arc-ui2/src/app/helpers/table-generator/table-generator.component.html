@@ -8,7 +8,7 @@
       <ng-container *ngFor="let model of models;let i = index">
         <div class="tr">
             <div class="td {{table_element.cssClass||''}}" *ngFor="let table_element of config.table;let k = index" [ngStyle]="{width: table_element.calculatedWidth}">
-                <span *ngIf="table_element.type === 'index'">{{i+config.filter.offset+1}}.</span>
+                <span *ngIf="table_element.type === 'index'">{{i+(config.filter.offset || 0)+1}}.</span>
                 <span *ngIf="table_element.type === 'buttons'" (mouseenter)="tMousEnter()" (mouseleave)="tMousLeave()">
                     <a (click)="$event.preventDefault();button.click(model)" *ngFor="let button of table_element.buttons">
                         <span *ngIf="button.icon.tag === 'span'" class="{{button.icon.cssClass||''}}">{{button.icon.text||''}}</span>

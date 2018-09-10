@@ -42,8 +42,7 @@ export class StorageVerificationService {
           }
       ];
   }
-  getSorageVerifications(filter, offset, batch){
-      filter.offset = (offset && offset != '') ? offset : 0;
+  getSorageVerifications(filter, batch){
       return this.$http.get(`../monitor/stgver${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
           .map(res => j4care.redirectOnAuthResponse(res));
   }
@@ -55,6 +54,65 @@ export class StorageVerificationService {
       return this.$http.get('../monitor/stgver/count' + '?' + this.mainservice.param(filterClone))
           .map(res => j4care.redirectOnAuthResponse(res));
   };
+  getTableSchema(){
+      return [
+          {
+              type:"index",
+              title:"#",
+              description:"Index",
+              widthWeight:0.1,
+              calculatedWidth:"4%"
+          },
+          {
+              type:"model",
+              title:"Local AET",
+              key:"LocalAET",
+              description:"Local AET",
+              widthWeight:0.4,
+              calculatedWidth:"20%"
+          },
+          {
+              type:"model",
+              title:"Batch ID",
+              key:"batchID",
+              description:"Batch ID",
+              widthWeight:0.4,
+              calculatedWidth:"20%"
+          },
+          {
+              type:"model",
+              title:"Study Instance UID",
+              key:"StudyInstanceUID",
+              description:"Study Instance UID",
+              widthWeight:1.5,
+              calculatedWidth:"20%"
+          },
+          {
+              type:"model",
+              title:"Status",
+              key:"status",
+              description:"Status",
+              widthWeight:0.4,
+              calculatedWidth:"20%"
+          },
+          {
+              type:"model",
+              title:"Storage Policy",
+              key:"StgCmtPolicy",
+              description:"Storage Verification Policy",
+              widthWeight:1,
+              calculatedWidth:"20%"
+          },
+          {
+              type:"model",
+              title:"Device Name",
+              key:"dicomDeviceName",
+              description:"Device Name",
+              widthWeight:1,
+              calculatedWidth:"20%"
+          }
+      ];
+  }
   getFilterSchema(devices, localAET, countText){
     return [
         {
@@ -104,10 +162,11 @@ export class StorageVerificationService {
             placeholder:"Batch ID"
         },        {
             tag:"select",
-            options:[{
-                value:'createdTime',
-                text:'Sort by creation time (ASC)'
-            },
+            options:[
+                {
+                    value:'createdTime',
+                    text:'Sort by creation time (ASC)'
+                },
                 {
                     value:'-createdTime',
                     text:'Sort by creation time (DESC)'

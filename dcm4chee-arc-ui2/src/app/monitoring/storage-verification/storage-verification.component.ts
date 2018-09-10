@@ -19,20 +19,20 @@ import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
   styleUrls: ['./storage-verification.component.scss']
 })
 export class StorageVerificationComponent implements OnInit, OnDestroy {
-  filterObject;
-  filterSchema;
-  localAET;
-  destinationAET;
-  remoteAET;
-  devices;
-  count;
-  timer = {
+    filterObject;
+    filterSchema;
+    localAET;
+    destinationAET;
+    remoteAET;
+    devices;
+    count;
+    timer = {
       started:false,
       startText:"Start Auto Refresh",
       stopText:"Stop Auto Refresh"
-  };
-  allActionsActive = [];
-  allActionsOptions = [
+    };
+    allActionsActive = [];
+    allActionsOptions = [
       {
           value:"cancel",
           label:"Cancel all matching tasks"
@@ -43,17 +43,19 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
           value:"delete",
           label:"Delete all matching tasks"
       }
-  ];
-  allAction;
-  statusValues = {};
-  refreshInterval;
-  interval = 10;
-  tableHovered = false;
-  Object = Object;
-  batchGrouped = false;
+    ];
+    allAction;
+    statusValues = {};
+    refreshInterval;
+    interval = 10;
+    tableHovered = false;
+    Object = Object;
+    batchGrouped = false;
     dialogRef: MatDialogRef<any>;
     storageVerifications;
     externalRetrieveEntries;
+    tableConfig;
+    moreTasks;
     constructor(
       private cfpLoadingBar: LoadingBarService,
       private mainservice: AppService,
@@ -91,7 +93,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             };
         });
         this.filterObject = {
-            limit:20
+            limit:20,
+            offset:0
         };
         Observable.forkJoin(
             this.aeListService.getAets(),
@@ -122,6 +125,10 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             this.filterObject["limit"] = 20;
             this.getTasks(0);
         }*/
+        this.tableConfig = {
+            table:j4care.calculateWidthOfTable(this.service.getTableSchema()),
+            filter:this.filterObject
+        };
     }
     toggleAutoRefresh(){
         this.timer.started = !this.timer.started;
@@ -135,17 +142,23 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     onSubmit(object){
         if(_.hasIn(object,"id") && _.hasIn(object,"model")){
-            if(object.id === "count"){
-                this.getCount();
+            if(object.id === "submit"){
+                let filter = Object.assign({},this.filterObject);
+                if(filter['limit'])
+                    filter['limit']++;
+                this.getTasks(filter);
             }else{
                 // this.getTasks(0);
-                this.getCounts();
+                let filter = Object.assign({},this.filterObject);
+                delete filter["limit"];
+                delete filter["offset"];
+                this.getVerificationCounts(filter);
             }
         }
     }
-    getCount(){
+    getVerificationCounts(filter){
         this.cfpLoadingBar.start();
-        this.service.getSorageVerificationsCount(this.filterObject).subscribe((count)=>{
+        this.service.getSorageVerificationsCount(filter).subscribe((count)=>{
             try{
                 this.count = count.count;
             }catch (e){
@@ -226,54 +239,34 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             });
         })
     }
-    getTasks(offset){
+    next(){
+        if(this.moreTasks){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
+                this.filterObject['offset'] = filter['offset'] = filter['offset']*1 + this.filterObject['limit']*1;
+                filter['limit']++;
+            }
+            this.getTasks(filter);
+        }
+    }
+    prev(){
+        if(this.filterObject["offset"] > 0){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
+                this.filterObject['offset'] = filter['offset'] = filter['offset']*1 - this.filterObject['limit']*1;
+                filter['limit']++;
+            }
+            this.getTasks(filter);
+        }
+    }
+    getTasks(filter){
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.getSorageVerifications(this.filterObject,offset, this.batchGrouped).subscribe(
+        this.service.getSorageVerifications(filter, this.batchGrouped).subscribe(
             res =>  {
                 $this.cfpLoadingBar.complete();
                 if (res && res.length > 0){
-                    this.storageVerifications =  res.map((properties, index) => {
-                        if(this.batchGrouped){
-                            let propertiesAttr = Object.assign({},properties);
-                            if(_.hasIn(properties, 'tasks')){
-                                let taskPrepared = [];
-                                Globalvar.TASK_NAMES.forEach(task=>{
-                                    if(properties.tasks[task])
-                                        taskPrepared.push({[task]:properties.tasks[task]});
-                                });
-                                properties.tasks = taskPrepared;
-                            }
-                            j4care.stringifyArrayOrObject(properties, ['tasks']);
-                            j4care.stringifyArrayOrObject(propertiesAttr,[]);
-                            return {
-                                offset: offset + index,
-                                properties: properties,
-                                propertiesAttr: propertiesAttr,
-                                showProperties: false
-                            };
-                        }else{
-                            if (_.hasIn(properties, 'Modality')){
-                                properties.Modality = properties.Modality.join(', ');
-                            }
-                            properties.taskState = (properties.completed ? properties.completed*1:0) + ' / ' + (properties.remaining ? properties.remaining*1:0) + ' / '+ (properties.failed ? properties.failed*1:0);
-                            let endTime:Date =  properties.processingEndTime ? new Date(properties.processingEndTime) :  this.mainservice.serverTime;
-                            try{
-                                properties.NumberOfInstances = properties.NumberOfInstances || ((properties.completed ? properties.completed*1:0) + (properties.remaining ? properties.remaining*1:0) + (properties.failed ? properties.failed*1:0));
-                                properties.InstancePerSec = (Math.round(((properties.completed ? properties.completed*1:0)/((endTime.getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)))*100)/100) || '-';
- /*                               if(!properties.processingEndTime)
-                                    properties.approximatelyEndTime = Math.round((properties.remaining / properties.InstancePerSec)*100)/100 ? `${this.secToMinSecString((properties.remaining / properties.InstancePerSec))}`:'-';
- */                           }catch (e){
-                                properties.InstancePerSec = '';
-                            }
-                            return {
-                                offset: offset + index,
-                                properties: properties,
-                                propertiesAttr: properties,
-                                showProperties: false
-                            };
-                        }
-                    });
+                    this.storageVerifications =  res;
                     $this.count = undefined;
                 }else{
                     $this.cfpLoadingBar.complete();
@@ -284,6 +277,9 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         'status': 'info'
                     });
                 }
+                this.moreTasks = res.length > this.filterObject['limit'];
+                if(this.moreTasks)
+                    this.storageVerifications.splice(this.storageVerifications.length-1,1);
             },
             err => {
                 $this.storageVerifications = [];
