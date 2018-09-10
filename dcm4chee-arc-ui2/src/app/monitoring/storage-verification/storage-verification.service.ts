@@ -62,6 +62,25 @@ export class StorageVerificationService {
               description:"Index",
               widthWeight:0.1,
               calculatedWidth:"4%"
+          },{
+              type:"buttons",
+              title:"",
+              buttons:[
+                  {
+                      icon:{
+                          tag:'span',
+                          cssClass:'glyphicon glyphicon-th-list',
+                          text:''
+                      },
+                      click:(e)=>{
+                          console.log("e",e);
+                          e.showAttributes = !e.showAttributes;
+                      }
+                  }
+              ],
+              description:"Index",
+              widthWeight:0.3,
+              calculatedWidth:"6%"
           },
           {
               type:"model",
