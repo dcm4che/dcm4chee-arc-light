@@ -42,6 +42,8 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 
@@ -51,7 +53,6 @@ import org.dcm4che3.util.TagUtils;
  */
 public class EntitySelector {
     private final String value;
-    private final Entity entity;
     private final Attributes keys = new Attributes();
     private final int numberOfPriors;
 
@@ -63,15 +64,6 @@ public class EntitySelector {
     }
 
     public EntitySelector(String value) {
-        if (value.startsWith("study?")) {
-            this.entity = Entity.Study;
-            value = value.substring(6);
-        } else if (value.startsWith("series?")) {
-            this.entity = Entity.Series;
-            value = value.substring(7);
-        } else {
-            throw new IllegalArgumentException(value);
-        }
         this.numberOfPriors = parseKeys(value);
         this.value = value;
     }
@@ -83,7 +75,7 @@ public class EntitySelector {
 
     private int parseKeys(String queryParams) {
         AttributesBuilder builder = new AttributesBuilder(keys);
-        int priors = 0;
+        int priors = -1;
         for (String queryParam : StringUtils.split(queryParams, '&')) {
             String[] keyValue = StringUtils.split(queryParam, '=');
             if (keyValue.length != 2)
@@ -100,5 +92,13 @@ public class EntitySelector {
             }
         }
         return priors;
+    }
+
+    public Attributes getQueryKeys() {
+        return keys;
+    }
+
+    public int getNumberOfPriors() {
+        return numberOfPriors;
     }
 }

@@ -23,7 +23,7 @@
     },
     "dcmEntitySelector": {
       "title": "Entity Selector",
-      "description": "Specifies matching keys used to select entities to prefetch. Format: (study|series)[?{attributeID}={value}[&...][&priors=<n>]].",
+      "description": "Specifies matching keys used to select entities to prefetch. Format: priors=<n>[&{attributeID}={value}]... .",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmEntitySelector"

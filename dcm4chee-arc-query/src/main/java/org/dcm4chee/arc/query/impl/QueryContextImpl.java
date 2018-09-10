@@ -79,24 +79,22 @@ class QueryContextImpl implements QueryContext {
     private final HashMap<String, Storage> storageMap = new HashMap<>();
     private List<OrderByTag> orderByTags;
 
-    public QueryContextImpl(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-                            QueryParam queryParam, QueryService queryService) {
-        this(ae, queryParam, queryService);
-        this.httpRequest = httpRequest;
-        this.searchMethod = searchMethod;
-    }
-
-    private QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
+    QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
         this.ae = ae;
         this.queryService = queryService;
         this.queryParam = queryParam;
     }
 
-    public QueryContextImpl(Association as, String sopClassUID, ApplicationEntity ae, QueryParam queryParam,
-                            QueryServiceImpl queryService) {
-        this(ae, queryParam, queryService);
+    QueryContextImpl find(Association as, String sopClassUID) {
         this.as = as;
         this.sopClassUID = sopClassUID;
+        return this;
+    }
+
+    QueryContextImpl qido(HttpServletRequest httpRequest, String searchMethod) {
+        this.httpRequest = httpRequest;
+        this.searchMethod = searchMethod;
+        return this;
     }
 
     @Override

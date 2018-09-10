@@ -275,6 +275,29 @@ public class ExportManagerEJB implements ExportManager {
         scheduleExportTask(task, exporter, httpServletRequestInfo, batchID);
     }
 
+    @Override
+    public boolean scheduleStudyExport(
+            String studyUID, ExporterDescriptor exporter, Date notExportedAfter, String batchID) {
+        try {
+            ExportTask prevTask = em.createNamedQuery(ExportTask.FIND_STUDY_EXPORT_AFTER, ExportTask.class)
+                    .setParameter(1, notExportedAfter)
+                    .setParameter(2, exporter.getExporterID())
+                    .setParameter(3, studyUID)
+                    .getSingleResult();
+            LOG.info("Previous {} found - suppress duplicate Export", prevTask);
+            return false;
+        } catch (NoResultException e) {
+        }
+
+        ExportTask task = createExportTask(exporter.getExporterID(), studyUID, "*", "*", new Date());
+        try {
+            scheduleExportTask(task, exporter, null, batchID);
+        } catch (QueueSizeLimitExceededException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
                                     HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {

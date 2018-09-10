@@ -60,7 +60,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -83,6 +85,7 @@ class StoreSessionImpl implements StoreSession {
     private final Map<String, Storage> storageMap = new HashMap<>();
     private Study cachedStudy;
     private final Map<String,Series> seriesCache = new HashMap<>();
+    private final Set<String> processedPrefetchRules = new HashSet<>();
     private final Map<Long,UIDMap> uidMapCache = new HashMap<>();
     private Map<String, String> uidMap;
     private String objectStorageID;
@@ -234,8 +237,19 @@ class StoreSessionImpl implements StoreSession {
         if (!isStudyCached(study.getStudyInstanceUID())) {
             cachedStudy = study;
             seriesCache.clear();
+            processedPrefetchRules.clear();
         }
         seriesCache.put(series.getSeriesInstanceUID(), series);
+    }
+
+    @Override
+    public boolean isNotProcessed(PrefetchRule rule) {
+        return !processedPrefetchRules.contains(rule.getCommonName());
+    }
+
+    @Override
+    public boolean markAsProcessed(PrefetchRule rule) {
+        return processedPrefetchRules.add(rule.getCommonName());
     }
 
     private boolean isStudyCached(String studyInstanceUID) {

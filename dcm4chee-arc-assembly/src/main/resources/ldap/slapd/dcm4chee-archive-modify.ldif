@@ -1187,7 +1187,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.239 NAME 'dcmDiffTaskProgressUpdateI
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.240 NAME 'dcmEntitySelector'
-  DESC 'Specifies matching keys used to select entities to prefetch. Format: (study|series)[?{attributeID}={value}[&...][&priors=<n>]]'
+  DESC 'Specifies matching keys used to select entities to prefetch. Format: priors=<n>[&{attributeID}={value}]...'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -

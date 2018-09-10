@@ -74,6 +74,8 @@ public interface QueryService {
     QueryContext newQueryContextQIDO(
             HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam);
 
+    QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam);
+
     Query createQuery(QueryContext ctx);
 
     Query createPatientQuery(QueryContext ctx);
