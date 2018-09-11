@@ -163,7 +163,7 @@ export class DiffMonitorComponent implements OnInit {
                     });
                 }else{
                     this.config = {
-                        table:j4care.calculateWidthOfTable(this.service.getTableColumens()),
+                        table:j4care.calculateWidthOfTable(this.service.getTableColumens(this, this.action)),
                         filter:filter
                     };
                     this.tasks = tasks;
@@ -207,6 +207,92 @@ export class DiffMonitorComponent implements OnInit {
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         })
+    }
+    deleteAllTasks(filter){
+        this.service.deleteAll(filter).subscribe((res)=>{
+            this.mainservice.setMessage({
+                'title': 'Info',
+                'text': res.deleted + ' tasks deleted successfully!',
+                'status': 'info'
+            });
+            this.cfpLoadingBar.complete();
+            let filters = Object.assign({},this.filterObject);
+            this.getDiffTasks(filters);
+        }, (err) => {
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+    action(mode, match){
+        console.log("in action",mode,"match",match);
+        if(mode && match && match.pk){
+            this.confirm({
+                content: `Are you sure you want to ${mode} this task?`
+            }).subscribe(ok => {
+                if (ok){
+                    switch (mode) {
+                        case 'reschedule':
+                            this.cfpLoadingBar.start();
+                            this.service.reschedule(match.pk)
+                                .subscribe(
+                                    (res) => {
+                                        this.getDiffTasks(this.filterObject['offset'] || 0);
+                                        this.cfpLoadingBar.complete();
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': 'Task rescheduled successfully!',
+                                            'status': 'info'
+                                        });
+                                    },
+                                    (err) => {
+                                        this.cfpLoadingBar.complete();
+                                        this.httpErrorHandler.handleError(err);
+                                    });
+                        break;
+                        case 'delete':
+                            this.cfpLoadingBar.start();
+                            this.service.delete(match.pk)
+                                .subscribe(
+                                    (res) => {
+                                        // match.properties.status = 'CANCELED';
+                                        this.cfpLoadingBar.complete();
+                                        this.getDiffTasks(this.filterObject['offset'] || 0);
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': 'Task deleted successfully!',
+                                            'status': 'info'
+                                        });
+                                    },
+                                    (err) => {
+                                        this.cfpLoadingBar.complete();
+                                        this.httpErrorHandler.handleError(err);
+                                    });
+                        break;
+                        case 'cancel':
+                            this.cfpLoadingBar.start();
+                            this.service.cancel(match.pk)
+                                .subscribe(
+                                    (res) => {
+                                        match.status = 'CANCELED';
+                                        this.cfpLoadingBar.complete();
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': 'Task canceled successfully!',
+                                            'status': 'info'
+                                        });
+                                    },
+                                    (err) => {
+                                        this.cfpLoadingBar.complete();
+                                        console.log('cancleerr', err);
+                                        this.httpErrorHandler.handleError(err);
+                                    });
+                        break;
+                        default:
+                            console.error("Not knowen mode=",mode);
+                    }
+                }
+            });
+        }
     }
     getDiffTasksCount(filters){
         this.cfpLoadingBar.start();

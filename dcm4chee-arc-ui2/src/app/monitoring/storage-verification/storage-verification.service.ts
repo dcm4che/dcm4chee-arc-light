@@ -4,17 +4,20 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DevicesService} from "../../devices/devices.service";
 import {AppService} from "../../app.service";
 import * as _ from 'lodash';
+import {DatePipe} from "@angular/common";
+import {Headers} from "@angular/http";
 
 @Injectable()
 export class StorageVerificationService {
-
-  constructor(
+    header = new Headers({ 'Content-Type': 'application/json' });
+    constructor(
       public $http:J4careHttpService,
       public mainservice: AppService,
+      private dataPipe:DatePipe,
       private deviceService:DevicesService
-  ) { }
+    ) { }
 
-  statusValues(){
+    statusValues(){
       return [
           {
               value:"SCHEDULED",
@@ -41,26 +44,26 @@ export class StorageVerificationService {
               text:"CANCELED"
           }
       ];
-  }
-  getSorageVerifications(filter, batch){
+    }
+    getSorageVerifications(filter, batch){
       return this.$http.get(`../monitor/stgver${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
           .map(res => j4care.redirectOnAuthResponse(res));
-  }
-  getSorageVerificationsCount(filter) {
+    }
+    getSorageVerificationsCount(filter) {
       let filterClone = _.cloneDeep(filter);
       delete filterClone.offset;
       delete filterClone.limit;
       delete filterClone.orderby;
       return this.$http.get('../monitor/stgver/count' + '?' + this.mainservice.param(filterClone))
           .map(res => j4care.redirectOnAuthResponse(res));
-  };
-  getTableSchema(){
+    };
+    getTableSchema($this, action){
       return [
           {
               type:"index",
               title:"#",
               description:"Index",
-              widthWeight:0.1,
+              widthWeight:0.2,
               calculatedWidth:"4%"
           },{
               type:"buttons",
@@ -76,10 +79,45 @@ export class StorageVerificationService {
                           console.log("e",e);
                           e.showAttributes = !e.showAttributes;
                       }
+                  },{
+                      icon:{
+                          tag:'span',
+                          cssClass:'glyphicon glyphicon-ban-circle',
+                          text:''
+                      },
+                      click:(e)=>{
+                          console.log("e",e);
+                          action.call($this,'cancel', e);
+                      },
+                      title:'Cancel this task'
+                  },
+                  {
+                      icon:{
+                          tag:'span',
+                          cssClass:'glyphicon glyphicon-repeat',
+                          text:''
+                      },
+                      click:(e)=>{
+                          console.log("e",e);
+                          action.call($this,'reschedule', e);
+                      },
+                      title:'Reschedule this task'
+                  },
+                  {
+                      icon:{
+                          tag:'span',
+                          cssClass:'glyphicon glyphicon-remove-circle',
+                          text:''
+                      },
+                      click:(e)=>{
+                          console.log("e",e);
+                          action.call($this,'delete', e);
+                      },
+                      title:'Delete this task'
                   }
               ],
               description:"Index",
-              widthWeight:0.3,
+              widthWeight:0.4,
               calculatedWidth:"6%"
           },
           {
@@ -87,7 +125,7 @@ export class StorageVerificationService {
               title:"Local AET",
               key:"LocalAET",
               description:"Local AET",
-              widthWeight:0.4,
+              widthWeight:0.8,
               calculatedWidth:"20%"
           },
           {
@@ -95,7 +133,7 @@ export class StorageVerificationService {
               title:"Batch ID",
               key:"batchID",
               description:"Batch ID",
-              widthWeight:0.4,
+              widthWeight:0.8,
               calculatedWidth:"20%"
           },
           {
@@ -111,7 +149,7 @@ export class StorageVerificationService {
               title:"Status",
               key:"status",
               description:"Status",
-              widthWeight:0.4,
+              widthWeight:0.8,
               calculatedWidth:"20%"
           },
           {
@@ -124,14 +162,113 @@ export class StorageVerificationService {
           },
           {
               type:"model",
-              title:"Device Name",
-              key:"dicomDeviceName",
-              description:"Device Name",
-              widthWeight:1,
+              title:"Outcome Message",
+              key:"outcomeMessage",
+              description:"Outcome Message",
+              widthWeight:4,
               calculatedWidth:"20%"
           }
       ];
-  }
+    }
+    getTableBatchGroupedColumens(showDetails){
+        return [
+            {
+                type:"index",
+                title:"#",
+                description:"Index",
+                widthWeight:0.1,
+                calculatedWidth:"4%"
+            },{
+                type:"buttons",
+                title:"",
+                buttons:[
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-th-list',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            e.showAttributes = !e.showAttributes;
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-list-alt',
+                            text:''
+                        },
+                        click:(e)=>{
+                            showDetails.apply(this,[e]);
+                        }
+                    }
+                ],
+                description:"Index",
+                widthWeight:0.3,
+                calculatedWidth:"6%"
+            },{
+                type:"model",
+                title:"Batch ID",
+                key:"batchID",
+                description:"Batch ID",
+                widthWeight:0.4,
+                calculatedWidth:"20%"
+            },{
+                type:"model",
+                title:"Primary AET",
+                key:"PrimaryAET",
+                description:"AE Title of the primary C-FIND SCP",
+                widthWeight:1,
+                calculatedWidth:"20%"
+            },{
+                type:"model",
+                title:"Secondary AET",
+                key:"SecondaryAET",
+                description:"AE Title of the secondary C-FIND SCP",
+                widthWeight:1,
+                modifyData:(data)=> data.join(', ') || data,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"model",
+                title:"Scheduled time range",
+                key:"scheduledTimeRange",
+                description:"Scheduled time range",
+                modifyData:(data)=> this.stringifyRangeArray(data),
+                widthWeight:1.4,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"model",
+                title:"Processing start time range",
+                key:"processingStartTimeRange",
+                description:"Processing start time range",
+                widthWeight:1.4,
+                modifyData:(data)=> this.stringifyRangeArray(data),
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"model",
+                title:"Processing end time range",
+                key:"processingEndTimeRange",
+                description:"Processing end time range",
+                modifyData:(data)=> this.stringifyRangeArray(data),
+                widthWeight:1.4,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"progress",
+                title:"Tasks",
+                description:"Tasks",
+                key:"tasks",
+                diffMode:true,
+                widthWeight:2,
+                calculatedWidth:"30%",
+                cssClass:"hideOn800px"
+            }
+        ];
+    }
   getFilterSchema(devices, localAET, countText){
     return [
         {
@@ -229,6 +366,40 @@ export class StorageVerificationService {
         }
     ]
   }
+    stringifyRangeArray(data){
+        try{
+            return `${this.dataPipe.transform(data[0],'yyyy.MM.dd HH:mm:ss')} - ${this.dataPipe.transform(data[0],'yyyy.MM.dd HH:mm:ss')}`
+        }catch (e){
+            return data;
+        }
+    }
+    cancelAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/stgver/cancel${urlParam}`, {}, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    cancel(pk){
+        return this.$http.post(`../monitor/stgver/${pk}/cancel`, {});
+    }
+    rescheduleAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/stgver/reschedule${urlParam}`, {}, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    reschedule(pk){
+        return this.$http.post(`../monitor/stgver/${pk}/reschedule`, {});
+    }
+    deleteAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.delete(`../monitor/stgver${urlParam}`, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    delete(pk){
+        return this.$http.delete('../monitor/stgver/' + pk);
+    }
   getDevices(){
       return this.deviceService.getDevices()
   }

@@ -126,7 +126,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             this.getTasks(0);
         }*/
         this.tableConfig = {
-            table:j4care.calculateWidthOfTable(this.service.getTableSchema()),
+            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action)),
             filter:this.filterObject
         };
     }
@@ -176,7 +176,62 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       //TODO
     }
     allActionChanged(e){
-      //TODO
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = Object.assign({}, this.filterObject);
+        delete filter.limit;
+        delete filter.offset;
+        this.confirm({
+            content: text
+        }).subscribe((ok)=>{
+            if(ok){
+                this.cfpLoadingBar.start();
+                switch (this.allAction){
+                    case "cancel":
+                        this.service.cancelAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' tasks deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+
+                        break;
+                    case "reschedule":
+                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' tasks rescheduled successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                        break;
+                    case "delete":
+                        this.service.deleteAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' tasks deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                        break;
+                }
+                this.cfpLoadingBar.complete();
+            }
+            this.allAction = "";
+            this.allAction = undefined;
+        });
     }
     getCounts(){
         let filters = Object.assign({},this.filterObject);
@@ -268,6 +323,30 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 if (res && res.length > 0){
                     this.storageVerifications =  res;
                     $this.count = undefined;
+                    if(this.batchGrouped){
+                        this.tableConfig = {
+                            table:j4care.calculateWidthOfTable(this.service.getTableBatchGroupedColumens((e)=>{
+                                this.showDetails(e)
+                            })),
+                            filter:this.filterObject
+                        };
+                        this.storageVerifications = res.map(taskObject=>{
+                            if(_.hasIn(taskObject, 'tasks')){
+                                let taskPrepared = [];
+                                Globalvar.TASK_NAMES.forEach(task=>{
+                                    if(taskObject.tasks[task])
+                                        taskPrepared.push({[task]:taskObject.tasks[task]});
+                                });
+                                taskObject.tasks = taskPrepared;
+                            }
+                            return taskObject;
+                        });
+                    }else{
+                        this.tableConfig = {
+                            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action)),
+                            filter:this.filterObject
+                        };
+                    }
                 }else{
                     $this.cfpLoadingBar.complete();
                     $this.storageVerifications = [];
@@ -287,6 +366,14 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 $this.httpErrorHandler.handleError(err);
             });
     }
+    showDetails(e){
+        this.batchGrouped = false;
+        this.filterObject['batchID'] = e.batchID;
+        let filter = Object.assign({},this.filterObject);
+        if(filter['limit'])
+            filter['limit']++;
+        this.getTasks(filter);
+    }
     onFormChange(filters){
         this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
@@ -299,7 +386,92 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             }
         });
     }
-
+    deleteAllTasks(filter){
+        this.service.deleteAll(filter).subscribe((res)=>{
+            this.mainservice.setMessage({
+                'title': 'Info',
+                'text': res.deleted + ' tasks deleted successfully!',
+                'status': 'info'
+            });
+            this.cfpLoadingBar.complete();
+            let filters = Object.assign({},this.filterObject);
+            this.getTasks(filters);
+        }, (err) => {
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+    action(mode, match){
+        console.log("in action",mode,"match",match);
+        if(mode && match && match.pk){
+            this.confirm({
+                content: `Are you sure you want to ${mode} this task?`
+            }).subscribe(ok => {
+                if (ok){
+                    switch (mode) {
+                        case 'reschedule':
+                            this.cfpLoadingBar.start();
+                            this.service.reschedule(match.pk)
+                                .subscribe(
+                                    (res) => {
+                                        this.getTasks(this.filterObject['offset'] || 0);
+                                        this.cfpLoadingBar.complete();
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': 'Task rescheduled successfully!',
+                                            'status': 'info'
+                                        });
+                                    },
+                                    (err) => {
+                                        this.cfpLoadingBar.complete();
+                                        this.httpErrorHandler.handleError(err);
+                                    });
+                            break;
+                        case 'delete':
+                            this.cfpLoadingBar.start();
+                            this.service.delete(match.pk)
+                                .subscribe(
+                                    (res) => {
+                                        // match.properties.status = 'CANCELED';
+                                        this.cfpLoadingBar.complete();
+                                        this.getTasks(this.filterObject['offset'] || 0);
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': 'Task deleted successfully!',
+                                            'status': 'info'
+                                        });
+                                    },
+                                    (err) => {
+                                        this.cfpLoadingBar.complete();
+                                        this.httpErrorHandler.handleError(err);
+                                    });
+                            break;
+                        case 'cancel':
+                            this.cfpLoadingBar.start();
+                            this.service.cancel(match.pk)
+                                .subscribe(
+                                    (res) => {
+                                        match.status = 'CANCELED';
+                                        this.cfpLoadingBar.complete();
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': 'Task canceled successfully!',
+                                            'status': 'info'
+                                        });
+                                    },
+                                    (err) => {
+                                        this.cfpLoadingBar.complete();
+                                        console.log('cancleerr', err);
+                                        this.httpErrorHandler.handleError(err);
+                                    });
+                            break;
+                        default:
+                            console.error("Not knowen mode=",mode);
+                    }
+                }
+            });
+        }
+    }
     ngOnDestroy(){
         if(this.timer.started){
             this.timer.started = false;

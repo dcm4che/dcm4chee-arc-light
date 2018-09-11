@@ -5,10 +5,12 @@ import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
 import {DatePipe} from "@angular/common";
 import {Router} from "@angular/router";
+import {Headers} from "@angular/http";
 
 @Injectable()
 export class DiffMonitorService {
 
+    header = new Headers({ 'Content-Type': 'application/json' });
     constructor(
         private deviceService: DevicesService,
         private mainservice:AppService,
@@ -167,7 +169,7 @@ export class DiffMonitorService {
       ];
   }
 
-    getTableColumens(){
+    getTableColumens($this, action){
         return [
             {
                 type:"index",
@@ -188,7 +190,44 @@ export class DiffMonitorService {
                         click:(e)=>{
                             console.log("e",e);
                             e.showAttributes = !e.showAttributes;
-                        }
+                        },
+                        title:"Show details"
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-ban-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'cancel', e);
+                        },
+                        title:'Cancel this task'
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-repeat',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'reschedule', e);
+                        },
+                        title:'Reschedule this task'
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-remove-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'delete', e);
+                        },
+                        title:'Delete this task'
                     },
                     {
                         icon:{
@@ -359,6 +398,7 @@ export class DiffMonitorService {
                 title:"Tasks",
                 description:"Tasks",
                 key:"tasks",
+                diffMode:true,
                 widthWeight:2,
                 calculatedWidth:"30%",
                 cssClass:"hideOn800px"
@@ -392,4 +432,33 @@ export class DiffMonitorService {
         return this.$http.get(url)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
+
+    cancelAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/diff/cancel${urlParam}`, {}, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    cancel(pk){
+        return this.$http.post(`../monitor/diff/${pk}/cancel`, {});
+    }
+    rescheduleAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/diff/reschedule${urlParam}`, {}, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    reschedule(pk){
+        return this.$http.post(`../monitor/diff/${pk}/reschedule`, {});
+    }
+    deleteAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.delete(`../monitor/diff${urlParam}`, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    delete(pk){
+        return this.$http.delete('../monitor/diff/' + pk);
+    }
+
 }

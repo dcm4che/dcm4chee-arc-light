@@ -31,7 +31,7 @@ export class StackedProgressComponent implements OnInit {
             if(key === 'completed'){
                 return ' ( No diffs )';
             }
-            if(key === 'warning'){
+            if(key === 'warning' && this.extractDiffInformation()){
                 return ` ( ${this.extractDiffInformation()} )`;
             }
         }
@@ -56,8 +56,10 @@ export class StackedProgressComponent implements OnInit {
         }
     }
     getTotalCount(){
-        this.model.forEach(part=>{
-            this.totalCount += parseInt(part[Object.keys(part)[0]].toString());
-        })
+        if(this.model){
+            this.model.forEach(part=>{
+                this.totalCount += parseInt(part[Object.keys(part)[0]].toString());
+            })
+        }
     }
 }
