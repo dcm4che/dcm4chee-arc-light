@@ -117,7 +117,7 @@ export class StorageVerificationService {
                   }
               ],
               description:"Index",
-              widthWeight:0.4,
+              widthWeight:0.6,
               calculatedWidth:"6%"
           },
           {
@@ -141,7 +141,7 @@ export class StorageVerificationService {
               title:"Study Instance UID",
               key:"StudyInstanceUID",
               description:"Study Instance UID",
-              widthWeight:1.5,
+              widthWeight:2,
               calculatedWidth:"20%"
           },
           {
@@ -149,7 +149,7 @@ export class StorageVerificationService {
               title:"Status",
               key:"status",
               description:"Status",
-              widthWeight:0.8,
+              widthWeight:0.7,
               calculatedWidth:"20%"
           },
           {

@@ -2273,6 +2273,7 @@ mat-dialog-container{
         box-sizing: border-box;
         padding: 5px 2px 5px 7px;
         height: 30px;
+        word-wrap: break-word;
       }
     }
   }
@@ -2288,10 +2289,11 @@ mat-dialog-container{
         float: left;
         box-sizing: border-box;
         padding: 5px 2px 5px 7px;
+        word-wrap: break-word;
         span{
           width: 100%;
           float: left;
-          overflow: auto;
+          //overflow: auto;
         }
         .text_content{
           position: relative;

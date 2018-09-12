@@ -22,9 +22,8 @@
                         <span *ngIf="_.hasIn(model,table_element.key)">{{table_element.modifyData(_.get(model,table_element.key))}}</span>
                     </ng-container>
                     <ng-container *ngIf="!table_element.modifyData">
-                        <span *ngIf="_.hasIn(model,table_element.key)" class="text_content">
+                        <span *ngIf="_.hasIn(model,table_element.key)" class="text_content" tooltip="{{_.get(model,table_element.key)}}">
                             {{_.get(model,table_element.key)}}
-                            <!--<div class="copy_button"(click)="selectOnClick(_.get(model,table_element.key))" title="Copy text">Copy</div>-->
                         </span>
                     </ng-container>
                 </ng-container>
