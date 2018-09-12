@@ -1353,8 +1353,8 @@ public class StoreServiceEJB {
     }
 
     private IssuerEntity findOrCreateIssuer(Attributes attrs, int tag) {
-        Attributes item = attrs.getNestedDataset(tag);
-        return item != null && !item.isEmpty() ? issuerService.mergeOrCreate(new Issuer(item)) : null;
+        Issuer issuer = Issuer.valueOf(attrs.getNestedDataset(tag));
+        return issuer != null ? issuerService.mergeOrCreate(issuer) : null;
     }
 
     private CodeEntity findOrCreateCode(Attributes attrs, int seqTag) {
