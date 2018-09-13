@@ -41,14 +41,55 @@
 
 package org.dcm4chee.arc.hl7;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2018
  */
 public class ArchiveHL7Message extends UnparsedHL7Message {
+
+    private String patRecEventActionCode;
+    private String procRecEventActionCode;
+    private HttpServletRequestInfo httpServletRequestInfo;
+    private Attributes studyAttrs;
+
     public ArchiveHL7Message(byte[] data) {
         super(data);
+    }
+
+    public String getPatRecEventActionCode() {
+        return patRecEventActionCode;
+    }
+
+    public void setPatRecEventActionCode(String patRecEventActionCode) {
+        this.patRecEventActionCode = patRecEventActionCode;
+    }
+
+    public String getProcRecEventActionCode() {
+        return procRecEventActionCode;
+    }
+
+    public void setProcRecEventActionCode(String procRecEventActionCode) {
+        this.procRecEventActionCode = procRecEventActionCode;
+    }
+
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
+    }
+
+    public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
+    }
+
+    public Attributes getStudyAttrs() {
+        return studyAttrs;
+    }
+
+    public void setStudyAttrs(Attributes studyAttrs) {
+        this.studyAttrs = studyAttrs;
     }
 }

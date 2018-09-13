@@ -94,14 +94,17 @@ public class ProcedureUpdateService extends AbstractHL7Service {
 
     @Override
     protected UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService);
-        if (pat != null)
-            updateProcedure(hl7App, s, msg, pat);
-        return new ArchiveHL7Message(
+        ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
+        Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
+        if (pat != null)
+            updateProcedure(hl7App, s, msg, pat, archiveHL7Message);
+
+        return archiveHL7Message;
     }
 
-    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat)
+    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat,
+                                 ArchiveHL7Message archiveHL7Message)
             throws IOException, SAXException, TransformerConfigurationException {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
@@ -124,6 +127,8 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
         procedureService.updateProcedure(ctx);
+        archiveHL7Message.setProcRecEventActionCode(ctx.getEventActionCode());
+        archiveHL7Message.setStudyAttrs(ctx.getAttributes());
     }
 
     private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Fields hl7Fields,

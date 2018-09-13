@@ -174,7 +174,8 @@ public class HL7RS {
     }
 
     private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) {
-        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+        HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
+        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
         try {
             if (queue) {
                 rsHL7Sender.scheduleHL7Message(msgType, ctx, appName, externalAppName);
@@ -182,7 +183,7 @@ public class HL7RS {
             }
             else {
                 HL7Application sender = getSendingHl7Application();
-                UnparsedHL7Message rsp = rsHL7Sender.sendHL7Message(msgType, ctx, sender, externalAppName);
+                UnparsedHL7Message rsp = rsHL7Sender.sendHL7Message(httpServletRequestInfo, msgType, ctx, sender, externalAppName);
                 ctx.setAck(rsp.data());
                 HL7Message ack = HL7Message.parse(rsp.data(), sender.getHL7DefaultCharacterSet());
                 patientMgtEvent.fire(ctx);

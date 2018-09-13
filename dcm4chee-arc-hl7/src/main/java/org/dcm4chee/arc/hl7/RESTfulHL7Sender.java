@@ -49,6 +49,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -91,10 +92,11 @@ public class RESTfulHL7Sender {
                 ctx.getHttpServletRequestInfo());
     }
 
-    public UnparsedHL7Message sendHL7Message(String msgType, PatientMgtContext ctx,
+    public UnparsedHL7Message sendHL7Message(HttpServletRequestInfo httpServletRequestInfo, String msgType, PatientMgtContext ctx,
                                              HL7Application sender, String receiver) throws Exception {
         HL7Msg msg = new HL7Msg(sender, receiver);
-        UnparsedHL7Message hl7MsgData = hl7MsgData(msgType, ctx, msg);
+        ArchiveHL7Message hl7Msg = new ArchiveHL7Message(hl7MsgData(msgType, ctx, msg).data());
+        hl7Msg.setHttpServletRequestInfo(httpServletRequestInfo);
 
         return hl7Sender.sendMessage(
                 sender,
@@ -102,7 +104,7 @@ public class RESTfulHL7Sender {
                 msg.receivingAppWithFacility[1],
                 msgType,
                 msg.msgControlID,
-                hl7MsgData);
+                hl7Msg);
     }
 
     private UnparsedHL7Message hl7MsgData(String msgType, PatientMgtContext ctx, HL7Msg msg) throws Exception {

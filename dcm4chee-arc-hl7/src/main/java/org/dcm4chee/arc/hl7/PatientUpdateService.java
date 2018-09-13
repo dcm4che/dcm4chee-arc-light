@@ -101,12 +101,14 @@ class PatientUpdateService extends AbstractHL7Service {
 
     @Override
     protected UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        updatePatient(hl7App, s, msg, patientService);
-        return new ArchiveHL7Message(
+        ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
+        updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
+        return archiveHL7Message;
     }
 
-    static Patient updatePatient(HL7Application hl7App, Socket s, UnparsedHL7Message msg, PatientService patientService)
+    static Patient updatePatient(HL7Application hl7App, Socket s, UnparsedHL7Message msg, PatientService patientService,
+                                 ArchiveHL7Message archiveHL7Message)
             throws HL7Exception, IOException, SAXException, TransformerConfigurationException {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
@@ -122,8 +124,11 @@ class PatientUpdateService extends AbstractHL7Service {
                             .setErrorLocation("PID^1^3")
                             .setUserMessage("Missing PID-3"));
         Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
-        if (mrg == null)
-            return patientService.updatePatient(ctx);
+        if (mrg == null) {
+            Patient patient = patientService.updatePatient(ctx);
+            archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
+            return patient;
+        }
 
         ctx.setPreviousAttributes(mrg);
         if (ctx.getPreviousPatientID() == null)
@@ -148,6 +153,13 @@ class PatientUpdateService extends AbstractHL7Service {
                             .setHL7ErrorCode(ERRSegment.DuplicateKeyIdentifier)
                             .setErrorLocation("MRG^1^1")
                             .setUserMessage("MRG-1 matches PID-3"));
+        } catch (Exception e) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.ApplicationInternalError)
+                            .setUserMessage(e.getMessage()));
+        } finally {
+            archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
         }
     }
 }

@@ -64,6 +64,6 @@ public interface HL7Sender {
             throws ConfigurationException, QueueSizeLimitExceededException;
 
     UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                   String messageType, String messageControlID, UnparsedHL7Message hl7msg)
+                                   String messageType, String messageControlID, ArchiveHL7Message hl7msg)
             throws Exception;
 }

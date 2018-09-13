@@ -44,12 +44,12 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.hl7.MLLPConnection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7Connection;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -142,7 +142,7 @@ public class HL7SenderImpl implements HL7Sender {
 
     @Override
     public UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                          String messageType, String messageControlID, UnparsedHL7Message hl7msg)
+                                          String messageType, String messageControlID, ArchiveHL7Message hl7msg)
             throws Exception {
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         try (HL7Connection conn = sender.open(receiver)) {

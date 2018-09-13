@@ -112,6 +112,8 @@ class AuditServiceUtils {
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         PAT_DLT_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 null, null, null),
+        PAT___READ(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
                 null, null, null),
@@ -168,13 +170,21 @@ class AuditServiceUtils {
                         ? STORE_UPDT : STORE_CREA;
         }
 
-        static EventType forHL7(PatientMgtContext ctx) {
+        static EventType forPatRec(PatientMgtContext ctx) {
             return ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? PAT_CREATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                         ? PAT_UPDATE
                         : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
                             ? ctx.getHttpServletRequestInfo() != null ? PAT_DELETE : PAT_DLT_SC : null;
+        }
+
+        static EventType forHL7PatRec(String eventActionCode) {
+            return eventActionCode == null
+                    ? PAT___READ
+                    : eventActionCode.equals(AuditMessages.EventActionCode.Create)
+                        ? PAT_CREATE
+                        : PAT_UPDATE;
         }
 
         static EventType forProcedure(String eventActionCode) {

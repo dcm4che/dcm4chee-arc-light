@@ -52,9 +52,6 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
-import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
@@ -62,7 +59,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -88,12 +84,6 @@ public class HL7SenderMDB implements MessageListener {
     @Inject
     private QueueManager queueManager;
 
-    @Inject
-    private PatientService patientService;
-
-    @Inject
-    private Event<PatientMgtContext> patientEvent;
-
     @Override
     public void onMessage(Message msg) {
         String msgID = null;
@@ -105,7 +95,7 @@ public class HL7SenderMDB implements MessageListener {
         if (queueManager.onProcessingStart(msgID) == null)
             return;
         try {
-            UnparsedHL7Message hl7msg = new ArchiveHL7Message((byte[]) ((ObjectMessage) msg).getObject());
+            ArchiveHL7Message hl7Msg = new ArchiveHL7Message((byte[]) ((ObjectMessage) msg).getObject());
             String messageType = msg.getStringProperty("MessageType");
             HL7Application sender = getSendingHl7Application(msg.getStringProperty("SendingApplication"),
                     msg.getStringProperty("SendingFacility"));
@@ -115,24 +105,11 @@ public class HL7SenderMDB implements MessageListener {
                     msg.getStringProperty("ReceivingFacility"),
                     messageType,
                     msg.getStringProperty("MessageControlID"),
-                    hl7msg);
-            outgoingHL7Audit(msg, hl7msg.data(), messageType, rsp.data());
+                    hl7Msg);
             queueManager.onProcessingSuccessful(msgID, toOutcome(rsp.data(), sender));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
-        }
-    }
-
-    private void outgoingHL7Audit(Message msg, byte[] hl7msg, String messageType, byte[] rsp) {
-        if (messageType.startsWith("ADT")) {
-            PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
-            ctx.setUnparsedHL7Message(new UnparsedHL7Message(hl7msg));
-            ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
-            ctx.setEventActionCode(messageType.startsWith("ADT^A28")
-                    ? AuditMessages.EventActionCode.Create : AuditMessages.EventActionCode.Update);
-            ctx.setAck(rsp);
-            patientEvent.fire(ctx);
         }
     }
 

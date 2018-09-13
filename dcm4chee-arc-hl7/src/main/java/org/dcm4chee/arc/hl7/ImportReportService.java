@@ -83,10 +83,11 @@ class ImportReportService extends AbstractHL7Service {
 
     @Override
     protected UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService) != null)
-            importReport(hl7App, s, msg);
-        return new ArchiveHL7Message(
+        ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
+        if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message) != null)
+            importReport(hl7App, s, msg);
+        return archiveHL7Message;
     }
 
     private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {

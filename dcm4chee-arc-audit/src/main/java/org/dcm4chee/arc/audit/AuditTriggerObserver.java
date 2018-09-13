@@ -43,6 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
+import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -181,6 +182,11 @@ public class AuditTriggerObserver {
     public void onBulkQueueMessageEvent(@Observes BulkQueueMessageEvent bulkQueueMsgEvent) {
         if (deviceHasAuditLoggers())
             auditService.spoolBulkQueueMessageEvent(bulkQueueMsgEvent);
+    }
+
+    public void onHL7Message(@Observes HL7ConnectionEvent hl7ConnectionEvent) {
+        if (deviceHasAuditLoggers())
+            auditService.spoolHL7Message(hl7ConnectionEvent);
     }
 
     private boolean deviceHasAuditLoggers() {
