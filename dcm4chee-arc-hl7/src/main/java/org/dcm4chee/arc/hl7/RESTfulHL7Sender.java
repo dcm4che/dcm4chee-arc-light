@@ -121,10 +121,9 @@ public class RESTfulHL7Sender {
                         tr.setParameter("charset", msg.hl7cs);
                         if (ctx.getPreviousPatientID() != null) {
                             tr.setParameter("priorPatientID", ctx.getPreviousPatientID().toString());
-                            tr.setParameter("priorPatientName",
-                                msgType.equals("ADT^A40^ADT_A39")
-                                    ? ctx.getPreviousAttributes().getString(Tag.PatientName)
-                                    : ctx.getAttributes().getString(Tag.PatientName));
+                            String prevPatName = ctx.getPreviousAttributes().getString(Tag.PatientName);
+                            if (msgType.equals("ADT^A40^ADT_A39") && prevPatName != null)
+                                tr.setParameter("priorPatientName", prevPatName);
                         }
                         if (msg.hl7UseNullValue && msgType.equals("ADT^A31^ADT_A05"))
                             tr.setParameter("includeNullValues", "\"\"");
