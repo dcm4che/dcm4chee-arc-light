@@ -28,7 +28,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     exporterID;
     showMenu;
     exportTasks = [];
-    filters = {
+/*    filters = {
         ExporterID: undefined,
         offset: undefined,
         limit: 20,
@@ -41,7 +41,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         batchID: undefined,
         orderby: undefined,
         // createdTimeObject: undefined
-    };
+    };*/
     timer = {
         started:false,
         startText:"Start Auto Refresh",
@@ -81,6 +81,9 @@ export class ExportComponent implements OnInit, OnDestroy {
     ];
     allActionsActive = [];
     tableHovered = false;
+    filterSchema;
+    filterObject:any = {};
+    urlParam;
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: LoadingBarService,
@@ -98,7 +101,10 @@ export class ExportComponent implements OnInit, OnDestroy {
     initCheck(retries){
         let $this = this;
         if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+            this.route.queryParams.subscribe(params => {
+                this.urlParam = Object.assign({},params);
                 this.init();
+            });
         }else{
             if (retries){
                 setTimeout(()=>{
@@ -112,7 +118,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     init(){
         this.route.queryParams.subscribe(params => {
             if(params && params['dicomDeviceName']){
-                this.filters['dicomDeviceName'] = params['dicomDeviceName'];
+                this.filterObject['dicomDeviceName'] = params['dicomDeviceName'];
                 this.search(0);
             }
         });
@@ -124,7 +130,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 loader: false
             };
         });
-        let $this = this;
+/*        let $this = this;
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
@@ -167,13 +173,21 @@ export class ExportComponent implements OnInit, OnDestroy {
         }else{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
-        }
+        }*/
         this.statusChange();
+    }
+    initSchema(){
+        this.filterSchema = this.service.getFilterSchema(this.exporters, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
+        if(this.urlParam){
+            this.filterObject = this.urlParam;
+            this.filterObject["limit"] = 20;
+        }
     }
     // changeTest(e){
     //     console.log("changetest",e);
-    //     this.filters.createdTime = e;
+    //     this.filterObject.createdTime = e;
     // }
+
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
         if (code === 13){
@@ -205,8 +219,18 @@ export class ExportComponent implements OnInit, OnDestroy {
     tableMousLeave(){
         this.tableHovered = false;
     }
+    onSubmit(object){
+        if(_.hasIn(object,"id") && _.hasIn(object,"model")){
+            if(object.id === "count"){
+                this.getCount();
+            }else{
+                // this.getTasks(0);
+                this.getCounts();
+            }
+        }
+    }
     getCounts(){
-        let filters = Object.assign({},this.filters);
+        let filters = Object.assign({},this.filterObject);
         if(!this.tableHovered)
             this.search(0);
         Object.keys(this.statusValues).forEach(status=>{
@@ -246,13 +270,13 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }
                 }
                 if(!this.mainservice.global.notSecure){
-                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
+                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
                 }else{
-                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
+                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
                 }
             });
         });
-/*        this.service.downloadCsv(this.filters).subscribe((csv)=>{
+/*        this.service.downloadCsv(this.filterObject).subscribe((csv)=>{
             let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
             FileSaver.saveAs(file);
         },(err)=>{
@@ -260,14 +284,14 @@ export class ExportComponent implements OnInit, OnDestroy {
         });*/
     }
     showTaskDetail(task){
-        this.filters.batchID = task.properties.batchID;
+        this.filterObject.batchID = task.properties.batchID;
         this.batchGrouped = false;
         this.search(0);
     }
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(this.filters, offset,this.batchGrouped)
+        this.service.search(this.filterObject, offset,this.batchGrouped)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
 /*                    res = [{"batchID":"test12","tasks":{
@@ -332,7 +356,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     getCount(){
         this.cfpLoadingBar.start();
-        this.service.getCount(this.filters).subscribe((count)=>{
+        this.service.getCount(this.filterObject).subscribe((count)=>{
             try{
                 this.count = count.count;
             }catch (e){
@@ -346,10 +370,10 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     statusChange(){
         this.allActionsActive = this.allActionsOptions.filter((o)=>{
-            if(this.filters.status == "SCHEDULED" || this.filters.status == "IN PROCESS"){
+            if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
-                if(!this.filters.status || this.filters.status === '*' || this.filters.status === '')
+                if(!this.filterObject.status || this.filterObject.status === '*' || this.filterObject.status === '')
                     return o.value != 'cancel' && o.value != 'reschedule';
                 else
                     return o.value != 'cancel';
@@ -359,10 +383,10 @@ export class ExportComponent implements OnInit, OnDestroy {
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
 /*        let filter = {
-            dicomDeviceName:this.filters.dicomDeviceName?this.filters.dicomDeviceName:undefined,
-            status:this.filters.status?this.filters.status:undefined
+            dicomDeviceName:this.filterObject.dicomDeviceName?this.filterObject.dicomDeviceName:undefined,
+            status:this.filterObject.status?this.filterObject.status:undefined
         };*/
-        let filter = _.cloneDeep(this.filters);
+        let filter = _.cloneDeep(this.filterObject);
         if(filter.status === '*')
             delete filter.status;
         if(filter.dicomDeviceName === '*')
@@ -737,16 +761,16 @@ export class ExportComponent implements OnInit, OnDestroy {
     };
 
     hasOlder(objs) {
-        return objs && (objs.length === this.filters.limit);
+        return objs && (objs.length === this.filterObject.limit);
     };
     hasNewer(objs) {
         return objs && objs.length && objs[0].offset;
     };
     newerOffset(objs) {
-        return Math.max(0, objs[0].offset - this.filters.limit);
+        return Math.max(0, objs[0].offset - this.filterObject.limit);
     };
     olderOffset(objs) {
-        return objs[0].offset + this.filters.limit;
+        return objs[0].offset + this.filterObject.limit;
     };
 
 /*    init() {
@@ -786,6 +810,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.service.getDevices().subscribe(devices=>{
             this.cfpLoadingBar.complete();
             this.devices = devices.filter(dev => dev.hasArcDevExt);
+            this.initSchema();
         },(err)=>{
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
