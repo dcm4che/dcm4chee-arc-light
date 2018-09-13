@@ -28,7 +28,7 @@
     },
     "dcmProperty": {
       "title": "Conditions",
-      "description": "Conditions in format {attributeID}[!]={regEx} or MSH-#[!]={regEx} Examples: MSH-3=FORWARD or MSH-8=ADT\\^A28\\^ADT_A05",
+      "description": "Conditions in format {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}. Examples: MSH-3=FORWARD or MSH-8=ADT\\^A28\\^ADT_A05",
       "type": "array",
       "items": {
         "type": "string"

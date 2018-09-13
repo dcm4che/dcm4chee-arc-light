@@ -51,6 +51,7 @@ import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
@@ -105,7 +106,8 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         String host = ReverseDNS.hostNameOf(s.getLocalAddress());
         HL7Segment msh = msg.msh();
         byte[] hl7msg = msg.data();
-        Collection<String> destinations = arcHL7App.forwardDestinations(host, msh);
+        Collection<String> destinations = arcHL7App.forwardDestinations(host,
+                new HL7Fields(msg, arcHL7App.getHL7Application().getHL7DefaultCharacterSet()));
         if (!destinations.isEmpty())
             hl7sender.forwardMessage(msh, hl7msg,
                     destinations.toArray(new String[0]));

@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 
 import java.util.Arrays;
 
@@ -87,8 +88,8 @@ public class HL7ForwardRule {
         this.destinations = destinations;
     }
 
-    public boolean match(String hostName, HL7Segment msh) {
-        return conditions.match(hostName, msh, null);
+    public boolean match(String hostName, HL7Fields hl7Fields) {
+        return conditions.match(hostName, hl7Fields);
     }
 
     @Override

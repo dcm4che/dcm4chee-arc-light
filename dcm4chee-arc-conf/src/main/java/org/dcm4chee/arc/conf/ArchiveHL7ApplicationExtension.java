@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 
 import java.util.*;
 
@@ -214,12 +215,12 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ForwardRules;
     }
 
-    public Collection<String> forwardDestinations(String hostName, HL7Segment msh) {
+    public Collection<String> forwardDestinations(String hostName, HL7Fields hl7Fields) {
         HashSet<String> dests = new HashSet<>();
         for (Collection<HL7ForwardRule> rules
                 : new Collection[]{hl7ForwardRules, getArchiveDeviceExtension().getHL7ForwardRules() })
             for (HL7ForwardRule rule : rules)
-                if (rule.match(hostName, msh))
+                if (rule.match(hostName, hl7Fields))
                     for (String dest : rule.getDestinations()) {
                         dests.add(dest);
                     }
@@ -242,13 +243,13 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7OrderScheduledStations;
     }
 
-    public Collection<Device> hl7OrderScheduledStation(String hostName, HL7Segment msh, Attributes attrs) {
+    public Collection<Device> hl7OrderScheduledStation(String hostName, HL7Fields hl7Fields) {
         ArrayList<Device> scheduledStations = new ArrayList<>();
         int priority = 0;
         for (Collection<HL7OrderScheduledStation> stations
                 : new Collection[]{scheduledStations, getArchiveDeviceExtension().getHL7OrderScheduledStations() })
             for (HL7OrderScheduledStation station : stations)
-                if (station.match(hostName, msh, attrs))
+                if (station.match(hostName, hl7Fields))
                     if (priority <= station.getPriority()) {
                         if (priority < station.getPriority()) {
                             priority = station.getPriority();

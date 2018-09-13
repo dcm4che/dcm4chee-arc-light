@@ -54,6 +54,7 @@ import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientService;
@@ -112,7 +113,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                     if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
                         tr.setParameter("hl7ScheduledStationAETInOrder", arcHL7App.hl7ScheduledStationAETInOrder().toString());
                 });
-        boolean result = adjust(attrs, arcHL7App, msh, s);
+        boolean result = adjust(attrs, arcHL7App, new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()), s);
         if (!result) {
             LOG.warn("MWL item not created/updated for HL7 message : " + msh.getMessageType()
                     + " as no mapping to a Scheduled Procedure Step Status is configured with ORC-1_ORC-5 : "
@@ -125,14 +126,16 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         procedureService.updateProcedure(ctx);
     }
 
-    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh, Socket socket) {
+    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Fields hl7Fields,
+                           Socket socket) {
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
         Sequence spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
         for (Attributes sps : spsItems) {
             if (sps.getString(Tag.ScheduledStationAETitle) == null) {
                 List<String> ssAETs = new ArrayList<>();
-                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(ReverseDNS.hostNameOf(socket.getLocalAddress()), msh, attrs);
+                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(
+                        ReverseDNS.hostNameOf(socket.getLocalAddress()), hl7Fields);
                 for (Device device : devices)
                     ssAETs.addAll(device.getApplicationAETitles());
 

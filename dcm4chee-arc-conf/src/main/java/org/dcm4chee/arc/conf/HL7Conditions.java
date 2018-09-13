@@ -42,7 +42,9 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.TagUtils;
 
 import java.util.Map;
@@ -83,7 +85,7 @@ public class HL7Conditions {
         return map;
     }
 
-    public boolean match(String hostName, HL7Segment msh, Attributes attrs) {
+    public boolean match(String hostName, HL7Fields hl7Fields) {
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String hl7Field = entry.getKey();
             Pattern pattern = entry.getValue();
@@ -94,51 +96,21 @@ public class HL7Conditions {
                 if (ne ? (hostName != null && pattern.matcher(hostName).matches())
                         : (hostName == null || !pattern.matcher(hostName).matches()))
                     return false;
-            } else if (hl7Field.startsWith("MSH-"))
-                return match(msh, hl7Field, pattern, ne);
-            else if (attrs != null) {
-                if (!match(attrs, TagUtils.parseTagPath(hl7Field), pattern, 0, ne))
+            } else {
+                if (!match(hl7Fields, hl7Field, pattern, ne))
                     return false;
             }
         }
         return true;
     }
 
-    private boolean match(HL7Segment msh, String hl7Field, Pattern pattern, boolean ne) {
+    private boolean match(HL7Fields hl7Fields, String hl7Field, Pattern pattern, boolean ne) {
         try {
-            int index = Integer.parseInt(hl7Field.substring(4));
-            if (index > 0) {
-                String value = msh.getField(index-1, null);
-                if (ne ? (value != null && pattern.matcher(value).matches())
-                          : (value == null || !pattern.matcher(value).matches()))
-                    return false;
-            }
-        } catch (NumberFormatException ignore) {}
-        return true;
-    }
-
-    private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level, boolean ne) {
-        if (level < tagPath.length-1) {
-            Sequence seq = attrs.getSequence(tagPath[level]);
-            if (seq != null)
-                for (Attributes item : seq)
-                    if (match(item, tagPath, pattern, level+1, false))
-                        return true;
-        } else {
-            String[] ss = attrs.getStrings(tagPath[level]);
-            if (ss != null)
-                for (String s : ss)
-                    if (pattern != null && s != null && pattern.matcher(s).matches() && !ne)
-                        return true;
-                    else if (pattern == null || s == null)
-                        return false;
-                    else if (ne && !pattern.matcher(s).matches())
-                        return true;
-            if (ss == null && ne)
-                return true;
-            if (ss == null && !ne)
+            String value = hl7Fields.get(hl7Field, null);
+            if (ne ? (value != null && pattern.matcher(value).matches())
+                      : (value == null || !pattern.matcher(value).matches()))
                 return false;
-        }
-        return false;
+        } catch (IllegalArgumentException ignore) {}
+        return true;
     }
 }
