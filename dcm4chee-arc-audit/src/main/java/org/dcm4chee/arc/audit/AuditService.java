@@ -222,7 +222,7 @@ public class AuditService {
                     userID,
                     archiveInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(userID))
-                    .isRequester()
+                    .requester(true)
                     .roleIDCode(eventType.source)
                     .build();
         }
@@ -396,7 +396,7 @@ public class AuditService {
                 callingUserID,
                 info.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester().build();
+                .requester(true).build();
         apBuilder[1] = new ActiveParticipantBuilder.Builder(
                 calledUserID,
                 getLocalHostName(auditLogger))
@@ -466,12 +466,12 @@ public class AuditService {
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                    .isRequester().build()
+                    .requester(true).build()
                 : new ActiveParticipantBuilder.Builder(
                     calledUserID,
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(archiveUserIDTypeCode(calledUserID))
-                    .isRequester().build();
+                    .requester(true).build();
         ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(calledUserID,
                                                     AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
                                                     AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -520,7 +520,7 @@ public class AuditService {
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                    .isRequester().build();
+                    .requester(true).build();
             activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                     archiveUserID,
                     getLocalHostName(auditLogger))
@@ -533,7 +533,7 @@ public class AuditService {
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .altUserID(AuditLogger.processID())
-                    .isRequester().build();
+                    .requester(true).build();
 
         
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
@@ -588,7 +588,7 @@ public class AuditService {
                                 userID,
                                 i.getField(AuditInfo.CALLING_HOST))
                                 .userIDTypeCode(AuditMessages.userIDTypeCode(userID))
-                                .isRequester()
+                                .requester(true)
                                 .build();
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                 i.getField(AuditInfo.MOVE_USER_ID),
@@ -645,7 +645,7 @@ public class AuditService {
         userID = napID = crI.getField(AuditInfo.CALLING_HOST);
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(userID, napID)
                                         .userIDTypeCode(AuditMessages.UserIDTypeCode.NodeID)
-                                        .isRequester().build();
+                                        .requester(true).build();
 
         ParticipantObjectIdentificationBuilder poi = new ParticipantObjectIdentificationBuilder.Builder(
                                                     crI.getField(AuditInfo.CALLING_HOST),
@@ -758,7 +758,7 @@ public class AuditService {
                                     callingUserID,
                                     qrI.getField(AuditInfo.CALLING_HOST))
                                     .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                                    .isRequester()
+                                    .requester(true)
                                     .roleIDCode(eventType.source)
                                     .build();
             activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
@@ -1049,7 +1049,7 @@ public class AuditService {
                 callingUserID,
                 auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester()
+                .requester(true)
                 .roleIDCode(eventType.source)
                 .build();
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
@@ -1157,7 +1157,7 @@ public class AuditService {
                                 ri.getField(AuditInfo.MOVE_USER_ID),
                                 ri.getField(AuditInfo.CALLING_HOST))
                                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                                .isRequester()
+                                .requester(true)
                                 .build();
         return activeParticipantBuilder;
     }
@@ -1177,7 +1177,7 @@ public class AuditService {
                                     getLocalHostName(auditLogger))
                                     .userIDTypeCode(archiveUserIDTypeCode)
                                     .altUserID(AuditLogger.processID())
-                                    .isRequester()
+                                    .requester(true)
                                     .roleIDCode(eventType.source)
                                     .build();
 
@@ -1194,7 +1194,7 @@ public class AuditService {
                                     callingUserID,
                                     ri.getField(AuditInfo.CALLING_HOST))
                                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                                    .isRequester()
+                                    .requester(true)
                                     .build();
         }
         return activeParticipantBuilder;
@@ -1216,7 +1216,7 @@ public class AuditService {
                                 callingUserID,
                                 ri.getField(AuditInfo.DEST_NAP_ID))
                                 .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                                .isRequester()
+                                .requester(true)
                                 .roleIDCode(eventType.destination)
                                 .build();
         return activeParticipantBuilder;
@@ -1565,7 +1565,7 @@ public class AuditService {
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                 .altUserID(AuditLogger.processID())
-                .isRequester()
+                .requester(true)
                 .roleIDCode(et.destination)
                 .build();
         return activeParticipantBuilder;
@@ -1589,7 +1589,7 @@ public class AuditService {
                                 callingUserID,
                                 auditInfo.getField(AuditInfo.CALLING_HOST))
                                 .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                                .isRequester()
+                                .requester(true)
                                 .roleIDCode(et.source)
                                 .build();
         return activeParticipantBuilder;
@@ -1630,14 +1630,14 @@ public class AuditService {
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .altUserID(AuditLogger.processID())
-                    .isRequester()
+                    .requester(true)
                     .build();
         else {
             activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                    .isRequester()
+                    .requester(true)
                     .build();
             activeParticipantBuilder[3] = new ActiveParticipantBuilder.Builder(
                     calledUserID,
@@ -1744,7 +1744,7 @@ public class AuditService {
                                     .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID)).build()
                                 : new ActiveParticipantBuilder.Builder(callingUserID, prI.getField(AuditInfo.CALLING_HOST))
                                     .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester().build();
+                .requester(true).build();
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                 archiveUserID,
                                 getLocalHostName(auditLogger))
@@ -1757,7 +1757,7 @@ public class AuditService {
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .altUserID(AuditLogger.processID())
-                    .isRequester()
+                    .requester(true)
                     .build();
         return activeParticipantBuilder;
     }
@@ -1807,7 +1807,7 @@ public class AuditService {
                                     callingUserID,
                                     ai.getField(AuditInfo.CALLING_HOST))
                                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                                    .isRequester()
+                                    .requester(true)
                                     .build();
         } else
             activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
@@ -1815,7 +1815,7 @@ public class AuditService {
                                     getLocalHostName(auditLogger))
                                     .altUserID(AuditLogger.processID())
                                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                                    .isRequester()
+                                    .requester(true)
                                     .roleIDCode(et.source)
                                     .build();
         return activeParticipantBuilder;
@@ -1947,7 +1947,7 @@ public class AuditService {
                                             callingUserID,
                                             auditInfo.getField(AuditInfo.CALLING_HOST))
                                             .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                                            .isRequester()
+                                            .requester(true)
                                             .roleIDCode(et.source).build();
        
         String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
