@@ -44,12 +44,15 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.UIDUtils;
@@ -62,15 +65,14 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.xml.transform.TransformerConfigurationException;
-import java.io.IOException;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -80,7 +82,7 @@ import java.util.stream.Stream;
  */
 @ApplicationScoped
 @Typed(HL7Service.class)
-public class ProcedureUpdateService extends AbstractHL7Service {
+public class ProcedureUpdateService extends DefaultHL7Service {
     private final Logger LOG = LoggerFactory.getLogger(ProcedureUpdateService.class);
     @Inject
     private PatientService patientService;
@@ -93,19 +95,25 @@ public class ProcedureUpdateService extends AbstractHL7Service {
     }
 
     @Override
-    protected UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
+    public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+            throws HL7Exception {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
         Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
-        if (pat != null)
-            updateProcedure(hl7App, s, msg, pat, archiveHL7Message);
+        if (pat != null) {
+            try {
+                updateProcedure(hl7App, s, msg, pat, archiveHL7Message);
+            } catch (Exception e) {
+                throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
+            }
+        }
 
         return archiveHL7Message;
     }
 
     private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat,
                                  ArchiveHL7Message archiveHL7Message)
-            throws IOException, SAXException, TransformerConfigurationException {
+            throws Exception {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         HL7Segment msh = msg.msh();

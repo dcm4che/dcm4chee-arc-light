@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,26 +35,29 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.hl7;
+package org.dcm4chee.arc.hl7.impl;
 
-import org.dcm4che3.hl7.ERRSegment;
-import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.Connection;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,41 +65,55 @@ import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jun 2016
+ * @since Sep 2018
  */
-abstract class AbstractHL7Service extends DefaultHL7Service {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractHL7Service.class);
-    public AbstractHL7Service(String... messageTypes) {
-        super(messageTypes);
+@ApplicationScoped
+public class HL7Logger {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HL7Logger.class);
+
+    @Inject
+    private Device device;
+
+    public void onHL7Connection(@Observes HL7ConnectionEvent event) {
+        UnparsedHL7Message msg = event.getHL7Message();
+        switch (event.getType()) {
+            case MESSAGE_RECEIVED:
+                log(msg, hl7LogFilePattern(msg));
+                break;
+            case MESSAGE_PROCESSED:
+                if (event.getException() != null)
+                    log(msg, hl7ErrorLogFilePattern(msg));
+                break;
+        }
     }
 
-    @Override
-    public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
-            throws HL7Exception {
-        ArchiveHL7ApplicationExtension arcHl7App =
-                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        log(msg, arcHl7App.hl7LogFilePattern());
-        try {
-            UnparsedHL7Message rsp = process(hl7App, s, msg);
-            return rsp;
-        } catch (HL7Exception e) {
-            log(msg, arcHl7App.hl7ErrorLogFilePattern());
-            throw e;
-        } catch (Exception e) {
-            log(msg, arcHl7App.hl7ErrorLogFilePattern());
-            throw new HL7Exception(
-                    new ERRSegment(msg.msh()).setUserMessage(e.getMessage()),
-                    e);
-        }
+    private ArchiveDeviceExtension arcdev() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
+    private ArchiveHL7ApplicationExtension arcHL7App(UnparsedHL7Message msg) {
+        HL7Application hl7App = device.getDeviceExtensionNotNull(HL7DeviceExtension.class)
+                .getHL7Application(msg.msh().getReceivingApplicationWithFacility(), true);
+        return hl7App != null ? hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class) : null;
+    }
+
+    private String hl7LogFilePattern(UnparsedHL7Message msg) {
+        ArchiveHL7ApplicationExtension arcHL7App = arcHL7App(msg);
+        return arcHL7App != null ? arcHL7App.hl7LogFilePattern() : arcdev().getHl7LogFilePattern();
+    }
+
+    private String hl7ErrorLogFilePattern(UnparsedHL7Message msg) {
+        ArchiveHL7ApplicationExtension arcHL7App = arcHL7App(msg);
+        return arcHL7App != null ? arcHL7App.hl7ErrorLogFilePattern() : arcdev().getHl7ErrorLogFilePattern();
     }
 
     private void log(UnparsedHL7Message msg, String dirpath) {
         if (dirpath == null)
             return;
+
         String filePath = getPath(StringUtils.replaceSystemProperties(dirpath), msg.getSerialNo(), msg.msh());
         Path dir = Paths.get(filePath.substring(0,filePath.lastIndexOf("/")));
         Path file = dir.resolve(filePath.substring(filePath.lastIndexOf("/")+1));
@@ -140,11 +157,11 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
                 dateFormat = new SimpleDateFormat(s1.substring(s1.indexOf(",")+1)).format(date);
             }
             String prop = s1.equalsIgnoreCase("SerialNo")
-                            ? String.valueOf(serialNo)
-                            : s1.substring(0,4).equalsIgnoreCase("MSH-")
-                            ? msh.getField(Integer.parseInt(s1.substring(4))-1, null)
-                            : s1.substring(0,4).equalsIgnoreCase("date")
-                            ? dateFormat : null;
+                    ? String.valueOf(serialNo)
+                    : s1.substring(0,4).equalsIgnoreCase("MSH-")
+                    ? msh.getField(Integer.parseInt(s1.substring(4))-1, null)
+                    : s1.substring(0,4).equalsIgnoreCase("date")
+                    ? dateFormat : null;
             String s2 = s.substring(i, j+1);
             String val = s.startsWith("env.", i+2)
                     ? System.getenv(s.substring(i+6, j))
@@ -155,7 +172,4 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         sb.append(s.substring(j+1));
         return sb.toString();
     }
-
-    protected abstract UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg)
-            throws Exception;
 }

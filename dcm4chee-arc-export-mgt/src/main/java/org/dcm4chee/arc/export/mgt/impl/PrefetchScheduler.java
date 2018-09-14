@@ -121,9 +121,12 @@ public class PrefetchScheduler {
         UnparsedHL7Message hl7Message = event.getHL7Message();
         HL7Application hl7App = device.getDeviceExtension(HL7DeviceExtension.class)
                 .getHL7Application(hl7Message.msh().getReceivingApplicationWithFacility(), true);
+        if (hl7App == null)
+            return;
+
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        if (!arcHL7App.hasHL7PrefetchRules())
+        if (arcHL7App == null || !arcHL7App.hasHL7PrefetchRules())
             return;
 
         Socket sock = event.getSocket();

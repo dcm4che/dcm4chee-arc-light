@@ -46,8 +46,10 @@ import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
@@ -55,13 +57,10 @@ import org.dcm4chee.arc.patient.CircularPatientMergeException;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.patient.PatientTrackingNotAllowedException;
-import org.xml.sax.SAXException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.xml.transform.TransformerConfigurationException;
-import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -71,7 +70,7 @@ import java.net.Socket;
  */
 @ApplicationScoped
 @Typed(HL7Service.class)
-class PatientUpdateService extends AbstractHL7Service {
+class PatientUpdateService extends DefaultHL7Service {
 
     private static final String[] MESSAGE_TYPES = {
             "ADT^A01",
@@ -100,7 +99,8 @@ class PatientUpdateService extends AbstractHL7Service {
     }
 
     @Override
-    protected UnparsedHL7Message process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
+    public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+            throws HL7Exception {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
         updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
@@ -109,12 +109,12 @@ class PatientUpdateService extends AbstractHL7Service {
 
     static Patient updatePatient(HL7Application hl7App, Socket s, UnparsedHL7Message msg, PatientService patientService,
                                  ArchiveHL7Message archiveHL7Message)
-            throws HL7Exception, IOException, SAXException, TransformerConfigurationException {
+            throws HL7Exception {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         HL7Segment msh = msg.msh();
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
-        Attributes attrs = SAXTransformer.transform(msg.data(), hl7cs, arcHL7App.patientUpdateTemplateURI(), null);
+        Attributes attrs = transform(msg, arcHL7App, hl7cs);
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)
@@ -160,6 +160,15 @@ class PatientUpdateService extends AbstractHL7Service {
                             .setUserMessage(e.getMessage()));
         } finally {
             archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
+        }
+    }
+
+    private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App,
+                                        String hl7cs) throws HL7Exception {
+        try {
+            return SAXTransformer.transform(msg.data(), hl7cs, arcHL7App.patientUpdateTemplateURI(), null);
+        } catch (Exception e) {
+            throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
         }
     }
 }

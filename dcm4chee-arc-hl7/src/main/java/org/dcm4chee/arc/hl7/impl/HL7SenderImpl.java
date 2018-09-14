@@ -96,9 +96,12 @@ public class HL7SenderImpl implements HL7Sender {
         UnparsedHL7Message msg = event.getHL7Message();
         HL7Application hl7App = device.getDeviceExtension(HL7DeviceExtension.class)
                 .getHL7Application(msg.msh().getReceivingApplicationWithFacility(), true);
+        if (hl7App == null)
+            return;
+
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        if (!arcHL7App.hasHL7ForwardRules())
+        if (arcHL7App == null || !arcHL7App.hasHL7ForwardRules())
             return;
 
         String host = ReverseDNS.hostNameOf(event.getSocket().getInetAddress());
