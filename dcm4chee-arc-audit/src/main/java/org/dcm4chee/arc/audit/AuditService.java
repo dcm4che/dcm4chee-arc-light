@@ -1502,7 +1502,7 @@ public class AuditService {
                     .callingHost(ctx.getRemoteHostName())
                     .callingUserID(callingUserID)
                     .calledUserID(calledUserID)
-                    .pIDAndName(ctx.getPreviousAttributes(), getArchiveDevice())
+                    .pIDAndName(ctx.getAttributes(), getArchiveDevice())
                     .outcome(outcome(ctx.getException()))
                     .build();
             writeSpoolFile(AuditServiceUtils.EventType.forPatRec(ctx), patInfo);

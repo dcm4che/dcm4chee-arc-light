@@ -52,6 +52,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
@@ -99,6 +100,7 @@ public class HL7SenderMDB implements MessageListener {
             String messageType = msg.getStringProperty("MessageType");
             HL7Application sender = getSendingHl7Application(msg.getStringProperty("SendingApplication"),
                     msg.getStringProperty("SendingFacility"));
+            hl7Msg.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
             UnparsedHL7Message rsp = hl7Sender.sendMessage(
                     sender,
                     msg.getStringProperty("ReceivingApplication"),
