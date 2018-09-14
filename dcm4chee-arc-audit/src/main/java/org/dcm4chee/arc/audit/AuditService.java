@@ -1243,14 +1243,12 @@ public class AuditService {
         String outcome = outcome(hl7ConnEvent.getException());
         String hostname = hl7ConnEvent.getConnection().getHostname();
         HL7Segment mrg = getHL7Segment(hl7Message, "MRG");
+        HL7Segment orc = getHL7Segment(hl7Message, "ORC");
         ArchiveDeviceExtension arcDev = getArchiveDevice();
-        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.PAT___READ;
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forHL7PatRec(hl7ResponseMessage);
 
-        if (hl7ResponseMessage instanceof ArchiveHL7Message) {
-            ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
-            eventType = AuditServiceUtils.EventType.forHL7PatRec(archiveHL7Message.getPatRecEventActionCode());
-            spoolIncomingHL7OrderMsg(hl7ConnEvent, archiveHL7Message, pid);
-        }
+        if (orc != null)
+            spoolIncomingHL7OrderMsg(hl7ConnEvent);
 
         AuditInfoBuilder info = new AuditInfoBuilder.Builder()
                 .callingHost(hostname)
@@ -1262,7 +1260,7 @@ public class AuditService {
                 .build();
         writeSpoolFile(eventType, info, hl7Message.data(), hl7ResponseMessage.data());
 
-        if (mrg != null && eventType != AuditServiceUtils.EventType.PAT___READ) { // exception case when db was not updated
+        if (mrg != null && eventType != AuditServiceUtils.EventType.PAT___READ) {//spool below only for successful changePID or merge
             AuditInfoBuilder prev = new AuditInfoBuilder.Builder()
                     .callingHost(hostname)
                     .callingUserID(sendingApplicationWithFacility)
@@ -1275,28 +1273,54 @@ public class AuditService {
         }
     }
 
-    private void spoolIncomingHL7OrderMsg(HL7ConnectionEvent hl7ConnEvent, ArchiveHL7Message archiveHL7Message,
-                                          HL7Segment pid) {
+    private void spoolIncomingHL7OrderMsg(HL7ConnectionEvent hl7ConnEvent) {
+        UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
+        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+        String messageType = hl7Message.msh().getMessageType();
+        HL7Segment pid = getHL7Segment(hl7Message, "PID");
+
+        AuditInfoBuilder infoProcedure = isOrderProcessed(messageType)
+                ? incomingProcProcessed(hl7ConnEvent, (ArchiveHL7Message) hl7ResponseMessage, pid)
+                : incomingProcAcknowledged(hl7ConnEvent, pid);
+
+        writeSpoolFile(
+                AuditServiceUtils.EventType.forHL7OrderMsg(hl7ResponseMessage),
+                infoProcedure,
+                hl7Message.data(),
+                hl7ConnEvent.getHL7ResponseMessage().data());
+    }
+
+    private boolean isOrderProcessed(String messageType) {
+        return messageType.equals("ORM^O01") || messageType.equals("OMG^O19") || messageType.equals("OMI^O23");
+    }
+
+    private AuditInfoBuilder incomingProcProcessed(HL7ConnectionEvent hl7ConnEvent, ArchiveHL7Message archiveHL7Message,
+                                                   HL7Segment pid) {
         UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
         HL7Segment msh = hl7Message.msh();
-        String messageType = msh.getMessageType();
+        return new AuditInfoBuilder.Builder()
+                .callingHost(hl7ConnEvent.getConnection().getHostname())
+                .callingUserID(msh.getSendingApplicationWithFacility())
+                .calledUserID(msh.getReceivingApplicationWithFacility())
+                .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs())
+                .patID(pid.getField(3, null), getArchiveDevice())
+                .patName(pid.getField(5, null), getArchiveDevice())
+                .outcome(outcome(hl7ConnEvent.getException()))
+                .build();
+    }
 
-        if (messageType.equals("ORM^O01") || messageType.equals("OMG^O19") || messageType.equals("OMI^O23")) {
-            AuditInfoBuilder infoProcedure = new AuditInfoBuilder.Builder()
-                    .callingHost(hl7ConnEvent.getConnection().getHostname())
-                    .callingUserID(msh.getSendingApplicationWithFacility())
-                    .calledUserID(msh.getReceivingApplicationWithFacility())
-                    .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs())
-                    .patID(pid.getField(3, null), getArchiveDevice())
-                    .patName(pid.getField(5, null), getArchiveDevice())
-                    .outcome(outcome(hl7ConnEvent.getException()))
-                    .build();
-            writeSpoolFile(
-                    AuditServiceUtils.EventType.forProcedure(archiveHL7Message.getProcRecEventActionCode()),
-                    infoProcedure,
-                    hl7Message.data(),
-                    hl7ConnEvent.getHL7ResponseMessage().data());
-        }
+    private AuditInfoBuilder incomingProcAcknowledged(HL7ConnectionEvent hl7ConnEvent, HL7Segment pid) {
+        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment msh = hl7Message.msh();
+        return new AuditInfoBuilder.Builder()
+                .callingHost(hl7ConnEvent.getConnection().getHostname())
+                .callingUserID(msh.getSendingApplicationWithFacility())
+                .calledUserID(msh.getReceivingApplicationWithFacility())
+                .studyIUID(getArchiveDevice().auditUnknownStudyInstanceUID())
+                .patID(pid.getField(3, null), getArchiveDevice())
+                .patName(pid.getField(5, null), getArchiveDevice())
+                .outcome(outcome(hl7ConnEvent.getException()))
+                .build();
     }
 
     private HL7Segment getHL7Segment(UnparsedHL7Message hl7Message, String segName) {
@@ -1320,7 +1344,7 @@ public class AuditService {
         HL7Segment mrg = getHL7Segment(hl7Message, "MRG");
 
         ArchiveDeviceExtension arcDev = getArchiveDevice();
-        boolean isOrderMsg = messageType.equals("ORM^O01") || messageType.equals("OMG^O19") || messageType.equals("OMI^O23");
+        boolean isOrderMsg = isOrderProcessed(messageType);
 
         AuditServiceUtils.EventType eventType = messageType.equals("ADT^A28") || messageType.equals("ORU^R01")
                 ? AuditServiceUtils.EventType.PAT_CREATE
@@ -1376,7 +1400,7 @@ public class AuditService {
         HL7Segment msh = hl7Message.msh();
         HL7Segment pid = getHL7Segment(hl7Message, "PID");
 
-        AuditServiceUtils.EventType eventType = null;
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.PROC_STD_R;
         HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
         ArchiveHL7ApplicationExtension hl7AppExt = hl7Dev.getHL7Application(msh.getSendingApplicationWithFacility(), true)
                 .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
@@ -1387,18 +1411,18 @@ public class AuditService {
         for (HL7OrderSPSStatus hl7OrderSPSStatus : hl7OrderSPSStatuses) {
             String[] orderControlStatusCodes = hl7OrderSPSStatus.getOrderControlStatusCodes();
             if (hl7OrderSPSStatus.getSPSStatus() == SPSStatus.SCHEDULED) {
-                if (Arrays.asList(orderControlStatusCodes).contains(orderControlOrderStatus))
+                if (Arrays.asList(orderControlStatusCodes).contains(orderControlOrderStatus)) {
                     eventType = AuditServiceUtils.EventType.PROC_STD_C;
+                    break;
+                }
             } else {
                 if (Arrays.asList(orderControlStatusCodes).contains(orderControlOrderStatus)
-                        || orderControlOrderStatus.equals("SC_CM"))
+                        || orderControlOrderStatus.equals("SC_CM")) {   //SC_CM = archive sends proc update msg mpps or study receive trigger
                     eventType = AuditServiceUtils.EventType.PROC_STD_U;
+                    break;
+                }
             }
-            if (eventType != null)
-                break;
         }
-        if (eventType == null)
-            return;     //no mwl was created because no mapping to sps status was configured
 
         writeSpoolFile(eventType,
                 pid != null ? outgoingProcRecForward(hl7ConnEvent, pid) : outgoingProcRecUpdate(hl7ConnEvent),

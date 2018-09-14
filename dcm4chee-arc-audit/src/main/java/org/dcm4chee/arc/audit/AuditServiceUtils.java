@@ -40,8 +40,10 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
+import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.slf4j.Logger;
@@ -121,6 +123,8 @@ class AuditServiceUtils {
                  null, null, null),
         PROC_STD_D(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
                  null, null, null),
+        PROC_STD_R(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
+                null, null, null),
 
         PROV_REGIS(EventClass.PROV_REGISTER, AuditMessages.EventID.Export, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination,
@@ -187,12 +191,34 @@ class AuditServiceUtils {
                         : PAT_UPDATE;
         }
 
+        static EventType forHL7PatRec(UnparsedHL7Message hl7ResponseMessage) {
+            if (hl7ResponseMessage instanceof ArchiveHL7Message) {
+                ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
+                return archiveHL7Message.getPatRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? PAT_CREATE
+                        : PAT_UPDATE;
+            }
+            return PAT___READ;
+        }
+
         static EventType forProcedure(String eventActionCode) {
-            return eventActionCode.equals(AuditMessages.EventActionCode.Create)
-                    ? EventType.PROC_STD_C
-                    : eventActionCode.equals(AuditMessages.EventActionCode.Update)
-                        ? EventType.PROC_STD_U
-                        : PROC_STD_D;
+            return eventActionCode == null
+                    ? PROC_STD_R
+                    : eventActionCode.equals(AuditMessages.EventActionCode.Create)
+                        ? PROC_STD_C
+                        : eventActionCode.equals(AuditMessages.EventActionCode.Update)
+                            ? PROC_STD_U
+                            : PROC_STD_D;
+        }
+
+        static EventType forHL7OrderMsg(UnparsedHL7Message hl7ResponseMessage) {
+            if (hl7ResponseMessage instanceof ArchiveHL7Message) {
+                ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
+                return archiveHL7Message.getProcRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? PROC_STD_C
+                        : PROC_STD_U;
+            }
+            return PROC_STD_R;
         }
 
         static EventType forQueueEvent(QueueMessageOperation operation) {
