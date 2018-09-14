@@ -165,8 +165,8 @@ class AuditServiceUtils {
 
         static EventType forApplicationActivity(ArchiveServiceEvent event) {
             return event.getType() == ArchiveServiceEvent.Type.STARTED
-                    ? AuditServiceUtils.EventType.APPLNSTART
-                    : AuditServiceUtils.EventType.APPLN_STOP;
+                    ? APPLNSTART
+                    : APPLN_STOP;
         }
 
         static EventType forInstanceStored(StoreContext ctx) {
@@ -181,14 +181,6 @@ class AuditServiceUtils {
                         ? PAT_UPDATE
                         : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
                             ? ctx.getHttpServletRequestInfo() != null ? PAT_DELETE : PAT_DLT_SC : null;
-        }
-
-        static EventType forHL7PatRec(String eventActionCode) {
-            return eventActionCode == null
-                    ? PAT___READ
-                    : eventActionCode.equals(AuditMessages.EventActionCode.Create)
-                        ? PAT_CREATE
-                        : PAT_UPDATE;
         }
 
         static EventType forHL7PatRec(UnparsedHL7Message hl7ResponseMessage) {
@@ -223,9 +215,9 @@ class AuditServiceUtils {
 
         static EventType forQueueEvent(QueueMessageOperation operation) {
             return operation == QueueMessageOperation.CancelTasks
-                    ? EventType.CANCEL_TSK
+                    ? CANCEL_TSK
                     : operation == QueueMessageOperation.RescheduleTasks
-                        ? EventType.RESCHD_TSK : EventType.DELETE_TSK;
+                        ? RESCHD_TSK : DELETE_TSK;
         }
     }
 

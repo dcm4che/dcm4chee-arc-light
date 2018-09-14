@@ -47,7 +47,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
@@ -81,7 +80,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Exception exception;
     private Patient patient;
     private HttpServletRequestInfo httpServletRequestInfo;
-    private byte[] ack = ByteUtils.EMPTY_BYTES;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -241,20 +239,5 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
-    }
-
-    @Override
-    public boolean isOutgoingHL7() {
-        return msg != null && as == null && socket == null;
-    }
-
-    @Override
-    public byte[] getAck() {
-        return ack;
-    }
-
-    @Override
-    public void setAck(byte[] ack) {
-        this.ack = ack;
     }
 }
