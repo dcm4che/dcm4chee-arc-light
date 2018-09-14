@@ -775,6 +775,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeExporterDescriptors(diffs, deviceDN, arcDev);
         storeExportRules(diffs, arcDev.getExportRules(), deviceDN);
         storePrefetchRules(diffs, arcDev.getPrefetchRules(), deviceDN);
+        storeHL7PrefetchRules(diffs, arcDev.getHL7PrefetchRules(), deviceDN, config);
         storeCompressionRules(diffs, arcDev.getCompressionRules(), deviceDN);
         storeStoreAccessControlIDRules(diffs, arcDev.getStoreAccessControlIDRules(), deviceDN);
         storeAttributeCoercions(diffs, arcDev.getAttributeCoercions(), deviceDN);
@@ -803,6 +804,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExporterDescriptors(arcdev, deviceDN);
         loadExportRules(arcdev.getExportRules(), deviceDN);
         loadPrefetchRules(arcdev.getPrefetchRules(), deviceDN);
+        loadHL7PrefetchRules(arcdev.getHL7PrefetchRules(), deviceDN, config);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
         loadStoreAccessControlIDRules(arcdev.getStoreAccessControlIDRules(), deviceDN);
         loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN, device);
@@ -839,6 +841,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeExportDescriptors(diffs, aa, bb, deviceDN);
         mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergePrefetchRules(diffs, aa.getPrefetchRules(), bb.getPrefetchRules(), deviceDN);
+        mergeHL7PrefetchRules(diffs, aa.getHL7PrefetchRules(), bb.getHL7PrefetchRules(), deviceDN,
+                getDicomConfiguration());
         mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
         mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
         mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
@@ -1965,6 +1969,48 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    static void storeHL7PrefetchRules(ConfigurationChanges diffs, Collection<HL7PrefetchRule> prefetchRules,
+                                      String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        for (HL7PrefetchRule rule : prefetchRules) {
+            String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+        }
+    }
+
+    static private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, HL7PrefetchRule rule,
+                                      BasicAttributes attrs) {
+        attrs.put("objectclass", "hl7PrefetchRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExporterID", rule.getExporterIDs());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
+                rule.getSuppressDuplicateExportInterval(), null);
+        return attrs;
+    }
+
+    static void loadHL7PrefetchRules(Collection<HL7PrefetchRule> prefetchRules, String parentDN,
+                                     LdapDicomConfiguration config) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7PrefetchRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                HL7PrefetchRule rule = new HL7PrefetchRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
+                rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
+                rule.setSuppressDuplicateExportInterval(toDuration(attrs.get("dcmDuration"), null));
+                prefetchRules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
     private static URI toURI(Attribute attr) throws NamingException {
         return attr != null ? URI.create((String) attr.get()) : null;
     }
@@ -2081,6 +2127,60 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private PrefetchRule findPrefetchRuleByCN(Collection<PrefetchRule> rules, String cn) {
         for (PrefetchRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
+        return null;
+    }
+
+    static void mergeHL7PrefetchRules(ConfigurationChanges diffs,
+                                      Collection<HL7PrefetchRule> prevRules,
+                                      Collection<HL7PrefetchRule> rules,
+                                      String parentDN,
+                                      LdapDicomConfiguration config)
+            throws NamingException {
+        for (HL7PrefetchRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findHL7PrefetchRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (HL7PrefetchRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            HL7PrefetchRule prevRule = findHL7PrefetchRuleByCN(prevRules, cn);
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                rule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
+                                              HL7PrefetchRule prev,
+                                              HL7PrefetchRule rule,
+                                              ArrayList<ModificationItem> mods) {
+        storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), rule.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmEntitySelector",
+                prev.getEntitySelectors(), rule.getEntitySelectors());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
+                prev.getSuppressDuplicateExportInterval(), rule.getSuppressDuplicateExportInterval(), null);
+        return mods;
+    }
+
+    private static HL7PrefetchRule findHL7PrefetchRuleByCN(Collection<HL7PrefetchRule> rules, String cn) {
+        for (HL7PrefetchRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
         return null;

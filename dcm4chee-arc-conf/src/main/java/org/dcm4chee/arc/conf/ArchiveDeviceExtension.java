@@ -222,6 +222,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
+    private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
@@ -1413,6 +1414,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return prefetchRules;
     }
 
+    public void removeHL7PrefetchRule(PrefetchRule rule) {
+        hl7PrefetchRules.remove(rule);
+    }
+
+    public void clearHL7PrefetchRules() {
+        hl7PrefetchRules.clear();
+    }
+
+    public void addHL7PrefetchRule(HL7PrefetchRule rule) {
+        hl7PrefetchRules.add(rule);
+    }
+
+    public Collection<HL7PrefetchRule> getHL7PrefetchRules() {
+        return hl7PrefetchRules;
+    }
+
     public void removeRSForwardRule(RSForwardRule rule) {
         rsForwardRules.remove(rule);
     }
@@ -2087,6 +2104,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exportRules.addAll(arcdev.exportRules);
         prefetchRules.clear();
         prefetchRules.addAll(arcdev.prefetchRules);
+        hl7PrefetchRules.clear();
+        hl7PrefetchRules.addAll(arcdev.hl7PrefetchRules);
         rsForwardRules.clear();
         rsForwardRules.addAll(arcdev.rsForwardRules);
         hl7ForwardRules.clear();

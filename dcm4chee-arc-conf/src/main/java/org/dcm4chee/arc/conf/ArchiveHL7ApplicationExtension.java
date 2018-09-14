@@ -47,6 +47,7 @@ import org.dcm4che3.net.hl7.HL7ApplicationExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,6 +65,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
+    private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
@@ -85,6 +87,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
+        hl7PrefetchRules.clear();
+        hl7PrefetchRules.addAll(arcapp.hl7PrefetchRules);
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         hl7OrderScheduledStations.clear();
@@ -197,6 +201,30 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7UseNullValue != null
                 ? hl7UseNullValue
                 : getArchiveDeviceExtension().isHl7UseNullValue();
+    }
+
+    public void removeHL7PrefetchRule(PrefetchRule rule) {
+        hl7PrefetchRules.remove(rule);
+    }
+
+    public void clearHL7PrefetchRules() {
+        hl7PrefetchRules.clear();
+    }
+
+    public void addHL7PrefetchRule(HL7PrefetchRule rule) {
+        hl7PrefetchRules.add(rule);
+    }
+
+    public Collection<HL7PrefetchRule> getHL7PrefetchRules() {
+        return hl7PrefetchRules;
+    }
+
+    public Stream<HL7PrefetchRule> hl7PrefetchRules() {
+        return Stream.concat(hl7PrefetchRules.stream(), getArchiveDeviceExtension().getHL7PrefetchRules().stream());
+    }
+
+    public boolean hasHL7PrefetchRules() {
+        return !hl7PrefetchRules.isEmpty() || !getArchiveDeviceExtension().getHL7PrefetchRules().isEmpty();
     }
 
     public void removeHL7ForwardRule(HL7ForwardRule rule) {

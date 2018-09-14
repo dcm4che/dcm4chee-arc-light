@@ -46,8 +46,14 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.ReverseDNS;
+import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.query.Query;
@@ -63,6 +69,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.net.Socket;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -76,6 +83,9 @@ import java.util.stream.Stream;
 public class PrefetchScheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrefetchScheduler.class);
+
+    @Inject
+    private Device device;
 
     @Inject
     private QueryService queryService;
@@ -104,6 +114,28 @@ public class PrefetchScheduler {
                 });
     }
 
+    public void onHL7Connection(@Observes HL7ConnectionEvent event) {
+        if (!(event.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED && event.getException() == null))
+            return;
+
+        UnparsedHL7Message hl7Message = event.getHL7Message();
+        HL7Application hl7App = device.getDeviceExtension(HL7DeviceExtension.class)
+                .getHL7Application(hl7Message.msh().getReceivingApplicationWithFacility(), true);
+        ArchiveHL7ApplicationExtension arcHL7App =
+                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (!arcHL7App.hasHL7PrefetchRules())
+            return;
+
+        Socket sock = event.getSocket();
+        String host = ReverseDNS.hostNameOf(sock.getInetAddress());
+        HL7Fields hl7Fields = new HL7Fields(hl7Message, hl7App.getHL7DefaultCharacterSet());
+        Calendar now = Calendar.getInstance();
+        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        arcHL7App.hl7PrefetchRules()
+                .filter(rule -> rule.match(host, hl7Fields))
+                .forEach(rule -> prefetch(sock, hl7Fields, rule, arcdev, now));
+    }
+
     private void prefetch(StoreContext ctx, PrefetchRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
         try {
             LOG.info("{}:Apply {}:\n", ctx.getStoreSession(), rule);
@@ -124,6 +156,25 @@ public class PrefetchScheduler {
         }
     }
 
+    private void prefetch(Socket sock, HL7Fields hl7Fields, HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
+        try {
+            LOG.info("{}:Apply {}:\n", sock, rule);
+            Date notExportedAfter = new Date(
+                    now.getTimeInMillis() - rule.getSuppressDuplicateExportInterval().getSeconds() * 1000L);
+            String cx = hl7Fields.get("PID-3", null);
+            IDWithIssuer pid = new IDWithIssuer(cx);
+            String batchID = rule.getCommonName() + '[' + cx + ']';
+            Map<String, List<ExporterDescriptor>> exporterByAET = Stream.of(rule.getExporterIDs())
+                    .map(arcdev::getExporterDescriptorNotNull)
+                    .collect(Collectors.groupingBy(ExporterDescriptor::getAETitle));
+            Stream.of(rule.getEntitySelectors())
+                    .forEach(selector -> exporterByAET.forEach((aet, exporters) ->
+                            prefetch(pid, null, batchID, selector, arcdev, aet, exporters, notExportedAfter)));
+        } catch (Exception e) {
+            LOG.warn("{}:Failed to apply {}:\n", sock, rule, e);
+        }
+    }
+
     private void prefetch(IDWithIssuer pid, String receivedStudyUID, String batchID, EntitySelector selector,
                           ArchiveDeviceExtension arcdev, String aet, List<ExporterDescriptor> exporters,
                           Date notExportedAfter) {
@@ -139,8 +190,8 @@ public class PrefetchScheduler {
             query.executeQuery();
             while (query.hasMoreMatches() && remaining != 0) {
                 Attributes match = query.nextMatch();
-                String suid = match.getString(Tag.StudyInstanceUID);
-                if (match != null && !receivedStudyUID.equals(suid)) {
+                String suid;
+                if (match != null && !(suid = match.getString(Tag.StudyInstanceUID)).equals(receivedStudyUID)) {
                     exporters.forEach(exporter ->
                         exportManager.scheduleStudyExport(suid, exporter, notExportedAfter, batchID));
                     --remaining;

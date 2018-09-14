@@ -1665,7 +1665,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
     uid $
     userPassword ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmPrefetchRule'
-  DESC 'PrefetchRule'
+  DESC 'DICOM Prefetch Rule'
   SUP top STRUCTURAL
   MUST (
     cn $
@@ -1674,4 +1674,14 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmPrefetchRule'
   MAY (
     dcmProperty $
     dcmSchedule $
+    dcmDuration ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.32 NAME 'hl7PrefetchRule'
+  DESC 'HL7 Prefetch Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmEntitySelector $
+    dcmExporterID )
+  MAY (
+    dcmProperty $
     dcmDuration ) )

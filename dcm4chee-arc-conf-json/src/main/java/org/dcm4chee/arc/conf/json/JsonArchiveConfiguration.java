@@ -257,7 +257,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeQueue(writer, arcDev.getQueueDescriptors());
         writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
         writeExportRule(writer, arcDev.getExportRules());
-        writePrefetchRule(writer, arcDev.getPrefetchRules());
+        writePrefetchRules(writer, arcDev.getPrefetchRules());
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
@@ -265,6 +265,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
         writeIDGenerators(writer, arcDev);
         writeHL7ForwardRules(writer, arcDev.getHL7ForwardRules());
+        writeHL7PrefetchRules(writer, arcDev.getHL7PrefetchRules());
         writeRSForwardRules(writer, arcDev.getRSForwardRules());
         writeAttributeSet(writer, arcDev);
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
@@ -417,7 +418,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writePrefetchRule(JsonWriter writer, Collection<PrefetchRule> prefetchRuleList) {
+    private void writePrefetchRules(JsonWriter writer, Collection<PrefetchRule> prefetchRuleList) {
         writer.writeStartArray("dcmPrefetchRule");
         for (PrefetchRule rule : prefetchRuleList) {
             writer.writeStartObject();
@@ -425,6 +426,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmExporterID", rule.getExporterIDs());
             writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
             writer.writeNotEmpty("dcmSchedule", rule.getSchedules());
+            writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
+            writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateExportInterval(), null);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    static void writeHL7PrefetchRules(JsonWriter writer, Collection<HL7PrefetchRule> prefetchRuleList) {
+        writer.writeStartArray("hl7PrefetchRule");
+        for (HL7PrefetchRule rule : prefetchRuleList) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
+            writer.writeNotEmpty("dcmExporterID", rule.getExporterIDs());
+            writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateExportInterval(), null);
             writer.writeEnd();
@@ -700,7 +715,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
         writeExportRule(writer, arcAE.getExportRules());
-        writePrefetchRule(writer, arcAE.getPrefetchRules());
+        writePrefetchRules(writer, arcAE.getPrefetchRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -1172,7 +1187,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadExportRule(arcDev.getExportRules(), reader);
                     break;
                 case "dcmPrefetchRule":
-                    loadPrefetchRule(arcDev.getPrefetchRules(), reader);
+                    loadPrefetchRules(arcDev.getPrefetchRules(), reader);
                     break;
                 case "dcmArchiveCompressionRule":
                     loadArchiveCompressionRule(arcDev.getCompressionRules(), reader);
@@ -1194,6 +1209,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ForwardRule":
                     loadHL7ForwardRules(arcDev.getHL7ForwardRules(), reader);
+                    break;
+                case "hl7PrefetchRule":
+                    loadHL7PrefetchRules(arcDev.getHL7PrefetchRules(), reader);
                     break;
                 case "dcmRSForwardRule":
                     loadRSForwardRules(arcDev.getRSForwardRules(), reader);
@@ -1529,7 +1547,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadPrefetchRule(Collection<PrefetchRule> rules, JsonReader reader) {
+    private void loadPrefetchRules(Collection<PrefetchRule> rules, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1551,6 +1569,39 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmSchedule":
                         rule.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
+                        break;
+                    case "dcmDuration":
+                        rule.setSuppressDuplicateExportInterval(Duration.valueOf(reader.stringValue()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            rules.add(rule);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    static void loadHL7PrefetchRules(Collection<HL7PrefetchRule> rules, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            HL7PrefetchRule rule = new HL7PrefetchRule();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        rule.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmEntitySelector":
+                        rule.setEntitySelectors(EntitySelector.valuesOf(reader.stringArray()));
+                        break;
+                    case "dcmExporterID":
+                        rule.setExporterIDs(reader.stringArray());
+                        break;
+                    case "dcmProperty":
+                        rule.setConditions(new HL7Conditions(reader.stringArray()));
                         break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateExportInterval(Duration.valueOf(reader.stringValue()));
@@ -2228,7 +2279,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadExportRule(arcAE.getExportRules(), reader);
                     break;
                 case "dcmPrefetchRule":
-                    loadPrefetchRule(arcAE.getPrefetchRules(), reader);
+                    loadPrefetchRules(arcAE.getPrefetchRules(), reader);
                     break;
                 case "dcmArchiveCompressionRule":
                     loadArchiveCompressionRule(arcAE.getCompressionRules(), reader);
