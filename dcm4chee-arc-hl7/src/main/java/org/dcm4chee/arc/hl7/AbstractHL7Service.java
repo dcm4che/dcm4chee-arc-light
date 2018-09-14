@@ -43,27 +43,23 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
-
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
-import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.HL7Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
-import java.io.*;
-import java.net.Socket;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 
 
@@ -78,9 +74,6 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         super(messageTypes);
     }
 
-    @Inject
-    HL7Sender hl7sender;
-
     @Override
     public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
             throws HL7Exception {
@@ -89,7 +82,6 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         log(msg, arcHl7App.hl7LogFilePattern());
         try {
             UnparsedHL7Message rsp = process(hl7App, s, msg);
-            forwardHL7(arcHl7App, s, msg);
             return rsp;
         } catch (HL7Exception e) {
             log(msg, arcHl7App.hl7ErrorLogFilePattern());
@@ -100,17 +92,6 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
                     new ERRSegment(msg.msh()).setUserMessage(e.getMessage()),
                     e);
         }
-    }
-
-    private void forwardHL7(ArchiveHL7ApplicationExtension arcHL7App, Socket s, UnparsedHL7Message msg) {
-        String host = ReverseDNS.hostNameOf(s.getLocalAddress());
-        HL7Segment msh = msg.msh();
-        byte[] hl7msg = msg.data();
-        Collection<String> destinations = arcHL7App.forwardDestinations(host,
-                new HL7Fields(msg, arcHL7App.getHL7Application().getHL7DefaultCharacterSet()));
-        if (!destinations.isEmpty())
-            hl7sender.forwardMessage(msh, hl7msg,
-                    destinations.toArray(new String[0]));
     }
 
     private void log(UnparsedHL7Message msg, String dirpath) {

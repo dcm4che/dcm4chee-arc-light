@@ -243,16 +243,12 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ForwardRules;
     }
 
-    public Collection<String> forwardDestinations(String hostName, HL7Fields hl7Fields) {
-        HashSet<String> dests = new HashSet<>();
-        for (Collection<HL7ForwardRule> rules
-                : new Collection[]{hl7ForwardRules, getArchiveDeviceExtension().getHL7ForwardRules() })
-            for (HL7ForwardRule rule : rules)
-                if (rule.match(hostName, hl7Fields))
-                    for (String dest : rule.getDestinations()) {
-                        dests.add(dest);
-                    }
-        return dests;
+    public Stream<HL7ForwardRule> hl7ForwardRules() {
+        return Stream.concat(hl7ForwardRules.stream(), getArchiveDeviceExtension().getHL7ForwardRules().stream());
+    }
+
+    public boolean hasHL7ForwardRules() {
+        return !hl7ForwardRules.isEmpty() || !getArchiveDeviceExtension().getHL7ForwardRules().isEmpty();
     }
 
     public void removeHL7OrderScheduledStation(HL7OrderScheduledStation rule) {

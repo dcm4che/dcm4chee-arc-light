@@ -123,4 +123,17 @@ public class HL7ConnectionEvent {
     public Exception getException() {
         return exception;
     }
+
+    @Override
+    public String toString() {
+        return "HL7ConnectionEvent{" +
+                "type=" + type +
+                ", hl7Application=" + hl7Application +
+                ", connection=" + connection +
+                ", socket=" + socket +
+                ", hl7Message=" + hl7Message +
+                ", hl7ResponseMessage=" + hl7ResponseMessage +
+                ", exception=" + exception +
+                '}';
+    }
 }

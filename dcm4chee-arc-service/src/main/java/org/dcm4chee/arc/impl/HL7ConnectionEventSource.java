@@ -47,6 +47,8 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7ConnectionMonitor;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -60,29 +62,39 @@ import java.net.Socket;
 @ApplicationScoped
 public class HL7ConnectionEventSource implements HL7ConnectionMonitor {
 
+    private static Logger LOG = LoggerFactory.getLogger(HL7ConnectionEventSource.class);
+
     @Inject
     private Event<HL7ConnectionEvent> hl7ConnectionEvent;
 
     @Override
     public void onMessageReceived(Connection conn, Socket s, UnparsedHL7Message msg) {
-        hl7ConnectionEvent.fire(HL7ConnectionEvent.onMessageReceived(conn, s, msg));
+        fire(HL7ConnectionEvent.onMessageReceived(conn, s, msg));
     }
 
     @Override
     public void onMessageProcessed(Connection conn, Socket s, UnparsedHL7Message msg,
                                    UnparsedHL7Message rsp, HL7Exception ex) {
-        hl7ConnectionEvent.fire(HL7ConnectionEvent.onMessageProcessed(conn, s, msg, rsp, ex));
+        fire(HL7ConnectionEvent.onMessageProcessed(conn, s, msg, rsp, ex));
     }
 
     @Override
     public void onMessageSent(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Exception ex) {
-        hl7ConnectionEvent.fire(HL7ConnectionEvent.onMessageSent(hl7App, s, msg, ex));
+        fire(HL7ConnectionEvent.onMessageSent(hl7App, s, msg, ex));
     }
 
     @Override
     public void onMessageResponse(HL7Application hl7App, Socket s, UnparsedHL7Message msg,
                                   UnparsedHL7Message rsp, Exception ex) {
-        hl7ConnectionEvent.fire(HL7ConnectionEvent.onMessageResponse(hl7App, s, msg, rsp, ex));
+        fire(HL7ConnectionEvent.onMessageResponse(hl7App, s, msg, rsp, ex));
+    }
+
+    private void fire(HL7ConnectionEvent event) {
+        try {
+            hl7ConnectionEvent.fire(event);
+        } catch (Exception e) {
+            LOG.warn("Observer of {} throws:", event, e);
+        }
     }
 
 }
