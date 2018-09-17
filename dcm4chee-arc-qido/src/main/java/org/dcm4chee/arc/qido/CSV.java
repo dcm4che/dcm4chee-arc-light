@@ -122,6 +122,18 @@ enum CSV {
             Tag.Columns,
             Tag.BitsAllocated,
             Tag.NumberOfFrames
+    ),
+    MWL(
+            Tag.PatientName,
+            Tag.PatientID,
+            Tag.PatientBirthDate,
+            Tag.PatientSex,
+            Tag.AccessionNumber,
+            Tag.StudyInstanceUID,
+            Tag.RequestingPhysician,
+            Tag.RequestedProcedureDescription,
+            Tag.RequestedProcedureID,
+            Tag.RequestedProcedurePriority
     );
 
     public final int[] tags;
