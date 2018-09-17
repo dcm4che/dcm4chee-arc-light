@@ -89,6 +89,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIDeviceURLs(writer, uiConfig.getDeviceURLs());
         writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writeUIFilterTemplate(writer, uiConfig.getFilterTemplates());
+        writeUIAetList(writer, uiConfig.getAetLists());
         writer.writeEnd();
     }
 
@@ -103,6 +104,22 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiAction", uiPermission.getAction(), null);
             writer.writeNotEmpty("dcmuiActionParam", uiPermission.getActionParams());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiPermission.getAcceptedUserRoles());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIAetList(JsonWriter writer, Collection<UIAetList> uiAetLists) {
+        if (uiAetLists.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiAetConfig");
+        for (UIAetList uiAetList : uiAetLists) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiAetListName", uiAetList.getAetListName(), null);
+            writer.writeNotNullOrDef("dcmuiAetListDescription", uiAetList.getAetListDescription(), null);
+            writer.writeNotNullOrDef("dcmuiMode", uiAetList.getMode(), null);
+            writer.writeNotEmpty("dcmuiAets", uiAetList.getAets());
+            writer.writeNotEmpty("dcmAcceptedUserRole", uiAetList.getAcceptedRole());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -284,6 +301,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiPermission":
                     loadUIPermissions(uiConfig, reader);
                     break;
+                case "dcmuiAetConfig":
+                    loadUIAetList(uiConfig, reader);
+                    break;
                 case "dcmuiDiffConfig":
                     loadUIDiffConfigs(uiConfig, reader);
                     break;
@@ -334,6 +354,39 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addPermission(uiPermission);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadUIAetList(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIAetList uiAetList = new UIAetList();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiAetListName":
+                        uiAetList.setAetListName(reader.stringValue());
+                        break;
+                    case "dcmuiAetListDescription":
+                        uiAetList.setAetListDescription(reader.stringValue());
+                        break;
+                    case "dcmuiMode":
+                        uiAetList.setMode(reader.stringValue());
+                        break;
+                    case "dcmuiAets":
+                        uiAetList.setAets(reader.stringArray());
+                        break;
+                    case "dcmAcceptedUserRole":
+                        uiAetList.setAcceptedRole(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addAetList(uiAetList);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
