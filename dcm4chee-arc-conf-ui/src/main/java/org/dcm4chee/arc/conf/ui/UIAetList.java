@@ -13,6 +13,7 @@ public class UIAetList {
 
     public UIAetList() {
     }
+    
     public UIAetList(String name) {
         setAetListName(name);
     }
