@@ -649,35 +649,6 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             throws NamingException {
         for (UIAetList prevUIAetList : prevUIConfig.getAetLists()) {
             String prevUIAetListName = prevUIAetList.getAetListName();
-            if (uiConfig.getPermission(prevUIAetListName) == null) {
-                String dn = LdapUtils.dnOf("dcmuiAetListName", prevUIAetListName, uiConfigDN);
-                config.destroySubcontext(dn);
-                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
-            }
-        }
-        for (UIAetList uiAetList : uiConfig.getAetLists()) {
-            String uiAetListName = uiAetList.getAetListName();
-            String dn = LdapUtils.dnOf("dcmuiAetListName", uiAetListName, uiConfigDN);
-            UIAetList prevUIAetList = prevUIConfig.getAetList(uiAetListName);
-            if (prevUIAetList == null) {
-                ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
-                config.createSubcontext(dn,
-                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
-                                uiAetList, new BasicAttributes(true)));
-            } else {
-                ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
-                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIAetList, uiAetList,
-                        new ArrayList<ModificationItem>()));
-                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
-            }
-        }
-    }
-/*    private void mergeAetLists(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
-            throws NamingException {
-        for (UIAetList prevUIAetList : prevUIConfig.getAetLists()) {
-            String prevUIAetListName = prevUIAetList.getAetListName();
             if (uiConfig.getAetList(prevUIAetListName) == null) {
                 String dn = LdapUtils.dnOf("dcmuiAetListName", prevUIAetListName, uiConfigDN);
                 config.destroySubcontext(dn);
@@ -702,7 +673,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
-    }*/
+    }
     private void mergeDeviceURL(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
         for (UIDeviceURL prevUIDeviceURL : prevUIConfig.getDeviceURLs()) {
