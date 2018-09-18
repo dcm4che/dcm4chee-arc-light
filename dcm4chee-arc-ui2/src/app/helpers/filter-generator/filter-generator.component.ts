@@ -11,7 +11,7 @@ import {
 import {j4care} from "../j4care.service";
 import * as _ from 'lodash';
 import {AppService} from "../../app.service";
-import {DeviceConfiguratorService} from "../../device-configurator/device-configurator.service";
+import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {DevicesService} from "../../devices/devices.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";

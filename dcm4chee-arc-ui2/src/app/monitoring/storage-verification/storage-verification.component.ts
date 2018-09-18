@@ -7,7 +7,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {Observable} from "rxjs/Observable";
-import {AeListService} from "../../ae-list/ae-list.service";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";

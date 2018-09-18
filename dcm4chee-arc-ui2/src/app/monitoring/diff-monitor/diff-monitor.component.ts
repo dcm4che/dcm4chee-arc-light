@@ -4,7 +4,7 @@ import {AppService} from "../../app.service";
 import {ActivatedRoute} from "@angular/router";
 import * as _ from 'lodash';
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import {AeListService} from "../../ae-list/ae-list.service";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";

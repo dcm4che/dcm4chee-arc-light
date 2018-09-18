@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Http} from '@angular/http';
-import {J4careHttpService} from "../helpers/j4care-http.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Injectable()
 export class ControlService {

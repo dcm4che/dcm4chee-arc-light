@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {AppService} from "../../app.service";
 import * as _ from 'lodash';
-import {AeListService} from "../../ae-list/ae-list.service";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
 import {ExternalRetrieveService} from "./external-retrieve.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";

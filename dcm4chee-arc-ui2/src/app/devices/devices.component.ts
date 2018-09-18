@@ -9,10 +9,10 @@ import {HostListener} from '@angular/core';
 import {CreateExporterComponent} from '../widgets/dialogs/create-exporter/create-exporter.component';
 import {Router} from '@angular/router';
 import {WindowRefService} from "../helpers/window-ref.service";
-import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
+import {Hl7ApplicationsService} from "../configuration/hl7-applications/hl7-applications.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
-import {DeviceConfiguratorService} from "../device-configurator/device-configurator.service";
+import {DeviceConfiguratorService} from "../configuration/device-configurator/device-configurator.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({

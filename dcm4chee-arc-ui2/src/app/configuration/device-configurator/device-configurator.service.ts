@@ -1,22 +1,22 @@
 import {Injectable, OnInit} from '@angular/core';
 import {Http} from '@angular/http';
 import * as _ from 'lodash';
-import {InputText} from '../helpers/form/input-text';
-import {RadioButtons} from '../helpers/form/radio-buttons';
-import {Checkbox} from '../helpers/form/checkboxes';
-import {ArrayElement} from '../helpers/form/array-element';
-import {DropdownList} from '../helpers/form/dropdown-list';
-import {InputNumber} from '../helpers/form/input-number';
-import {WindowRefService} from "../helpers/window-ref.service";
-import {AppService} from "../app.service";
+import {InputText} from '../../helpers/form/input-text';
+import {RadioButtons} from '../../helpers/form/radio-buttons';
+import {Checkbox} from '../../helpers/form/checkboxes';
+import {ArrayElement} from '../../helpers/form/array-element';
+import {DropdownList} from '../../helpers/form/dropdown-list';
+import {InputNumber} from '../../helpers/form/input-number';
+import {WindowRefService} from "../../helpers/window-ref.service";
+import {AppService} from "../../app.service";
 import {Observable} from "rxjs";
-import {DevicesService} from "../devices/devices.service";
+import {DevicesService} from "../../devices/devices.service";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
-import {Globalvar} from "../constants/globalvar";
-import {j4care} from "../helpers/j4care.service";
-import {J4careHttpService} from "../helpers/j4care-http.service";
-import {OrderByPipe} from "../pipes/order-by.pipe";
+import {Globalvar} from "../../constants/globalvar";
+import {j4care} from "../../helpers/j4care.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {OrderByPipe} from "../../pipes/order-by.pipe";
 
 @Injectable()
 export class DeviceConfiguratorService{

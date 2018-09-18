@@ -1,18 +1,18 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {FormElement} from '../helpers/form/form-element';
+import {FormElement} from '../../helpers/form/form-element';
 import {DeviceConfiguratorService} from './device-configurator.service';
 import {Http} from '@angular/http';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs';
-import {AppService} from '../app.service';
+import {AppService} from '../../app.service';
 import {ControlService} from '../control/control.service';
-import {WindowRefService} from "../helpers/window-ref.service";
-import {HttpErrorHandler} from "../helpers/http-error-handler";
+import {WindowRefService} from "../../helpers/window-ref.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
-import {DevicesService} from "../devices/devices.service";
-import {J4careHttpService} from "../helpers/j4care-http.service";
+import {DevicesService} from "../../devices/devices.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({

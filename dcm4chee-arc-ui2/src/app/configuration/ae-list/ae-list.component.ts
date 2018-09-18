@@ -1,14 +1,14 @@
 import {Component, ViewContainerRef, HostListener, OnInit} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import * as _ from 'lodash';
-import {ConfirmComponent} from '../widgets/dialogs/confirm/confirm.component';
-import {AppService} from '../app.service';
-import {CreateAeComponent} from '../widgets/dialogs/create-ae/create-ae.component';
-import {DevicesService} from '../devices/devices.service';
-import {WindowRefService} from "../helpers/window-ref.service";
+import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
+import {AppService} from '../../app.service';
+import {CreateAeComponent} from '../../widgets/dialogs/create-ae/create-ae.component';
+import {DevicesService} from '../../devices/devices.service';
+import {WindowRefService} from "../../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
-import {HttpErrorHandler} from "../helpers/http-error-handler";
-import {J4careHttpService} from "../helpers/j4care-http.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {MatDialog, MatDialogRef, MatDialogConfig} from "@angular/material";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 
