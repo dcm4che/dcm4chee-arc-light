@@ -116,7 +116,7 @@ public class AuditService {
                 request.getRemoteHost())
                 .userIDTypeCode(AuditMessages.userIDTypeCode(userID))
                 .altUserID(AuditLogger.processID())
-                .requester(true).build();
+                .isRequester().build();
     }
 
     private static EventIdentificationBuilder buildEventIdentification(AuditLogger logger) {
