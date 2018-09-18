@@ -8,7 +8,6 @@ import { Component } from '@angular/core';
           <li [permission]="{id:'tab-configuration->ae_list',param:'visible'}"  role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/aelist" role="tab"  routerLinkActive="active">AE list</a></li>
           <li [permission]="{id:'tab-configuration->hl7_applications',param:'visible'}"  role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/hl7applications" role="tab"  routerLinkActive="active">Hl7 Applications</a></li>
           <li [permission]="{id:'tab-monitoring->control',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/control" routerLinkActive="active">Control</a></li>
-          <li [permission]="{id:'tab-configuration->permission',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/configuration/permission" routerLinkActive="active">UI Permission</a></li>
       </ul>
   `
 })
