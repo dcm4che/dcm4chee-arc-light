@@ -13,6 +13,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MatDialogConfig, MatDialog, MatDialogRef} from "@angular/material";
 import {Globalvar} from "../../constants/globalvar";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 
 @Component({
     selector: 'diff-monitor',
@@ -54,6 +55,7 @@ export class DiffMonitorComponent implements OnInit {
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public dialogConfig: MatDialogConfig,
+        private permissionService:PermissionService
     ){}
 
     ngOnInit(){
@@ -90,8 +92,8 @@ export class DiffMonitorComponent implements OnInit {
             offset:0
         };
         Observable.forkJoin(
-            this.aeListService.getAes(),
-            this.aeListService.getAets(),
+            this.aeListService.getAes().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external')),
+            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.aes = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {

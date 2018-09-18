@@ -12,6 +12,7 @@ import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component"
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 
 @Component({
   selector: 'app-storage-verification',
@@ -65,7 +66,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       private $http:J4careHttpService,
       public dialog: MatDialog,
       public config: MatDialogConfig,
-      public viewContainerRef: ViewContainerRef
+      public viewContainerRef: ViewContainerRef,
+      private permissionService:PermissionService
   ) { }
 
     ngOnInit(){
@@ -97,7 +99,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             offset:0
         };
         Observable.forkJoin(
-            this.aeListService.getAets(),
+            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.localAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {

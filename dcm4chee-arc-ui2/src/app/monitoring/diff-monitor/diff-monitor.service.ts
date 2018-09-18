@@ -59,14 +59,14 @@ export class DiffMonitorService {
               placeholder:"Device Name"
           },{
               tag:"select",
-              options:aes,
+              options:aets,
               showStar:true,
               filterKey:"LocalAET",
               description:"Local AET",
               placeholder:"Local AET"
           },{
               tag:"select",
-              options:aets,
+              options:aes,
               showStar:true,
               filterKey:"PrimaryAET",
               description:"Primary AET",
@@ -74,7 +74,7 @@ export class DiffMonitorService {
           },
           {
               tag:"select",
-              options:aets,
+              options:aes,
               showStar:true,
               filterKey:"SecondaryAET",
               description:"Secondary AET",
