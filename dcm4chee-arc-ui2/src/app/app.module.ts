@@ -89,6 +89,7 @@ import { TableGeneratorComponent } from './helpers/table-generator/table-generat
 import {RangePickerService} from "./widgets/range-picker/range-picker.service";
 import { StorageVerificationComponent } from './monitoring/storage-verification/storage-verification.component';
 import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
+import { ConfigTabComponent } from './configuration/config-tab.component';
 
 @NgModule({
     declarations: [
@@ -141,6 +142,7 @@ import {StorageVerificationService} from "./monitoring/storage-verification/stor
         LargeIntFormatPipe,
         TableGeneratorComponent,
         StorageVerificationComponent,
+        ConfigTabComponent,
     ],
     imports: [
         BrowserModule,
