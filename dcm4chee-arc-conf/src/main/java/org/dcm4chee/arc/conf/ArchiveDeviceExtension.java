@@ -229,6 +229,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
+    private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
@@ -1526,6 +1527,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return studyRetentionPolicies;
     }
 
+    public void removeHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.remove(policy);
+    }
+
+    public void clearHL7StudyRetentionPolicies() {
+        hl7StudyRetentionPolicies.clear();
+    }
+
+    public void addHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.add(policy);
+    }
+
+    public Collection<HL7StudyRetentionPolicy> getHL7StudyRetentionPolicies() {
+        return hl7StudyRetentionPolicies;
+    }
+
     public void removeAttributeCoercion(ArchiveAttributeCoercion coercion) {
         attributeCoercions.remove(coercion);
     }
@@ -2120,6 +2137,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionRules.addAll(arcdev.compressionRules);
         studyRetentionPolicies.clear();
         studyRetentionPolicies.addAll(arcdev.studyRetentionPolicies);
+        hl7StudyRetentionPolicies.clear();
+        hl7StudyRetentionPolicies.addAll(arcdev.hl7StudyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
         storeAccessControlIDRules.clear();

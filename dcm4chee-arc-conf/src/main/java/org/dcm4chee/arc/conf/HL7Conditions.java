@@ -113,4 +113,9 @@ public class HL7Conditions {
         } catch (IllegalArgumentException ignore) {}
         return true;
     }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
 }

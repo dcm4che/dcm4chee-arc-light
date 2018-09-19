@@ -42,6 +42,8 @@ package org.dcm4chee.arc.study.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
 
@@ -49,6 +51,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -68,7 +71,12 @@ public class StudyServiceImpl implements StudyService {
 
     @Override
     public StudyMgtContext createStudyMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
-        return new StudyMgtContextImpl(device, httpRequest, ae);
+        return new StudyMgtContextImpl(device).withHttpRequest(httpRequest).withApplicationEntity(ae);
+    }
+
+    @Override
+    public StudyMgtContext createStudyMgtContextHL7(Socket socket, UnparsedHL7Message msg) {
+        return new StudyMgtContextImpl(device).withSocket(socket).withUnparsedHL7Message(msg);
     }
 
     @Override

@@ -40,11 +40,8 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -68,6 +65,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
+    private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
 
@@ -93,6 +91,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         hl7OrderScheduledStations.clear();
         hl7OrderScheduledStations.addAll(arcapp.hl7OrderScheduledStations);
+        hl7StudyRetentionPolicies.clear();
+        hl7StudyRetentionPolicies.addAll(arcapp.hl7StudyRetentionPolicies);
         hl7OrderSPSStatuses.clear();
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
@@ -282,6 +282,32 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                         scheduledStations.add(station.getDevice());
                     }
         return scheduledStations;
+    }
+
+    public void removeHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.remove(policy);
+    }
+
+    public void clearHL7StudyRetentionPolicies() {
+        hl7StudyRetentionPolicies.clear();
+    }
+
+    public void addHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.add(policy);
+    }
+
+    public Collection<HL7StudyRetentionPolicy> getHL7StudyRetentionPolicies() {
+        return hl7StudyRetentionPolicies;
+    }
+
+    public Stream<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies() {
+        return Stream.concat(hl7StudyRetentionPolicies.stream(),
+                getArchiveDeviceExtension().getHL7StudyRetentionPolicies().stream());
+    }
+
+    public boolean hasHL7StudyRetentionPolicies() {
+        return !hl7StudyRetentionPolicies.isEmpty()
+                || !getArchiveDeviceExtension().getHL7StudyRetentionPolicies().isEmpty();
     }
 
     public void removeHL7OrderSPSStatus(HL7OrderSPSStatus rule) {

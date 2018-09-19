@@ -38,6 +38,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNull("hl7UseNullValue", ext.getHl7UseNullValue());
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeHL7PrefetchRules(writer, ext.getHL7PrefetchRules());
+        JsonArchiveConfiguration.writeHL7StudyRetentionPolicies(writer, ext.getHL7StudyRetentionPolicies());
         JsonArchiveConfiguration.writeScheduledStations(writer, ext.getHL7OrderScheduledStations());
         JsonArchiveConfiguration.writeHL7OrderSPSStatus(writer, ext.getHL7OrderSPSStatuses());
         writer.writeEnd();
@@ -97,6 +98,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7PrefetchRule":
                     JsonArchiveConfiguration.loadHL7PrefetchRules(ext.getHL7PrefetchRules(), reader);
+                    break;
+                case "hl7StudyRetentionPolicy":
+                    JsonArchiveConfiguration.loadHL7StudyRetentionPolicy(ext.getHL7StudyRetentionPolicies(), reader);
                     break;
                 case "hl7OrderScheduledStation":
                     JsonArchiveConfiguration.loadScheduledStations(ext.getHL7OrderScheduledStations(), reader, config);

@@ -262,7 +262,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
-        writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
+        writeStudyRetentionPolicies(writer, arcDev.getStudyRetentionPolicies());
+        writeHL7StudyRetentionPolicies(writer, arcDev.getHL7StudyRetentionPolicies());
         writeIDGenerators(writer, arcDev);
         writeHL7ForwardRules(writer, arcDev.getHL7ForwardRules());
         writeHL7PrefetchRules(writer, arcDev.getHL7PrefetchRules());
@@ -533,7 +534,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeStudyRetentionPolicy(
+    private void writeStudyRetentionPolicies(
             JsonWriter writer, Collection<StudyRetentionPolicy> studyRetentionPolicies) {
         writer.writeStartArray("dcmStudyRetentionPolicy");
         for (StudyRetentionPolicy srp : studyRetentionPolicies) {
@@ -543,6 +544,23 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotDef("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually(), false);
+            writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    static void writeHL7StudyRetentionPolicies(
+            JsonWriter writer, Collection<HL7StudyRetentionPolicy> studyRetentionPolicies) {
+        writer.writeStartArray("hl7StudyRetentionPolicy");
+        for (HL7StudyRetentionPolicy srp : studyRetentionPolicies) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", srp.getCommonName(), null);
+            writer.writeNotNullOrDef("dicomAETitle", srp.getAETitle(), null);
+            writer.writeNotNullOrDef("dcmRetentionPeriod", srp.getMinRetentionPeriod(), null);
+            writer.writeNotNullOrDef("dcmMaxRetentionPeriod", srp.getMaxRetentionPeriod(), null);
+            writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
+            writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
             writer.writeEnd();
         }
@@ -719,7 +737,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
-        writeStudyRetentionPolicy(writer, arcAE.getStudyRetentionPolicies());
+        writeStudyRetentionPolicies(writer, arcAE.getStudyRetentionPolicies());
         writeRSForwardRules(writer, arcAE.getRSForwardRules());
         writer.writeEnd();
     }
@@ -1212,6 +1230,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PrefetchRule":
                     loadHL7PrefetchRules(arcDev.getHL7PrefetchRules(), reader);
+                    break;
+                case "hl7StudyRetentionPolicy":
+                    loadHL7StudyRetentionPolicy(arcDev.getHL7StudyRetentionPolicies(), reader);
                     break;
                 case "dcmRSForwardRule":
                     loadRSForwardRules(arcDev.getRSForwardRules(), reader);
@@ -1854,6 +1875,45 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmExpireSeriesIndividually":
                         srp.setExpireSeriesIndividually(reader.booleanValue());
+                        break;
+                    case "dcmStartRetentionPeriodOnStudyDate":
+                        srp.setStartRetentionPeriodOnStudyDate(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            policies.add(srp);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    static void loadHL7StudyRetentionPolicy(Collection<HL7StudyRetentionPolicy> policies, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            HL7StudyRetentionPolicy srp = new HL7StudyRetentionPolicy();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        srp.setCommonName(reader.stringValue());
+                        break;
+                    case "dicomAETitle":
+                        srp.setAETitle(reader.stringValue());
+                        break;
+                    case "dcmRetentionPeriod":
+                        srp.setMinRetentionPeriod(Period.parse(reader.stringValue()));
+                        break;
+                    case "dcmMaxRetentionPeriod":
+                        srp.setMaxRetentionPeriod(Period.parse(reader.stringValue()));
+                        break;
+                    case "dcmRulePriority":
+                        srp.setPriority(reader.intValue());
+                        break;
+                    case "dcmProperty":
+                        srp.setConditions(new HL7Conditions(reader.stringArray()));
                         break;
                     case "dcmStartRetentionPeriodOnStudyDate":
                         srp.setStartRetentionPeriodOnStudyDate(reader.booleanValue());

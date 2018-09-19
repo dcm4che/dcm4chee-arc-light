@@ -141,7 +141,7 @@ public class PrefetchScheduler {
 
     private void prefetch(StoreContext ctx, PrefetchRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
         try {
-            LOG.info("{}:Apply {}:\n", ctx.getStoreSession(), rule);
+            LOG.info("{}: Apply {}", ctx.getStoreSession(), rule);
             Date notExportedAfter = new Date(
                     now.getTimeInMillis() - rule.getSuppressDuplicateExportInterval().getSeconds() * 1000L);
             Attributes attrs = ctx.getAttributes();
@@ -155,13 +155,13 @@ public class PrefetchScheduler {
                     .forEach(selector -> exporterByAET.forEach((aet, exporters) ->
                             prefetch(pid, siuid, batchID, selector, arcdev, aet, exporters, notExportedAfter)));
         } catch (Exception e) {
-            LOG.warn("{}:Failed to apply {}:\n", ctx.getStoreSession(), rule, e);
+            LOG.warn("{}: Failed to apply {}:\n", ctx.getStoreSession(), rule, e);
         }
     }
 
     private void prefetch(Socket sock, HL7Fields hl7Fields, HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
         try {
-            LOG.info("{}:Apply {}:\n", sock, rule);
+            LOG.info("{}: Apply {}", sock, rule);
             Date notExportedAfter = new Date(
                     now.getTimeInMillis() - rule.getSuppressDuplicateExportInterval().getSeconds() * 1000L);
             String cx = hl7Fields.get("PID-3", null);
@@ -174,7 +174,7 @@ public class PrefetchScheduler {
                     .forEach(selector -> exporterByAET.forEach((aet, exporters) ->
                             prefetch(pid, null, batchID, selector, arcdev, aet, exporters, notExportedAfter)));
         } catch (Exception e) {
-            LOG.warn("{}:Failed to apply {}:\n", sock, rule, e);
+            LOG.warn("{}: Failed to apply {}:\n", sock, rule, e);
         }
     }
 

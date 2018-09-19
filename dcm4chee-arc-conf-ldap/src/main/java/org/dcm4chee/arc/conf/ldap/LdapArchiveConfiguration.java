@@ -782,6 +782,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeQueryRetrieveViews(diffs, deviceDN, arcDev);
         storeRejectNotes(diffs, deviceDN, arcDev);
         storeStudyRetentionPolicies(diffs, arcDev.getStudyRetentionPolicies(), deviceDN);
+        storeHL7StudyRetentionPolicies(diffs, arcDev.getHL7StudyRetentionPolicies(), deviceDN, config);
         storeIDGenerators(diffs, deviceDN, arcDev);
         storeHL7ForwardRules(diffs, arcDev.getHL7ForwardRules(), deviceDN, config);
         storeRSForwardRules(diffs, arcDev.getRSForwardRules(), deviceDN);
@@ -811,6 +812,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadQueryRetrieveViews(arcdev, deviceDN);
         loadRejectNotes(arcdev, deviceDN);
         loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
+        loadHL7StudyRetentionPolicies(arcdev.getHL7StudyRetentionPolicies(), deviceDN, config);
         loadIDGenerators(arcdev, deviceDN);
         loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN, config);
         loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
@@ -849,6 +851,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeQueryRetrieveViews(diffs, aa, bb, deviceDN);
         mergeRejectNotes(diffs, aa, bb, deviceDN);
         mergeStudyRetentionPolicies(diffs, aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
+        mergeHL7StudyRetentionPolicies(diffs, aa.getHL7StudyRetentionPolicies(), bb.getHL7StudyRetentionPolicies(), deviceDN, config);
         mergeIDGenerators(diffs, aa, bb, deviceDN);
         mergeHL7ForwardRules(diffs, aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
         mergeRSForwardRules(diffs, aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
@@ -1305,7 +1308,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             attr.add(TagUtils.toHexString(tag));
         return attr;
     }
-
 
     private void loadAttributeFilters(ArchiveDeviceExtension device, String deviceDN)
             throws NamingException {
@@ -2019,7 +2021,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attr != null ? Duration.valueOf((String) attr.get()) : defValue;
     }
 
-    private Period toPeriod(Attribute attr) throws NamingException {
+    private static Period toPeriod(Attribute attr) throws NamingException {
         return attr != null ? Period.parse((String) attr.get()) : null;
     }
 
@@ -2206,6 +2208,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    static void storeHL7StudyRetentionPolicies(ConfigurationChanges diffs, Collection<HL7StudyRetentionPolicy> policies,
+                                               String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        for (HL7StudyRetentionPolicy policy : policies) {
+            String dn = LdapUtils.dnOf("cn", policy.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, policy, new BasicAttributes(true)));
+        }
+    }
+
     private void storeStoreAccessControlIDRules(ConfigurationChanges diffs, Collection<StoreAccessControlIDRule> rules, String parentDN)
             throws NamingException {
         for (StoreAccessControlIDRule rule : rules) {
@@ -2297,6 +2310,19 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetentionPeriod", policy.getRetentionPeriod(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", policy.getPriority(), 0);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExpireSeriesIndividually", policy.isExpireSeriesIndividually(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate", policy.isStartRetentionPeriodOnStudyDate(), false);
+        return attrs;
+    }
+
+    private static Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, HL7StudyRetentionPolicy policy,
+                                      BasicAttributes attrs) {
+        attrs.put("objectclass", "hl7StudyRetentionPolicy");
+        attrs.put("cn", policy.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", policy.getAETitle(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(policy.getConditions().getMap()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetentionPeriod", policy.getMinRetentionPeriod(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxRetentionPeriod", policy.getMaxRetentionPeriod(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", policy.getPriority(), 0);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate", policy.isStartRetentionPeriodOnStudyDate(), false);
         return attrs;
     }
@@ -2397,6 +2423,29 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 policy.setExpireSeriesIndividually(LdapUtils.booleanValue(attrs.get("dcmExpireSeriesIndividually"), false));
                 policy.setStartRetentionPeriodOnStudyDate(LdapUtils.booleanValue(attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
+                policies.add(policy);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    static void loadHL7StudyRetentionPolicies(Collection<HL7StudyRetentionPolicy> policies, String parentDN,
+                                              LdapDicomConfiguration config)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7StudyRetentionPolicy)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                HL7StudyRetentionPolicy policy = new HL7StudyRetentionPolicy(LdapUtils.stringValue(attrs.get("cn"), null));
+                policy.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+                policy.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                policy.setMinRetentionPeriod(toPeriod(attrs.get("dcmRetentionPeriod")));
+                policy.setMaxRetentionPeriod(toPeriod(attrs.get("dcmMaxRetentionPeriod")));
+                policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                policy.setStartRetentionPeriodOnStudyDate(
+                        LdapUtils.booleanValue(attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
                 policies.add(policy);
             }
         } finally {
@@ -2593,8 +2642,46 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void mergeHL7ForwardRules(ConfigurationChanges diffs, Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
-                                               String parentDN, LdapDicomConfiguration config)
+    static void mergeHL7StudyRetentionPolicies(
+            ConfigurationChanges diffs,
+            Collection<HL7StudyRetentionPolicy> prevPolicies,
+            Collection<HL7StudyRetentionPolicy> policies,
+            String parentDN,
+            LdapDicomConfiguration config)
+            throws NamingException {
+        for (HL7StudyRetentionPolicy prevRule : prevPolicies) {
+            String cn = prevRule.getCommonName();
+            if (findHL7StudyRetentionPolicyByCN(policies, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (HL7StudyRetentionPolicy policy : policies) {
+            String cn = policy.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            HL7StudyRetentionPolicy prevPolicy = findHL7StudyRetentionPolicyByCN(prevPolicies, cn);
+            if (prevPolicy == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                policy, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevPolicy, policy, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    static void mergeHL7ForwardRules(
+            ConfigurationChanges diffs,
+            Collection<HL7ForwardRule> prevRules,
+            Collection<HL7ForwardRule> rules,
+            String parentDN,
+            LdapDicomConfiguration config)
             throws NamingException {
         for (HL7ForwardRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
@@ -2776,6 +2863,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static List<ModificationItem> storeDiffs(
+            ConfigurationChanges.ModifiedObject ldapObj, HL7StudyRetentionPolicy prev, HL7StudyRetentionPolicy policy,
+            ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", prev.getAETitle(), policy.getAETitle(), null);
+        storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), policy.getConditions().getMap());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetentionPeriod",
+                prev.getMinRetentionPeriod(), policy.getMinRetentionPeriod(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMaxRetentionPeriod",
+                prev.getMaxRetentionPeriod(), policy.getMaxRetentionPeriod(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStartRetentionPeriodOnStudyDate",
+                prev.isStartRetentionPeriodOnStudyDate(), policy.isStartRetentionPeriodOnStudyDate(), false);
+        return mods;
+    }
+
+    private static List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, HL7ForwardRule prev, HL7ForwardRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(ldapObj, mods, "hl7FwdApplicationName", prev.getDestinations(), rule.getDestinations());
@@ -2845,6 +2948,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private StudyRetentionPolicy findStudyRetentionPolicyByCN(Collection<StudyRetentionPolicy> policies, String cn) {
         for (StudyRetentionPolicy policy : policies)
+            if (policy.getCommonName().equals(cn))
+                return policy;
+        return null;
+    }
+
+    private static HL7StudyRetentionPolicy findHL7StudyRetentionPolicyByCN(
+            Collection<HL7StudyRetentionPolicy> policies, String cn) {
+        for (HL7StudyRetentionPolicy policy : policies)
             if (policy.getCommonName().equals(cn))
                 return policy;
         return null;
