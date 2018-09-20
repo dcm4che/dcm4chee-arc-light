@@ -256,7 +256,19 @@ public class ImportImpaxReportRS {
         t.setParameter("docTitleCodeMeaning", docTitleCode.getCodeMeaning());
         t.setParameter("VerifyingOrganization",
                 props.getOrDefault("VerifyingOrganization", DEFAULT_VERIFYING_ORGANIZATION));
+        setParamIfNotNull(t, "PatientID", attrs);
+        setParamIfNotNull(t, "PatientName", attrs);
+        setParamIfNotNull(t, "PatientBirthDate", attrs);
+        setParamIfNotNull(t, "PatientSex", attrs);
+        setParamIfNotNull(t, "StudyInstanceUID", attrs);
+        setParamIfNotNull(t, "AccessionNumber", attrs);
         t.transform(new StreamSource(new StringReader(report)), new SAXResult(new ContentHandlerAdapter(attrs)));
+    }
+
+    private void setParamIfNotNull(Transformer t, String paramName, Attributes attrs) {
+        String val = attrs.getString(dict.tagForKeyword(paramName));
+        if (val != null)
+            t.setParameter(paramName, val);
     }
 
     private void addUIDs(String report, Attributes attrs) {
