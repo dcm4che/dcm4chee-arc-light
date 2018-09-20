@@ -153,7 +153,7 @@ export class PermissionService {
         }
     }
     filterAetDependingOnUiConfig(aets, mode){
-        if(this.uiConfig.dcmuiAetConfig){
+        if(this.uiConfig && this.uiConfig.dcmuiAetConfig){
             try{
                 let aetConfig = this.uiConfig.dcmuiAetConfig.filter(config=>{
                     let oneAetRolesHasUser = false;
