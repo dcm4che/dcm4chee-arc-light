@@ -19,6 +19,7 @@
   <xsl:param name="StudyInstanceUID"/>
   <xsl:param name="AccessionNumber"/>
   <xsl:param name="StudyDescription"/>
+  <xsl:param name="ReferringPhysicianName"/>
 
   <xsl:template match="/agfa:DiagnosticRadiologyReport">
     <NativeDicomModel>
@@ -68,12 +69,21 @@
   <xsl:template match="OrderDetails">
     <xsl:param name="orderDetails"/>
     <xsl:variable name="studyDesc" select="$orderDetails/StudyDetails/StudyDescription"/>
+      <xsl:variable name="referringPhysicianName" select="$orderDetails/ReferringPhysician/Name"/>
+      <xsl:variable name="studyIUID" select="$orderDetails/StudyDetails/StudyInstanceUID"/>
       <!--Study Description-->
-      <xsl:if test="$StudyDescription = ''">
+      <xsl:if test="$StudyDescription = '' and $StudyInstanceUID = $studyIUID">
           <xsl:call-template name="attr">
               <xsl:with-param name="tag" select="'00081030'"/>
               <xsl:with-param name="vr" select="'LO'"/>
               <xsl:with-param name="val" select="$studyDesc"/>
+          </xsl:call-template>
+      </xsl:if>
+      <!--Referring Physician's Name-->
+      <xsl:if test="$ReferringPhysicianName = '' and $StudyInstanceUID = $studyIUID">
+          <xsl:call-template name="pnAttr">
+              <xsl:with-param name="tag" select="'00080090'"/>
+              <xsl:with-param name="val" select="$referringPhysicianName"/>
           </xsl:call-template>
       </xsl:if>
     <!--Referenced Request Sequence-->
@@ -83,7 +93,7 @@
           <xsl:call-template name="attr">
               <xsl:with-param name="tag" select="'0020000D'"/>
               <xsl:with-param name="vr" select="'UI'"/>
-              <xsl:with-param name="val" select="$orderDetails/StudyDetails/StudyInstanceUID"/>
+              <xsl:with-param name="val" select="$studyIUID"/>
           </xsl:call-template>
         <!--Accession Number-->
           <xsl:call-template name="attr">
@@ -116,7 +126,7 @@
           <!-- Referring Physician's Name -->
           <xsl:call-template name="pnAttrs">
               <xsl:with-param name="tag" select="'00080090'" />
-              <xsl:with-param name="val" select="$orderDetails/ReferringPhysician/Name" />
+              <xsl:with-param name="val" select="$referringPhysicianName" />
           </xsl:call-template>
       </Item>
     </DicomAttribute>
@@ -154,25 +164,34 @@
           <xsl:with-param name="val" select="$verificationFlag"/>
       </xsl:call-template>
     <!--Content Date/Time-->
-    <DicomAttribute tag="00080023" vr="DA">
-      <Value number="1">
-        <xsl:value-of select="$interpretationRecordDate"/></Value>
-    </DicomAttribute>
-    <DicomAttribute tag="00080033" vr="TM">
-      <Value number="1"><xsl:value-of select="$interpretationRecordTime"/></Value>
-    </DicomAttribute>
+      <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00080023'"/>
+          <xsl:with-param name="vr" select="'DA'"/>
+          <xsl:with-param name="val" select="$interpretationRecordDate"/>
+      </xsl:call-template>
+      <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00080033'"/>
+          <xsl:with-param name="vr" select="'TM'"/>
+          <xsl:with-param name="val" select="$interpretationRecordTime"/>
+      </xsl:call-template>
     <xsl:if test="$verificationFlag = 'VERIFIED'">
       <!-- Verifying Observer Sequence -->
       <DicomAttribute tag="0040A073" vr="SQ">
         <Item number="1">
           <!-- Verifying Organization -->
-          <DicomAttribute tag="0040A027" vr="LO">
-            <Value number="1"><xsl:value-of select="$VerifyingOrganization"/></Value>
-          </DicomAttribute>
+            <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'0040A027'"/>
+                <xsl:with-param name="vr" select="'LO'"/>
+                <xsl:with-param name="val" select="$VerifyingOrganization"/>
+            </xsl:call-template>
           <!-- Verification DateTime -->
-          <DicomAttribute tag="0040A030" vr="DT">
-            <Value number="1"><xsl:value-of select="$interpretationApprovedDate"/><xsl:value-of select="$interpretationApprovedTime"/></Value>
-          </DicomAttribute>
+            <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'0040A030'"/>
+                <xsl:with-param name="vr" select="'DT'"/>
+                <xsl:with-param name="val">
+                    <xsl:value-of select="$interpretationApprovedDate"/><xsl:value-of select="$interpretationApprovedTime"/>
+                </xsl:with-param>
+            </xsl:call-template>
           <!-- Verifying Observer Name -->
           <xsl:call-template name="pnAttrs">
             <xsl:with-param name="tag" select="'0040A075'" />
@@ -236,9 +255,13 @@
                       <xsl:with-param name="val" select="'ENT'"/>
                   </xsl:call-template>
                   <!-- Participation DateTime -->
-                  <DicomAttribute tag="0040A082" vr="DT">
-                      <Value number="1"><xsl:value-of select="$interpretationRecordDate"/><xsl:value-of select="$interpretationRecordTime"/></Value>
-                  </DicomAttribute>
+                  <xsl:call-template name="attr">
+                      <xsl:with-param name="tag" select="'0040A082'"/>
+                      <xsl:with-param name="vr" select="'DT'"/>
+                      <xsl:with-param name="val">
+                          <xsl:value-of select="$interpretationRecordDate"/><xsl:value-of select="$interpretationRecordTime"/>
+                      </xsl:with-param>
+                  </xsl:call-template>
                   <!-- Observer Type -->
                   <xsl:call-template name="attr">
                       <xsl:with-param name="tag" select="'0040A084'"/>

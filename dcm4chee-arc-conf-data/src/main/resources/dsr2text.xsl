@@ -34,6 +34,7 @@
     </xsl:apply-templates>
     <xsl:apply-templates mode="verifyingObserver" select="DicomAttribute[@tag='0040A073']/Item"/>
     <xsl:apply-templates mode="authorObserver" select="DicomAttribute[@tag='0040A078']/Item"/>
+    <xsl:apply-templates mode="participant" select="DicomAttribute[@tag='0040A07A']/Item"/>
     <xsl:call-template name="contentDateTime">
       <xsl:with-param name="date" select="DicomAttribute[@tag='00080023']/Value"/>
       <xsl:with-param name="time" select="DicomAttribute[@tag='00080033']/Value"/>
@@ -286,6 +287,36 @@
       <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A075']/PersonName/Alphabetic"/>
     </xsl:call-template>
     <xsl:value-of select="concat(', ',DicomAttribute[@tag='0040A027']/Value,$br)"/>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="participant">
+    <xsl:choose>
+      <xsl:when test="position()=1">Participant: </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>                     </xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:call-template name="formatDT">
+      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A082']/Value"/>
+    </xsl:call-template>
+    <xsl:text> - </xsl:text>
+    <xsl:call-template name="formatPN">
+      <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
+    </xsl:call-template>
+    <xsl:variable name="participationType" select="DicomAttribute[@tag='0040A080']/Value"/>
+    <xsl:variable name="participationTypeLabel">
+      <xsl:choose>
+        <xsl:when test="$participationType = 'ENT'">
+          <xsl:value-of select="'Data Enterer'"/>
+        </xsl:when>
+        <xsl:when test="$participationType = 'ATTEST'">
+          <xsl:value-of select="'Attestor'"/>
+        </xsl:when>
+        <xsl:otherwise/>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="concat(', ', $participationTypeLabel)"/>
+    <xsl:value-of select="$br"/>
   </xsl:template>
 
   <xsl:template match="Item" mode="authorObserver">
