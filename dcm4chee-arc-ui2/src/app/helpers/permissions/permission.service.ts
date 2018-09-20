@@ -153,33 +153,37 @@ export class PermissionService {
         }
     }
     filterAetDependingOnUiConfig(aets, mode){
-        try{
-            let aetConfig = this.uiConfig.dcmuiAetConfig.filter(config=>{
-                let oneAetRolesHasUser = false;
-                if(_.hasIn(config, "dcmAcceptedUserRole") && config.dcmAcceptedUserRole && _.hasIn(this.mainservice.global,"authentication.roles") && this.mainservice.global.authentication.roles.length > 0){
-                    config.dcmAcceptedUserRole.forEach(role=>{
-                        if(this.mainservice.global.authentication.roles.indexOf(role) > -1){
-                            oneAetRolesHasUser = true;
-                        }
+        if(this.uiConfig.dcmuiAetConfig){
+            try{
+                let aetConfig = this.uiConfig.dcmuiAetConfig.filter(config=>{
+                    let oneAetRolesHasUser = false;
+                    if(_.hasIn(config, "dcmAcceptedUserRole") && config.dcmAcceptedUserRole && _.hasIn(this.mainservice.global,"authentication.roles") && this.mainservice.global.authentication.roles.length > 0){
+                        config.dcmAcceptedUserRole.forEach(role=>{
+                            if(this.mainservice.global.authentication.roles.indexOf(role) > -1){
+                                oneAetRolesHasUser = true;
+                            }
+                        });
+                    }
+                    return oneAetRolesHasUser;
+                });
+                if(mode){
+                    aetConfig = aetConfig.filter(config=>{
+                        return !config.dcmuiMode || config.dcmuiMode === mode;
                     });
                 }
-                return oneAetRolesHasUser;
-            });
-            if(mode){
-                aetConfig = aetConfig.filter(config=>{
-                    return !config.dcmuiMode || config.dcmuiMode === mode;
-                });
-            }
-            if(aetConfig.length > 0){
-                return aets.filter(aet=>{
-                    return aetConfig[0].dcmuiAets.indexOf(aet.dicomAETitle) > -1;
-                });
-            }else{
+                if(aetConfig.length > 0){
+                    return aets.filter(aet=>{
+                        return aetConfig[0].dcmuiAets.indexOf(aet.dicomAETitle) > -1;
+                    });
+                }else{
+                    return [];
+                }
+            }catch(e){
+                console.warn(e);
                 return [];
             }
-        }catch(e){
-            console.warn(e);
-            return [];
+        }else{
+            return aets;
         }
     }
 }
