@@ -262,6 +262,7 @@ public class ImportImpaxReportRS {
         setParamIfNotNull(t, "PatientSex", attrs);
         setParamIfNotNull(t, "StudyInstanceUID", attrs);
         setParamIfNotNull(t, "AccessionNumber", attrs);
+        setParamIfNotNull(t, "StudyDescription", attrs);
         t.transform(new StreamSource(new StringReader(report)), new SAXResult(new ContentHandlerAdapter(attrs)));
     }
 

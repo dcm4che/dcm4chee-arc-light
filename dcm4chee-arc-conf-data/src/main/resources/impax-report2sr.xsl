@@ -18,6 +18,7 @@
   <xsl:param name="PatientSex"/>
   <xsl:param name="StudyInstanceUID"/>
   <xsl:param name="AccessionNumber"/>
+  <xsl:param name="StudyDescription"/>
 
   <xsl:template match="/agfa:DiagnosticRadiologyReport">
     <NativeDicomModel>
@@ -68,11 +69,13 @@
     <xsl:param name="orderDetails"/>
     <xsl:variable name="studyDesc" select="$orderDetails/StudyDetails/StudyDescription"/>
       <!--Study Description-->
-      <xsl:call-template name="attr">
-          <xsl:with-param name="tag" select="'00081030'"/>
-          <xsl:with-param name="vr" select="'LO'"/>
-          <xsl:with-param name="val" select="$studyDesc"/>
-      </xsl:call-template>
+      <xsl:if test="$StudyDescription = ''">
+          <xsl:call-template name="attr">
+              <xsl:with-param name="tag" select="'00081030'"/>
+              <xsl:with-param name="vr" select="'LO'"/>
+              <xsl:with-param name="val" select="$studyDesc"/>
+          </xsl:call-template>
+      </xsl:if>
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">
       <Item number="1">
