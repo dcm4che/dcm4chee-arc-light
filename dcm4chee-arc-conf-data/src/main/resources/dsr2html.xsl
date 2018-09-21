@@ -55,9 +55,9 @@
             <xsl:with-param name="time" select="DicomAttribute[@tag='00080033']/Value"/>
           </xsl:call-template>
           <xsl:call-template name="studyDetails"/>
-          <xsl:apply-templates mode="refReq" select="DicomAttribute[@tag='0040A370']/Item"/>
         </table>
         <hr/>
+        <xsl:apply-templates mode="refReq" select="DicomAttribute[@tag='0040A370']/Item"/>
         <xsl:call-template name="container">
           <xsl:with-param name="level" select="1"/>
         </xsl:call-template>
@@ -493,6 +493,7 @@
 
   <xsl:template match="Item" mode="refReq">
     <xsl:if test="position()=1">
+      <table>
       <tr>
         <td colspan="2">
           <b>Referenced Request</b>
@@ -500,7 +501,7 @@
       </tr>
       <tr>
         <td>
-          <b>Reason For Study:</b>
+          <b>Reason for the Requested Procedure:</b>
         </td>
         <td>
           <xsl:value-of select="DicomAttribute[@tag='00401002']/Value"/>
@@ -508,7 +509,7 @@
       </tr>
       <tr>
         <td>
-          <b>Study Description:</b>
+          <b>Requested Procedure Description:</b>
         </td>
         <td>
           <xsl:value-of select="DicomAttribute[@tag='00321060']/Value"/>
@@ -540,6 +541,7 @@
           </xsl:call-template>
         </td>
       </tr>
+      </table>
     </xsl:if>
   </xsl:template>
 
