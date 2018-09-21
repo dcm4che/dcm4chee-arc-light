@@ -313,8 +313,12 @@
                 <xsl:with-param name="itemNo">7</xsl:with-param>
                 <xsl:with-param name="accessionNo" select="$orderDetails/AccessionNumber"/>
             </xsl:call-template>
-            <xsl:call-template name="reportItem">
+            <xsl:call-template name="procedureCtxStudyDesc">
                 <xsl:with-param name="itemNo">8</xsl:with-param>
+                <xsl:with-param name="studyDesc" select="$orderDetails/StudyDetails/StudyDescription"/>
+            </xsl:call-template>
+            <xsl:call-template name="reportItem">
+                <xsl:with-param name="itemNo">9</xsl:with-param>
                 <xsl:with-param name="parentCode"><xsl:value-of select="'121070'"/></xsl:with-param>
                 <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Findings'"/></xsl:with-param>
                 <xsl:with-param name="childCode"><xsl:value-of select="'121071'"/></xsl:with-param>
@@ -322,7 +326,7 @@
                 <xsl:with-param name="val"><xsl:value-of select="$reportDetails/ReportBody/text()"/></xsl:with-param>
             </xsl:call-template>
             <xsl:call-template name="reportItem">
-                <xsl:with-param name="itemNo">9</xsl:with-param>
+                <xsl:with-param name="itemNo">10</xsl:with-param>
                 <xsl:with-param name="parentCode"><xsl:value-of select="'121076'"/></xsl:with-param>
                 <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Conclusions'"/></xsl:with-param>
                 <xsl:with-param name="childCode"><xsl:value-of select="'121077'"/></xsl:with-param>
@@ -480,6 +484,24 @@
                 </xsl:call-template>
                 <xsl:call-template name="text">
                     <xsl:with-param name="val" select="$accessionNo"/>
+                </xsl:call-template>
+            </xsl:if>
+        </Item>
+    </xsl:template>
+
+    <xsl:template name="procedureCtxStudyDesc">
+        <xsl:param name="itemNo"/>
+        <xsl:param name="studyDesc"/>
+        <Item number="{$itemNo}">
+            <xsl:if test="$StudyDescription = '' or not($StudyDescription = $studyDesc)">
+                <xsl:call-template name="obsRelation"/>
+                <xsl:call-template name="textValueType"/>
+                <xsl:call-template name="conceptNameCodeSq">
+                    <xsl:with-param name="code" select="'121065'"/>
+                    <xsl:with-param name="meaning" select="'Procedure Description'"/>
+                </xsl:call-template>
+                <xsl:call-template name="text">
+                    <xsl:with-param name="val" select="$studyDesc"/>
                 </xsl:call-template>
             </xsl:if>
         </Item>
