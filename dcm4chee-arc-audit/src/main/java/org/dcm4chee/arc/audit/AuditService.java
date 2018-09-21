@@ -1690,21 +1690,36 @@ public class AuditService {
 
     void spoolProcedureRecord(StudyMgtContext ctx) {
         try {
-            HttpServletRequest request = ctx.getHttpRequest();
-            String callingAET = KeycloakContext.valueOf(request).getUserName();
-            Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
-            AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(
-                    ctx.getHttpRequest().getRemoteHost())
-                    .callingUserID(callingAET)
-                    .calledUserID(ctx.getHttpRequest().getRequestURI())
-                    .studyUIDAccNumDate(ctx.getAttributes())
-                    .pIDAndName(pAttr, getArchiveDevice())
-                    .outcome(outcome(ctx.getException()))
-                    .build();
-            writeSpoolFile(AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode()), info);
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode()),
+                    ctx.getHttpRequest() != null ? restfulTriggeredStudyExpire(ctx) : hl7TriggeredStudyExpire(ctx));
         } catch (Exception e) {
             LOG.warn("Failed to spool Procedure Record : " + e);
         }
+    }
+
+    private AuditInfoBuilder hl7TriggeredStudyExpire(StudyMgtContext ctx) {
+        HL7Segment msh = ctx.getUnparsedHL7Message().msh();
+        return new AuditInfoBuilder.Builder()
+                .callingHost(ctx.getRemoteHostName())
+                .callingUserID(msh.getSendingApplicationWithFacility())
+                .calledUserID(msh.getReceivingApplicationWithFacility())
+                .studyUIDAccNumDate(ctx.getAttributes())
+                .pIDAndName(ctx.getStudy().getPatient().getAttributes(), getArchiveDevice())
+                .outcome(outcome(ctx.getException()))
+                .build();
+    }
+
+    private AuditInfoBuilder restfulTriggeredStudyExpire(StudyMgtContext ctx) {
+        HttpServletRequest request = ctx.getHttpRequest();
+        return new AuditInfoBuilder.Builder()
+                .callingHost(ctx.getRemoteHostName())
+                .callingUserID(KeycloakContext.valueOf(request).getUserName())
+                .calledUserID(ctx.getHttpRequest().getRequestURI())
+                .studyUIDAccNumDate(ctx.getAttributes())
+                .pIDAndName(ctx.getStudy().getPatient().getAttributes(), getArchiveDevice())
+                .outcome(outcome(ctx.getException()))
+                .build();
     }
 
     private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
