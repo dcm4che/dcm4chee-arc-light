@@ -43,6 +43,7 @@
       <xsl:with-param name="level" select="1"/>
     </xsl:call-template>
     <xsl:value-of select="$br"/>
+    <xsl:apply-templates mode="refReq" select="DicomAttribute[@tag='0040A370']/Item"/>
   <xsl:text>This page was generated from a DICOM Structured Reporting document by dcm4chee-arc 5.x [https://github.com/dcm4che]
 </xsl:text>
   </xsl:template>
@@ -68,6 +69,29 @@
       <xsl:with-param name="n" select="string-length($text)"/>
     </xsl:call-template>
     <xsl:value-of select="$br"/>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="refReq">
+    <xsl:if test="position()=1">
+      <xsl:call-template name="title">
+        <xsl:with-param name="level" select="2"/>
+        <xsl:with-param name="text" select="'Referenced Request'">
+        </xsl:with-param>
+      </xsl:call-template>
+      <xsl:text>Reason for the Requested Procedure: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='00401002']/Value, $br)"/>
+      <xsl:text>Requested Procedure Description: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='00321060']/Value, $br)"/>
+      <xsl:text>Accession Number: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='00080050']/Value, $br)"/>
+      <xsl:text>Study Instance UID: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='0020000D']/Value, $br)"/>
+      <xsl:text>Referring Physician Name: </xsl:text>
+      <xsl:call-template name="formatPN">
+        <xsl:with-param name="pnc" select="DicomAttribute[@tag='00080090']/PersonName/Alphabetic"/>
+      </xsl:call-template>
+      <xsl:value-of select="concat($br, $br)"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="container">
