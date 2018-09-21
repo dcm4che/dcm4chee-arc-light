@@ -314,14 +314,16 @@
         <xsl:text>                     </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:call-template name="formatDT">
-      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A030']/Value"/>
-    </xsl:call-template>
     <xsl:text> - </xsl:text>
     <xsl:call-template name="formatPN">
       <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A075']/PersonName/Alphabetic"/>
     </xsl:call-template>
     <xsl:value-of select="concat(', ',DicomAttribute[@tag='0040A027']/Value,$br)"/>
+    <xsl:text>Verification Date/Time: </xsl:text>
+    <xsl:call-template name="formatDT">
+      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A030']/Value"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
   </xsl:template>
 
   <xsl:template match="Item" mode="participant">
@@ -343,12 +345,13 @@
         <xsl:text>                     </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:call-template name="formatDT">
-      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A082']/Value"/>
-    </xsl:call-template>
-    <xsl:text> - </xsl:text>
     <xsl:call-template name="formatPN">
       <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
+    <xsl:text>Data Entering Date/Time: </xsl:text>
+    <xsl:call-template name="formatDT">
+      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A082']/Value"/>
     </xsl:call-template>
     <xsl:value-of select="$br"/>
   </xsl:template>

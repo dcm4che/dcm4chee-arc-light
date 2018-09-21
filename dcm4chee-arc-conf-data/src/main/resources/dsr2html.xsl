@@ -370,12 +370,21 @@
         </xsl:if>
       </td>
       <td>
-        <xsl:call-template name="formatDateIdPersonName">
-          <xsl:with-param name="dtTag" select="'0040A030'"/>
+        <xsl:call-template name="formatIdPersonName">
           <xsl:with-param name="idTag" select="'0040A088'"/>
           <xsl:with-param name="nameTag" select="'0040A075'"/>
         </xsl:call-template>
         <xsl:value-of select="concat(', ',DicomAttribute[@tag='0040A027']/Value)"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Verification Date/Time:</b>
+      </td>
+      <td>
+        <xsl:call-template name="formatDT">
+          <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A030']/Value"/>
+        </xsl:call-template>
       </td>
     </tr>
   </xsl:template>
@@ -400,10 +409,19 @@
         </xsl:if>
       </td>
       <td>
-        <xsl:call-template name="formatDateIdPersonName">
-          <xsl:with-param name="dtTag" select="'0040A082'"/>
+        <xsl:call-template name="formatIdPersonName">
           <xsl:with-param name="idTag" select="'00401101'"/>
           <xsl:with-param name="nameTag" select="'0040A123'"/>
+        </xsl:call-template>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Data Entering Date/Time:</b>
+      </td>
+      <td>
+        <xsl:call-template name="formatDT">
+          <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A082']/Value"/>
         </xsl:call-template>
       </td>
     </tr>
