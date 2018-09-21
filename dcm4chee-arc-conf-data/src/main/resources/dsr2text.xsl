@@ -39,6 +39,7 @@
       <xsl:with-param name="date" select="DicomAttribute[@tag='00080023']/Value"/>
       <xsl:with-param name="time" select="DicomAttribute[@tag='00080033']/Value"/>
     </xsl:call-template>
+    <xsl:call-template name="studyDetails"/>
     <xsl:call-template name="container">
       <xsl:with-param name="level" select="1"/>
     </xsl:call-template>
@@ -67,6 +68,16 @@
     <xsl:call-template name="fill">
       <xsl:with-param name="char" select="substring('#=*+-~',$level,1)"/>
       <xsl:with-param name="n" select="string-length($text)"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
+  </xsl:template>
+
+  <xsl:template name="studyDetails">
+    <xsl:text>Study Description: </xsl:text>
+    <xsl:value-of select="concat(DicomAttribute[@tag='00081030']/Value, $br)"/>
+    <xsl:text>Referring Physician Name: </xsl:text>
+    <xsl:call-template name="formatPN">
+      <xsl:with-param name="pnc" select="DicomAttribute[@tag='00080090']/PersonName/Alphabetic"/>
     </xsl:call-template>
     <xsl:value-of select="$br"/>
   </xsl:template>
