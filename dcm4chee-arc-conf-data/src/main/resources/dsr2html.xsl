@@ -381,10 +381,22 @@
   </xsl:template>
 
   <xsl:template match="Item" mode="participant">
+    <xsl:variable name="participationType" select="DicomAttribute[@tag='0040A080']/Value"/>
+    <xsl:variable name="participationTypeLabel">
+      <xsl:choose>
+        <xsl:when test="$participationType = 'ENT'">
+          <xsl:value-of select="'Data Enterer'"/>
+        </xsl:when>
+        <xsl:when test="$participationType = 'ATTEST'">
+          <xsl:value-of select="'Attestor'"/>
+        </xsl:when>
+        <xsl:otherwise/>
+      </xsl:choose>
+    </xsl:variable>
     <tr>
       <td>
         <xsl:if test="position()=1">
-          <b>Participant:</b>
+          <b><xsl:value-of select="concat($participationTypeLabel, ': ')"/></b>
         </xsl:if>
       </td>
       <td>
@@ -393,19 +405,6 @@
           <xsl:with-param name="idTag" select="'00401101'"/>
           <xsl:with-param name="nameTag" select="'0040A123'"/>
         </xsl:call-template>
-        <xsl:variable name="participationType" select="DicomAttribute[@tag='0040A080']/Value"/>
-        <xsl:variable name="participationTypeLabel">
-          <xsl:choose>
-            <xsl:when test="$participationType = 'ENT'">
-              <xsl:value-of select="'Data Enterer'"/>
-            </xsl:when>
-            <xsl:when test="$participationType = 'ATTEST'">
-              <xsl:value-of select="'Attestor'"/>
-            </xsl:when>
-            <xsl:otherwise/>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:value-of select="concat(', ', $participationTypeLabel)"/>
       </td>
     </tr>
   </xsl:template>
