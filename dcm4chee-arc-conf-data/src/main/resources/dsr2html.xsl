@@ -492,56 +492,53 @@
   </xsl:template>
 
   <xsl:template match="Item" mode="refReq">
+    <xsl:param name="class"></xsl:param>
     <xsl:if test="position()=1">
-      <table>
-      <tr>
-        <td colspan="2">
-          <b>Referenced Request</b>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Reason for the Requested Procedure:</b>
-        </td>
-        <td>
+      <xsl:element name="{'h2'}">
+        <span>
+          <xsl:if test="$class">
+            <xsl:attribute name="class">
+              <xsl:value-of select="$class"/>
+            </xsl:attribute>
+          </xsl:if>
+          <xsl:value-of select="'Referenced Request'"/>
+        </span>
+      </xsl:element>
+      <p>
+        <small>
+          <span class="under">
+            <xsl:text>Reason for the Requested Procedure</xsl:text>
+          </span>
+          <xsl:text>: </xsl:text>
           <xsl:value-of select="DicomAttribute[@tag='00401002']/Value"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Requested Procedure Description:</b>
-        </td>
-        <td>
+          <br/>
+          <span class="under">
+            <xsl:text>Requested Procedure Description</xsl:text>
+          </span>
+          <xsl:text>: </xsl:text>
           <xsl:value-of select="DicomAttribute[@tag='00321060']/Value"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Accession Number:</b>
-        </td>
-        <td>
+          <br/>
+          <span class="under">
+            <xsl:text>Accession Number</xsl:text>
+          </span>
+          <xsl:text>: </xsl:text>
           <xsl:value-of select="DicomAttribute[@tag='00080050']/Value"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Study Instance UID:</b>
-        </td>
-        <td>
+          <br/>
+          <span class="under">
+            <xsl:text>Study Instance UID</xsl:text>
+          </span>
+          <xsl:text>: </xsl:text>
           <xsl:value-of select="DicomAttribute[@tag='0020000D']/Value"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Referring Physician:</b>
-        </td>
-        <td>
+          <br/>
+          <span class="under">
+            <xsl:text>Referring Physician Name</xsl:text>
+          </span>
+          <xsl:text>: </xsl:text>
           <xsl:call-template name="formatPN">
             <xsl:with-param name="pnc" select="DicomAttribute[@tag='00080090']/PersonName/Alphabetic"/>
           </xsl:call-template>
-        </td>
-      </tr>
-      </table>
+        </small>
+      </p>
     </xsl:if>
   </xsl:template>
 
