@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
@@ -70,6 +71,7 @@ import java.util.List;
 public class StgVerScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgVerScheduler.class);
+    private static final long MILLIS_PER_DAY = 24 * 3600_000;
 
     @Inject
     private Device device;
@@ -153,7 +155,7 @@ public class StgVerScheduler extends Scheduler {
             return ejb.claimForStorageVerification(
                     storageVerification.seriesPk,
                     storageVerification.storageVerificationTime,
-                    period != null ? Date.from(Instant.now().plus(period)) : null)
+                    period != null ? new Date(LocalDate.now().plus(period).toEpochDay() * MILLIS_PER_DAY) : null)
                     > 0;
         } catch (Exception e) {
             LOG.info("Failed to claim {}:\n", storageVerification, e);
