@@ -23,7 +23,7 @@
     },
     "dcmEntitySelector": {
       "title": "Entity Selector",
-      "description": "Specifies matching keys used to select entities to prefetch. Format: priors=<n>[&{attributeID}={value}]... .",
+      "description": "Specifies matching keys used to select entities to prefetch. Format: {key}={value}][&{key}={value}]..., with {key} = 'priors' | 'StudyAge' | {attributeID}. Example: 'priors=2&StudyAge=-5Y&ModalitiesInStudy=CT' => select at most 2 prior Studies not older than 5 years containing at least one CT Series.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmEntitySelector"

@@ -42,16 +42,23 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.DateRange;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.TemporalAmount;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2018
  */
 public class EntitySelector {
+    private static final long MILLIS_PER_DAY = 24 * 3600_000;
     private final String value;
     private final Attributes keys = new Attributes();
     private final int numberOfPriors;
@@ -84,6 +91,13 @@ public class EntitySelector {
             try {
                 if (keyValue[0].equals("priors")) {
                     priors = Integer.parseInt(keyValue[1]);
+                } else if (keyValue[0].equals("StudyAge")) {
+                    String[] studyAge = StringUtils.split(keyValue[1], '-');
+                    if (studyAge.length != 2)
+                        throw new IllegalArgumentException();
+
+                    keys.setDateRange(Tag.StudyDate, VR.DA,
+                            new DateRange(age2Date(studyAge[1]), age2Date(studyAge[0])));
                 } else {
                     builder.setString(TagUtils.parseTagPath(keyValue[0]), keyValue[1]);
                 }
@@ -92,6 +106,26 @@ public class EntitySelector {
             }
         }
         return priors;
+    }
+
+    private static Date age2Date(String age) {
+        return age.isEmpty() ? null : new Date(LocalDate.now().minus(age2Period(age)).toEpochDay() * MILLIS_PER_DAY);
+    }
+
+    private static Period age2Period(String age) {
+        int last, n;
+        if ((last = age.length() - 1) > 0 && (n = Integer.parseInt(age.substring(0, last))) > 0)
+            switch (age.charAt(last)) {
+                case 'D':
+                    return Period.ofDays(n);
+                case 'M':
+                    return Period.ofMonths(n);
+                case 'W':
+                    return Period.ofWeeks(n);
+                case 'Y':
+                    return Period.ofYears(n);
+            }
+        throw new IllegalArgumentException(age);
     }
 
     public Attributes getQueryKeys() {
