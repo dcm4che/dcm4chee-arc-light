@@ -63,6 +63,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -80,6 +81,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -224,6 +226,7 @@ public class StoreServiceEJB {
         Series series = instance.getSeries();
         series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
+        series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
         if(rjNote == null) {
             updateSeriesRejectionState(ctx, series);
             if (createLocations && series.getRejectionState() == RejectionState.NONE) {
@@ -788,6 +791,15 @@ public class StoreServiceEJB {
         return mwlItems;
     }
 
+    public void replaceLocation(StoreContext ctx, InstanceLocations inst) {
+        Instance instance = new Instance();
+        instance.setPk(inst.getInstancePk());
+        createLocation(ctx, instance, Location.ObjectType.DICOM_FILE);
+        for (Location location : inst.getLocations()) {
+            removeOrMarkToDelete(em.find(Location.class, location.getPk()));
+        }
+    }
+
     private static class UpdateInfo {
         int[] prevTags;
         Attributes modified;
@@ -1077,6 +1089,13 @@ public class StoreServiceEJB {
         series.setTransferSyntaxUID(ctx.getStoreTranferSyntax());
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
+        ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
+        if (compressionRule != null && compressionRule.getDelay() != null) {
+            series.setCompressionTime(
+                    new Date(System.currentTimeMillis() + compressionRule.getDelay().getSeconds() * 1000L));
+            series.setCompressionTransferSyntaxUID(compressionRule.getTransferSyntax());
+            series.setCompressionImageWriteParams(compressionRule.getImageWriteParams());
+        }
         if (result.getRejectionNote() == null) {
             if (markOldStudiesAsIncomplete(ctx, study)) {
                 series.setCompleteness(Completeness.UNKNOWN);
@@ -1110,7 +1129,8 @@ public class StoreServiceEJB {
             return;
 
         Study study = series.getStudy();
-        LocalDate expirationDate = getExpirationDate(ctx.getAttributes(), retentionPolicy);
+        LocalDate expirationDate = retentionStartDate(ctx.getAttributes(), retentionPolicy)
+                .plus(retentionPolicy.getRetentionPeriod());
         LocalDate studyExpirationDate = study.getExpirationDate();
         if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
             study.setExpirationDate(expirationDate);
@@ -1119,10 +1139,17 @@ public class StoreServiceEJB {
             series.setExpirationDate(expirationDate);
     }
 
-    private LocalDate getExpirationDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {
-        return attrs.getString(Tag.StudyDate) != null && retentionPolicy.isStartRetentionPeriodOnStudyDate()
-                ? LocalDate.parse(attrs.getString(Tag.StudyDate), DateTimeFormatter.BASIC_ISO_DATE).plus(retentionPolicy.getRetentionPeriod())
-                : LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
+    private LocalDate retentionStartDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {
+        String s;
+        if (retentionPolicy.isStartRetentionPeriodOnStudyDate()
+                && (s = attrs.getString(Tag.StudyDate)) != null) {
+            try {
+                return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+            } catch (Exception e) {
+                LOG.warn("Failed parsing study date to get retention start date." + e.getMessage());
+            }
+        }
+        return LocalDate.now();
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
@@ -1164,6 +1191,15 @@ public class StoreServiceEJB {
         if (writeContext == null)
             return;
 
+        result.getLocations().add(createLocation(ctx, instance, objectType));
+        if (objectType == Location.ObjectType.DICOM_FILE)
+            instance.getSeries().getStudy()
+                    .addStorageID(writeContext.getStorage().getStorageDescriptor().getStorageID());
+        result.getWriteContexts().add(writeContext);
+    }
+
+    private Location createLocation(StoreContext ctx, Instance instance, Location.ObjectType objectType) {
+        WriteContext writeContext = ctx.getWriteContext(objectType);
         Storage storage = writeContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
         Location location = new Location.Builder()
@@ -1177,10 +1213,7 @@ public class StoreServiceEJB {
         location.setInstance(instance);
         em.persist(location);
         LOG.info("{}: Create {}", ctx.getStoreSession(), location);
-        result.getLocations().add(location);
-        result.getWriteContexts().add(writeContext);
-        if (objectType == Location.ObjectType.DICOM_FILE)
-            instance.getSeries().getStudy().addStorageID(descriptor.getStorageID());
+        return location;
     }
 
     private void copyLocations(StoreContext ctx, Instance instance, UpdateDBResult result) {
@@ -1216,7 +1249,7 @@ public class StoreServiceEJB {
         LOG.info("{}: Create {}", session, location);
     }
 
-    public Study addStorageID(String studyIUID, String storageID) {
+    public void addStorageID(String studyIUID, String storageID) {
         Tuple tuple = em.createNamedQuery(Study.STORAGE_IDS_BY_STUDY_UID, Tuple.class)
                 .setParameter(1, studyIUID)
                 .getSingleResult();
@@ -1230,15 +1263,14 @@ public class StoreServiceEJB {
                     .executeUpdate();
             LOG.info("Associate Study[uid={}] with Storage[id:{}]", studyIUID, storageID);
         }
-        return new Study(studyPk, studyIUID);
     }
 
-    public void scheduleMetadataUpdate(Study study, String seriesIUID) {
+    public void scheduleMetadataUpdate(String studyIUID, String seriesIUID) {
         if (em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID)
-                .setParameter(1, study)
+                .setParameter(1, studyIUID)
                 .setParameter(2, seriesIUID)
                 .executeUpdate() > 0) {
-            LOG.info("Schedule update of metadata of Series[uid={}] of {}", seriesIUID, study);
+            LOG.info("Schedule update of metadata of Series[uid={}] of Study[uid={}]", seriesIUID, studyIUID);
         }
     }
 
@@ -1321,8 +1353,8 @@ public class StoreServiceEJB {
     }
 
     private IssuerEntity findOrCreateIssuer(Attributes attrs, int tag) {
-        Attributes item = attrs.getNestedDataset(tag);
-        return item != null && !item.isEmpty() ? issuerService.mergeOrCreate(new Issuer(item)) : null;
+        Issuer issuer = Issuer.valueOf(attrs.getNestedDataset(tag));
+        return issuer != null ? issuerService.mergeOrCreate(issuer) : null;
     }
 
     private CodeEntity findOrCreateCode(Attributes attrs, int seqTag) {

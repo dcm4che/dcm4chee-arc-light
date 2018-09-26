@@ -48,7 +48,6 @@ import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
@@ -56,9 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -114,7 +111,7 @@ public class CFindSCUImpl implements CFindSCU {
             throws Exception {
         List<Attributes> list = new ArrayList<>();
         DimseRSP rsp = query(as, priority, mkQueryKeys(level, studyIUID, seriesIUID, sopIUID, returnKeys),
-                0, null);
+                0, 1, null);
         rsp.next();
         Attributes match = rsp.getDataset();
         while (rsp.next()) {
@@ -129,8 +126,8 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
-    public DimseRSP query(Association as, int priority, Attributes keys, int autoCancel, Duration splitStudyDateRange)
-            throws Exception {
+    public DimseRSP query(Association as, int priority, Attributes keys, int autoCancel, int capacity,
+                          Duration splitStudyDateRange) throws Exception {
         AAssociateRQ aarq = as.getAAssociateRQ();
         String cuid = aarq.getPresentationContext(PCID).getAbstractSyntax();
         if (QueryOption.toOptions(aarq.getExtNegotiationFor(cuid)).contains(QueryOption.DATETIME)
@@ -147,9 +144,10 @@ public class CFindSCUImpl implements CFindSCU {
                     ? dateRange.getEndDate().getTime()
                     : System.currentTimeMillis();
             if (endDate - startDate > splitStudyDateRange.getSeconds() * 1000)
-                return new SplitQuery(as, cuid, priority, keys, autoCancel, startDate, endDate, splitStudyDateRange);
+                return new SplitQuery(as, cuid, priority, keys, autoCancel, capacity,
+                        startDate, endDate, splitStudyDateRange);
         }
-        return as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel);
+        return as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel, capacity);
     }
 
     private static Attributes.Visitor nullifyTM = new Attributes.Visitor(){

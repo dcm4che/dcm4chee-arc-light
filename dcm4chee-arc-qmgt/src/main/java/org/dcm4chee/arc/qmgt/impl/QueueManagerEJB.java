@@ -65,9 +65,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
+import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
@@ -104,25 +102,26 @@ public class QueueManagerEJB {
         return jmsCtx.createObjectMessage(object);
     }
 
-    public QueueMessage scheduleMessage(String deviceName, String queueName, ObjectMessage msg, int priority, String batchID)
+    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg, int priority, String batchID)
             throws QueueSizeLimitExceededException {
         QueueDescriptor queueDescriptor = descriptorOf(queueName);
         int maxQueueSize = queueDescriptor.getMaxQueueSize();
-        if (maxQueueSize > 0 && maxQueueSize < countByQueueNameAndStatus(queueName))
+        if (maxQueueSize > 0 && maxQueueSize < countScheduledMessagesOnThisDevice(queueName))
             throw new QueueSizeLimitExceededException(queueDescriptor);
 
         sendMessage(queueDescriptor, msg, 0L, priority);
-        QueueMessage entity = new QueueMessage(deviceName, queueName, msg);
+        QueueMessage entity = new QueueMessage(device.getDeviceName(), queueName, msg);
         entity.setBatchID(batchID);
         em.persist(entity);
         LOG.info("Schedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
         return entity;
     }
 
-    private long countByQueueNameAndStatus(String queueName) {
-        return em.createNamedQuery(QueueMessage.COUNT_BY_QUEUE_NAME_AND_STATUS, Long.class)
-                .setParameter(1, queueName)
-                .setParameter(2, QueueMessage.Status.SCHEDULED).getSingleResult();
+    public long countScheduledMessagesOnThisDevice(String queueName) {
+        return em.createNamedQuery(QueueMessage.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
+                .setParameter(1, device.getDeviceName())
+                .setParameter(2, queueName)
+                .setParameter(3, QueueMessage.Status.SCHEDULED).getSingleResult();
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -137,6 +136,7 @@ public class QueueManagerEJB {
                         entity.getMessageID(), entity.getQueueName(), entity.getStatus());
                 entity.setProcessingStartTime(new Date());
                 entity.setStatus(QueueMessage.Status.IN_PROCESS);
+                setUpdateTime(entity);
                 return entity;
             default:
                 LOG.info("Suppress processing of Task[id={}] from Queue {} with Status: {}",
@@ -157,6 +157,7 @@ public class QueueManagerEJB {
         entity.setProcessingEndTime(new Date());
         entity.setOutcomeMessage(outcome.getDescription());
         entity.setStatus(status);
+        setUpdateTime(entity);
         if (status == QueueMessage.Status.COMPLETED
                 || status == QueueMessage.Status.WARNING && !descriptorOf(queueName).isRetryOnWarning()) {
             LOG.info("Finished processing of Task[id={}] at Queue {} with Status {}", msgId, queueName, status);
@@ -191,6 +192,7 @@ public class QueueManagerEJB {
         if (delay < 0) {
             LOG.warn("Failed processing of Task[id={}] at Queue {}:\n", msgId, entity.getQueueName(), e);
             entity.setStatus(QueueMessage.Status.FAILED);
+            setUpdateTime(entity);
         } else {
             LOG.info("Failed processing of Task[id={}] at Queue {} - retry:\n", msgId, entity.getQueueName(), e);
             rescheduleTask(entity, descriptor, delay * 1000L);
@@ -220,14 +222,20 @@ public class QueueManagerEJB {
 
     private void cancelTask(QueueMessage entity) {
         entity.setStatus(QueueMessage.Status.CANCELED);
-        if (entity.getExportTask() != null)
-            entity.getExportTask().setUpdatedTime();
-        if (entity.getRetrieveTask() != null)
-            entity.getRetrieveTask().setUpdatedTime();
-        if (entity.getDiffTask() != null)
-            entity.getDiffTask().setUpdatedTime();
+        setUpdateTime(entity);
         LOG.info("Cancel processing of Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
         messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
+    }
+
+    private void setUpdateTime(QueueMessage entity) {
+        if (entity.getExportTask() != null)
+            entity.getExportTask().setUpdatedTime();
+        else if (entity.getRetrieveTask() != null)
+            entity.getRetrieveTask().setUpdatedTime();
+        else if (entity.getDiffTask() != null)
+            entity.getDiffTask().setUpdatedTime();
+        else if (entity.getStorageVerificationTask() != null)
+            entity.getStorageVerificationTask().setUpdatedTime();
     }
 
     public long cancelTasks(Predicate matchQueueMessage) {
@@ -239,6 +247,7 @@ public class QueueManagerEJB {
         updateExportTaskUpdatedTime(queueMessageQuery, now);
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
         updateDiffTaskUpdatedTime(queueMessageQuery, now);
+        updateStgVerTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
@@ -260,6 +269,13 @@ public class QueueManagerEJB {
         new HibernateUpdateClause(em.unwrap(Session.class), QDiffTask.diffTask)
                 .set(QDiffTask.diffTask.updatedTime, now)
                 .where(QDiffTask.diffTask.queueMessage.pk.in(queueMessageQuery))
+                .execute();
+    }
+
+    private void updateStgVerTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
+        new HibernateUpdateClause(em.unwrap(Session.class), QStorageVerificationTask.storageVerificationTask)
+                .set(QStorageVerificationTask.storageVerificationTask.updatedTime, now)
+                .where(QStorageVerificationTask.storageVerificationTask.queueMessage.pk.in(queueMessageQuery))
                 .execute();
     }
 
@@ -317,6 +333,18 @@ public class QueueManagerEJB {
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
+    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        Date now = new Date();
+        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.pk)
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .join(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
+                .on(matchQueueMessage)
+                .where(matchStgVerTask);
+        updateStgVerTaskUpdatedTime(queueMessageQuery, now);
+        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+    }
+
     public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
                 .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
@@ -337,19 +365,33 @@ public class QueueManagerEJB {
                 .fetch();
     }
 
-    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
-        return rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
+    public List<String> getStgVerTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        return new HibernateQuery<String>(em.unwrap(Session.class))
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.messageID)
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .join(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
+                .on(matchQueueMessage)
+                .where(matchStgVerTask)
+                .fetch();
     }
 
-    public String rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent) {
-        if (entity == null)
+    public String findDeviceNameByMsgId(String msgId) {
+        try {
+            return em.createNamedQuery(QueueMessage.FIND_DEVICE_BY_MSG_ID, String.class)
+                    .setParameter(1, msgId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
             return null;
+        }
+    }
+
+    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
+        QueueMessage entity = findQueueMessage(msgId);
+        if (entity == null)
+            return;
 
         if (queueEvent != null)
             queueEvent.setQueueMsg(entity);
-
-        if (!device.getDeviceName().equals(entity.getDeviceName()))
-            return entity.getDeviceName();
 
         switch (entity.getStatus()) {
             case SCHEDULED:
@@ -363,20 +405,25 @@ public class QueueManagerEJB {
         entity.setOutcomeMessage(null);
         entity.updateExporterIDInMessageProperties();
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
-        return entity.getDeviceName();
     }
 
     private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {
-        ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
-        sendMessage(descriptor, msg, delay, entity.getPriority());
-        entity.reschedule(msg, new Date(System.currentTimeMillis() + delay));
-        if (entity.getExportTask() != null)
-            entity.getExportTask().setUpdatedTime();
-        if (entity.getRetrieveTask() != null)
-            entity.getRetrieveTask().setUpdatedTime();
-        if (entity.getDiffTask() != null)
-            entity.getDiffTask().setUpdatedTime();
-        LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        try {
+            ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
+            sendMessage(descriptor, msg, delay, entity.getPriority());
+            entity.setMessageID(msg.getJMSMessageID());
+            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay));
+            entity.setStatus(QueueMessage.Status.SCHEDULED);
+            entity.setDeviceName(device.getDeviceName());
+            setUpdateTime(entity);
+            LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        } catch (JMSException e) {
+            throw toJMSRuntimeException(e);
+        }
+    }
+
+    private JMSRuntimeException toJMSRuntimeException(JMSException e) {
+        return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
     }
 
     public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
@@ -396,22 +443,22 @@ public class QueueManagerEJB {
             em.remove(entity.getRetrieveTask());
         else if (entity.getDiffTask() != null)
             em.remove(entity.getDiffTask());
+        else if (entity.getStorageVerificationTask() != null)
+            em.remove(entity.getStorageVerificationTask());
         else
             em.remove(entity);
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
-    public int deleteTasks(Predicate matchQueueMessage) {
-        int n = 0;
-        try (CloseableIterator<QueueMessage> iterate = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage).iterate()) {
+    public int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize) {
+        int count = 0;
+        try (CloseableIterator<QueueMessage> iterate = createQuery(matchQueueMessage).limit(deleteTaskFetchSize).iterate()) {
             while (iterate.hasNext()) {
                 deleteTask(iterate.next());
-                n++;
+                count++;
             }
         }
-        return n;
+        return count;
     }
 
     public long countTasks(Predicate matchQueueMessage) {
@@ -452,7 +499,7 @@ public class QueueManagerEJB {
     }
 
     private QueueDescriptor descriptorOf(String queueName) {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
     private QueueMessage findQueueMessage(String msgId) {
@@ -476,6 +523,6 @@ public class QueueManagerEJB {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

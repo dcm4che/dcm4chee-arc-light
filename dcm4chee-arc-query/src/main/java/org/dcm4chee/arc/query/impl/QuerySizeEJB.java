@@ -47,6 +47,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 
@@ -96,9 +97,14 @@ public class QuerySizeEJB {
     }
 
     public long calculateStudySize(String studyUID) {
-        return calculateStudySize(
-                em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
-                        .setParameter(1, studyUID)
-                        .getSingleResult());
+        Long studyPk;
+        try {
+            studyPk = em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
+                    .setParameter(1, studyUID)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return -1L;
+        }
+        return calculateStudySize(studyPk);
     }
 }

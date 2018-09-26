@@ -57,7 +57,6 @@ import org.dcm4chee.arc.entity.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -299,7 +298,7 @@ public class QueryBuilder {
     }
 
     public static Predicate uidsPredicate(StringPath path, String[] values) {
-        if (values == null || values.length == 0 || values[0].equals("*"))
+        if (isUniversalMatching(values))
             return null;
 
         return path.in(values);
@@ -423,6 +422,10 @@ public class QueryBuilder {
                 builder.and(QSeries.series.completeness.ne(Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
                 builder.and(QSeries.series.failedRetrieves.gt(0));
+            if (queryParam.isStorageVerificationFailed())
+                builder.and(QSeries.series.failuresOfLastStorageVerification.gt(0));
+            if (queryParam.isCompressionFailed())
+                builder.and(QSeries.series.compressionFailures.gt(0));
             builder.and(wildCard(QSeries.series.sourceAET,
                     keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
                     false));
@@ -595,7 +598,7 @@ public class QueryBuilder {
             if (!isUniversalMatching(entityUID))
                 predicate = ExpressionUtils.and(predicate,
                         ExpressionUtils.or(issuerPath.issuer.universalEntityID.isNull(),
-                            ExpressionUtils.and(QIssuerEntity.issuerEntity.issuer.universalEntityID.eq(entityUID),
+                            ExpressionUtils.and(issuerPath.issuer.universalEntityID.eq(entityUID),
                                     issuerPath.issuer.universalEntityIDType.eq(entityUIDType))));
         }
         return predicate;
@@ -607,6 +610,10 @@ public class QueryBuilder {
 
     static boolean isUniversalMatching(String value) {
         return value == null || value.equals("*");
+    }
+
+    public static boolean isUniversalMatching(String[] values) {
+        return values == null || values.length == 0 || values[0].equals("*");
     }
 
     private static boolean isUniversalMatching(Integer value) {
@@ -688,6 +695,10 @@ public class QueryBuilder {
             .and(wildCard(QSeries.series.sourceAET,
                 keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
                     false));
+        if (queryParam.isStorageVerificationFailed())
+            result.and(QSeries.series.failuresOfLastStorageVerification.gt(0));
+        if (queryParam.isCompressionFailed())
+            result.and(QSeries.series.compressionFailures.gt(0));
         if (!result.hasValue())
             return null;
         return JPAExpressions.selectFrom(QSeries.series)

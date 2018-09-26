@@ -41,27 +41,26 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.hl7.HL7Message;
-import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2016
  */
 public interface HL7Sender {
     String QUEUE_NAME = "HL7Send";
     String JNDI_NAME = "jms/queue/HL7Send";
 
-    void forwardMessage(HL7Segment msh, byte[] hl7msg, String... destinations);
-
     void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                          String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
                          HttpServletRequestInfo httpServletRequestInfo)
             throws ConfigurationException, QueueSizeLimitExceededException;
 
-    HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                        String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+    UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
+                                   String messageType, String messageControlID, UnparsedHL7Message hl7msg)
             throws Exception;
 }

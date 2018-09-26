@@ -1,0 +1,109 @@
+<!--<mat-progress-bar mode="determinate" value="{{myValue}}"></mat-progress-bar>-->
+<!--<mat-progress-bar *ngIf="!stopLoop" mode="indeterminate"></mat-progress-bar>-->
+<!--<md-progress-circle *ngIf="!stopLoop" mode="indeterminate" color="'#2FA6C1'"></md-progress-circle>-->
+
+<div class="main_content ctrl">
+    <config-tab></config-tab>
+    <h3>Archive</h3>
+    <p [innerHtml]="status === 'STARTED' ? 'Archive is running' : 'Archive is not running'"></p>
+    <div class="btn-group">
+        <button type="button" class="btn btn-default" (click)="start()" [disabled]="status === 'STARTED'" title="Start Archive">Start</button>
+        <button type="button" class="btn btn-default" (click)="stop()" [disabled]="status === 'STOPPED'" title="Stop Archive">Stop</button>
+        <button type="button" class="btn btn-default" (click)="reload()" title="Reload Archive Configuration">Reload</button>
+        <button type="button" class="btn btn-default" (click)="fetchStatus()" title="Fetch Archive Status">Status</button>
+    </div>
+<!--    <div class="monitor">
+        &lt;!&ndash; <code> &ndash;&gt;
+        <h3>Open Associations</h3>
+        <p>Press Start or Refresh to get associations</p>
+        <button type="button" class="btn btn-default refresh" (click)="refresh()" title="Get associacions">Refresh</button>
+        <span title="Set the refresh interval in sec or millisec (with .)">Timer (sec)</span> : <input title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
+        <button *ngIf="stopLoop" type="button" class="btn btn-default" (click)="monitor()" title="Start getting associacions">Start</button>
+        <button *ngIf="!stopLoop" type="button" class="btn btn-default" (click)="stopLoop=true" title="Stop auto refresh">Stop</button>
+         &lt;!&ndash;<span *ngIf="!stopLoop" class="loader"></span>&ndash;&gt;
+        <button type="button" class="btn btn-default" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>
+        <div *ngIf="!stopLoop" id="loading-bar-spinner">
+            <div class="spinner-icon">
+                <md-progress-circle mode="indeterminate" ></md-progress-circle>
+            </div>
+        </div>
+
+
+        <table  class="table table-inverse">
+            <tr>
+                <th>
+                        <span title="Sort by Local AE Title" (click)="sortBy('localAETitle')">
+                            Local AE Title
+                        </span>
+                    <span title="Sort by initiated" (click)="sortBy('initiated')">
+                            ⇆
+                        </span>
+                    <span title="Sort by Remote AE Title" (click)="sortBy('remoteAETitle')">
+                            Remote AE Title
+                        </span>
+                </th>
+                <th>
+                        <span  title="Sort by Invoked Ops." (click)="sortBy('invokedOps')">
+                            Invoked Ops.
+                        </span>
+                </th>
+                <th><span  title="Sort by Performed Ops." (click)="sortBy('performedOps')" >Performed Ops.</span></th>
+                <th><span title="Sort by Connection time (Server)" (click)="sortBy('connectTime')" >Connection time (Server)</span></th>
+                <th><span title="Sort by Connection time (Local)" (click)="sortBy('browserTime')" >Connection time (Browser)</span></th>
+                <th><span title="Sort by Duration" (click)="sortBy('openSinceOrder')" >Duration (hh:mm:ss.SSS)</span></th>
+                <th *ngIf="others">
+                        <span title="Sort by Other attributes" (click)="sortBy('others')" >Other attributes
+                        </span>
+                </th>
+                <th>
+                    Abort
+                </th>
+            </tr>
+
+            <tr  *ngFor="let value of associationStatus| orderBy:propertyName:reverse">
+                <td *ngIf="value.initiated">
+                    {{value.localAETitle}}
+                    <span class="glyphicon glyphicon-arrow-right"></span>
+                    {{value.remoteAETitle}}
+                </td>
+                <td *ngIf="!value.initiated">
+                    {{value.localAETitle}}
+                    <span class="glyphicon glyphicon-arrow-left"></span>
+                    {{value.remoteAETitle}}
+                </td>
+                <td>
+                    &lt;!&ndash;<pre>&ndash;&gt;
+                        &lt;!&ndash;invokedopsobj:{{value?.invokedOps|json}}&ndash;&gt;
+                        &lt;!&ndash;invokedops:{{toArray(value?.invokedOps|json)}}&ndash;&gt;
+                    &lt;!&ndash;</pre>&ndash;&gt;
+                    <div *ngFor="let m of value?.invokedOps | getKey">
+                        &lt;!&ndash;m:{{m|json}}&ndash;&gt;
+                        &lt;!&ndash;k:{{k}}&ndash;&gt;
+                        &lt;!&ndash;key:{{m._KEY}}&ndash;&gt;
+                        &lt;!&ndash;value:{{m._VALUE|json}}&ndash;&gt;
+                        {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
+                    </div>
+                    &lt;!&ndash;<div *ngFor="let m of value?.invokedOps; let k = index;">&ndash;&gt;
+                    &lt;!&ndash;</div>&ndash;&gt;
+                </td>
+                <td>
+                    <div *ngFor="let m of value?.performedOps | getKey">
+                        {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
+                    </div>
+                </td>
+                <td class="text-right" [innerHtml]="value.connectTime"></td>
+                <td class="text-right" [innerHtml]="value.browserTime"></td>
+                <td class="text-right" [innerHtml]="value.openSince"></td>
+                <td *ngIf="others" class="others" [innerHtml]="value.others"></td>
+                <td class="abort" (click)="abort(value.serialNo)">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </td>
+
+            </tr>
+            <tr *ngIf="!associationStatus">
+                <td colspan="5">No open associations found!</td>
+            </tr>
+        </table>
+        &lt;!&ndash; </code> &ndash;&gt;
+    </div>-->
+</div>

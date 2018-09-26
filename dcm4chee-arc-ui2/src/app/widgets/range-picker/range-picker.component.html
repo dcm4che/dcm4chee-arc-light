@@ -60,10 +60,10 @@
             <time-picker *ngIf="mode === 'single'"  [model]="singleTimeModel" cohereMode="true" (onValueSet)="singleTimeModel = $event" placeholder="(hh:mm:ss)"></time-picker>
         </div>
         <ul class="interval">
-            <li class="range" [ngClass]="{'active':mode==='range'}" (click)="changeMode('range')">From-To</li>
+            <li class="range" [ngClass]="{'active':mode==='range'}" (click)="changeMode('range')">Between</li>
             <li class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')">Single Date</li>
-            <li class="rightOpen" [ngClass]="{'active':mode==='rightOpen'}" (click)="changeMode('rightOpen')">From</li>
-            <li class="leftOpen" [ngClass]="{'active':mode==='leftOpen'}" (click)="changeMode('leftOpen')">To</li>
+            <li class="rightOpen" [ngClass]="{'active':mode==='rightOpen'}" (click)="changeMode('rightOpen')">After</li>
+            <li class="leftOpen" [ngClass]="{'active':mode==='leftOpen'}" (click)="changeMode('leftOpen')">Before</li>
         </ul>
 <!--        <div class="right">
         </div>-->

@@ -5,10 +5,10 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.Property;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Study;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -50,9 +50,9 @@ public interface StoreService {
 
     StoreSession newStoreSession(Association as);
 
-    StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String rejectionNoteObjectStorageID);
+    StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae);
 
-    StoreSession newStoreSession(ApplicationEntity ae, String rejectionNoteObjectStorageID);
+    StoreSession newStoreSession(ApplicationEntity ae);
 
     StoreSession newStoreSession(HL7Application hl7App, Socket socket, UnparsedHL7Message msg, ApplicationEntity ae);
 
@@ -60,9 +60,9 @@ public interface StoreService {
 
     void store(StoreContext ctx, InputStream data) throws IOException;
 
-    Study addStorageID(String studyIUID, String storageID);
+    void addStorageID(String studyIUID, String storageID);
 
-    void scheduleMetadataUpdate(Study study, String seriesIUID);
+    void scheduleMetadataUpdate(String studyIUID, String seriesIUID);
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
@@ -79,4 +79,7 @@ public interface StoreService {
     List<String> studyIUIDsByAccessionNo(String accNo);
 
     void addLocation(StoreSession storeSession, Long instancePk, Location location);
+
+    void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
+            throws IOException;
 }

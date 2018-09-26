@@ -44,6 +44,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Shefki Esadi <shralsheki@gmail.com>
  * @since Nov 2017
  */
 public class UIConfig {
@@ -55,6 +56,8 @@ public class UIConfig {
     private Map<String, UIElasticsearchConfig> elasticsearchConfigs = new HashMap<>();
     private Map<String, UIDeviceURL> deviceURL = new HashMap<>();
     private Map<String, UIDeviceCluster> deviceCluster = new HashMap<>();
+    private Map<String, UIFiltersTemplate> filterTemplatte = new HashMap<>();
+    private Map<String, UIAetList> aetList  = new HashMap<>();
 
     public UIConfig() {
     }
@@ -165,5 +168,45 @@ public class UIConfig {
 
     public Collection<UIDeviceCluster> getDeviceClusters() {
         return deviceCluster.values();
+    }
+
+
+    public UIFiltersTemplate getFilterTemplate(String id) {
+        return filterTemplatte.get(id);
+    }
+
+    public void addFilterTemplate(UIFiltersTemplate filtersTemplate) {
+        filterTemplatte.put(filtersTemplate.getFilterGroupName(), filtersTemplate);
+    }
+
+    public UIFiltersTemplate removeFilterTemplate(String name) {
+        return filterTemplatte.remove(name);
+    }
+
+    public Collection<UIFiltersTemplate> getFilterTemplates() {
+        return filterTemplatte.values();
+    }
+
+
+    public void setAetList(Map<String, UIAetList> aetList) {
+        this.aetList = aetList;
+    }
+
+
+
+    public UIAetList getAetList(String name) {
+        return this.aetList.get(name);
+    }
+
+    public void addAetList(UIAetList aetList) {
+        this.aetList.put(aetList.getAetListName(), aetList);
+    }
+
+    public UIAetList removeAetList(String name){
+        return this.aetList.remove(name);
+    }
+
+    public Collection<UIAetList> getAetLists() {
+        return this.aetList.values();
     }
 }

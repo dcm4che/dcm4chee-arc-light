@@ -46,9 +46,12 @@ import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -114,12 +117,14 @@ public class ArchiveAEExtension extends AEExtension {
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
-    private StgCmtPolicy stgCmtPolicy;
-    private Boolean stgCmtUpdateLocationStatus;
-    private String[] stgCmtStorageIDs = {};
+    private StorageVerificationPolicy storageVerificationPolicy;
+    private Boolean storageVerificationUpdateLocationStatus;
+    private String[] storageVerificationStorageIDs = {};
+    private Period storageVerificationInitialDelay;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -263,12 +268,6 @@ public class ArchiveAEExtension extends AEExtension {
 
     public void setQueryRetrieveViewID(String queryRetrieveViewID) {
         this.queryRetrieveViewID = queryRetrieveViewID;
-    }
-
-    public String queryRetrieveViewID() {
-        return queryRetrieveViewID != null
-                ? queryRetrieveViewID
-                : getArchiveDeviceExtension().getQueryRetrieveViewID();
     }
 
     public Boolean getValidateCallingAEHostname() {
@@ -706,7 +705,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public QueryRetrieveView getQueryRetrieveView() {
-        return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
+        return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(getQueryRetrieveViewID());
     }
 
     public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {
@@ -773,6 +772,22 @@ public class ArchiveAEExtension extends AEExtension {
 
     public Collection<ExportRule> getExportRules() {
         return exportRules;
+    }
+
+    public void removePrefetchRule(PrefetchRule rule) {
+        prefetchRules.remove(rule);
+    }
+
+    public void clearPrefetchRules() {
+        prefetchRules.clear();
+    }
+
+    public void addPrefetchRule(PrefetchRule rule) {
+        prefetchRules.add(rule);
+    }
+
+    public Collection<PrefetchRule> getPrefetchRules() {
+        return prefetchRules;
     }
 
     public void removeRSForwardRule(RSForwardRule rule) {
@@ -1058,44 +1073,59 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getInvokeImageDisplayStudyURL();
     }
 
-    public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
     }
 
-    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy;
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
-    public StgCmtPolicy stgCmtPolicy() {
-        return stgCmtPolicy != null
-                ? stgCmtPolicy
-                : getArchiveDeviceExtension().getStgCmtPolicy();
+    public StorageVerificationPolicy storageVerificationPolicy() {
+        return storageVerificationPolicy != null
+                ? storageVerificationPolicy
+                : getArchiveDeviceExtension().getStorageVerificationPolicy();
     }
 
-    public Boolean getStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus;
+    public Boolean getStorageVerificationUpdateLocationStatus() {
+        return storageVerificationUpdateLocationStatus;
     }
 
-    public void setStgCmtUpdateLocationStatus(Boolean stgCmtUpdateLocationStatus) {
-        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    public void setStorageVerificationUpdateLocationStatus(Boolean storageVerificationUpdateLocationStatus) {
+        this.storageVerificationUpdateLocationStatus = storageVerificationUpdateLocationStatus;
     }
 
     public boolean stgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus != null
-                ? stgCmtUpdateLocationStatus
-                : getArchiveDeviceExtension().isStgCmtUpdateLocationStatus();
+        return storageVerificationUpdateLocationStatus != null
+                ? storageVerificationUpdateLocationStatus
+                : getArchiveDeviceExtension().isStorageVerificationUpdateLocationStatus();
     }
 
-    public String[] getStgCmtStorageIDs() {
-        return stgCmtStorageIDs;
+    public String[] getStorageVerificationStorageIDs() {
+        return storageVerificationStorageIDs;
     }
 
-    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
-        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    public void setStorageVerificationStorageIDs(String... storageVerificationStorageIDs) {
+        this.storageVerificationStorageIDs = storageVerificationStorageIDs;
     }
 
     public String[] stgCmtStorageIDs() {
-        return stgCmtStorageIDs != null ? stgCmtStorageIDs : getArchiveDeviceExtension().getStgCmtStorageIDs();
+        return storageVerificationStorageIDs != null ? storageVerificationStorageIDs : getArchiveDeviceExtension().getStorageVerificationStorageIDs();
+    }
+
+    public Period getStorageVerificationInitialDelay() {
+        return storageVerificationInitialDelay;
+    }
+
+    public void setStorageVerificationInitialDelay(Period storageVerificationInitialDelay) {
+        this.storageVerificationInitialDelay = storageVerificationInitialDelay;
+    }
+
+    public Period storageVerificationInitialDelay() {
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        return storageVerificationInitialDelay != null
+                ? storageVerificationInitialDelay
+                : arcdev.getStorageVerificationInitialDelay();
     }
 
     @Override
@@ -1156,15 +1186,18 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
         invokeImageDisplayPatientURL = aeExt.invokeImageDisplayPatientURL;
         invokeImageDisplayStudyURL = aeExt.invokeImageDisplayStudyURL;
-        stgCmtPolicy = aeExt.stgCmtPolicy;
-        stgCmtUpdateLocationStatus = aeExt.stgCmtUpdateLocationStatus;
-        stgCmtStorageIDs = aeExt.stgCmtStorageIDs;
+        storageVerificationPolicy = aeExt.storageVerificationPolicy;
+        storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
+        storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;
+        storageVerificationInitialDelay = aeExt.storageVerificationInitialDelay;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();
         acceptedUserRoles.addAll(aeExt.acceptedUserRoles);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
+        prefetchRules.clear();
+        prefetchRules.addAll(aeExt.prefetchRules);
         rsForwardRules.clear();
         rsForwardRules.addAll(aeExt.rsForwardRules);
         compressionRules.clear();
@@ -1196,12 +1229,16 @@ public class ArchiveAEExtension extends AEExtension {
         return result;
     }
 
-    public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation) {
+    public Stream<PrefetchRule> prefetchRules() {
+        return Stream.concat(prefetchRules.stream(), getArchiveDeviceExtension().getPrefetchRules().stream());
+    }
+
+    public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation, HttpServletRequest request) {
         ArrayList<RSForwardRule> result = new ArrayList<>();
         for (Collection<RSForwardRule> rules
                 : new Collection[]{rsForwardRules, getArchiveDeviceExtension().getRSForwardRules()})
             for (RSForwardRule rule : rules)
-                if (rule.match(rsOperation))
+                if (rule.match(rsOperation, request))
                     result.add(rule);
         return result;
     }

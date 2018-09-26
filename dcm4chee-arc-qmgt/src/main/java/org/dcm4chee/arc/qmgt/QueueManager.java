@@ -61,6 +61,8 @@ public interface QueueManager {
     QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID)
             throws QueueSizeLimitExceededException;
 
+    long countScheduledMessagesOnThisDevice(String queueName);
+
     QueueMessage onProcessingStart(String msgId);
 
     QueueMessage onProcessingSuccessful(String msgId, Outcome outcome);
@@ -80,17 +82,22 @@ public interface QueueManager {
     long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
-    String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
+    long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prevStatus)
+            throws IllegalTaskStateException;
+
+    String findDeviceNameByMsgId(String msgId);
+
+    void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
 
-    String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent);
-
-    int deleteTasks(String queueName, Predicate matchQueueMessage);
+    int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize);
 
     long countTasks(Predicate matchQueueMessage);
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 
     QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
+
+    List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

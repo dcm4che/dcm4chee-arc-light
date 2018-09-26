@@ -48,6 +48,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
 import org.dcm4chee.arc.conf.AcceptMissingPatientID;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.PrefetchRule;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
@@ -99,13 +100,17 @@ public interface StoreSession extends Closeable {
 
     void cacheSeries(Series series);
 
+    boolean isNotProcessed(PrefetchRule rule);
+
+    boolean markAsProcessed(PrefetchRule rule);
+
     Map<Long, UIDMap> getUIDMapCache();
 
     Map<String, String> getUIDMap();
 
     String getObjectStorageID();
 
-    void setObjectStorageID(String objectStorageID);
+    StoreSession withObjectStorageID(String objectStorageID);
 
     String getMetadataStorageID();
 

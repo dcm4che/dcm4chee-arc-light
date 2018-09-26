@@ -128,20 +128,18 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String rejectionNoteObjectStorageID) {
+    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setHttpRequest(httpRequest);
         session.setApplicationEntity(ae);
         session.setCalledAET(ae.getAETitle());
-        session.setObjectStorageID(rejectionNoteObjectStorageID);
         return session;
     }
 
     @Override
-    public StoreSession newStoreSession(ApplicationEntity ae, String objectID) {
+    public StoreSession newStoreSession(ApplicationEntity ae) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setApplicationEntity(ae);
-        session.setObjectStorageID(objectID);
         return session;
     }
 
@@ -163,29 +161,8 @@ class StoreServiceImpl implements StoreService {
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
         UpdateDBResult result = null;
-        List<File> bulkDataFiles = Collections.emptyList();
         try {
-            String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
-            try (Transcoder transcoder = receiveTranferSyntax != null
-                    ? new Transcoder(data, receiveTranferSyntax)
-                    : new Transcoder(data)) {
-                ctx.setReceiveTransferSyntax(transcoder.getSourceTransferSyntax());
-                transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
-                transcoder.setPixelDataBulkDataURI("");
-                transcoder.setConcatenateBulkDataFiles(true);
-                transcoder.setBulkDataDirectory(
-                        ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
-                transcoder.setIncludeFileMetaInformation(true);
-                transcoder.setDeleteBulkDataFiles(false);
-                transcoder.transcode(new TranscoderHandler(ctx));
-                bulkDataFiles = transcoder.getBulkDataFiles();
-            } catch (StorageException e) {
-                LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
-                throw new DicomServiceException(Status.OutOfResources, e);
-            } catch (Throwable e) {
-                LOG.warn("{}: Failed to valueOf received object:\n", ctx.getStoreSession(), e);
-                throw new DicomServiceException(Status.ProcessingFailure, e);
-            }
+            writeToStorage(ctx, data);
             if (ctx.getAcceptedStudyInstanceUID() != null
                     && !ctx.getAcceptedStudyInstanceUID().equals(ctx.getStudyInstanceUID())) {
                 LOG.info("{}: Received Instance[studyUID={},seriesUID={},objectUID={}]" +
@@ -206,10 +183,36 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
-            for (File tmpFile : bulkDataFiles)
-                tmpFile.delete();
             revokeStorage(ctx, result);
             storeEvent.fire(ctx);
+        }
+    }
+
+    private void writeToStorage(StoreContext ctx, InputStream data) throws DicomServiceException {
+        List<File> bulkDataFiles = Collections.emptyList();
+        String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
+        try (Transcoder transcoder = receiveTranferSyntax != null
+                ? new Transcoder(data, receiveTranferSyntax)
+                : new Transcoder(data)) {
+            ctx.setReceiveTransferSyntax(transcoder.getSourceTransferSyntax());
+            transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            transcoder.setPixelDataBulkDataURI("");
+            transcoder.setConcatenateBulkDataFiles(true);
+            transcoder.setBulkDataDirectory(
+                    ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
+            transcoder.setIncludeFileMetaInformation(true);
+            transcoder.setDeleteBulkDataFiles(false);
+            transcoder.transcode(new TranscoderHandler(ctx));
+            bulkDataFiles = transcoder.getBulkDataFiles();
+        } catch (StorageException e) {
+            LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
+            throw new DicomServiceException(Status.OutOfResources, e);
+        } catch (Throwable e) {
+            LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        } finally {
+            for (File tmpFile : bulkDataFiles)
+                tmpFile.delete();
         }
     }
 
@@ -284,13 +287,20 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Study addStorageID(String studyIUID, String storageID) {
-        return ejb.addStorageID(studyIUID, storageID);
+    public void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
+            throws IOException {
+        writeToStorage(ctx, data);
+        ejb.replaceLocation(ctx, inst);
     }
 
     @Override
-    public void scheduleMetadataUpdate(Study study, String seriesIUID) {
-        ejb.scheduleMetadataUpdate(study, seriesIUID);
+    public void addStorageID(String studyIUID, String storageID) {
+        ejb.addStorageID(studyIUID, storageID);
+    }
+
+    @Override
+    public void scheduleMetadataUpdate(String studyIUID, String seriesIUID) {
+        ejb.scheduleMetadataUpdate(studyIUID, seriesIUID);
     }
 
     @Override
@@ -448,8 +458,8 @@ class StoreServiceImpl implements StoreService {
             t.setParameter("LocalAET", session.getCalledAET());
             if (session.getCallingAET() != null)
                 t.setParameter("RemoteAET", session.getCallingAET());
-
-            t.setParameter("RemoteHost", session.getRemoteHostName());
+            if (session.getRemoteHostName() != null)
+                t.setParameter("RemoteHost", session.getRemoteHostName());
         };
     }
 
@@ -527,15 +537,17 @@ class StoreServiceImpl implements StoreService {
         @Override
         public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
             storeContext.setAttributes(dataset);
-            ArchiveCompressionRule compressionRule = selectCompressionRule(transcoder, storeContext);
-            if (compressionRule != null) {
+            ArchiveCompressionRule compressionRule = storeContext.getCompressionRule();
+            if (compressionRule == null) {
+                storeContext.setCompressionRule(compressionRule = selectCompressionRule(transcoder, storeContext));
+            }
+            if (compressionRule != null && compressionRule.getDelay() == null) {
                 transcoder.setDestinationTransferSyntax(compressionRule.getTransferSyntax());
                 transcoder.setCompressParams(compressionRule.getImageWriteParams());
                 storeContext.setStoreTranferSyntax(compressionRule.getTransferSyntax());
             }
             return openOutputStream(storeContext, Location.ObjectType.DICOM_FILE);
         }
-
     }
 
     private OutputStream openOutputStream(StoreContext storeContext, Location.ObjectType objectType)
@@ -569,7 +581,7 @@ class StoreServiceImpl implements StoreService {
         Storage storage = storageFactory.getUsableStorage(descriptors);
         String storageID = storage.getStorageDescriptor().getStorageID();
         session.putStorage(storageID, storage);
-        session.setObjectStorageID(storageID);
+        session.withObjectStorageID(storageID);
         if (descriptors.size() < storageIDs.length) {
             arcAE.setObjectStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
             updateDeviceConfiguration(arcDev);

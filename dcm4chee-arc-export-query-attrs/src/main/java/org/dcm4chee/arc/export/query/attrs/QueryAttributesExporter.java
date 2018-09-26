@@ -47,6 +47,7 @@ import org.dcm4chee.arc.query.impl.QueryAttributesEJB;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
 public class QueryAttributesExporter extends AbstractExporter {
@@ -60,10 +61,10 @@ public class QueryAttributesExporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) {
-        queryAttributesEJB.calculateStudyQueryAttributes(exportContext.getStudyInstanceUID());
-
-        return new Outcome(QueueMessage.Status.COMPLETED,
-                "Calculated Query attributes for Study[uid=" + exportContext.getStudyInstanceUID() + ']');
+        boolean found = queryAttributesEJB.calculateStudyQueryAttributes(exportContext.getStudyInstanceUID());
+        return new Outcome(QueueMessage.Status.COMPLETED, found
+                ? "Calculated Query attributes for Study[uid=" + exportContext.getStudyInstanceUID() + ']'
+                : "No such Study[uid=" + exportContext.getStudyInstanceUID() + ']');
     }
 
 }

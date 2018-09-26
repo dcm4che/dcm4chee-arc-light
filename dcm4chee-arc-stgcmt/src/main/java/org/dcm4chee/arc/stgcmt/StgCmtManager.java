@@ -40,19 +40,32 @@
 
 package org.dcm4chee.arc.stgcmt;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.entity.StorageVerificationTask;
+import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
 public interface StgCmtManager {
+    String QUEUE_NAME = "StgVerTasks";
+
     void addExternalRetrieveAETs(Attributes eventInfo, Device device);
 
     void persistStgCmtResult(StgCmtResult result);
@@ -64,7 +77,40 @@ public interface StgCmtManager {
 
     int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore);
 
-    Attributes calculateResult(StgCmtContext ctx, Sequence refSopSeq, String transactionUID);
+    void calculateResult(StgCmtContext ctx, Sequence refSopSeq);
 
-    Attributes calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID);
+    boolean calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
+
+    boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
+                               String batchID)
+            throws QueueSizeLimitExceededException;
+
+    Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;
+
+    StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
+                                                 OrderSpecifier<Date> order, int offset, int limit);
+
+    long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask);
+
+    boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+
+    long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException;
+
+    String findDeviceNameByPk(Long pk);
+
+    void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent);
+
+    void rescheduleStgVerTask(String stgVerTaskQueueMsgId);
+
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask);
+
+    List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask, int limit);
+
+    boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent);
+
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize);
+
+    List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+                                        OrderSpecifier<Date> order, int offset, int limit);
 }

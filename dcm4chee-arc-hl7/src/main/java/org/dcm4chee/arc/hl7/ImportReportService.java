@@ -42,10 +42,14 @@ package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.*;
-import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.hl7.ERRSegment;
+import org.dcm4che3.hl7.HL7Exception;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
@@ -68,7 +72,7 @@ import java.util.List;
  */
 @ApplicationScoped
 @Typed(HL7Service.class)
-class ImportReportService extends AbstractHL7Service {
+class ImportReportService extends DefaultHL7Service {
 
     @Inject
     private PatientService patientService;
@@ -81,9 +85,18 @@ class ImportReportService extends AbstractHL7Service {
     }
 
     @Override
-    protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService) != null)
-            importReport(hl7App, s, msg);
+    public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+            throws HL7Exception {
+        ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
+                HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
+        if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message) != null) {
+            try {
+                importReport(hl7App, s, msg);
+            } catch (Exception e) {
+                throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
+            }
+        }
+        return archiveHL7Message;
     }
 
     private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {

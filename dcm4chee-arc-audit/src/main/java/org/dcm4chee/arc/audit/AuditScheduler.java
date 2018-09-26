@@ -57,7 +57,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -100,33 +99,27 @@ public class AuditScheduler extends Scheduler {
         if (auditSpoolDir == null || duration == null)
             return;
 
+        Path auditSpoolDirPath = Paths.get(StringUtils.replaceSystemProperties(auditSpoolDir));
         for (AuditLogger logger : ext.getAuditLoggers()) {
             if (!logger.isInstalled())
                 continue;
 
-            Path dir = Paths.get(StringUtils.replaceSystemProperties(
-                    auditSpoolDir + "/" + logger.getCommonName().replaceAll(" ", "_")));
+            Path dir = auditSpoolDirPath.resolve(logger.getCommonName().replaceAll("\\W", "_"));
             if (!Files.isDirectory(dir))
                 continue;
 
             final long maxLastModifiedTime = System.currentTimeMillis() - duration.getSeconds() * 1000L;
-            ArrayList<Path> pathList = new ArrayList<>();
-            try {
-                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, file ->
-                        !file.getFileName().toString().endsWith(FAILED)
-                            && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime)) {
-                    for (Path path : dirStream) {
-                        pathList.add(path);
-                    }
+            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, file ->
+                    !file.getFileName().toString().endsWith(FAILED)
+                        && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime)) {
+                for (Path path : dirStream) {
+                    if (arcDev.getAuditPollingInterval() == null)
+                        return;
+
+                    service.auditAndProcessFile(logger, path);
                 }
             } catch (IOException e) {
                 LOG.warn("Failed to access Audit Spool Directory - {}", dir, e);
-            }
-            for (Path path : pathList) {
-                if (getPollingInterval() == null)
-                    return;
-
-                service.auditAndProcessFile(logger, path);
             }
         }
     }

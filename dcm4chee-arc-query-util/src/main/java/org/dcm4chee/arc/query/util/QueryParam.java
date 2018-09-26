@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.query.util;
 
-import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -63,6 +62,8 @@ public class QueryParam {
     private boolean withoutStudies = true;
     private boolean incomplete;
     private boolean retrieveFailed;
+    private boolean storageVerificationFailed;
+    private boolean compressionfailed;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
 
@@ -166,6 +167,22 @@ public class QueryParam {
 
     public void setRetrieveFailed(boolean retrieveFailed) {
         this.retrieveFailed = retrieveFailed;
+    }
+
+    public boolean isStorageVerificationFailed() {
+        return storageVerificationFailed;
+    }
+
+    public void setStorageVerificationFailed(boolean storageVerificationFailed) {
+        this.storageVerificationFailed = storageVerificationFailed;
+    }
+
+    public boolean isCompressionFailed() {
+        return compressionfailed;
+    }
+
+    public void setCompressionFailed(boolean compressionfailed) {
+        this.compressionfailed = compressionfailed;
     }
 
     public String getExternalRetrieveAET() {

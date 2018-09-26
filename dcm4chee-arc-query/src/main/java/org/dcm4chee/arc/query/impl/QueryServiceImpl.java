@@ -130,13 +130,18 @@ class QueryServiceImpl implements QueryService {
         QueryParam queryParam = new QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(queryOpts.contains(QueryOption.DATETIME));
         queryParam.setFuzzySemanticMatching(queryOpts.contains(QueryOption.FUZZY));
-        return new QueryContextImpl(as, sopClassUID, ae, queryParam, this);
+        return new QueryContextImpl(ae, queryParam, this).find(as, sopClassUID);
     }
 
     @Override
     public QueryContext newQueryContextQIDO(
             HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam) {
-        return new QueryContextImpl(httpRequest, searchMethod, ae, queryParam, this);
+        return new QueryContextImpl(ae, queryParam, this).qido(httpRequest, searchMethod);
+    }
+
+    @Override
+    public QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam) {
+        return new QueryContextImpl(ae, queryParam, this);
     }
 
     @Override

@@ -17,6 +17,8 @@ public class ArchiveCompressionRule {
 
     private Conditions conditions = new Conditions();
 
+    private Duration delay;
+
     private String transferSyntax;
 
     private Property[] imageWriteParams = {};
@@ -52,6 +54,14 @@ public class ArchiveCompressionRule {
         this.conditions = conditions;
     }
 
+    public Duration getDelay() {
+        return delay;
+    }
+
+    public void setDelay(Duration delay) {
+        this.delay = delay;
+    }
+
     public String getTransferSyntax() {
         return transferSyntax;
     }
@@ -76,6 +86,7 @@ public class ArchiveCompressionRule {
     public String toString() {
         return "CompressionRule{" +
                 "cn=" + commonName +
+                ", delay=" + delay +
                 ", transferSyntax=" + transferSyntax +
                 ", imageWriteParams=" + Arrays.toString(imageWriteParams) +
                 '}';

@@ -124,6 +124,12 @@ public class ArchiveServiceImpl implements ArchiveService {
     @Inject
     private ConnectionEventSource connectionEventSource;
 
+    @Inject
+    private AssociationEventSource associationEventSource;
+
+    @Inject
+    private HL7ConnectionEventSource hl7ConnectionEventSource;
+
     private Status status = Status.STOPPED;
 
     private final DicomService echoscp = new BasicCEchoSCP();
@@ -136,6 +142,7 @@ public class ArchiveServiceImpl implements ArchiveService {
     public void init() {
         try {
             device.setConnectionMonitor(connectionEventSource);
+            device.setAssociationMonitor(associationEventSource);
             device.setExecutor(executor);
             device.setScheduledExecutor(scheduledExecutor);
             device.setAssociationHandler(associationHandler);
@@ -150,6 +157,7 @@ public class ArchiveServiceImpl implements ArchiveService {
             HL7DeviceExtension hl7Extension = device.getDeviceExtension(HL7DeviceExtension.class);
             if (hl7Extension != null) {
                 hl7Extension.setHL7MessageListener(hl7ServiceRegistry);
+                hl7Extension.setHL7ConnectionMonitor(hl7ConnectionEventSource);
             }
             configure();
             start(null);

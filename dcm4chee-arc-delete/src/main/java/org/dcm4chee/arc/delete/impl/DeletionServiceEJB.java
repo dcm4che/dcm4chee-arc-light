@@ -54,6 +54,8 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -71,6 +73,8 @@ import java.util.stream.IntStream;
  */
 @Stateless
 public class DeletionServiceEJB {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DeletionServiceEJB.class);
 
     public static final int MAX_LOCATIONS_PER_INSTANCE = 3;
 
@@ -108,8 +112,8 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public List<Long> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Long.class)
+    public List<Study.PKUID> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Study.PKUID.class)
                 .setParameter(1, getStudyStorageIDs(desc))
                 .setMaxResults(limit)
                 .getResultList();
@@ -127,8 +131,8 @@ public class DeletionServiceEJB {
         return onStorage.size();
     }
 
-    public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Long.class)
+    public List<Study.PKUID> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Study.PKUID.class)
                 .setParameter(1, getStudyStorageIDs(desc))
                 .setParameter(2, desc.getExternalRetrieveAETitle())
                 .setMaxResults(limit)
@@ -183,10 +187,15 @@ public class DeletionServiceEJB {
                     && series.getMetadata() != null)
                 scheduleMetadataUpdate(series.getPk());
         }
-        Study study = insts.iterator().next().getSeries().getStudy();
+        Study study = em.find(Study.class, studyPk);
+        if (locations.isEmpty()) {
+            LOG.warn("{} does not contains objects at Storage{}", study, storageIDs);
+        }
+        String studyEncodedStorageIDs = study.getEncodedStorageIDs();
         for (String storageID : storageIDs) {
             study.removeStorageID(storageID);
         }
+        LOG.info("Update Storage IDs of {} from {} to {}", study, studyEncodedStorageIDs, study.getEncodedStorageIDs());
         return study;
     }
 
@@ -205,6 +214,7 @@ public class DeletionServiceEJB {
 
     public void deleteEmptyStudy(StudyDeleteContext ctx) {
         Study study = ctx.getStudy();
+        study.getPatient().decrementNumberOfStudies();
         em.remove(em.contains(study) ? study : em.merge(study));
     }
 
@@ -298,6 +308,7 @@ public class DeletionServiceEJB {
                 ser.getMetadata().setStatus(Metadata.Status.TO_DELETE);
             em.remove(ser);
         }
+        study.getPatient().decrementNumberOfStudies();
         em.remove(study);
         if (ctx.isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(patient) == 0) {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();

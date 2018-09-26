@@ -53,8 +53,7 @@
         "operationId": "SearchForPatients",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -147,8 +146,7 @@
         "operationId": "SearchForStudies",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -213,6 +211,20 @@
             "name": "retrievefailed",
             "in": "query",
             "description": "return only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "return only Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "return only Studies which includes at least one Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
           },
@@ -325,7 +337,6 @@
         "operationId": "SearchForStudySeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [
@@ -402,6 +413,20 @@
             "default": false
           },
           {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -453,7 +478,6 @@
         "operationId": "SearchForSeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [
@@ -523,6 +547,20 @@
             "default": false
           },
           {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "return only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -574,7 +612,6 @@
         "operationId": "SearchForStudySeriesInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [
@@ -675,7 +712,6 @@
         "operationId": "SearchForStudyInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [
@@ -776,7 +812,6 @@
         "operationId": "SearchForInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [
@@ -1266,7 +1301,6 @@
         "operationId": "RetrieveStudyMetadata",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [
@@ -1322,7 +1356,6 @@
         "operationId": "RetrieveSeriesMetadata",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [
@@ -1385,7 +1418,6 @@
         "operationId": "RetrieveInstanceMetadata",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json",
           "application/dicom+json"
         ],
         "parameters": [

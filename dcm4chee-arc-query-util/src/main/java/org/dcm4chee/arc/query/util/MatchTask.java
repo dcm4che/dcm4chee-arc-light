@@ -109,7 +109,7 @@ public class MatchTask {
     public static Predicate matchExportTask(List<String> exporterIDs, String deviceName, String studyUID,
                                             String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
-        if (exporterIDs != null)
+        if (!exporterIDs.isEmpty())
             predicate.and(QExportTask.exportTask.exporterID.in(exporterIDs));
         if (deviceName != null)
             predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
@@ -148,6 +148,22 @@ public class MatchTask {
         return predicate;
     }
 
+    public static Predicate matchStgVerTask(String localAET, String studyUID,
+                                              String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QStorageVerificationTask.storageVerificationTask.localAET.eq(localAET));
+        if (studyUID != null)
+            predicate.and(QStorageVerificationTask.storageVerificationTask.studyInstanceUID.eq(studyUID));
+        if (createdTime != null)
+            predicate.and(MatchDateTimeRange.range(
+                    QStorageVerificationTask.storageVerificationTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
+        if (updatedTime != null)
+            predicate.and(MatchDateTimeRange.range(
+                    QStorageVerificationTask.storageVerificationTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
+        return predicate;
+    }
+
     public static OrderSpecifier<Date> queueMessageOrder(String orderby) {
         return taskOrder(orderby, QQueueMessage.queueMessage.createdTime, QQueueMessage.queueMessage.updatedTime);
     }
@@ -174,6 +190,16 @@ public class MatchTask {
 
     public static OrderSpecifier<Date> diffBatchOrder(String orderby) {
         return batchOrder(orderby, QDiffTask.diffTask.createdTime, QDiffTask.diffTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> stgVerTaskOrder(String orderby) {
+        return taskOrder(orderby, QStorageVerificationTask.storageVerificationTask.createdTime,
+                QStorageVerificationTask.storageVerificationTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> stgCmtBatchOrder(String orderby) {
+        return batchOrder(orderby, QStorageVerificationTask.storageVerificationTask.createdTime,
+                QStorageVerificationTask.storageVerificationTask.updatedTime);
     }
 
     private static OrderSpecifier<Date> taskOrder(
@@ -278,4 +304,20 @@ public class MatchTask {
                     QDiffTask.diffTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
         return predicate;
     }
+
+    public static Predicate matchStgCmtBatch(String localAET, String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QStorageVerificationTask.storageVerificationTask.localAET.eq(localAET));
+        if (createdTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QStorageVerificationTask.storageVerificationTask.createdTime, createdTime,
+                    MatchDateTimeRange.FormatDate.DT)));
+        if (updatedTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QStorageVerificationTask.storageVerificationTask.updatedTime, updatedTime,
+                    MatchDateTimeRange.FormatDate.DT)));
+        return predicate;
+    }
+
 }

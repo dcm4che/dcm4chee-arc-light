@@ -70,6 +70,7 @@ class SplitQuery implements DimseRSP {
     private final String cuid;
     private final int priority;
     private final Attributes keys;
+    private final int capacity;
     private int autoCancel;
     private final Calendar cal = Calendar.getInstance();
     private int dstOff;
@@ -77,8 +78,9 @@ class SplitQuery implements DimseRSP {
     private final int maxMins;
     private final RangeType rangeType;
     private DimseRSP dimseRSP;
+    private volatile boolean canceled;
 
-    public SplitQuery(Association as, String cuid, int priority, Attributes keys, int autoCancel,
+    public SplitQuery(Association as, String cuid, int priority, Attributes keys, int autoCancel, int capacity,
                       long startDate, long endDate, Duration splitStudyDateRange)
             throws IOException, InterruptedException {
         this.as = as;
@@ -86,6 +88,7 @@ class SplitQuery implements DimseRSP {
         this.priority = priority;
         this.keys = keys;
         this.autoCancel = autoCancel;
+        this.capacity = capacity;
         this.rangeType = RangeType.valueOf(splitStudyDateRange);
         this.maxMins = rangeType.maxMins(splitStudyDateRange);
         this.cal.setTimeInMillis(startDate);
@@ -108,7 +111,7 @@ class SplitQuery implements DimseRSP {
             adjustStartOfDST();
         }
         rangeType.adjustKeys(keys, new DateRange(startDate, cal.getTime()));
-        dimseRSP = as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel);
+        dimseRSP = as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel, capacity);
         return true;
     }
 
@@ -144,6 +147,10 @@ class SplitQuery implements DimseRSP {
                 }
                 return true;
             }
+            if (canceled) {
+                dimseRSP.getCommand().setInt(Tag.Status, VR.US, Status.Cancel);
+                return true;
+            }
             cal.add(rangeType.calendarField, 1);
         } while (nextQuery());
         return true;
@@ -161,6 +168,7 @@ class SplitQuery implements DimseRSP {
 
     @Override
     public void cancel(Association a) throws IOException {
+        canceled = true;
         dimseRSP.cancel(a);
     }
 

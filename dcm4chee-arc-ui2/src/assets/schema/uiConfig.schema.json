@@ -11,6 +11,15 @@
       "description": "UI Configuration Name",
       "type": "string"
     },
+    "dcmuiAetConfig": {
+      "title": "AET drop-down list",
+      "description": "Define which AETs should be visible in the drop-down lists in the UI",
+      "titleKey":"{dcmuiAetListName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiAet.schema.json"
+      }
+    },
     "dcmuiPermission": {
       "title": "Permission",
       "description": "Permission",
@@ -18,6 +27,14 @@
       "type": "array",
       "items" : {
         "$ref": "uiPermission.schema.json"
+      }
+    },"dcmuiFilterTemplateObject": {
+      "title": "UI Filter Template",
+      "description": "Defined filter template",
+      "titleKey":"{dcmuiFilterTemplateGroupName} ( {dcmuiFilterTemplateID} )",
+      "type": "array",
+      "items" : {
+        "$ref": "uiFilterTemplate.schema.json"
       }
     },
     "dcmuiDiffConfig": {

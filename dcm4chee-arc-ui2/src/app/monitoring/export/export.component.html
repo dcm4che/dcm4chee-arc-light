@@ -1,118 +1,30 @@
 <div class="main_content monitoring export">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <div class="row filter"  (keyup)="filterKeyUp($event)">
-            <div class="main_filter_block">
-                <div class="col-md-3 block-1-1">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!--                            <select id="exporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
-                                                            <option>*</option>
-                                                            <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
-                                                        </select>-->
-                            <mat-select [(ngModel)]="filters.ExporterID" class="col-md-12" placeholder="Exporter ID">
-                                <mat-option>*</mat-option>
-                                <mat-option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</mat-option>
-                            </mat-select>
-                        </div>
-                        <!--<label for="exporterID" class="col-md-6 text-right control-label">Exporter ID:</label>-->
-                        <!--<div class="col-md-6">-->
-                            <!--<input id="exporterID" type="text" [(ngModel)]="filters.ExporterID" class="col-md-12"/>-->
-                        <!--</div>-->
-                        <div class="col-md-6" *ngIf="devices">
-                            <select [(ngModel)]="filters.dicomDeviceName" class="col-md-12" placeholder="Device">
-                                <option value="" selected disabled>Device name</option>
-                                <option value="">*</option>
-                                <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6" *ngIf="!devices">
-                            <input type="text" [(ngModel)]="filters.dicomDeviceName" placeholder="Device" class="col-md-12"/>
-                        </div>
+        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"></filter-generator>
+        <div class="filter">
+            <div class="filter_block auto_reloader">
+                <table>
+                    <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
+                        <td>{{status}}:</td>
+                        <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
+                        <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                    </tr>
+                </table>
+                <div class="option_block">
+                    <div class="interval_block">
+                        <label>Interval:</label>
+                        <input type="text" placeholder="Interval" [(ngModel)]="interval">
+                        <span>s</span>
                     </div>
-                    <div class="row">
-                        <label for="limit" class="col-md-6 text-right control-label">Page Size:</label>
-                        <div class="col-md-6">
-                            <input id="limit" type="number" min="1" [(ngModel)]="filters.limit" class="col-md-12" />
+                    <button class="btn-default submit" (click)="toggleAutoRefresh()">
+                        <div class="spinnter_container">
+                            <span *ngIf="!timer.started" class="glyphicon glyphicon-refresh"></span>
+                            <mat-progress-spinner *ngIf="timer.started" mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input id="batchID" placeholder="Batch ID" type="text" [(ngModel)]="filters.batchID" class="col-md-12"  />
-                        </div>
-                        <div class="col-md-6">
-                            <mat-select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12" placeholder="Status">
-                                <mat-option>*</mat-option>
-                                <mat-option *ngFor="let sta of status" value="{{sta}}">{{sta}}</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 block-2-1">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <range-picker [model]="filters.createdTime" (modelChange)="filters.createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
-                        </div>
-                        <div class="col-md-6">
-                            <range-picker [model]="filters.updatedTime" (modelChange)="filters.updatedTime = $event" mode="range" placeholder="Updated" dateFormat="yymmdd"></range-picker>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <!--<label class="col-md-6 text-right control-label">Updated before:</label>-->
-                        <div class="col-md-6">
-                            <mat-select id="sort" [(ngModel)]="filters.orderby" class="col-md-12" placeholder="Sort">
-                                <mat-option>*</mat-option>
-                                <mat-option value="createdTime">Sort by creation time (ASC)</mat-option>
-                                <mat-option value="-createdTime">Sort by creation time (DESC)</mat-option>
-                                <mat-option value="updatedTime">Sort by updated time (ASC)</mat-option>
-                                <mat-option value="-updatedTime">Sort by updated time (DESC)</mat-option>
-                            </mat-select>
-                        </div>
-                        <div class="col-md-6">
-                            <input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!--<input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />-->
-                            <button class="btn btn-default submit col-md-12" (click)="getCount()" title="Get count">
-                                <span class="glyphicon glyphicon-refresh"></span>
-                                COUNT {{count}}
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-default submit col-md-12" (click)="getCounts()" title="Refresh">
-                                <span class="glyphicon glyphicon-refresh"></span>
-                                SUBMIT
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="filter">
-                    <div class="filter_block auto_reloader">
-                        <table>
-                            <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
-                                <td>{{status}}:</td>
-                                <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
-                                <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
-                            </tr>
-                        </table>
-                        <div class="option_block">
-                            <div class="interval_block">
-                                <label>Interval:</label>
-                                <input type="text" placeholder="Interval" [(ngModel)]="interval">
-                                <span>s</span>
-                            </div>
-                            <button class="btn-default submit" (click)="toggleAutoRefresh()">
-                                <div class="spinnter_container">
-                                    <span *ngIf="!timer.started" class="glyphicon glyphicon-refresh"></span>
-                                    <mat-progress-spinner *ngIf="timer.started" mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
-                                </div>
-                                <span *ngIf="!timer.started">{{timer.startText}}</span>
-                                <span *ngIf="timer.started">{{timer.stopText}}</span>
-                            </button>
-                        </div>
-                    </div>
+                        <span *ngIf="!timer.started">{{timer.startText}}</span>
+                        <span *ngIf="timer.started">{{timer.stopText}}</span>
+                    </button>
                 </div>
             </div>
         </div>

@@ -443,7 +443,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.88 NAME 'hl7ErrorLogFilePattern'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.89 NAME 'dcmRetentionPeriod'
-  DESC 'Study Retention Period in ISO-8601 period format PnYnMnD or PnW.'
+  DESC 'Minimum Study Retention Period in ISO-8601 period format PnYnMnD or PnW.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -661,7 +661,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.132 NAME 'dcmSeriesMetadataFetchSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.133 NAME 'dcmRSOperation'
-  DESC 'Name of RESTful Operation which shall be forwarded to another archive instance. Enumerated values: CreatePatient, UpdatePatient, DeletePatient, UpdateStudy, DeleteStudy, CopyInstances, MoveInstances, RejectStudy, RejectSeries, RejectInstance, UpdateStudyExpirationDate, UpdateSeriesExpirationDate.'
+  DESC 'Name of RESTful Operation which shall be forwarded to another archive instance. Enumerated values: CreatePatient, UpdatePatient, DeletePatient, ChangePatientID, MergePatient, MergePatients, UpdateStudy, DeleteStudy, RejectStudy, RejectSeries, RejectInstance, UpdateStudyExpirationDate, UpdateSeriesExpirationDate, ApplyRetentionPolicy, CreateMWL, UpdateMWL, DeleteMWL'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
@@ -1079,26 +1079,127 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.217 NAME 'dcmWadoCDA2HtmlTemplateURI'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.218 NAME 'dcmStgCmtPolicy'
-  DESC 'Storage Commitment Policy: DB_RECORD_EXISTS (= only check for existence of DB records), OBJECT_EXISTS (= check if object exists on Storage System), OBJECT_SIZE (= check size of object on Storage System), OBJECT_FETCH (= fetch object from Storage System), OBJECT_CHECKSUM (= recalculate checksum of object on Storage System) or S3_MD5SUM (= check MD5 checksum of object on S3 Storage System). OBJECT_CHECKSUM if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.219 NAME 'dcmStgCmtUpdateLocationStatus'
-  DESC 'Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. False if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.220 NAME 'dcmStgCmtStorageID'
-  DESC 'Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.221 NAME 'dcmURIPattern'
+  DESC 'Only forward requests which match the given Regular Expression. If prefixed with !, only forward requests which does not match the given Regular Expression.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.222 NAME 'dcmStorageVerificationPolicy'
+  DESC 'Storage Verification Policy: DB_RECORD_EXISTS (= only check for existence of DB records), OBJECT_EXISTS (= check if object exists on Storage System), OBJECT_SIZE (= check size of object on Storage System), OBJECT_FETCH (= fetch object from Storage System), OBJECT_CHECKSUM (= recalculate checksum of object on Storage System) or S3_MD5SUM (= check MD5 checksum of object on S3 Storage System). OBJECT_CHECKSUM if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.223 NAME 'dcmStorageVerificationUpdateLocationStatus'
+  DESC 'Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly. Not effective with Storage Verification Policy: DB_RECORD_EXISTS. False if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.224 NAME 'dcmStorageVerificationStorageID'
+  DESC 'Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification. If absent, storage on any Storage System is sufficient. Not effective with Storage Validation Policy: DB_RECORD_EXISTS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.225 NAME 'dcmStorageVerificationAETitle'
+  DESC 'Archive AE Title used for scheduled Storage Verifications.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.226 NAME 'dcmStorageVerificationBatchID'
+  DESC 'Batch ID of Storage Verification Tasks triggered by scheduler.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.227 NAME 'dcmStorageVerificationInitialDelay'
+  DESC 'Delay in ISO-8601 duration format PnYnMnD or PnW of first Storage Verification of a Series after it was received.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.228 NAME 'dcmStorageVerificationPeriod'
+  DESC 'Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.229 NAME 'dcmStorageVerificationMaxScheduled'
+  DESC 'Maximal number of scheduled Storage Verification tasks on this device. Shall be set > 0 to distribute tasks over nodes of a clustered archive. No limitation (=0) if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.230 NAME 'dcmStorageVerificationPollingInterval'
+  DESC 'Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.231 NAME 'dcmStorageVerificationSchedule'
+  DESC 'Limits Storage Verification to specified times in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.232 NAME 'dcmStorageVerificationFetchSize'
+  DESC 'Maximal number of Series scheduled for Storage Verification fetched by one query.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.233 NAME 'dcmCompressionPollingInterval'
+  DESC 'Polling Interval for Series to be compressed in ISO-8601 duration format PnDTnHnMn.nS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.234 NAME 'dcmCompressionFetchSize'
+  DESC 'Maximal number of Series fetched for compression by one query.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.235 NAME 'dcmCompressionSchedule'
+  DESC 'Limits compression to specified times in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.236 NAME 'dcmCompressionThreads'
+  DESC 'Number of Threads used for Compression. 1 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.237 NAME 'dcmCompressionAETitle'
+  DESC 'Archive AE Title used for delayed Compression.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.238 NAME 'dcmCompressionDelay'
+  DESC 'Compression delay in ISO-8601 duration format PnDTnHnMn.nS. Compress on receive if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.239 NAME 'dcmDiffTaskProgressUpdateInterval'
+  DESC 'Interval of updating Diff Tasks in process for progress monitoring in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.240 NAME 'dcmEntitySelector'
+  DESC 'Specifies matching keys used to select entities to prefetch. Format: {key}={value}][&{key}={value}]..., with {key} = "priors" | "StudyAge" | {attributeID}. Example: "priors=2&StudyAge=-5Y&ModalitiesInStudy=CT" => select at most 2 prior Studies not older than 5 years containing at least one CT Series.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.241 NAME 'dcmMaxRetentionPeriod'
+  DESC 'Maximum Study Retention Period in ISO-8601 period format PnYnMnD or PnW.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
   MUST (
-    dcmFuzzyAlgorithmClass $
-    dcmQueryRetrieveViewID )
+    dcmFuzzyAlgorithmClass )
   MAY (
+    dcmQueryRetrieveViewID $
     dcmRetrieveAET $
     dcmDefaultCharacterSet $
     dcmStorageID $
@@ -1216,6 +1317,23 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStgCmtPolicy $
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $
+    dcmStorageVerificationPolicy $
+    dcmStorageVerificationUpdateLocationStatus $
+    dcmStorageVerificationStorageID $
+    dcmStorageVerificationAETitle $
+    dcmStorageVerificationBatchID $
+    dcmStorageVerificationInitialDelay $
+    dcmStorageVerificationPeriod $
+    dcmStorageVerificationMaxScheduled $
+    dcmStorageVerificationPollingInterval $
+    dcmStorageVerificationSchedule $
+    dcmStorageVerificationFetchSize $
+    dcmCompressionPollingInterval $
+    dcmCompressionFetchSize $
+    dcmCompressionSchedule $
+    dcmCompressionThreads $
+    dcmCompressionAETitle $
+    dcmDiffTaskProgressUpdateInterval $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
@@ -1298,6 +1416,10 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStgCmtPolicy $
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $
+    dcmStorageVerificationPolicy $
+    dcmStorageVerificationUpdateLocationStatus $
+    dcmStorageVerificationStorageID $
+    dcmStorageVerificationInitialDelay $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $
@@ -1411,6 +1533,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.17 NAME 'dcmArchiveCompressionRule'
     dicomTransferSyntax )
   MAY (
     dcmRulePriority $
+    dcmCompressionDelay $
     dcmProperty $
     dcmImageWriteParam ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
@@ -1496,6 +1619,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
     dcmKeycloakServerID $
     dcmTLSAllowAnyHostname $
     dcmTLSDisableTrustManager $
+    dcmURIPattern $
     dcmRSOperation ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
   DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
@@ -1546,3 +1670,36 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
     dcmTLSDisableTrustManager $
     uid $
     userPassword ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmPrefetchRule'
+  DESC 'DICOM Prefetch Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmEntitySelector $
+    dcmExporterID )
+  MAY (
+    dcmProperty $
+    dcmSchedule $
+    dcmDuration ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.32 NAME 'hl7PrefetchRule'
+  DESC 'HL7 Prefetch Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmEntitySelector $
+    dcmExporterID )
+  MAY (
+    dcmProperty $
+    dcmDuration ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
+  DESC 'Study Retention Policy'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dicomAETitle )
+  MAY (
+    dcmRetentionPeriod $
+    dcmMaxRetentionPeriod $
+    dcmRulePriority $
+    dcmProperty $
+    dcmStartRetentionPeriodOnStudyDate ) )

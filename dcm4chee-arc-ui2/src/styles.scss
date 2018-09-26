@@ -453,7 +453,11 @@ mat-grid-list{
   position: relative;
   float: left;
   .clearform_button{
-    right:10px !important;
+    right:9px !important;
+    top: -15px;
+    &:hover{
+      cursor: pointer;
+    }
   }
   .filter_block{
     float: left;
@@ -2269,6 +2273,7 @@ mat-dialog-container{
         box-sizing: border-box;
         padding: 5px 2px 5px 7px;
         height: 30px;
+        word-wrap: break-word;
       }
     }
   }
@@ -2284,6 +2289,26 @@ mat-dialog-container{
         float: left;
         box-sizing: border-box;
         padding: 5px 2px 5px 7px;
+        word-wrap: break-word;
+        span{
+          width: 100%;
+          float: left;
+          //overflow: auto;
+        }
+        .text_content{
+          position: relative;
+          .copy_button{
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 30px;
+          }
+          &:hover .copy_button{
+            display: block;
+          }
+        }
       }
     }
   }

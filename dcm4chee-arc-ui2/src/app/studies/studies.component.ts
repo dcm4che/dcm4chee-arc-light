@@ -85,7 +85,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         IssuerOfPatientID:'',
         fuzzymatching:'',
         StudyTime:'',
-        SplitStudyDateRange:''
+        SplitStudyDateRange:'',
+        compressionfailed:false
     };
     diffQueue = false;
     missing = true;
@@ -350,7 +351,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             // }
             this.modalities = Globalvar.MODALITIES;
 
-            this.initAETs(2);
+            this.initAETs(2,);
             this.getAllAes(2);
             this.initAttributeFilter('Patient', 1);
             this.initExporters(2);
@@ -2237,6 +2238,138 @@ export class StudiesComponent implements OnDestroy,OnInit{
             "study"
         );
     }
+    storageVerification(){
+        this.confirm({
+            content: 'Schedule Storage Verification of matching Studies',
+            form_id:"storage_verification",
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:"Marked as incomplete"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"incomplete",
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Failed to be retrieved"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"retrievefailed"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Failed storage verification"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationFailed"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Compression Failed"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"compressionfailed"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Verification Policy"
+                        },
+                        {
+                            tag:"select",
+                            options:[
+                                {
+                                    value:"DB_RECORD_EXISTS",
+                                    text:"DB_RECORD_EXISTS",
+                                    title:"Check for existence of DB records"
+                                },
+                                {
+                                    value:"OBJECT_EXISTS",
+                                    text:"OBJECT_EXISTS",
+                                    title:"check if object exists on Storage System"
+                                },
+                                {
+                                    value:"OBJECT_SIZE",
+                                    text:"OBJECT_SIZE",
+                                    title:"check size of object on Storage System"
+                                },
+                                {
+                                    value:"OBJECT_FETCH",
+                                    text:"OBJECT_FETCH",
+                                    title:"Fetch object from Storage System"
+                                },
+                                {
+                                    value:"OBJECT_CHECKSUM",
+                                    text:"OBJECT_CHECKSUM",
+                                    title:"recalculate checksum of object on Storage System"
+                                },
+                                {
+                                    value:"S3_MD5SUM",
+                                    text:"S3_MD5SUM",
+                                    title:"Check MD5 checksum of object on S3 Storage System"
+                                }
+                            ],
+                            showStar:true,
+                            filterKey:"storageVerificationPolicy",
+                            description:"Verification Policy",
+                            placeholder:"Verification Policy"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Update Location DB"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationUpdateLocationStatus"
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:"Batch ID"
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"batchID",
+                            description:"Batch ID",
+                            placeholder:"Batch ID"
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: 'SAVE'
+        }).subscribe((ok)=>{
+            if(ok){
+                this.cfpLoadingBar.start();
+                this.service.scheduleStorageVerification(_.merge(ok.schema_model , this.createStudyFilterParams()), this.aetmodel.dicomAETitle).subscribe(res=>{
+                    console.log("res");
+                    this.cfpLoadingBar.complete();
+                    this.mainservice.setMessage({
+                        'title': 'Info',
+                        'text': 'Storage Verification scheduled successfully!',
+                        'status': 'info'
+                    });
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
     exportStudy(study) {
         this.exporter(
             this.studyURL(study.attrs),
@@ -2450,6 +2583,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 $this.cfpLoadingBar.complete();
             },
             (err) => {
+                $this.cfpLoadingBar.complete();
                 $this.httpErrorHandler.handleError(err);
             }
         );
@@ -4048,51 +4182,38 @@ export class StudiesComponent implements OnDestroy,OnInit{
         return a;
     }
     aesdropdown: SelectItem[] = [];
-    initAETs(retries) {
+    initAETs(retries, mode?) {
         if (!this.aes){
             let $this = this;
+            if(!mode){
+                mode = "internal";
+            }
            this.$http.get('../aets')
-                .map(res => {let resjson; try{
-                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                    if(pattern.exec(res.url)){
-                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                    }
-                    resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                .map(res => j4care.redirectOnAuthResponse(res))
+                .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,mode))
                 .subscribe((res)=> {
                         $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.mainservice.user, res));
-                        console.log('aes', $this.aes);
-                        // $this.aesdropdown = $this.aes;
-/*                        $this.aes.map((ae, i) => {
-                            console.log('in map ae', ae);
-                            console.log('in map i', i);
-                            console.log('aesi=', $this.aes[i]);
-                            $this.aesdropdown.push({label: ae.title, value: ae.title});
-                            $this.aes[i]['label'] = ae.title;
-                            $this.aes[i]['value'] = ae.value;
-
-                        });*/
-                        console.log('$this.aes after map', $this.aes);
-                        $this.aet = $this.aes[0].dicomAETitle.toString();
-                        if (!$this.aetmodel){
-                            $this.aetmodel = $this.aes[0];
+                        try{
+                            $this.aet = $this.aes[0].dicomAETitle.toString();
+                            if (!$this.aetmodel){
+                                $this.aetmodel = $this.aes[0];
+                            }
+                        }catch(e){
+                            console.warn(e);
                         }
                         // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
                     },
                     (res)=> {
                         if (retries)
-                            $this.initAETs(retries - 1);
+                            $this.initAETs(retries - 1, mode);
                 });
         }
     }
     getAllAes(retries) {
         let $this = this;
         this.$http.get('../aes')
-            .map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+            .map(res => j4care.redirectOnAuthResponse(res))
+            .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,"external"))
             .subscribe(
                 (res)=> {
                     $this.allAes = j4care.extendAetObjectWithAlias(res.map((res)=>{
@@ -4101,24 +4222,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         return res;
                     }));
                     $this.externalInternalAetModel = $this.allAes[0];
-                    // $this.aes = $this.service.getAes($this.user, res);
-/*                    console.log('aes', $this.aes);
-                    // $this.aesdropdown = $this.aes;
-                    $this.aes.map((ae, i) => {
-                        console.log('in map ae', ae);
-                        console.log('in map i', i);
-                        console.log('aesi=', $this.aes[i]);
-                        $this.aesdropdown.push({label: ae.title, value: ae.title});
-                        $this.aes[i]['label'] = ae.title;
-                        $this.aes[i]['value'] = ae.value;
-
-                    });
-                    console.log('$this.aes after map', $this.aes);
-                    $this.aet = $this.aes[0].title.toString();
-                    if (!$this.aetmodel){
-                        $this.aetmodel = $this.aes[0];
-                    }*/
-                    // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
                 },
                 (res)=> {
                     if (retries)
@@ -4192,14 +4295,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let url = '../aets/' + this.aet + '/rs/studies/';
         switch (mode) {
             case 'study':
-                url += object.attrs['0020000D'].Value[0] + '/stgcmt';
+                url += object.attrs['0020000D'].Value[0] + '/stgver';
                 break;
             case 'series':
-                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgcmt';
+                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgver';
                 break;
             default:
             case 'instance':
-                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgcmt';
+                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgver';
                 break;
         }
         let $this = this;

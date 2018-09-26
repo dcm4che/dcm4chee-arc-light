@@ -68,7 +68,7 @@ public class PurgeQueueMessageScheduler extends Scheduler {
     private Device device;
 
     @Inject
-    private QueueManager ejb;
+    private QueueManager mgr;
 
     protected PurgeQueueMessageScheduler() {
         super(Mode.scheduleWithFixedDelay);
@@ -97,11 +97,16 @@ public class PurgeQueueMessageScheduler extends Scheduler {
             return;
 
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        int count = ejb.deleteTasks(
-                        queueName,
-                        MatchTask.matchQueueMessage(
-                                queueName, null, status, null, null,null, null, before));
-        if (count > 0)
-            LOG.info("Deleted " + count + " messages from queue: " + queueName);
+        int deleted = 0;
+        int count;
+        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        do {
+            count = mgr.deleteTasks(
+                    MatchTask.matchQueueMessage(queueName, null, status, null, null,null, null, before),
+                    deleteTaskFetchSize);
+            deleted += count;
+        } while (count >= deleteTaskFetchSize);
+        if (deleted > 0)
+            LOG.info("Deleted " + deleted + " messages from queue: " + queueName);
     }
 }

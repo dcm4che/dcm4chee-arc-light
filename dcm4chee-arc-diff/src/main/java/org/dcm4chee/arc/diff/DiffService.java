@@ -76,7 +76,7 @@ public interface DiffService {
 
     List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
 
-    List<AttributesBlob> getDiffTaskAttributes(String batchID, int offset, int limit);
+    List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit);
 
     List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
                                     int offset, int limit);
@@ -88,11 +88,17 @@ public interface DiffService {
     long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
+    void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
 
-    List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
+    void rescheduleDiffTask(String diffTaskQueueMsgId);
+
+    String findDeviceNameByPk(Long pk);
 
     boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize);
+
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask);
+
+    List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
 }

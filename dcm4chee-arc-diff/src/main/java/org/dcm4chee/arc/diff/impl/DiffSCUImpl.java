@@ -77,6 +77,7 @@ public class DiffSCUImpl implements DiffSCU {
     private int missing;
     private int different;
     private int matches;
+    private volatile boolean canceled;
 
     public DiffSCUImpl(DiffContext ctx, CFindSCU findSCU) {
         this.ctx = ctx;
@@ -93,11 +94,11 @@ public class DiffSCUImpl implements DiffSCU {
         as2 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getSecondaryAE().getAETitle(),
                 UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
         if (!ctx.isForceQueryByStudyUID() && ctx.supportSorting()) {
-            dimseRSP2 = findSCU.query(as2, ctx.priority(), ctx.getQueryKeys(), 0, ctx.getSplitStudyDateRange());
+            dimseRSP2 = findSCU.query(as2, ctx.priority(), ctx.getQueryKeys(), 0, 1, ctx.getSplitStudyDateRange());
             dimseRSP2.next();
             checkRSP(dimseRSP2);
         }
-        dimseRSP = findSCU.query(as1, ctx.priority(), ctx.getQueryKeys(), 0, ctx.getSplitStudyDateRange());
+        dimseRSP = findSCU.query(as1, ctx.priority(), ctx.getQueryKeys(), 0, 1, ctx.getSplitStudyDateRange());
         dimseRSP.next();
         return checkRSP(dimseRSP);
     }
@@ -139,7 +140,9 @@ public class DiffSCUImpl implements DiffSCU {
                     }
                 }
             }
-        } while (next);
+        } while (next && !canceled);
+        waitForOutstandingRSP(as1, dimseRSP);
+        waitForOutstandingRSP(as2, dimseRSP2);
         return null;
     }
 
@@ -156,6 +159,13 @@ public class DiffSCUImpl implements DiffSCU {
     @Override
     public int matches() {
         return matches;
+    }
+
+    @Override
+    public void cancel() {
+        safeCancel(as1, dimseRSP);
+        safeCancel(as2, dimseRSP2);
+        canceled = true;
     }
 
     @Override
@@ -191,7 +201,26 @@ public class DiffSCUImpl implements DiffSCU {
         return status;
     }
 
-    private void safeRelease(Association as) {
+    private static void safeCancel(Association as, DimseRSP rsp) {
+        if (as != null && rsp != null)
+            try {
+                rsp.cancel(as);
+            } catch (IOException e) {
+                LOG.info("{}: Failed to cancel C-FIND at association:\\n", as, e);
+            }
+    }
+
+    private static void waitForOutstandingRSP(Association as, DimseRSP dimseRSP) {
+        if (as != null && dimseRSP != null)
+            try {
+                while (dimseRSP.next())
+                    ;
+            } catch (Exception e) {
+                LOG.info("{}: Failed to wait for outstanding C-FIND RSPs at association:\\n", as, e);
+            }
+    }
+
+    private static void safeRelease(Association as) {
         if (as != null)
             try {
                 as.release();
@@ -201,21 +230,20 @@ public class DiffSCUImpl implements DiffSCU {
     }
 
     private Attributes findOther(String studyIUID) throws Exception {
-        if (dimseRSP2 == null) {
-            List<Attributes> matches = findSCU.find(as2, ctx.priority(), QueryRetrieveLevel2.STUDY,
-                    studyIUID, null, null, ctx.getReturnKeys());
-            return !matches.isEmpty() ? matches.get(0) : null;
+        if (dimseRSP2 != null) {
+            do {
+                Attributes other = dimseRSP2.getDataset();
+                if (other == null) break;
+                int compare = studyIUID.compareTo(other.getString(Tag.StudyInstanceUID));
+                if (compare == 0) {
+                    dimseRSP2.next();
+                    return other;
+                }
+                if (compare < 0) break;
+            } while (dimseRSP2.next());
         }
-        do {
-            Attributes other = dimseRSP2.getDataset();
-            if (other == null) break;
-            int compare = studyIUID.compareTo(other.getString(Tag.StudyInstanceUID));
-            if (compare == 0) {
-                dimseRSP2.next();
-                return other;
-            }
-            if (compare < 0) break;
-        } while (dimseRSP2.next());
-        return null;
+        List<Attributes> matches = findSCU.find(as2, ctx.priority(), QueryRetrieveLevel2.STUDY,
+                studyIUID, null, null, ctx.getReturnKeys());
+        return !matches.isEmpty() ? matches.get(0) : null;
     }
 }

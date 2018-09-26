@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -50,10 +49,10 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.xml.transform.Transformer;
 import java.util.Date;
 
 /**
@@ -80,7 +79,7 @@ public class RESTfulHL7Sender {
 
     public void scheduleHL7Message(String msgType, PatientMgtContext ctx, String sender, String receiver) throws Exception {
         HL7Msg msg = new HL7Msg(sender, receiver);
-        byte[] hl7MsgData = hl7MsgData(msgType, ctx, msg);
+        UnparsedHL7Message hl7MsgData = hl7MsgData(msgType, ctx, msg);
 
         hl7Sender.scheduleMessage(
                 msg.sendingAppWithFacility[0],
@@ -89,30 +88,29 @@ public class RESTfulHL7Sender {
                 msg.receivingAppWithFacility[1],
                 msgType,
                 msg.msgControlID,
-                hl7MsgData,
+                hl7MsgData.data(),
                 ctx.getHttpServletRequestInfo());
     }
 
-    public HL7Message sendHL7Message(String msgType, PatientMgtContext ctx, String sender, String receiver) throws Exception {
+    public UnparsedHL7Message sendHL7Message(HttpServletRequestInfo httpServletRequestInfo, String msgType, PatientMgtContext ctx,
+                                             HL7Application sender, String receiver) throws Exception {
         HL7Msg msg = new HL7Msg(sender, receiver);
-        byte[] hl7MsgData = hl7MsgData(msgType, ctx, msg);
+        ArchiveHL7Message hl7Msg = new ArchiveHL7Message(hl7MsgData(msgType, ctx, msg).data());
+        hl7Msg.setHttpServletRequestInfo(httpServletRequestInfo);
 
         return hl7Sender.sendMessage(
-                msg.sendingAppWithFacility[0],
-                msg.sendingAppWithFacility[1],
+                sender,
                 msg.receivingAppWithFacility[0],
                 msg.receivingAppWithFacility[1],
                 msgType,
                 msg.msgControlID,
-                hl7MsgData);
+                hl7Msg);
     }
 
-    private byte[] hl7MsgData(String msgType, PatientMgtContext ctx, HL7Msg msg) throws Exception {
+    private UnparsedHL7Message hl7MsgData(String msgType, PatientMgtContext ctx, HL7Msg msg) throws Exception {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         byte[] data = SAXTransformer.transform(
-                ctx.getAttributes(), msg.hl7cs, arcDev.getOutgoingPatientUpdateTemplateURI(), new org.dcm4che3.io.SAXTransformer.SetupTransformer() {
-                    @Override
-                    public void setup(Transformer tr) {
+                ctx.getAttributes(), msg.hl7cs, arcDev.getOutgoingPatientUpdateTemplateURI(), tr -> {
                         tr.setParameter("sendingApplication", msg.sendingAppWithFacility[0]);
                         tr.setParameter("sendingFacility", msg.sendingAppWithFacility[1]);
                         tr.setParameter("receivingApplication", msg.receivingAppWithFacility[0]);
@@ -123,21 +121,20 @@ public class RESTfulHL7Sender {
                         tr.setParameter("charset", msg.hl7cs);
                         if (ctx.getPreviousPatientID() != null) {
                             tr.setParameter("priorPatientID", ctx.getPreviousPatientID().toString());
-                            tr.setParameter("priorPatientName",
-                                msgType.equals("ADT^A40^ADT_A39")
-                                    ? ctx.getPreviousAttributes().getString(Tag.PatientName)
-                                    : ctx.getAttributes().getString(Tag.PatientName));
+                            String prevPatName = ctx.getPreviousAttributes().getString(Tag.PatientName);
+                            if (msgType.equals("ADT^A40^ADT_A39") && prevPatName != null)
+                                tr.setParameter("priorPatientName", prevPatName);
                         }
                         if (msg.hl7UseNullValue && msgType.equals("ADT^A31^ADT_A05"))
                             tr.setParameter("includeNullValues", "\"\"");
-                    }
                 });
-        ctx.setUnparsedHL7Message(new UnparsedHL7Message(data));
-        return data;
+        UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
+        ctx.setUnparsedHL7Message(hl7Msg);
+        return hl7Msg;
     }
 
     private class HL7Msg {
-        private final String[] sendingAppWithFacility;
+        private String[] sendingAppWithFacility;
         private final String[] receivingAppWithFacility;
         private final String hl7cs;
         private final boolean hl7UseNullValue;
@@ -152,6 +149,16 @@ public class RESTfulHL7Sender {
                                                 .getHL7Application(sender, true);
             ArchiveHL7ApplicationExtension arcHL7AppExt = hl7Application.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
             hl7cs = hl7Application.getHL7SendingCharacterSet();
+            hl7UseNullValue = arcHL7AppExt != null ? arcHL7AppExt.hl7UseNullValue() : arcDev.isHl7UseNullValue();
+            msgControlID = HL7Segment.nextMessageControlID();
+            msgTimestamp = HL7Segment.timeStamp(new Date());
+        }
+
+        HL7Msg(HL7Application sender, String receiver) {
+            sendingAppWithFacility = appWithFacility(sender.getApplicationName());
+            receivingAppWithFacility = appWithFacility(receiver);
+            ArchiveHL7ApplicationExtension arcHL7AppExt = sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+            hl7cs = sender.getHL7SendingCharacterSet();
             hl7UseNullValue = arcHL7AppExt != null ? arcHL7AppExt.hl7UseNullValue() : arcDev.isHl7UseNullValue();
             msgControlID = HL7Segment.nextMessageControlID();
             msgTimestamp = HL7Segment.timeStamp(new Date());

@@ -247,7 +247,7 @@ public class ExportManagerEJB implements ExportManager {
                 .setParameter(1, device.getDeviceName())
                 .setMaxResults(fetchSize)
                 .getResultList();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int count = 0;
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
@@ -273,6 +273,29 @@ public class ExportManagerEJB implements ExportManager {
                 StringUtils.maskNull(objectUID, "*"),
                 new Date());
         scheduleExportTask(task, exporter, httpServletRequestInfo, batchID);
+    }
+
+    @Override
+    public boolean scheduleStudyExport(
+            String studyUID, ExporterDescriptor exporter, Date notExportedAfter, String batchID) {
+        try {
+            ExportTask prevTask = em.createNamedQuery(ExportTask.FIND_STUDY_EXPORT_AFTER, ExportTask.class)
+                    .setParameter(1, notExportedAfter)
+                    .setParameter(2, exporter.getExporterID())
+                    .setParameter(3, studyUID)
+                    .getSingleResult();
+            LOG.info("Previous {} found - suppress duplicate Export", prevTask);
+            return false;
+        } catch (NoResultException e) {
+        }
+
+        ExportTask task = createExportTask(exporter.getExporterID(), studyUID, "*", "*", new Date());
+        try {
+            scheduleExportTask(task, exporter, null, batchID);
+        } catch (QueueSizeLimitExceededException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
     }
 
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
@@ -323,11 +346,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void updateExportTask(Long pk) {
-        em.find(ExportTask.class, pk).setUpdatedTime();
-    }
-
-    @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public ExportTaskQuery listExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask,
                                            OrderSpecifier<Date> order, int offset, int limit) {
@@ -340,15 +358,24 @@ public class ExportManagerEJB implements ExportManager {
         return createQuery(status, matchQueueMessage, matchExportTask).fetchCount();
     }
 
-    private HibernateQuery<ExportTask> createQuery(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+    private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
+        return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
+    }
 
+    private HibernateQuery<ExportTask> createQuery(Predicate matchQueueMessage, Predicate matchExportTask) {
         return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, queuePredicate(status, queueMsgQuery));
+                .where(matchExportTask, QExportTask.exportTask.queueMessage.in(createQuery(matchQueueMessage)));
+    }
+
+    private HibernateQuery<ExportTask> createQuery(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
+        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .from(QExportTask.exportTask)
+                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(matchExportTask, queuePredicate(status, createQuery(matchQueueMessage)));
     }
 
     private Predicate queuePredicate(QueueMessage.Status status, HibernateQuery<QueueMessage> queueMsgQuery) {
@@ -393,70 +420,63 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(ExportTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
-            return null;
+            return;
 
-        LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
+        if (task.getQueueMessage() != null)
+            rescheduleExportTask(task, exporter, queueEvent);
+        else
+            throw new IllegalTaskStateException("Cannot reschedule task[pk=" + task.getPk() + "] with status TO SCHEDULE");
+    }
+
+    @Override
+    public void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
         task.setExporterID(exporter.getExporterID());
-        return queueManager.rescheduleTask(task.getQueueMessage(), exporter.getQueueName(), queueEvent);
+        queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
+        LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
     }
 
     @Override
     public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
-        return status == QueueMessage.Status.TO_SCHEDULE
-                ? deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
-                : status == null
-                    ? deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize) + deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
-                    : deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize);
-    }
+        HibernateQuery<ExportTask> exportTaskQuery = createQuery(status, matchQueueMessage, matchExportTask);
+        List<Long> refQueuePks = exportTaskQuery.select(QExportTask.exportTask.queueMessage.pk).fetch();
 
-    private int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask, int deleteTaskFetchSize) {
-        int count = 0;
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        List<Long> referencedQueueMsgs;
-        do {
-            referencedQueueMsgs = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                    .select(QExportTask.exportTask.queueMessage.pk)
-                    .from(QExportTask.exportTask)
-                    .where(matchExportTask, QExportTask.exportTask.queueMessage.in(queueMsgQuery))
-                    .limit(deleteTaskFetchSize).fetch();
+        int count = (int) new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .where(QExportTask.exportTask.pk.in(exportTaskQuery.select(QExportTask.exportTask.pk)))
+                .execute();
 
-            new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                    .where(QExportTask.exportTask.queueMessage.pk.in(referencedQueueMsgs))
-                    .execute();
+        new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(QQueueMessage.queueMessage.pk.in(refQueuePks)).execute();
 
-            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                    .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
         return count;
     }
 
-    private int deleteToScheduleTasks(Predicate matchExportTask, int deleteTaskFetchSize) {
-        int count = 0;
-        List<Long> exportTasks;
-        do {
-            exportTasks = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                    .select(QExportTask.exportTask.pk)
-                    .from(QExportTask.exportTask)
-                    .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
-                    .limit(deleteTaskFetchSize).fetch();
-            count += new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                    .where(QExportTask.exportTask.pk.in(exportTasks))
-                    .execute();
-        } while (exportTasks.size() >= deleteTaskFetchSize);
-        return count;
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchExportTask) {
+        return createQuery(matchQueueMessage, matchExportTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
     }
 
     @Override
     public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                                OrderSpecifier<Date> order, int offset, int limit) {
-        HibernateQuery<ExportTask> exportTaskQuery = createQuery(null, matchQueueBatch, matchExportBatch);
+        HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueBatch, matchExportBatch);
         if (limit > 0)
             exportTaskQuery.limit(limit);
         if (offset > 0)
@@ -543,6 +563,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

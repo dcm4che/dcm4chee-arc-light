@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.diff.rs;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.diff.DiffBatch;
@@ -136,9 +137,8 @@ public class DiffBatchRS {
     public Response listDiffBatches() {
         logRequest();
         List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                MatchTask.matchQueueBatch(deviceName, status(), batchID),
-                MatchTask.matchDiffBatch(localAET, primaryAET, secondaryAET, comparefields, checkMissing, checkDifferent,
-                        createdTime, updatedTime),
+                matchQueueBatch(status(), batchID),
+                matchDiffBatch(createdTime, updatedTime),
                 MatchTask.diffBatchOrder(orderby),
                 parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
@@ -153,7 +153,11 @@ public class DiffBatchRS {
         if (diffService.diffTasksOfBatch(batchID) == 0)
             return Response.status(Response.Status.NOT_FOUND).build();
 
-        return Response.ok(entity(diffService.getDiffTaskAttributes(batchID, parseInt(offset), parseInt(limit))))
+        return Response.ok(entity(diffService.getDiffTaskAttributes(
+                            matchQueueBatch(null, batchID),
+                            matchDiffBatch(null, null),
+                            parseInt(offset),
+                            parseInt(limit))))
                 .build();
     }
 
@@ -237,6 +241,15 @@ public class DiffBatchRS {
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
+    }
+
+    private Predicate matchQueueBatch(QueueMessage.Status status, String batchID) {
+        return MatchTask.matchQueueBatch(deviceName, status, batchID);
+    }
+
+    private Predicate matchDiffBatch(String createdTime, String updatedTime) {
+        return MatchTask.matchDiffBatch(
+                localAET, primaryAET, secondaryAET, comparefields, checkMissing, checkDifferent, createdTime, updatedTime);
     }
 
 }

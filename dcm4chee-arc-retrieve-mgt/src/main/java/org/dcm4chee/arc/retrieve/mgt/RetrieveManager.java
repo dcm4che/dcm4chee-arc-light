@@ -41,6 +41,7 @@ package org.dcm4chee.arc.retrieve.mgt;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -73,10 +74,18 @@ public interface RetrieveManager {
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
+    String findDeviceNameByPk(Long pk);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
+    void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
+
+    void rescheduleRetrieveTask(String retrieveTaskQueueMsgId);
+
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize);
+
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                             OrderSpecifier<Date> order, int offset, int limit);
+
+    List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 }

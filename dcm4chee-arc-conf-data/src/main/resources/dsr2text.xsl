@@ -1,4 +1,4 @@
-<<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="text" encoding="UTF-8" />
   <xsl:param name="wado-url">http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado</xsl:param>
   <xsl:param name="br"><xsl:text>&#10;</xsl:text></xsl:param>
@@ -33,14 +33,18 @@
       <xsl:with-param name="label">Verification Flag:   </xsl:with-param>
     </xsl:apply-templates>
     <xsl:apply-templates mode="verifyingObserver" select="DicomAttribute[@tag='0040A073']/Item"/>
+    <xsl:apply-templates mode="authorObserver" select="DicomAttribute[@tag='0040A078']/Item"/>
+    <xsl:apply-templates mode="participant" select="DicomAttribute[@tag='0040A07A']/Item"/>
     <xsl:call-template name="contentDateTime">
       <xsl:with-param name="date" select="DicomAttribute[@tag='00080023']/Value"/>
       <xsl:with-param name="time" select="DicomAttribute[@tag='00080033']/Value"/>
     </xsl:call-template>
+    <xsl:call-template name="studyDetails"/>
     <xsl:call-template name="container">
       <xsl:with-param name="level" select="1"/>
     </xsl:call-template>
     <xsl:value-of select="$br"/>
+    <xsl:apply-templates mode="refReq" select="DicomAttribute[@tag='0040A370']/Item"/>
   <xsl:text>This page was generated from a DICOM Structured Reporting document by dcm4chee-arc 5.x [https://github.com/dcm4che]
 </xsl:text>
   </xsl:template>
@@ -66,6 +70,39 @@
       <xsl:with-param name="n" select="string-length($text)"/>
     </xsl:call-template>
     <xsl:value-of select="$br"/>
+  </xsl:template>
+
+  <xsl:template name="studyDetails">
+    <xsl:text>Study Description: </xsl:text>
+    <xsl:value-of select="concat(DicomAttribute[@tag='00081030']/Value, $br)"/>
+    <xsl:text>Referring Physician Name: </xsl:text>
+    <xsl:call-template name="formatPN">
+      <xsl:with-param name="pnc" select="DicomAttribute[@tag='00080090']/PersonName/Alphabetic"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="refReq">
+    <xsl:if test="position()=1">
+      <xsl:call-template name="title">
+        <xsl:with-param name="level" select="2"/>
+        <xsl:with-param name="text" select="'Referenced Request'">
+        </xsl:with-param>
+      </xsl:call-template>
+      <xsl:text>Reason for the Requested Procedure: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='00401002']/Value, $br)"/>
+      <xsl:text>Requested Procedure Description: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='00321060']/Value, $br)"/>
+      <xsl:text>Accession Number: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='00080050']/Value, $br)"/>
+      <xsl:text>Study Instance UID: </xsl:text>
+      <xsl:value-of select="concat(DicomAttribute[@tag='0020000D']/Value, $br)"/>
+      <xsl:text>Referring Physician Name: </xsl:text>
+      <xsl:call-template name="formatPN">
+        <xsl:with-param name="pnc" select="DicomAttribute[@tag='00080090']/PersonName/Alphabetic"/>
+      </xsl:call-template>
+      <xsl:value-of select="concat($br, $br)"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="container">
@@ -109,6 +146,11 @@
         <xsl:value-of select="DicomAttribute[@tag='0040A043']/Item/DicomAttribute[@tag='00080104']/Value"/>
         <xsl:text> = </xsl:text>
         <xsl:apply-templates mode="renderValue" select="." />
+        <xsl:variable name="child" select="DicomAttribute[@tag='0040A730']/Item"/>
+        <xsl:if test="$child">
+          <xsl:text>^^^</xsl:text>
+          <xsl:apply-templates mode="renderValue" select="$child" />
+        </xsl:if>
         <xsl:value-of select="$br"/>
       </xsl:for-each>
       <xsl:value-of select="$br"/>
@@ -160,6 +202,14 @@
     <xsl:call-template name="formatPN">
       <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='UIDREF']">
+    <xsl:value-of select="DicomAttribute[@tag='0040A124']"/>
+  </xsl:template>
+
+  <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='DATE']">
+    <xsl:value-of select="DicomAttribute[@tag='0040A121']"/>
   </xsl:template>
 
   <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='NUM']">
@@ -264,14 +314,59 @@
         <xsl:text>                     </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:call-template name="formatDT">
-      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A030']/Value"/>
-    </xsl:call-template>
     <xsl:text> - </xsl:text>
     <xsl:call-template name="formatPN">
       <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A075']/PersonName/Alphabetic"/>
     </xsl:call-template>
     <xsl:value-of select="concat(', ',DicomAttribute[@tag='0040A027']/Value,$br)"/>
+    <xsl:text>Verification Date/Time: </xsl:text>
+    <xsl:call-template name="formatDT">
+      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A030']/Value"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="participant">
+    <xsl:variable name="participationType" select="DicomAttribute[@tag='0040A080']/Value"/>
+    <xsl:variable name="participationTypeLabel">
+      <xsl:choose>
+        <xsl:when test="$participationType = 'ENT'">
+          <xsl:value-of select="'Data Enterer'"/>
+        </xsl:when>
+        <xsl:when test="$participationType = 'ATTEST'">
+          <xsl:value-of select="'Attestor'"/>
+        </xsl:when>
+        <xsl:otherwise/>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="position()=1"><xsl:value-of select="concat($participationTypeLabel, ': ')"/></xsl:when>
+      <xsl:otherwise>
+        <xsl:text>                     </xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:call-template name="formatPN">
+      <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
+    <xsl:text>Data Entering Date/Time: </xsl:text>
+    <xsl:call-template name="formatDT">
+      <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A082']/Value"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="authorObserver">
+    <xsl:choose>
+      <xsl:when test="position()=1">Author Observers: </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>                     </xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:call-template name="formatPN">
+      <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
   </xsl:template>
 
   <xsl:template name="contentDateTime">

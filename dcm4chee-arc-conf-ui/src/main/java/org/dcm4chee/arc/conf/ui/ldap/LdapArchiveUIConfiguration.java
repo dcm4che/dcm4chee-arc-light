@@ -84,13 +84,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         config.createSubcontext(uiConfigDN,
                 storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                         uiConfig, new BasicAttributes(true)));
-        
+
         storePermissions(diffs, uiConfig, uiConfigDN);
         storeDiffConfigs(diffs, uiConfig, uiConfigDN);
         storeDashboardConfigs(diffs, uiConfig, uiConfigDN);
         storeElasticsearchConfigs(diffs, uiConfig, uiConfigDN);
         storeDeviceURL(diffs, uiConfig, uiConfigDN);
         storeDeviceCluster(diffs, uiConfig, uiConfigDN);
+        storeFiltersTemplate(diffs, uiConfig, uiConfigDN);
+        storeAets(diffs, uiConfig, uiConfigDN);
 
     }
 
@@ -109,6 +111,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             config.createSubcontext(uiPermissionDN, storeTo(ldapObj1, uiPermission, new BasicAttributes(true)));
         }
     }
+    private void storeAets(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UIAetList uiAets : uiConfig.getAetLists()) {
+            String uiAetListDN = LdapUtils.dnOf("dcmuiAetListName", uiAets.getAetListName(), uiConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj1 =
+                    ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiAetListDN, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(uiAetListDN, storeTo(ldapObj1, uiAets, new BasicAttributes(true)));
+        }
+    }
     private void storeDeviceURL(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) throws NamingException {
         for (UIDeviceURL uiDeviceURL : uiConfig.getDeviceURLs()) {
             String uiDeviceURLDN = LdapUtils.dnOf("dcmuiDeviceURLName", uiDeviceURL.getDeviceName(), uiConfigDN);
@@ -125,6 +136,14 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             config.createSubcontext(uiDeviceClusterDN, storeTo(ldapObj1, uiDeviceCluster, new BasicAttributes(true)));
         }
     }
+    private void storeFiltersTemplate(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        for (UIFiltersTemplate uiFiltersTemplate : uiConfig.getFilterTemplates()) {
+            String uiFilterTemplateDN = LdapUtils.dnOf("dcmuiFilterTemplateGroupName", uiFiltersTemplate.getFilterGroupName(), uiConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj1 =
+                    ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiFilterTemplateDN, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(uiFilterTemplateDN, storeTo(ldapObj1, uiFiltersTemplate, new BasicAttributes(true)));
+        }
+    }
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIPermission uiPermission, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiPermission"));
@@ -132,6 +151,24 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiAction", uiPermission.getAction(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiActionParam", uiPermission.getActionParams());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiPermission.getAcceptedUserRoles());
+        return attrs;
+    }
+/*    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIAetList uiAetList, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiAetConfig"));
+        attrs.put(new BasicAttribute("dcmuiAetListName", uiAetList.getAetListName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiAetListDescription", uiAetList.getAetListDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiMode", uiAetList.getMode(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiAets", uiAetList.getAets());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiAetList.getAcceptedRole());
+        return attrs;
+    }*/
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIAetList uiAetList, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiAetConfig"));
+        attrs.put(new BasicAttribute("dcmuiAetListName", uiAetList.getAetListName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiAetListDescription", uiAetList.getAetListDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiMode", uiAetList.getMode(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiAets", uiAetList.getAets());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiAetList.getAcceptedRole());
         return attrs;
     }
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL uiDeviceURL, Attributes attrs) {
@@ -150,6 +187,17 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiDeviceClusterInstalled",uiDeviceCluster.isInstalled(),true);
+        return attrs;
+    }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIFiltersTemplate uiFilterTemplate, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiFilterTemplateObject"));
+        attrs.put(new BasicAttribute("dcmuiFilterTemplateGroupName", uiFilterTemplate.getFilterGroupName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateID", uiFilterTemplate.getFilterGroupID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateDescription", uiFilterTemplate.getFilterGroupDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateUsername", uiFilterTemplate.getFilterGroupUsername(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiFilterTemplateRole", uiFilterTemplate.getFilterGroupRole(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiFilterTemplateFilters", uiFilterTemplate.getFilters());
+        LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiFilterTemplateDefault",uiFilterTemplate.isDefault(),false);
         return attrs;
     }
 
@@ -221,7 +269,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         return attrs;
     }
 
-    private void storeElasticsearchConfigs(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) 
+    private void storeElasticsearchConfigs(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
         for (UIElasticsearchConfig uiElasticSearchConfig : uiConfig.getElasticsearchConfigs()) {
             String uiElasticsearchConfigDN = LdapUtils.dnOf("dcmuiElasticsearchConfigName", uiElasticSearchConfig.getName(), uiConfigDN);
@@ -232,8 +280,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             storeElasticsearchURLs(diffs, uiElasticsearchConfigDN, uiElasticSearchConfig);
         }
     }
-    
-    private void storeElasticsearchURLs(ConfigurationChanges diffs, String uiElasticsearchConfigDN, UIElasticsearchConfig uiElasticsearchConfig) 
+
+    private void storeElasticsearchURLs(ConfigurationChanges diffs, String uiElasticsearchConfigDN, UIElasticsearchConfig uiElasticsearchConfig)
             throws NamingException {
         for (UIElasticsearchURL uiElasticsearchURL : uiElasticsearchConfig.getURLS()) {
             String uiElasticsearchURLDN = LdapUtils.dnOf("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), uiElasticsearchConfigDN);
@@ -257,17 +305,18 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             config.createSubcontext(uiCompareSideDN, storeTo(ldapObj, uiCompareSide, new BasicAttributes(true)));
         }
     }
-    
+
     private Attributes storeTo(UIElasticsearchConfig uiElasticsearchConfig, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchConfig"));
         attrs.put(new BasicAttribute("dcmuiElasticsearchConfigName", uiElasticsearchConfig.getName()));
         return attrs;
     }
-    
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL uiElasticsearchURL, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchURLObjects"));
         attrs.put(new BasicAttribute("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURLKeycloakServer", uiElasticsearchURL.getElasticsearchURLKeycloakServer(), null);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchIsDefault",uiElasticsearchURL.isDefault(),false);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchInstalled",uiElasticsearchURL.isInstalled(),true);
         return attrs;
@@ -310,6 +359,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         loadElasticsearchConfigs(uiConfig, uiConfigDN);
         loadDeviceURLs(uiConfig, uiConfigDN);
         loadDeviceClusters(uiConfig, uiConfigDN);
+        loadFilterTemplates(uiConfig, uiConfigDN);
+        loadAetList(uiConfig, uiConfigDN);
         return uiConfig;
     }
 
@@ -325,6 +376,24 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiPermission.setActionParams(LdapUtils.stringArray(attrs.get("dcmuiActionParam")));
                 uiPermission.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
                 uiConfig.addPermission(uiPermission);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadAetList(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiAetConfig)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UIAetList uiAetList = new UIAetList((String) attrs.get("dcmuiAetListName").get());
+                uiAetList.setAetListDescription(LdapUtils.stringValue(attrs.get("dcmuiAetListDescription"), null));
+                uiAetList.setMode(LdapUtils.stringValue(attrs.get("dcmuiMode"), null));
+                uiAetList.setAets(LdapUtils.stringArray(attrs.get("dcmuiAets")));
+                uiAetList.setAcceptedRole(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
+                uiConfig.addAetList(uiAetList);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -361,6 +430,26 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiDeviceCluster.setDevices(LdapUtils.stringArray(attrs.get("dcmuiDeviceClusterDevices")));
                 uiDeviceCluster.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiDeviceClusterInstalled"),true));
                 uiConfig.addDeviceCluster(uiDeviceCluster);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadFilterTemplates(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiFilterTemplateObject)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UIFiltersTemplate uiFiltersTemplate = new UIFiltersTemplate((String) attrs.get("dcmuiFilterTemplateGroupName").get());
+                uiFiltersTemplate.setFilterGroupID(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateID"), null));
+                uiFiltersTemplate.setFilterGroupDescription(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateDescription"), null));
+                uiFiltersTemplate.setFilterGroupUsername(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateUsername"), null));
+                uiFiltersTemplate.setFilterGroupRole(LdapUtils.stringValue(attrs.get("dcmuiFilterTemplateRole"), null));
+                uiFiltersTemplate.setFilters(LdapUtils.stringArray(attrs.get("dcmuiFilterTemplateFilters")));
+                uiFiltersTemplate.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiFilterTemplateDefault"),false));
+                uiConfig.addFilterTemplate(uiFiltersTemplate);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -459,6 +548,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 Attributes attrs = sr.getAttributes();
                 UIElasticsearchURL uiElasticsearchURL = new UIElasticsearchURL((String) attrs.get("dcmuiElasticsearchURLName").get());
                 uiElasticsearchURL.setUrl(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchURL"), null));
+                uiElasticsearchURL.setElasticsearchURLKeycloakServer(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchURLKeycloakServer"), null));
                 uiElasticsearchURL.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiElasticsearchIsDefault"),false));
                 uiElasticsearchURL.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiElasticsearchInstalled"),true));
                 uiElasticsearchConfig.addURL(uiElasticsearchURL);
@@ -516,12 +606,14 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         ConfigurationChanges.ModifiedObject ldapObj =
                 ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U);
-        mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDiffConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDashboardConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeElasticsearchConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDeviceURL(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDeviceCluster(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeFilterTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeAetLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
     private void mergePermissions(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
@@ -553,6 +645,35 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             }
         }
     }
+    private void mergeAetLists(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UIAetList prevUIAetList : prevUIConfig.getAetLists()) {
+            String prevUIAetListName = prevUIAetList.getAetListName();
+            if (uiConfig.getAetList(prevUIAetListName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiAetListName", prevUIAetListName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIAetList uiAetList : uiConfig.getAetLists()) {
+            String uiAetListName = uiAetList.getAetListName();
+            String dn = LdapUtils.dnOf("dcmuiAetListName", uiAetListName, uiConfigDN);
+            UIAetList prevUIAetList = prevUIConfig.getAetList(uiAetListName);
+            if (prevUIAetList == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiAetList, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIAetList, uiAetList,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
     private void mergeDeviceURL(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
         for (UIDeviceURL prevUIDeviceURL : prevUIConfig.getDeviceURLs()) {
@@ -577,6 +698,35 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIDeviceURL, uiDeviceURL,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+    private void mergeFilterTemplate(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UIFiltersTemplate prevUIFiltersTemplate : prevUIConfig.getFilterTemplates()) {
+            String prevUIFiltersTemplateName = prevUIFiltersTemplate.getFilterGroupName();
+            if (uiConfig.getFilterTemplate(prevUIFiltersTemplateName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiFilterTemplateGroupName", prevUIFiltersTemplateName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIFiltersTemplate uiFiltersTemplate : uiConfig.getFilterTemplates()) {
+            String uiFiltersTemplateGroupName = uiFiltersTemplate.getFilterGroupName();
+            String dn = LdapUtils.dnOf("dcmuiFilterTemplateGroupName", uiFiltersTemplateGroupName, uiConfigDN);
+            UIFiltersTemplate prevUIFiltersTemplate = prevUIConfig.getFilterTemplate(uiFiltersTemplateGroupName);
+            if (prevUIFiltersTemplate == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiFiltersTemplate, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIFiltersTemplate, uiFiltersTemplate,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
@@ -625,6 +775,22 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiPermission.getAcceptedUserRoles());
         return mods;
     }
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIAetList prev,
+                                              UIAetList uiAetList, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiAetListDescription",
+                prev.getAetListDescription(),
+                uiAetList.getAetListDescription(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiMode",
+                prev.getMode(),
+                uiAetList.getMode(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiAets",
+                prev.getAets(),
+                uiAetList.getAets());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
+                prev.getAcceptedRole(),
+                uiAetList.getAcceptedRole());
+        return mods;
+    }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL prev,
                                               UIDeviceURL uiDeviceURL, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceURL",
@@ -634,6 +800,26 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 prev.getDescription(),
                 uiDeviceURL.getDescription(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDeviceURLInstalled",prev.isInstalled(),uiDeviceURL.isInstalled(),true);
+        return mods;
+    }
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIFiltersTemplate prev,
+                                              UIFiltersTemplate uiFiltersTemplate, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateID",
+                prev.getFilterGroupID(),
+                uiFiltersTemplate.getFilterGroupID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateDescription",
+                prev.getFilterGroupDescription(),
+                uiFiltersTemplate.getFilterGroupDescription(),null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateUsername",
+                prev.getFilterGroupUsername(),
+                uiFiltersTemplate.getFilterGroupUsername(),null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateRole",
+                prev.getFilterGroupRole(),
+                uiFiltersTemplate.getFilterGroupRole(),null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiFilterTemplateFilters",
+                prev.getFilters(),
+                uiFiltersTemplate.getFilters());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiFilterTemplateDefault",prev.isDefault(),uiFiltersTemplate.isDefault(),false);
         return mods;
     }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceCluster prev,
@@ -773,7 +959,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     }
 
     private List<ModificationItem> storeUIElasticsearchConfig(
-            ConfigurationChanges diffs, String uiElasticsearcConfigDN, UIElasticsearchConfig a, UIElasticsearchConfig b, 
+            ConfigurationChanges diffs, String uiElasticsearcConfigDN, UIElasticsearchConfig a, UIElasticsearchConfig b,
             ArrayList<ModificationItem> mods) throws NamingException {
         ConfigurationChanges.ModifiedObject ldapObj =  ConfigurationChanges.addModifiedObject(diffs, uiElasticsearcConfigDN, ConfigurationChanges.ChangeType.U);
         mergeUIElasticsearchURLs(diffs, a, b, uiElasticsearcConfigDN);
@@ -782,7 +968,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     }
 
     private void mergeUIElasticsearchURLs(
-            ConfigurationChanges diffs, UIElasticsearchConfig prevUIElasticsearchConfig, 
+            ConfigurationChanges diffs, UIElasticsearchConfig prevUIElasticsearchConfig,
             UIElasticsearchConfig uiElasticsearchConfig, String uiElasticsearchConfigDN) throws NamingException {
         for (UIElasticsearchURL prevUIElasticsearchURL : prevUIElasticsearchConfig.getURLS()) {
             String prevUIElasticsearchURLUrlName = prevUIElasticsearchURL.getUrlName();
@@ -816,6 +1002,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURL",
                 prev.getUrl(),
                 uiElasticsearchURL.getUrl(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURLKeycloakServer",
+                prev.getElasticsearchURLKeycloakServer(),
+                uiElasticsearchURL.getElasticsearchURLKeycloakServer(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiElasticsearchIsDefault",
                 prev.isDefault(),
                 uiElasticsearchURL.isDefault(), false) ;

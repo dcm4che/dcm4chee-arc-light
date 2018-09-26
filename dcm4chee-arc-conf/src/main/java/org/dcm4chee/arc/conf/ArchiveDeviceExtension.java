@@ -51,6 +51,7 @@ import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -82,7 +83,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
     private ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
     private String bulkDataSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private String queryRetrieveViewID;
     private boolean validateCallingAEHostname = false;
     private boolean sendPendingCGet = false;
     private Duration sendPendingCMoveInterval;
@@ -192,9 +192,23 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
     private String rejectionNoteStorageAET;
     private String uiConfigurationDeviceName;
-    private StgCmtPolicy stgCmtPolicy = StgCmtPolicy.OBJECT_CHECKSUM;
-    private boolean stgCmtUpdateLocationStatus;
-    private String[] stgCmtStorageIDs = {};
+    private StorageVerificationPolicy storageVerificationPolicy = StorageVerificationPolicy.OBJECT_CHECKSUM;
+    private boolean storageVerificationUpdateLocationStatus;
+    private String[] storageVerificationStorageIDs = {};
+    private String storageVerificationAETitle;
+    private String storageVerificationBatchID;
+    private Period storageVerificationInitialDelay;
+    private Period storageVerificationPeriod;
+    private int storageVerificationMaxScheduled;
+    private Duration storageVerificationPollingInterval;
+    private ScheduleExpression[] storageVerificationSchedules = {};
+    private int storageVerificationFetchSize = 100;
+    private String compressionAETitle;
+    private Duration compressionPollingInterval;
+    private int compressionFetchSize = 100;
+    private int compressionThreads = 1;
+    private ScheduleExpression[] compressionSchedules = {};
+    private Duration diffTaskProgressUpdateInterval;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -207,12 +221,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
+    private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
+    private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
@@ -367,14 +384,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPurgeInstanceRecordsFetchSize(int purgeInstanceRecordsFetchSize) {
         this.purgeInstanceRecordsFetchSize =  greaterZero(purgeInstanceRecordsFetchSize, "purgeInstanceRecordsFetchSize");
-    }
-
-    public String getQueryRetrieveViewID() {
-        return queryRetrieveViewID;
-    }
-
-    public void setQueryRetrieveViewID(String queryRetrieveViewID) {
-        this.queryRetrieveViewID = queryRetrieveViewID;
     }
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
@@ -838,7 +847,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
         this.rejectExpiredSeriesFetchSize =
-                greaterOrEqualsZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
+                greaterOrEqualsZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");
     }
 
     public Duration getRejectExpiredStudiesPollingInterval() {
@@ -1390,6 +1399,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exportRules;
     }
 
+    public void removePrefetchRule(PrefetchRule rule) {
+        prefetchRules.remove(rule);
+    }
+
+    public void clearPrefetchRules() {
+        prefetchRules.clear();
+    }
+
+    public void addPrefetchRule(PrefetchRule rule) {
+        prefetchRules.add(rule);
+    }
+
+    public Collection<PrefetchRule> getPrefetchRules() {
+        return prefetchRules;
+    }
+
+    public void removeHL7PrefetchRule(PrefetchRule rule) {
+        hl7PrefetchRules.remove(rule);
+    }
+
+    public void clearHL7PrefetchRules() {
+        hl7PrefetchRules.clear();
+    }
+
+    public void addHL7PrefetchRule(HL7PrefetchRule rule) {
+        hl7PrefetchRules.add(rule);
+    }
+
+    public Collection<HL7PrefetchRule> getHL7PrefetchRules() {
+        return hl7PrefetchRules;
+    }
+
     public void removeRSForwardRule(RSForwardRule rule) {
         rsForwardRules.remove(rule);
     }
@@ -1484,6 +1525,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public Collection<StudyRetentionPolicy> getStudyRetentionPolicies() {
         return studyRetentionPolicies;
+    }
+
+    public void removeHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.remove(policy);
+    }
+
+    public void clearHL7StudyRetentionPolicies() {
+        hl7StudyRetentionPolicies.clear();
+    }
+
+    public void addHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.add(policy);
+    }
+
+    public Collection<HL7StudyRetentionPolicy> getHL7StudyRetentionPolicies() {
+        return hl7StudyRetentionPolicies;
     }
 
     public void removeAttributeCoercion(ArchiveAttributeCoercion coercion) {
@@ -1743,28 +1800,140 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.uiConfigurationDeviceName = uiConfigurationDeviceName;
     }
 
-    public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
     }
 
-    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy;
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
-    public boolean isStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus;
+    public boolean isStorageVerificationUpdateLocationStatus() {
+        return storageVerificationUpdateLocationStatus;
     }
 
-    public void setStgCmtUpdateLocationStatus(boolean stgCmtUpdateLocationStatus) {
-        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    public void setStorageVerificationUpdateLocationStatus(boolean storageVerificationUpdateLocationStatus) {
+        this.storageVerificationUpdateLocationStatus = storageVerificationUpdateLocationStatus;
     }
 
-    public String[] getStgCmtStorageIDs() {
-        return stgCmtStorageIDs;
+    public String[] getStorageVerificationStorageIDs() {
+        return storageVerificationStorageIDs;
     }
 
-    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
-        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    public void setStorageVerificationStorageIDs(String... storageVerificationStorageIDs) {
+        this.storageVerificationStorageIDs = storageVerificationStorageIDs;
+    }
+
+    public String getStorageVerificationAETitle() {
+        return storageVerificationAETitle;
+    }
+
+    public void setStorageVerificationAETitle(String storageVerificationAETitle) {
+        this.storageVerificationAETitle = storageVerificationAETitle;
+    }
+
+    public String getStorageVerificationBatchID() {
+        return storageVerificationBatchID;
+    }
+
+    public void setStorageVerificationBatchID(String storageVerificationBatchID) {
+        this.storageVerificationBatchID = storageVerificationBatchID;
+    }
+
+    public Period getStorageVerificationInitialDelay() {
+        return storageVerificationInitialDelay;
+    }
+
+    public void setStorageVerificationInitialDelay(Period storageVerificationInitialDelay) {
+        this.storageVerificationInitialDelay = storageVerificationInitialDelay;
+    }
+
+    public Period getStorageVerificationPeriod() {
+        return storageVerificationPeriod;
+    }
+
+    public void setStorageVerificationPeriod(Period storageVerificationPeriod) {
+        this.storageVerificationPeriod = storageVerificationPeriod;
+    }
+
+    public ScheduleExpression[] getStorageVerificationSchedules() {
+        return storageVerificationSchedules;
+    }
+
+    public void setStorageVerificationSchedules(ScheduleExpression[] storageVerificationSchedules) {
+        this.storageVerificationSchedules = storageVerificationSchedules;
+    }
+
+    public int getStorageVerificationMaxScheduled() {
+        return storageVerificationMaxScheduled;
+    }
+
+    public void setStorageVerificationMaxScheduled(int storageVerificationMaxScheduled) {
+        this.storageVerificationMaxScheduled = storageVerificationMaxScheduled;
+    }
+
+    public Duration getStorageVerificationPollingInterval() {
+        return storageVerificationPollingInterval;
+    }
+
+    public void setStorageVerificationPollingInterval(Duration storageVerificationPollingInterval) {
+        this.storageVerificationPollingInterval = storageVerificationPollingInterval;
+    }
+
+    public int getStorageVerificationFetchSize() {
+        return storageVerificationFetchSize;
+    }
+
+    public void setStorageVerificationFetchSize(int storageVerificationFetchSize) {
+        this.storageVerificationFetchSize = storageVerificationFetchSize;
+    }
+
+    public String getCompressionAETitle() {
+        return compressionAETitle;
+    }
+
+    public void setCompressionAETitle(String compressionAETitle) {
+        this.compressionAETitle = compressionAETitle;
+    }
+
+    public Duration getCompressionPollingInterval() {
+        return compressionPollingInterval;
+    }
+
+    public void setCompressionPollingInterval(Duration compressionPollingInterval) {
+        this.compressionPollingInterval = compressionPollingInterval;
+    }
+
+    public int getCompressionFetchSize() {
+        return compressionFetchSize;
+    }
+
+    public void setCompressionFetchSize(int compressionFetchSize) {
+        this.compressionFetchSize = compressionFetchSize;
+    }
+
+    public int getCompressionThreads() {
+        return compressionThreads;
+    }
+
+    public void setCompressionThreads(int compressionThreads) {
+        this.compressionThreads = compressionThreads;
+    }
+
+    public ScheduleExpression[] getCompressionSchedules() {
+        return compressionSchedules;
+    }
+
+    public void setCompressionSchedules(ScheduleExpression[] compressionSchedules) {
+        this.compressionSchedules = compressionSchedules;
+    }
+
+    public Duration getDiffTaskProgressUpdateInterval() {
+        return diffTaskProgressUpdateInterval;
+    }
+
+    public void setDiffTaskProgressUpdateInterval(Duration diffTaskProgressUpdateInterval) {
+        this.diffTaskProgressUpdateInterval = diffTaskProgressUpdateInterval;
     }
 
     public Collection<KeycloakServer> getKeycloakServers() {
@@ -1808,7 +1977,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
-        queryRetrieveViewID = arcdev.queryRetrieveViewID;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
         validateCallingAEHostname = arcdev.validateCallingAEHostname;
         sendPendingCGet = arcdev.sendPendingCGet;
@@ -1920,9 +2088,23 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queueTasksFetchSize = arcdev.queueTasksFetchSize;
         rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
         uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
-        stgCmtPolicy = arcdev.stgCmtPolicy;
-        stgCmtUpdateLocationStatus = arcdev.stgCmtUpdateLocationStatus;
-        stgCmtStorageIDs = arcdev.stgCmtStorageIDs;
+        storageVerificationPolicy = arcdev.storageVerificationPolicy;
+        storageVerificationUpdateLocationStatus = arcdev.storageVerificationUpdateLocationStatus;
+        storageVerificationStorageIDs = arcdev.storageVerificationStorageIDs;
+        storageVerificationAETitle = arcdev.storageVerificationAETitle;
+        storageVerificationBatchID = arcdev.storageVerificationBatchID;
+        storageVerificationInitialDelay = arcdev.storageVerificationInitialDelay;
+        storageVerificationPeriod = arcdev.storageVerificationPeriod;
+        storageVerificationSchedules = arcdev.storageVerificationSchedules;
+        storageVerificationMaxScheduled = arcdev.storageVerificationMaxScheduled;
+        storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
+        storageVerificationFetchSize = arcdev.storageVerificationFetchSize;
+        compressionAETitle = arcdev.compressionAETitle;
+        compressionPollingInterval = arcdev.compressionPollingInterval;
+        compressionFetchSize = arcdev.compressionFetchSize;
+        compressionSchedules = arcdev.compressionSchedules;
+        compressionThreads = arcdev.compressionThreads;
+        diffTaskProgressUpdateInterval = arcdev.diffTaskProgressUpdateInterval;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
@@ -1937,6 +2119,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
+        prefetchRules.clear();
+        prefetchRules.addAll(arcdev.prefetchRules);
+        hl7PrefetchRules.clear();
+        hl7PrefetchRules.addAll(arcdev.hl7PrefetchRules);
         rsForwardRules.clear();
         rsForwardRules.addAll(arcdev.rsForwardRules);
         hl7ForwardRules.clear();
@@ -1951,6 +2137,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionRules.addAll(arcdev.compressionRules);
         studyRetentionPolicies.clear();
         studyRetentionPolicies.addAll(arcdev.studyRetentionPolicies);
+        hl7StudyRetentionPolicies.clear();
+        hl7StudyRetentionPolicies.addAll(arcdev.hl7StudyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
         storeAccessControlIDRules.clear();

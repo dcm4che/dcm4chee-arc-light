@@ -14,7 +14,7 @@
     },
     "dcmURI": {
       "title": "Target Base URL",
-      "description": "Target URL without operation specific part, eg. http://<host>:<port>/dcm4chee-arc/aets/<aet>/rs/",
+      "description": "Target URL without operation specific part, eg. http://<host>:<port>/dcm4chee-arc/aets/<aet>/",
       "type": "string"
     },
     "dcmKeycloakServerID": {
@@ -33,6 +33,11 @@
       "description": "If the other server requires HTTPS and this config option is set to true you do not have to specify a truststore",
       "type": "boolean",
       "default": false
+    },
+    "dcmURIPattern": {
+      "title": "Request URL Pattern",
+      "description": "Only forward requests which match the given Regular Expression. If prefixed with !, only forward requests which does not match the given Regular Expression.",
+      "type": "string"
     },
     "dcmRSOperation": {
       "title": "RESTful Operation",
@@ -54,6 +59,7 @@
           "RejectInstance",
           "UpdateStudyExpirationDate",
           "UpdateSeriesExpirationDate",
+          "ApplyRetentionPolicy",
           "CreateMWL",
           "UpdateMWL",
           "DeleteMWL"

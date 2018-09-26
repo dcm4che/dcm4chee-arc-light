@@ -308,6 +308,10 @@ public class Instance {
         return pk;
     }
 
+    public void setPk(long pk) {
+        this.pk = pk;
+    }
+
     public Date getCreatedTime() {
         return createdTime;
     }

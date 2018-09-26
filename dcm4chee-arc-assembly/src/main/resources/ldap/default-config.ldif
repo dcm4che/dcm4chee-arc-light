@@ -50,13 +50,14 @@ objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 objectClass: pkiUser
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
+dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dcmLinkMWLEntryUpdatePolicy: MERGE
 dicomManufacturerModelName: dcm4chee-arc
 dcmOverwritePolicy: SAME_SOURCE
+dcmDiffTaskProgressUpdateInterval: PT10S
 dcmSendPendingCGet: TRUE
 hl7OutgoingPatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl
-dcmQueryRetrieveViewID: hideRejected
 dcmAudit2JsonFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl
 dicomDeviceName: dcm4chee-arc
 dcmPurgeStgCmtPollingInterval: PT1H
@@ -74,7 +75,8 @@ dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
-dicomSoftwareVersion: 5.13.3
+dcmCompressionAETitle: DCM4CHEE
+dicomSoftwareVersion: 5.14.1
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectionNoteStorageAET: DCM4CHEE
 dcmRejectExpiredSeriesFetchSize: 10
@@ -676,6 +678,17 @@ cn: Image Reader Factory
 dn: cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageWriterFactory
 cn: Image Writer Factory
+
+dn: dcmQueueName=StgVerTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Storage Verification Tasks
+dcmQueueName: StgVerTasks
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/StgVerTasks
 
 dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: DISCONTINUED
@@ -6414,12 +6427,28 @@ dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.50
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.51,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.51
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.53,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.53
+objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.55,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.55
+objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.57,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
@@ -6450,12 +6479,14 @@ dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIIOFormatName: jpeg

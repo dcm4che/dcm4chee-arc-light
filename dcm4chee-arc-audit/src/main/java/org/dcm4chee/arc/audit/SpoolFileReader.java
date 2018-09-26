@@ -60,36 +60,64 @@ class SpoolFileReader {
     private String mainInfo;
     private List<String> instanceLines = new ArrayList<>();
     private byte[] data = ByteUtils.EMPTY_BYTES;
+    private byte[] ack = ByteUtils.EMPTY_BYTES;
 
-    SpoolFileReader(Path p) throws IOException {
+    SpoolFileReader(Path p) {
         try (BufferedReader reader = Files.newBufferedReader(p, StandardCharsets.UTF_8)) {
             this.mainInfo = reader.readLine();
             String line;
             while ((line = reader.readLine()) != null)
                 this.instanceLines.add(line);
-            reader.close();
         } catch (Exception e) {
             LOG.warn("Failed to read audit spool file", e);
         }
     }
 
-    SpoolFileReader(File file) throws IOException {
+    SpoolFileReader(File file) {
+        byte[] MSH = {'M', 'S', 'H'};
         try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
             int readMain;
             int readData;
             ByteArrayOutputStream mainInfo = new ByteArrayOutputStream();
             ByteArrayOutputStream data = new ByteArrayOutputStream();
+
+            int skipChar = 0;
+
             while ((readMain = in.read()) != -1) {
-                if (readMain == (int)'\n')
+                if (readMain == (int)'\n') {
+                    skipChar++;
                     break;
+                }
                 else
                     mainInfo.write(readMain);
             }
-            while ((readData = in.read()) != -1) {
-                data.write(readData);
-            }
             this.mainInfo = new String(mainInfo.toByteArray());
-            this.data = data.toByteArray();
+
+            if ((readData = in.read()) != -1) {
+                data.write(readData);
+                skipChar++;
+            }
+
+            if (skipChar == 2) {
+                ByteArrayOutputStream ack = new ByteArrayOutputStream();
+                int bufLength = (int) file.length() - skipChar - this.mainInfo.length(); //skip first char of MSH of data and \n above
+                byte[] buf = new byte[bufLength];
+                int read = in.read(buf);
+                int mshStart = indexOf(MSH, 0, buf, read);
+
+                if (mshStart > 0) {
+                    data.write(buf, 0, mshStart);
+                    this.data = data.toByteArray();
+                    int ackLength = buf.length - this.data.length;
+                    ack.write(buf, mshStart, ackLength);
+                } else {
+                    data.write(buf);
+                    this.data = data.toByteArray();
+                }
+                this.ack = ack.toByteArray();
+                ack.close();
+            }
+
             mainInfo.close();
             data.close();
         } catch (Exception e) {
@@ -107,5 +135,31 @@ class SpoolFileReader {
 
     byte[] getData() {
         return data;
+    }
+
+    byte[] getAck() {
+        return ack;
+    }
+
+    private static int indexOf(byte[] b1, int fromIndex, byte[] b2, int length) {
+        int max = length - b1.length;
+        for (int i = fromIndex; i < max; i++) {
+            if (startsWith(b1, i, b2)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static boolean startsWith(byte[] b1, int fromIndex, byte[] b2) {
+        int remaining = b1.length;
+        int i1 = 0;
+        int i2 = fromIndex;
+        while (--remaining >= 0) {
+            if (b2[i2++] != b1[i1++]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

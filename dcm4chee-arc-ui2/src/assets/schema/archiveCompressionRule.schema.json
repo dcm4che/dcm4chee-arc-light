@@ -41,6 +41,12 @@
       "items": {
         "type": "string"
       }
+    },
+    "dcmCompressionDelay": {
+      "title": "Compression Delay",
+      "description": "Compression delay in ISO-8601 duration format PnDTnHnMn.nS. Compress on receive if absent.",
+      "type": "string",
+      "format": "dcmDuration"
     }
   }
 }

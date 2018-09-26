@@ -94,8 +94,8 @@ public class HL7OrderScheduledStation {
         this.conditions = conditions;
     }
 
-    public boolean match(String hostName, HL7Segment msh, Attributes attrs) {
-        return conditions.match(hostName, msh, attrs);
+    public boolean match(String hostName, HL7Fields hl7Fields) {
+        return conditions.match(hostName, hl7Fields);
     }
 
     @Override

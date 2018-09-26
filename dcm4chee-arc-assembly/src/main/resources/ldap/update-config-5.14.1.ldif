@@ -1,0 +1,50 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.14.1
+-
+replace: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+-
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmImageReadParam
+dcmImageReadParam: YBR2RGB=true
+-
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.51,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmImageReadParam
+dcmImageReadParam: YBR2RGB=true
+-
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.53,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.53
+objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.55,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.55
+objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.90,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmImageReadParam
+dcmImageReadParam: YBR2RGB=true
+-
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmImageReadParam
+dcmImageReadParam: YBR2RGB=true
+-

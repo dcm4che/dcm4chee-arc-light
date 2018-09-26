@@ -40,7 +40,6 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
@@ -60,9 +59,6 @@ public class QueueManagerImpl implements QueueManager {
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
 
     @Inject
-    private Device device;
-
-    @Inject
     private QueueManagerEJB ejb;
 
     @Override
@@ -73,7 +69,12 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID)
             throws QueueSizeLimitExceededException {
-        return ejb.scheduleMessage(device.getDeviceName(), queueName, message, priority, batchID);
+        return ejb.scheduleMessage(queueName, message, priority, batchID);
+    }
+
+    @Override
+    public long countScheduledMessagesOnThisDevice(String queueName) {
+        return ejb.countScheduledMessagesOnThisDevice(queueName);
     }
 
     @Override
@@ -164,13 +165,25 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
-        return ejb.rescheduleTask(msgId, queueName, queueEvent);
+    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getStgVerTasksReferencedQueueMsgIDs(matchQueueMessage, matchStgVerTask);
+            for (String msgID : msgIDs)
+                cancelTask(msgID, null);
+            return msgIDs.size();
+        }
+        return ejb.cancelStgVerTasks(matchQueueMessage, matchStgVerTask);
     }
 
     @Override
-    public String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent) {
-        return ejb.rescheduleTask(task, queueName, queueEvent);
+    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
+        ejb.rescheduleTask(msgId, queueName, queueEvent);
+    }
+
+    @Override
+    public String findDeviceNameByMsgId(String msgId) {
+        return ejb.findDeviceNameByMsgId(msgId);
     }
 
     @Override
@@ -179,8 +192,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int deleteTasks(String queueName, Predicate matchQueueMessage) {
-        return ejb.deleteTasks(matchQueueMessage);
+    public int deleteTasks(Predicate matchQueueMessage, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(matchQueueMessage, deleteTasksFetchSize);
     }
 
     @Override
@@ -196,5 +209,10 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listQueueMessages(matchQueueMessage, order, offset, limit);
+    }
+
+    @Override
+    public List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit) {
+        return ejb.getQueueMsgIDs(matchQueueMessage, limit);
     }
 }

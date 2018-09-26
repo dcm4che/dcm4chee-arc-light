@@ -15,6 +15,7 @@
                 </select>
             </div>
             <div class="inputpart" *ngIf="parameters.input">
+                <p [innerHtml]="parameters.input.label"></p>
                 <input *ngIf="!(parameters.input && parameters.input.type && parameters.input.type == 'checkbox')" [(ngModel)]="parameters.result.input" name="{{parameters.input.name}}" type="{{parameters.input.type}}">
                 <input *ngIf="(parameters.input && parameters.input.type && parameters.input.type == 'checkbox')" [checked]="parameters.result.input" (change)="parameters.result.input = !parameters.result.input" name="{{parameters.input.name}}" type="{{parameters.input.type}}">
                 <ng-container *ngIf="parameters.input && parameters.input.type && parameters.input.type == 'checkbox' && parameters.input.checkboxtext"><span [innerHtml]="parameters.input.checkboxtext">{{parameters.input.checkboxtext}}</span></ng-container>
@@ -32,6 +33,9 @@
             </div>
             <div *ngIf="parameters.warningOn && parameters.warningOn.message">
                 <span class="text-danger" *ngIf="(_.hasIn(parameters,parameters.warningOn.conditions[0]) && _.get(parameters,parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters,parameters.warningOn.conditions[1]) && _.get(parameters,parameters.warningOn.conditions[1]) === true">{{ parameters.warningOn.message }}</span>
+            </div>
+            <div *ngIf="parameters.form_schema">
+                <filter-generator [schema]="parameters.form_schema" [filterTreeHeight]="1" [model]="parameters.result.schema_model" [hideClearButtons]="true" [filterID]="parameters.form_id"></filter-generator>
             </div>
         </div>
         <div class="dialogbuttons">

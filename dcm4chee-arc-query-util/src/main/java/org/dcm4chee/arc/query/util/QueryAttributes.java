@@ -46,6 +46,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.AttributesBuilder;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
@@ -91,6 +92,11 @@ public class QueryAttributes {
                 case "returnempty":
                 case "expired":
                 case "retrievefailed":
+                case "compressionfailed":
+                case "storageVerificationFailed":
+                case "storageVerificationPolicy":
+                case "storageVerificationUpdateLocationStatus":
+                case "storageVerificationStorageID":
                 case "incomplete":
                 case "ExternalRetrieveAET":
                 case "ExternalRetrieveAET!":

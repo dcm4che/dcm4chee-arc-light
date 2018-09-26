@@ -73,11 +73,12 @@ public class IDSequence {
         this.name = name;
     }
 
+    public int getNextValue() {
+        return nextValue;
+    }
+
     public void setNextValue(int nextValue) {
         this.nextValue = nextValue;
     }
 
-    public int nextValue() {
-        return nextValue++;
-    }
 }

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {AppService} from "../../app.service";
 import * as _ from 'lodash';
-import {AeListService} from "../../ae-list/ae-list.service";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
 import {ExternalRetrieveService} from "./external-retrieve.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
@@ -19,6 +19,7 @@ import {environment} from "../../../environments/environment";
 import {CsvRetrieveComponent} from "../../widgets/dialogs/csv-retrieve/csv-retrieve.component";
 import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 
 @Component({
   selector: 'external-retrieve',
@@ -70,14 +71,15 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
+      private $http:J4careHttpService,
+      private route: ActivatedRoute,
       public aeListService:AeListService,
       public service:ExternalRetrieveService,
       public httpErrorHandler:HttpErrorHandler,
       public dialog: MatDialog,
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
-      private $http:J4careHttpService,
-      private route: ActivatedRoute
+      private permissionService:PermissionService
     ) { }
 
     ngOnInit(){
@@ -160,8 +162,8 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             limit:20
         };
         Observable.forkJoin(
-            this.aeListService.getAes(),
-            this.aeListService.getAets(),
+            this.aeListService.getAes().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external')),
+            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.remoteAET = this.destinationAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {

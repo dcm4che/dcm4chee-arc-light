@@ -529,6 +529,12 @@ export class Globalvar {
                 labelKey:'{dcmuiElasticsearchURLName}',
                 msg:'Create first an UI Elasticsearch URL!',
                 pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiElasticsearchConfig[0].dcmuiElasticsearchURLObjects'
+            },
+            dcmKeycloakServer:{
+                key:'dcmKeycloakServerID',
+                labelKey:'{dcmKeycloakServerID}',
+                msg:'Create first an Keycloak Server!',
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmKeycloakServer'
             }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',
@@ -545,6 +551,12 @@ export class Globalvar {
     public static get HL7_LIST_LINK(): string{
         return "../hl7apps";
     }
+    public static get QUEU_CONFIG_PATH(): string{
+        return "dcmDevice.dcmArchiveDevice.dcmQueue";
+    }
+    public static get EXPORTER_CONFIG_PATH(): string{
+        return "dcmDevice.dcmArchiveDevice.dcmExporter";
+    }
     public static LINK_PERMISSION(url):any{
         const regex = /^(\/[\S\/]*)\*$/m;
         let m;
@@ -556,10 +568,12 @@ export class Globalvar {
                 permissionsAction:"action-devicelist-device_configuration"
             },
             "/monitoring/dashboard/*":{
-                permissionsAction:"menu-dashboard"
+                permissionsAction:"menu-dashboard",
+                nextCheck:"/studies"
             },
             "/lifecycle-management":{
-                permissionsAction:"menu-lifecycle_management"
+                permissionsAction:"menu-lifecycle_management",
+                nextCheck:"/studies"
             },
             "/migration/retrieve":{
                 permissionsAction:"tab-move_data->retrieve",
@@ -568,7 +582,7 @@ export class Globalvar {
             "/migration/export":{
                 permissionsAction:"tab-move_data->export"
             },
-            "/audit-record-repository":{
+            "/audit-record-repository/*":{
                 permissionsAction:"menu-audit_record_repository"
             },
             "/device/devicelist":{
@@ -616,8 +630,11 @@ export class Globalvar {
             "/statistics/studies-stored":{
                 permissionsAction:"tab-statistics->studies-stored"
             },
-            "/correct_data/diff":{
+            "/correct-data/diff":{
                 permissionsAction:"tab-correct_data->diff"
+            },
+            "/correct-data/patient-data":{
+                permissionsAction:"tab-correct_data->patient_data"
             },
         };
         if(urlPermissions[url])

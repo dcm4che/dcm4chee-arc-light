@@ -45,7 +45,6 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -75,9 +74,9 @@ class AuditInfoBuilder {
     final boolean failedIUIDShow;
     final String submissionSetUID;
     final boolean isExport;
-    final boolean isExternalHL7;
-    final String hl7SenderExternal;
-    final String hl7ReceiverExternal;
+    final boolean isOutgoingHL7;
+    final String outgoingHL7Sender;
+    final String outgoingHL7Receiver;
     final String filters;
     final int count;
     final String queueMsg;
@@ -107,9 +106,9 @@ class AuditInfoBuilder {
         private boolean failedIUIDShow;
         private String submissionSetUID;
         private boolean isExport;
-        private boolean isExternalHL7;
-        private String hl7SenderExternal;
-        private String hl7ReceiverExternal;
+        private boolean isOutgoingHL7;
+        private String outgoingHL7Sender;
+        private String outgoingHL7Receiver;
         private String filters;
         private int count;
         private String queueMsg;
@@ -137,15 +136,31 @@ class AuditInfoBuilder {
             return this;
         }
         Builder pIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
-            String[] val = toPIDAndName(attr, arcDev);
-            pID = val[0];
-            pName = val[1];
+            IDWithIssuer pidWithIssuer = IDWithIssuer.pidOf(attr);
+            pID = pidWithIssuer == null ? arcDev.auditUnknownPatientID() : toPID(pidWithIssuer, arcDev);
+            pName = toPatName(attr.getString(Tag.PatientName), arcDev);
+            return this;
+        }
+        Builder patID(String pid, ArchiveDeviceExtension arcDev) {
+            pID = pid == null ? arcDev.auditUnknownPatientID() : toPID(new IDWithIssuer(pid), arcDev);
+            return this;
+        }
+        Builder patName(String patName, ArchiveDeviceExtension arcDev) {
+            pName = toPatName(patName, arcDev);
             return this;
         }
         Builder studyUIDAccNumDate(Attributes attrs) {
             studyUID = attrs.getString(Tag.StudyInstanceUID);
             accNum = attrs.getString(Tag.AccessionNumber);
             studyDate = attrs.getString(Tag.StudyDate);
+            return this;
+        }
+        Builder studyIUID(String studyIUID) {
+            studyUID = studyIUID;
+            return this;
+        }
+        Builder accNum(String acc) {
+            accNum = acc;
             return this;
         }
         Builder outcome(String val) {
@@ -200,16 +215,16 @@ class AuditInfoBuilder {
             isExport = true;
             return this;
         }
-        Builder isExternalHL7() {
-            isExternalHL7 = true;
+        Builder isOutgoingHL7() {
+            isOutgoingHL7 = true;
             return this;
         }
-        Builder hl7SenderExternal(String val) {
-            hl7SenderExternal = val;
+        Builder outgoingHL7Sender(String val) {
+            outgoingHL7Sender = val;
             return this;
         }
-        Builder hl7ReceiverExternal(String val) {
-            hl7ReceiverExternal = val;
+        Builder outgoingHL7Receiver(String val) {
+            outgoingHL7Receiver = val;
             return this;
         }
         Builder filters(String val) {
@@ -260,9 +275,9 @@ class AuditInfoBuilder {
         failedIUIDShow = builder.failedIUIDShow;
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
-        isExternalHL7 = builder.isExternalHL7;
-        hl7SenderExternal = builder.hl7SenderExternal;
-        hl7ReceiverExternal = builder.hl7ReceiverExternal;
+        isOutgoingHL7 = builder.isOutgoingHL7;
+        outgoingHL7Sender = builder.outgoingHL7Sender;
+        outgoingHL7Receiver = builder.outgoingHL7Receiver;
         filters = builder.filters;
         count = builder.count;
         queueMsg = builder.queueMsg;
@@ -270,23 +285,16 @@ class AuditInfoBuilder {
         errorCode = builder.errorCode;
     }
 
-    private static String[] toPIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
-        ShowPatientInfo showPatientInfo = arcDev.showPatientInfoInAuditLog();
-        String[] pInfo = new String[2];
-        pInfo[0] = arcDev.auditUnknownPatientID();
-        if (attr != null) {
-            IDWithIssuer pidWithIssuer = IDWithIssuer.pidOf(attr);
-            String pName = attr.getString(Tag.PatientName);
-            pInfo[0] = pidWithIssuer != null
-                    ? showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID
-                    ? String.valueOf(pidWithIssuer.hashCode())
-                    : pidWithIssuer.toString()
-                    : arcDev.auditUnknownPatientID();
-            pInfo[1] = pName != null && showPatientInfo != ShowPatientInfo.PLAIN_TEXT
-                    ? String.valueOf(pName.hashCode())
-                    : pName;
-        }
-        return pInfo;
+    private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {
+        return arcDev.showPatientInfoInAuditLog() == ShowPatientInfo.HASH_NAME_AND_ID
+                ? String.valueOf(pidWithIssuer.hashCode())
+                : pidWithIssuer.toString();
+    }
+
+    private static String toPatName(String pName, ArchiveDeviceExtension arcDev) {
+        return pName != null && arcDev.showPatientInfoInAuditLog() != ShowPatientInfo.PLAIN_TEXT
+                ? String.valueOf(pName.hashCode())
+                : pName;
     }
 
     private static String errorCodeAsString(int errorCode) {

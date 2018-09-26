@@ -41,12 +41,13 @@
 package org.dcm4chee.arc.stgcmt;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.StgCmtPolicy;
-
-import javax.servlet.http.HttpServletRequest;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -56,23 +57,28 @@ import javax.servlet.http.HttpServletRequest;
 public class StgCmtContext {
     private final ArchiveAEExtension arcAE;
     private final String localAET;
+    private final Attributes eventInfo = new Attributes(4);
     private ApplicationEntity remoteAE;
-    private HttpServletRequest request;
-    private Attributes extendedEventInfo;
-    private StgCmtPolicy stgCmtPolicy;
+    private HttpServletRequestInfo request;
+    private StorageVerificationPolicy storageVerificationPolicy;
     private boolean stgCmtUpdateLocationStatus;
     private String[] stgCmtStorageIDs;
+    private Throwable exception;
 
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
         this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
         this.localAET = localAET;
-        this.stgCmtPolicy = arcAE.stgCmtPolicy();
+        this.storageVerificationPolicy = arcAE.storageVerificationPolicy();
         this.stgCmtUpdateLocationStatus = arcAE.stgCmtUpdateLocationStatus();
         this.stgCmtStorageIDs = arcAE.stgCmtStorageIDs();
     }
 
     public String getLocalAET() {
         return localAET;
+    }
+
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return arcAE;
     }
 
     public ApplicationEntity getRemoteAE() {
@@ -84,30 +90,38 @@ public class StgCmtContext {
         return this;
     }
 
-    public HttpServletRequest getRequest() {
+    public HttpServletRequestInfo getRequest() {
         return request;
     }
 
-    public StgCmtContext setRequest(HttpServletRequest request) {
+    public StgCmtContext setRequest(HttpServletRequestInfo request) {
         this.request = request;
         return this;
     }
 
-    public Attributes getExtendedEventInfo() {
-        return extendedEventInfo;
-    }
-
-    public StgCmtContext setExtendedEventInfo(Attributes extendedEventInfo) {
-        this.extendedEventInfo = extendedEventInfo;
+    public StgCmtContext setTransactionUID(String transactionUID) {
+        eventInfo.setString(Tag.TransactionUID, VR.UI, transactionUID);
         return this;
     }
 
-    public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+    public Throwable getException() {
+        return exception;
     }
 
-    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy;
+    public void setException(Throwable exception) {
+        this.exception = exception;
+    }
+
+    public Attributes getEventInfo() {
+        return eventInfo;
+    }
+
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
+    }
+
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
     public boolean isStgCmtUpdateLocationStatus() {

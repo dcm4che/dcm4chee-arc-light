@@ -4,7 +4,6 @@
   "type": "object",
   "required": [
     "dcmFuzzyAlgorithmClass",
-    "dcmQueryRetrieveViewID",
     "dcmSeriesMetadataFetchSize",
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
@@ -44,8 +43,12 @@
     "dcmAllowRejectionForDataRetentionPolicyExpired",
     "dcmAllowDeleteStudyPermanently",
     "dcmAllowDeletePatient",
-    "dcmStgCmtPolicy",
-    "dcmStgCmtUpdateLocationStatus",
+    "dcmStorageVerificationPolicy",
+    "dcmStorageVerificationUpdateLocationStatus",
+    "dcmStorageVerificationAETitle",
+    "dcmStorageVerificationFetchSize",
+    "dcmCompressionThreads",
+    "dcmCompressionFetchSize",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -122,12 +125,6 @@
       "default" : 100,
       "minimum": 0,
       "exclusiveMinimum": true
-    },
-    "dcmQueryRetrieveViewID": {
-      "title": "Query/Retrieve View ID",
-      "description": "Query/Retrieve View Identifier. May be overwritten by configured values for particular Archive Network AEs.",
-      "type": "string",
-      "format": "dcmQueryRetrieveViewID"
     },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
@@ -812,8 +809,8 @@
         "REPLACE"
       ]
     },
-    "dcmStgCmtPolicy": {
-      "title": "Storage Commitment Policy",
+    "dcmStorageVerificationPolicy": {
+      "title": "Storage Verification Policy",
       "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "default": "OBJECT_CHECKSUM",
@@ -826,18 +823,114 @@
         "S3_MD5SUM"
       ]
     },
-    "dcmStgCmtUpdateLocationStatus": {
-      "title": "Storage Commitment Update Location Status",
-      "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
+    "dcmStorageVerificationUpdateLocationStatus": {
+      "title": "Storage Verification Update Location Status",
+      "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly. Not effective with Storage Verification Policy: DB_RECORD_EXISTS. False if absent. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
-    "dcmStgCmtStorageID": {
-      "title": "Storage Commitment Storage IDs",
-      "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
+    "dcmStorageVerificationStorageID": {
+      "title": "Storage Verification Storage IDs",
+      "description": "Indicates that for successful Storage Verification the object must be stored on (one of) the specified Storage System. If absent, successful verification of the storage on any Storage System is sufficient. Not effective with Storage Validation Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmStorageID"
+    },
+    "dcmStorageVerificationAETitle": {
+      "title": "Storage Verification AE Title",
+      "description": "Archive AE Title used for scheduled Storage Verifications.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmStorageVerificationBatchID": {
+      "title": "Storage Verification Batch ID",
+      "description": "Batch ID of Storage Verification Tasks triggered by scheduler.",
+      "type": "string"
+    },
+    "dcmStorageVerificationInitialDelay": {
+      "title": "Storage Verification Initial Delay",
+      "description": "Delay in ISO-8601 duration format PnYnMnD or PnW of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmStorageVerificationPeriod": {
+      "title": "Storage Verification Period",
+      "description": "Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmStorageVerificationMaxScheduled": {
+      "title": "Maximal scheduled Storage Verifications",
+      "description": "Maximal number of scheduled Storage Verification tasks on this device. Shall be set > 0 to distribute tasks over nodes of a clustered archive.",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
+    },
+    "dcmStorageVerificationPollingInterval": {
+      "title": "Storage Verification Polling Interval",
+      "description": "Polling Interval for Series scheduled for Storage Verification in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmStorageVerificationSchedule": {
+      "title": "Storage Verification Schedule",
+      "description": "Limits Storage Verification to specified times in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmStorageVerificationFetchSize": {
+      "title": "Storage Verification Fetch Size",
+      "description": "Maximal number of Series scheduled for Storage Verification fetched by one query.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmCompressionAETitle": {
+      "title": "Compression AE Title",
+      "description": "Archive AE Title used for delayed Compression.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmCompressionPollingInterval": {
+      "title": "Compression Polling Interval",
+      "description": "Polling Interval for Series to be compressed in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmCompressionThreads": {
+      "title": "Compression Threads",
+      "description": "Number of Threads used for Compression.",
+      "type": "integer",
+      "default" : 1,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmCompressionSchedule": {
+      "title": "Compression Schedule",
+      "description": "Limits compression to specified times in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmCompressionFetchSize": {
+      "title": "Compression Fetch Size",
+      "description": "Maximal number of Series fetched for compression by one query.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmDiffTaskProgressUpdateInterval": {
+      "title": "Diff Task Progress Update Interval",
+      "description": "Interval of updating Diff Tasks in process for progress monitoring in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent.",
+      "type": "string",
+      "format": "dcmDuration"
     },
     "hl7ADTSendingApplication": {
       "title": "HL7 ADT Sending Application",
@@ -996,6 +1089,15 @@
         "$ref": "exportRule.schema.json"
       }
     },
+    "dcmPrefetchRule": {
+      "title": "DICOM Prefetch Rule",
+      "description": "Prefetch Rules applied to DICOM objects received by any AE. May be supplemented by configured Prefetch Rules for particular Archive Network AEs.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "prefetchRule.schema.json"
+      }
+    },
     "dcmRSForwardRule": {
       "title": "RESTful Forward Rule",
       "description": "RESTful Forward Rules. May be supplemented by configured RESTful Forward Rules for particular Archive Network AEs.",
@@ -1068,22 +1170,6 @@
         "$ref": "idGenerator.schema.json"
       }
     },
-    "dcmXRoadProperty": {
-      "title": "X-Road Property",
-      "description": "Properties for accessing Estonian National Patient Registry in format <name>=<value>",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "dcmImpaxReportProperty": {
-      "title": "Impax Report Property",
-      "description": "Properties for accessing Agfa Impax Report Service in format <name>=<value>",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "hl7ForwardRule": {
       "title": "HL7 Forward Rule",
       "description": "HL7 Forward Rules for HL7 messages received by any HL7 Application. May be supplemented by configured HL7 Forward Rules for particular HL7 Applications.",
@@ -1091,6 +1177,24 @@
       "titleKey":"{cn}",
       "items" : {
         "$ref": "hl7ForwardRule.schema.json"
+      }
+    },
+    "hl7PrefetchRule": {
+      "title": "HL7 Prefetch Rule",
+      "description": "Prefetch Rules applied to HL7 messages received by any HL7 Application. May be supplemented by configured Prefetch Rules for particular HL7 Application.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7PrefetchRule.schema.json"
+      }
+    },
+    "hl7StudyRetentionPolicy": {
+      "title": "HL7 Study Retention Policy",
+      "description": "HL7 Study Retention Policies triggered by HL7 messages received by any HL7 Application. May be supplemented by configured Study Retention Policies for particular HL7 Applications.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7StudyRetentionPolicy.schema.json"
       }
     },
     "hl7OrderScheduledStation": {
@@ -1109,6 +1213,22 @@
       "titleKey":"{dcmSPSStatus}",
       "items" : {
         "$ref": "hl7OrderSPSStatus.schema.json"
+      }
+    },
+    "dcmXRoadProperty": {
+      "title": "X-Road Property",
+      "description": "Properties for accessing Estonian National Patient Registry in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmImpaxReportProperty": {
+      "title": "Impax Report Property",
+      "description": "Properties for accessing Agfa Impax Report Service in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     }
   }

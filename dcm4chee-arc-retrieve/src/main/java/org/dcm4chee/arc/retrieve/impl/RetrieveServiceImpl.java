@@ -43,6 +43,8 @@ package org.dcm4chee.arc.retrieve.impl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
@@ -75,6 +77,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,6 +191,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
     }
 
+    private int getInExpressionCountLimit() {
+        return ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
+                .getDialect().getInExpressionCountLimit();
+    }
+
     @Override
     public Device getDevice() {
         return device;
@@ -276,6 +284,17 @@ public class RetrieveServiceImpl implements RetrieveService {
             ctx.setSeriesInstanceUIDs(seriesUID);
         if (objectUID != null)
             ctx.setSopInstanceUIDs(objectUID);
+        return ctx;
+    }
+
+    @Override
+    public RetrieveContext newRetrieveContext(String localAET, Sequence refSopSeq) {
+        ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
+        RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
+        String[] uids = refSopSeq.stream()
+                .map(refSop -> refSop.getString(Tag.ReferencedSOPInstanceUID))
+                .toArray(String[]::new);
+        ctx.setSopInstanceUIDs(uids);
         return ctx;
     }
 
@@ -369,28 +388,31 @@ public class RetrieveServiceImpl implements RetrieveService {
                         metadataUpdate.storagePath,
                         seriesAttributes.attrs);
             } else {
-                for (Tuple tuple : createQuery(ctx, session).fetch()) {
-                    Long instPk = tuple.get(QInstance.instance.pk);
-                    InstanceLocations match = instMap.get(instPk);
-                    if (match == null) {
-                        Long seriesPk = tuple.get(QSeries.series.pk);
-                        Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
-                        if (seriesAttrs == null) {
-                            SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
-                            studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
-                            ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
-                            ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
-                            seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
+                HibernateQuery<Tuple> query = createQuery(ctx, session);
+                for (Predicate predicate : createPredicates(ctx)) {
+                    for (Tuple tuple : query.where(predicate).fetch()) {
+                        Long instPk = tuple.get(QInstance.instance.pk);
+                        InstanceLocations match = instMap.get(instPk);
+                        if (match == null) {
+                            Long seriesPk = tuple.get(QSeries.series.pk);
+                            Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
+                            if (seriesAttrs == null) {
+                                SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
+                                studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
+                                ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
+                                ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
+                                seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
+                            }
+                            Attributes instAttrs = AttributesBlob.decodeAttributes(
+                                    tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
+                            Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
+                            instAttrs.addAll(seriesAttrs);
+                            match = instanceLocationsFromDB(tuple, instAttrs);
+                            matches.add(match);
+                            instMap.put(instPk, match);
                         }
-                        Attributes instAttrs = AttributesBlob.decodeAttributes(
-                                tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
-                        Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
-                        instAttrs.addAll(seriesAttrs);
-                        match = instanceLocationsFromDB(tuple, instAttrs);
-                        matches.add(match);
-                        instMap.put(instPk, match);
+                        addLocation(match, tuple);
                     }
-                    addLocation(match, tuple);
                 }
                 if (ctx.isConsiderPurgedInstances()) {
                     for (Tuple tuple : queryMetadataStoragePath(ctx, session).fetch()) {
@@ -683,8 +705,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         query = query.leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
 
         if (ctx.getSeriesMetadataUpdate() != null)
-            return query.where(QSeries.series.pk.eq(ctx.getSeriesMetadataUpdate().seriesPk))
-                    .orderBy(QInstance.instance.instanceNumber.asc());
+            return query.orderBy(QInstance.instance.instanceNumber.asc());
 
         IDWithIssuer[] pids = ctx.getPatientIDs();
         if (pids.length > 0) {
@@ -692,12 +713,18 @@ public class RetrieveServiceImpl implements RetrieveService {
             query = QueryBuilder.applyPatientIDJoins(query, pids);
         }
 
+        return query;
+    }
+
+    private Predicate[] createPredicates(RetrieveContext ctx) {
+        if (ctx.getSeriesMetadataUpdate() != null)
+            return new Predicate[]{ QSeries.series.pk.eq(ctx.getSeriesMetadataUpdate().seriesPk) };
+
         BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QueryBuilder.patientIDPredicate(pids));
+        predicate.and(QueryBuilder.patientIDPredicate(ctx.getPatientIDs()));
         predicate.and(QueryBuilder.accessControl(ctx.getAccessControlIDs()));
         predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs()));
         predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs()));
-        predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs()));
         QueryRetrieveView qrView = ctx.getQueryRetrieveView();
         if (qrView != null) {
             predicate.and(QueryBuilder.hideRejectedInstance(
@@ -706,7 +733,30 @@ public class RetrieveServiceImpl implements RetrieveService {
             predicate.and(QueryBuilder.hideRejectionNote(
                     codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes())));
         }
-        return query.where(predicate);
+        String[] sopInstanceUIDs = ctx.getSopInstanceUIDs();
+        if (QueryBuilder.isUniversalMatching(sopInstanceUIDs)) {
+            return new Predicate[]{ predicate };
+        }
+        // SQL Server actually does support lesser parameters than its specified limit (2100)
+        int limit = getInExpressionCountLimit() - 10;
+        if (limit <= 0 || sopInstanceUIDs.length < limit) {
+            return new Predicate[]{
+                    ExpressionUtils.and(predicate, QInstance.instance.sopInstanceUID.in(sopInstanceUIDs))};
+        }
+        int index = sopInstanceUIDs.length / limit + 1;
+        int remainder = sopInstanceUIDs.length % limit;
+        Predicate[] predicates = new Predicate[index];
+        if (remainder > 0) {
+            String[] sopIUIDs = new String[remainder];
+            System.arraycopy(sopInstanceUIDs, sopInstanceUIDs.length - remainder, sopIUIDs, 0, remainder);
+            predicates[--index] = ExpressionUtils.and(predicate, QInstance.instance.sopInstanceUID.in(sopIUIDs));
+        }
+        String[] sopIUIDs = new String[limit];
+        while (--index >= 0) {
+            System.arraycopy(sopInstanceUIDs, index * limit, sopIUIDs, 0, limit);
+            predicates[index] = ExpressionUtils.and(predicate, QInstance.instance.sopInstanceUID.in(sopIUIDs));
+        }
+        return predicates;
     }
 
     private HibernateQuery<Tuple> queryMetadataStoragePath(RetrieveContext ctx, StatelessSession session) {

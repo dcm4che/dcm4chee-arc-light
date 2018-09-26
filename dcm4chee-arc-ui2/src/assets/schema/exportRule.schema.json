@@ -15,16 +15,13 @@
       "type": "string"
     },
     "dcmEntity": {
-      "title": "Attribute Entity",
-      "description": "Entity of the Attribute Filter or Export Rule ('Patient', 'Study', 'Series', 'Instance', 'MPPS', 'MWL').",
+      "title": "Export Entity",
+      "description": "Entity of Export",
       "type": "string",
       "enum": [
-        "Patient",
         "Study",
         "Series",
-        "Instance",
-        "MPPS",
-        "MWL"
+        "Instance"
       ]
     },
     "dcmExporterID": {
@@ -41,16 +38,16 @@
       "default": false
     },
     "dcmProperty": {
-      "title": "Conditions",
-      "description": "Conditions in format {attributeID}[!]={regEx}",
+      "title": "Attribute Conditions",
+      "description": "Attribute conditions in format {attributeID}[!]={regEx}.",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "dcmSchedule": {
-      "title": "Schedule",
-      "description": "Schedule Expression in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "title": "Time Conditions",
+      "description": "Apply this rule only within specified time ranges.",
       "type": "array",
       "items": {
         "type": "string"
@@ -58,8 +55,8 @@
       "format": "dcmSchedule"
     },
     "dcmDuration": {
-      "title": "Duration",
-      "description": "Duration in ISO-8601 duration format PnDTnHnMn.nS",
+      "title": "Export Delay",
+      "description": "Delay export of entities to accumulate multiple trigger events to one export task.",
       "type": "string",
       "format": "dcmDuration"
     }

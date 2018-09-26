@@ -6,7 +6,8 @@
     "cn",
     "dcmRetentionPeriod",
     "dcmRulePriority",
-    "dcmExpireSeriesIndividually"
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate"
   ],
   "properties": {
     "cn": {
@@ -43,7 +44,7 @@
     },
     "dcmStartRetentionPeriodOnStudyDate": {
       "title": "Start Retention Period on Study Date",
-      "description": "Indicates if retention period should be started on Study Date",
+      "description": "Indicates if retention period should be started on Study Date instead on receive of an object of the Study",
       "type": "boolean",
       "default": false
     }

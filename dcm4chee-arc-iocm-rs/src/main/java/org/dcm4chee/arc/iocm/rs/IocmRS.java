@@ -78,6 +78,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -368,10 +369,11 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
+            Patient prevPatient = patientService.findPatient(priorPatientID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
-            ctx.setAttributes(patientID.exportPatientIDWithIssuer(null));
+            ctx.setAttributes(patientID.exportPatientIDWithIssuer(prevPatient.getAttributes()));
             patientService.changePatientID(ctx);
             rsHL7Sender.sendHL7Message("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
@@ -460,42 +462,49 @@ public class IocmRS {
 
     @PUT
     @Path("/studies/{studyUID}/expire/{expirationDate}")
-    public void updateStudyExpirationDate(@PathParam("studyUID") String studyUID,
+    public Response updateStudyExpirationDate(@PathParam("studyUID") String studyUID,
                                           @PathParam("expirationDate")
                                           @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-                                                  String expirationDate) throws Exception {
-        updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
+                                                  String expirationDate) {
+        return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
     }
 
     @PUT
     @Path("/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}")
-    public void updateSeriesExpirationDate(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+    public Response updateSeriesExpirationDate(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
                                            @PathParam("expirationDate")
                                            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-                                                   String expirationDate) throws Exception {
-        updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
+                                                   String expirationDate) {
+        return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
     }
 
-    private void updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate) {
+    private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
+        boolean updateSeriesExpirationDate = seriesUID != null;
         try {
-            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
-            ctx.setStudyInstanceUID(studyUID);
+            StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
             if (seriesUID != null)
                 ctx.setSeriesInstanceUID(seriesUID);
-            LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
-            ctx.setExpirationDate(expireDate);
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
+            return Response.noContent().build();
+        } catch (NoResultException e) {
+            return errResponse(
+                    updateSeriesExpirationDate ? "Series not found. " + seriesUID : "Study not found. " + studyUID,
+                    Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            String message;
-            if (seriesUID != null)
-                message = "Series not found. " + seriesUID;
-            else
-                message = "Study not found. " + studyUID;
-            throw new WebApplicationException(errResponse(message, Response.Status.NOT_FOUND));
+            return errResponseAsTextPlain(e);
         }
+    }
+
+    private StudyMgtContext createStudyMgtCtx(String studyUID, String expirationDate, ArchiveAEExtension arcAE) {
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+        ctx.setStudyInstanceUID(studyUID);
+        LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
+        ctx.setExpirationDate(expireDate);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        return ctx;
     }
 
     public static final class ExpireDate {
@@ -533,7 +542,8 @@ public class IocmRS {
         ctx.setSourceInstanceRefs(instanceRefs);
 
 
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID);
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity())
+                .withObjectStorageID(rejectionNoteObjectStorageID);
         restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instanceLocations = retrieveService.queryInstances(session, instanceRefs, studyUID);
         if (instanceLocations.isEmpty())
@@ -624,7 +634,8 @@ public class IocmRS {
         try {
             ArchiveAEExtension arcAE = getArchiveAE();
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
-            StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID());
+            StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity())
+                    .withObjectStorageID(rejectionNoteObjectStorageID());
             storeService.restoreInstances(session, studyUID, seriesUID, null);
 
             Attributes attrs = queryService.createRejectionNote(
@@ -654,8 +665,11 @@ public class IocmRS {
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         ArchiveAEExtension arcAE = getArchiveAE();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(),
-                rjNote != null ? rejectionNoteObjectStorageID() : null);
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity()
+        );
+        if (rjNote != null) {
+            session.withObjectStorageID(rejectionNoteObjectStorageID());
+        }
         restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instances = retrieveService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())

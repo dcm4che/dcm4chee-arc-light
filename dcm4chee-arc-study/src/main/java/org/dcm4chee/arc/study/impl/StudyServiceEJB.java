@@ -126,8 +126,7 @@ public class StudyServiceEJB {
         return study;
     }
 
-    public void updateStudyExpirationDate(StudyMgtContext ctx) throws NoResultException {
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+    public void updateStudyExpirationDate(StudyMgtContext ctx) {
         List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         LocalDate studyExpireDate = ctx.getExpirationDate();
@@ -149,18 +148,18 @@ public class StudyServiceEJB {
         ctx.setAttributes(study.getAttributes());
     }
 
-    public void updateSeriesExpirationDate(StudyMgtContext ctx) throws NoResultException {
+    public void updateSeriesExpirationDate(StudyMgtContext ctx) {
         Series series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID())
                 .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
         LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
         series.setExpirationDate(ctx.getExpirationDate());
+        ctx.setAttributes(series.getAttributes());
         if (studyExpirationDate == null || studyExpirationDate.isBefore(ctx.getExpirationDate())) {
             Study study = series.getStudy();
             study.setExpirationDate(ctx.getExpirationDate());
             ctx.setStudy(study);
             ctx.setAttributes(study.getAttributes());
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         }
     }
 

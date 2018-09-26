@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.retrieve.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
@@ -79,9 +78,6 @@ public class RetrieveBatchRS {
 
     @Inject
     private RetrieveManager mgr;
-
-    @Inject
-    private Device device;
 
     @QueryParam("dicomDeviceName")
     private String deviceName;

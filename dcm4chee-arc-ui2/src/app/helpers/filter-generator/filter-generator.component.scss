@@ -1,0 +1,85 @@
+.filter{
+  &.filter_loader{
+    position: relative;
+    text-align: center;
+    min-width: 60%;
+    float: left;
+    //line-height: 90px;
+    .filter_block{
+      border:none;
+      width: 100%;
+    }
+    .fa-spin{
+      position: absolute;
+      top: 50%;
+      margin-top: -20px;
+      font-size: 30px;
+    }
+  }
+}
+.filter_template_function{
+  .clearform_button{
+    background: transparent;
+    ul.buttons,ul.templates{
+      list-style: none;
+      padding: 0;
+      float: left;
+      width: 100%;
+      margin: 0;
+      li{
+        color: rgba(0, 0, 0, 0.61);
+        background: rgba(255, 255, 255, 0.64);
+        padding: 0 5px;
+        border:1px solid #cccccc;
+      }
+    }
+    ul.buttons{
+      li{
+        float: left;
+      }
+    }
+  }
+  &:hover .template_list{
+    display: block;
+  }
+  .template_list{
+    position: absolute;
+    right: 66px;
+    top: 6px;
+    //display: none;
+    ul.templates{
+      //background: white;
+      background: rgba(255, 255, 255, 0.85);
+      color: rgba(0, 0, 0, 0.61);
+      min-width: 150px;
+      padding: 0;
+      list-style: none;
+      position: relative;
+      z-index: 9999;
+      float: left;
+      li{
+        //padding: 0 10px;
+        float: left;
+        width: 100%;
+        border-bottom: 1px solid #cccccc;
+        &:hover{
+          color: #000;
+          background: rgba(255, 255, 255, 0.95);
+          cursor: pointer;
+        }
+        a{
+          float: left;
+          width: 85%;
+          padding-left: 10px;
+          text-decoration: none;
+        }
+        .glyphicon-remove{
+          float: right;
+          width: 15%;
+          display: inline-block;
+          text-align: center;
+        }
+      }
+    }
+  }
+}

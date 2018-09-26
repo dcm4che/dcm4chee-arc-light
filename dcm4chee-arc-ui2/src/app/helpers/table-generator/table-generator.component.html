@@ -8,19 +8,23 @@
       <ng-container *ngFor="let model of models;let i = index">
         <div class="tr">
             <div class="td {{table_element.cssClass||''}}" *ngFor="let table_element of config.table;let k = index" [ngStyle]="{width: table_element.calculatedWidth}">
-                <span *ngIf="table_element.type === 'index'">{{i+config.filter.offset+1}}.</span>
-                <span *ngIf="table_element.type === 'buttons'" (mouseenter)="tMousEnter()" (mouseleave)="tMousLeave()">
+                <span *ngIf="table_element.type === 'index'">{{i+(config.filter.offset || 0)+1}}.</span>
+                <div *ngIf="table_element.type === 'buttons'" (mouseenter)="tMousEnter()" (mouseleave)="tMousLeave()">
                     <a (click)="$event.preventDefault();button.click(model)" *ngFor="let button of table_element.buttons">
-                        <span *ngIf="button.icon.tag === 'span'" class="{{button.icon.cssClass||''}}">{{button.icon.text||''}}</span>
+                        <div *ngIf="button.icon.tag === 'span'" class="{{button.icon.cssClass||''}}">{{button.icon.text||''}}</div>
                     </a>
+                </div>
+                <span [ngClass]="{'pointer':table_element.onClick}" *ngIf="table_element.type === 'progress'">
+                    <stacked-progress [model]="_.get(model,table_element.key)" [diffModel]="table_element.diffMode" (click)="onProgressClicked(table_element, model)"></stacked-progress>
                 </span>
-                <span *ngIf="table_element.type === 'progress'"><stacked-progress [model]="_.get(model,table_element.key)"></stacked-progress></span>
                 <ng-container *ngIf="table_element.type === 'model'">
                     <ng-container *ngIf="table_element.modifyData">
                         <span *ngIf="_.hasIn(model,table_element.key)">{{table_element.modifyData(_.get(model,table_element.key))}}</span>
                     </ng-container>
                     <ng-container *ngIf="!table_element.modifyData">
-                        <span *ngIf="_.hasIn(model,table_element.key)">{{_.get(model,table_element.key)}}</span>
+                        <span *ngIf="_.hasIn(model,table_element.key)" class="text_content" tooltip="{{_.get(model,table_element.key)}}">
+                            {{_.get(model,table_element.key)}}
+                        </span>
                     </ng-container>
                 </ng-container>
             </div>

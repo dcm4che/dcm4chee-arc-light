@@ -92,7 +92,6 @@ class Assert {
         assertNotNull(actual);
         assertEquals(expected.getFuzzyAlgorithmClass(), actual.getFuzzyAlgorithmClass());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
-        assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
         assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());
         assertEquals(expected.isPersonNameComponentOrderInsensitiveMatching(), actual.isPersonNameComponentOrderInsensitiveMatching());
         assertEquals(expected.isSendPendingCGet(), actual.isSendPendingCGet());

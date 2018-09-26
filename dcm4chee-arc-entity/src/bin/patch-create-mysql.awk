@@ -5,6 +5,8 @@ BEGIN { FS = "[ )]" }
             print "create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));"
     } else if ($3 == "UK_hb9rftf7opmg56nkg7dkvsdc8") {
             print "create index UK_hb9rftf7opmg56nkg7dkvsdc8 on export_task (study_iuid(64), series_iuid(64), sop_iuid(64));"
+    } else if ($3 == "UK_iudr0qmrm15i2evq1733h1ace") {
+            print "create index UK_iudr0qmrm15i2evq1733h1ace on stgver_task (study_iuid(64), series_iuid(64), sop_iuid(64));"
     } else if ($3 == "UK_r3oh859i9osv3aluoc8dcx9wk") {
             print "create index UK_r3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);"
     } else if ($3 == "UK_f7c9hmq8pfypohkgkp5vkbhxp") {
@@ -23,6 +25,10 @@ BEGIN { FS = "[ )]" }
             && $6 != "(study_size" \
             && $6 != "(series_no" \
             && $6 != "(failed_retrieves" \
+            && $6 != "(stgver_time" \
+            && $6 != "(stgver_failures" \
+            && $6 != "(compress_time" \
+            && $6 != "(compress_failures" \
             && $6 != "(sx_pn_comp" \
             && $6 != "(sx_pn_comp_part" \
             && $6 != "(stgcmt_status" \

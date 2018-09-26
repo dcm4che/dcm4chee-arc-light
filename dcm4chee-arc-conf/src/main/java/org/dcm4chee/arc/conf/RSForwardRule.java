@@ -40,8 +40,10 @@
 
 package org.dcm4chee.arc.conf;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.regex.Pattern;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -57,6 +59,10 @@ public class RSForwardRule {
     private EnumSet<RSOperation> rsOperations = EnumSet.noneOf(RSOperation.class);
 
     private String keycloakServerID;
+
+    private boolean ifNotRequestURLPattern;
+
+    private Pattern requestURLPattern;
 
     private boolean tlsAllowAnyHostname;
 
@@ -118,8 +124,35 @@ public class RSForwardRule {
         this.tlsDisableTrustManager = tlsDisableTrustManager;
     }
 
-    public boolean match(RSOperation rsOperation) {
-        return rsOperations.contains(rsOperation);
+    public String getRequestURLPattern() {
+        if (requestURLPattern == null)
+            return null;
+
+        String s = requestURLPattern.pattern();
+        return ifNotRequestURLPattern ? '!' + s : s;
+    }
+
+    public void setRequestURLPattern(String requestURLPattern) {
+        if (requestURLPattern == null || requestURLPattern.isEmpty()) {
+            this.requestURLPattern = null;
+            this.ifNotRequestURLPattern = false;
+        } else if (requestURLPattern.charAt(0) == '!') {
+            this.requestURLPattern = Pattern.compile(requestURLPattern.substring(1));
+            this.ifNotRequestURLPattern = true;
+        } else {
+            this.requestURLPattern = Pattern.compile(requestURLPattern);
+            this.ifNotRequestURLPattern = false;
+        }
+    }
+
+    public boolean match(RSOperation rsOperation, HttpServletRequest request) {
+        if (!rsOperations.contains(rsOperation))
+            return false;
+
+        if (requestURLPattern == null)
+            return true;
+
+        return ifNotRequestURLPattern != requestURLPattern.matcher(request.getRequestURL().toString()).matches();
     }
 
     @Override

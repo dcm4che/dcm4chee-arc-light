@@ -47,6 +47,10 @@
       "description": "Storage Commitment"
     },
     {
+      "name": "STGVER-RS",
+      "description": "Storage Verification"
+    },
+    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -1438,6 +1442,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped batches before first task in returned list",
@@ -1494,6 +1504,48 @@
             "in": "path",
             "description": "Batch ID",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified Device Name",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified Archive AE Title",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified AE Title of the primary C-FIND SCP",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "list batch results with at least one diff task with the specified AE Title of the secondary C-FIND SCP",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "list batch results with at least one diff task which do/don't check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "list batch results with at least one diff task which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "list batch results with at least one compare Studies Tasks which compares the specified set of attributes",
             "type": "string"
           },
           {
@@ -1747,6 +1799,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -1910,6 +1968,12 @@
             "description": "pk of task",
             "required": true,
             "type": "integer"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
           }
         ],
         "responses": {
@@ -2228,6 +2292,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped batches before first task in returned list",
@@ -2444,6 +2514,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
@@ -2469,7 +2545,6 @@
               "WARNING",
               "FAILED",
               "CANCELED",
-              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS"
             ]
@@ -2503,6 +2578,9 @@
           "400": {
             "description": "Export task status is null"
           },
+          "409": {
+            "description": "tasks with status TO SCHEDULE cannot be rescheduled"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -2535,6 +2613,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
@@ -2560,7 +2644,6 @@
               "WARNING",
               "FAILED",
               "CANCELED",
-              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS"
             ]
@@ -2596,6 +2679,9 @@
           },
           "404": {
             "description": "exporter not found"
+          },
+          "409": {
+            "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
           "default": {
             "description": "unexpected error"
@@ -2688,6 +2774,12 @@
             "description": "Exporter ID",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
           }
         ],
         "responses": {
@@ -2698,7 +2790,7 @@
             "description": "task or exporter not found"
           },
           "409": {
-            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
+            "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
           "default": {
             "description": "unexpected error"
@@ -2979,6 +3071,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped batches before first task in returned list",
@@ -3212,6 +3310,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -3363,6 +3467,633 @@
             "description": "pk of task",
             "required": true,
             "type": "integer"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "List Storage Verification Tasks",
+        "operationId": "listStorageVerificationTasks",
+        "produces": [
+          "application/json",
+          "text/csv"
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Response Content Type",
+            "type": "string",
+            "enum": [
+              "application/json",
+              "text/csv"
+            ]
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list Storage Verification Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped tasks before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of tasks in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "stgverTaskList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "Delete Storage Verification Tasks",
+        "operationId": "deleteStorageVerificationTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "delete Storage Verification Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "delete Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Deleted"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "List Storage Verification Batches",
+        "operationId": "listStorageVerificationBatches",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "list batches with at least one Storage Verification Task with the specified Device Name",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "list batches with at least one Storage Verification Task with the specified Archive AE Title",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "list batches with at least one Storage Verification Task with the specified status",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list batches with at least one Storage Verification Task were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list batches with at least one Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped batches before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of batches in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "stgverBatchList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "Count Storage Verification Tasks",
+        "operationId": "countStorageVerificationTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "count Storage Verification Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "count Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "Cancel Storage Verification Tasks",
+        "operationId": "cancelStorageVerificationTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "cancel Storage Verification Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "cancel Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of canceled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "400": {
+            "description": "Invalid status for Cancel of Retrieve tasks"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "Reschedule Storage Verification Tasks",
+        "operationId": "rescheduleStorageVerificationTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Archive Device Name",
+            "type": "string"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "reschedule Storage Verification Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "reschedule Storage Verification Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of rescheduled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "400": {
+            "description": "Retrieve tasks status is null"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "Delete Storage Verification Task",
+        "operationId": "deleteStorageVerificationTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "Cancel Storage Verification Task",
+        "operationId": "cancelStorageVerificationTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/{taskPK}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "STGVER-RS"
+        ],
+        "summary": "Reschedule Storage Verification Task",
+        "operationId": "rescheduleStorageVerificationTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
           }
         ],
         "responses": {
@@ -3747,6 +4478,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
@@ -3892,6 +4629,12 @@
             "description": "id of task",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
           }
         ],
         "responses": {
@@ -3916,7 +4659,7 @@
           "CONFIG-RS",
           "IOCM-RS",
           "EXPORT-RS",
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
         "summary": "List Archive AE Titles",
         "operationId": "listArchiveAETs",
@@ -3957,6 +4700,18 @@
             "description": "AE Title of C-ECHO SCP",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "host",
+            "in": "query",
+            "description": "remote connection host",
+            "type": "string"
+          },
+          {
+            "name": "port",
+            "in": "query",
+            "description": "remote connection port",
+            "type": "integer"
           }
         ],
         "responses": {
@@ -4937,7 +5692,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -4964,7 +5719,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -5021,7 +5776,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -5048,14 +5803,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -5112,7 +5867,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -5139,21 +5894,21 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
             "type": "string"
           },
           {
-            "name": "objectUID",
+            "name": "SOPInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Object",
             "required": true,
@@ -5927,12 +6682,6 @@
             "default": "no"
           },
           {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
-            "type": "string"
-          },
-          {
             "name": "includefield",
             "in": "query",
             "description": "includefield={attributeID}",
@@ -6643,7 +7392,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}": {
+    "/aets/{aet}/rs/mwlitems/{StudyInstanceUID}/{spsID}": {
       "delete": {
         "tags": [
           "MWL-RS"
@@ -6659,7 +7408,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -6686,7 +7435,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/mwlitems/{StudyInstanceUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS",
@@ -6709,7 +7458,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of Target Study",
             "required": true,
@@ -6798,7 +7547,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}": {
       "delete": {
         "tags": [
           "IOCM-RS"
@@ -6814,7 +7563,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -6834,7 +7583,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/copy": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/copy": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -6856,7 +7605,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of Target Study",
             "required": true,
@@ -6888,7 +7637,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/move/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/move/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -6910,7 +7659,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of Target Study",
             "required": true,
@@ -6956,7 +7705,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/impax/report": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
       "post": {
         "tags": [
           "IMPAX-REPORT-RS"
@@ -6975,7 +7724,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7007,7 +7756,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7023,7 +7772,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7068,7 +7817,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/export/{exporterID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7084,14 +7833,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -7136,7 +7885,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/export/{exporterID}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7152,21 +7901,21 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
             "type": "string"
           },
           {
-            "name": "objectUID",
+            "name": "SOPInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Object",
             "required": true,
@@ -7311,6 +8060,20 @@
             "default": false
           },
           {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "export only Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -7393,53 +8156,67 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Series received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Series of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Series of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -7461,7 +8238,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/series": {
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7487,7 +8264,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7525,53 +8302,67 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Series received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Series of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Series of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -7650,53 +8441,67 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only Instances of expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -7718,7 +8523,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/instances": {
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/instances": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7744,7 +8549,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -7782,53 +8587,67 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only Instances of expired Studies",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -7850,7 +8669,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/series/{seriesUID}/instances": {
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -7876,14 +8695,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -7921,53 +8740,67 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "description": "export Instances received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "export Studies which are retrieveable from external <AE Title>",
+            "description": "export Instances of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "export Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "batchID",
-            "in": "query",
-            "description": "Batch ID of scheduled tasks",
+            "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "export only expired Studies",
+            "description": "export only Instances of expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Studies which are marked as incomplete",
+            "description": "export only Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "export only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -7989,13 +8822,13 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgver": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Request Storage Commitment of Study",
-        "operationId": "StorageCommitmentStudy",
+        "summary": "Verify Storage of Study",
+        "operationId": "VerifyStorageOfStudy",
         "produces": [
           "application/dicom+json",
           "application/json"
@@ -8016,7 +8849,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8030,15 +8863,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -8048,13 +8881,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Commitment Request Successful",
+            "description": "Storage Verification successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "Storage Commitment Request Complete - Failures Exist",
+            "description": "Storage Verification failed for some objects of the Study",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "409": {
+            "description": "Storage Verification failed for all objects of the Study",
             "schema": {
               "type": "file"
             }
@@ -8068,13 +8907,13 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Request Storage Commitment of Series",
-        "operationId": "StorageCommitmentSeries",
+        "summary": "Verify Storage of Series",
+        "operationId": "VerifyStorageOfSeries",
         "produces": [
           "application/dicom+json",
           "application/json"
@@ -8102,7 +8941,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8116,15 +8955,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -8134,13 +8973,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Commitment Request Successful",
+            "description": "Storage Verification successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "Storage Commitment Request Complete - Failures Exist",
+            "description": "Storage Verification failed for some objects of the Series",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "409": {
+            "description": "Storage Verification failed for all objects of the Series",
             "schema": {
               "type": "file"
             }
@@ -8154,13 +8999,13 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgver": {
       "post": {
         "tags": [
-          "STGCMT-RS"
+          "STGVER-RS"
         ],
-        "summary": "Request Storage Commitment of Instance",
-        "operationId": "StorageCommitmentInstance",
+        "summary": "Verify Storage of Instance",
+        "operationId": "VerifyStorageOfInstance",
         "produces": [
           "application/dicom+json",
           "application/json"
@@ -8195,7 +9040,7 @@
             "type": "string"
           },
           {
-            "name": "dcmStgCmtPolicy",
+            "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
             "type": "string",
@@ -8209,15 +9054,15 @@
             ]
           },
           {
-            "name": "dcmStgCmtUpdateLocationStatus",
+            "name": "storageVerificationUpdateLocationStatus",
             "in": "query",
-            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
             "type": "boolean"
           },
           {
-            "name": "dcmStgCmtStorageID",
+            "name": "storageVerificationStorageID",
             "in": "query",
-            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
             "type": "array",
             "items": {
               "type": "string"
@@ -8227,13 +9072,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Storage Commitment Request Successful",
+            "description": "Storage Verification successful",
             "schema": {
               "type": "file"
             }
           },
-          "202": {
-            "description": "Storage Commitment Request Complete - Failures Exist",
+          "409": {
+            "description": "Storage Verification failed",
             "schema": {
               "type": "file"
             }
@@ -8247,7 +9092,935 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/stgver/studies": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Studies",
+        "operationId": "ScheduleStorageVerificationOfStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "match only Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "storageVerificationUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "storageVerificationStorageID",
+            "in": "query",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Verification of Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/series": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Series",
+        "operationId": "ScheduleStorageVerificationOfSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Series of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Series of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "storageVerificationUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "storageVerificationStorageID",
+            "in": "query",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Verification of Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Series of Study",
+        "operationId": "ScheduleStorageVerificationOfSeriesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Series of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Series of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "storageVerificationUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "storageVerificationStorageID",
+            "in": "query",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Verification of Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/instances": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Instances",
+        "operationId": "ScheduleStorageVerificationOfInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only Instances of expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "storageVerificationUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "storageVerificationStorageID",
+            "in": "query",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Verification of Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Instances of Study",
+        "operationId": "ScheduleStorageVerificationOfInstancesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only Instances of expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "storageVerificationUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "storageVerificationStorageID",
+            "in": "query",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Verification of Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Instances of Series",
+        "operationId": "ScheduleStorageVerificationOfInstancesOfSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only Instances of expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "storageVerificationUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "storageVerificationStorageID",
+            "in": "query",
+            "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled Storage Verification of Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -8263,7 +10036,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -8297,7 +10070,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -8313,14 +10086,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -8354,7 +10127,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -8370,21 +10143,21 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
             "type": "string"
           },
           {
-            "name": "objectUID",
+            "name": "SOPInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Object",
             "required": true,
@@ -8418,7 +10191,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/expire/{expirationDate}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/expire/{expirationDate}": {
       "put": {
         "tags": [
           "IOCM-RS"
@@ -8434,7 +10207,7 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
@@ -8461,7 +10234,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/expire/{expirationDate}": {
       "put": {
         "tags": [
           "IOCM-RS"
@@ -8477,14 +10250,14 @@
             "type": "string"
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Study",
             "required": true,
             "type": "string"
           },
           {
-            "name": "seriesUID",
+            "name": "SeriesInstanceUID",
             "in": "path",
             "description": "Unique Identifier of the Series",
             "required": true,
@@ -8507,6 +10280,70 @@
           },
           "default": {
             "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/expire/series": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Apply Retention Policy",
+        "operationId": "applyRetentionPolicy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "apply Retention Policy to Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "apply Retention Policy to Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully apply Retention Policy to matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -9313,7 +11150,7 @@
             ]
           },
           {
-            "name": "studyUID",
+            "name": "StudyInstanceUID",
             "in": "query",
             "description": "Unique Identifier of the Study to filter by",
             "type": "string"

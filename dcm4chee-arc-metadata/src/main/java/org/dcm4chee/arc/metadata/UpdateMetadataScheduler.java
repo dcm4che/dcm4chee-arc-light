@@ -213,7 +213,7 @@ public class UpdateMetadataScheduler extends Scheduler {
 
     private boolean claim(RetrieveContext ctx, Storage storage) {
         try {
-            return ejb.claim(ctx.getSeriesMetadataUpdate().seriesPk);
+            return ejb.claim(ctx.getSeriesMetadataUpdate().seriesPk) > 0;
         } catch (Exception e) {
             LOG.info("Failed to claim create/update Metadata for Series[pk={}] on {}]:\n",
                     ctx.getSeriesMetadataUpdate().seriesPk,

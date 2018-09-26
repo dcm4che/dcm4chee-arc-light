@@ -68,5 +68,5 @@ public interface CFindSCU {
                     String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
             throws Exception;
 
-    DimseRSP query(Association as, int priority, Attributes keys, int autocancel, Duration splitStudyDateRange) throws Exception;
+    DimseRSP query(Association as, int priority, Attributes keys, int autocancel, int capacity, Duration splitStudyDateRange) throws Exception;
 }

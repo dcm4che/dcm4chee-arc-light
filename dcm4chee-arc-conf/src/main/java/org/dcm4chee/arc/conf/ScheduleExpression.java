@@ -4,6 +4,7 @@ import org.dcm4che3.util.StringUtils;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -40,6 +41,13 @@ public class ScheduleExpression {
         return result;
     }
 
+    public static ScheduleExpression[] valuesOf(String... ss) {
+        ScheduleExpression[] schedules = new ScheduleExpression[ss.length];
+        for (int i = 0; i < ss.length; i++)
+            schedules[i] = ScheduleExpression.valueOf(ss[i]);
+        return schedules;
+    }
+
     public ScheduleExpression dayOfWeek(String s) {
         dayOfWeeks = parse(s, 7);
         dayOfWeek = s;
@@ -62,6 +70,10 @@ public class ScheduleExpression {
 
     public boolean contains(Calendar cal) {
         return containsHour(cal) && containsDayOfWeek(cal);
+    }
+
+    public static boolean emptyOrAnyContains(Calendar cal, ScheduleExpression... expressions) {
+        return expressions.length == 0 || Stream.of(expressions).anyMatch(expr -> expr.contains(cal));
     }
 
     public Calendar ceil(Calendar cal) {

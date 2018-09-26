@@ -58,6 +58,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.HashSet;
 import java.util.Set;
@@ -143,18 +144,25 @@ public class QueryAttributesEJB {
         return queryAttrs;
     }
 
-    public void calculateStudyQueryAttributes(String studyUID) {
-        Long studyPk = em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
-                .setParameter(1, studyUID)
-                .getSingleResult();
+    public boolean calculateStudyQueryAttributes(String studyUID) {
+        Long studyPk;
+        try {
+            studyPk = em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
+                    .setParameter(1, studyUID)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return false;
+        }
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
         viewIDs.removeAll(em.createNamedQuery(StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK, String.class)
                 .setParameter(1, studyPk)
                 .getResultList());
 
-        for (String viewID : viewIDs)
+        for (String viewID : viewIDs) {
             calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
+        }
+        return true;
     }
 
     private static class SeriesQueryAttributesBuilder {

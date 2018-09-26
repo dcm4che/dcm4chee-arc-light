@@ -12,7 +12,7 @@ import {
 } from '@angular/material';
 import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { ControlComponent } from './control/control.component';
+import { ControlComponent } from './configuration/control/control.component';
 import { QueuesComponent } from './monitoring/queues/queues.component';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { GetKeyPipe } from './pipes/get-key.pipe';
@@ -40,7 +40,7 @@ import { PlaceholderchangerDirective } from './helpers/placeholderchanger.direct
 import {QueuesService} from './monitoring/queues/queues.service';
 import { DevicesComponent } from './devices/devices.component';
 import {DevicesService} from './devices/devices.service';
-import { DeviceConfiguratorComponent } from './device-configurator/device-configurator.component';
+import { DeviceConfiguratorComponent } from './configuration/device-configurator/device-configurator.component';
 import {DynamicFormElementComponent} from './widgets/dynamicform/dynamic-form-element.component';
 import {DynamicFormComponent} from './widgets/dynamicform/dynamic-form.component';
 import { ExportComponent } from './monitoring/export/export.component';
@@ -50,22 +50,21 @@ import { AssociationsComponent } from './monitoring/associations/associations.co
 import { StorageCommitmentComponent } from './monitoring/storage-commitment/storage-commitment.component';
 import {StorageCommitmentService} from './monitoring/storage-commitment/storage-commitment.service';
 import { ConnectionFormaterComponent } from './helpers/connection-formater/connection-formater.component';
-import { AeListComponent } from './ae-list/ae-list.component';
+import { AeListComponent } from './configuration/ae-list/ae-list.component';
 import {CreateExporterService} from './widgets/dialogs/create-exporter/create-exporter.service';
-import {DeviceConfiguratorService} from './device-configurator/device-configurator.service';
+import {DeviceConfiguratorService} from './configuration/device-configurator/device-configurator.service';
 import { UtcPipe } from './pipes/utc.pipe';
 import { CustomValidatorDirective } from './helpers/custom-validator/custom-validator.directive';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {ControlService} from './control/control.service';
-import { FileUploadModule} from 'ng2-file-upload';
+import {ControlService} from './configuration/control/control.service';
 import { StorageSystemsComponent } from './monitoring/storage-systems/storage-systems.component';
 import {StorageSystemsService} from './monitoring/storage-systems/storage-systems.service';
 import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.service';
 import {WindowRefService} from "./helpers/window-ref.service";
 import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component';
-import { Hl7ApplicationsComponent } from './hl7-applications/hl7-applications.component';
-import {Hl7ApplicationsService} from "./hl7-applications/hl7-applications.service";
-import {AeListService} from "./ae-list/ae-list.service";
+import { Hl7ApplicationsComponent } from './configuration/hl7-applications/hl7-applications.component';
+import {Hl7ApplicationsService} from "./configuration/hl7-applications/hl7-applications.service";
+import {AeListService} from "./configuration/ae-list/ae-list.service";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {j4care} from "./helpers/j4care.service";
 import {J4careHttpService} from "./helpers/j4care-http.service";
@@ -87,6 +86,10 @@ import { DiffMonitorComponent } from './monitoring/diff-monitor/diff-monitor.com
 import {DiffMonitorService} from "./monitoring/diff-monitor/diff-monitor.service";
 import { LargeIntFormatPipe } from './pipes/large-int-format.pipe';
 import { TableGeneratorComponent } from './helpers/table-generator/table-generator.component';
+import {RangePickerService} from "./widgets/range-picker/range-picker.service";
+import { StorageVerificationComponent } from './monitoring/storage-verification/storage-verification.component';
+import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
+import { ConfigTabComponent } from './configuration/config-tab.component';
 
 @NgModule({
     declarations: [
@@ -138,6 +141,8 @@ import { TableGeneratorComponent } from './helpers/table-generator/table-generat
         DiffMonitorComponent,
         LargeIntFormatPipe,
         TableGeneratorComponent,
+        StorageVerificationComponent,
+        ConfigTabComponent,
     ],
     imports: [
         BrowserModule,
@@ -158,7 +163,6 @@ import { TableGeneratorComponent } from './helpers/table-generator/table-generat
         DropdownModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
-        FileUploadModule,
         LoadingBarModule.forRoot(),
         RouterModule.forRoot([
             {
@@ -181,6 +185,7 @@ import { TableGeneratorComponent } from './helpers/table-generator/table-generat
             { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/storage-verification', component: StorageVerificationComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/diff', component: DiffMonitorComponent,  canActivate: [AuthGuard] },
             { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
             { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
@@ -223,6 +228,8 @@ import { TableGeneratorComponent } from './helpers/table-generator/table-generat
         PermissionService,
         CsvRetrieveService,
         DiffMonitorService,
+        RangePickerService,
+        StorageVerificationService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]

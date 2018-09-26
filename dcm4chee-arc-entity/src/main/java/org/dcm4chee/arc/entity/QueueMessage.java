@@ -73,13 +73,16 @@ import java.util.*;
 @NamedQueries({
         @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
                 query = "select o from QueueMessage o where o.messageID=?1"),
-        @NamedQuery(name = QueueMessage.COUNT_BY_QUEUE_NAME_AND_STATUS,
-                query = "select count(o) from QueueMessage o where o.queueName=?1 and o.status=?2")
+        @NamedQuery(name = QueueMessage.FIND_DEVICE_BY_MSG_ID,
+                query = "select o.deviceName from QueueMessage o where o.messageID=?1"),
+        @NamedQuery(name = QueueMessage.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
+                query = "select count(o) from QueueMessage o where o.deviceName=?1 and o.queueName=?2 and o.status=?3")
 })
 public class QueueMessage {
 
     public static final String FIND_BY_MSG_ID = "QueueMessage.FindByMsgId";
-    public static final String COUNT_BY_QUEUE_NAME_AND_STATUS = "QueueMessage.CountByQueueNameAndStatus";
+    public static final String FIND_DEVICE_BY_MSG_ID = "QueueMessage.FindDeviceByMsgId";
+    public static final String COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS = "QueueMessage.CountByDeviceAndQueueNameAndStatus";
 
     public enum Status {
         SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED, TO_SCHEDULE;
@@ -114,7 +117,7 @@ public class QueueMessage {
     private Date updatedTime;
 
     @Basic(optional = false)
-    @Column(name = "device_name", updatable = false)
+    @Column(name = "device_name")
     private String deviceName;
 
     @Basic(optional = false)
@@ -175,6 +178,9 @@ public class QueueMessage {
 
     @OneToOne(mappedBy = "queueMessage")
     private DiffTask diffTask;
+
+    @OneToOne(mappedBy = "queueMessage")
+    private StorageVerificationTask storageVerificationTask;
 
     public QueueMessage() {
     }
@@ -273,6 +279,10 @@ public class QueueMessage {
         return scheduledTime;
     }
 
+    public void setScheduledTime(Date scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+
     public String getOutcomeMessage() {
         return outcomeMessage;
     }
@@ -285,24 +295,16 @@ public class QueueMessage {
         return exportTask;
     }
 
-    public void setExportTask(ExportTask exportTask) {
-        this.exportTask = exportTask;
-    }
-
     public RetrieveTask getRetrieveTask() {
         return retrieveTask;
-    }
-
-    public void setRetrieveTask(RetrieveTask retrieveTask) {
-        this.retrieveTask = retrieveTask;
     }
 
     public DiffTask getDiffTask() {
         return diffTask;
     }
 
-    public void setDiffTask(DiffTask diffTask) {
-        this.diffTask = diffTask;
+    public StorageVerificationTask getStorageVerificationTask() {
+        return storageVerificationTask;
     }
 
     public String getBatchID() {
@@ -311,16 +313,6 @@ public class QueueMessage {
 
     public void setBatchID(String batchID) {
         this.batchID = batchID;
-    }
-
-    public void reschedule(ObjectMessage msg, Date date) {
-        try {
-            this.messageID = msg.getJMSMessageID();
-            this.scheduledTime = date;
-            this.status = Status.SCHEDULED;
-        } catch (JMSException e) {
-            throw toJMSRuntimeException(e);
-        }
     }
 
     public void writeAsJSON(Writer out) throws IOException {

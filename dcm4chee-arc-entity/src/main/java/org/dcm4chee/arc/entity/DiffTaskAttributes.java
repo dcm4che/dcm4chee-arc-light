@@ -54,15 +54,11 @@ import javax.persistence.*;
 @NamedQueries({
         @NamedQuery(name = DiffTaskAttributes.FIND_BY_DIFF_TASK,
                 query = "select o.attributesBlob from DiffTaskAttributes o " +
-                        "where o.diffTask=?1"),
-        @NamedQuery(name = DiffTaskAttributes.FIND_BY_BATCH_ID,
-                query = "select o.attributesBlob from DiffTaskAttributes o " +
-                        "where o.diffTask.queueMessage.batchID=?1")
+                        "where o.diffTask=?1")
 })
 public class DiffTaskAttributes {
 
     public static final String FIND_BY_DIFF_TASK = "DiffTaskAttributes.findByDiffTask";
-    public static final String FIND_BY_BATCH_ID = "DiffTaskAttributes.findByBatchID";
 
     @Id
     @Column(name="dicomattrs_fk")

@@ -44,14 +44,20 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.hl7.ERRSegment;
+import org.dcm4che3.hl7.HL7Exception;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientService;
@@ -59,15 +65,14 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.xml.transform.TransformerConfigurationException;
-import java.io.IOException;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -77,7 +82,7 @@ import java.util.stream.Stream;
  */
 @ApplicationScoped
 @Typed(HL7Service.class)
-public class ProcedureUpdateService extends AbstractHL7Service {
+public class ProcedureUpdateService extends DefaultHL7Service {
     private final Logger LOG = LoggerFactory.getLogger(ProcedureUpdateService.class);
     @Inject
     private PatientService patientService;
@@ -90,14 +95,25 @@ public class ProcedureUpdateService extends AbstractHL7Service {
     }
 
     @Override
-    protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService);
-        if (pat != null)
-            updateProcedure(hl7App, s, msg, pat);
+    public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+            throws HL7Exception {
+        ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
+                HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
+        Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
+        if (pat != null) {
+            try {
+                updateProcedure(hl7App, s, msg, pat, archiveHL7Message);
+            } catch (Exception e) {
+                throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
+            }
+        }
+
+        return archiveHL7Message;
     }
 
-    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat)
-            throws IOException, SAXException, TransformerConfigurationException {
+    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat,
+                                 ArchiveHL7Message archiveHL7Message)
+            throws Exception {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         HL7Segment msh = msg.msh();
@@ -108,7 +124,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                     if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
                         tr.setParameter("hl7ScheduledStationAETInOrder", arcHL7App.hl7ScheduledStationAETInOrder().toString());
                 });
-        boolean result = adjust(attrs, arcHL7App, msh, s);
+        boolean result = adjust(attrs, arcHL7App, new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()), s);
         if (!result) {
             LOG.warn("MWL item not created/updated for HL7 message : " + msh.getMessageType()
                     + " as no mapping to a Scheduled Procedure Step Status is configured with ORC-1_ORC-5 : "
@@ -119,16 +135,20 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
         procedureService.updateProcedure(ctx);
+        archiveHL7Message.setProcRecEventActionCode(ctx.getEventActionCode());
+        archiveHL7Message.setStudyAttrs(ctx.getAttributes());
     }
 
-    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh, Socket socket) {
+    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Fields hl7Fields,
+                           Socket socket) {
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
         Sequence spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
         for (Attributes sps : spsItems) {
             if (sps.getString(Tag.ScheduledStationAETitle) == null) {
                 List<String> ssAETs = new ArrayList<>();
-                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(ReverseDNS.hostNameOf(socket.getLocalAddress()), msh, attrs);
+                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(
+                        ReverseDNS.hostNameOf(socket.getLocalAddress()), hl7Fields);
                 for (Device device : devices)
                     ssAETs.addAll(device.getApplicationAETitles());
 

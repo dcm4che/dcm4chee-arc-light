@@ -40,41 +40,51 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.Status;
-import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StreamUtils;
-import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.stgcmt.StgCmtContext;
+import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.storage.ReadContext;
-import org.dcm4chee.arc.storage.Storage;
-import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.hibernate.Session;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
+import javax.persistence.TemporalType;
+import java.time.Instant;
+import java.time.Period;
 import java.util.*;
-
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -82,25 +92,9 @@ import com.querydsl.core.types.Predicate;
  * @since Sep 2016
  */
 @Stateless
-public class StgCmtEJB implements StgCmtManager {
+public class StgCmtEJB {
 
     private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
-
-    private static final Expression<?>[] SELECT = {
-            QLocation.location.pk,
-            QLocation.location.storageID,
-            QLocation.location.storagePath,
-            QLocation.location.size,
-            QLocation.location.digest,
-            QLocation.location.status,
-            QInstance.instance.sopClassUID,
-            QInstance.instance.sopInstanceUID,
-            QInstance.instance.retrieveAETs,
-            QSeries.series.pk,
-            QStudy.study.studyInstanceUID
-    };
-    private static final int BUFFER_SIZE = 8192;
-
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -109,12 +103,22 @@ public class StgCmtEJB implements StgCmtManager {
     private Device device;
 
     @Inject
-    private UpdateLocationEJB updateLocationEJB;
+    private QueueManager queueManager;
 
-    @Inject
-    private StorageFactory storageFactory;
+    private static final Expression<?>[] SELECT = {
+            QQueueMessage.queueMessage.processingStartTime.min(),
+            QQueueMessage.queueMessage.processingStartTime.max(),
+            QQueueMessage.queueMessage.processingEndTime.min(),
+            QQueueMessage.queueMessage.processingEndTime.max(),
+            QQueueMessage.queueMessage.scheduledTime.min(),
+            QQueueMessage.queueMessage.scheduledTime.max(),
+            QStorageVerificationTask.storageVerificationTask.createdTime.min(),
+            QStorageVerificationTask.storageVerificationTask.createdTime.max(),
+            QStorageVerificationTask.storageVerificationTask.updatedTime.min(),
+            QStorageVerificationTask.storageVerificationTask.updatedTime.max(),
+            QQueueMessage.queueMessage.batchID
+    };
 
-    @Override
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
         StgCmtResult result = getStgCmtResult(transactionUID);
@@ -137,381 +141,18 @@ public class StgCmtEJB implements StgCmtManager {
         return result;
     }
 
-    @Override
-    public Attributes calculateResult(StgCmtContext ctx, Sequence refSopSeq, String transactionUID) {
-        int size = refSopSeq.size();
-        Map<String,List<Tuple>> instances = new HashMap<>(size * 4 / 3);
-        String commonRetrieveAETs = queryInstances(createPredicate(refSopSeq), instances);
-        Attributes eventInfo = new Attributes(8);
-        if (commonRetrieveAETs != null)
-            eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAETs);
-        eventInfo.setString(Tag.TransactionUID, VR.UI, transactionUID);
-        Sequence successSeq = eventInfo.newSequence(Tag.ReferencedSOPSequence, size);
-        Sequence failedSeq = eventInfo.newSequence(Tag.FailedSOPSequence, size);
-        HashMap<String,Storage> storageMap = new HashMap<>();
-        try {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            Set<String> studyUIDs = new HashSet<>();
-            for (Attributes refSOP : refSopSeq) {
-                String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
-                String cuid = refSOP.getString(Tag.ReferencedSOPClassUID);
-                List<Tuple> tuples = instances.get(iuid);
-                if (tuples == null)
-                    failedSeq.add(refSOP(cuid, iuid, Status.NoSuchObjectInstance));
-                else {
-                    Tuple tuple = tuples.get(0);
-                    studyUIDs.add(tuple.get(QStudy.study.studyInstanceUID));
-                    if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
-                        failedSeq.add(refSOP(cuid, iuid, Status.ClassInstanceConflict));
-                    else if (validateLocations(ctx, tuples, storageMap, buffer))
-                        successSeq.add(refSOP(cuid, iuid,
-                                commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
-                    else
-                        failedSeq.add(refSOP(cuid, iuid, Status.ProcessingFailure));
-                }
-            }
-            if (!studyUIDs.isEmpty()) {
-                if (studyUIDs.size()>1)
-                    LOG.warn("Storage commitment of objects of multiple studies.");
-                eventInfo.setString(Tag.StudyInstanceUID, VR.UI, studyUIDs.toArray(new String[studyUIDs.size()]));
-                List<AttributesBlob> attrs = em.createNamedQuery(Study.FIND_PATIENT_ATTRS_BY_STUDY_UIDS, AttributesBlob.class)
-                        .setParameter(1, studyUIDs).getResultList();
-                if (attrs.size() > 1)
-                    LOG.warn("Storage commitment of objects of multiple patients");
-                else {
-                    Attributes attr = attrs.get(0).getAttributes();
-                    eventInfo.setString(Tag.PatientID, VR.LO, attr.getString(Tag.PatientID));
-                    eventInfo.setString(Tag.IssuerOfPatientID, VR.LO, attr.getString(Tag.IssuerOfPatientID));
-                    eventInfo.setString(Tag.PatientName, VR.PN, attr.getString(Tag.PatientName));
-                }
-            }
-        } finally {
-            for (Storage storage : storageMap.values())
-                SafeClose.close(storage);
-        }
-        if (failedSeq.isEmpty())
-            eventInfo.remove(Tag.FailedSOPSequence);
-        return eventInfo;
+    public int setDigest(Long pk, String digest) {
+        return em.createNamedQuery(Location.SET_DIGEST)
+                .setParameter(1, pk)
+                .setParameter(2, digest)
+                .executeUpdate();
     }
 
-
-    @Override
-    public Attributes calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) {
-        HashMap<String,List<Tuple>> instances = new HashMap<>();
-        String commonRetrieveAETs = queryInstances(createPredicate(studyIUID, seriesIUID, sopIUID), instances);
-        Attributes eventInfo = new Attributes(3);
-        if (commonRetrieveAETs != null)
-            eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAETs);
-        int size = instances.size();
-        Sequence successSeq = eventInfo.newSequence(Tag.ReferencedSOPSequence, size);
-        Sequence failedSeq = eventInfo.newSequence(Tag.FailedSOPSequence, size);
-        HashMap<String,Storage> storageMap = new HashMap<>();
-        try {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            for (List<Tuple> tuples : instances.values()) {
-                Tuple tuple = tuples.get(0);
-                String cuid = tuple.get(QInstance.instance.sopClassUID);
-                String iuid = tuple.get(QInstance.instance.sopInstanceUID);
-                if (validateLocations(ctx, tuples, storageMap, buffer))
-                    successSeq.add(refSOP(cuid,iuid,
-                            commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
-                else
-                    failedSeq.add(refSOP(cuid, iuid, Status.ProcessingFailure));
-            }
-            eventInfo.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-            List<AttributesBlob> attrs = em.createNamedQuery(Study.FIND_PATIENT_ATTRS_BY_STUDY_UIDS, AttributesBlob.class)
-                    .setParameter(1, studyIUID).getResultList();
-            Attributes attr = attrs.get(0).getAttributes();
-            eventInfo.setString(Tag.PatientID, VR.LO, attr.getString(Tag.PatientID));
-            eventInfo.setString(Tag.IssuerOfPatientID, VR.LO, attr.getString(Tag.IssuerOfPatientID));
-            eventInfo.setString(Tag.PatientName, VR.PN, attr.getString(Tag.PatientName));
-        } finally {
-            for (Storage storage : storageMap.values())
-                SafeClose.close(storage);
-        }
-        if (failedSeq.isEmpty())
-            eventInfo.remove(Tag.FailedSOPSequence);
-        return eventInfo;
-    }
-
-    private List<Predicate> createPredicate(Sequence refSopSeq) {
-        List<Predicate> predicates = new ArrayList<>();
-        int limit = ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
-                .getDialect().getInExpressionCountLimit() - 10;
-        // SQL Server actually does support lesser parameters than its specified limit (2100)
-        if (limit <= 0)
-            limit = refSopSeq.size();
-
-        String[] sopIUIDs = new String[limit];
-        Iterator<Attributes> refSopIter = refSopSeq.iterator();
-        while (refSopIter.hasNext()) {
-            for (int i = 0; i < limit; i++) {
-                if (!refSopIter.hasNext()) {
-                    sopIUIDs = Arrays.copyOf(sopIUIDs, i);
-                    break;
-                }
-                sopIUIDs[i] = refSopIter.next().getString(Tag.ReferencedSOPInstanceUID);
-            }
-            predicates.add(ExpressionUtils.and(
-                    QInstance.instance.sopInstanceUID.in(sopIUIDs),
-                    QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE)));
-        }
-        return predicates;
-    }
-
-    private List<Predicate> createPredicate(String studyIUID, String seriesIUID, String sopIUID) {
-        List<Predicate> predicates = new ArrayList<>();
-        BooleanBuilder builder = new BooleanBuilder(QStudy.study.studyInstanceUID.eq(studyIUID));
-        if (seriesIUID != null) {
-            builder.and(QSeries.series.seriesInstanceUID.eq(seriesIUID));
-            if (sopIUID != null)
-                builder.and(QInstance.instance.sopInstanceUID.eq(sopIUID));
-        }
-        builder.and(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
-        predicates.add(builder);
-        return predicates;
-    }
-
-    private String queryInstances(List<Predicate> predicates, Map<String, List<Tuple>> instances) {
-        String commonRetrieveAETs = null;
-        for (Predicate predicate : predicates)
-            for (Tuple location : queryLocations(predicate)) {
-                String iuid = location.get(QInstance.instance.sopInstanceUID);
-                List<Tuple> list = instances.get(iuid);
-                if (list == null) {
-                    instances.put(iuid, list = new ArrayList<>());
-                    if (instances.isEmpty())
-                        commonRetrieveAETs = location.get(QInstance.instance.retrieveAETs);
-                    else if (commonRetrieveAETs != null
-                            && !commonRetrieveAETs.equals(location.get(QInstance.instance.retrieveAETs)))
-                        commonRetrieveAETs = null;
-                }
-                list.add(location);
-            }
-        return commonRetrieveAETs;
-    }
-
-    private List<Tuple> queryLocations(Predicate predicate) {
-        return new HibernateQuery<Void>(em.unwrap(Session.class))
-                .select(SELECT)
-                .from(QLocation.location)
-                .join(QLocation.location.instance, QInstance.instance)
-                .join(QInstance.instance.series, QSeries.series)
-                .join(QSeries.series.study, QStudy.study)
-                .where(predicate)
-                .fetch();
-    }
-
-    private boolean validateLocations(StgCmtContext ctx, List<Tuple> tuples, HashMap<String, Storage> storageMap,
-                                      byte[] buffer) {
-        if (ctx.getStgCmtPolicy() == StgCmtPolicy.DB_RECORD_EXISTS)
-            return true;
-
-        int locationsOnStgCmtStorage = 0;
-        for (Tuple tuple : tuples) {
-            String storageID = tuple.get(QLocation.location.storageID);
-            if (ctx.isStgCmtStorageID(storageID)) {
-                locationsOnStgCmtStorage++;
-                Storage storage = getStorage(storageMap, storageID);
-                ValidationResult result = validateLocation(ctx, tuple, storage, buffer);
-                if (ctx.isStgCmtUpdateLocationStatus()
-                        && tuple.get(QLocation.location.status) != result.status) {
-                    LOG.debug("Update status of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}] to {}",
-                            tuple.get(QLocation.location.pk),
-                            tuple.get(QLocation.location.storagePath),
-                            storage.getStorageDescriptor(),
-                            tuple.get(QInstance.instance.sopInstanceUID),
-                            tuple.get(QStudy.study.studyInstanceUID),
-                            result.status);
-                    updateLocationEJB.setStatus(tuple.get(QLocation.location.pk), result.status);
-                    updateLocationEJB.scheduleMetadataUpdate(tuple.get(QSeries.series.pk));
-                }
-                if (result.ok()) {
-                    return true;
-                }
-                if (result.ioException != null) {
-                    LOG.info("{} of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}]:\n",
-                            result.status,
-                            tuple.get(QLocation.location.pk),
-                            tuple.get(QLocation.location.storagePath),
-                            storage.getStorageDescriptor(),
-                            tuple.get(QInstance.instance.sopInstanceUID),
-                            tuple.get(QStudy.study.studyInstanceUID),
-                            result.ioException);
-                } else {
-                    LOG.info("{} of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}]",
-                            result.status,
-                            tuple.get(QLocation.location.pk),
-                            tuple.get(QLocation.location.storagePath),
-                            storage.getStorageDescriptor(),
-                            tuple.get(QInstance.instance.sopInstanceUID),
-                            tuple.get(QStudy.study.studyInstanceUID));
-                }
-            }
-        }
-        if (locationsOnStgCmtStorage == 0) {
-            Tuple tuple = tuples.get(0);
-            LOG.info("Instance[uid={}] of Study[uid={}] not stored on Storage{}",
-                    tuple.get(QLocation.location.storagePath),
-                    tuple.get(QInstance.instance.sopInstanceUID),
-                    tuple.get(QStudy.study.studyInstanceUID),
-                    Arrays.toString(ctx.getStgCmtStorageIDs()));
-        }
-        return false;
-    }
-
-    private ValidationResult validateLocation(StgCmtContext ctx, Tuple tuple, Storage storage, byte[] buffer) {
-        ReadContext readContext = storage.createReadContext();
-        readContext.setStoragePath(tuple.get(QLocation.location.storagePath));
-        readContext.setStudyInstanceUID(tuple.get(QStudy.study.studyInstanceUID));
-        switch (ctx.getStgCmtPolicy()) {
-            case OBJECT_EXISTS:
-                return objectExists(readContext);
-            case OBJECT_SIZE:
-                return compareObjectSize(readContext, tuple);
-            case OBJECT_FETCH:
-                return fetchObject(readContext, buffer);
-            case OBJECT_CHECKSUM:
-                return recalcChecksum(readContext, tuple, buffer);
-            case S3_MD5SUM:
-                return compareS3md5Sum(readContext, tuple, buffer);
-        }
-        throw new AssertionError("StgCmtPolicy: " + ctx.getStgCmtPolicy());
-    }
-
-    private static class ValidationResult {
-        final Location.Status status;
-        final IOException ioException;
-
-        ValidationResult(Location.Status status, IOException ioException) {
-            this.status = status;
-            this.ioException = ioException;
-        }
-
-        ValidationResult(Location.Status status) {
-            this(status, null);
-        }
-
-        boolean ok() {
-            return status == Location.Status.OK;
-        }
-    }
-
-    private ValidationResult objectExists(ReadContext readContext) {
-        return (readContext.getStorage().exists(readContext))
-                ? new ValidationResult(Location.Status.OK)
-                : new ValidationResult(Location.Status.MISSING_OBJECT);
-    }
-
-    private ValidationResult compareObjectSize(ReadContext readContext, Tuple tuple) {
-        try {
-            return (readContext.getStorage().getContentLength(readContext) == tuple.get(QLocation.location.size))
-                    ? new ValidationResult(Location.Status.OK)
-                    : new ValidationResult(Location.Status.DIFFERING_OBJECT_SIZE);
-        } catch (FileNotFoundException e) {
-            return new ValidationResult(Location.Status.MISSING_OBJECT, e);
-        } catch (IOException e) {
-            return new ValidationResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
-        }
-    }
-
-    private ValidationResult fetchObject(ReadContext readContext, byte[] buffer) {
-        try (InputStream stream = readContext.getStorage().openInputStream(readContext)) {
-            StreamUtils.copy(stream, null, buffer);
-            return new ValidationResult(Location.Status.OK);
-        } catch (FileNotFoundException e) {
-            return new ValidationResult(Location.Status.MISSING_OBJECT, e);
-        } catch (IOException e) {
-            return new ValidationResult(Location.Status.FAILED_TO_FETCH_OBJECT, e);
-        }
-    }
-
-    private ValidationResult recalcChecksum(ReadContext readContext, Tuple tuple, byte[] buffer) {
-        StorageDescriptor storageDescriptor = readContext.getStorage().getStorageDescriptor();
-        MessageDigest messageDigest = storageDescriptor.getMessageDigest();
-        readContext.setMessageDigest(messageDigest);
-        ValidationResult validationResult = fetchObject(readContext, buffer);
-        if (!validationResult.ok() || messageDigest == null)
-            return validationResult;
-
-        String calculatedDigest = TagUtils.toHexString(readContext.getDigest());
-        String digest = tuple.get(QLocation.location.digest);
-        if (digest == null) {
-            LOG.info("Set missing digest of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}]",
-                    tuple.get(QLocation.location.pk),
-                    tuple.get(QLocation.location.storagePath),
-                    storageDescriptor,
-                    tuple.get(QInstance.instance.sopInstanceUID),
-                    tuple.get(QStudy.study.studyInstanceUID));
-            updateLocationEJB.setDigest(tuple.get(QLocation.location.pk), calculatedDigest);
-            updateLocationEJB.scheduleMetadataUpdate(tuple.get(QSeries.series.pk));
-            return validationResult;
-        }
-
-        return (calculatedDigest.equals(digest))
-                ? new ValidationResult(Location.Status.OK)
-                : new ValidationResult(Location.Status.DIFFERING_OBJECT_CHECKSUM);
-    }
-
-    private ValidationResult compareS3md5Sum(ReadContext readContext, Tuple tuple, byte[] buffer) {
-        StorageDescriptor storageDescriptor = readContext.getStorage().getStorageDescriptor();
-        if (!"MD5".equals(storageDescriptor.getDigestAlgorithm())) {
-            LOG.info("Digest Algorithm of {} != MD5 -> compare object size instead compare S3 MD5",
-                    storageDescriptor);
-            return compareObjectSize(readContext, tuple);
-        }
-
-        byte[] contentMD5;
-        try {
-            contentMD5 = readContext.getStorage().getContentMD5(readContext);
-        } catch (FileNotFoundException e) {
-            return new ValidationResult(Location.Status.MISSING_OBJECT, e);
-        } catch (IOException e) {
-            return new ValidationResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
-        }
-        if (contentMD5 == null) {
-            LOG.info("S3 MD5SUM not supported by {} -> recalculate object checksum instead compare S3 MD5",
-                        storageDescriptor);
-            return recalcChecksum(readContext, tuple, buffer);
-        }
-        String digest = tuple.get(QLocation.location.digest);
-        if (digest == null || contentMD5 == null) {
-            ValidationResult validationResult = recalcChecksum(readContext, tuple, buffer);
-            if (!validationResult.ok())
-                return validationResult;
-
-            digest = TagUtils.toHexString(readContext.getDigest());
-        }
-        return (TagUtils.toHexString(contentMD5).equals(digest))
-            ? new ValidationResult(Location.Status.OK)
-            : new ValidationResult(Location.Status.DIFFERING_S3_MD5SUM);
-    }
-
-    private Storage getStorage(HashMap<String, Storage> storageMap, String storageID) {
-        Storage storage = storageMap.get(storageID);
-        if (storage == null) {
-            storage = storageFactory.getStorage(
-                    device.getDeviceExtension(ArchiveDeviceExtension.class).getStorageDescriptorNotNull(storageID));
-            storageMap.put(storageID, storage);
-        }
-        return storage;
-    }
-
-    private static Attributes refSOP(String cuid, String iuid, String retrieveAETs) {
-        Attributes attrs = new Attributes(3);
-        if (retrieveAETs != null)
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
-        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
-        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI,  iuid);
-        return attrs;
-    }
-
-    private static Attributes refSOP(String cuid, String iuid, int failureReason) {
-        Attributes attrs = new Attributes(3);
-        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
-        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
-        attrs.setInt(Tag.FailureReason, VR.US, failureReason);
-        return attrs;
+    public int setStatus(Long pk, Location.Status status) {
+        return em.createNamedQuery(Location.SET_STATUS)
+                .setParameter(1, pk)
+                .setParameter(2, status)
+                .executeUpdate();
     }
 
     private void updateExternalRetrieveAETs(Attributes eventInfo, String suid, ExporterDescriptor ed) {
@@ -549,15 +190,6 @@ public class StgCmtEJB implements StgCmtManager {
             instances.get(0).getSeries().getStudy().setExternalRetrieveAET(studyExternalAETs.iterator().next());
     }
 
-    private Instance nextNotRejected(Iterator<Instance> iter) {
-        while (iter.hasNext()) {
-            Instance next = iter.next();
-            if (!isRejectedOrRejectionNoteDataRetentionPolicyExpired(next))
-                return next;
-        }
-        return null;
-    }
-
     private boolean isRejectedOrRejectionNoteDataRetentionPolicyExpired(Instance inst) {
         if (inst.getRejectionNoteCode() != null)
             return true;
@@ -579,12 +211,10 @@ public class StgCmtEJB implements StgCmtManager {
         return null;
     }
 
-    @Override
     public void persistStgCmtResult(StgCmtResult result) {
         em.persist(result);
     }
 
-    @Override
     public List<StgCmtResult> listStgCmts(
             StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit) {
         HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID);
@@ -598,7 +228,6 @@ public class StgCmtEJB implements StgCmtManager {
         return results;
     }
 
-    @Override
     public boolean deleteStgCmt(String transactionUID) {
         try {
             StgCmtResult result = getStgCmtResult(transactionUID);
@@ -612,7 +241,6 @@ public class StgCmtEJB implements StgCmtManager {
         return false;
     }
 
-    @Override
     public int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore) {
         List<StgCmtResult> results = status != null
                                     ? updatedBefore != null
@@ -647,5 +275,296 @@ public class StgCmtEJB implements StgCmtManager {
         if (exporterId != null)
             predicate.and(QStgCmtResult.stgCmtResult.exporterID.eq(exporterId.toUpperCase()));
         return predicate;
+    }
+
+    public boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
+                                      String batchID) throws QueueSizeLimitExceededException {
+        if (isAlreadyScheduled(storageVerificationTask))
+            return false;
+
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(0);
+            msg.setStringProperty("LocalAET", storageVerificationTask.getLocalAET());
+            msg.setStringProperty("StudyInstanceUID", storageVerificationTask.getStudyInstanceUID());
+            if (storageVerificationTask.getSeriesInstanceUID() != null) {
+                msg.setStringProperty("SeriesInstanceUID", storageVerificationTask.getSeriesInstanceUID());
+                if (storageVerificationTask.getSOPInstanceUID() != null) {
+                    msg.setStringProperty("SOPInstanceUID", storageVerificationTask.getSOPInstanceUID());
+                }
+            }
+            if (httpServletRequestInfo != null) {
+                httpServletRequestInfo.copyTo(msg);
+            }
+            QueueMessage queueMessage = queueManager.scheduleMessage(StgCmtManager.QUEUE_NAME, msg,
+                    Message.DEFAULT_PRIORITY, batchID);
+            storageVerificationTask.setQueueMessage(queueMessage);
+            em.persist(storageVerificationTask);
+        } catch (JMSException e) {
+            throw QueueMessage.toJMSRuntimeException(e);
+        }
+        return true;
+    }
+
+    private boolean isAlreadyScheduled(StorageVerificationTask storageVerificationTask) {
+        BooleanBuilder predicate = new BooleanBuilder(QStorageVerificationTask.storageVerificationTask.queueMessage.status.in(
+                QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
+        predicate.and(QStorageVerificationTask.storageVerificationTask.studyInstanceUID.eq(
+                storageVerificationTask.getStudyInstanceUID()));
+        if (storageVerificationTask.getSeriesInstanceUID() == null) {
+            predicate.and(QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.isNull());
+        } else {
+            predicate.and(ExpressionUtils.or(
+                    QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.isNull(),
+                    QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.eq(
+                            storageVerificationTask.getSeriesInstanceUID())));
+            if (storageVerificationTask.getSOPInstanceUID() == null) {
+                predicate.and(QStorageVerificationTask.storageVerificationTask.sopInstanceUID.isNull());
+            } else {
+                predicate.and(ExpressionUtils.or(
+                    QStorageVerificationTask.storageVerificationTask.sopInstanceUID.isNull(),
+                    QStorageVerificationTask.storageVerificationTask.sopInstanceUID.eq(
+                            storageVerificationTask.getSOPInstanceUID())));
+            }
+        }
+        if (storageVerificationTask.getStorageVerificationPolicy() != null) {
+            predicate.and(QStorageVerificationTask.storageVerificationTask.storageVerificationPolicy.eq(
+                    storageVerificationTask.getStorageVerificationPolicy()));
+        }
+        if (storageVerificationTask.getStorageIDsAsString() != null) {
+            predicate.and(QStorageVerificationTask.storageVerificationTask.storageIDs.eq(
+                    storageVerificationTask.getStorageIDsAsString()));
+        }
+        try (CloseableIterator<Long> iterate = new HibernateQuery<>(em.unwrap(Session.class))
+                .select(QStorageVerificationTask.storageVerificationTask.pk)
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .where(predicate)
+                .iterate()) {
+            return iterate.hasNext();
+        }
+    }
+
+    public int updateStgVerTask(StorageVerificationTask storageVerificationTask) {
+        return em.createNamedQuery(StorageVerificationTask.UPDATE_RESULT_BY_PK)
+                .setParameter(1, storageVerificationTask.getPk())
+                .setParameter(2, storageVerificationTask.getCompleted())
+                .setParameter(3, storageVerificationTask.getFailed())
+                .executeUpdate();
+    }
+
+    public int updateSeries(String studyIUID, String seriesIUID, int failures) {
+        return em.createNamedQuery(Series.UPDATE_STGVER_FAILURES)
+                .setParameter(1, studyIUID)
+                .setParameter(2, seriesIUID)
+                .setParameter(3, failures)
+                .executeUpdate();
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
+                                                        OrderSpecifier<Date> order, int offset, int limit) {
+        return new StgVerTaskQueryImpl(
+                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchStgVerTask, order, offset, limit);
+    }
+
+    private StatelessSession openStatelessSession() {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    public long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        return createQuery(matchQueueMessage, matchStgVerTask)
+                .fetchCount();
+    }
+
+    private HibernateQuery<StorageVerificationTask> createQuery(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(matchQueueMessage);
+        return new HibernateQuery<StorageVerificationTask>(em.unwrap(Session.class))
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.in(queueMsgQuery));
+    }
+
+    public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
+        if (task == null)
+            return false;
+
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage == null)
+            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
+
+        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
+        LOG.info("Cancel {}", task);
+        return true;
+    }
+
+    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return queueManager.cancelStgVerTasks(matchQueueMessage, matchStgVerTask, prev);
+    }
+
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(StorageVerificationTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
+        if (task == null)
+            return;
+
+        LOG.info("Reschedule {}", task);
+        rescheduleStgVerTask(task.getQueueMessage().getMessageID(), queueEvent);
+    }
+
+    public void rescheduleStgVerTask(String stgVerTaskQueueMsgId, QueueMessageEvent queueEvent) {
+        queueManager.rescheduleTask(stgVerTaskQueueMsgId, StgCmtManager.QUEUE_NAME, queueEvent);
+    }
+
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+        return createQuery(matchQueueMessage, matchStgVerTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
+    }
+
+    public List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchStgVerTask, int limit) {
+        return createQuery(matchQueueMsg, matchStgVerTask)
+                .select(QQueueMessage.queueMessage.messageID)
+                .limit(limit)
+                .fetch();
+    }
+
+    public boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
+        if (task == null)
+            return false;
+
+        queueEvent.setQueueMsg(task.getQueueMessage());
+        em.remove(task);
+        LOG.info("Delete {}", task);
+        return true;
+    }
+
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize) {
+        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchStgVerTask)
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.pk)
+                .limit(deleteTasksFetchSize)
+                .fetch();
+
+        new HibernateDeleteClause(em.unwrap(Session.class), QStorageVerificationTask.storageVerificationTask)
+                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.pk.in(referencedQueueMsgs))
+                .execute();
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+    }
+
+    public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
+                                               OrderSpecifier<Date> order, int offset, int limit) {
+        HibernateQuery<StorageVerificationTask> stgVerTaskQuery = createQuery(matchQueueBatch, matchStgCmtBatch);
+        if (limit > 0)
+            stgVerTaskQuery.limit(limit);
+        if (offset > 0)
+            stgVerTaskQuery.offset(offset);
+
+        List<Tuple> batches = stgVerTaskQuery.select(SELECT)
+                .groupBy(QQueueMessage.queueMessage.batchID)
+                .orderBy(order)
+                .fetch();
+
+        List<StgVerBatch> stgVerBatches = new ArrayList<>();
+        for (Tuple batch : batches) {
+            StgVerBatch stgVerBatch = new StgVerBatch();
+            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
+            stgVerBatch.setBatchID(batchID);
+
+            stgVerBatch.setCreatedTimeRange(
+                    batch.get(QStorageVerificationTask.storageVerificationTask.createdTime.min()),
+                    batch.get(QStorageVerificationTask.storageVerificationTask.createdTime.max()));
+            stgVerBatch.setUpdatedTimeRange(
+                    batch.get(QStorageVerificationTask.storageVerificationTask.updatedTime.min()),
+                    batch.get(QStorageVerificationTask.storageVerificationTask.updatedTime.max()));
+            stgVerBatch.setScheduledTimeRange(
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.min()),
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.max()));
+            stgVerBatch.setProcessingStartTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+            stgVerBatch.setProcessingEndTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
+
+            stgVerBatch.setDeviceNames(
+                    batchIDQuery(batchID)
+                            .select(QQueueMessage.queueMessage.deviceName)
+                            .distinct()
+                            .orderBy(QQueueMessage.queueMessage.deviceName.asc())
+                            .fetch());
+            stgVerBatch.setLocalAETs(
+                    batchIDQuery(batchID)
+                            .select(QStorageVerificationTask.storageVerificationTask.localAET)
+                            .distinct()
+                            .orderBy(QStorageVerificationTask.storageVerificationTask.localAET.asc())
+                            .fetch());
+
+            stgVerBatch.setCompleted(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                            .fetchCount());
+            stgVerBatch.setCanceled(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                            .fetchCount());
+            stgVerBatch.setWarning(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                            .fetchCount());
+            stgVerBatch.setFailed(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                            .fetchCount());
+            stgVerBatch.setScheduled(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                            .fetchCount());
+            stgVerBatch.setInProcess(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                            .fetchCount());
+
+            stgVerBatches.add(stgVerBatch);
+        }
+
+        return stgVerBatches;
+    }
+
+    private HibernateQuery<StorageVerificationTask> batchIDQuery(String batchID) {
+        return new HibernateQuery<StorageVerificationTask>(em.unwrap(Session.class))
+                .from(QStorageVerificationTask.storageVerificationTask)
+                .leftJoin(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
+                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
+    }
+
+    public List<Series.StorageVerification> findSeriesForScheduledStorageVerifications(int fetchSize) {
+        return em.createNamedQuery(Series.SCHEDULED_STORAGE_VERIFICATION, Series.StorageVerification.class)
+                .setMaxResults(fetchSize)
+                .getResultList();
+    }
+
+    public int claimForStorageVerification(Long seriesPk, Date verificationTime, Date nextVerificationTime) {
+        return em.createNamedQuery(Series.CLAIM_STORAGE_VERIFICATION)
+                .setParameter(1, seriesPk)
+                .setParameter(2, verificationTime, TemporalType.TIMESTAMP)
+                .setParameter(3, nextVerificationTime, TemporalType.TIMESTAMP)
+                .executeUpdate();
     }
 }

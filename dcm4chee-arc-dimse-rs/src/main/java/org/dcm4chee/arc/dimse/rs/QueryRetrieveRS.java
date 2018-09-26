@@ -254,7 +254,7 @@ public class QueryRetrieveRS {
         Response.Status errorStatus = Response.Status.BAD_GATEWAY;
         try {
             as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0, splitStudyDateRange());
+            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0, 1, splitStudyDateRange());
             dimseRSP.next();
             int status;
             do {

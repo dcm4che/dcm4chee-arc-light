@@ -43,29 +43,37 @@ package org.dcm4chee.arc.hl7.impl;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
-import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.hl7.MLLPConnection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7Connection;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.ReverseDNS;
+import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7Fields;
+import org.dcm4chee.arc.conf.HL7ForwardRule;
 import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2016
  */
 @ApplicationScoped
@@ -81,25 +89,49 @@ public class HL7SenderImpl implements HL7Sender {
     @Inject
     private QueueManager queueManager;
 
-    @Override
-    public void forwardMessage(HL7Segment msh, byte[] orighl7msg, String... dests) {
+    public void onHL7Connection(@Observes HL7ConnectionEvent event) {
+        if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED
+            || event.getException() != null)
+            return;
+
+        UnparsedHL7Message msg = event.getHL7Message();
+        HL7Application hl7App = device.getDeviceExtension(HL7DeviceExtension.class)
+                .getHL7Application(msg.msh().getReceivingApplicationWithFacility(), true);
+        if (hl7App == null)
+            return;
+
+        ArchiveHL7ApplicationExtension arcHL7App =
+                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (arcHL7App == null || !arcHL7App.hasHL7ForwardRules())
+            return;
+
+        String host = ReverseDNS.hostNameOf(event.getSocket().getInetAddress());
+        HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
+        arcHL7App.hl7ForwardRules()
+                .filter(rule -> rule.match(host, hl7Fields))
+                .map(HL7ForwardRule::getDestinations)
+                .flatMap(Stream::of)
+                .distinct()
+                .forEach(dest -> forwardMessage(msg, dest));
+    }
+
+    private void forwardMessage(UnparsedHL7Message msg, String dest) {
+        HL7Segment msh = msg.msh();
         int field23Len = msh.getField(2, "").length() + msh.getField(3, "").length() + 2;
         int field45Len = msh.getField(4, "").length() + msh.getField(5, "").length() + 2;
-        for (String dest : dests) {
-            String[] ss = HL7Segment.split(dest, '|');
-            try {
-                scheduleMessage(
-                        msh.getField(4, ""),
-                        msh.getField(5, ""),
-                        ss[0],
-                        ss.length > 1 ? ss[1] : "",
-                        msh.getField(8, ""),
-                        msh.getField(9, ""),
-                        replaceField2345(orighl7msg, dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len),
-                        null);
-            } catch (Exception e) {
-                LOG.warn("Failed to schedule forward of HL7 message to {}:\n", dest, e);
-            }
+        String[] ss = HL7Segment.split(dest, '|');
+        try {
+            scheduleMessage(
+                    msh.getField(4, ""),
+                    msh.getField(5, ""),
+                    ss[0],
+                    ss.length > 1 ? ss[1] : "",
+                    msh.getField(8, ""),
+                    msh.getField(9, ""),
+                    replaceField2345(msg.data(), dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len),
+                    null);
+        } catch (Exception e) {
+            LOG.warn("Failed to schedule forward of HL7 message to {}:\n", dest, e);
         }
     }
 
@@ -139,31 +171,29 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
-    public HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                              String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+    public UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
+                                          String messageType, String messageControlID, UnparsedHL7Message hl7msg)
             throws Exception {
-        HL7Application sender = getSendingHl7Application(sendingApplication, sendingFacility);
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
-        return getAcknowledgeHL7Msg(sender, receiver, hl7msg);
+        try (HL7Connection conn = sender.open(receiver)) {
+            conn.writeMessage(hl7msg);
+            UnparsedHL7Message rsp = conn.readMessage(hl7msg);
+            if (rsp == null)
+                throw new IOException("TCP connection dropped while waiting for response");
+
+            return rsp;
+        }
     }
 
-    private HL7Application getSendingHl7Application(String sendingApplication, String sendingFacility) throws ConfigurationNotFoundException {
+    private HL7Application getSendingHl7Application(String sendingApplication, String sendingFacility)
+            throws ConfigurationNotFoundException {
         HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
         String sendingAppWithFacility = sendingApplication + '|' + sendingFacility;
         HL7Application sender = hl7Dev.getHL7Application(sendingAppWithFacility, true);
         if (sender == null)
-            throw new ConfigurationNotFoundException("Sending HL7 Application not configured : " + sendingAppWithFacility);
+            throw new ConfigurationNotFoundException(
+                    "Sending HL7 Application not configured : " + sendingAppWithFacility);
         return sender;
     }
 
-    private HL7Message getAcknowledgeHL7Msg(HL7Application sender, HL7Application receiver, byte[] hl7msg) throws Exception {
-        try (MLLPConnection conn = sender.connect(receiver)) {
-            conn.writeMessage(hl7msg);
-            byte[] rsp = conn.readMessage();
-            if (rsp == null)
-                throw new IOException("TCP connection dropped while waiting for response");
-
-            return HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet());
-        }
-    }
 }

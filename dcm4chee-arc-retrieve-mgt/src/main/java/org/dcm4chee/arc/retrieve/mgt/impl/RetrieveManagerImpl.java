@@ -46,6 +46,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -177,18 +178,38 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.rescheduleRetrieveTask(pk, queueEvent);
+    public String findDeviceNameByPk(Long pk) {
+        return ejb.findDeviceNameByPk(pk);
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        return ejb.deleteTasks(matchQueueMessage, matchRetrieveTask);
+    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
+        ejb.rescheduleRetrieveTask(pk, queueEvent);
+    }
+
+    @Override
+    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId) {
+        ejb.rescheduleRetrieveTask(retrieveTaskQueueMsgId, null);
+    }
+
+    @Override
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(matchQueueMessage, matchRetrieveTask, deleteTasksFetchSize);
+    }
+
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage, matchRetrieveTask);
     }
 
     @Override
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                                    OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, order, offset, limit);
+    }
+
+    @Override
+    public List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
+        return ejb.listRetrieveTaskQueueMsgIDs(matchQueueMessage, matchRetrieveTask, limit);
     }
 }

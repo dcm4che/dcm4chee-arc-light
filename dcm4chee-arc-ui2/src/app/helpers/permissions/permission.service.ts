@@ -4,6 +4,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {J4careHttpService} from "../j4care-http.service";
 import {AppService} from "../../app.service";
 import {Route, Router} from "@angular/router";
+import * as _ from 'lodash';
 
 @Injectable()
 export class PermissionService {
@@ -151,5 +152,38 @@ export class PermissionService {
             return false;
         }
     }
-
+    filterAetDependingOnUiConfig(aets, mode){
+        if(this.uiConfig && this.uiConfig.dcmuiAetConfig){
+            try{
+                let aetConfig = this.uiConfig.dcmuiAetConfig.filter(config=>{
+                    let oneAetRolesHasUser = false;
+                    if(_.hasIn(config, "dcmAcceptedUserRole") && config.dcmAcceptedUserRole && _.hasIn(this.mainservice.global,"authentication.roles") && this.mainservice.global.authentication.roles.length > 0){
+                        config.dcmAcceptedUserRole.forEach(role=>{
+                            if(this.mainservice.global.authentication.roles.indexOf(role) > -1){
+                                oneAetRolesHasUser = true;
+                            }
+                        });
+                    }
+                    return oneAetRolesHasUser;
+                });
+                if(mode){
+                    aetConfig = aetConfig.filter(config=>{
+                        return !config.dcmuiMode || config.dcmuiMode === mode;
+                    });
+                }
+                if(aetConfig.length > 0){
+                    return aets.filter(aet=>{
+                        return aetConfig[0].dcmuiAets.indexOf(aet.dicomAETitle) > -1;
+                    });
+                }else{
+                    return [];
+                }
+            }catch(e){
+                console.warn(e);
+                return [];
+            }
+        }else{
+            return aets;
+        }
+    }
 }

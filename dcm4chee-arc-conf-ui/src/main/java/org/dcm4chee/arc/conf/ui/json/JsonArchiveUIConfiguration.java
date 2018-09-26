@@ -52,6 +52,7 @@ import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Shefki Esadi <shralsheki@gmail.com>
  * @since Nov 2017
  */
 public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
@@ -87,6 +88,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIElasticsearchConfigs(writer, uiConfig.getElasticsearchConfigs());
         writeUIDeviceURLs(writer, uiConfig.getDeviceURLs());
         writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
+        writeUIFilterTemplate(writer, uiConfig.getFilterTemplates());
+        writeUIAetList(writer, uiConfig.getAetLists());
         writer.writeEnd();
     }
 
@@ -101,6 +104,22 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiAction", uiPermission.getAction(), null);
             writer.writeNotEmpty("dcmuiActionParam", uiPermission.getActionParams());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiPermission.getAcceptedUserRoles());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIAetList(JsonWriter writer, Collection<UIAetList> uiAetLists) {
+        if (uiAetLists.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiAetConfig");
+        for (UIAetList uiAetList : uiAetLists) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiAetListName", uiAetList.getAetListName(), null);
+            writer.writeNotNullOrDef("dcmuiAetListDescription", uiAetList.getAetListDescription(), null);
+            writer.writeNotNullOrDef("dcmuiMode", uiAetList.getMode(), null);
+            writer.writeNotEmpty("dcmuiAets", uiAetList.getAets());
+            writer.writeNotEmpty("dcmAcceptedUserRole", uiAetList.getAcceptedRole());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -133,6 +152,24 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
             writer.writeNotEmpty("dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
             writer.writeNotDef("dcmuiDeviceClusterInstalled", uiDeviceCluster.isInstalled(), true);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIFilterTemplate(JsonWriter writer, Collection<UIFiltersTemplate> uiFiltersTemplates) {
+        if (uiFiltersTemplates.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiFilterTemplateObject");
+        for (UIFiltersTemplate uiFiltersTemplate : uiFiltersTemplates) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiFilterTemplateGroupName", uiFiltersTemplate.getFilterGroupName(), null);
+            writer.writeNotNullOrDef("dcmuiFilterTemplateID", uiFiltersTemplate.getFilterGroupID(), null);
+            writer.writeNotNullOrDef("dcmuiFilterTemplateDescription", uiFiltersTemplate.getFilterGroupDescription(), null);
+            writer.writeNotNullOrDef("dcmuiFilterTemplateUsername", uiFiltersTemplate.getFilterGroupUsername(), null);
+            writer.writeNotNullOrDef("dcmuiFilterTemplateRole", uiFiltersTemplate.getFilterGroupRole(), null);
+            writer.writeNotEmpty("dcmuiFilterTemplateFilters", uiFiltersTemplate.getFilters());
+            writer.writeNotDef("dcmuiFilterTemplateDefault", uiFiltersTemplate.isDefault(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -181,6 +218,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), null);
             writer.writeNotNullOrDef("dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(),null);
+            writer.writeNotNullOrDef("dcmuiElasticsearchURLKeycloakServer", uiElasticsearchURL.getElasticsearchURLKeycloakServer(),null);
             writer.writeNotDef("dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
             writer.writeNotDef("dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
             writer.writeEnd();
@@ -263,6 +301,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiPermission":
                     loadUIPermissions(uiConfig, reader);
                     break;
+                case "dcmuiAetConfig":
+                    loadUIAetList(uiConfig, reader);
+                    break;
                 case "dcmuiDiffConfig":
                     loadUIDiffConfigs(uiConfig, reader);
                     break;
@@ -277,6 +318,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiDeviceClusterObject":
                     loadUIDeviceClusters(uiConfig, reader);
+                    break;
+                case "dcmuiFilterTemplateObject":
+                    loadUIFilterTemplate(uiConfig, reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -310,6 +354,39 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addPermission(uiPermission);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadUIAetList(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIAetList uiAetList = new UIAetList();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiAetListName":
+                        uiAetList.setAetListName(reader.stringValue());
+                        break;
+                    case "dcmuiAetListDescription":
+                        uiAetList.setAetListDescription(reader.stringValue());
+                        break;
+                    case "dcmuiMode":
+                        uiAetList.setMode(reader.stringValue());
+                        break;
+                    case "dcmuiAets":
+                        uiAetList.setAets(reader.stringArray());
+                        break;
+                    case "dcmAcceptedUserRole":
+                        uiAetList.setAcceptedRole(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addAetList(uiAetList);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -377,6 +454,44 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
+    private void loadUIFilterTemplate(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIFiltersTemplate uiFiltersTemplate = new UIFiltersTemplate();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiFilterTemplateGroupName":
+                        uiFiltersTemplate.setFilterGroupName(reader.stringValue());
+                        break;
+                    case "dcmuiFilterTemplateID":
+                        uiFiltersTemplate.setFilterGroupID(reader.stringValue());
+                        break;
+                    case "dcmuiFilterTemplateDescription":
+                        uiFiltersTemplate.setFilterGroupDescription(reader.stringValue());
+                        break;
+                    case "dcmuiFilterTemplateUsername":
+                        uiFiltersTemplate.setFilterGroupUsername(reader.stringValue());
+                        break;
+                    case "dcmuiFilterTemplateRole":
+                        uiFiltersTemplate.setFilterGroupRole(reader.stringValue());
+                        break;
+                    case "dcmuiFilterTemplateFilters":
+                        uiFiltersTemplate.setFilters(reader.stringArray());
+                        break;
+                    case "dcmuiFilterTemplateDefault":
+                        uiFiltersTemplate.setDefault(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addFilterTemplate(uiFiltersTemplate);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
 
     private void loadUIElasticsearchConfigs(UIConfig uiConfig, JsonReader reader) {
         reader.next();
@@ -414,6 +529,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiElasticsearchURL":
                         uiElasticsearchURL.setUrl(reader.stringValue());
+                        break;
+                    case "dcmuiElasticsearchURLKeycloakServer":
+                        uiElasticsearchURL.setElasticsearchURLKeycloakServer(reader.stringValue());
                         break;
                     case "dcmuiElasticsearchIsDefault":
                         uiElasticsearchURL.setDefault(reader.booleanValue());

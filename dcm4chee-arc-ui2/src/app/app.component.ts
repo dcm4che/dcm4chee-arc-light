@@ -196,6 +196,9 @@ export class AppComponent implements OnInit {
         clearInterval(this.clockInterval);
         this.startClock(serverTime);
     }
+    logout(){
+        window.location.href = this.logoutUrl;
+    }
     progress(){
         let changeTo = function (t) {
             this.progressValue = t;

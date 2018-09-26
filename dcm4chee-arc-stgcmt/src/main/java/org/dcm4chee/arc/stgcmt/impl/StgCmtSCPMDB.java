@@ -109,14 +109,14 @@ public class StgCmtSCPMDB implements MessageListener {
             String localAET = msg.getStringProperty("LocalAET");
             ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(msg.getStringProperty("RemoteAET"));
-            StgCmtContext ctx = new StgCmtContext(localAE, localAET).setRemoteAE(remoteAE);
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
-            Attributes eventInfo = stgCmtMgr.calculateResult(ctx,
-                    actionInfo.getSequence(Tag.ReferencedSOPSequence),
-                    actionInfo.getString(Tag.TransactionUID));
-            stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
-            removeExtendedEventInfo(eventInfo);
-            Outcome outcome = stgCmtSCP.sendNEventReport(localAET, remoteAE, eventInfo);
+            StgCmtContext ctx = new StgCmtContext(localAE, localAET)
+                    .setRemoteAE(remoteAE)
+                    .setTransactionUID(actionInfo.getString(Tag.TransactionUID));
+            stgCmtMgr.calculateResult(ctx, actionInfo.getSequence(Tag.ReferencedSOPSequence));
+            stgCmtEvent.fire(ctx);
+            Outcome outcome = stgCmtSCP.sendNEventReport(localAET, remoteAE,
+                    removeExtendedEventInfo(ctx.getEventInfo()));
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
@@ -124,10 +124,11 @@ public class StgCmtSCPMDB implements MessageListener {
         }
     }
 
-    private void removeExtendedEventInfo(Attributes eventInfo) {
+    private Attributes removeExtendedEventInfo(Attributes eventInfo) {
         eventInfo.remove(Tag.StudyInstanceUID);
         eventInfo.remove(Tag.PatientName);
         eventInfo.remove(Tag.PatientID);
         eventInfo.remove(Tag.IssuerOfPatientID);
+        return eventInfo;
     }
 }

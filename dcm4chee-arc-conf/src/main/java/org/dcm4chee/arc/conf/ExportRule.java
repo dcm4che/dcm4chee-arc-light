@@ -90,7 +90,8 @@ public class ExportRule {
     }
 
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs, Calendar cal) {
-        return match(cal) && conditions.match(hostName, sendingAET, receivingAET, attrs);
+        return ScheduleExpression.emptyOrAnyContains(cal, schedules)
+                && conditions.match(hostName, sendingAET, receivingAET, attrs);
     }
 
     public boolean isExportPreviousEntity() {
@@ -99,17 +100,6 @@ public class ExportRule {
 
     public void setExportPreviousEntity(boolean exportPreviousEntity) {
         this.exportPreviousEntity = exportPreviousEntity;
-    }
-
-    private boolean match(Calendar cal) {
-        if (schedules.length == 0)
-            return true;
-
-        for (ScheduleExpression schedule : this.schedules)
-            if (schedule.contains(cal))
-                return true;
-
-        return false;
     }
 
     @Override

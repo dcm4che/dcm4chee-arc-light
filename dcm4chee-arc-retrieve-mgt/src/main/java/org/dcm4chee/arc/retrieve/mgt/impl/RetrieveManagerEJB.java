@@ -38,8 +38,11 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
+import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
@@ -48,10 +51,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.QQueueMessage;
-import org.dcm4chee.arc.entity.QRetrieveTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -113,51 +113,9 @@ public class RetrieveManagerEJB {
             QQueueMessage.queueMessage.batchID
     };
 
-    enum QueryRetrieveTask {
-        STUDY {
-            @Override
-            Query createQuery(EntityManager em, ExternalRetrieveContext ctx) {
-                return em.createNamedQuery(RetrieveTask.PK_FOR_STUDY_RETRIEVE_TASK);
-            }
-        },
-        SERIES {
-            @Override
-            Query createQuery(EntityManager em, ExternalRetrieveContext ctx) {
-                return em.createNamedQuery(RetrieveTask.PK_FOR_SERIES_RETRIEVE_TASK)
-                        .setParameter(6, ctx.getSeriesInstanceUID());
-            }
-        },
-        IMAGE {
-            @Override
-            Query createQuery(EntityManager em, ExternalRetrieveContext ctx) {
-                return em.createNamedQuery(RetrieveTask.PK_FOR_OBJECT_RETRIEVE_TASK)
-                        .setParameter(6, ctx.getSeriesInstanceUID())
-                        .setParameter(7, ctx.getSOPInstanceUID());
-            }
-        };
-
-        static boolean isAlreadyScheduled(EntityManager em, ExternalRetrieveContext ctx) {
-            try {
-                valueOf(ctx.getKeys().getString(Tag.QueryRetrieveLevel))
-                        .createQuery(em, ctx)
-                        .setParameter(1, EnumSet.of(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS))
-                        .setParameter(2, ctx.getLocalAET())
-                        .setParameter(3, ctx.getRemoteAET())
-                        .setParameter(4, ctx.getDestinationAET())
-                        .setParameter(5, ctx.getStudyInstanceUID())
-                        .getSingleResult();
-                return true;
-            } catch (NoResultException e) {
-                return false;
-            }
-        }
-
-        abstract Query createQuery(EntityManager em, ExternalRetrieveContext ctx);
-    }
-
     public boolean scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID)
             throws QueueSizeLimitExceededException {
-        if (QueryRetrieveTask.isAlreadyScheduled(em, ctx)) {
+        if (isAlreadyScheduled(em, ctx)) {
             return false;
         }
         try {
@@ -174,6 +132,35 @@ public class RetrieveManagerEJB {
             return true;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
+        }
+    }
+
+    private boolean isAlreadyScheduled(EntityManager em, ExternalRetrieveContext ctx) {
+        BooleanBuilder predicate = new BooleanBuilder(QRetrieveTask.retrieveTask.queueMessage.status.in(
+                QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
+        predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(ctx.getRemoteAET()));
+        predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(ctx.getDestinationAET()));
+        predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(ctx.getStudyInstanceUID()));
+        if (ctx.getSeriesInstanceUID() == null) {
+            predicate.and(QRetrieveTask.retrieveTask.seriesInstanceUID.isNull());
+        } else {
+            predicate.and(ExpressionUtils.or(
+                    QRetrieveTask.retrieveTask.seriesInstanceUID.isNull(),
+                    QRetrieveTask.retrieveTask.seriesInstanceUID.eq(ctx.getSeriesInstanceUID())));
+            if (ctx.getSOPInstanceUID() == null) {
+                predicate.and(QRetrieveTask.retrieveTask.sopInstanceUID.isNull());
+            } else {
+                predicate.and(ExpressionUtils.or(
+                        QRetrieveTask.retrieveTask.sopInstanceUID.isNull(),
+                        QRetrieveTask.retrieveTask.sopInstanceUID.eq(ctx.getSOPInstanceUID())));
+            }
+        }
+        try (CloseableIterator<Long> iterate = new HibernateQuery<>(em.unwrap(Session.class))
+                .select(QRetrieveTask.retrieveTask.pk)
+                .from(QRetrieveTask.retrieveTask)
+                .where(predicate)
+                .iterate()) {
+            return iterate.hasNext();
         }
     }
 
@@ -258,38 +245,54 @@ public class RetrieveManagerEJB {
         return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
-    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        RetrieveTask task = em.find(RetrieveTask.class, pk);
-        if (task == null)
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(RetrieveTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
             return null;
-
-        LOG.info("Reschedule {}", task);
-        return queueManager.rescheduleTask(task.getQueueMessage(), RetrieveManager.QUEUE_NAME, queueEvent);
+        }
     }
 
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        int count = 0;
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        List<Long> referencedQueueMsgs;
-        do {
-            referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
+        RetrieveTask task = em.find(RetrieveTask.class, pk);
+        if (task == null)
+            return;
+
+        LOG.info("Reschedule {}", task);
+        rescheduleRetrieveTask(task.getQueueMessage().getMessageID(), queueEvent);
+    }
+
+    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, QueueMessageEvent queueEvent) {
+        queueManager.rescheduleTask(retrieveTaskQueueMsgId, RetrieveManager.QUEUE_NAME, queueEvent);
+    }
+
+    public List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchRetrieveTask, int limit) {
+        return createQuery(matchQueueMsg, matchRetrieveTask)
+                .select(QQueueMessage.queueMessage.messageID)
+                .limit(limit)
+                .fetch();
+    }
+
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize) {
+        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchRetrieveTask)
                     .select(QRetrieveTask.retrieveTask.queueMessage.pk)
-                    .from(QRetrieveTask.retrieveTask)
-                    .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
-                    .limit(deleteTaskFetchSize).fetch();
+                    .limit(deleteTasksFetchSize)
+                    .fetch();
 
-            new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                    .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
-                    .execute();
+        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
+                .execute();
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+    }
 
-            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                    .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
-        return count;
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return createQuery(matchQueueMessage, matchRetrieveTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
     }
 
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
@@ -402,6 +405,6 @@ public class RetrieveManagerEJB {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

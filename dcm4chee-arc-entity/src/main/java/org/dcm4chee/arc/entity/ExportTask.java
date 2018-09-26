@@ -78,7 +78,12 @@ import java.util.Date;
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
                         "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4) " +
-                        "and o.queueMessage is null")
+                        "and o.queueMessage is null"),
+        @NamedQuery(name = ExportTask.FIND_DEVICE_BY_PK,
+                query = "select o.deviceName from ExportTask o where o.pk=?1"),
+        @NamedQuery(name = ExportTask.FIND_STUDY_EXPORT_AFTER,
+                query = "select o from ExportTask o where o.updatedTime > ?1 and o.exporterID=?2 " +
+                        "and o.studyInstanceUID=?3 and o.seriesInstanceUID='*'")
 })
 public class ExportTask {
 
@@ -90,6 +95,8 @@ public class ExportTask {
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
+    public static final String FIND_DEVICE_BY_PK = "ExportTask.FindDeviceByPk";
+    public static final String FIND_STUDY_EXPORT_AFTER = "ExportTask.FindStudyExportAfter";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -333,6 +340,9 @@ public class ExportTask {
 
     @Override
     public String toString() {
-        return "ExportTask[pk=" + pk + ", ExporterID=" + exporterID + "]";
+        return "ExportTask[pk=" + pk
+                + ", ExporterID=" + exporterID
+                + ", StudyUID=" + studyInstanceUID
+                + "]";
     }
 }

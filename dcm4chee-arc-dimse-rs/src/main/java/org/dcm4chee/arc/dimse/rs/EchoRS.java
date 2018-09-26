@@ -55,6 +55,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -86,6 +87,13 @@ public class EchoRS {
 
     @Context
     private HttpServletRequest request;
+
+    @QueryParam("host")
+    private String host;
+
+    @QueryParam("port")
+    @Pattern(regexp = "^[1-9]\\d{0,4}+$")
+    private String port;
 
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
@@ -120,8 +128,9 @@ public class EchoRS {
     @Produces("application/json")
     public StreamingOutput echo() throws Exception {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        int remotePort = parseInt(port);
         ApplicationEntity ae = getApplicationEntity();
-        ApplicationEntity remote = getRemoteApplicationEntity();
+        ApplicationEntity remote = host != null && remotePort > 0 ? createRemoteAE(remotePort) : getRemoteApplicationEntity();
         Association as = null;
         long t1, t2;
         Result result = new Result();
@@ -161,6 +170,21 @@ public class EchoRS {
             }
         }
         return result;
+    }
+
+    private ApplicationEntity createRemoteAE(int remotePort) {
+        Device device = new Device();
+        device.setDeviceName(remoteAET.toLowerCase());
+        device.setInstalled(true);
+        Connection conn = new Connection();
+        conn.setHostname(host);
+        conn.setPort(remotePort);
+        device.addConnection(conn);
+        ApplicationEntity remoteAE = new ApplicationEntity();
+        remoteAE.setAETitle(remoteAET);
+        remoteAE.addConnection(conn);
+        device.addApplicationEntity(remoteAE);
+        return remoteAE;
     }
 
     private static class Result implements StreamingOutput {
@@ -218,5 +242,9 @@ public class EchoRS {
             gen.writeEnd();
             gen.flush();
         }
+    }
+
+    private static int parseInt(String s) {
+        return s != null ? Integer.parseInt(s) : 0;
     }
 }

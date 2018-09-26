@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.13.3</version>
+    <version>5.14.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -138,6 +138,12 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-keycloak</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-hl7</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

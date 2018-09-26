@@ -42,14 +42,17 @@ package org.dcm4chee.arc.delete.impl;
 
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.AllowDeletePatient;
 import org.dcm4chee.arc.conf.AllowDeleteStudyPermanently;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.delete.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,10 +79,16 @@ public class DeletionServiceImpl implements DeletionService {
     private EntityManager em;
 
     @Inject
+    private Device device;
+
+    @Inject
     private DeletionServiceEJB ejb;
 
     @Inject
     private PatientService patientService;
+
+    @Inject
+    private StoreService storeService;
 
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
@@ -134,9 +143,8 @@ public class DeletionServiceImpl implements DeletionService {
                        PatientMgtContext pCtx) throws Exception {
         StudyDeleteContext ctx = createStudyDeleteContext(study.getPk(), httpServletRequestInfo);
         try {
-            if (studyDeleted(ctx, study, arcAE, pCtx))
-                LOG.info("Successfully delete {} from database", study);
-            study.getPatient().decrementNumberOfStudies();
+            studyDeleted(ctx, study, arcAE, pCtx);
+            LOG.info("Successfully delete {} from database", study);
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", study, e);
             ctx.setException(e);
@@ -165,22 +173,27 @@ public class DeletionServiceImpl implements DeletionService {
         patientMgtEvent.fire(ctx);
     }
 
-    private boolean studyDeleted(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx)
+    private void studyDeleted(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx)
             throws Exception {
         ctx.setStudy(study);
         ctx.setPatient(study.getPatient());
         ctx.setDeletePatientOnDeleteLastStudy(arcAE.getArchiveDeviceExtension().isDeletePatientOnDeleteLastStudy());
         AllowDeleteStudyPermanently allowDeleteStudy = pCtx != null && arcAE.allowDeletePatient() == AllowDeletePatient.ALWAYS
                 ? AllowDeleteStudyPermanently.ALWAYS : arcAE.allowDeleteStudy();
-        if (study.getRejectionState() == RejectionState.COMPLETE
-                || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
+        RejectionState rejectionState = study.getRejectionState();
+        if (rejectionState == RejectionState.NONE && allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
+            storeService.restoreInstances(
+                    storeService.newStoreSession(device.getApplicationEntities().iterator().next()),
+                    study.getStudyInstanceUID(),
+                    null,
+                    device.getDeviceExtension(ArchiveDeviceExtension.class).getPurgeInstanceRecordsDelay());
             ejb.deleteStudy(ctx);
-            return true;
         }
-        else if (study.getRejectionState() == RejectionState.EMPTY) {
+        if (rejectionState == RejectionState.COMPLETE
+                || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS)
+            ejb.deleteStudy(ctx);
+        else if (rejectionState == RejectionState.EMPTY)
             ejb.deleteEmptyStudy(ctx);
-            return true;
-        }
 
         throw new StudyNotEmptyException("Study is not empty.");
     }
