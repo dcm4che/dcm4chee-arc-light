@@ -189,12 +189,14 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                         'text': 'Reload successful',
                                         'status': 'info'
                                     });
-                                    try{
-                                        let global = _.cloneDeep(this.mainservice.global);
-                                        global["uiConfig"] =  _.get($this.service.device, "dcmDevice.dcmuiConfig[0]");
-                                        this.mainservice.setGlobal(global);
-                                    }catch (e){
-                                        console.error("Ui Config could not be updated", e);
+                                    if(this.mainservice.deviceName === this.service.device.dicomDeviceName){
+                                        try{
+                                            let global = _.cloneDeep(this.mainservice.global);
+                                            global["uiConfig"] =  _.get($this.service.device, "dcmDevice.dcmuiConfig[0]");
+                                            this.mainservice.setGlobal(global);
+                                        }catch (e){
+                                            console.error("Ui Config could not be updated", e);
+                                        }
                                     }
                                     $this.cfpLoadingBar.complete();
                                 }, (err) => {
