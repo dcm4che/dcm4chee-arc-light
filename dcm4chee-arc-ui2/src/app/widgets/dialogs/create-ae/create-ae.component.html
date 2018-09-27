@@ -143,6 +143,24 @@
                             </div>
                         </div>
                     </div>
+                    <div class="test">
+                        <h4 (click)="showTestBlock=!showTestBlock">Test Connection</h4>
+                        <div class="content" *ngIf="showTestBlock && newAetModel.dicomNetworkAE[0].dicomAETitle && newAetModel.dicomNetworkConnection[0].dicomHostname && newAetModel.dicomNetworkConnection[0].dicomPort">
+                            <div class="block">
+                                <div class="label_part">
+                                    Calling AET:
+                                </div>
+                                <div class="input_part">
+                                    <select [ngModel]="selectedCallingAet" (ngModelChange)="selectedCallingAet = $event" name="dicomDeviceName">
+                                        <option [value]="obj.dicomAETitle" *ngFor="let obj of aes">{{obj.dicomAETitle}}</option>
+                                    </select>
+                                </div>
+                                <div class="test_button">
+                                    <button (click)="testConnection()" title="Verify AET, host and port before saving" [disabled]="!selectedCallingAet">TEST CONNECTION</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

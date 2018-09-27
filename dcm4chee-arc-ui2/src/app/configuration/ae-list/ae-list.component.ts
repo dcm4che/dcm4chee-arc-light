@@ -169,32 +169,16 @@ export class AeListComponent implements OnInit{
                 console.log('result', result);
                 console.log('result', parameters.result);
                 $this.cfpLoadingBar.start();
-                $this.$http.post(
-                    '../aets/' + parameters.result.select + '/dimse/' + ae,
-                    {}
-                ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                 this.service.echoAe(parameters.result.select, ae, {})
                     .subscribe((response) => {
                         console.log('response', response);
                         $this.cfpLoadingBar.complete();
-                        if (_.hasIn(response, 'errorMessage') && response.errorMessage != '') {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ',
-                                'text': response.errorMessage,
-                                'status': 'error'
-                            });
-                        } else {
-
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Echo successfully accomplished!<br>- Connection time: ' +
-                                response.connectionTime +
-                                ' ms<br/>- Echo time: ' +
-                                response.echoTime +
-                                ' ms<br/>- Release time: ' +
-                                response.releaseTime + ' ms',
-                                'status': 'info'
-                            });
-                        }
+                        let msg = this.service.generateEchoResponseText(response);
+                        $this.mainservice.setMessage({
+                            'title': msg.title,
+                            'text': msg.text,
+                            'status': msg.status
+                        });
                     }, err => {
                         $this.cfpLoadingBar.complete();
                         $this.httpErrorHandler.handleError(err);
@@ -326,6 +310,7 @@ export class AeListComponent implements OnInit{
         this.dialogRef.componentInstance.dicomconn = dicomconn;
         this.dialogRef.componentInstance.newAetModel = newAetModel;
         this.dialogRef.componentInstance.netAEModel = netAEModel;
+        this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.componentInstance.devices = this.devices;
         this.dialogRef.afterClosed().subscribe(re => {
             if (re){
