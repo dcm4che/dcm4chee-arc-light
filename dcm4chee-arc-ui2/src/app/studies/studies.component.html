@@ -389,12 +389,12 @@
             <div class="col-md-3 block-2-1">
                 <div class="row">
 
-                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                    <div class="col-md-6" *ngIf="(filterMode === 'study' || filterMode === 'diff') && externalInternalAetMode === 'internal'">
                         <label title="Show only expired studies">
                             <input type="checkbox" [(ngModel)]="filter.expired"> Only expired studies
                         </label>
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                    <div class="col-md-6" *ngIf="(filterMode === 'study' || filterMode === 'diff') && externalInternalAetMode === 'internal'">
                         <label title="Show only incomplete studies"  >
                             <input type="checkbox" [(ngModel)]="filter.incomplete"> Only incomplete studies
                         </label>
@@ -422,7 +422,7 @@
             </div>
             <div class="col-md-3 block-2-1" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                 <div class="row">
-                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                    <div class="col-md-6" *ngIf="(filterMode === 'study' || filterMode === 'diff') && externalInternalAetMode === 'internal'">
                         <div class="input-group">
                             <span class="checkboxpart">
                                 <input type="checkbox" [(ngModel)]="ExternalRetrieveAETchecked" (change)="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''"> No
@@ -431,7 +431,7 @@
                             <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET!" *ngIf="ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter['ExternalRetrieveAET!']" placeholder="External retrieve AET" title="Not retrievable from external retrieve AET"/>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" *ngIf="externalInternalAetMode === 'internal'">
                         <label title="Show only studies failed to be retrieved">
                             <input type="checkbox" [(ngModel)]="filter.retrievefailed"> Only failed to be retrieved
                         </label>
