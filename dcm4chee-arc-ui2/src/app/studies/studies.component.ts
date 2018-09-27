@@ -2247,38 +2247,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     [
                         {
                             tag:"label",
-                            text:"Marked as incomplete"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"incomplete",
-                        }
-                    ],[
-                        {
-                            tag:"label",
-                            text:"Failed to be retrieved"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"retrievefailed"
-                        }
-                    ],[
-                        {
-                            tag:"label",
                             text:"Failed storage verification"
                         },
                         {
                             tag:"checkbox",
                             filterKey:"storageVerificationFailed"
-                        }
-                    ],[
-                        {
-                            tag:"label",
-                            text:"Compression Failed"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"compressionfailed"
                         }
                     ],[
                         {
