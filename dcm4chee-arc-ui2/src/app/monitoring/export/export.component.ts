@@ -731,6 +731,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.dialogRef.componentInstance.title = 'Task reschedule';
         this.dialogRef.componentInstance.warning = null;
         this.dialogRef.componentInstance.mode = "reschedule";
+        this.dialogRef.componentInstance.quantity = "single";
         this.dialogRef.componentInstance.result = result;
         this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
         this.dialogRef.afterClosed().subscribe(result => {
