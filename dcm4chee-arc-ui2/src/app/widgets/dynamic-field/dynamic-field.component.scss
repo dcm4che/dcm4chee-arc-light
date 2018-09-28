@@ -1,0 +1,20 @@
+.raw_array_edit{
+  .array_element{
+    width: calc(100% - 42px);
+    float: left;
+    padding-left: 15px;
+    border-bottom: 1px solid #ccc;
+    height: 30px;
+    margin-bottom: 5px;
+    line-height: 30px;
+  }
+}
+.raw_warning_button:hover{
+  cursor: pointer;
+}
+.array_body{
+  border: 1px solid #cccccc;
+  padding: 10px 10px 5px 10px;
+  float: left;
+  width: 100%;
+}
