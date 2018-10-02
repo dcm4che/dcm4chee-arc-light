@@ -113,7 +113,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                 loader: false
             };
         });
-        if (!this.mainservice.user){
+/*        if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
                 .subscribe(
@@ -151,7 +151,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         }else{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
-        }
+        }*/
 /*        console.log("localStorage",localStorage.getItem('externalRetrieveFilters'));
         console.log("localStorageTES",localStorage.getItem('externalRetrieveFiltersTESG'));
         let savedFilters = localStorage.getItem('externalRetrieveFilters');
@@ -244,7 +244,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         if(this.urlParam){
             this.filterObject = this.urlParam;
             this.filterObject["limit"] = 20;
-            this.getTasks(0);
+            // this.getTasks(0);
         }
     }
     confirm(confirmparameters){
