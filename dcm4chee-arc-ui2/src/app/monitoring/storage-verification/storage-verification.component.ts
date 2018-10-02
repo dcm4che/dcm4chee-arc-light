@@ -135,9 +135,9 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     toggleAutoRefresh(){
         this.timer.started = !this.timer.started;
         if(this.timer.started){
-            this.getCounts();
+            this.getCounts(true);
             this.refreshInterval = setInterval(()=>{
-                this.getCounts();
+                this.getCounts(true);
             },this.interval*1000);
         }else
             clearInterval(this.refreshInterval);
@@ -146,9 +146,11 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         if(_.hasIn(object,"id") && _.hasIn(object,"model")){
             if(object.id === "submit"){
                 let filter = Object.assign({},this.filterObject);
+                let filterCount = Object.assign({},this.filterObject);
                 if(filter['limit'])
                     filter['limit']++;
                 this.getTasks(filter);
+                this.getCounts(false);
             }else{
                 // this.getTasks(0);
                 let filter = Object.assign({},this.filterObject);
@@ -235,10 +237,16 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             this.allAction = undefined;
         });
     }
-    getCounts(){
+    getCounts(getTasks?){
         let filters = Object.assign({},this.filterObject);
-        if(!this.tableHovered)
-            this.getTasks(0);
+        if(!this.tableHovered && getTasks){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
+                this.filterObject['offset'] = 0;
+                filter['limit']++;
+            }
+            this.getTasks(filter);
+        }
         Object.keys(this.statusValues).forEach(status=>{
             filters.status = status;
             this.statusValues[status].loader = true;
