@@ -128,11 +128,11 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae) {
+    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String sourceAET) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setHttpRequest(httpRequest);
         session.setApplicationEntity(ae);
-        session.setCalledAET(ae.getAETitle());
+        session.setCallingAET(sourceAET);
         return session;
     }
 

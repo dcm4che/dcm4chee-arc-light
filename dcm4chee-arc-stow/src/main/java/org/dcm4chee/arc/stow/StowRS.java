@@ -269,7 +269,7 @@ public class StowRS {
     private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws Exception {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
-        final StoreSession session = service.newStoreSession(request, getApplicationEntity());
+        final StoreSession session = service.newStoreSession(request, getApplicationEntity(), null);
         new MultipartParser(boundary())
                 .parse(new BufferedInputStream(in), (partNumber, multipartInputStream) -> {
                     Map<String, List<String>> headerParams = multipartInputStream.readHeaderParams();

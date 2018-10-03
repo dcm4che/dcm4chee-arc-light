@@ -215,7 +215,7 @@ public class ImportImpaxReportRS {
     }
 
     private void storeReports() {
-        try (StoreSession session = storeService.newStoreSession(request, ae)) {
+        try (StoreSession session = storeService.newStoreSession(request, ae, props.get("SourceAET"))) {
             for (String report : reports) {
                 storeReport(session, report);
             }
