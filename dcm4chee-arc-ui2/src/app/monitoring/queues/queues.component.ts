@@ -272,22 +272,30 @@ export class QueuesComponent implements OnInit, OnDestroy{
         this.tableHovered = false;
     }
     getCounts(){
-        if(!this.tableHovered)
-            this.search(0);
-        Object.keys(this.statusValues).forEach(status=>{
-            this.statusValues[status].loader = true;
-            this.service.getCount(this.queueName, status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID, '').subscribe((count)=>{
-                this.statusValues[status].loader = false;
-                try{
-                    this.statusValues[status].count = count.count;
-                }catch (e){
-                    this.statusValues[status].count = "";
-                }
-            },(err)=>{
-                this.statusValues[status].loader = false;
-                this.statusValues[status].count = "!";
+        if(this.queueName){
+            if(!this.tableHovered)
+                this.search(0);
+            Object.keys(this.statusValues).forEach(status=>{
+                this.statusValues[status].loader = true;
+                this.service.getCount(this.queueName, status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID, '').subscribe((count)=>{
+                    this.statusValues[status].loader = false;
+                    try{
+                        this.statusValues[status].count = count.count;
+                    }catch (e){
+                        this.statusValues[status].count = "";
+                    }
+                },(err)=>{
+                    this.statusValues[status].loader = false;
+                    this.statusValues[status].count = "!";
+                });
             });
-        });
+        }else{
+            this.mainservice.setMessage({
+                'title': 'Error',
+                'text': 'No Queue Name selected!',
+                'status': 'error'
+            });
+        }
     }
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
