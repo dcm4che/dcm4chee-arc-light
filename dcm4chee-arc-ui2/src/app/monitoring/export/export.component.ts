@@ -183,6 +183,10 @@ export class ExportComponent implements OnInit, OnDestroy {
             this.filterObject["limit"] = 20;
         }
     }
+    onFormChange(e){
+        console.log("e",e);
+        this.statusChange();
+    }
     // changeTest(e){
     //     console.log("changetest",e);
     //     this.filterObject.createdTime = e;

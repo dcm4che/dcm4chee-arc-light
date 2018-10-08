@@ -1,7 +1,7 @@
 <div class="main_content monitoring export">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"></filter-generator>
+        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
         <div class="filter">
             <div class="filter_block auto_reloader">
                 <table>

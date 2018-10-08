@@ -134,7 +134,8 @@ export class ExportService {
                         }),
                         showStar:true,
                         filterKey:"ExporterID",
-                        description:"Exporter ID"
+                        description:"Exporter ID",
+                        placeholder:"Exporter ID"
                     },
                     {
                         tag:"select",
@@ -146,7 +147,8 @@ export class ExportService {
                         }),
                         showStar:true,
                         filterKey:"dicomDeviceName",
-                        description:"Device Name to filter by"
+                        description:"Device Name to filter by",
+                        placeholder:"Device Name"
                     }
                 ],
                 [
