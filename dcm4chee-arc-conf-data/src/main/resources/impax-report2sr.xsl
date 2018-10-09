@@ -578,8 +578,8 @@
     <xsl:param name="childCode"/>
     <xsl:param name="childCodeMeaning"/>
     <xsl:param name="val"/>
-    <Item number="{$itemNo}">
-      <xsl:if test="$val">
+    <xsl:if test="$val">
+      <Item number="{$itemNo}">
         <xsl:call-template name="containsRelation"/>
         <xsl:call-template name="containerValueType"/>
         <xsl:call-template name="conceptNameCodeSq">
@@ -600,8 +600,8 @@
             </xsl:call-template>
           </Item>
         </DicomAttribute>
-      </xsl:if>
-    </Item>
+      </Item>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="continuityOfContent">
