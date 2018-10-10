@@ -96,7 +96,7 @@ public class AuditScheduler extends Scheduler {
         String auditSpoolDir = arcDev.getAuditSpoolDirectory();
         Duration duration = arcDev.getAuditAggregateDuration();
 
-        if (auditSpoolDir == null || duration == null)
+        if (ext == null || auditSpoolDir == null || duration == null)
             return;
 
         Path auditSpoolDirPath = Paths.get(StringUtils.replaceSystemProperties(auditSpoolDir));
