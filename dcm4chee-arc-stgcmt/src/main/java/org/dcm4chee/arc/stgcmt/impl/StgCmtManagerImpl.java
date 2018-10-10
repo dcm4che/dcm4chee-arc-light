@@ -506,7 +506,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                     return true;
                 }
                 if (result.ioException != null) {
-                    LOG.info("{} of {} on {} of Instance[uid={}] of Study[uid={}]:\n",
+                    LOG.info("{} of {} of Instance[uid={}] of Study[uid={}]:\n",
                             result.status,
                             l,
                             inst.getSopInstanceUID(),
