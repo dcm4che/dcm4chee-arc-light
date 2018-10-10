@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.store.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.util.StringUtils;
@@ -90,6 +91,7 @@ class StoreContextImpl implements StoreContext {
     private String[] retrieveAETs;
     private Availability availability;
     private LocalDate expirationDate;
+    private Code impaxReportPatientMismatch;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -333,5 +335,15 @@ class StoreContextImpl implements StoreContext {
     public boolean isPreviousDifferentSeries() {
         return previousInstance != null
                 && previousInstance.getSeries().getPk() != storedInstance.getSeries().getPk();
+    }
+
+    @Override
+    public Code getImpaxReportPatientMismatch() {
+        return impaxReportPatientMismatch;
+    }
+
+    @Override
+    public void setImpaxReportPatientMismatch(Code impaxReportPatientMismatch) {
+        this.impaxReportPatientMismatch = impaxReportPatientMismatch;
     }
 }

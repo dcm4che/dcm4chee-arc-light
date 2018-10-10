@@ -111,15 +111,24 @@ public class ImportImpaxReportRS {
         Map<String, String> props = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getImpaxReportProperties();
         ImpaxReportConverter converter = createConverter(studyAttrs, props);
-        List<String> reports = queryReports(studyUID);
-        if (reports.isEmpty()) {
+        List<Attributes> srReports;
+        try {
+            srReports = converter.convert(queryReports(studyUID));
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        if (srReports.isEmpty()) {
             throw new WebApplicationException(Response.Status.CONFLICT);
         }
         Attributes response = new Attributes();
         response.setString(Tag.RetrieveURL, VR.UR, studyRetrieveURL().toString());
         try (StoreSession session = storeService.newStoreSession(request, ae, props.get("SourceAET"))) {
-            for (String report : reports) {
-                storeReport(session, converter.convert(report), response);
+            session.setImpaxReportEndpoint(converter.getEndpoint());
+            for (Attributes sr : srReports) {
+                StoreContext storeCtx = storeService.newStoreContext(session);
+                storeCtx.setImpaxReportPatientMismatch(converter.patientMismatchOf(sr));
+                storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+                storeReport(storeCtx, sr, response);
             }
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -163,16 +172,14 @@ public class ImportImpaxReportRS {
         }
     }
 
-    private void storeReport(StoreSession session, Attributes attrs, Attributes response) {
-        StoreContext ctx = storeService.newStoreContext(session);
+    private void storeReport(StoreContext ctx, Attributes attrs, Attributes response) {
         try {
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
             storeService.store(ctx, attrs);
             response.ensureSequence(Tag.ReferencedSOPSequence, 1)
                     .add(mkSOPRefWithRetrieveURL(ctx));
         } catch (IOException e) {
             ctx.setAttributes(attrs);
-            LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
+            LOG.info("{}: Failed to store {}", ctx.getStoreSession(), UID.nameOf(ctx.getSopClassUID()), e);
             response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
             response.ensureSequence(Tag.ReferencedSOPSequence, 1)
                     .add(mkSOPRefWithFailureReason(ctx, e));

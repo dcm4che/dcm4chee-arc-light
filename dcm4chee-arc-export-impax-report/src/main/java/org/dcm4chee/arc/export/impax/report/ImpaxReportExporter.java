@@ -89,26 +89,28 @@ public class ImpaxReportExporter extends AbstractExporter {
         if (studyAttrs == null)
             return new Outcome(QueueMessage.Status.WARNING, "No such Study: " + studyUID);
 
+        ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
         Map<String, String> props =
                 device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getImpaxReportProperties();
         ImpaxReportConverter converter = new ImpaxReportConverter(props, studyAttrs);
-        List<String> reports = reportService.queryReportByStudyUid(studyUID);
-        if (reports.isEmpty()) {
-            return new Outcome(QueueMessage.Status.WARNING, "No Report for Study: " + studyUID + " found");
-        }
-        ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
-        Attributes sr = null;
+        List<String> xmlReports = reportService.queryReportByStudyUid(studyUID);
+        List<Attributes> srReports = converter.convert(xmlReports);
         try (StoreSession session = storeService.newStoreSession(null, ae, props.get("SourceAET"))) {
-            for (String report : reports) {
+            session.setImpaxReportEndpoint(converter.getEndpoint());
+            for (Attributes sr : srReports) {
                 StoreContext storeCtx = storeService.newStoreContext(session);
+                storeCtx.setImpaxReportPatientMismatch(converter.patientMismatchOf(sr));
                 storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-                storeService.store(storeCtx, sr = converter.convert(report));
+                storeService.store(storeCtx, sr);
             }
         }
-        return new Outcome(statusOf(sr), messageOf(studyUID, reports, sr));
+        return xmlReports.isEmpty()
+                ? new Outcome(QueueMessage.Status.WARNING, "No Report for Study: " + studyUID + " found")
+                : new Outcome(statusOf(srReports), messageOf(studyUID, srReports));
     }
 
-    private QueueMessage.Status statusOf(Attributes sr) {
+    private QueueMessage.Status statusOf(List<Attributes> srReports) {
+        Attributes sr = srReports.get(srReports.size() - 1);
         String[] flags = StringUtils.split(descriptor.getExportURI().getSchemeSpecificPart(), '/');
         return (flags[0].equals("*") || flags[0].equals(sr.getString(Tag.CompletionFlag)))
                 && (flags.length == 1 || flags[1].equals("*") || flags[1].equals(sr.getString(Tag.VerificationFlag)))
@@ -116,10 +118,12 @@ public class ImpaxReportExporter extends AbstractExporter {
                 : QueueMessage.Status.WARNING;
     }
 
-    private String messageOf(String studyUID, List<String> reports, Attributes sr) {
-        return reports.size() > 1
-                ? "Imported " + reports.size() + " Reports for Study: " + studyUID
-                : "Imported " + sr.getString(Tag.CompletionFlag) + '/' + sr.getString(Tag.VerificationFlag)
+    private String messageOf(String studyUID, List<Attributes> srReports) {
+        if (srReports.size() > 1)
+            return "Imported " + srReports.size() + " Reports for Study: " + studyUID;
+
+        Attributes sr = srReports.get(0);
+        return "Imported " + sr.getString(Tag.CompletionFlag) + '/' + sr.getString(Tag.VerificationFlag)
                 + " Report for Study: " + studyUID;
     }
 

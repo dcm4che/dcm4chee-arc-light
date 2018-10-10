@@ -95,6 +95,7 @@ class StoreSessionImpl implements StoreSession {
     private AcceptConflictingPatientID acceptConflictingPatientID;
     private Attributes.UpdatePolicy patientUpdatePolicy;
     private Attributes.UpdatePolicy studyUpdatePolicy;
+    private String impaxReportEndpoint;
 
     StoreSessionImpl(StoreService storeService) {
         this.serialNo = prevSerialNo.incrementAndGet();
@@ -336,5 +337,15 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public void setStudyUpdatePolicy(Attributes.UpdatePolicy studyUpdatePolicy) {
         this.studyUpdatePolicy = studyUpdatePolicy;
+    }
+
+    @Override
+    public String getImpaxReportEndpoint() {
+        return impaxReportEndpoint;
+    }
+
+    @Override
+    public void setImpaxReportEndpoint(String impaxReportEndpoint) {
+        this.impaxReportEndpoint = impaxReportEndpoint;
     }
 }

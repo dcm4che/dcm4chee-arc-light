@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.store;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.conf.ArchiveCompressionRule;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
@@ -104,4 +105,8 @@ public interface StoreContext {
     boolean isPreviousDifferentStudy();
 
     boolean isPreviousDifferentSeries();
+
+    Code getImpaxReportPatientMismatch();
+
+    void setImpaxReportPatientMismatch(Code impaxReportPatientMismatch);
 }

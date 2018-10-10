@@ -129,4 +129,8 @@ public interface StoreSession extends Closeable {
     Attributes.UpdatePolicy getStudyUpdatePolicy();
 
     void setStudyUpdatePolicy(Attributes.UpdatePolicy studyUpdatePolicy);
+
+    String getImpaxReportEndpoint();
+
+    void setImpaxReportEndpoint(String impaxReportEndpoint);
 }

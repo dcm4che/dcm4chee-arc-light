@@ -53,8 +53,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.StringReader;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -65,8 +64,13 @@ public class ImpaxReportConverter {
     private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
     private static final String DEFAULT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/impax-report2sr.xsl";
     private static final String DEFAULT_DOC_TITLE = "(18748-4, LN, \"Diagnostic Imaging Report\")";
+    private static final String DEFAULT_PAT_MISMATCH =
+            "(IMPAXREP_PATDIFF, 99DCM4CHEE, \"Patient in IMPAX Report does not match Patient of Study in VNA\")";
     private static final String DEFAULT_LANGUAGE = "(en, RFC5646, \"English\")";
     private static final String DEFAULT_VERIFYING_ORGANIZATION = "N/A";
+    private static final String NO_REPORT_PREFIX = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<agfa:DiagnosticRadiologyReport xmlns:agfa=\"http://www.agfa.com/hc\"><ReportDetails><ReportBody>";
+    private static final String NO_REPORT_SUFFIX = "</ReportBody></ReportDetails></agfa:DiagnosticRadiologyReport>";
 
     private static final int[] TYPE2_TAGS = {
             Tag.Manufacturer,
@@ -75,9 +79,11 @@ public class ImpaxReportConverter {
             Tag.PerformedProcedureCodeSequence
     };
 
+    private final String endpoint;
     private final Code languageCode;
     private final Code docTitleCode;
-    private final Code missingDocTitleCode;
+    private final Code noReportTitleCode;
+    private final Code patientMismatchCode;
     private final String verifyingOrganization;
     private final String seriesIUID;
     private final Templates tpls;
@@ -86,9 +92,11 @@ public class ImpaxReportConverter {
     private int instanceNumber;
 
     public ImpaxReportConverter(Map<String, String> props, Attributes studyAttrs) throws Exception {
+        this.endpoint = props.get(props.containsKey("wget") ? "wget" : "endpoint");
         this.languageCode = new Code(props.getOrDefault("Language", DEFAULT_LANGUAGE));
         this.docTitleCode = new Code(props.getOrDefault("DocumentTitle", DEFAULT_DOC_TITLE));
-        this.missingDocTitleCode = codeOrNull(props.get("MissingDocumentTitle"));
+        this.patientMismatchCode = new Code(props.getOrDefault("PatientMismatch", DEFAULT_PAT_MISMATCH));
+        this.noReportTitleCode = codeOrNull(props.get("NoReportTitle"));
         this.verifyingOrganization = props.getOrDefault("VerifyingOrganization", DEFAULT_VERIFYING_ORGANIZATION);
         this.tpls = TemplatesCache.getDefault().get(
                 StringUtils.replaceSystemProperties(props.getOrDefault("xsl", DEFAULT_XSL)));
@@ -106,13 +114,43 @@ public class ImpaxReportConverter {
         return s != null ? new Code(s) : null;
     }
 
-    public Attributes convert(String report) throws Exception {
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public Code patientMismatchOf(Attributes sr) {
+        for (Attributes item : sr.getSequence(Tag.ContentSequence)) {
+            if ("HAS OBS CONTEXT".equals(item.getString(Tag.RelationshipType)))
+                switch (item.getNestedDataset(Tag.ConceptNameCodeSequence).getString(Tag.CodeValue)) {
+                    case "121029": // Subject Name
+                    case "121030": // Subject ID
+                    case "121031": // Subject Birth Date
+                    case "121032": // Subject Sex
+                        return patientMismatchCode;
+                }
+        }
+        return null;
+    }
+
+    public List<Attributes> convert(List<String> xmlReports) throws Exception {
+        if (xmlReports.isEmpty())
+            return noReportTitleCode == null ? Collections.emptyList() : Collections.singletonList(convert(
+                NO_REPORT_PREFIX + noReportTitleCode.getCodeMeaning() + NO_REPORT_SUFFIX, noReportTitleCode));
+
+        List<Attributes> srReports = new ArrayList<>(xmlReports.size());
+        for (String xmlReport : xmlReports) {
+            srReports.add(convert(xmlReport, docTitleCode));
+        }
+        return srReports;
+    }
+
+    private Attributes convert(String report, Code docTitleCode) throws Exception {
         Attributes attrs = new Attributes(64);
         attrs.addAll(studyAttrs);
         attrs.addAll(propsAttrs);
         attrs.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
         attrs.setString(Tag.SOPInstanceUID, VR.UI, seriesIUID + '.' + ++instanceNumber);
-        xslt(report, attrs);
+        xslt(report, attrs, docTitleCode);
         if (!attrs.containsValue(Tag.SOPClassUID))
             attrs.setString(Tag.SOPClassUID, VR.UI, UID.BasicTextSRStorage);
         if (!attrs.containsValue(Tag.SeriesNumber))
@@ -129,7 +167,7 @@ public class ImpaxReportConverter {
         return attrs;
     }
 
-    private void xslt(String report, Attributes attrs) throws Exception {
+    private void xslt(String report, Attributes attrs, Code docTitleCode) throws Exception {
         Transformer t = tpls.newTransformer();
         t.setParameter("langCodeValue", languageCode.getCodeValue());
         t.setParameter("langCodingSchemeDesignator", languageCode.getCodingSchemeDesignator());
@@ -153,5 +191,4 @@ public class ImpaxReportConverter {
         if (val != null)
             t.setParameter(name, val);
     }
-
 }

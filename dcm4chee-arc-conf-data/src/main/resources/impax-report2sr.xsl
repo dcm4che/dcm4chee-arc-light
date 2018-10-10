@@ -53,13 +53,15 @@
           </xsl:call-template>
         </xsl:if>
       </xsl:if>
-      <xsl:call-template name="requestSeq">
-        <xsl:with-param name="accNo" select="$accNo"/>
-        <xsl:with-param name="referringPhysicianName" select="$referringPhysicianName"/>
-        <xsl:with-param name="studyIUID" select="$studyIUID"/>
-        <xsl:with-param name="studyDesc" select="$studyDesc"/>
-        <xsl:with-param name="reasonFor" select="$reasonFor"/>
-      </xsl:call-template>
+      <xsl:if test="$studyIUID">
+        <xsl:call-template name="requestSeq">
+          <xsl:with-param name="accNo" select="$accNo"/>
+          <xsl:with-param name="referringPhysicianName" select="$referringPhysicianName"/>
+          <xsl:with-param name="studyIUID" select="$studyIUID"/>
+          <xsl:with-param name="studyDesc" select="$studyDesc"/>
+          <xsl:with-param name="reasonFor" select="$reasonFor"/>
+        </xsl:call-template>
+      </xsl:if>
       <xsl:call-template name="contentTemplateSq"/>
       <xsl:call-template name="codeItem">
         <xsl:with-param name="sqtag" select="'0040A043'"/>
