@@ -113,16 +113,21 @@ public class DeletionServiceEJB {
     }
 
     public List<Study.PKUID> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
+        List<String> studyStorageIDs = getStudyStorageIDs(desc);
+        LOG.debug("Query for Studies for deletion on {} with StorageIDs={}", desc, studyStorageIDs);
         return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Study.PKUID.class)
-                .setParameter(1, getStudyStorageIDs(desc))
+                .setParameter(1, studyStorageIDs)
                 .setMaxResults(limit)
                 .getResultList();
     }
 
     public int instancesNotStoredOnExportStorage(Long studyPk, StorageDescriptor desc) {
+        List<String> storageIDsOfCluster = getStorageIDsOfCluster(desc);
+        LOG.debug("Query for Instances of Study[pk={}] on Storages{} not stored on Storage[{}]",
+                studyPk, storageIDsOfCluster, desc.getExportStorageID());
         Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
                 .setParameter(1, studyPk)
-                .setParameter(2, getStorageIDsOfCluster(desc))
+                .setParameter(2, storageIDsOfCluster)
                 .getResultList());
         onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
                 .setParameter(1, studyPk)
@@ -132,14 +137,19 @@ public class DeletionServiceEJB {
     }
 
     public List<Study.PKUID> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
+        List<String> studyStorageIDs = getStudyStorageIDs(desc);
+        String externalRetrieveAETitle = desc.getExternalRetrieveAETitle();
+        LOG.debug("Query for Studies for deletion on {} with ExternalRetrieveAET={} and StorageIDs={}",
+                desc, externalRetrieveAETitle, studyStorageIDs);
         return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Study.PKUID.class)
-                .setParameter(1, getStudyStorageIDs(desc))
-                .setParameter(2, desc.getExternalRetrieveAETitle())
+                .setParameter(1, studyStorageIDs)
+                .setParameter(2, externalRetrieveAETitle)
                 .setMaxResults(limit)
                 .getResultList();
     }
 
     public List<Series> findSeriesWithPurgedInstances(Long studyPk) {
+        LOG.debug("Query for Series with purged Instance records of Study[pk={}]", studyPk);
         return em.createNamedQuery(Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE, Series.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, Series.InstancePurgeState.PURGED)

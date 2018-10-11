@@ -137,6 +137,7 @@ public class PurgeStorageScheduler extends Scheduler {
             if (!inProcess.add(desc.getStorageID()))
                 continue;
 
+            LOG.info("Check {} for deletion", desc);
             try {
                 long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
                 long deleteSize = deleteSize(desc, minUsableSpace);
@@ -160,6 +161,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 while (deleteSeriesMetadata(desc, fetchSize)) ;
             } finally {
                 inProcess.remove(desc.getStorageID());
+                LOG.info("Finished deletion on {}", desc);
             }
         }
     }
@@ -270,6 +272,7 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private static int instancesNotStoredOnOtherStorage(ReadContext ctx, String storageID, String exportStorageID) {
         int count = 0;
+        LOG.debug("Read Metadata {} from {}", ctx.getStoragePath(), ctx.getStorage().getStorageDescriptor());
         try (InputStream in = ctx.getStorage().openInputStream(ctx)) {
             ZipInputStream zip = new ZipInputStream(in);
             while (zip.getNextEntry() != null) {
@@ -351,6 +354,9 @@ public class PurgeStorageScheduler extends Scheduler {
         if (metadata.isEmpty())
             return false;
 
+        LOG.info("Start deleting {} Metadata from {}", metadata.size(), desc);
+        int success = 0;
+        int skipped = 0;
         try (Storage storage = storageFactory.getStorage(desc)) {
             for (Metadata m : metadata) {
                 if (getPollingInterval() == null)
@@ -360,6 +366,9 @@ public class PurgeStorageScheduler extends Scheduler {
                         storage.deleteObject(m.getStoragePath());
                         ejb.removeMetadata(m);
                         LOG.debug("Successfully delete {} from {}", m, desc);
+                        success++;
+                    } else {
+                        skipped++;
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to delete {} from {}", m, desc, e);
@@ -367,6 +376,9 @@ public class PurgeStorageScheduler extends Scheduler {
             }
         } catch (Exception e) {
             LOG.warn("Failed to access {}", desc, e);
+        } finally {
+            LOG.info("Finished deleting {} ({} skipped={}, failed={}) Metadata from {}",
+                    success, skipped, metadata.size() - success - skipped, desc);
         }
         return metadata.size() == fetchSize;
     }
@@ -376,6 +388,9 @@ public class PurgeStorageScheduler extends Scheduler {
         if (locations.isEmpty())
             return false;
 
+        LOG.info("Start deleting {} objects from {}", locations.size(), desc);
+        int success = 0;
+        int skipped = 0;
         try (Storage storage = storageFactory.getStorage(desc)) {
             for (Location location : locations) {
                 if (getPollingInterval() == null)
@@ -385,6 +400,9 @@ public class PurgeStorageScheduler extends Scheduler {
                         storage.deleteObject(location.getStoragePath());
                         ejb.removeLocation(location);
                         LOG.debug("Successfully delete {} from {}", location, desc);
+                        success++;
+                    } else {
+                        skipped++;
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to delete {} from {}", location, desc, e);
@@ -392,6 +410,9 @@ public class PurgeStorageScheduler extends Scheduler {
             }
         } catch (Exception e) {
             LOG.warn("Failed to access {}", desc, e);
+        } finally {
+            LOG.info("Finished deleting {} ({} skipped={}, failed={}) objects from {}",
+                    success, skipped, locations.size() - success - skipped, desc);
         }
         return locations.size() == fetchSize;
     }
