@@ -356,11 +356,12 @@ public class PurgeStorageScheduler extends Scheduler {
                 if (getPollingInterval() == null)
                     return false;
                 try {
-                    storage.deleteObject(m.getStoragePath());
-                    ejb.removeMetadata(m);
-                    LOG.debug("Successfully delete {} from {}", m, desc);
+                    if (ejb.claimDeleteMetadata(m)) {
+                        storage.deleteObject(m.getStoragePath());
+                        ejb.removeMetadata(m);
+                        LOG.debug("Successfully delete {} from {}", m, desc);
+                    }
                 } catch (Exception e) {
-                    ejb.failedToDelete(m);
                     LOG.warn("Failed to delete {} from {}", m, desc, e);
                 }
             }
@@ -380,11 +381,12 @@ public class PurgeStorageScheduler extends Scheduler {
                 if (getPollingInterval() == null)
                     return false;
                 try {
-                    storage.deleteObject(location.getStoragePath());
-                    ejb.removeLocation(location);
-                    LOG.debug("Successfully delete {} from {}", location, desc);
+                    if (ejb.claimDeleteObject(location)) {
+                        storage.deleteObject(location.getStoragePath());
+                        ejb.removeLocation(location);
+                        LOG.debug("Successfully delete {} from {}", location, desc);
+                    }
                 } catch (Exception e) {
-                    ejb.failedToDelete(location);
                     LOG.warn("Failed to delete {} from {}", location, desc, e);
                 }
             }

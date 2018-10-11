@@ -54,12 +54,18 @@ import javax.persistence.*;
 
 @NamedQueries({
         @NamedQuery(name = Metadata.FIND_BY_STORAGE_ID_AND_STATUS,
-                query = "select m from Metadata m where m.storageID=?1 and m.status=?2")
+                query = "select m from Metadata m where m.storageID=?1 and m.status=?2"),
+        @NamedQuery(name = Metadata.UPDATE_STATUS_FROM,
+                query = "update Metadata m set m.status = ?3 where m.pk = ?1 and m.status = ?2"),
+        @NamedQuery(name = Metadata.DELETE_BY_PK,
+                query = "delete from Metadata m where m.pk = ?1")
 })
 
 public class Metadata {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Metadata.FindByStorageIDAndStatus";
+    public static final String UPDATE_STATUS_FROM = "Metadata.UpdateStatusFrom";
+    public static final String DELETE_BY_PK = "Metadata.DeleteByPk";
 
     public enum Status {
         OK,                         // 0

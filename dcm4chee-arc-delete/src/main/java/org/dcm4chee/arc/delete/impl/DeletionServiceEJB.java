@@ -146,22 +146,32 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public void failedToDelete(Location location) {
-        location.setStatus(Location.Status.FAILED_TO_DELETE);
-        em.merge(location);
+    public boolean claimDeleteObject(Location location) {
+        return em.createNamedQuery(Location.UPDATE_STATUS_FROM)
+                .setParameter(1, location.getPk())
+                .setParameter(2, Location.Status.TO_DELETE)
+                .setParameter(3, Location.Status.FAILED_TO_DELETE)
+                .executeUpdate() > 0;
     }
 
-    public void failedToDelete(Metadata metadata) {
-        metadata.setStatus(Metadata.Status.FAILED_TO_DELETE);
-        em.merge(metadata);
+    public boolean claimDeleteMetadata(Metadata metadata) {
+        return em.createNamedQuery(Metadata.UPDATE_STATUS_FROM)
+                .setParameter(1, metadata.getPk())
+                .setParameter(2, Metadata.Status.TO_DELETE)
+                .setParameter(3, Metadata.Status.FAILED_TO_DELETE)
+                .executeUpdate() > 0;
     }
 
     public void removeLocation(Location location) {
-        em.remove(em.merge(location));
+        em.createNamedQuery(Location.DELETE_BY_PK)
+                .setParameter(1, location.getPk())
+                .executeUpdate();
     }
 
     public void removeMetadata(Metadata metadata) {
-        em.remove(em.merge(metadata));
+        em.createNamedQuery(Metadata.DELETE_BY_PK)
+                .setParameter(1, metadata.getPk())
+                .executeUpdate();
     }
 
     public Study deleteStudy(StudyDeleteContext ctx) {
