@@ -476,6 +476,7 @@ public class DeletionServiceEJB {
         return desc.getStorageClusterID() != null
             ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getStorageIDsOfCluster(desc.getStorageClusterID())
+                .filter(storageID -> !storageID.equals(desc.getExportStorageID()))
                 .collect(Collectors.toList())
             : Collections.singletonList(desc.getStorageID());
     }
