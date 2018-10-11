@@ -377,7 +377,7 @@ public class PurgeStorageScheduler extends Scheduler {
         } catch (Exception e) {
             LOG.warn("Failed to access {}", desc, e);
         } finally {
-            LOG.info("Finished deleting {} ({} skipped={}, failed={}) Metadata from {}",
+            LOG.info("Finished deleting {} (skipped={}, failed={}) Metadata from {}",
                     success, skipped, metadata.size() - success - skipped, desc);
         }
         return metadata.size() == fetchSize;
@@ -411,7 +411,7 @@ public class PurgeStorageScheduler extends Scheduler {
         } catch (Exception e) {
             LOG.warn("Failed to access {}", desc, e);
         } finally {
-            LOG.info("Finished deleting {} ({} skipped={}, failed={}) objects from {}",
+            LOG.info("Finished deleting {} (skipped={}, failed={}) objects from {}",
                     success, skipped, locations.size() - success - skipped, desc);
         }
         return locations.size() == fetchSize;
