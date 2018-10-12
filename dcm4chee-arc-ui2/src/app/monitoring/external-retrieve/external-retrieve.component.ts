@@ -364,6 +364,29 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             this.allAction = undefined;
         });
     }
+    deleteBatchedTask(batchedTask){
+        if(batchedTask.properties.batchID){
+            let filter = Object.assign({},this.filterObject);
+            filter["batchID"] = batchedTask.properties.batchID;
+            this.service.deleteAll(filter).subscribe((res)=>{
+                this.mainservice.setMessage({
+                    'title': 'Info',
+                    'text': res.deleted + ' tasks deleted successfully!',
+                    'status': 'info'
+                });
+                this.cfpLoadingBar.complete();
+            }, (err) => {
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            });
+        }else{
+            this.mainservice.setMessage({
+                'title': 'Error',
+                'text': 'Batch ID not found!',
+                'status': 'error'
+            });
+        }
+    }
     delete(match){
         let $this = this;
         let parameters: any = {

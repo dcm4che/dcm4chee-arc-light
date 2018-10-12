@@ -134,6 +134,9 @@
                         <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" title="Show Tasks Detail">
                             <span class="glyphicon glyphicon-list-alt"></span>
                         </a>
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" title="Delete Task with this BatchID">
+                            <span class="glyphicon glyphicon-remove-circle"></span>
+                        </a>
                     </td>
                     <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>
                     <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
