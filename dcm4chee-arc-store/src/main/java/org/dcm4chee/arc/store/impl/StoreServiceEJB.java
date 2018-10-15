@@ -81,7 +81,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -505,12 +504,15 @@ public class StoreServiceEJB {
         }
         for (UIDMap uidMap : uidMaps.values())
             removeOrphaned(uidMap);
-        locations.clear();
         Series series = instance.getSeries();
         Study study = series.getStudy();
         series.resetSize();
         study.resetSize();
         em.remove(instance);
+        if (replaceLocationOnDifferentStorage(locations, ctx.getStoreSession().getObjectStorageID())) {
+            study.setStorageIDs(queryStorageIDsOfStudy(study));
+        }
+        locations.clear();
         em.flush(); // to avoid ERROR: duplicate key value violates unique constraint on re-insert
         boolean sameStudy = ctx.getStudyInstanceUID().equals(study.getStudyInstanceUID());
         boolean sameSeries = sameStudy && ctx.getSeriesInstanceUID().equals(series.getSeriesInstanceUID());
@@ -521,6 +523,19 @@ public class StoreServiceEJB {
             else
                 series.scheduleMetadataUpdate(ctx.getStoreSession().getArchiveAEExtension().seriesMetadataDelay());
         }
+    }
+
+    private static boolean replaceLocationOnDifferentStorage(Collection<Location> locations, String storageID) {
+        return locations.stream().anyMatch(
+                l -> Location.isDicomFile(l) && !l.getStorageID().equals(storageID));
+    }
+
+    private String[] queryStorageIDsOfStudy(Study study) {
+        return em.createNamedQuery(Location.STORAGE_IDS_BY_STUDY_PK_AND_OBJECT_TYPE, String.class)
+                .setParameter(1, study.getPk())
+                .setParameter(2, Location.ObjectType.DICOM_FILE)
+                .getResultList()
+                .toArray(StringUtils.EMPTY_STRING);
     }
 
     private void deleteStudyIfEmpty(Study study, StoreContext ctx) {
@@ -1194,7 +1209,7 @@ public class StoreServiceEJB {
         result.getLocations().add(createLocation(ctx, instance, objectType));
         if (objectType == Location.ObjectType.DICOM_FILE)
             instance.getSeries().getStudy()
-                    .addStorageID(writeContext.getStorage().getStorageDescriptor().getStorageID());
+                    .addStorageID(ctx.getStoreSession().getObjectStorageID());
         result.getWriteContexts().add(writeContext);
     }
 

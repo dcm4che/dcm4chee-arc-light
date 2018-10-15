@@ -111,9 +111,10 @@ public class ImportImpaxReportRS {
         Map<String, String> props = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getImpaxReportProperties();
         ImpaxReportConverter converter = createConverter(studyAttrs, props);
+        List<String> xmlReports = queryReports(studyUID);
         List<Attributes> srReports;
         try {
-            srReports = converter.convert(queryReports(studyUID));
+            srReports = converter.convert(xmlReports);
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }

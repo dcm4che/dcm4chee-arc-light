@@ -236,7 +236,7 @@ public class PurgeStorageScheduler extends Scheduler {
                     }
                 }
                 if (notStoredOnOtherStorage > 0) {
-                    LOG.warn("{} of instances of {} on {} not stored on Storage[id={}] - defer deletion of objects",
+                    LOG.info("{} instances of {} on {} not stored on Storage[id={}] - defer deletion of objects",
                             notStoredOnOtherStorage, studyPkUID, desc, exportStorageID);
                     ejb.updateStudyAccessTime(studyPkUID.pk);
                     iter.remove();
