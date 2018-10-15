@@ -134,7 +134,7 @@ public class ImportImpaxReportRS {
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return buildResponse(response);
+        return buildResponse(xmlReports, response);
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -187,11 +187,11 @@ public class ImportImpaxReportRS {
         }
     }
 
-    private Response buildResponse(Attributes response) {
+    private Response buildResponse(List<String> xmlReports, Attributes response) {
         Response.Status status = Response.Status.ACCEPTED;
         if (!response.contains(Tag.ReferencedSOPSequence)) {
             status = Response.Status.CONFLICT;
-        } else if (!response.contains(Tag.FailedSOPSequence)) {
+        } else if (!xmlReports.isEmpty() && !response.contains(Tag.FailedSOPSequence)) {
             status = Response.Status.OK;
         }
         return Response.status(status).entity((StreamingOutput) out -> {
