@@ -341,9 +341,9 @@ public class PurgeStorageScheduler extends Scheduler {
             try {
                 Study study = ejb.deleteObjectsOfStudy(studyPkUID.pk, desc);
                 removed++;
-                LOG.info("Successfully delete objects of {} on {}", study, desc);
+                LOG.info("Successfully marked objects of {} on {} for deletion", study, desc);
             } catch (Exception e) {
-                LOG.warn("Failed to delete objects of {} on {}", studyPkUID, desc, e);
+                LOG.warn("Failed to mark objects of {} on {} for deletion", studyPkUID, desc, e);
             }
         }
         return removed;

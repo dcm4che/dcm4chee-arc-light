@@ -509,8 +509,14 @@ public class StoreServiceEJB {
         series.resetSize();
         study.resetSize();
         em.remove(instance);
-        if (replaceLocationOnDifferentStorage(locations, ctx.getStoreSession().getObjectStorageID())) {
-            study.setStorageIDs(queryStorageIDsOfStudy(study));
+        String newStorageID = ctx.getStoreSession().getObjectStorageID();
+        if (replaceLocationOnDifferentStorage(locations, newStorageID)) {
+            List<String> storageIDs = queryStorageIDsOfStudy(study);
+            if (storageIDs.isEmpty())
+                // to avoid additional update statement for adding it later
+                study.setStorageIDs(newStorageID);
+            else
+                study.setStorageIDs(storageIDs.toArray(StringUtils.EMPTY_STRING));
         }
         locations.clear();
         em.flush(); // to avoid ERROR: duplicate key value violates unique constraint on re-insert
@@ -530,12 +536,11 @@ public class StoreServiceEJB {
                 l -> Location.isDicomFile(l) && !l.getStorageID().equals(storageID));
     }
 
-    private String[] queryStorageIDsOfStudy(Study study) {
+    private List<String> queryStorageIDsOfStudy(Study study) {
         return em.createNamedQuery(Location.STORAGE_IDS_BY_STUDY_PK_AND_OBJECT_TYPE, String.class)
                 .setParameter(1, study.getPk())
                 .setParameter(2, Location.ObjectType.DICOM_FILE)
-                .getResultList()
-                .toArray(StringUtils.EMPTY_STRING);
+                .getResultList();
     }
 
     private void deleteStudyIfEmpty(Study study, StoreContext ctx) {

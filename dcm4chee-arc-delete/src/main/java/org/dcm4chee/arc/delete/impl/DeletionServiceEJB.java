@@ -193,12 +193,21 @@ public class DeletionServiceEJB {
     }
 
     public Study deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
+        Study study = em.find(Study.class, studyPk);
         List<String> storageIDs = getStorageIDsOfCluster(desc);
+        LOG.debug("Query for objects of {} at Storage{}", study, storageIDs);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDs)
                 .getResultList();
+        if (locations.isEmpty()) {
+            LOG.info("{} does not contains objects at Storage{}", study, storageIDs);
+            return study;
+        }
+        LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), study, storageIDs);
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
+        LOG.debug("Finish marking {}/{} objects/instances of {} for deletion at Storage{}",
+                locations.size(), insts.size(), study, storageIDs);
         Set<Long> seriesPks = new HashSet<>();
         for (Instance inst : insts) {
             Series series = inst.getSeries();
@@ -206,10 +215,6 @@ public class DeletionServiceEJB {
                     && series.getMetadataScheduledUpdateTime() == null
                     && series.getMetadata() != null)
                 scheduleMetadataUpdate(series.getPk());
-        }
-        Study study = em.find(Study.class, studyPk);
-        if (locations.isEmpty()) {
-            LOG.warn("{} does not contains objects at Storage{}", study, storageIDs);
         }
         String studyEncodedStorageIDs = study.getEncodedStorageIDs();
         for (String storageID : storageIDs) {

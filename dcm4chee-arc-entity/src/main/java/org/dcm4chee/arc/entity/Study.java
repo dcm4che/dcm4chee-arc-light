@@ -388,7 +388,7 @@ public class Study {
         return StringUtils.split(storageIDs, '\\');
     }
 
-    public void setStorageIDs(String[] storageIDs) {
+    public void setStorageIDs(String... storageIDs) {
         Arrays.sort(storageIDs);
         this.storageIDs = StringUtils.concat(storageIDs, '\\');
     }
