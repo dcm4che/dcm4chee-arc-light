@@ -339,11 +339,15 @@ public class PurgeStorageScheduler extends Scheduler {
             if (getPollingInterval() == null)
                 break;
             try {
-                Study study = ejb.deleteObjectsOfStudy(studyPkUID.pk, desc);
-                removed++;
-                LOG.info("Successfully marked objects of {} on {} for deletion", study, desc);
+                if (ejb.deleteObjectsOfStudy(studyPkUID.pk, desc)) {
+                    removed++;
+                    LOG.info("Successfully marked objects of {} at {} for deletion", studyPkUID, desc);
+                }
             } catch (Exception e) {
-                LOG.warn("Failed to mark objects of {} on {} for deletion", studyPkUID, desc, e);
+                if (ejb.hasObjectsOnStorage(studyPkUID.pk, desc))
+                    LOG.warn("Failed to mark objects of {} at {} for deletion", studyPkUID, desc, e);
+                else
+                    LOG.info("{} does not contain objects at {}", studyPkUID, desc);
             }
         }
         return removed;

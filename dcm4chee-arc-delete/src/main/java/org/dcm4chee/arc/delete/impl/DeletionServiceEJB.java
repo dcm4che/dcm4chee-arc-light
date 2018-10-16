@@ -65,6 +65,7 @@ import javax.persistence.TypedQuery;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -192,17 +193,27 @@ public class DeletionServiceEJB {
         return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE, false), ctx);
     }
 
-    public Study deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
+    public boolean hasObjectsOnStorage(Long studyPk, StorageDescriptor desc) {
+        Study study = em.find(Study.class, studyPk);
+        return Stream.of(study.getStorageIDs())
+                .anyMatch(storageID -> storageID.equals(desc.getStorageID()));
+    }
+
+    public boolean deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
         Study study = em.find(Study.class, studyPk);
         List<String> storageIDs = getStorageIDsOfCluster(desc);
+        if (!Stream.of(study.getStorageIDs()).anyMatch(storageID -> storageIDs.contains(storageID))) {
+            LOG.info("{} does not contain objects at Storage{}", study, storageIDs);
+            return false;
+        }
         LOG.debug("Query for objects of {} at Storage{}", study, storageIDs);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDs)
                 .getResultList();
         if (locations.isEmpty()) {
-            LOG.info("{} does not contains objects at Storage{}", study, storageIDs);
-            return study;
+            LOG.warn("{} does not contain objects at Storage{}", study, storageIDs);
+            return false;
         }
         LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), study, storageIDs);
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
@@ -221,7 +232,7 @@ public class DeletionServiceEJB {
             study.removeStorageID(storageID);
         }
         LOG.info("Update Storage IDs of {} from {} to {}", study, studyEncodedStorageIDs, study.getEncodedStorageIDs());
-        return study;
+        return true;
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
