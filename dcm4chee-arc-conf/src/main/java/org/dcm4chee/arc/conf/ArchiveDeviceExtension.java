@@ -203,11 +203,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration storageVerificationPollingInterval;
     private ScheduleExpression[] storageVerificationSchedules = {};
     private int storageVerificationFetchSize = 100;
-    private String compressionAETitle;
-    private Duration compressionPollingInterval;
-    private int compressionFetchSize = 100;
-    private int compressionThreads = 1;
-    private ScheduleExpression[] compressionSchedules = {};
+    private volatile String compressionAETitle;
+    private volatile Duration compressionPollingInterval;
+    private volatile int compressionFetchSize = 100;
+    private volatile int compressionThreads = 1;
+    private volatile ScheduleExpression[] compressionSchedules = {};
     private Duration diffTaskProgressUpdateInterval;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -1909,7 +1909,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setCompressionFetchSize(int compressionFetchSize) {
-        this.compressionFetchSize = compressionFetchSize;
+        this.compressionFetchSize = greaterZero(compressionFetchSize, "CompressionFetchSize");
     }
 
     public int getCompressionThreads() {
@@ -1917,7 +1917,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setCompressionThreads(int compressionThreads) {
-        this.compressionThreads = compressionThreads;
+        this.compressionThreads = greaterZero(compressionThreads, "CompressionThreads");
     }
 
     public ScheduleExpression[] getCompressionSchedules() {

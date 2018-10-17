@@ -63,7 +63,7 @@ import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,7 +73,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CompressionScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompressionScheduler.class);
-    private AtomicInteger threadCount = new AtomicInteger();
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -91,7 +90,7 @@ public class CompressionScheduler extends Scheduler {
     private StoreService storeService;
 
     protected CompressionScheduler() {
-        super(Mode.scheduleAtFixedRate);
+        super(Mode.scheduleWithFixedDelay);
     }
 
     @Override
@@ -119,23 +118,39 @@ public class CompressionScheduler extends Scheduler {
             LOG.warn("No such Application Entity: " + aet);
             return;
         }
-        try {
-            if (threadCount.incrementAndGet() > arcDev.getCompressionThreads()) {
-                LOG.info("Maximal number of Compression Threads[={}] reached", arcDev.getCompressionThreads());
-            } else {
-                int fetchSize = arcDev.getCompressionFetchSize();
-                List<Series.Compression> compressions;
-                do {
-                    for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {
-                        if (ejb.claimForCompression(compression.seriesPk) > 0) {
-                            process(ae, compression);
-                        }
-                    }
+        int fetchSize = arcDev.getCompressionFetchSize();
+        int permits = arcDev.getCompressionThreads();
+        Semaphore semaphore = new Semaphore(permits);
+        List<Series.Compression> compressions;
+        do {
+            for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {if (ejb.claimForCompression(compression.seriesPk) > 0) {
+                    acquire(semaphore, 1);
+                    device.execute(() -> {
+                        process(ae, compression);
+                        semaphore.release();
+                    });
                 }
-                while (getPollingInterval() != null && compressions.size() == fetchSize);
             }
-        } finally {
-            threadCount.decrementAndGet();
+            int acquire = permits - (permits = arcDev.getCompressionThreads());
+            if (acquire > 0)
+                acquire(semaphore, acquire);
+            else if (acquire < 0)
+                semaphore.release(-acquire);
+        }
+        while (arcDev.getCompressionPollingInterval() != null && compressions.size() == fetchSize);
+        acquire(semaphore, permits);
+    }
+
+    private static void acquire(Semaphore semaphore, int permits) {
+        if (!semaphore.tryAcquire(permits)) {
+            try {
+                int n = permits - semaphore.availablePermits();
+                LOG.debug("Wait for completion of compression of {} Series", n);
+                semaphore.acquire(permits);
+                LOG.debug("Compression of {} Series completed", n);
+            } catch (InterruptedException e) {
+                LOG.warn("Failed to wait for completion of compression of Series", e);
+            }
         }
     }
 
@@ -154,9 +169,9 @@ public class CompressionScheduler extends Scheduler {
             }
         }
         try (
-                RetrieveContext retrCtx = retrieveService.newRetrieveContext(
-                    ae.getAETitle(), compr.studyInstanceUID, compr.seriesInstanceUID, null);
-                StoreSession session = storeService.newStoreSession(ae)) {
+            RetrieveContext retrCtx = retrieveService.newRetrieveContext(
+                ae.getAETitle(), compr.studyInstanceUID, compr.seriesInstanceUID, null);
+            StoreSession session = storeService.newStoreSession(ae)) {
             retrieveService.calculateMatches(retrCtx);
             LOG.info("Start compression of {} Instances of Series[iuid={}] of Study[iuid={}]",
                     retrCtx.getNumberOfMatches(), compr.seriesInstanceUID, compr.studyInstanceUID);
