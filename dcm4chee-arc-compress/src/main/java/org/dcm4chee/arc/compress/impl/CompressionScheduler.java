@@ -123,7 +123,8 @@ public class CompressionScheduler extends Scheduler {
         Semaphore semaphore = new Semaphore(permits);
         List<Series.Compression> compressions;
         do {
-            for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {if (ejb.claimForCompression(compression.seriesPk) > 0) {
+            for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {
+                if (ejb.claimForCompression(compression.seriesPk) > 0) {
                     acquire(semaphore, 1);
                     device.execute(() -> {
                         process(ae, compression);
