@@ -126,47 +126,46 @@ public class PurgeStorageScheduler extends Scheduler {
 
     @Override
     protected void execute() {
+        for (StorageDescriptor desc : arcdev().getStorageDescriptors()) {
+            if (!desc.isReadOnly() && inProcess.add(desc.getStorageID()))
+                device.execute(() -> {
+                    process(desc);
+                    inProcess.remove(desc.getStorageID());
+                });
+        }
+    }
+
+    private void process(StorageDescriptor desc) {
+        LOG.info("Check {} for deletion", desc);
         ArchiveDeviceExtension arcDev = arcdev();
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
-        for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
-            if (desc.isReadOnly())
-                continue;
-
-            if (!inProcess.add(desc.getStorageID()))
-                continue;
-
-            LOG.info("Check {} for deletion", desc);
-            try {
-                long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
-                long deleteSize = deleteSize(desc, minUsableSpace);
-                if (deleteSize > 0L) {
-                    LOG.info("Usable Space on {} below {} - start deleting {}", desc,
-                            BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
-                }
-                for (int i = 0; i == 0 || deleteSize > 0L; i++) {
-                    if (getPollingInterval() == null)
-                        return;
-                    if (deleteSize > 0L) {
-                        if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
-                            deleteSize = 0L;
-                    }
-                    while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
-                    if (deleteSize > 0L) {
-                        deleteSize = deleteSize(desc, minUsableSpace);
-                    }
-                }
-                while (deleteSize > 0L) ;
-                while (deleteSeriesMetadata(desc, fetchSize)) ;
-            } finally {
-                inProcess.remove(desc.getStorageID());
-                LOG.info("Finished deletion on {}", desc);
+        long minUsableSpace = desc.hasDeleterThresholds() ?
+                desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
+        long deleteSize = sizeToDelete(desc, minUsableSpace);
+        if (deleteSize > 0L) {
+            LOG.info("Usable Space on {} below {} - start deleting {}", desc,
+                    BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+        }
+        for (int i = 0; i == 0 || deleteSize > 0L; i++) {
+            if (arcDev.getPurgeStoragePollingInterval() == null)
+                return;
+            if (deleteSize > 0L) {
+                if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
+                    deleteSize = 0L;
+            }
+            while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
+            if (deleteSize > 0L) {
+                deleteSize = sizeToDelete(desc, minUsableSpace);
             }
         }
+        while (deleteSize > 0L) ;
+        while (deleteSeriesMetadata(desc, fetchSize)) ;
+        LOG.info("Finished deletion on {}", desc);
     }
 
-    private long deleteSize(StorageDescriptor desc, long minUsableSpace) {
+    private long sizeToDelete(StorageDescriptor desc, long minUsableSpace) {
         if (minUsableSpace < 0L)
             return 0L;
 

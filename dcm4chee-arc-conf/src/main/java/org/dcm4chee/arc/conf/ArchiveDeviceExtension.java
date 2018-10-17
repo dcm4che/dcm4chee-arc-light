@@ -120,10 +120,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int exportTaskFetchSize = 5;
     private Duration deleteRejectedPollingInterval;
     private int deleteRejectedFetchSize = 100;
-    private Duration purgeStoragePollingInterval;
-    private int purgeStorageFetchSize = 100;
-    private int deleteStudyBatchSize = 10;
-    private boolean deletePatientOnDeleteLastStudy = false;
+    private volatile Duration purgeStoragePollingInterval;
+    private volatile int purgeStorageFetchSize = 100;
+    private volatile int deleteStudyBatchSize = 10;
+    private volatile boolean deletePatientOnDeleteLastStudy = false;
     private Duration maxAccessTimeStaleness;
     private Duration aeCacheStaleTimeout;
     private Duration leadingCFindSCPQueryCacheStaleTimeout;
