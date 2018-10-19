@@ -103,10 +103,16 @@ public class CompressionEJB {
             em.createNamedQuery(Study.SET_STORAGE_IDS)
                     .setParameter(1, compr.studyPk)
                     .setParameter(2, StringUtils.concat(storageIDs, '\\'));
-        } else {
+        } else if (failures > 0) {
             em.createNamedQuery(Series.UPDATE_COMPRESSION_FAILURES)
                     .setParameter(1, compr.seriesPk)
                     .setParameter(2, failures)
+                    .executeUpdate();
+        } else { // all skipped
+            em.createNamedQuery(Series.UPDATE_COMPRESSION_COMPLETED)
+                    .setParameter(1, compr.seriesPk)
+                    .setParameter(2, failures)
+                    .setParameter(3, compr.transferSyntaxUID)
                     .executeUpdate();
         }
     }

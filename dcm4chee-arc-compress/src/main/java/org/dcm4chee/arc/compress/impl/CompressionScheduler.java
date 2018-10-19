@@ -41,10 +41,12 @@
 
 package org.dcm4chee.arc.compress.impl;
 
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -178,10 +180,17 @@ public class CompressionScheduler extends Scheduler {
                     retrCtx.getNumberOfMatches(), compr.seriesInstanceUID, compr.studyInstanceUID);
             int failures = 0;
             int completed = 0;
+            int skipped = 0;
             ArchiveCompressionRule compressionRule = new ArchiveCompressionRule();
             compressionRule.setTransferSyntax(compr.transferSyntaxUID);
             compressionRule.setImageWriteParams(compr.imageWriteParams());
             for (InstanceLocations inst : retrCtx.getMatches()) {
+                if (alreadyCompressed(inst.getLocations(), compr.transferSyntaxUID)) {
+                    LOG.info("{} of Series[iuid={}] of Study[iuid={}] already compressed with {} - skipped",
+                            inst, compr.seriesInstanceUID, compr.studyInstanceUID, UID.nameOf(compr.transferSyntaxUID));
+                    skipped++;
+                    continue;
+                }
                 try (LocationInputStream lis = retrieveService.openLocationInputStream(retrCtx, inst)) {
                     StoreContext ctx = storeService.newStoreContext(session);
                     ctx.setCompressionRule(compressionRule);
@@ -194,11 +203,15 @@ public class CompressionScheduler extends Scheduler {
                 }
             }
             ejb.updateDB(compr, completed, failures);
-            LOG.info("Finished compression of {} Instances of Series[iuid={}] of Study[iuid={}] - {} failures",
-                    completed, compr.seriesInstanceUID, compr.studyInstanceUID, failures);
+            LOG.info("Finished compression of {} Instances of Series[iuid={}] of Study[iuid={}] - {} failures, {} skipped",
+                    completed, compr.seriesInstanceUID, compr.studyInstanceUID, failures, skipped);
         } catch (IOException e) {
             LOG.warn("Failed to calculate Instances for compression of Series[iuid={}] of Study[iuid={}]:\n",
                     compr.seriesInstanceUID, compr.studyInstanceUID, e);
         }
+    }
+
+    private boolean alreadyCompressed(List<Location> locations, String tsuid) {
+        return locations.stream().anyMatch(l -> Location.isDicomFile(l) && l.getTransferSyntaxUID().equals(tsuid));
     }
 }
