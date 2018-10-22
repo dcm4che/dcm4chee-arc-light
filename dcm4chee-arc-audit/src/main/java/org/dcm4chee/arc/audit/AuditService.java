@@ -835,6 +835,7 @@ public class AuditService {
 
             StoreSession ss = ctx.getStoreSession();
             HttpServletRequest req = ss.getHttpRequest();
+            String impaxReportEndpoint = ss.getImpaxReportEndpoint();
             String callingUserID = req != null
                     ? KeycloakContext.valueOf(req).getUserName()
                     : ss.getCallingAET();
@@ -855,7 +856,7 @@ public class AuditService {
             ArchiveDeviceExtension arcDev = getArchiveDevice();
             Attributes attr = ctx.getAttributes();
             AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(ss.getRemoteHostName())
-                    .callingUserID(callingUserID)
+                    .callingUserID(impaxReportEndpoint != null ? impaxReportEndpoint : callingUserID)
                     .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
                     .studyUIDAccNumDate(attr)
                     .pIDAndName(attr, arcDev)
