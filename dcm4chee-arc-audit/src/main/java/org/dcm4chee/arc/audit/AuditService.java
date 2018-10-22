@@ -459,17 +459,17 @@ public class AuditService {
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
         EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        activeParticipantBuilder[0] = callingUserID != null ? new ActiveParticipantBuilder.Builder(
-                    callingUserID,
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                    .isRequester().build()
-                : new ActiveParticipantBuilder.Builder(
-                    calledUserID,
-                    getLocalHostName(auditLogger))
+        if (callingUserID != null) {
+            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
+                    .userIDTypeCode(archiveUserIDTypeCode(calledUserID)).build();
+            activeParticipantBuilder[1]
+                    = new ActiveParticipantBuilder.Builder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
+                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID)).isRequester().build();
+        } else
+            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
                     .userIDTypeCode(archiveUserIDTypeCode(calledUserID))
                     .isRequester().build();
         ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(calledUserID,
