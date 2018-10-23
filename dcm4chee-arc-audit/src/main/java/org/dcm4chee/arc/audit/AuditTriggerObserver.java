@@ -43,6 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
+import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -187,6 +188,20 @@ public class AuditTriggerObserver {
     public void onHL7Message(@Observes HL7ConnectionEvent hl7ConnectionEvent) {
         if (deviceHasAuditLoggers())
             auditService.spoolHL7Message(hl7ConnectionEvent);
+    }
+
+    public void onAssociation(@Observes AssociationEvent associationEvent) {
+        if (deviceHasAuditLoggers()) {
+            switch (associationEvent.getType()) {
+                case ACCEPTED:
+                case ESTABLISHED:
+                    break;
+                case FAILED:
+                case REJECTED:
+                    auditService.spoolAssociationFailure(associationEvent);
+                    break;
+            }
+        }
     }
 
     private boolean deviceHasAuditLoggers() {

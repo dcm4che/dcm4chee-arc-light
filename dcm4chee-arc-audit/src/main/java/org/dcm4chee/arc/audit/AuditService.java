@@ -56,6 +56,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
@@ -166,6 +167,9 @@ public class AuditService {
                     break;
                 case IMPAX:
                     auditPatientMismatch(auditLogger, path, eventType);
+                    break;
+                case ASSOCIATION_FAILURE:
+                    auditAssociationFailure(auditLogger, path, eventType);
                     break;
             }
         } catch (Exception e) {
@@ -2045,6 +2049,20 @@ public class AuditService {
         return sopClasses;
     }
 
+    void spoolAssociationFailure(AssociationEvent associationEvent) {
+        writeSpoolFile(
+                AuditServiceUtils.EventType.ASSOC_FAIL,
+                AssociationEventsAuditService.associationFailureAuditInfo(associationEvent));
+    }
+
+    private void auditAssociationFailure(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        emitAuditMessage(
+                AssociationEventsAuditService.associationFailureAuditMsg(auditInfo, et, getEventTime(path, auditLogger)),
+                auditLogger);
+    }
+
     private String outcome(Exception e) {
         return e != null ? e.getMessage() : null;
     }
@@ -2214,6 +2232,15 @@ public class AuditService {
             AuditLogger logger, EventIdentificationBuilder eventIdentificationBuilder, ActiveParticipantBuilder[] activeParticipantBuilder,
             ParticipantObjectIdentificationBuilder... participantObjectIdentificationBuilder) {
         AuditMessage msg = AuditMessages.createMessage(eventIdentificationBuilder, activeParticipantBuilder, participantObjectIdentificationBuilder);
+        msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
+        try {
+            logger.write(logger.timeStamp(), msg);
+        } catch (Exception e) {
+            LOG.warn("Failed to emit audit message", logger.getCommonName(), e);
+        }
+    }
+
+    private void emitAuditMessage(AuditMessage msg, AuditLogger logger) {
         msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         try {
             logger.write(logger.timeStamp(), msg);

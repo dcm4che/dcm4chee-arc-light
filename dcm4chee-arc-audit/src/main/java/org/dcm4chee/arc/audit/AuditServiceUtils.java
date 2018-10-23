@@ -61,7 +61,7 @@ class AuditServiceUtils {
 
     enum EventClass {
         QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
-        STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX
+        STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX, ASSOCIATION_FAILURE
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -135,6 +135,9 @@ class AuditServiceUtils {
 
         IMPAX_MISM(EventClass.IMPAX, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, null),
+
+        ASSOC_FAIL(EventClass.ASSOCIATION_FAILURE, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+                null, null, AuditMessages.EventTypeCode.AssociationFailure),
 
         CANCEL_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.CancelTask),
