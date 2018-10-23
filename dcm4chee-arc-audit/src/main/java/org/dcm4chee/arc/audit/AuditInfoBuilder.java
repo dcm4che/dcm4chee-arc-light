@@ -82,6 +82,7 @@ class AuditInfoBuilder {
     final String queueMsg;
     final String taskPOID;
     final String errorCode;
+    final String patMismatchCode;
 
     static class Builder {
         private String callingHost;
@@ -114,6 +115,7 @@ class AuditInfoBuilder {
         private String queueMsg;
         private String taskPOID;
         private String errorCode;
+        private String patMismatchCode;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -247,6 +249,10 @@ class AuditInfoBuilder {
             errorCode = errorCodeAsString(val);
             return this;
         }
+        Builder patMismatchCode(String val) {
+            patMismatchCode = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -283,6 +289,7 @@ class AuditInfoBuilder {
         queueMsg = builder.queueMsg;
         taskPOID = builder.taskPOID;
         errorCode = builder.errorCode;
+        patMismatchCode = builder.patMismatchCode;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

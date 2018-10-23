@@ -61,7 +61,7 @@ class AuditServiceUtils {
 
     enum EventClass {
         QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
-        STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT
+        STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -132,6 +132,9 @@ class AuditServiceUtils {
 
         LDAP_CHNGS(EventClass.LDAP_CHANGES, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.SoftwareConfiguration),
+
+        IMPAX_MISM(EventClass.IMPAX, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+                null, null, null),
 
         CANCEL_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.CancelTask),

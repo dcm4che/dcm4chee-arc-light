@@ -164,6 +164,9 @@ public class AuditService {
                 case QUEUE_EVENT:
                     auditQueueMessageEvent(auditLogger, path, eventType);
                     break;
+                case IMPAX:
+                    auditPatientMismatch(auditLogger, path, eventType);
+                    break;
             }
         } catch (Exception e) {
             LOG.warn("Failed in audit : " + e);
@@ -868,9 +871,53 @@ public class AuditService {
                     ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
             fileName = outcome != null ? fileName.concat("_ERROR") : fileName;
             writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
+            if (ctx.getImpaxReportPatientMismatch() != null) {
+                AuditInfoBuilder patMismatchInfo = new AuditInfoBuilder.Builder().callingHost(ss.getRemoteHostName())
+                        .callingUserID(impaxReportEndpoint != null ? impaxReportEndpoint : callingUserID)
+                        .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
+                        .studyUIDAccNumDate(attr)
+                        .pIDAndName(attr, arcDev)
+                        .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
+                        .build();
+                writeSpoolFile(AuditServiceUtils.EventType.IMPAX_MISM, patMismatchInfo, instanceInfo);
+            }
         } catch (Exception e) {
             LOG.warn("Failed to spool Instances Stored : " + e);
         }
+    }
+
+    private void auditPatientMismatch(AuditLogger logger, Path path, AuditServiceUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        AuditMessages.EventTypeCode eventTypeCode = patMismatchEventTypeCode(auditInfo);
+        EventIdentificationBuilder ei = new EventIdentificationBuilder.Builder(
+                                            eventType.eventID,
+                                            eventType.eventActionCode,
+                                            getEventTime(path, logger),
+                                            AuditMessages.EventOutcomeIndicator.MinorFailure)
+                                            .outcomeDesc(eventTypeCode.getOriginalText())
+                                            .eventTypeCode(eventTypeCode)
+                                            .build();
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
+        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(logger))
+                .userIDTypeCode(archiveUserIDTypeCode(calledUserID)).build();
+        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+                callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
+                .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                .isRequester().build();
+        emitAuditMessage(logger,
+                ei,
+                activeParticipantBuilder,
+                storeStudyPOI(auditInfo, studyParticipantObjDesc(reader, auditInfo)),
+                patientPOI(auditInfo));
+    }
+
+    private AuditMessages.EventTypeCode patMismatchEventTypeCode(AuditInfo auditInfo) {
+        String patMismatchCode = auditInfo.getField(AuditInfo.PAT_MISMATCH_CODE);
+        String[] code = patMismatchCode.substring(1, patMismatchCode.length() - 1).split(",");
+        return new AuditMessages.EventTypeCode(code[0], code[1], code[2]);
     }
 
     private boolean isDuplicateReceivedInstance(StoreContext ctx) {
@@ -976,6 +1023,13 @@ public class AuditService {
                                             auditInfo.getField(AuditInfo.WARNING),
                                             getEventTime(path, auditLogger));
 
+        emitAuditMessage(auditLogger, ei,
+                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
+                storeStudyPOI(auditInfo, studyParticipantObjDesc(reader, auditInfo)),
+                patientPOI(auditInfo));
+    }
+
+    private ParticipantObjectDescriptionBuilder studyParticipantObjDesc(SpoolFileReader reader, AuditInfo auditInfo) {
         HashSet<String> mpps = new HashSet<>();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
 
@@ -989,16 +1043,11 @@ public class AuditService {
                 mpps.add(mppsUID);
         }
 
-        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
+        return new ParticipantObjectDescriptionBuilder.Builder()
                 .sopC(toSOPClasses(sopClassMap, false))
                 .acc(auditInfo.getField(AuditInfo.ACC_NUM))
                 .mpps(mpps.toArray(new String[mpps.size()]))
                 .build();
-
-        emitAuditMessage(auditLogger, ei,
-                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                storeStudyPOI(auditInfo, desc),
-                patientPOI(auditInfo));
     }
 
     private ParticipantObjectIdentificationBuilder storeStudyPOI(AuditInfo auditInfo, ParticipantObjectDescriptionBuilder desc) {
