@@ -2011,9 +2011,13 @@ public class AuditService {
     }
 
     void spoolAssociationFailure(AssociationEvent associationEvent) {
-        writeSpoolFile(
-                AuditServiceUtils.EventType.ASSOC_FAIL,
-                AssociationEventsAuditService.associationFailureAuditInfo(associationEvent));
+        try {
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.ASSOC_FAIL,
+                    AssociationEventsAuditService.associationFailureAuditInfo(associationEvent));
+        } catch (Exception e) {
+            LOG.warn("Failed to spool association event failure : " + e);
+        }
     }
 
     private void auditAssociationFailure(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
