@@ -398,7 +398,7 @@ public class AuditService {
         apBuilder[0] = new ActiveParticipantBuilder.Builder(
                 callingUserID,
                 info.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                 .isRequester().build();
         apBuilder[1] = new ActiveParticipantBuilder.Builder(
                 calledUserID,
@@ -522,7 +522,7 @@ public class AuditService {
             activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                    .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                     .isRequester().build();
             activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                     archiveUserID,
@@ -760,7 +760,7 @@ public class AuditService {
             activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                                     callingUserID,
                                     qrI.getField(AuditInfo.CALLING_HOST))
-                                    .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                                    .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                                     .isRequester()
                                     .roleIDCode(eventType.source)
                                     .build();
@@ -867,8 +867,10 @@ public class AuditService {
                             ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null)
                     .build();
 
-            String fileName = getFileName(eventType, callingUserID.replace('|', '-'),
-                    ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
+            String fileName = eventType.name()
+                                + '-' + callingUserID.replace('|', '-')
+                                + '-' + ctx.getStoreSession().getCalledAET()
+                                + '-' + ctx.getStudyInstanceUID();
             fileName = outcome != null ? fileName.concat("_ERROR") : fileName;
             writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
             if (ctx.getImpaxReportPatientMismatch() != null) {
@@ -931,8 +933,10 @@ public class AuditService {
             Attributes attrs = new Attributes();
             for (InstanceLocations i : il)
                 attrs = i.getAttributes();
-            String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.requesterHost,
-                    ctx.getLocalAETitle(), ctx.getStudyInstanceUIDs()[0]);
+            String fileName = AuditServiceUtils.EventType.WADO___URI.name()
+                                + '-' + req.requesterHost
+                                + '-' + ctx.getLocalAETitle()
+                                + '-' + ctx.getStudyInstanceUIDs()[0];
             AuditInfoBuilder info = new AuditInfoBuilder.Builder()
                     .callingHost(req.requesterHost)
                     .callingUserID(req.requesterUserID)
@@ -1098,7 +1102,7 @@ public class AuditService {
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                 callingUserID,
                 auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                 .isRequester()
                 .roleIDCode(eventType.source)
                 .build();
@@ -1265,7 +1269,7 @@ public class AuditService {
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                 callingUserID,
                                 ri.getField(AuditInfo.DEST_NAP_ID))
-                                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                                .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                                 .isRequester()
                                 .roleIDCode(eventType.destination)
                                 .build();
@@ -1638,7 +1642,7 @@ public class AuditService {
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                 callingUserID,
                                 auditInfo.getField(AuditInfo.CALLING_HOST))
-                                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                                .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                                 .isRequester()
                                 .roleIDCode(et.source)
                                 .build();
@@ -1806,10 +1810,10 @@ public class AuditService {
         boolean isHL7Forward = prI.getField(AuditInfo.IS_OUTGOING_HL7) != null;
         activeParticipantBuilder[0] = isHL7Forward
                                 ? new ActiveParticipantBuilder.Builder(callingUserID, prI.getField(AuditInfo.CALLING_HOST))
-                                    .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID)).build()
+                                    .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID)).build()
                                 : new ActiveParticipantBuilder.Builder(callingUserID, prI.getField(AuditInfo.CALLING_HOST))
-                                    .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester().build();
+                                    .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                                    .isRequester().build();
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                 archiveUserID,
                                 getLocalHostName(auditLogger))
@@ -2011,7 +2015,7 @@ public class AuditService {
             activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                             callingUserID,
                                             auditInfo.getField(AuditInfo.CALLING_HOST))
-                                            .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                                            .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                                             .isRequester()
                                             .roleIDCode(et.source).build();
        
@@ -2039,10 +2043,6 @@ public class AuditService {
             count++;
         }
         return sopClasses;
-    }
-
-    private String getFileName(AuditServiceUtils.EventType et, String callingAET, String calledAET, String studyIUID) {
-        return String.valueOf(et) + '-' + callingAET + '-' + calledAET + '-' + studyIUID;
     }
 
     private String outcome(Exception e) {
@@ -2222,10 +2222,6 @@ public class AuditService {
         }
     }
 
-    private String getEOI(String outcomeDesc) {
-        return outcomeDesc != null ? AuditMessages.EventOutcomeIndicator.MinorFailure : AuditMessages.EventOutcomeIndicator.Success;
-    }
-
     private EventIdentificationBuilder toCustomBuildEventIdentification(AuditServiceUtils.EventType et, String failureDesc, String warningDesc, Calendar t) {
         return failureDesc != null
                 ? toBuildEventIdentification(et, failureDesc, t)
@@ -2236,7 +2232,9 @@ public class AuditService {
 
     private EventIdentificationBuilder toBuildEventIdentification(AuditServiceUtils.EventType et, String desc, Calendar t) {
         return new EventIdentificationBuilder.Builder(
-                et.eventID, et.eventActionCode, t, getEOI(desc)).outcomeDesc(desc).eventTypeCode(et.eventTypeCode).build();
+                et.eventID, et.eventActionCode, t,
+                desc != null ? AuditMessages.EventOutcomeIndicator.MinorFailure : AuditMessages.EventOutcomeIndicator.Success)
+                .outcomeDesc(desc).eventTypeCode(et.eventTypeCode).build();
     }
     
     private ParticipantObjectIdentificationBuilder patientPOI(AuditInfo auditInfo) {
@@ -2268,15 +2266,16 @@ public class AuditService {
                         : AuditMessages.UserIDTypeCode.StationAETitle;
     }
 
-    private AuditMessages.UserIDTypeCode callingUserIDTypeCode(AuditMessages.UserIDTypeCode archiveUserIDTypeCode, String callingUserID) {
-        if (callingUserID != null)
-            return callingUserID.indexOf('|') != -1
+    private AuditMessages.UserIDTypeCode remoteUserIDTypeCode(
+            AuditMessages.UserIDTypeCode archiveUserIDTypeCode, String remoteUserID) {
+        if (remoteUserID != null)
+            return remoteUserID.indexOf('|') != -1
                 ? AuditMessages.UserIDTypeCode.ApplicationFacility
                 : archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.URI
-                    ? AuditMessages.userIDTypeCode(callingUserID)
+                    ? AuditMessages.userIDTypeCode(remoteUserID)
                     : AuditMessages.UserIDTypeCode.StationAETitle;
 
-        LOG.warn("Calling user ID was not set during spooling.");
+        LOG.warn("Remote user ID was not set during spooling.");
         return null;
     }
 
