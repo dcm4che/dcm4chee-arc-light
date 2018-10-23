@@ -437,7 +437,7 @@ public class AuditService {
             HttpServletRequest request = softwareConfiguration.getRequest();
             String deviceName = softwareConfiguration.getDeviceName();
             AuditInfoBuilder info = request != null
-                    ? buildSoftwareConfAuditForWeb(request, deviceName)
+                    ? buildSoftwareConfAuditForWeb(request)
                     : buildSystemTriggeredSoftwareConfAudit(deviceName);
             writeSpoolFile(info, softwareConfiguration.getLdapDiff().toString());
         } catch (Exception e) {
@@ -445,11 +445,11 @@ public class AuditService {
         }
     }
 
-    private AuditInfoBuilder buildSoftwareConfAuditForWeb(HttpServletRequest request, String deviceName) {
+    private AuditInfoBuilder buildSoftwareConfAuditForWeb(HttpServletRequest request) {
         return new AuditInfoBuilder.Builder()
                     .callingUserID(KeycloakContext.valueOf(request).getUserName())
                     .callingHost(request.getRemoteAddr())
-                    .calledUserID(deviceName)
+                    .calledUserID(request.getRequestURI())
                     .build();
     }
 
