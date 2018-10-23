@@ -1836,13 +1836,12 @@ public class AuditService {
     }
 
     void spoolProvideAndRegister(ExportContext ctx) {
-        try {
-            ProvideAndRegisterAuditInfoBuilder provideAndRegisterInfo = new ProvideAndRegisterAuditInfoBuilder(ctx, getArchiveDevice());
-            AuditInfoBuilder auditInfoBuilder = provideAndRegisterInfo.getAuditInfoBuilder();
-            if (auditInfoBuilder == null)
-                return;
+        if (ctx.getXDSiManifest() == null)
+            return;
 
-            writeSpoolFile(AuditServiceUtils.EventType.PROV_REGIS, auditInfoBuilder);
+        try {
+            writeSpoolFile(AuditServiceUtils.EventType.PROV_REGIS,
+                    ProvideAndRegisterAuditService.provideRegisterAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.warn("Failed to spool Provide and Register : " + e);
         }
@@ -1851,47 +1850,9 @@ public class AuditService {
     private void auditProvideAndRegister(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
-
-        ActiveParticipantBuilder[] activeParticipantBuilder = buildProvideRegisterActiveParticipants(auditLogger, et, auditInfo);
-
-        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, patientPOI(auditInfo), submissionSetPOI(auditInfo));
-    }
-
-    private ActiveParticipantBuilder[] buildProvideRegisterActiveParticipants(
-            AuditLogger auditLogger, AuditServiceUtils.EventType et, AuditInfo ai) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                                ai.getField(AuditInfo.DEST_USER_ID),
-                                ai.getField(AuditInfo.DEST_NAP_ID))
-                                .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                                .roleIDCode(et.destination)
-                                .build();
-        if (isServiceUserTriggered(ai.getField(AuditInfo.CALLING_USERID))) {
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                                    ai.getField(AuditInfo.CALLED_USERID),
-                                    getLocalHostName(auditLogger))
-                                    .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                                    .altUserID(AuditLogger.processID())
-                                    .roleIDCode(et.source)
-                                    .build();
-            String callingUserID = ai.getField(AuditInfo.CALLING_USERID);
-            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
-                                    callingUserID,
-                                    ai.getField(AuditInfo.CALLING_HOST))
-                                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                                    .isRequester()
-                                    .build();
-        } else
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                                    device.getDeviceName(),
-                                    getLocalHostName(auditLogger))
-                                    .altUserID(AuditLogger.processID())
-                                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                                    .isRequester()
-                                    .roleIDCode(et.source)
-                                    .build();
-        return activeParticipantBuilder;
+        emitAuditMessage(
+                ProvideAndRegisterAuditService.provideRegisterAuditMsg(auditInfo, auditLogger, et, getEventTime(path, auditLogger)),
+                auditLogger);
     }
 
     private boolean isServiceUserTriggered(Object val) {
@@ -2271,15 +2232,6 @@ public class AuditService {
                 AuditMessages.ParticipantObjectTypeCode.Person,
                 AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(auditInfo.getField(AuditInfo.P_NAME))
-                .build();
-    }
-
-    private ParticipantObjectIdentificationBuilder submissionSetPOI(AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
-                auditInfo.getField(AuditInfo.SUBMISSION_SET_UID),
-                AuditMessages.ParticipantObjectIDTypeCode.IHE_XDS_METADATA,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Job)
                 .build();
     }
 
