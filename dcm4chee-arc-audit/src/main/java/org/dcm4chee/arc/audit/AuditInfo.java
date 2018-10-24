@@ -79,6 +79,7 @@ class AuditInfo {
     static final int TASK_POID = 28;
     static final int ERROR_CODE = 29;
     static final int PAT_MISMATCH_CODE = 30;
+    static final int CONN_TYPE = 31;
 
     private final String[] fields;
 
@@ -114,7 +115,8 @@ class AuditInfo {
                 i.queueMsg,
                 i.taskPOID,
                 i.errorCode,
-                i.patMismatchCode
+                i.patMismatchCode,
+                i.connType != null ? i.connType.name() : null
         };
     }
 

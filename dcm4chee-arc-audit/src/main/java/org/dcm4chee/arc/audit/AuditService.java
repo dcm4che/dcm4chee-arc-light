@@ -126,8 +126,8 @@ public class AuditService {
                 case APPLN_ACTIVITY:
                     auditApplicationActivity(auditLogger, path, eventType);
                     break;
-                case CONN_REJECT:
-                    auditConnectionRejected(auditLogger, path, eventType);
+                case CONN_FAILURE:
+                    auditConnectionFailure(auditLogger, path, eventType);
                     break;
                 case STORE_WADOR:
                     auditStoreOrWADORetrieve(auditLogger, path, eventType);
@@ -447,43 +447,23 @@ public class AuditService {
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, studyPOI);
     }
 
-    void spoolConnectionRejected(ConnectionEvent event) {
+    void spoolConnectionFailure(ConnectionEvent event) {
         try {
-            AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                    .callingHost(event.getSocket().getRemoteSocketAddress().toString())
-                    .calledHost(event.getConnection().getHostname())
-                    .outcome(event.getException().getMessage())
-                    .build();
-            writeSpoolFile(AuditServiceUtils.EventType.CONN__RJCT, info);
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.CONN_FAILR,
+                    ConnectionEventsAuditService.connFailureAuditInfo(event, device.getDeviceName()));
         } catch (Exception e) {
             LOG.warn("Failed to spool Connection Rejected : " + e);
         }
     }
 
-    private void auditConnectionRejected(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
+    private void auditConnectionFailure(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo crI = new AuditInfo(reader.getMainInfo());
-        EventIdentificationBuilder ei = toBuildEventIdentification(eventType, crI.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                                device.getDeviceName(),
-                                crI.getField(AuditInfo.CALLED_HOST))
-                                .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                                .altUserID(AuditLogger.processID())
-                                .build();
-        String userID, napID;
-        userID = napID = crI.getField(AuditInfo.CALLING_HOST);
-        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(userID, napID)
-                                        .userIDTypeCode(AuditMessages.UserIDTypeCode.NodeID)
-                                        .isRequester().build();
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
-        ParticipantObjectIdentificationBuilder poi = new ParticipantObjectIdentificationBuilder.Builder(
-                                                    crI.getField(AuditInfo.CALLING_HOST),
-                                                    AuditMessages.ParticipantObjectIDTypeCode.NodeID,
-                                                    AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                                    null)
-                                                    .build();
-        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poi);
+        emitAuditMessage(
+                ConnectionEventsAuditService.auditMsg(auditInfo, eventType, getEventTime(path, auditLogger)),
+                auditLogger);
     }
 
     void spoolQuery(QueryContext ctx) {

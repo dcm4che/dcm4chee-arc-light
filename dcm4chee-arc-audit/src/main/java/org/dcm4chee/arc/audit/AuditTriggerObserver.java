@@ -127,12 +127,12 @@ public class AuditTriggerObserver {
         if (deviceHasAuditLoggers())
             switch (event.getType()) {
                 case ESTABLISHED:
-                case FAILED:
                 case REJECTED_BLACKLISTED:
                 case ACCEPTED:
                     break;
+                case FAILED:
                 case REJECTED:
-                    auditService.spoolConnectionRejected(event);
+                    auditService.spoolConnectionFailure(event);
                     break;
             }
     }

@@ -43,6 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
+import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
 
@@ -83,6 +84,7 @@ class AuditInfoBuilder {
     final String taskPOID;
     final String errorCode;
     final String patMismatchCode;
+    final ConnectionEvent.Type connType;
 
     static class Builder {
         private String callingHost;
@@ -116,6 +118,7 @@ class AuditInfoBuilder {
         private String taskPOID;
         private String errorCode;
         private String patMismatchCode;
+        private ConnectionEvent.Type connType;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -253,6 +256,10 @@ class AuditInfoBuilder {
             patMismatchCode = val;
             return this;
         }
+        Builder connType(ConnectionEvent.Type val) {
+            connType = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -290,6 +297,7 @@ class AuditInfoBuilder {
         taskPOID = builder.taskPOID;
         errorCode = builder.errorCode;
         patMismatchCode = builder.patMismatchCode;
+        connType = builder.connType;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

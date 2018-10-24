@@ -41,7 +41,6 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
@@ -65,7 +64,7 @@ class AuditServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditServiceUtils.class);
 
     enum EventClass {
-        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
+        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_FAILURE, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
         STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX, ASSOCIATION_FAILURE
     }
     enum EventType {
@@ -108,7 +107,7 @@ class AuditServiceUtils {
         QUERY__EVT(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
-        CONN__RJCT(EventClass.CONN_REJECT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+        CONN_FAILR(EventClass.CONN_FAILURE, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.NodeAuthentication),
 
         PAT_CREATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
