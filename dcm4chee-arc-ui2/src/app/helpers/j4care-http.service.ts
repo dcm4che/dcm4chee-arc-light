@@ -40,7 +40,8 @@ export class J4careHttpService{
                 return $this.$http[requestFunctionName].apply($this.$http , param);
             }).catch(res=>{
                 if(res.ok === false && res.status === 0 && res.type === 3){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                    if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
+                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
                 if(res.statusText === "Unauthorized"){
                     return $this.getRealm().flatMap((resp)=>{
@@ -82,7 +83,8 @@ export class J4careHttpService{
         return this.$http.get('rs/realm').map(res => {
             let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                    if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
+                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
                 resjson = res.json();
             }catch (e){
