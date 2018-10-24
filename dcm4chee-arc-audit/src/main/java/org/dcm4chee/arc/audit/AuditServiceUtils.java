@@ -41,11 +41,16 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
+import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,6 +183,27 @@ class AuditServiceUtils {
         static EventType forInstanceStored(StoreContext ctx) {
             return !ctx.getLocations().isEmpty() && ctx.getPreviousInstance() != null
                         ? STORE_UPDT : STORE_CREA;
+        }
+
+        static EventType forInstancesDeleted(StoreContext ctx) {
+            StoreSession storeSession = ctx.getStoreSession();
+            boolean isSchedulerDeletedExpiredStudies = storeSession.getAssociation() == null
+                                                        && storeSession.getHttpRequest() == null;
+            return ctx.getStoredInstance().getSeries().getStudy().getRejectionState() == RejectionState.COMPLETE
+                    ? isSchedulerDeletedExpiredStudies
+                        ? PRMDLT_SCH
+                        : RJ_COMPLET
+                    : isSchedulerDeletedExpiredStudies
+                        ? RJ_SCH_FEW
+                        : RJ_PARTIAL;
+        }
+
+        static EventType forStudyDeleted(StudyDeleteContext ctx) {
+            return ctx.getHttpServletRequestInfo() != null ? RJ_COMPLET : PRMDLT_SCH;
+        }
+
+        static EventType forExternalRejection(RejectionNoteSent rejectionNoteSent) {
+            return rejectionNoteSent.isStudyDeleted() ? RJ_COMPLET : RJ_PARTIAL;
         }
 
         static EventType forPatRec(PatientMgtContext ctx) {

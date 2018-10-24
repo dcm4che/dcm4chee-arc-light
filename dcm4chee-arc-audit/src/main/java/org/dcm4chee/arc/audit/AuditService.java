@@ -61,7 +61,6 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
-import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -69,7 +68,6 @@ import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
@@ -108,7 +106,7 @@ import java.util.stream.Stream;
  */
 @ApplicationScoped
 public class AuditService {
-    private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private final String studyDate = "StudyDate";
 
     @Inject
@@ -238,79 +236,19 @@ public class AuditService {
 
     private void spoolInstancesDeleted(StoreContext ctx) {
         try {
-            StoreSession storeSession = ctx.getStoreSession();
-            Attributes attr = ctx.getAttributes();
-            String outcome = null != ctx.getException()
-                    ? null != ctx.getRejectionNote()
-                    ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                    : outcome(ctx.getException())
-                    : null;
-            String warning = ctx.getException() == null && null != ctx.getRejectionNote()
-                    ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
-            boolean isSchedulerDeletedExpiredStudies = isSchedulerDeletedExpiredStudies(storeSession);
-
-            List<AuditInfoBuilder> auditInfoBuilders = new ArrayList<>();
-            auditInfoBuilders.add(isSchedulerDeletedExpiredStudies
-                    ? schedulerRejectedAuditInfo(attr, outcome, warning)
-                    : userRejectedAuditInfo(ctx, outcome, warning));
-            buildRejectionSOPAuditInfo(auditInfoBuilders, attr);
-
-            AuditServiceUtils.EventType eventType = ctx.getStoredInstance().getSeries().getStudy().getRejectionState() == RejectionState.COMPLETE
-                    ? isSchedulerDeletedExpiredStudies
-                    ? AuditServiceUtils.EventType.PRMDLT_SCH
-                    : AuditServiceUtils.EventType.RJ_COMPLET
-                    : isSchedulerDeletedExpiredStudies
-                    ? AuditServiceUtils.EventType.RJ_SCH_FEW
-                    : AuditServiceUtils.EventType.RJ_PARTIAL;
-            writeSpoolFile(eventType, auditInfoBuilders.toArray(new AuditInfoBuilder[auditInfoBuilders.size()]));
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.forInstancesDeleted(ctx),
+                    DeletionAuditService.instancesDeletedAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.warn("Failed to spool Instances Deleted : " + e);
         }
     }
 
-    private AuditInfoBuilder schedulerRejectedAuditInfo(Attributes attr, String outcome, String warning) {
-        return new AuditInfoBuilder.Builder()
-                .studyUIDAccNumDate(attr)
-                .pIDAndName(attr, getArchiveDevice())
-                .outcome(outcome)
-                .warning(warning)
-                .build();
-    }
-
-    private AuditInfoBuilder userRejectedAuditInfo(StoreContext ctx, String outcome, String warning) {
-        StoreSession storeSession = ctx.getStoreSession();
-        Attributes attr = ctx.getAttributes();
-        HttpServletRequest req = storeSession.getHttpRequest();
-        String callingAET = storeSession.getCallingAET();
-        return new AuditInfoBuilder.Builder().callingHost(storeSession.getRemoteHostName())
-                .callingUserID(req != null
-                        ? KeycloakContext.valueOf(req).getUserName()
-                        : callingAET != null
-                            ? callingAET : storeSession.getLocalApplicationEntity().getAETitle())
-                .calledUserID(req != null ? req.getRequestURI() : storeSession.getCalledAET())
-                .studyUIDAccNumDate(attr)
-                .pIDAndName(attr, getArchiveDevice())
-                .outcome(outcome)
-                .warning(warning)
-                .build();
-    }
-
-    private boolean isSchedulerDeletedExpiredStudies(StoreSession storeSession) {
-        return storeSession.getAssociation() == null && storeSession.getHttpRequest() == null;
-    }
-
     void spoolStudyDeleted(StudyDeleteContext ctx) {
         try {
-            HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
-            AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[ctx.getInstances().size() + 1];
-            auditInfoBuilder[0] = httpServletRequestInfo != null
-                    ? buildPermDeletionAuditInfoForWeb(httpServletRequestInfo, ctx)
-                    : buildPermDeletionAuditInfoForScheduler(ctx);
-            buildSOPInstanceAuditInfo(auditInfoBuilder, ctx.getInstances());
-            AuditServiceUtils.EventType eventType = httpServletRequestInfo != null
-                    ? AuditServiceUtils.EventType.RJ_COMPLET
-                    : AuditServiceUtils.EventType.PRMDLT_SCH;
-            writeSpoolFile(eventType, auditInfoBuilder);
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.forStudyDeleted(ctx),
+                    DeletionAuditService.studyDeletedAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.warn("Failed to spool Study Deleted : " + e);
         }
@@ -318,36 +256,25 @@ public class AuditService {
 
     void spoolExternalRejection(RejectionNoteSent rejectionNoteSent) {
         try {
-            Attributes attrs = rejectionNoteSent.getRejectionNote();
-            List<AuditInfoBuilder> auditInfoBuilders = new ArrayList<>();
-            auditInfoBuilders.add(externalRejectionClientAuditInfo(rejectionNoteSent));
-            buildRejectionSOPAuditInfo(auditInfoBuilders, attrs);
-
-            AuditServiceUtils.EventType clientET = rejectionNoteSent.isStudyDeleted()
-                    ? AuditServiceUtils.EventType.RJ_COMPLET
-                    : AuditServiceUtils.EventType.RJ_PARTIAL;
-            writeSpoolFile(clientET, auditInfoBuilders.toArray(new AuditInfoBuilder[auditInfoBuilders.size()]));
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.forExternalRejection(rejectionNoteSent),
+                    DeletionAuditService.externalRejectionAuditInfo(rejectionNoteSent, getArchiveDevice()));
         } catch (Exception e) {
             LOG.warn("Failed to spool External Rejection : " + e);
         }
     }
 
-    private AuditInfoBuilder externalRejectionClientAuditInfo(RejectionNoteSent rejectionNoteSent) {
-        HttpServletRequest req = rejectionNoteSent.getRequest();
-        Attributes attrs = rejectionNoteSent.getRejectionNote();
-        Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                .callingHost(req.getRemoteHost())
-                .calledUserID(req.getRequestURI())
-                .calledHost(!rejectionNoteSent.getRemoteAE().getConnections().isEmpty()
-                        ? rejectionNoteSent.getRemoteAE().getConnections().stream().map(Connection::getHostname).collect(Collectors.joining(";"))
-                        : null)
-                .outcome(rejectionNoteSent.failed() ? rejectionNoteSent.getErrorComment() : null)
-                .warning(codeItem.getString(Tag.CodeMeaning))
-                .studyUIDAccNumDate(attrs)
-                .pIDAndName(attrs, getArchiveDevice())
-                .build();
+    private void auditDeletion(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        EventIdentificationBuilder ei = toCustomBuildEventIdentification(eventType, outcome,
+                auditInfo.getField(AuditInfo.WARNING), getEventTime(path, auditLogger));
+
+        emitAuditMessage(
+                DeletionAuditService.auditMsg(auditLogger, reader, eventType, ei),
+                auditLogger);
     }
 
     void spoolQueueMessageEvent(QueueMessageEvent queueMsgEvent) {
@@ -438,124 +365,20 @@ public class AuditService {
 
     void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
         try {
-            HttpServletRequest request = softwareConfiguration.getRequest();
-            String deviceName = softwareConfiguration.getDeviceName();
-            AuditInfoBuilder info = request != null
-                    ? buildSoftwareConfAuditForWeb(request)
-                    : buildSystemTriggeredSoftwareConfAudit(deviceName);
-            writeSpoolFile(info, softwareConfiguration.getLdapDiff().toString());
+            writeSpoolFile(
+                    SoftwareConfigurationAuditService.auditInfo(softwareConfiguration),
+                    softwareConfiguration.getLdapDiff().toString());
         } catch (Exception e) {
             LOG.warn("Failed to spool Software Configuration Changes : " + e);
         }
     }
 
-    private AuditInfoBuilder buildSoftwareConfAuditForWeb(HttpServletRequest request) {
-        return new AuditInfoBuilder.Builder()
-                    .callingUserID(KeycloakContext.valueOf(request).getUserName())
-                    .callingHost(request.getRemoteAddr())
-                    .calledUserID(request.getRequestURI())
-                    .build();
-    }
-
-    private AuditInfoBuilder buildSystemTriggeredSoftwareConfAudit(String deviceName) {
-        return new AuditInfoBuilder.Builder().calledUserID(deviceName).build();
-    }
-
     private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-
         EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        if (callingUserID != null) {
-            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
-                    .userIDTypeCode(archiveUserIDTypeCode(calledUserID)).build();
-            activeParticipantBuilder[1]
-                    = new ActiveParticipantBuilder.Builder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID)).isRequester().build();
-        } else
-            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
-                    .userIDTypeCode(archiveUserIDTypeCode(calledUserID))
-                    .isRequester().build();
-        ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(calledUserID,
-                                                    AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
-                                                    AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                                    null)
-                                                    .detail(getPod("Alert Description",
-                                                            !reader.getInstanceLines().isEmpty()
-                                                                    ? reader.getInstanceLines().stream().collect(Collectors.joining("\n"))
-                                                                    : null))
-                                                    .build();
-        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
-    }
-
-    private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(
-            HttpServletRequestInfo httpServletRequestInfo, StudyDeleteContext ctx) {
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(httpServletRequestInfo.requesterUserID)
-                .callingHost(httpServletRequestInfo.requesterHost)
-                .calledUserID(httpServletRequestInfo.requestURI)
-                .studyUIDAccNumDate(ctx.getStudy().getAttributes())
-                .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
-                .outcome(outcome(ctx.getException()))
-                .build();
-    }
-
-    private AuditInfoBuilder buildPermDeletionAuditInfoForScheduler(StudyDeleteContext ctx) {
-        return new AuditInfoBuilder.Builder()
-                .studyUIDAccNumDate(ctx.getStudy().getAttributes())
-                .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
-                .outcome(outcome(ctx.getException()))
-                .build();
-    }
-
-    private void auditDeletion(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
-        SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        boolean userDeleted = eventType.eventClass == AuditServiceUtils.EventClass.USER_DELETED;
-        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
-        EventIdentificationBuilder ei = toCustomBuildEventIdentification(eventType, outcome,
-                auditInfo.getField(AuditInfo.WARNING), getEventTime(path, auditLogger));
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
-        if (userDeleted) {
-            String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-            AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-            String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                    callingUserID,
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                    .isRequester().build();
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                    archiveUserID,
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(archiveUserIDTypeCode)
-                    .altUserID(AuditLogger.processID())
-                    .build();
-        } else
-            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                    device.getDeviceName(),
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                    .altUserID(AuditLogger.processID())
-                    .isRequester().build();
-
-        
-        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                .sopC(toSOPClasses(buildSOPClassMap(reader), outcome != null))
-                .acc(auditInfo.getField(AuditInfo.ACC_NUM)).build();
-        
-        ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
-                auditInfo.getField(AuditInfo.STUDY_UID), 
-                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(desc)
-                .detail(getPod(studyDate, auditInfo.getField(AuditInfo.STUDY_DATE)))
-                .build();
-        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiStudy, patientPOI(auditInfo));
+        emitAuditMessage(
+                SoftwareConfigurationAuditService.auditMsg(auditLogger, reader, ei),
+                auditLogger);
     }
 
     void spoolExternalRetrieve(ExternalRetrieveContext ctx) {
@@ -1923,25 +1746,6 @@ public class AuditService {
                 .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
     }
 
-    private void buildSOPInstanceAuditInfo(AuditInfoBuilder[] auditInfoBuilder, List<Instance> instances) {
-        int i = 1;
-        for (Instance instance : instances) {
-            auditInfoBuilder[i] = new AuditInfoBuilder.Builder()
-                    .sopCUID(instance.getSopClassUID())
-                    .sopIUID(instance.getSopInstanceUID()).build();
-            i++;
-        }
-    }
-
-    private void buildRejectionSOPAuditInfo(List<AuditInfoBuilder> auditInfoBuilders, Attributes attrs) {
-        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
-            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence))
-                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence))
-                    auditInfoBuilders.add(new AuditInfoBuilder.Builder()
-                            .sopCUID(sopRef.getString(Tag.ReferencedSOPClassUID))
-                            .sopIUID(sopRef.getString(Tag.ReferencedSOPInstanceUID)).build());
-    }
-
     private String storageCmtCallingHost(StgCmtContext stgCmtContext) {
         return stgCmtContext.getRequest() != null
                 ? stgCmtContext.getRequest().requesterHost
@@ -2008,6 +1812,29 @@ public class AuditService {
             count++;
         }
         return sopClasses;
+    }
+
+    static SOPClass[] toSOPClasses(SpoolFileReader reader, boolean showIUID) {
+        HashMap<String, HashSet<String>> sopClassMap = sopClassMap(reader);
+        SOPClass[] sopClasses = new SOPClass[sopClassMap.size()];
+        int count = 0;
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
+            sopClasses[count] = AuditMessages.createSOPClass(
+                    showIUID ? entry.getValue() : null,
+                    entry.getKey(),
+                    entry.getValue().size());
+            count++;
+        }
+        return sopClasses;
+    }
+
+    private static HashMap<String, HashSet<String>> sopClassMap(SpoolFileReader reader) {
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+        for (String line : reader.getInstanceLines()) {
+            AuditInfo ii = new AuditInfo(line);
+            sopClassMap.computeIfAbsent(ii.getField(AuditInfo.SOP_CUID), k -> new HashSet<>()).add(ii.getField(AuditInfo.SOP_IUID));
+        }
+        return sopClassMap;
     }
 
     void spoolAssociationFailure(AssociationEvent associationEvent) {
@@ -2249,7 +2076,7 @@ public class AuditService {
                         : AuditMessages.UserIDTypeCode.StationAETitle;
     }
 
-    private AuditMessages.UserIDTypeCode remoteUserIDTypeCode(
+    static AuditMessages.UserIDTypeCode remoteUserIDTypeCode(
             AuditMessages.UserIDTypeCode archiveUserIDTypeCode, String remoteUserID) {
         if (remoteUserID != null)
             return remoteUserID.indexOf('|') != -1
