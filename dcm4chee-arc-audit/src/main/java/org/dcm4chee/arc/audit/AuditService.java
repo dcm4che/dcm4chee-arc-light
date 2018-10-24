@@ -61,7 +61,6 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
@@ -278,21 +277,13 @@ public class AuditService {
     }
 
     void spoolQueueMessageEvent(QueueMessageEvent queueMsgEvent) {
-        try {
-            QueueMessage queueMsg = queueMsgEvent.getQueueMsg();
-            if (queueMsg == null)
-                return;
+        if (queueMsgEvent.getQueueMsg() == null)
+            return;
 
-            HttpServletRequest req = queueMsgEvent.getRequest();
-            AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                    .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                    .callingHost(req.getRemoteHost())
-                    .calledUserID(req.getRequestURI())
-                    .outcome(outcome(queueMsgEvent.getException()))
-                    .queueMsg(toString(queueMsg))
-                    .taskPOID(queueMsg.getMessageID())
-                    .build();
-            writeSpoolFile(AuditServiceUtils.EventType.forQueueEvent(queueMsgEvent.getOperation()), info);
+        try {
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.forQueueEvent(queueMsgEvent.getOperation()),
+                    QueueMessageAuditService.queueMsgAuditInfo(queueMsgEvent));
         } catch (Exception e) {
             LOG.warn("Failed to spool Queue Message Event : " + e);
         }
@@ -300,17 +291,9 @@ public class AuditService {
 
     void spoolBulkQueueMessageEvent(BulkQueueMessageEvent bulkQueueMsgEvent) {
         try {
-            HttpServletRequest req = bulkQueueMsgEvent.getRequest();
-            AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                    .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                    .callingHost(req.getRemoteHost())
-                    .calledUserID(req.getRequestURI())
-                    .outcome(outcome(bulkQueueMsgEvent.getException()))
-                    .filters(req.getQueryString())
-                    .count(bulkQueueMsgEvent.getCount())
-                    .taskPOID(bulkQueueMsgEvent.getOperation().name())
-                    .build();
-            writeSpoolFile(AuditServiceUtils.EventType.forQueueEvent(bulkQueueMsgEvent.getOperation()), info);
+            writeSpoolFile(
+                    AuditServiceUtils.EventType.forQueueEvent(bulkQueueMsgEvent.getOperation()),
+                    QueueMessageAuditService.bulkQueueMsgAuditInfo(bulkQueueMsgEvent));
         } catch (Exception e) {
             LOG.warn("Failed to spool Bulk Queue Message Event : " + e);
         }
@@ -318,49 +301,11 @@ public class AuditService {
 
     private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo info = new AuditInfo(reader.getMainInfo());
-
-        EventIdentificationBuilder eiBuilder = toBuildEventIdentification(
-                eventType, info.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
-        ActiveParticipantBuilder[] apBuilder = new ActiveParticipantBuilder[2];
-        String callingUserID = info.getField(AuditInfo.CALLING_USERID);
-        String calledUserID = info.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(calledUserID);
-        apBuilder[0] = new ActiveParticipantBuilder.Builder(
-                callingUserID,
-                info.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester().build();
-        apBuilder[1] = new ActiveParticipantBuilder.Builder(
-                calledUserID,
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(archiveUserIDTypeCode)
-                .build();
-        ParticipantObjectIdentificationBuilder poiBuilder = info.getField(AuditInfo.QUEUE_MSG) != null
-                ? buildTaskPOI(info)
-                : buildTasksPOI(info);
-        emitAuditMessage(auditLogger, eiBuilder, apBuilder, poiBuilder);
-    }
-
-    private ParticipantObjectIdentificationBuilder buildTaskPOI(AuditInfo info) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
-                info.getField(AuditInfo.TASK_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.TASK,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                null)
-                .detail(getPod("Task", info.getField(AuditInfo.QUEUE_MSG)))
-                .build();
-    }
-
-    private ParticipantObjectIdentificationBuilder buildTasksPOI(AuditInfo info) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
-                info.getField(AuditInfo.TASK_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.TASKS,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                null)
-                .detail(getPod("Filters", info.getField(AuditInfo.FILTERS)),
-                        getPod("Count", info.getField(AuditInfo.COUNT)))
-                .build();
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        Calendar eventTime = getEventTime(path, auditLogger);
+        emitAuditMessage(
+                QueueMessageAuditService.auditMsg(auditInfo, eventType, auditLogger, eventTime),
+                auditLogger);
     }
 
     void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
@@ -375,9 +320,9 @@ public class AuditService {
 
     private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
-        EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
+        Calendar eventTime = getEventTime(path, auditLogger);
         emitAuditMessage(
-                SoftwareConfigurationAuditService.auditMsg(auditLogger, reader, ei),
+                SoftwareConfigurationAuditService.auditMsg(auditLogger, reader, eventType, eventTime),
                 auditLogger);
     }
 
@@ -2067,15 +2012,5 @@ public class AuditService {
 
         LOG.warn("Remote user ID was not set during spooling.");
         return null;
-    }
-
-    private String toString(QueueMessage queueMsg) {
-        StringWriter w = new StringWriter(256);
-        try {
-            queueMsg.writeAsJSON(w);
-        } catch (IOException e) {
-            LOG.warn(e.getMessage());
-        }
-        return w.toString();
     }
 }

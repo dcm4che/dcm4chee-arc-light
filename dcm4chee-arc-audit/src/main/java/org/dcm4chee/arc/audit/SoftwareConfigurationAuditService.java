@@ -45,6 +45,7 @@ import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Calendar;
 import java.util.stream.Collectors;
 
 /**
@@ -68,13 +69,21 @@ class SoftwareConfigurationAuditService {
                 .build();
     }
 
-    static AuditMessage auditMsg(
-            AuditLogger auditLogger, SpoolFileReader reader, EventIdentificationBuilder eventIdentification) {
+    static AuditMessage auditMsg(AuditLogger auditLogger, SpoolFileReader reader,
+                                 AuditServiceUtils.EventType eventType, Calendar eventTime) {
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
-        return AuditMessages.createMessage(eventIdentification,
+        return AuditMessages.createMessage(
+                eventIdentification(eventType, eventTime),
                 activeParticipants(auditLogger, auditInfo),
                 poiLDAPDiff(reader, auditInfo));
+    }
+
+    private static EventIdentificationBuilder eventIdentification(
+            AuditServiceUtils.EventType eventType, Calendar eventTime) {
+        return new EventIdentificationBuilder.Builder(eventType.eventID, eventType.eventActionCode, eventTime,
+                AuditMessages.EventOutcomeIndicator.Success)
+                .eventTypeCode(eventType.eventTypeCode).build();
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
@@ -83,13 +92,14 @@ class SoftwareConfigurationAuditService {
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         if (callingUserID != null) {
             activeParticipantBuilders[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
-                    .userIDTypeCode(archiveUserIDTypeCode(calledUserID)).build();
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.URI).build();
             activeParticipantBuilders[1]
                     = new ActiveParticipantBuilder.Builder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID)).isRequester().build();
+                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                    .isRequester().build();
         } else
             activeParticipantBuilders[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
-                    .userIDTypeCode(archiveUserIDTypeCode(calledUserID))
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .isRequester().build();
         return activeParticipantBuilders;
     }
@@ -111,9 +121,4 @@ class SoftwareConfigurationAuditService {
         return auditLogger.getConnections().get(0).getHostname();
     }
 
-    private static AuditMessages.UserIDTypeCode archiveUserIDTypeCode(String userID) {
-        return  userID.indexOf('/') != -1
-                ? AuditMessages.UserIDTypeCode.URI
-                : AuditMessages.UserIDTypeCode.DeviceName;
-    }
 }
