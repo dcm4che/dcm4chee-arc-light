@@ -85,4 +85,6 @@ public interface PatientService {
     void deletePatientFromUI(PatientMgtContext ctx);
 
     void deletePatientIfHasNoMergedWith(PatientMgtContext ctx);
+
+    Patient updatePatientStatus(PatientMgtContext ctx);
 }

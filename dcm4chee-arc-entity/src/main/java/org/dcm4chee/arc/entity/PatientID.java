@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.data.IDWithIssuer;
+
 import javax.persistence.*;
 
 /**
@@ -98,15 +100,11 @@ public class PatientID {
     public void setIssuer(IssuerEntity issuer) {
         this.issuer = issuer;
     }
-    
-    public long getVersion() {
-        return version;
+
+    public IDWithIssuer getIDWithIssuer() {
+        return new IDWithIssuer(id, issuer != null ? issuer.getIssuer() : null);
     }
 
-    public void setVersion(long version) {
-        this.version = version;
-    }
-    
     @Override
     public String toString() {
         return "PatientID[pk=" + pk

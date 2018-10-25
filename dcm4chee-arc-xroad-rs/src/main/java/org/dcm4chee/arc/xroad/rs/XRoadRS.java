@@ -41,9 +41,12 @@
 
 package org.dcm4chee.arc.xroad.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.xroad.XRoadException;
 import org.dcm4chee.arc.xroad.XRoadServiceProvider;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -63,6 +66,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -77,6 +81,9 @@ public class XRoadRS {
     private HttpServletRequest request;
 
     @Inject
+    private Device device;
+
+    @Inject
     private XRoadServiceProvider service;
 
     @GET
@@ -85,9 +92,15 @@ public class XRoadRS {
     @Produces("application/dicom+json,application/json")
     public Response rr441(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
         logRequest();
+        Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getXRoadProperties();
+        String endpoint = props.get("endpoint");
+        if (endpoint == null)
+            throw new ConfigurationException("Missing XRoadProperty endpoint");
+
         Attributes attrs;
         try {
-            attrs = service.rr441(patientID.getID());
+            attrs = service.rr441(endpoint, props, patientID.getID());
         } catch (XRoadException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         }

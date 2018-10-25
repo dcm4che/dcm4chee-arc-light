@@ -234,8 +234,29 @@ public class StoreServiceEJB {
             Study study = series.getStudy();
             study.setExternalRetrieveAET("*");
             study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
+            Patient patient = study.getPatient();
+            if (isPatientVerificationStale(patient, arcDev.getPatientVerificationMaxStaleness())) {
+                patient.setVerificationStatus(Patient.VerificationStatus.UNVERIFIED);
+                LOG.info("Schedule verification of {}", patient);
+            }
         }
         return result;
+    }
+
+    private static boolean isPatientVerificationStale(Patient patient, Duration maxStaleness) {
+        if (maxStaleness != null)
+            switch (patient.getVerificationStatus()) {
+                case VERIFIED:
+                case NOT_FOUND:
+                    return isBefore(patient.getVerificationTime(), maxStaleness);
+                case VERIFICATION_FAILED:
+                    return true;
+            }
+        return false;
+    }
+
+    private static boolean isBefore(Date time, Duration duration) {
+        return time.getTime() + duration.getSeconds() * 1000L < System.currentTimeMillis();
     }
 
     public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)

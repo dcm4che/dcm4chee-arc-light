@@ -43,14 +43,6 @@
       "description": "Send HL7 message to remote HL7 Application"
     },
     {
-      "name": "STGCMT-RS",
-      "description": "Storage Commitment"
-    },
-    {
-      "name": "STGVER-RS",
-      "description": "Storage Verification"
-    },
-    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -63,12 +55,24 @@
       "description": "Modality Worklist Management"
     },
     {
+      "name": "PDQ-RS",
+      "description": "Patient Demographics Query"
+    },
+    {
       "name": "QUEUE-RS",
       "description": "Queue Management"
     },
     {
       "name": "RETRIEVE-RS",
       "description": "Retrieve Tasks"
+    },
+    {
+      "name": "STGCMT-RS",
+      "description": "Storage Commitment"
+    },
+    {
+      "name": "STGVER-RS",
+      "description": "Storage Verification"
     },
     {
       "name": "IMPAX-REPORT-RS",
@@ -11396,6 +11400,52 @@
           },
           "502": {
             "description": "x-road RR441 returns error response"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/pdq/{PDQServiceID}/patients/{patientID}": {
+      "get": {
+        "tags": [
+          "PDQ-RS"
+        ],
+        "summary": "Query Patient Demographics",
+        "operationId": "queryPatientDemographics",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "PDQServiceID",
+            "in": "path",
+            "description": "PDQ Service ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "no PDQ Service or no Patient with specified ID found"
+          },
+          "502": {
+            "description": "Query of PDQ Service fails"
           },
           "default": {
             "description": "unexpected error"

@@ -171,7 +171,7 @@ public class RejectRS {
 
         List<Attributes> matches;
         try {
-            matches = findSCU.find(localAE, externalAET, priority(), QueryRetrieveLevel2.IMAGE,
+            matches = findSCU.findInstance(localAE, externalAET, priority(),
                     studyUID, seriesUID, objectUID,
                     Tag.SOPClassUID,
                     Tag.SOPInstanceUID,

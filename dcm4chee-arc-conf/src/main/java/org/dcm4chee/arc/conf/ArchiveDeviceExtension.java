@@ -208,7 +208,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int compressionFetchSize = 100;
     private volatile int compressionThreads = 1;
     private volatile ScheduleExpression[] compressionSchedules = {};
-    private Duration diffTaskProgressUpdateInterval;
+    private volatile Duration diffTaskProgressUpdateInterval;
+    private volatile String patientVerificationPDQServiceID;
+    private volatile Duration patientVerificationPollingInterval;
+    private volatile int patientVerificationFetchSize = 100;
+    private volatile Duration patientVerificationMaxStaleness;
+    private volatile Period patientVerificationPeriod;
+    private volatile Period patientVerificationPeriodOnNotFound;
+    private volatile Duration patientVerificationRetryInterval;
+    private volatile int patientVerificationMaxRetries;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -218,6 +226,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
+    private final Map<String, PDQServiceDescriptor> pdqServiceDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1367,6 +1376,29 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.put(destination.getExporterID(), destination);
     }
 
+    public PDQServiceDescriptor getPDQServiceDescriptor(String pdqServiceID) {
+        return pdqServiceDescriptorMap.get(pdqServiceID);
+    }
+
+    public PDQServiceDescriptor getPDQServiceDescriptorNotNull(String pdqServiceID) {
+        PDQServiceDescriptor descriptor = getPDQServiceDescriptor(pdqServiceID);
+        if (descriptor == null)
+            throw new IllegalArgumentException("No PDQService configured with ID:" + pdqServiceID);
+        return descriptor;
+    }
+
+    public PDQServiceDescriptor removePDQServiceDescriptor(String pDQServiceID) {
+        return pdqServiceDescriptorMap.remove(pDQServiceID);
+    }
+
+    public void addPDQServiceDescriptor(PDQServiceDescriptor destination) {
+        pdqServiceDescriptorMap.put(destination.getPDQServiceID(), destination);
+    }
+
+    public Collection<PDQServiceDescriptor> getPDQServiceDescriptors() {
+        return pdqServiceDescriptorMap.values();
+    }
+
     private int greaterZero(int i, String prompt) {
         if (i <= 0)
             throw new IllegalArgumentException(prompt + ": " + i);
@@ -1936,6 +1968,70 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.diffTaskProgressUpdateInterval = diffTaskProgressUpdateInterval;
     }
 
+    public void setPatientVerificationPDQServiceID(String patientVerificationPDQServiceID) {
+        this.patientVerificationPDQServiceID = patientVerificationPDQServiceID;
+    }
+
+    public Duration getPatientVerificationPollingInterval() {
+        return patientVerificationPollingInterval;
+    }
+
+    public void setPatientVerificationPollingInterval(Duration patientVerificationPollingInterval) {
+        this.patientVerificationPollingInterval = patientVerificationPollingInterval;
+    }
+
+    public int getPatientVerificationFetchSize() {
+        return patientVerificationFetchSize;
+    }
+
+    public void setPatientVerificationFetchSize(int patientVerificationFetchSize) {
+        this.patientVerificationFetchSize = patientVerificationFetchSize;
+    }
+
+    public String getPatientVerificationPDQServiceID() {
+        return patientVerificationPDQServiceID;
+    }
+
+    public Period getPatientVerificationPeriod() {
+        return patientVerificationPeriod;
+    }
+
+    public void setPatientVerificationPeriod(Period patientVerificationPeriod) {
+        this.patientVerificationPeriod = patientVerificationPeriod;
+    }
+
+    public Period getPatientVerificationPeriodOnNotFound() {
+        return patientVerificationPeriodOnNotFound;
+    }
+
+    public void setPatientVerificationPeriodOnNotFound(Period patientVerificationPeriodOnNotFound) {
+        this.patientVerificationPeriodOnNotFound = patientVerificationPeriodOnNotFound;
+    }
+
+    public Duration getPatientVerificationRetryInterval() {
+        return patientVerificationRetryInterval;
+    }
+
+    public void setPatientVerificationRetryInterval(Duration patientVerificationRetryInterval) {
+        this.patientVerificationRetryInterval = patientVerificationRetryInterval;
+    }
+
+    public int getPatientVerificationMaxRetries() {
+        return patientVerificationMaxRetries;
+    }
+
+    public void setPatientVerificationMaxRetries(int patientVerificationMaxRetries) {
+        this.patientVerificationMaxRetries = patientVerificationMaxRetries;
+    }
+
+    public Duration getPatientVerificationMaxStaleness() {
+        return patientVerificationMaxStaleness;
+    }
+
+    public void setPatientVerificationMaxStaleness(Duration patientVerificationMaxStaleness) {
+        this.patientVerificationMaxStaleness = patientVerificationMaxStaleness;
+    }
+
     public Collection<KeycloakServer> getKeycloakServers() {
         return keycloakServerMap.values();
     }
@@ -2105,6 +2201,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionSchedules = arcdev.compressionSchedules;
         compressionThreads = arcdev.compressionThreads;
         diffTaskProgressUpdateInterval = arcdev.diffTaskProgressUpdateInterval;
+        patientVerificationPDQServiceID = arcdev.patientVerificationPDQServiceID;
+        patientVerificationPollingInterval = arcdev.patientVerificationPollingInterval;
+        patientVerificationFetchSize = arcdev.patientVerificationFetchSize;
+        patientVerificationMaxStaleness = arcdev.patientVerificationMaxStaleness;
+        patientVerificationPeriod = arcdev.patientVerificationPeriod;
+        patientVerificationRetryInterval = arcdev.patientVerificationRetryInterval;
+        patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
+        patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
@@ -2115,6 +2219,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
         queueDescriptorMap.clear();
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
+        pdqServiceDescriptorMap.clear();
+        pdqServiceDescriptorMap.putAll(arcdev.pdqServiceDescriptorMap);
         exporterDescriptorMap.clear();
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
         exportRules.clear();

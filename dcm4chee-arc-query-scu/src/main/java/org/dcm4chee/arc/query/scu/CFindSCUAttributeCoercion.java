@@ -108,8 +108,7 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
         Attributes newAttrs = null;
         try {
             ArchiveDeviceExtension arcdev = localAE.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            List<Attributes> matches = cfindSCU.find(localAE, leadingCFindSCP, Priority.NORMAL,
-                    QueryRetrieveLevel2.STUDY, studyIUID, null, null,
+            List<Attributes> matches = cfindSCU.findStudy(localAE, leadingCFindSCP, Priority.NORMAL, studyIUID,
                     arcdev.returnKeysForLeadingCFindSCP(leadingCFindSCP));
             if (!matches.isEmpty())
                 newAttrs = matches.get(0);

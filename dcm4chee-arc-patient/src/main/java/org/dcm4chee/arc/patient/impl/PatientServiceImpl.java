@@ -203,4 +203,9 @@ public class PatientServiceImpl implements PatientService {
         if (patientDeleted)
             patientMgtEvent.fire(ctx);
     }
+
+    @Override
+    public Patient updatePatientStatus(PatientMgtContext ctx) {
+        return ejb.updatePatientStatus(ctx);
+    }
 }

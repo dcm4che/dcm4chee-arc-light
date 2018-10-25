@@ -73,13 +73,13 @@ public class XRoadServiceProvider {
 
     private XRoadService service = new XRoadService();
 
-    public Attributes rr441(String patientID) throws XRoadException, ConfigurationException {
-        Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
-                .getXRoadProperties();
+    public Attributes rr441(String endpoint, Map<String, String> props, String patientID)
+            throws XRoadException, ConfigurationException {
         Headers h = new Headers(props, "RR441");
         Holder<RR441RequestType> request = new Holder<>(toRR441(props, patientID));
         Holder<RR441ResponseType> response = new Holder<>();
-        port(props).rr441(request, h.client, h.service, h.userId, h.id, h.protocolVersion, response,  h.requestHash);
+        port(endpoint, props)
+                .rr441(request, h.client, h.service, h.userId, h.id, h.protocolVersion, response,  h.requestHash);
         return toAttributes(props, XRoadException.validate(response.value));
     }
 
@@ -137,11 +137,7 @@ public class XRoadServiceProvider {
         return null;
     }
 
-    private XRoadAdapterPortType port(Map<String, String> props) throws ConfigurationException {
-        String endpoint = props.get("endpoint");
-        if (endpoint == null)
-            throw new ConfigurationException("Missing XRoadProperty endpoint");
-
+    private XRoadAdapterPortType port(String endpoint, Map<String, String> props) throws ConfigurationException {
         XRoadAdapterPortType port = service.getXRoadServicePort();
         BindingProvider bindingProvider = (BindingProvider) port;
         Map<String, Object> reqCtx = bindingProvider.getRequestContext();

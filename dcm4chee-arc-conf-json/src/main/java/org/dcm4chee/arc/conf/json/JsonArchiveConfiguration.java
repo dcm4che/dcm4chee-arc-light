@@ -250,11 +250,29 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmCompressionFetchSize", arcDev.getCompressionFetchSize(), 100);
         writer.writeNotEmpty("dcmCompressionSchedule", arcDev.getCompressionSchedules());
         writer.writeNotDef("dcmCompressionThreads", arcDev.getCompressionThreads(), 1);
-        writer.writeNotNullOrDef("dcmDiffTaskProgressUpdateInterval", arcDev.getDiffTaskProgressUpdateInterval(), null);
+        writer.writeNotNullOrDef("dcmDiffTaskProgressUpdateInterval",
+                arcDev.getDiffTaskProgressUpdateInterval(), null);
+        writer.writeNotNullOrDef("dcmPatientVerificationPDQServiceID",
+                arcDev.getPatientVerificationPDQServiceID(), null);
+        writer.writeNotNullOrDef("dcmPatientVerificationPollingInterval",
+                arcDev.getPatientVerificationPollingInterval(), null);
+        writer.writeNotDef("dcmPatientVerificationFetchSize",
+                arcDev.getPatientVerificationFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmPatientVerificationPeriod",
+                arcDev.getPatientVerificationPeriod(), null);
+        writer.writeNotNullOrDef("dcmPatientVerificationPeriodOnNotFound",
+                arcDev.getPatientVerificationPeriodOnNotFound(), null);
+        writer.writeNotNullOrDef("dcmPatientVerificationRetryInterval",
+                arcDev.getPatientVerificationRetryInterval(), null);
+        writer.writeNotDef("dcmPatientVerificationMaxRetries",
+                arcDev.getPatientVerificationMaxRetries(), 0);
+        writer.writeNotNullOrDef("dcmPatientVerificationMaxStaleness",
+                arcDev.getPatientVerificationMaxStaleness(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
         writeQueue(writer, arcDev.getQueueDescriptors());
+        writePDQServiceDescriptor(writer, arcDev.getPDQServiceDescriptors());
         writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
         writeExportRule(writer, arcDev.getExportRules());
         writePrefetchRules(writer, arcDev.getPrefetchRules());
@@ -376,6 +394,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRetryOnWarning", qd.isRetryOnWarning(), false);
             writer.writeNotNullOrDef("dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay(), null);
             writer.writeNotDef("dcmMaxQueueSize", qd.getMaxQueueSize(), 0);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writePDQServiceDescriptor(JsonWriter writer, Collection<PDQServiceDescriptor> pdqServiceDescriptors) {
+        writer.writeStartArray("dcmPDQService");
+        for (PDQServiceDescriptor desc : pdqServiceDescriptors) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmPDQServiceID", desc.getPDQServiceID(), null);
+            writer.writeNotNullOrDef("dcmURI", desc.getPDQServiceURI(), null);
+            writer.writeNotNullOrDef("dicomDescription", desc.getDescription(), null);
+            writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(desc.getSelection()));
+            writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1186,6 +1218,30 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmDiffTaskProgressUpdateInterval":
                     arcDev.setDiffTaskProgressUpdateInterval(Duration.valueOf(reader.stringValue()));
                     break;
+                case "dcmPatientVerificationPDQServiceID":
+                    arcDev.setPatientVerificationPDQServiceID(reader.stringValue());
+                    break;
+                case "dcmPatientVerificationPollingInterval":
+                    arcDev.setPatientVerificationPollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmPatientVerificationFetchSize":
+                    arcDev.setPatientVerificationFetchSize(reader.intValue());
+                    break;
+                case "dcmPatientVerificationPeriod":
+                    arcDev.setPatientVerificationPeriod(Period.parse(reader.stringValue()));
+                    break;
+                case "dcmPatientVerificationPeriodOnNotFound":
+                    arcDev.setPatientVerificationPeriodOnNotFound(Period.parse(reader.stringValue()));
+                    break;
+                case "dcmPatientVerificationRetryInterval":
+                    arcDev.setPatientVerificationRetryInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmPatientVerificationMaxRetries":
+                    arcDev.setPatientVerificationMaxRetries(reader.intValue());
+                    break;
+                case "dcmPatientVerificationMaxStaleness":
+                    arcDev.setPatientVerificationMaxStaleness(Duration.valueOf(reader.stringValue()));
+                    break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
                     break;
@@ -1197,6 +1253,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmQueue":
                     loadQueueDescriptorFrom(arcDev, reader);
+                    break;
+                case "dcmPDQService":
+                    loadPDQServiceDescriptorFrom(arcDev, reader);
                     break;
                 case "dcmExporter":
                     loadExporterDescriptorFrom(arcDev, reader);
@@ -1468,6 +1527,39 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             arcDev.addQueueDescriptor(qd);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadPDQServiceDescriptorFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            PDQServiceDescriptor desc = new PDQServiceDescriptor();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmPDQServiceID":
+                        desc.setPDQServiceID(reader.stringValue());
+                        break;
+                    case "dcmURI":
+                        desc.setPDQServiceURI(URI.create(reader.stringValue()));
+                        break;
+                    case "dicomDescription":
+                        desc.setDescription(reader.stringValue());
+                        break;
+                    case "dcmTag":
+                        desc.setSelection(TagUtils.fromHexStrings(reader.stringArray()));
+                        break;
+                    case "dcmProperty":
+                        desc.setProperties(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            arcDev.addPDQServiceDescriptor(desc);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

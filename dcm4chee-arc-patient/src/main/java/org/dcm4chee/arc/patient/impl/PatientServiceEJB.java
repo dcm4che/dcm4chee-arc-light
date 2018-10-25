@@ -111,6 +111,9 @@ public class PatientServiceEJB {
 
     private Patient createPatient(PatientMgtContext ctx, IDWithIssuer patientID, Attributes attributes) {
         Patient patient = new Patient();
+        patient.setVerificationStatus(ctx.getPatientVerificationStatus());
+        if (ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED)
+            patient.setVerificationTime(new Date());
         patient.setAttributes(attributes, ctx.getAttributeFilter(), ctx.getFuzzyStr());
         patient.setPatientID(createPatientID(patientID));
         em.persist(patient);
@@ -120,7 +123,6 @@ public class PatientServiceEJB {
 
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         Patient pat = findPatient(ctx.getPatientID());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
@@ -134,7 +136,7 @@ public class PatientServiceEJB {
     }
 
     private void logSuppressPatientCreate(PatientMgtContext ctx) {
-        LOG.info("{}: Suppress creation of Patient[id={}] by {}",  ctx, ctx.getPatientID(), ctx.getUnparsedHL7Message().msh());
+        LOG.info("{}: Suppress creation of Patient[id={}] by {}", ctx, ctx.getPatientID(), ctx.getUnparsedHL7Message().msh());
     }
 
     public Patient findPatient(IDWithIssuer pid)
@@ -155,6 +157,11 @@ public class PatientServiceEJB {
     }
 
     private void updatePatient(Patient pat, PatientMgtContext ctx) {
+        if (ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED) {
+            pat.setVerificationStatus(ctx.getPatientVerificationStatus());
+            pat.setVerificationTime(new Date());
+            pat.resetFailedVerifications();
+        }
         Attributes.UpdatePolicy updatePolicy = ctx.getAttributeUpdatePolicy();
         AttributeFilter filter = ctx.getAttributeFilter();
         Attributes attrs = pat.getAttributes();
@@ -167,6 +174,7 @@ public class PatientServiceEJB {
         } else if (!attrs.update(updatePolicy, newAttrs, null))
             return;
 
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(attrs, filter, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
@@ -175,7 +183,6 @@ public class PatientServiceEJB {
 
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         Patient pat = findPatient(ctx.getPatientID());
         Patient prev = findPatient(ctx.getPreviousPatientID());
         if (pat == null && prev == null && ctx.isNoPatientCreate()) {
@@ -348,5 +355,18 @@ public class PatientServiceEJB {
                 .executeUpdate();
         em.remove(em.contains(patient) ? patient : em.merge(patient));
         LOG.info("Successfully removed {} from database along with any of its MPPS and MWLs", patient);
+    }
+
+    public Patient updatePatientStatus(PatientMgtContext ctx) {
+        Patient pat = findPatient(ctx.getPatientID());
+        if (pat != null) {
+            pat.setVerificationStatus(ctx.getPatientVerificationStatus());
+            pat.setVerificationTime(new Date());
+            if (ctx.getPatientVerificationStatus() == Patient.VerificationStatus.VERIFICATION_FAILED)
+                pat.incrementFailedVerifications();
+            else
+                pat.resetFailedVerifications();
+        }
+        return pat;
     }
 }

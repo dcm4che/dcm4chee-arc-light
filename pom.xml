@@ -480,6 +480,11 @@
     <module>dcm4chee-arc-mwl-rs</module>
     <module>dcm4chee-arc-mwl-scp</module>
     <module>dcm4chee-arc-patient</module>
+    <module>dcm4chee-arc-pdq</module>
+    <module>dcm4chee-arc-pdq-dicom</module>
+    <module>dcm4chee-arc-pdq-rs</module>
+    <module>dcm4chee-arc-pdq-scheduler</module>
+    <module>dcm4chee-arc-pdq-xroad</module>
     <module>dcm4chee-arc-procedure</module>
     <module>dcm4chee-arc-qido</module>
     <module>dcm4chee-arc-qmgt</module>

@@ -253,6 +253,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCompressionThreads", ext.getCompressionThreads(), 1);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDiffTaskProgressUpdateInterval",
                 ext.getDiffTaskProgressUpdateInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationPDQServiceID",
+                ext.getPatientVerificationPDQServiceID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationPollingInterval",
+                ext.getPatientVerificationPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPatientVerificationFetchSize",
+                ext.getPatientVerificationFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationPeriod",
+                ext.getPatientVerificationPeriod(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationPeriodOnNotFound",
+                ext.getPatientVerificationPeriodOnNotFound(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationRetryInterval",
+                ext.getPatientVerificationRetryInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPatientVerificationMaxRetries",
+                ext.getPatientVerificationMaxRetries(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationMaxStaleness",
+                ext.getPatientVerificationMaxStaleness(), null);
     }
 
     @Override
@@ -436,7 +452,24 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setCompressionSchedules(
                 ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmCompressionSchedule"))));
         ext.setCompressionThreads(LdapUtils.intValue(attrs.get("dcmCompressionThreads"), 1));
-        ext.setDiffTaskProgressUpdateInterval(toDuration(attrs.get("dcmDiffTaskProgressUpdateInterval"), null));
+        ext.setDiffTaskProgressUpdateInterval(
+                toDuration(attrs.get("dcmDiffTaskProgressUpdateInterval"), null));
+        ext.setPatientVerificationPDQServiceID(
+                LdapUtils.stringValue(attrs.get("dcmPatientVerificationPDQServiceID"), null));
+        ext.setPatientVerificationPollingInterval(
+                toDuration(attrs.get("dcmPatientVerificationPollingInterval"), null));
+        ext.setPatientVerificationFetchSize(
+                LdapUtils.intValue(attrs.get("dcmPatientVerificationFetchSize"), 100));
+        ext.setPatientVerificationPeriod(
+                toPeriod(attrs.get("dcmStorageVerificationPeriod")));
+        ext.setPatientVerificationPeriodOnNotFound(
+                toPeriod(attrs.get("dcmPatientVerificationPeriodOnNotFound")));
+        ext.setPatientVerificationRetryInterval(
+                toDuration(attrs.get("dcmPatientVerificationRetryInterval"), null));
+        ext.setPatientVerificationMaxRetries(
+                LdapUtils.intValue(attrs.get("dcmPatientVerificationMaxRetries"), 0));
+        ext.setPatientVerificationMaxStaleness(
+                toDuration(attrs.get("dcmPatientVerificationMaxStaleness"), null));
     }
 
     @Override
@@ -757,6 +790,38 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDiffTaskProgressUpdateInterval",
                 aa.getDiffTaskProgressUpdateInterval(),
                 bb.getDiffTaskProgressUpdateInterval(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationPDQServiceID",
+                aa.getPatientVerificationPDQServiceID(),
+                bb.getPatientVerificationPDQServiceID(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationPollingInterval",
+                aa.getPatientVerificationPollingInterval(),
+                bb.getPatientVerificationPollingInterval(),
+                null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPatientVerificationFetchSize",
+                aa.getPatientVerificationFetchSize(),
+                bb.getPatientVerificationFetchSize(),
+                100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationPeriod",
+                aa.getPatientVerificationPeriod(),
+                bb.getPatientVerificationPeriod(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationPeriodOnNotFound",
+                aa.getPatientVerificationPeriodOnNotFound(),
+                bb.getPatientVerificationPeriodOnNotFound(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationRetryInterval",
+                aa.getPatientVerificationRetryInterval(),
+                bb.getPatientVerificationRetryInterval(),
+                null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPatientVerificationMaxRetries",
+                aa.getPatientVerificationMaxRetries(),
+                bb.getPatientVerificationMaxRetries(),
+                0);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationMaxStaleness",
+                aa.getPatientVerificationMaxStaleness(),
+                bb.getPatientVerificationMaxStaleness(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -772,6 +837,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeAttributeFilter(diffs, deviceDN, arcDev);
         storeStorageDescriptors(diffs, deviceDN, arcDev);
         storeQueueDescriptors(diffs, deviceDN, arcDev);
+        storePDQServiceDescriptors(diffs, deviceDN, arcDev);
         storeExporterDescriptors(diffs, deviceDN, arcDev);
         storeExportRules(diffs, arcDev.getExportRules(), deviceDN);
         storePrefetchRules(diffs, arcDev.getPrefetchRules(), deviceDN);
@@ -802,6 +868,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadAttributeFilters(arcdev, deviceDN);
         loadStorageDescriptors(arcdev, deviceDN);
         loadQueueDescriptors(arcdev, deviceDN);
+        loadPDQServiceDescriptors(arcdev, deviceDN);
         loadExporterDescriptors(arcdev, deviceDN);
         loadExportRules(arcdev.getExportRules(), deviceDN);
         loadPrefetchRules(arcdev.getPrefetchRules(), deviceDN);
@@ -840,6 +907,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeAttributeFilters(diffs, aa, bb, deviceDN);
         mergeStorageDescriptors(diffs, aa, bb, deviceDN);
         mergeQueueDescriptors(diffs, aa, bb, deviceDN);
+        mergePDQServiceDescriptors(diffs, aa, bb, deviceDN);
         mergeExportDescriptors(diffs, aa, bb, deviceDN);
         mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergePrefetchRules(diffs, aa.getPrefetchRules(), bb.getPrefetchRules(), deviceDN);
@@ -1782,6 +1850,92 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCompletedDelay",
                 prev.getPurgeQueueMessageCompletedDelay(), desc.getPurgeQueueMessageCompletedDelay(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxQueueSize", prev.getMaxQueueSize(), desc.getMaxQueueSize(), 0);
+        return mods;
+    }
+
+    private void storePDQServiceDescriptors(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev)
+            throws NamingException {
+        for (PDQServiceDescriptor descriptor : arcDev.getPDQServiceDescriptors()) {
+            String dn = LdapUtils.dnOf("dcmPDQServiceID", descriptor.getPDQServiceID(), deviceDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, descriptor, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, PDQServiceDescriptor desc,
+                               BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmPDQService");
+        attrs.put("dcmPDQServiceID", desc.getPDQServiceID());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", desc.getPDQServiceURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", desc.getDescription(), null);
+        storeNotEmptyTags(ldapObj, attrs, "dcmTag", desc.getSelection());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(desc.getProperties()));
+        return attrs;
+    }
+
+    private void loadPDQServiceDescriptors(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmPDQService)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                PDQServiceDescriptor desc =
+                        new PDQServiceDescriptor(LdapUtils.stringValue(attrs.get("dcmPDQServiceID"), null));
+                desc.setPDQServiceURI(toURI(attrs.get("dcmURI")));
+                desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
+                desc.setSelection(tags(attrs.get("dcmTag")));
+                desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
+                arcdev.addPDQServiceDescriptor(desc);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void mergePDQServiceDescriptors(ConfigurationChanges diffs, ArchiveDeviceExtension prev,
+                                            ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (PDQServiceDescriptor descriptor : prev.getPDQServiceDescriptors()) {
+            String pdqServiceID = descriptor.getPDQServiceID();
+            if (arcDev.getPDQServiceDescriptor(pdqServiceID) == null) {
+                String dn = LdapUtils.dnOf("dcmPDQServiceID", pdqServiceID, deviceDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (PDQServiceDescriptor descriptor : arcDev.getPDQServiceDescriptors()) {
+            String pdqServiceID = descriptor.getPDQServiceID();
+            String dn = LdapUtils.dnOf("dcmPDQServiceID", pdqServiceID, deviceDN);
+            PDQServiceDescriptor prevDescriptor = prev.getPDQServiceDescriptor(pdqServiceID);
+            if (prevDescriptor == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                descriptor, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn,
+                        storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, PDQServiceDescriptor prev,
+                                              PDQServiceDescriptor desc, List<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
+                prev.getPDQServiceURI().toString(),
+                desc.getPDQServiceURI().toString(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
+                prev.getDescription(),
+                desc.getDescription(),
+                null);
+        storeDiffTags(mods, "dcmTag", prev.getSelection(), desc.getSelection());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         return mods;
     }
 

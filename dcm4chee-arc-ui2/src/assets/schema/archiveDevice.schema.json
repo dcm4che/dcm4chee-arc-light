@@ -49,6 +49,8 @@
     "dcmStorageVerificationFetchSize",
     "dcmCompressionThreads",
     "dcmCompressionFetchSize",
+    "dcmPatientVerificationFetchSize",
+    "dcmPatientVerificationMaxRetries",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -357,7 +359,8 @@
       "title": "Fallback C-Move SCP Retries",
       "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever.",
       "type": "integer",
-      "default": 0
+      "default": 0,
+      "minimum": -1
     },
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
@@ -849,13 +852,13 @@
     },
     "dcmStorageVerificationInitialDelay": {
       "title": "Storage Verification Initial Delay",
-      "description": "Delay in ISO-8601 duration format PnYnMnD or PnW of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Delay of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "format": "dcmPeriod"
     },
     "dcmStorageVerificationPeriod": {
       "title": "Storage Verification Period",
-      "description": "Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW",
+      "description": "Period between successive Storage Verifications of one Series.",
       "type": "string",
       "format": "dcmPeriod"
     },
@@ -928,7 +931,58 @@
     },
     "dcmDiffTaskProgressUpdateInterval": {
       "title": "Diff Task Progress Update Interval",
-      "description": "Interval of updating Diff Tasks in process for progress monitoring in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent.",
+      "description": "Interval of updating Diff Tasks in process for progress monitoring; disabled if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPatientVerificationPDQServiceID": {
+      "title": "Patient Verification PDQ Service ID",
+      "description": "ID of PDQ Service used for Verification of Patient Demographic. If absent, no Patient Verification will be performed.",
+      "type": "string",
+      "format": "dcmPDQServiceID"
+    },
+    "dcmPatientVerificationPollingInterval": {
+      "title": "Patient Verification Polling Interval",
+      "description": "Patient Verification Polling Interval. If absent, no Patient Verification will be performed.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPatientVerificationFetchSize": {
+      "title": "Patient Verification Fetch Size",
+      "description": "Maximal number of Patients fetched for Patient Verification in one query.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmPatientVerificationPeriod": {
+      "title": "Patient Verification Period",
+      "description": "Period in which Patient Demographic will be verified. If absent, Patient Verification will not be renewed for Patients verified in the past.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmPatientVerificationPeriodOnNotFound": {
+      "title": "Patient Verification Period Not Found",
+      "description": "Period in which Patient Demographic will be retried for Patients which were not found by the configured PDQ Service on last attempt. If absent, Patient Verification will not be retried for Patients not found in the past.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmPatientVerificationRetryInterval": {
+      "title": "Patient Verification Retry Interval",
+      "description": "Patient Verification Retry Interval in which failed attempts to verify Patient Demographics against the PDQ Service configured by Patient Verification PDQ Service ID will be retried until the maximal number of retries specified by Patient Verification Max Retries is reached. If absent, failed Patient Verification attempts will not be retried.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPatientVerificationMaxRetries": {
+      "title": "Patient Verification Maximum Number of Retries",
+      "description": "Maximum number of retries to verify Patient Demographics against the PDQ Service configured by dcmPatientVerificationPDQServiceID. Only effective if Patient Verification Retry Interval is specified. -1 = forever.",
+      "type": "integer",
+      "default": 0,
+      "minimum": -1
+    },
+    "dcmPatientVerificationMaxStaleness": {
+      "title": "Patient Verification Maximum Staleness",
+      "description": "Indicates to renew the verification of Patient Demographics on receive of objects for a patient, if previous verification is longer ago as the specified Interval. If absent, Patient Verification on receive of objects is disabled.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -1069,6 +1123,15 @@
       "titleKey":"{dcmQueueName}",
       "items" : {
         "$ref": "queue.schema.json"
+      }
+    },
+    "dcmPDQService": {
+      "title": "PDQ Service Descriptor",
+      "description": "PDQ Service Descriptor",
+      "type": "array",
+      "titleKey":"{dcmPDQServiceID}",
+      "items" : {
+        "$ref": "pdqService.schema.json"
       }
     },
     "dcmExporter": {

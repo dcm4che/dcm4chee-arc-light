@@ -82,12 +82,39 @@ import java.util.*;
 @NamedQuery(
     name=Patient.COUNT_BY_MERGED_WITH,
     query="select count(p) from Patient p " +
-            "where p.mergedWith = ?1")
+            "where p.mergedWith = ?1"),
+@NamedQuery(
+    name=Patient.FIND_BY_VERIFICATION_STATUS,
+    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVersion(p.patientID, p.pk, p.version) " +
+            "from Patient p " +
+            "where p.verificationStatus = ?1 " +
+            "order by p.pk"),
+@NamedQuery(
+    name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME,
+    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVersion(p.patientID, p.pk, p.version) " +
+            "from Patient p " +
+            "where p.verificationStatus = ?1 " +
+            "and p.verificationTime < ?2 " +
+            "order by p.verificationTime"),
+@NamedQuery(
+    name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES,
+    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVersion(p.patientID, p.pk, p.version) " +
+            "from Patient p " +
+            "where p.verificationStatus = ?1 " +
+            "and p.verificationTime < ?2 " +
+            "and p.failedVerifications <= ?3 " +
+            "order by p.verificationTime"),
+@NamedQuery(
+    name=Patient.INCREMENT_VERSION,
+    query="update Patient p set p.version = p.version + 1 " +
+            "where p.pk = ?1 and p.version = ?2")
 })
 @Entity
 @Table(name = "patient",
     uniqueConstraints = @UniqueConstraint(columnNames = "patient_id_fk"),
     indexes = {
+        @Index(columnList = "verification_status"),
+        @Index(columnList = "verification_time"),
         @Index(columnList = "num_studies"),
         @Index(columnList = "pat_birthdate"),
         @Index(columnList = "pat_sex"),
@@ -103,6 +130,40 @@ public class Patient {
     public static final String FIND_BY_PATIENT_FAMILY_NAME_EAGER = "Patient.findByPatientFamilyNameEager";
     public static final String FIND_BY_MERGED_WITH = "Patient.findByMergedWith";
     public static final String COUNT_BY_MERGED_WITH = "Patient.CountByMergedWith";
+    public static final String FIND_BY_VERIFICATION_STATUS = "Patient.findByVerificationStatus";
+    public static final String FIND_BY_VERIFICATION_STATUS_AND_TIME = "Patient.findByVerificationStatusAndTime";
+    public static final String FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES =
+            "Patient.findByVerificationStatusAndTimeAndMaxRetries";
+    public static final String INCREMENT_VERSION = "Patient.IncrementVersion";
+
+    public enum VerificationStatus {
+        UNVERIFIED,
+        VERIFIED,
+        NOT_FOUND,
+        VERIFICATION_FAILED
+    }
+
+    public static class IDWithPkAndVersion {
+        public final IDWithIssuer idWithIssuer;
+        public final Long pk;
+        public final Long version;
+
+        public IDWithPkAndVersion(PatientID patientID, Long pk, Long version) {
+            this.idWithIssuer = patientID.getIDWithIssuer();
+            this.pk = pk;
+            this.version = version;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder(32);
+            sb.append("Patient[pk=").append(pk);
+            if (showPatientInfo != ShowPatientInfo.HASH_NAME_AND_ID)
+                sb.append(", id=").append(idWithIssuer);
+            sb.append(']');
+            return sb.toString();
+        }
+    }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -122,6 +183,19 @@ public class Patient {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "verification_time")
+    private Date verificationTime;
+
+    @Basic(optional = false)
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "verification_status")
+    private VerificationStatus verificationStatus = VerificationStatus.UNVERIFIED;
+
+    @Basic(optional = false)
+    @Column(name = "failed_verifications")
+    private int failedVerifications;
 
     @Basic(optional = false)
     @Column(name = "pat_birthdate")
@@ -209,12 +283,48 @@ public class Patient {
         return pk;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
     public Date getCreatedTime() {
         return createdTime;
     }
 
     public Date getUpdatedTime() {
         return updatedTime;
+    }
+
+    public Date getVerificationTime() {
+        return verificationTime;
+    }
+
+    public void setVerificationTime(Date verificationTime) {
+        this.verificationTime = verificationTime;
+    }
+
+    public VerificationStatus getVerificationStatus() {
+        return verificationStatus;
+    }
+
+    public void setVerificationStatus(VerificationStatus verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
+
+    public int getFailedVerifications() {
+        return failedVerifications;
+    }
+
+    public void setFailedVerifications(int failedVerifications) {
+        this.failedVerifications = failedVerifications;
+    }
+
+    public void resetFailedVerifications() {
+        this.failedVerifications = 0;
+    }
+
+    public void incrementFailedVerifications() {
+        this.failedVerifications++;
     }
 
     public String getPatientBirthDate() {
