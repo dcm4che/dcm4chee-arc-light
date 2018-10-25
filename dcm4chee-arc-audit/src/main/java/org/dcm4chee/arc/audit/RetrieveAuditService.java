@@ -268,7 +268,7 @@ class RetrieveAuditService {
         List<ParticipantObjectIdentificationBuilder> pois = new ArrayList<>();
         for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
             ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                    .sopC(AuditService.toSOPClasses1(entry.getValue().getSopClassMap(),
+                    .sopC(AuditService.toSOPClasses(entry.getValue().getSopClassMap(),
                             auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null))
                     .acc(entry.getValue().getAccNum())
                     .build();

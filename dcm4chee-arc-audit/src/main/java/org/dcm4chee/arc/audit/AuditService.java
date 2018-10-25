@@ -96,7 +96,6 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -707,15 +706,6 @@ public class AuditService {
         }
     }
 
-    private HashMap<String, HashSet<String>> buildSOPClassMap(SpoolFileReader reader) {
-        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-        for (String line : reader.getInstanceLines()) {
-            AuditInfo ii = new AuditInfo(line);
-            sopClassMap.computeIfAbsent(ii.getField(AuditInfo.SOP_CUID), k -> new HashSet<>()).add(ii.getField(AuditInfo.SOP_IUID));
-        }
-        return sopClassMap;
-    }
-
     private void auditStoreError(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
@@ -745,13 +735,13 @@ public class AuditService {
                 getEventTime(path, auditLogger),
                 AuditMessages.EventOutcomeIndicator.MinorFailure)
                 .outcomeDesc(outcome.stream().collect(Collectors.joining("\n")))
-                .eventTypeCode(errorCode.toArray(new AuditMessages.EventTypeCode[errorCode.size()]))
+                .eventTypeCode(errorCode.toArray(new AuditMessages.EventTypeCode[0]))
                 .build();
 
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                 .sopC(toSOPClasses(sopClassMap, true))
                 .acc(auditInfo.getField(AuditInfo.ACC_NUM))
-                .mpps(mpps.toArray(new String[mpps.size()]))
+                .mpps(mpps.toArray(new String[0]))
                 .build();
 
         emitAuditMessage(auditLogger, ei,
@@ -802,7 +792,7 @@ public class AuditService {
         return new ParticipantObjectDescriptionBuilder.Builder()
                 .sopC(toSOPClasses(sopClassMap, false))
                 .acc(auditInfo.getField(AuditInfo.ACC_NUM))
-                .mpps(mpps.toArray(new String[mpps.size()]))
+                .mpps(mpps.toArray(new String[0]))
                 .build();
     }
 
@@ -827,7 +817,7 @@ public class AuditService {
                 getEventTime(path, auditLogger));
 
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                .sopC(toSOPClasses(buildSOPClassMap(reader), auditInfo.getField(AuditInfo.OUTCOME) != null))
+                .sopC(toSOPClasses(reader, auditInfo.getField(AuditInfo.OUTCOME) != null))
                 .acc(auditInfo.getField(AuditInfo.ACC_NUM))
                 .build();
 
@@ -1472,139 +1462,26 @@ public class AuditService {
         return val != null;
     }
 
-    void spoolStgCmt(StgCmtContext stgCmtContext) {
+    void spoolStgCmt(StgCmtContext ctx) {
         try {
-            Attributes eventInfo = stgCmtContext.getEventInfo();
-            String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                    ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
-                    : getArchiveDevice().auditUnknownStudyInstanceUID();
-
-            spoolFailedStgcmt(stgCmtContext, studyUID);
-            spoolSuccessStgcmt(stgCmtContext, studyUID);
+            StorageCommitAuditService stgCmtAuditService = new StorageCommitAuditService(ctx, getArchiveDevice());
+            for (AuditInfoBuilder[] auditInfoBuilder : stgCmtAuditService.getAuditInfoBuilder())
+                writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, auditInfoBuilder);
         } catch (Exception e) {
             LOG.warn("Failed to spool storage commitment : " + e);
         }
     }
 
-    private void spoolSuccessStgcmt(StgCmtContext stgCmtContext, String studyUID) {
-        Sequence success = stgCmtContext.getEventInfo().getSequence(Tag.ReferencedSOPSequence);
-        if (success != null && !success.isEmpty()) {
-            AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[success.size()+1];
-            auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
-                                .callingUserID(storageCmtCallingAET(stgCmtContext))
-                                .callingHost(storageCmtCallingHost(stgCmtContext))
-                                .calledUserID(storageCmtCalledAET(stgCmtContext))
-                                .pIDAndName(stgCmtContext.getEventInfo(), getArchiveDevice())
-                                .studyUID(studyUID)
-                                .build();
-            for (int i = 1; i <= success.size(); i++)
-                auditInfoBuilder[i] = buildRefSopAuditInfo(success.get(i-1));
-
-            writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, auditInfoBuilder);
-        }
-    }
-
-    private void spoolFailedStgcmt(StgCmtContext stgCmtContext, String studyUID) {
-        Sequence failed = stgCmtContext.getEventInfo().getSequence(Tag.FailedSOPSequence);
-        if (failed != null && !failed.isEmpty()) {
-            AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[failed.size()+1];
-            Set<String> failureReasons = new HashSet<>();
-            for (int i = 1; i <= failed.size(); i++) {
-                Attributes item = failed.get(i-1);
-                auditInfoBuilder[i] = buildRefSopAuditInfo(item);
-                failureReasons.add(
-                        item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
-                        ? "NoSuchObjectInstance"
-                        : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
-                            ? "ClassInstanceConflict" : "ProcessingFailure");
-            }
-            auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
-                                .callingUserID(storageCmtCallingAET(stgCmtContext))
-                                .callingHost(storageCmtCallingHost(stgCmtContext))
-                                .calledUserID(storageCmtCalledAET(stgCmtContext))
-                                .pIDAndName(stgCmtContext.getEventInfo(), getArchiveDevice())
-                                .studyUID(studyUID)
-                                .outcome(failureReasons.stream().collect(Collectors.joining(";")))
-                                .build();
-            writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, auditInfoBuilder);
-        }
-    }
-
-    private AuditInfoBuilder buildRefSopAuditInfo(Attributes item) {
-        return new AuditInfoBuilder.Builder()
-                .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
-                .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
-    }
-
-    private String storageCmtCallingHost(StgCmtContext stgCmtContext) {
-        return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().requesterHost
-                : stgCmtContext.getRemoteAE() != null
-                    ? stgCmtContext.getRemoteAE().getConnections().get(0).getHostname() : null;
-    }
-
-    private String storageCmtCalledAET(StgCmtContext stgCmtContext) {
-        return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().requestURI
-                : stgCmtContext.getLocalAET();
-    }
-
-    private String storageCmtCallingAET(StgCmtContext stgCmtContext) {
-        return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().requesterUserID
-                : stgCmtContext.getRemoteAE() != null
-                    ? stgCmtContext.getRemoteAE().getAETitle() : null;
-    }
-
     private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) {
         SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
-        String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                archiveUserID,
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(archiveUserIDTypeCode)
-                .altUserID(AuditLogger.processID())
-                .roleIDCode(et.destination).build();
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        if (callingUserID != null)
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                                            callingUserID,
-                                            auditInfo.getField(AuditInfo.CALLING_HOST))
-                                            .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                                            .isRequester()
-                                            .roleIDCode(et.source).build();
-       
-        String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
+        Calendar eventTime = getEventTime(path, auditLogger);
 
-        ParticipantObjectDescriptionBuilder poDesc = new ParticipantObjectDescriptionBuilder.Builder()
-                .sopC(toSOPClasses(buildSOPClassMap(reader), studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null))
-                .pocsStudyUIDs(studyUIDs).build();
-        
-        ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(studyUIDs[0],
-                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(poDesc).lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification).build();
-        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiStudy, patientPOI(auditInfo));
+        emitAuditMessage(
+                StorageCommitAuditService.auditMsg(reader, et, auditLogger, eventTime),
+                auditLogger);
     }
 
-    private SOPClass[] toSOPClasses(HashMap<String, HashSet<String>> sopClassMap, boolean showIUID) {
-        SOPClass[] sopClasses = new SOPClass[sopClassMap.size()];
-        int count = 0;
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            sopClasses[count] = AuditMessages.createSOPClass(
-                    showIUID ? entry.getValue() : null,
-                    entry.getKey(),
-                    entry.getValue().size());
-            count++;
-        }
-        return sopClasses;
-    }
-
-    static SOPClass[] toSOPClasses1(HashMap<String, HashSet<String>> sopClassMap, boolean showIUID) {
+    static SOPClass[] toSOPClasses(HashMap<String, HashSet<String>> sopClassMap, boolean showIUID) {
         SOPClass[] sopClasses = new SOPClass[sopClassMap.size()];
         int count = 0;
         for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
@@ -1618,20 +1495,10 @@ public class AuditService {
     }
 
     static SOPClass[] toSOPClasses(SpoolFileReader reader, boolean showIUID) {
-        HashMap<String, HashSet<String>> sopClassMap = sopClassMap(reader);
-        SOPClass[] sopClasses = new SOPClass[sopClassMap.size()];
-        int count = 0;
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            sopClasses[count] = AuditMessages.createSOPClass(
-                    showIUID ? entry.getValue() : null,
-                    entry.getKey(),
-                    entry.getValue().size());
-            count++;
-        }
-        return sopClasses;
+        return toSOPClasses(buildSOPClassMap(reader), showIUID);
     }
 
-    private static HashMap<String, HashSet<String>> sopClassMap(SpoolFileReader reader) {
+    private static HashMap<String, HashSet<String>> buildSOPClassMap(SpoolFileReader reader) {
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (String line : reader.getInstanceLines()) {
             AuditInfo ii = new AuditInfo(line);
