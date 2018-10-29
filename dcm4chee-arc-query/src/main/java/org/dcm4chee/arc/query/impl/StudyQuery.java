@@ -73,6 +73,9 @@ class StudyQuery extends AbstractQuery {
             QPatient.patient.numberOfStudies,
             QPatient.patient.createdTime,
             QPatient.patient.updatedTime,
+            QPatient.patient.verificationTime,
+            QPatient.patient.verificationStatus,
+            QPatient.patient.failedVerifications,
             QStudy.study.createdTime,
             QStudy.study.updatedTime,
             QStudy.study.accessTime,
@@ -207,22 +210,29 @@ class StudyQuery extends AbstractQuery {
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 results.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
-        Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 6);
+        Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 20);
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
+        PatientQuery.addPatientQRAttrs(context, results, attrs);
         String externalRetrieveAET = results.get(QStudy.study.externalRetrieveAET);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS,
                 StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
+        StudyQuery.addStudyQRAddrs(context, results, studySize, numberOfStudyRelatedInstances, numberOfStudyRelatedSeries,
+                modalitiesInStudy, sopClassesInStudy, attrs);
+        return attrs;
+    }
+
+    static void addStudyQRAddrs(QueryContext context, Tuple results, long studySize, int numberOfStudyRelatedInstances,
+                                int numberOfStudyRelatedSeries, String modalitiesInStudy,
+                                String sopClassesInStudy, Attributes attrs) {
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, StringUtils.split(modalitiesInStudy, '\\'));
         attrs.setString(Tag.SOPClassesInStudy, VR.UI, StringUtils.split(sopClassesInStudy, '\\'));
-        attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
         attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientCreateDateTime, VR.DT,
-                results.get(QPatient.patient.createdTime));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientUpdateDateTime, VR.DT,
-                results.get(QPatient.patient.updatedTime));
+        if (context.getReturnKeys() != null)
+            return;
+
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
                 results.get(QStudy.study.createdTime));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyUpdateDateTime, VR.DT,
@@ -246,7 +256,6 @@ class StudyQuery extends AbstractQuery {
                 StringUtils.split(results.get(QStudy.study.storageIDs), '\\'));
         attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
         attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
-        return attrs;
     }
 
     @Override

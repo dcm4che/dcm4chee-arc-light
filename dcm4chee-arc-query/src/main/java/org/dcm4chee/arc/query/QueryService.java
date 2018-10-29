@@ -45,7 +45,6 @@ import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
@@ -88,7 +87,7 @@ public interface QueryService {
 
     Query createMWLQuery(QueryContext ctx);
 
-    Attributes getSeriesAttributes(Long seriesPk, QueryRetrieveView qrView);
+    Attributes getSeriesAttributes(QueryContext context, Long seriesPk);
 
     void addLocationAttributes(Attributes attrs, Long instancePk);
 

@@ -122,7 +122,10 @@ public class UpdatePatientDemographics {
         } catch(Exception e) {
             return errResponseAsTextPlain(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return Response.noContent().build();
+        return Response.ok()
+                .entity("{\"action\":\"" + ctx.getEventActionCode() + "\"}")
+                .type("application/json")
+                .build();
     }
 
     private void logRequest() {

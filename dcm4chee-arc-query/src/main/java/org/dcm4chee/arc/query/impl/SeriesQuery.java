@@ -70,6 +70,9 @@ class SeriesQuery extends AbstractQuery {
             QPatient.patient.numberOfStudies,
             QPatient.patient.createdTime,
             QPatient.patient.updatedTime,
+            QPatient.patient.verificationTime,
+            QPatient.patient.verificationStatus,
+            QPatient.patient.failedVerifications,
             QStudy.study.createdTime,
             QStudy.study.updatedTime,
             QStudy.study.accessTime,
@@ -195,14 +198,23 @@ class SeriesQuery extends AbstractQuery {
         Attributes seriesAttrs = AttributesBlob.decodeAttributes(
                 results.get(QueryBuilder.seriesAttributesBlob.encodedAttributes), null);
         Attributes.unifyCharacterSets(studyAttrs, seriesAttrs);
-        Attributes attrs = new Attributes(studyAttrs.size() + seriesAttrs.size() + 3);
+        Attributes attrs = new Attributes(studyAttrs.size() + seriesAttrs.size() + 20);
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
         String externalRetrieveAET = results.get(QSeries.series.externalRetrieveAET);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS,
             StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
+        addSeriesQRAttrs(context, results, numberOfSeriesRelatedInstances, attrs);
+        return attrs;
+    }
+
+    static void addSeriesQRAttrs(QueryContext context, Tuple results, int numberOfSeriesRelatedInstances,
+                                 Attributes attrs) {
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
+        if (context.getReturnKeys() != null)
+            return;
+
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,
                 results.get(QSeries.series.createdTime));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
@@ -253,7 +265,6 @@ class SeriesQuery extends AbstractQuery {
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectStatus, VR.CS,
                         results.get(QMetadata.metadata.status).name());
         }
-        return attrs;
     }
 
     private Attributes toStudyAttributes(Long studyPk, Tuple results) {
@@ -284,41 +295,12 @@ class SeriesQuery extends AbstractQuery {
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
                 results.get(QueryBuilder.studyAttributesBlob.encodedAttributes), null);
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
-        Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 4);
+        Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 20);
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
-        attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
-        attrs.setString(Tag.SOPClassesInStudy, VR.UI, sopClassesInStudy);
-        attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
-        attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
-        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientCreateDateTime, VR.DT,
-                results.get(QPatient.patient.createdTime));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientUpdateDateTime, VR.DT,
-                results.get(QPatient.patient.updatedTime));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
-                results.get(QStudy.study.createdTime));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyUpdateDateTime, VR.DT,
-                results.get(QStudy.study.updatedTime));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT,
-                results.get(QStudy.study.accessTime));
-        if (results.get(QStudy.study.expirationDate) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
-                    results.get(QStudy.study.expirationDate));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyRejectionState, VR.CS,
-                results.get(QStudy.study.rejectionState).toString());
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyCompleteness, VR.CS,
-                results.get(QStudy.study.completeness).toString());
-        if (results.get(QStudy.study.failedRetrieves) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
-                    results.get(QStudy.study.failedRetrieves));
-        if (!results.get(QStudy.study.accessControlID).equals("*"))
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
-                    results.get(QStudy.study.accessControlID));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
-                results.get(QStudy.study.storageIDs));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
+        PatientQuery.addPatientQRAttrs(context, results, attrs);
+        StudyQuery.addStudyQRAddrs(context, results, studySize, numberOfStudyRelatedInstances, numberOfStudyRelatedSeries,
+                modalitiesInStudy, sopClassesInStudy, attrs);
         return attrs;
     }
 

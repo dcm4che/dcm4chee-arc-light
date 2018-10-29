@@ -186,8 +186,8 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Attributes getSeriesAttributes(Long seriesPk, QueryRetrieveView qrView) {
-        return ejb.getSeriesAttributes(seriesPk, qrView);
+    public Attributes getSeriesAttributes(QueryContext context, Long seriesPk) {
+        return ejb.getSeriesAttributes(seriesPk, context);
     }
 
     @Override

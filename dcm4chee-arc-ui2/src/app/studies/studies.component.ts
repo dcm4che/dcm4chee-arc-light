@@ -794,7 +794,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         index++;
                     }
                     tags.splice(index, 0, '00201200');
-                    tags.push('77770010','77771010','77771011');
+                    tags.push('77770010','77771010','77771011','77771012','77771013','77771014');
                     console.log('res', res);
                     res.forEach(function (studyAttrs, index) {
                         patAttrs = {};

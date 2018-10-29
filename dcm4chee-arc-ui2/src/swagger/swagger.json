@@ -7277,6 +7277,67 @@
         }
       }
     },
+    "/aets/{aet}/rs/patients/{patientID}/pdq/{PDQServiceID}": {
+      "post": {
+        "tags": [
+          "IOCM-RS",
+          "PDQ-RS"
+        ],
+        "summary": "Verify Patient Demographics",
+        "operationId": "verifyPatientDemographics",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "PDQServiceID",
+            "in": "path",
+            "description": "PDQ Service ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "title": "action",
+                  "description": "Event Action Code",
+                  "type": "string",
+                  "enum": [ "C", "R", "U"]
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Patient was not found by the specified PDQ Service"
+          },
+          "404": {
+            "description": "no such PDQ Service"
+          },
+          "502": {
+            "description": "PDQ Service failure"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/mwlitems": {
       "get": {
         "tags": [
