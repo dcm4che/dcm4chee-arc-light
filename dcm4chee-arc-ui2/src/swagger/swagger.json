@@ -11468,6 +11468,30 @@
         }
       }
     },
+    "/pdq": {
+      "get": {
+        "tags": [
+          "CONFIG-RS",
+          "PDQ-RS"
+        ],
+        "summary": "List PDQ Services",
+        "operationId": "listPDQServices",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDQ Services",
+            "schema": {
+              "$ref": "pdqServices.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/pdq/{PDQServiceID}/patients/{patientID}": {
       "get": {
         "tags": [

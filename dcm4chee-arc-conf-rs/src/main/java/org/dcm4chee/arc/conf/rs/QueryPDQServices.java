@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,15 +35,17 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.export.rs;
+package org.dcm4chee.arc.conf.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,13 +64,12 @@ import java.util.Comparator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2016
+ * @since Oct 2018
  */
 @RequestScoped
-@Path("export")
-public class QueryExporters {
-    private static final Logger LOG = LoggerFactory.getLogger(QueryExporters.class);
+@Path("pdq")
+public class QueryPDQServices {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryPDQServices.class);
 
     @Inject
     private Device device;
@@ -84,22 +85,17 @@ public class QueryExporters {
         return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (ExporterDescriptor exporter : sortedExporterDescriptors()) {
+                device.getDeviceExtension(ArchiveDeviceExtension.class).getPDQServiceDescriptors().stream()
+                        .sorted(Comparator.comparing(PDQServiceDescriptor::getPDQServiceID))
+                        .forEach(exporter -> {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
-                    writer.writeNotNullOrDef("id", exporter.getExporterID(), null);
+                    writer.writeNotNullOrDef("id", exporter.getPDQServiceID(), null);
                     writer.writeNotNullOrDef("description", exporter.getDescription(), null);
                     gen.writeEnd();
-                }
+                });
                 gen.writeEnd();
                 gen.flush();
         };
-    }
-
-    private ExporterDescriptor[] sortedExporterDescriptors() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptors()
-                .stream()
-                .sorted(Comparator.comparing(ExporterDescriptor::getExporterID))
-                .toArray(ExporterDescriptor[]::new);
     }
 }
