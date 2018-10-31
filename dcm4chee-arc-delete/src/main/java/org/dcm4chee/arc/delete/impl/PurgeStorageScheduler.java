@@ -129,14 +129,20 @@ public class PurgeStorageScheduler extends Scheduler {
         for (StorageDescriptor desc : arcdev().getStorageDescriptors()) {
             if (!desc.isReadOnly() && inProcess.add(desc.getStorageID()))
                 device.execute(() -> {
-                    process(desc);
-                    inProcess.remove(desc.getStorageID());
+                    LOG.info("Check {} for deletion", desc);
+                    try {
+                        process(desc);
+                    } catch (Throwable e) {
+                        LOG.warn("Deletion on {} throws:\n", desc, e);
+                    } finally {
+                        inProcess.remove(desc.getStorageID());
+                        LOG.info("Finished deletion on {}", desc);
+                    }
                 });
         }
     }
 
     private void process(StorageDescriptor desc) {
-        LOG.info("Check {} for deletion", desc);
         ArchiveDeviceExtension arcDev = arcdev();
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
@@ -162,7 +168,6 @@ public class PurgeStorageScheduler extends Scheduler {
         }
         while (deleteSize > 0L) ;
         while (deleteSeriesMetadata(desc, fetchSize)) ;
-        LOG.info("Finished deletion on {}", desc);
     }
 
     private long sizeToDelete(StorageDescriptor desc, long minUsableSpace) {
@@ -353,9 +358,18 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private boolean deleteSeriesMetadata(StorageDescriptor desc, int fetchSize) {
-        List<Metadata> metadata = ejb.findMetadataToDelete(desc.getStorageID(), fetchSize);
-        if (metadata.isEmpty())
+        LOG.debug("Query for Metadata marked for deletion from {}", desc);
+        List<Metadata> metadata;
+        try {
+            metadata = ejb.findMetadataToDelete(desc.getStorageID(), fetchSize);
+        } catch (Exception e) {
+            LOG.warn("Query for Metadata marked for deletion from {} failed:\n", desc, e);
             return false;
+        }
+        if (metadata.isEmpty()) {
+            LOG.debug("No Metadata marked for deletion found at {}", desc);
+            return false;
+        }
 
         LOG.info("Start deleting {} Metadata from {}", metadata.size(), desc);
         int success = 0;
@@ -387,9 +401,18 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) {
-        List<Location> locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
-        if (locations.isEmpty())
+        LOG.debug("Query for objects marked for deletion at {}", desc);
+        List<Location> locations;
+        try {
+            locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
+        } catch (Exception e) {
+            LOG.warn("Query for objects marked for deletion at {} failed:\n", desc, e);
             return false;
+        }
+        if (locations.isEmpty()) {
+            LOG.debug("No objects marked for deletion found at {}", desc);
+            return false;
+        }
 
         LOG.info("Start deleting {} objects from {}", locations.size(), desc);
         int success = 0;
