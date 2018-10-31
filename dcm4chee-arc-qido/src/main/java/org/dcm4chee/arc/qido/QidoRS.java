@@ -154,6 +154,10 @@ public class QidoRS {
     @QueryParam("ExternalRetrieveAET!")
     private String externalRetrieveAETNot;
 
+    @QueryParam("patientVerificationStatus")
+    @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
+    private String patientVerificationStatus;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -487,6 +491,8 @@ public class QidoRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        if (patientVerificationStatus != null)
+            queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
         ctx.setSOPClassUID(model.getSOPClassUID());

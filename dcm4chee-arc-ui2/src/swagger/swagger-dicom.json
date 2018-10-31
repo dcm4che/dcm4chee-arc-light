@@ -101,6 +101,18 @@
             "default": true
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -227,6 +239,18 @@
             "description": "return only Studies which includes at least one Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "fuzzymatching",
@@ -427,6 +451,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -559,6 +595,18 @@
             "description": "return only Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "fuzzymatching",

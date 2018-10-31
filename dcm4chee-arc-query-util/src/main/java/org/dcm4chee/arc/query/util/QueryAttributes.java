@@ -93,6 +93,7 @@ public class QueryAttributes {
                 case "expired":
                 case "retrievefailed":
                 case "compressionfailed":
+                case "patientVerificationStatus":
                 case "storageVerificationFailed":
                 case "storageVerificationPolicy":
                 case "storageVerificationUpdateLocationStatus":

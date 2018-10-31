@@ -47,6 +47,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
@@ -149,6 +150,10 @@ public class ExportMatchingRS {
 
     @QueryParam("ExternalRetrieveAET!")
     private String externalRetrieveAETNot;
+
+    @QueryParam("patientVerificationStatus")
+    @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
+    private String patientVerificationStatus;
 
     @QueryParam("batchID")
     private String batchID;
@@ -338,6 +343,8 @@ public class ExportMatchingRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        if (patientVerificationStatus != null)
+            queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         return queryParam;
     }
 

@@ -8139,6 +8139,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8276,6 +8288,18 @@
             "description": "export only Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "batchID",
@@ -8424,6 +8448,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8561,6 +8597,18 @@
             "description": "export only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "batchID",
@@ -8707,6 +8755,18 @@
             "description": "export only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "batchID",
@@ -8860,6 +8920,18 @@
             "description": "export only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "batchID",
@@ -9252,6 +9324,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9400,6 +9484,18 @@
             "description": "match only Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "storageVerificationPolicy",
@@ -9559,6 +9655,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9707,6 +9815,18 @@
             "description": "match only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "storageVerificationPolicy",
@@ -9864,6 +9984,18 @@
             "description": "match only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "storageVerificationPolicy",
@@ -10028,6 +10160,18 @@
             "description": "match only Instances of Series with Failures of Last Compression",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
           },
           {
             "name": "storageVerificationPolicy",
