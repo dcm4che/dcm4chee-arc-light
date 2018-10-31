@@ -1607,6 +1607,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmReadOnly", descriptor.isReadOnly(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoDeletionConstraint", descriptor.isNoDeletionConstraint(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleterThreads", descriptor.getDeleterThreads(), 1);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageClusterID", descriptor.getStorageClusterID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThreshold", descriptor.getStorageThreshold(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
@@ -1640,6 +1641,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
                 desc.setReadOnly(LdapUtils.booleanValue(attrs.get("dcmReadOnly"), false));
+                desc.setDeleterThreads(LdapUtils.intValue(attrs.get("dcmDeleterThreads"), 1));
                 desc.setNoDeletionConstraint(LdapUtils.booleanValue(attrs.get("dcmNoDeletionConstraint"), false));
                 desc.setStorageClusterID(LdapUtils.stringValue(attrs.get("dcmStorageClusterID"), null));
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
@@ -1701,6 +1703,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeDiff(ldapObj, mods, "dcmReadOnly", prev.isReadOnly(), desc.isReadOnly(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreads",
+                prev.getDeleterThreads(), desc.getDeleterThreads(), 1);
         LdapUtils.storeDiff(ldapObj, mods, "dcmNoDeletionConstraint",
                 prev.isNoDeletionConstraint(), desc.isNoDeletionConstraint(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageClusterID",

@@ -46,6 +46,11 @@
           "nn[<schedule>]": "number"
         }
       },
+      "dcmDeleterThreads": {
+        "title": "Deleter Threads",
+        "description": "Number of Threads used for deletion of objects from the Storage System.",
+        "type": "number"
+      },
       "dcmExternalRetrieveAET": {
         "title": "External Retrieve AET",
         "description": "Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are retrievable using this AE from an external C-MOVE SCP.",

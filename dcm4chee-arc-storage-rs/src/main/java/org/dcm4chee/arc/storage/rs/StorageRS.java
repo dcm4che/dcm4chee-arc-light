@@ -126,6 +126,7 @@ public class StorageRS {
                     writer.writeNotNullOrDef("dcmInstanceAvailability", desc.getInstanceAvailability(), null);
                     writer.writeNotDef("dcmReadOnly", desc.isReadOnly(), false);
                     writer.writeNotDef("dcmNoDeletionConstraint", desc.isNoDeletionConstraint(), false);
+                    writer.writeNotDef("dcmDeleterThreads", desc.getDeleterThreads(), 1);
                     if (desc.getStorageThreshold() != null)
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
                     writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
@@ -139,10 +140,8 @@ public class StorageRS {
                     writer.writeNotEmpty("dicomAETitle", ss.aets);
                     writer.writeNotNullOrDef("dcmStorageClusterID", desc.getStorageClusterID(), null);
                     writer.writeNotEmpty("usages", ss.usages);
-                    if (ss.usableSpace > 0L)
-                        gen.write("usableSpace", ss.usableSpace);
-                    if (ss.usableSpace > 0L)
-                        gen.write("totalSpace", ss.totalSpace);
+                    gen.write("usableSpace", ss.usableSpace);
+                    gen.write("totalSpace", ss.totalSpace);
                     gen.writeEnd();
                 }
                 gen.writeEnd();

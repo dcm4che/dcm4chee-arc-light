@@ -8,6 +8,7 @@
     "dcmInstanceAvailability",
     "dcmRetrieveCacheMaxParallel",
     "dcmReadOnly",
+    "dcmDeleterThreads",
     "dcmNoDeletionConstraint"
   ],
   "properties": {
@@ -64,6 +65,14 @@
       "items": {
         "type": "string"
       }
+    },
+    "dcmDeleterThreads": {
+      "title": "Deleter Threads",
+      "description": "Number of Threads used for deletion of objects from the Storage System.",
+      "type": "integer",
+      "default" : 1,
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmExternalRetrieveAET": {
       "title": "External Retrieve AET",

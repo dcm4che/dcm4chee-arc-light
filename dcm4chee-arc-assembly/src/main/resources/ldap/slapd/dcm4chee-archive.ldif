@@ -1237,6 +1237,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.250 NAME 'dcmPatientVerificationMaxS
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.251 NAME 'dcmDeleterThreads'
+  DESC 'Number of Threads used for deletion of objects from the Storage System. 1 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1516,6 +1521,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmStorageClusterID $
     dcmStorageThreshold $
     dcmDeleterThreshold $
+    dcmDeleterThreads $
     dcmExternalRetrieveAET $
     dcmExportStorageID $
     dcmRetrieveCacheStorageID $

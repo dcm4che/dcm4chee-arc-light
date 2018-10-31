@@ -22,6 +22,7 @@ public final class StorageDescriptor {
     private String exportStorageID;
     private String retrieveCacheStorageID;
     private int retrieveCacheStorageMaxParallel = 10;
+    private int deleterThreads = 1;
     private String externalRetrieveAETitle;
     private boolean readOnly;
     private boolean noDeletionConstraint;
@@ -116,6 +117,14 @@ public final class StorageDescriptor {
 
     public void setRetrieveCacheMaxParallel(int retrieveCacheStorageMaxParallel) {
         this.retrieveCacheStorageMaxParallel = retrieveCacheStorageMaxParallel;
+    }
+
+    public int getDeleterThreads() {
+        return deleterThreads;
+    }
+
+    public void setDeleterThreads(int deleterThreads) {
+        this.deleterThreads = deleterThreads;
     }
 
     public boolean isReadOnly() {
