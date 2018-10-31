@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -47,27 +47,36 @@ import java.util.HashSet;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since March 2016
  */
-class AccessionNumSopClassInfo {
+class InstanceInfo {
     private final String accNum;
     private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+    private HashSet<String> mpps = new HashSet<>();
 
-    AccessionNumSopClassInfo(String accNum) {
+    InstanceInfo(String accNum) {
         this.accNum = accNum;
     }
 
     String getAccNum() {
         return accNum;
     }
+
     HashMap<String, HashSet<String>> getSopClassMap() {
         return sopClassMap;
     }
-    void addSOPInstance(AuditInfo rInfo) {
-        String cuid = rInfo.getField(AuditInfo.SOP_CUID);
-        HashSet<String> iuids = sopClassMap.get(cuid);
-        if (iuids == null) {
-            iuids = new HashSet<>();
-            sopClassMap.put(cuid, iuids);
-        }
-        iuids.add(rInfo.getField(AuditInfo.SOP_IUID));
+
+    void addSOPInstance(AuditInfo info) {
+        sopClassMap.computeIfAbsent(
+                info.getField(AuditInfo.SOP_CUID),
+                k -> new HashSet<>()).add(info.getField(AuditInfo.SOP_IUID));
+    }
+
+    String[] getMpps() {
+        return mpps.toArray(new String[0]);
+    }
+
+    void addMpps(AuditInfo info) {
+        String mppsUID = info.getField(AuditInfo.MPPS_UID);
+        if (mppsUID != null)
+            mpps.add(mppsUID);
     }
 }

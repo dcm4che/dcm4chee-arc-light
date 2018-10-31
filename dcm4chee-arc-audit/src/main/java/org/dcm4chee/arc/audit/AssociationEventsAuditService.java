@@ -79,7 +79,7 @@ class AssociationEventsAuditService {
                 .build();
     }
 
-    static AuditMessage associationFailureAuditMsg(AuditInfo auditInfo, AuditServiceUtils.EventType eventType,
+    static AuditMessage associationFailureAuditMsg(AuditInfo auditInfo, AuditUtils.EventType eventType,
                                                    Calendar eventTime) {
         return AuditMessages.createMessage(
                 eventIdentification(auditInfo, eventType, eventTime),
@@ -87,7 +87,7 @@ class AssociationEventsAuditService {
     }
 
     private static EventIdentificationBuilder eventIdentification(
-            AuditInfo auditInfo, AuditServiceUtils.EventType eventType, Calendar eventTime) {
+            AuditInfo auditInfo, AuditUtils.EventType eventType, Calendar eventTime) {
         return new EventIdentificationBuilder.Builder(
                 eventType.eventID, eventType.eventActionCode, eventTime, AuditMessages.EventOutcomeIndicator.MinorFailure)
                 .outcomeDesc(auditInfo.getField(AuditInfo.OUTCOME))

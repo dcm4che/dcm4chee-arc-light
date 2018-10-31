@@ -80,7 +80,7 @@ class ConnectionEventsAuditService {
                 .build();
     }
 
-    static AuditMessage auditMsg(AuditInfo auditInfo, AuditServiceUtils.EventType eventType, Calendar eventTime) {
+    static AuditMessage auditMsg(AuditInfo auditInfo, AuditUtils.EventType eventType, Calendar eventTime) {
         return AuditMessages.createMessage(
                 eventIdentification(auditInfo, eventType, eventTime),
                 activeParticipants(auditInfo));
@@ -117,7 +117,7 @@ class ConnectionEventsAuditService {
     }
 
     private static EventIdentificationBuilder eventIdentification(
-            AuditInfo auditInfo, AuditServiceUtils.EventType eventType, Calendar eventTime) {
+            AuditInfo auditInfo, AuditUtils.EventType eventType, Calendar eventTime) {
         return new EventIdentificationBuilder.Builder(
                 eventType.eventID, eventType.eventActionCode, eventTime,
                 AuditMessages.EventOutcomeIndicator.MinorFailure)

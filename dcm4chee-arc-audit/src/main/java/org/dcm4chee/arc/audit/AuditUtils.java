@@ -41,6 +41,8 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
@@ -54,14 +56,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
 
-class AuditServiceUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(AuditServiceUtils.class);
+class AuditUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(AuditUtils.class);
 
     enum EventClass {
         QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_FAILURE, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
@@ -211,10 +215,16 @@ class AuditServiceUtils {
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                         ? PAT_UPDATE
                         : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
-                            ? ctx.getHttpServletRequestInfo() != null ? PAT_DELETE : PAT_DLT_SC : null;
+                            ? ctx.getHttpServletRequestInfo() != null ? PAT_DELETE : PAT_DLT_SC : PAT___READ;
         }
 
-        static EventType forHL7PatRec(UnparsedHL7Message hl7ResponseMessage) {
+        static EventType forHL7OutgoingPatRec(String messageType) {
+            return messageType.equals("ADT^A28") || messageType.equals("ORU^R01")
+                    ? PAT_CREATE
+                    : PAT_UPDATE;
+        }
+
+        static EventType forHL7IncomingPatRec(UnparsedHL7Message hl7ResponseMessage) {
             if (hl7ResponseMessage instanceof ArchiveHL7Message) {
                 ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
                 return archiveHL7Message.getPatRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
@@ -234,7 +244,7 @@ class AuditServiceUtils {
                             : PROC_STD_D;
         }
 
-        static EventType forHL7OrderMsg(UnparsedHL7Message hl7ResponseMessage) {
+        static EventType forHL7IncomingOrderMsg(UnparsedHL7Message hl7ResponseMessage) {
             if (hl7ResponseMessage instanceof ArchiveHL7Message) {
                 ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
                 return archiveHL7Message.getProcRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
@@ -242,6 +252,27 @@ class AuditServiceUtils {
                         : PROC_STD_U;
             }
             return PROC_STD_R;
+        }
+
+        static EventType forHL7OutgoingOrderMsg(String orderCtrlStatus,
+                Collection<HL7OrderSPSStatus> hl7OrderSPSStatuses) {
+            EventType eventType = PROC_STD_R;
+            for (HL7OrderSPSStatus hl7OrderSPSStatus : hl7OrderSPSStatuses) {
+                String[] orderControlStatusCodes = hl7OrderSPSStatus.getOrderControlStatusCodes();
+                if (hl7OrderSPSStatus.getSPSStatus() == SPSStatus.SCHEDULED) {
+                    if (Arrays.asList(orderControlStatusCodes).contains(orderCtrlStatus)) {
+                        eventType = PROC_STD_C;
+                        break;
+                    }
+                } else {
+                    if (Arrays.asList(orderControlStatusCodes).contains(orderCtrlStatus)
+                            || orderCtrlStatus.equals("SC_CM")) {//SC_CM = archive sends proc update msg mpps or study receive trigger
+                        eventType = PROC_STD_U;
+                        break;
+                    }
+                }
+            }
+            return eventType;
         }
 
         static EventType forQueueEvent(QueueMessageOperation operation) {

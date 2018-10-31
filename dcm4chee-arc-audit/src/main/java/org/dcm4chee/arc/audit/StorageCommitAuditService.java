@@ -153,7 +153,7 @@ class StorageCommitAuditService {
                     ? stgCmtContext.getRemoteAE().getAETitle() : null;
     }
 
-    static AuditMessage auditMsg(SpoolFileReader reader, AuditServiceUtils.EventType eventType, AuditLogger auditLogger,
+    static AuditMessage auditMsg(SpoolFileReader reader, AuditUtils.EventType eventType, AuditLogger auditLogger,
                                  Calendar eventTime) {
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         String outcome = auditInfo.getField(AuditInfo.OUTCOME);
@@ -164,7 +164,7 @@ class StorageCommitAuditService {
             poiStudy(reader, auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditServiceUtils.EventType eventType, AuditLogger auditLogger, AuditInfo auditInfo) {
+    private static ActiveParticipantBuilder[] activeParticipants(AuditUtils.EventType eventType, AuditLogger auditLogger, AuditInfo auditInfo) {
         ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
@@ -186,7 +186,7 @@ class StorageCommitAuditService {
         return activeParticipants;
     }
 
-    private static EventIdentificationBuilder eventIdentification(AuditServiceUtils.EventType eventType, Calendar eventTime, String outcome) {
+    private static EventIdentificationBuilder eventIdentification(AuditUtils.EventType eventType, Calendar eventTime, String outcome) {
         return new EventIdentificationBuilder.Builder(
                 eventType.eventID,
                 eventType.eventActionCode,

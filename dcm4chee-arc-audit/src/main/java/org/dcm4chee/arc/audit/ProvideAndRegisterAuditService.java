@@ -58,7 +58,7 @@ class ProvideAndRegisterAuditService {
     }
 
     static AuditMessage provideRegisterAuditMsg(
-            AuditInfo auditInfo, AuditLogger auditLogger, AuditServiceUtils.EventType eventType, Calendar eventTime) {
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType, Calendar eventTime) {
         String outcome = auditInfo.getField(AuditInfo.OUTCOME);
         EventIdentificationBuilder eventIdentificationBuilder
                 = new EventIdentificationBuilder.Builder(
@@ -92,7 +92,7 @@ class ProvideAndRegisterAuditService {
     }
 
     private static ActiveParticipantBuilder[] activeParticipantBuilders(
-            AuditLogger auditLogger, AuditServiceUtils.EventType eventType, AuditInfo auditInfo) {
+            AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                 auditInfo.getField(AuditInfo.DEST_USER_ID),

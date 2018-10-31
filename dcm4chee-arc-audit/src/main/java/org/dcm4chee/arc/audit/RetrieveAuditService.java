@@ -244,29 +244,28 @@ class RetrieveAuditService {
                         : null;
     }
 
-    static AuditMessage auditMsg(AuditServiceUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger,
+    static AuditMessage auditMsg(AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger,
                                  EventIdentificationBuilder eventIdentification, SpoolFileReader reader) {
-        HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
+        HashMap<String, InstanceInfo> study_instanceInfo = new HashMap<>();
         String pID = null;
         String pName = null;
         String studyDt = null;
         for (String line : reader.getInstanceLines()) {
             AuditInfo rInfo = new AuditInfo(line);
             String studyInstanceUID = rInfo.getField(AuditInfo.STUDY_UID);
-            AccessionNumSopClassInfo accNumSopClassInfo = study_accNumSOPClassInfo.get(studyInstanceUID);
-            if (accNumSopClassInfo == null) {
-                accNumSopClassInfo = new AccessionNumSopClassInfo(
-                        rInfo.getField(AuditInfo.ACC_NUM));
-                study_accNumSOPClassInfo.put(studyInstanceUID, accNumSopClassInfo);
+            InstanceInfo instanceInfo = study_instanceInfo.get(studyInstanceUID);
+            if (instanceInfo == null) {
+                instanceInfo = new InstanceInfo(rInfo.getField(AuditInfo.ACC_NUM));
+                study_instanceInfo.put(studyInstanceUID, instanceInfo);
             }
-            accNumSopClassInfo.addSOPInstance(rInfo);
-            study_accNumSOPClassInfo.put(studyInstanceUID, accNumSopClassInfo);
+            instanceInfo.addSOPInstance(rInfo);
+            study_instanceInfo.put(studyInstanceUID, instanceInfo);
             pID = rInfo.getField(AuditInfo.P_ID);
             pName = rInfo.getField(AuditInfo.P_NAME);
             studyDt = rInfo.getField(AuditInfo.STUDY_DATE);
         }
         List<ParticipantObjectIdentificationBuilder> pois = new ArrayList<>();
-        for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
+        for (Map.Entry<String, InstanceInfo> entry : study_instanceInfo.entrySet()) {
             ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                     .sopC(AuditService.toSOPClasses(entry.getValue().getSopClassMap(),
                             auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null))
@@ -298,7 +297,7 @@ class RetrieveAuditService {
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(
-            AuditServiceUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
+            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
         return auditInfo.getField(AuditInfo.MOVE_USER_ID) != null
                 ? cMoveActiveParticipants(eventType, auditInfo, auditLogger)
                 : auditInfo.getField(AuditInfo.IS_EXPORT) != null
@@ -307,7 +306,7 @@ class RetrieveAuditService {
     }
 
     private static ActiveParticipantBuilder[] cMoveActiveParticipants(
-            AuditServiceUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
+            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                 auditInfo.getField(AuditInfo.CALLED_USERID),
@@ -332,7 +331,7 @@ class RetrieveAuditService {
     }
 
     private static ActiveParticipantBuilder[] exportActiveParticipants(
-            AuditServiceUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
+            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                 auditInfo.getField(AuditInfo.DEST_USER_ID),
@@ -371,7 +370,7 @@ class RetrieveAuditService {
     }
 
     private static ActiveParticipantBuilder[] cGetOrWadoRSOrRAD69ActiveParticipants(
-            AuditServiceUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
+            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);

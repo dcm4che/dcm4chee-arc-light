@@ -87,7 +87,7 @@ class QueueMessageAuditService {
                 .build();
     }
 
-    static AuditMessage auditMsg(AuditInfo auditInfo, AuditServiceUtils.EventType eventType, AuditLogger auditLogger,
+    static AuditMessage auditMsg(AuditInfo auditInfo, AuditUtils.EventType eventType, AuditLogger auditLogger,
                                  Calendar eventTime) {
         return AuditMessages.createMessage(
                 eventIdentification(eventType, auditInfo.getField(AuditInfo.OUTCOME), eventTime),
@@ -96,7 +96,7 @@ class QueueMessageAuditService {
     }
 
     private static EventIdentificationBuilder eventIdentification(
-            AuditServiceUtils.EventType eventType, String outcome, Calendar eventTime) {
+            AuditUtils.EventType eventType, String outcome, Calendar eventTime) {
         return new EventIdentificationBuilder.Builder(
                 eventType.eventID,
                 eventType.eventActionCode,

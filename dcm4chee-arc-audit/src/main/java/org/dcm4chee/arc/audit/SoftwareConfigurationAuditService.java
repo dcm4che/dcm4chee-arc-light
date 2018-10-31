@@ -70,7 +70,7 @@ class SoftwareConfigurationAuditService {
     }
 
     static AuditMessage auditMsg(AuditLogger auditLogger, SpoolFileReader reader,
-                                 AuditServiceUtils.EventType eventType, Calendar eventTime) {
+                                 AuditUtils.EventType eventType, Calendar eventTime) {
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
         return AuditMessages.createMessage(
@@ -80,7 +80,7 @@ class SoftwareConfigurationAuditService {
     }
 
     private static EventIdentificationBuilder eventIdentification(
-            AuditServiceUtils.EventType eventType, Calendar eventTime) {
+            AuditUtils.EventType eventType, Calendar eventTime) {
         return new EventIdentificationBuilder.Builder(eventType.eventID, eventType.eventActionCode, eventTime,
                 AuditMessages.EventOutcomeIndicator.Success)
                 .eventTypeCode(eventType.eventTypeCode).build();

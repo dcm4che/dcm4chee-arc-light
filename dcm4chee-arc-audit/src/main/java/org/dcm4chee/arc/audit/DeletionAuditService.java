@@ -202,7 +202,7 @@ class DeletionAuditService {
         return e != null ? e.getMessage() : null;
     }
 
-    static AuditMessage auditMsg(AuditLogger auditLogger, SpoolFileReader reader, AuditServiceUtils.EventType eventType,
+    static AuditMessage auditMsg(AuditLogger auditLogger, SpoolFileReader reader, AuditUtils.EventType eventType,
                                  EventIdentificationBuilder eventIdentification) {
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         return AuditMessages.createMessage(
@@ -227,11 +227,11 @@ class DeletionAuditService {
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(
-            AuditLogger auditLogger, AuditServiceUtils.EventType eventType, AuditInfo auditInfo) {
+            AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
 
-        if (eventType.eventClass == AuditServiceUtils.EventClass.USER_DELETED) {
+        if (eventType.eventClass == AuditUtils.EventClass.USER_DELETED) {
             String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
             AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
             activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(

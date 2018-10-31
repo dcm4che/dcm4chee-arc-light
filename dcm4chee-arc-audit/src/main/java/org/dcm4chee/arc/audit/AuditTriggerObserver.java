@@ -100,12 +100,12 @@ public class AuditTriggerObserver {
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV_BEGIN, ctx);
+            auditService.spoolRetrieve(AuditUtils.EventType.RTRV_BEGIN, ctx);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV___TRF, ctx);
+            auditService.spoolRetrieve(AuditUtils.EventType.RTRV___TRF, ctx);
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
