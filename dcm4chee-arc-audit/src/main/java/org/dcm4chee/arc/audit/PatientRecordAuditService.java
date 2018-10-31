@@ -39,14 +39,19 @@
  */
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventIdentificationBuilder;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+
+import java.util.Calendar;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -71,7 +76,7 @@ class PatientRecordAuditService {
         this.callingUserID = httpRequest != null
                 ? httpRequest.requesterUserID
                 : association != null
-                    ? association.getCallingAET() : null;
+                    ? association.getCallingAET() : arcDev.getDevice().getDeviceName();
         this.calledUserID = httpRequest != null
                 ? httpRequest.requestURI
                 : association != null
@@ -97,14 +102,30 @@ class PatientRecordAuditService {
             }
         }
     }
-    
+
     AuditInfoBuilder getPatAuditInfo() {
+        return ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED
+            ? getPatVerificationAuditInfo() : getPatientAuditInfo();
+    }
+
+    private AuditInfoBuilder getPatientAuditInfo() {
         return new AuditInfoBuilder.Builder()
                 .callingHost(callingHost)
                 .callingUserID(callingUserID)
                 .calledUserID(calledUserID)
                 .pIDAndName(ctx.getAttributes(), arcDev)
                 .outcome(outcome(ctx.getException()))
+                .build();
+    }
+
+    private AuditInfoBuilder getPatVerificationAuditInfo() {
+        return new AuditInfoBuilder.Builder()
+                .callingHost(callingHost)
+                .callingUserID(callingUserID)
+                .calledUserID(calledUserID)
+                .pIDAndName(ctx.getAttributes(), arcDev)
+                .outcome(outcome(ctx.getException()))
+                .patVerificationStatus(ctx.getPatientVerificationStatus())
                 .build();
     }
     

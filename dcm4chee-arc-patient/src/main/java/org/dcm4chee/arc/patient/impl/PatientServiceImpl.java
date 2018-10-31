@@ -206,6 +206,10 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient updatePatientStatus(PatientMgtContext ctx) {
-        return ejb.updatePatientStatus(ctx);
+        try {
+            return ejb.updatePatientStatus(ctx);
+        } finally {
+            patientMgtEvent.fire(ctx);
+        }
     }
 }

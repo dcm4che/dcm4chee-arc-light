@@ -188,7 +188,7 @@ public class PatientVerificationScheduler extends Scheduler {
         ctx.setAttributes(attrs);
         ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
         patientService.updatePatient(ctx);
-        LOG.info(ctx.getEventActionCode() == AuditMessages.EventActionCode.Update
+        LOG.info(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                         ? "Updated {} on verification against {}"
                         : "Verified {} against {}",
                 patient,

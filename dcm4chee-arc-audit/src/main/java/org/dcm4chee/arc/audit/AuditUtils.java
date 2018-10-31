@@ -44,12 +44,14 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -124,6 +126,10 @@ class AuditUtils {
                 null, null, null),
         PAT___READ(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
+        PAT_UPD_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+                null, null, null),
+        PAT_RD__SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+                null, null, null),
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
                 null, null, null),
@@ -210,12 +216,28 @@ class AuditUtils {
         }
 
         static EventType forPatRec(PatientMgtContext ctx) {
+            if (!ctx.getPatientVerificationStatus().equals(Patient.VerificationStatus.UNVERIFIED))
+                return forPatVer(ctx);
+
             return ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? PAT_CREATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                         ? PAT_UPDATE
                         : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
-                            ? ctx.getHttpServletRequestInfo() != null ? PAT_DELETE : PAT_DLT_SC : PAT___READ;
+                            ? ctx.getHttpServletRequestInfo() != null ? PAT_DELETE : PAT_DLT_SC
+                            : PAT___READ;
+        }
+
+        private static EventType forPatVer(PatientMgtContext ctx) {
+            String eac = ctx.getEventActionCode();
+            return ctx.getHttpServletRequestInfo() == null
+                    ? eac.equals(AuditMessages.EventActionCode.Update)
+                        ? PAT_UPD_SC : PAT_RD__SC
+                    : eac.equals(AuditMessages.EventActionCode.Update)
+                        ? PAT_UPDATE
+                        : eac.equals(AuditMessages.EventActionCode.Create)
+                            ? PAT_CREATE
+                            : PAT___READ;
         }
 
         static EventType forHL7OutgoingPatRec(String messageType) {

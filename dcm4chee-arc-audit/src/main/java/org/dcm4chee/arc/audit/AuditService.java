@@ -57,6 +57,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
@@ -985,14 +986,43 @@ public class AuditService {
     private void auditPatientRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType et) throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentificationBuilder eventIdentification = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
+        Calendar eventTime = getEventTime(path, auditLogger);
         ActiveParticipantBuilder[] activeParticipantBuilder = isServiceUserTriggered(et.source)
                 ? auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null
                     ? getOutgoingPatientRecordActiveParticipants(auditLogger, et, auditInfo)
                     : getInternalPatientRecordActiveParticipants(auditLogger, et, auditInfo)
-                : getSchedulerTriggeredActiveParticipant(auditLogger, et);
+                : getSchedulerTriggeredActiveParticipant(auditLogger, auditInfo);
 
-        ParticipantObjectIdentificationBuilder patientPOI = new ParticipantObjectIdentificationBuilder.Builder(
+        ParticipantObjectIdentificationBuilder patientPOI = Patient.VerificationStatus.valueOf(
+                auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS)) != Patient.VerificationStatus.UNVERIFIED
+            ? patVerStatusRecPOI(reader, auditInfo) : patRecPOI(reader, auditInfo);
+
+        AuditMessage auditMsg = AuditMessages.createMessage(
+                patVerEventIdentification(et, auditInfo, eventTime),
+                activeParticipantBuilder,
+                patientPOI);
+        emitAuditMessage(auditMsg, auditLogger);
+    }
+
+    private EventIdentificationBuilder patVerEventIdentification(
+            AuditUtils.EventType et, AuditInfo auditInfo, Calendar eventTime) {
+        Patient.VerificationStatus patVerStatus = Patient.VerificationStatus.valueOf(
+                auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS));
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        String eoi = patVerStatus == Patient.VerificationStatus.VERIFICATION_FAILED
+                ? AuditMessages.EventOutcomeIndicator.SeriousFailure
+                : patVerStatus == Patient.VerificationStatus.NOT_FOUND || outcome != null
+                    ? AuditMessages.EventOutcomeIndicator.MinorFailure
+                    : AuditMessages.EventOutcomeIndicator.Success;
+        String outcomeDesc = patVerStatus == Patient.VerificationStatus.NOT_FOUND
+                || patVerStatus == Patient.VerificationStatus.VERIFICATION_FAILED
+                ? patVerStatus.name() : outcome;
+        return new EventIdentificationBuilder.Builder(et.eventID, et.eventActionCode, eventTime, eoi)
+                .outcomeDesc(outcomeDesc).build();
+    }
+
+    private ParticipantObjectIdentificationBuilder patRecPOI(SpoolFileReader reader, AuditInfo auditInfo) {
+        return new ParticipantObjectIdentificationBuilder.Builder(
                                                                 auditInfo.getField(AuditInfo.P_ID),
                                                                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                                                                 AuditMessages.ParticipantObjectTypeCode.Person,
@@ -1000,9 +1030,18 @@ public class AuditService {
                                                                 .name(auditInfo.getField(AuditInfo.P_NAME))
                                                                 .detail(getHL7ParticipantObjectDetail(reader))
                                                                 .build();
+    }
 
-        AuditMessage auditMsg = AuditMessages.createMessage(eventIdentification, activeParticipantBuilder, patientPOI);
-        emitAuditMessage(auditMsg, auditLogger);
+    private ParticipantObjectIdentificationBuilder patVerStatusRecPOI(SpoolFileReader reader, AuditInfo auditInfo) {
+        return new ParticipantObjectIdentificationBuilder.Builder(
+                auditInfo.getField(AuditInfo.P_ID),
+                AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                AuditMessages.ParticipantObjectTypeCode.Person,
+                AuditMessages.ParticipantObjectTypeCodeRole.Patient)
+                .name(auditInfo.getField(AuditInfo.P_NAME))
+                .lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification)
+                .detail(getHL7ParticipantObjectDetail(reader))
+                .build();
     }
 
     private ParticipantObjectDetail[] getHL7ParticipantObjectDetail(SpoolFileReader reader) {
@@ -1020,15 +1059,14 @@ public class AuditService {
         }
     }
 
-    private ActiveParticipantBuilder[] getSchedulerTriggeredActiveParticipant(AuditLogger auditLogger, AuditUtils.EventType et) {
+    private ActiveParticipantBuilder[] getSchedulerTriggeredActiveParticipant(AuditLogger auditLogger, AuditInfo auditInfo) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                device.getDeviceName(),
+                auditInfo.getField(AuditInfo.CALLING_USERID),
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                 .altUserID(AuditLogger.processID())
                 .isRequester()
-                .roleIDCode(et.destination)
                 .build();
         return activeParticipantBuilder;
     }
