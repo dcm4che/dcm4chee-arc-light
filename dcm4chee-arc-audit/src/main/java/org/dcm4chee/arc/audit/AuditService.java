@@ -1263,9 +1263,18 @@ public class AuditService {
 
     void spoolStgCmt(StgCmtContext ctx) {
         try {
-            StorageCommitAuditService stgCmtAuditService = new StorageCommitAuditService(ctx, getArchiveDevice());
-            for (AuditInfoBuilder[] auditInfoBuilder : stgCmtAuditService.getAuditInfoBuilder())
-                writeSpoolFile(AuditUtils.EventType.STG_COMMIT, auditInfoBuilder);
+            Sequence success = ctx.getEventInfo().getSequence(Tag.ReferencedSOPSequence);
+            Sequence failed = ctx.getEventInfo().getSequence(Tag.FailedSOPSequence);
+
+            if (success != null && !success.isEmpty())
+                writeSpoolFile(
+                        AuditUtils.EventType.STG_COMMIT,
+                        StorageCommitAuditService.getSuccessAuditInfo(ctx, getArchiveDevice()));
+
+            if (failed != null && !failed.isEmpty())
+                writeSpoolFile(
+                        AuditUtils.EventType.STG_COMMIT,
+                        StorageCommitAuditService.getFailedAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.warn("Failed to spool storage commitment : " + e);
         }

@@ -61,96 +61,79 @@ import java.util.stream.Stream;
  */
 class StorageCommitAuditService {
 
-    private final StgCmtContext ctx;
-    private final ArchiveDeviceExtension arcDev;
-    private AuditInfoBuilder[][] auditInfoBuilder;
-    
-    StorageCommitAuditService(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
-        this.ctx = ctx;
-        this.arcDev = arcDev;
-        buildAuditInfos();
-    }
-    
-    private void buildAuditInfos() {
-        Attributes eventInfo = ctx.getEventInfo();
-        String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
+    private static String studyIUID(Attributes eventInfo, ArchiveDeviceExtension arcDev) {
+        return eventInfo.getStrings(Tag.StudyInstanceUID) != null
                 ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
                 : arcDev.auditUnknownStudyInstanceUID();
-
-        auditInfoBuilder = new AuditInfoBuilder[2][];
-        buildSuccessAuditInfo(ctx, studyUID);
-        buildFailedAuditInfo(ctx, studyUID);
     }
 
-    private void buildSuccessAuditInfo(StgCmtContext stgCmtContext, String studyUID) {
-        Sequence success = stgCmtContext.getEventInfo().getSequence(Tag.ReferencedSOPSequence);
-        if (success != null && !success.isEmpty()) {
-            AuditInfoBuilder[] successAuditInfo = new AuditInfoBuilder[success.size()+1];
-            successAuditInfo[0] = new AuditInfoBuilder.Builder()
-                    .callingUserID(storageCmtCallingAET(stgCmtContext))
-                    .callingHost(storageCmtCallingHost(stgCmtContext))
-                    .calledUserID(storageCmtCalledAET(stgCmtContext))
-                    .pIDAndName(stgCmtContext.getEventInfo(), arcDev)
-                    .studyUID(studyUID)
-                    .build();
-            for (int i = 1; i <= success.size(); i++)
-                successAuditInfo[i] = buildRefSopAuditInfo(success.get(i-1));
+    static AuditInfoBuilder[] getSuccessAuditInfo(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+        Attributes eventInfo = ctx.getEventInfo();
+        Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+        AuditInfoBuilder[] successAuditInfo = new AuditInfoBuilder[success.size()+1];
+        successAuditInfo[0] = new AuditInfoBuilder.Builder()
+                .callingUserID(storageCmtCallingAET(ctx))
+                .callingHost(storageCmtCallingHost(ctx))
+                .calledUserID(storageCmtCalledAET(ctx))
+                .pIDAndName(eventInfo, arcDev)
+                .studyUID(studyIUID(eventInfo, arcDev))
+                .build();
+        for (int i = 1; i <= success.size(); i++)
+            successAuditInfo[i] = buildRefSopAuditInfo(success.get(i-1));
 
-            auditInfoBuilder[0] = successAuditInfo;
-        }
+        return successAuditInfo;
     }
 
-    private void buildFailedAuditInfo(StgCmtContext stgCmtContext, String studyUID) {
-        Sequence failed = stgCmtContext.getEventInfo().getSequence(Tag.FailedSOPSequence);
-        if (failed != null && !failed.isEmpty()) {
-            AuditInfoBuilder[] failedAuditInfo = new AuditInfoBuilder[failed.size()+1];
-            Set<String> failureReasons = new HashSet<>();
-            for (int i = 1; i <= failed.size(); i++) {
-                Attributes item = failed.get(i-1);
-                failedAuditInfo[i] = buildRefSopAuditInfo(item);
-                failureReasons.add(
-                        item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
-                                ? "NoSuchObjectInstance"
-                                : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
+    static AuditInfoBuilder[] getFailedAuditInfo(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+        Attributes eventInfo = ctx.getEventInfo();
+        Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
+        AuditInfoBuilder[] failedAuditInfo = new AuditInfoBuilder[failed.size()+1];
+        Set<String> failureReasons = new HashSet<>();
+        for (int i = 1; i <= failed.size(); i++) {
+            Attributes item = failed.get(i-1);
+            failedAuditInfo[i] = buildRefSopAuditInfo(item);
+            failureReasons.add(
+                    item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
+                            ? "NoSuchObjectInstance"
+                            : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
                                 ? "ClassInstanceConflict" : "ProcessingFailure");
-            }
-            failedAuditInfo[0] = new AuditInfoBuilder.Builder()
-                    .callingUserID(storageCmtCallingAET(stgCmtContext))
-                    .callingHost(storageCmtCallingHost(stgCmtContext))
-                    .calledUserID(storageCmtCalledAET(stgCmtContext))
-                    .pIDAndName(stgCmtContext.getEventInfo(), arcDev)
-                    .studyUID(studyUID)
-                    .outcome(failureReasons.stream().collect(Collectors.joining(";")))
-                    .build();
-
-            auditInfoBuilder[1] = failedAuditInfo;
         }
+        failedAuditInfo[0] = new AuditInfoBuilder.Builder()
+                .callingUserID(storageCmtCallingAET(ctx))
+                .callingHost(storageCmtCallingHost(ctx))
+                .calledUserID(storageCmtCalledAET(ctx))
+                .pIDAndName(eventInfo, arcDev)
+                .studyUID(studyIUID(eventInfo, arcDev))
+                .outcome(failureReasons.stream().collect(Collectors.joining(";")))
+                .build();
+
+        return failedAuditInfo;
     }
 
-    private AuditInfoBuilder buildRefSopAuditInfo(Attributes item) {
+    private static AuditInfoBuilder buildRefSopAuditInfo(Attributes item) {
         return new AuditInfoBuilder.Builder()
                 .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
                 .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
     }
 
-    private String storageCmtCallingHost(StgCmtContext stgCmtContext) {
-        return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().requesterHost
-                : stgCmtContext.getRemoteAE() != null
-                    ? stgCmtContext.getRemoteAE().getConnections().get(0).getHostname() : null;
+    private static String storageCmtCallingHost(StgCmtContext ctx) {
+        return ctx.getRequest() != null
+                ? ctx.getRequest().requesterHost
+                : ctx.getRemoteAE() != null
+                    ? ctx.getRemoteAE().getConnections().get(0).getHostname() : null;
     }
 
-    private String storageCmtCalledAET(StgCmtContext stgCmtContext) {
-        return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().requestURI
-                : stgCmtContext.getLocalAET();
+    private static String storageCmtCalledAET(StgCmtContext ctx) {
+        return ctx.getRequest() != null
+                ? ctx.getRequest().requestURI
+                : ctx.getLocalAET();
     }
 
-    private String storageCmtCallingAET(StgCmtContext stgCmtContext) {
-        return stgCmtContext.getRequest() != null
-                ? stgCmtContext.getRequest().requesterUserID
-                : stgCmtContext.getRemoteAE() != null
-                    ? stgCmtContext.getRemoteAE().getAETitle() : null;
+    private static String storageCmtCallingAET(StgCmtContext ctx) {
+        return ctx.getRequest() != null
+                ? ctx.getRequest().requesterUserID
+                : ctx.getRemoteAE() != null
+                    ? ctx.getRemoteAE().getAETitle() : null;
     }
 
     static AuditMessage auditMsg(SpoolFileReader reader, AuditUtils.EventType eventType, AuditLogger auditLogger,
@@ -211,9 +194,5 @@ class StorageCommitAuditService {
         return  userID.indexOf('/') != -1
                 ? AuditMessages.UserIDTypeCode.URI
                 : AuditMessages.UserIDTypeCode.StationAETitle;
-    }
-
-    AuditInfoBuilder[][] getAuditInfoBuilder() {
-        return auditInfoBuilder;
     }
 }
