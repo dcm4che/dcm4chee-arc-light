@@ -567,7 +567,7 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         for (Storage storage : storageMap.values())
             SafeClose.close(storage);
     }

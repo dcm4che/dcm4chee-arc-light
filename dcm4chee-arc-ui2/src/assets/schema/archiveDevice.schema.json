@@ -5,6 +5,7 @@
   "required": [
     "dcmFuzzyAlgorithmClass",
     "dcmSeriesMetadataFetchSize",
+    "dcmSeriesMetadataThreads",
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
     "dcmOverwritePolicy",
@@ -99,6 +100,14 @@
       "description": "Maximal number of Series scheduled for Metadata update fetched by one query.",
       "type": "integer",
       "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmSeriesMetadataThreads": {
+      "title": "Update Series Metadata Threads",
+      "description": "Number of Threads used for creation and update of Series Metadata.",
+      "type": "integer",
+      "default" : 1,
       "minimum": 0,
       "exclusiveMinimum": true
     },
