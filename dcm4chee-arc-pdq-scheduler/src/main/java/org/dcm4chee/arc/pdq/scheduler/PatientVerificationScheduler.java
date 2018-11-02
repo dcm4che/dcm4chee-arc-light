@@ -43,6 +43,8 @@ package org.dcm4chee.arc.pdq.scheduler;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -122,11 +124,12 @@ public class PatientVerificationScheduler extends Scheduler {
         }
 
         int fetchSize;
+        boolean adjustIssuerOfPatientID = arcDev.isPatientVerificationAdjustIssuerOfPatientID();
         while (arcDev.getPatientVerificationPollingInterval() != null
                 && verifyPatients(pdqService,
                 ejb.findByVerificationStatus(Patient.VerificationStatus.UNVERIFIED,
                     fetchSize = arcDev.getPatientVerificationFetchSize()),
-                fetchSize));
+                fetchSize, adjustIssuerOfPatientID));
         Period period;
         while (arcDev.getPatientVerificationPollingInterval() != null
             && (period = arcDev.getPatientVerificationPeriod()) != null
@@ -134,14 +137,14 @@ public class PatientVerificationScheduler extends Scheduler {
                 ejb.findByVerificationStatusAndTime(Patient.VerificationStatus.VERIFIED,
                         Timestamp.valueOf(LocalDateTime.now().minus(period)),
                         fetchSize = arcDev.getPatientVerificationFetchSize()),
-                fetchSize));
+                fetchSize, adjustIssuerOfPatientID));
         while (arcDev.getPatientVerificationPollingInterval() != null
             && (period = arcDev.getPatientVerificationPeriodOnNotFound()) != null
             && verifyPatients(pdqService,
                 ejb.findByVerificationStatusAndTime(Patient.VerificationStatus.NOT_FOUND,
                         Timestamp.valueOf(LocalDateTime.now().minus(period)),
                         fetchSize = arcDev.getPatientVerificationFetchSize()),
-                fetchSize));
+                fetchSize, adjustIssuerOfPatientID));
         Duration interval;
         int maxRetries;
         while(arcDev.getPatientVerificationPollingInterval() != null
@@ -152,14 +155,15 @@ public class PatientVerificationScheduler extends Scheduler {
                     new Date(System.currentTimeMillis() - interval.getSeconds() * 1000L),
                     maxRetries,
                     fetchSize = arcDev.getPatientVerificationFetchSize()),
-                fetchSize));
+                fetchSize, adjustIssuerOfPatientID));
     }
 
-    private boolean verifyPatients(PDQService pdqService, List<Patient.IDWithPkAndVersion> patients, int fetchSize) {
+    private boolean verifyPatients(PDQService pdqService, List<Patient.IDWithPkAndVersion> patients, int fetchSize,
+                                   boolean adjustIssuerOfPatientID) {
         for (Patient.IDWithPkAndVersion patient : patients) {
             try {
                 if (ejb.incrementVersion(patient))
-                    verifyPatient(pdqService, patient);
+                    verifyPatient(pdqService, patient, adjustIssuerOfPatientID);
             } catch (Exception e) {
                 LOG.warn("Verification of {} failed:\n", patient, e);
             }
@@ -167,12 +171,15 @@ public class PatientVerificationScheduler extends Scheduler {
         return patients.size() == fetchSize;
     }
 
-    private void verifyPatient(PDQService pdqService, Patient.IDWithPkAndVersion patient) {
+    private void verifyPatient(PDQService pdqService, Patient.IDWithPkAndVersion patient,
+                               boolean adjustIssuerOfPatientID) {
         PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
         ctx.setPatientID(patient.idWithIssuer);
         Attributes attrs;
         try {
-            attrs = pdqService.query(patient.idWithIssuer);
+            attrs = pdqService.query(adjustIssuerOfPatientID
+                    ? patient.idWithIssuer.withoutIssuer()
+                    : patient.idWithIssuer);
         } catch (PDQServiceException e) {
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
             patientService.updatePatientStatus(ctx);
@@ -187,11 +194,19 @@ public class PatientVerificationScheduler extends Scheduler {
         }
         ctx.setAttributes(attrs);
         ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
-        patientService.updatePatient(ctx);
-        LOG.info(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
-                        ? "Updated {} on verification against {}"
-                        : "Verified {} against {}",
-                patient,
-                pdqService.getPDQServiceDescriptor());
+        if (adjustIssuerOfPatientID && !ctx.getPatientID().equals(patient.idWithIssuer)) {
+            ctx.setPreviousAttributes(patient.idWithIssuer.exportPatientIDWithIssuer(null));
+            patientService.changePatientID(ctx);
+            LOG.info("Updated {} on verification against {}",
+                    patient,
+                    pdqService.getPDQServiceDescriptor());
+        } else {
+            patientService.updatePatient(ctx);
+            LOG.info(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
+                            ? "Updated {} on verification against {}"
+                            : "Verified {} against {}",
+                    patient,
+                    pdqService.getPDQServiceDescriptor());
+        }
     }
 }

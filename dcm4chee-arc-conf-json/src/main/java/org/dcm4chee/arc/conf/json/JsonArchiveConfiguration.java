@@ -259,6 +259,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationPollingInterval(), null);
         writer.writeNotDef("dcmPatientVerificationFetchSize",
                 arcDev.getPatientVerificationFetchSize(), 100);
+        writer.writeNotDef("dcmPatientVerificationAdjustIssuerOfPatientID",
+                arcDev.isPatientVerificationAdjustIssuerOfPatientID(), false);
         writer.writeNotNullOrDef("dcmPatientVerificationPeriod",
                 arcDev.getPatientVerificationPeriod(), null);
         writer.writeNotNullOrDef("dcmPatientVerificationPeriodOnNotFound",
@@ -1231,6 +1233,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPatientVerificationFetchSize":
                     arcDev.setPatientVerificationFetchSize(reader.intValue());
+                    break;
+                case "dcmPatientVerificationAdjustIssuerOfPatientID":
+                    arcDev.setPatientVerificationAdjustIssuerOfPatientID(reader.booleanValue());
                     break;
                 case "dcmPatientVerificationPeriod":
                     arcDev.setPatientVerificationPeriod(Period.parse(reader.stringValue()));

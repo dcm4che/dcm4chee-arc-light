@@ -219,6 +219,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Period patientVerificationPeriodOnNotFound;
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
+    private volatile boolean patientVerificationAdjustIssuerOfPatientID;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2034,6 +2035,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.patientVerificationMaxRetries = patientVerificationMaxRetries;
     }
 
+    public boolean isPatientVerificationAdjustIssuerOfPatientID() {
+        return patientVerificationAdjustIssuerOfPatientID;
+    }
+
+    public void setPatientVerificationAdjustIssuerOfPatientID(boolean patientVerificationAdjustIssuerOfPatientID) {
+        this.patientVerificationAdjustIssuerOfPatientID = patientVerificationAdjustIssuerOfPatientID;
+    }
+
     public Duration getPatientVerificationMaxStaleness() {
         return patientVerificationMaxStaleness;
     }
@@ -2220,6 +2229,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationRetryInterval = arcdev.patientVerificationRetryInterval;
         patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
+        patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

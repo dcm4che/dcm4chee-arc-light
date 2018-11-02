@@ -51,6 +51,7 @@
     "dcmCompressionThreads",
     "dcmCompressionFetchSize",
     "dcmPatientVerificationFetchSize",
+    "dcmPatientVerificationAdjustIssuerOfPatientID",
     "dcmPatientVerificationMaxRetries",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
@@ -963,6 +964,12 @@
       "default" : 100,
       "minimum": 0,
       "exclusiveMinimum": true
+    },
+    "dcmPatientVerificationAdjustIssuerOfPatientID": {
+      "title": "Patient Verification Adjust Issuer of Patient ID",
+      "description": "Indicates if the Issuer Of Patient ID shall be adjusted to the value returned by the PDQ Service.",
+      "type": "boolean",
+      "default" : false
     },
     "dcmPatientVerificationPeriod": {
       "title": "Patient Verification Period",

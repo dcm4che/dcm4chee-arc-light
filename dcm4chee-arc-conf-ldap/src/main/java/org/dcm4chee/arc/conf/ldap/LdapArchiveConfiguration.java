@@ -260,6 +260,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPatientVerificationPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPatientVerificationFetchSize",
                 ext.getPatientVerificationFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPatientVerificationAdjustIssuerOfPatientID",
+                ext.isPatientVerificationAdjustIssuerOfPatientID(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationPeriod",
                 ext.getPatientVerificationPeriod(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationPeriodOnNotFound",
@@ -462,6 +464,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 toDuration(attrs.get("dcmPatientVerificationPollingInterval"), null));
         ext.setPatientVerificationFetchSize(
                 LdapUtils.intValue(attrs.get("dcmPatientVerificationFetchSize"), 100));
+        ext.setPatientVerificationAdjustIssuerOfPatientID(
+                LdapUtils.booleanValue(attrs.get("dcmPatientVerificationAdjustIssuerOfPatientID"), false));
         ext.setPatientVerificationPeriod(
                 toPeriod(attrs.get("dcmStorageVerificationPeriod")));
         ext.setPatientVerificationPeriodOnNotFound(
@@ -808,6 +812,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPatientVerificationFetchSize(),
                 bb.getPatientVerificationFetchSize(),
                 100);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPatientVerificationAdjustIssuerOfPatientID",
+                aa.isPatientVerificationAdjustIssuerOfPatientID(),
+                bb.isPatientVerificationAdjustIssuerOfPatientID(),
+                false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationPeriod",
                 aa.getPatientVerificationPeriod(),
                 bb.getPatientVerificationPeriod(),

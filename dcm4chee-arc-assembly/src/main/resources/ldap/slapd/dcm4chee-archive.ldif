@@ -1247,6 +1247,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.252 NAME 'dcmSeriesMetadataThreads'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.253 NAME 'dcmPatientVerificationAdjustIssuerOfPatientID'
+  DESC 'Indicates if the Issuer Of Patient ID shall be adjusted to the value returned by the PDQ Service. False if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1397,6 +1402,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmPatientVerificationRetryInterval $
     dcmPatientVerificationMaxRetries $
     dcmPatientVerificationMaxStaleness $
+    dcmPatientVerificationAdjustIssuerOfPatientID $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
