@@ -431,7 +431,8 @@ public class QueueManagerEJB {
         if (entity == null)
             return false;
 
-        queueEvent.setQueueMsg(entity);
+        if (queueEvent != null)
+            queueEvent.setQueueMsg(entity);
         deleteTask(entity);
         return true;
     }

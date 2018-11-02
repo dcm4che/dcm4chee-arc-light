@@ -455,18 +455,18 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        HibernateQuery<ExportTask> exportTaskQuery = createQuery(status, matchQueueMessage, matchExportTask);
-        List<Long> refQueuePks = exportTaskQuery.select(QExportTask.exportTask.queueMessage.pk).fetch();
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
+        HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueMessage, matchExportTask);
+        List<String> referencedQueueMsgIDs = exportTaskQuery.select(QExportTask.exportTask.queueMessage.messageID).fetch();
+
+        for (String queueMsgID : referencedQueueMsgIDs)
+            queueManager.deleteTask(queueMsgID, null);
 
         int count = (int) new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .where(QExportTask.exportTask.pk.in(exportTaskQuery.select(QExportTask.exportTask.pk)))
+                .where(QExportTask.exportTask.queueMessage.isNull())
                 .execute();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(QQueueMessage.queueMessage.pk.in(refQueuePks)).execute();
-
-        return count;
+        return referencedQueueMsgIDs.size() + count;
     }
 
     @Override

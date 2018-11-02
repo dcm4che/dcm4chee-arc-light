@@ -275,16 +275,21 @@ public class RetrieveManagerEJB {
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchRetrieveTask)
-                    .select(QRetrieveTask.retrieveTask.queueMessage.pk)
+        List<String> referencedQueueMsgIDs = createQuery(matchQueueMessage, matchRetrieveTask)
+                    .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
                     .limit(deleteTasksFetchSize)
                     .fetch();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
-                .execute();
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+        for (String queueMsgID : referencedQueueMsgIDs)
+            queueManager.deleteTask(queueMsgID, null);
+
+        return referencedQueueMsgIDs.size();
+
+//        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+//                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
+//                .execute();
+//        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+//                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
     }
 
     public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {

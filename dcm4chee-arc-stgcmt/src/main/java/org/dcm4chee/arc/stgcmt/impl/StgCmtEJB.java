@@ -47,7 +47,6 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -82,8 +81,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TemporalType;
-import java.time.Instant;
-import java.time.Period;
 import java.util.*;
 
 /**
@@ -277,7 +274,7 @@ public class StgCmtEJB {
         return predicate;
     }
 
-    public boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
+    public boolean  scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
                                       String batchID) throws QueueSizeLimitExceededException {
         if (isAlreadyScheduled(storageVerificationTask))
             return false;
@@ -455,16 +452,15 @@ public class StgCmtEJB {
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchStgVerTask)
-                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.pk)
+        List<String> referencedQueueMsgIDs = createQuery(matchQueueMessage, matchStgVerTask)
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.messageID)
                 .limit(deleteTasksFetchSize)
                 .fetch();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QStorageVerificationTask.storageVerificationTask)
-                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.pk.in(referencedQueueMsgs))
-                .execute();
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+        for (String queueMsgID : referencedQueueMsgIDs)
+            queueManager.deleteTask(queueMsgID, null);
+
+        return referencedQueueMsgIDs.size();
     }
 
     public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,

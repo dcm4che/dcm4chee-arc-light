@@ -71,7 +71,6 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -349,7 +348,7 @@ public class ExportTaskRS {
         int count;
         int deleteTasksFetchSize = queueTasksFetchSize();
         do {
-            count = mgr.deleteTasks(status,
+            count = mgr.deleteTasks(
                     matchQueueMessage(status, deviceName, null),
                     matchExportTask(updatedTime));
             deleted += count;
