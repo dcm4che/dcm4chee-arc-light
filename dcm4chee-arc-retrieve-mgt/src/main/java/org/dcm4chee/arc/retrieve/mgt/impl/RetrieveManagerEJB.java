@@ -220,8 +220,7 @@ public class RetrieveManagerEJB {
         if (task == null)
             return false;
 
-        queueEvent.setQueueMsg(task.getQueueMessage());
-        em.remove(task);
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent);
         LOG.info("Delete {}", task);
         return true;
     }

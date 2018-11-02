@@ -437,6 +437,9 @@ public class QueueManagerEJB {
     }
 
     private void deleteTask(QueueMessage entity) {
+        if (entity.getStatus() == QueueMessage.Status.IN_PROCESS)
+            messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
+
         if (entity.getExportTask() != null)
             em.remove(entity.getExportTask());
         else if (entity.getRetrieveTask() != null)

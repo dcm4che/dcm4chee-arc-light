@@ -392,8 +392,12 @@ public class ExportManagerEJB implements ExportManager {
         if (task == null)
             return false;
 
-        queueEvent.setQueueMsg(task.getQueueMessage());
-        em.remove(task);
+        QueueMessage queueMsg = task.getQueueMessage();
+        if (queueMsg == null)
+            em.remove(task);
+        else
+            queueManager.deleteTask(queueMsg.getMessageID(), queueEvent);
+
         LOG.info("Delete {}", task);
         return true;
     }

@@ -193,9 +193,7 @@ public class DiffServiceEJB {
         if (task == null)
             return false;
 
-        if (queueEvent != null)
-            queueEvent.setQueueMsg(task.getQueueMessage());
-        em.remove(task);
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent);
         LOG.info("Delete {}", task);
         return true;
     }
