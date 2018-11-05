@@ -106,4 +106,8 @@ public interface PatientMgtContext {
     Patient.VerificationStatus getPatientVerificationStatus();
 
     void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus);
+
+    String getPDQServiceURI();
+
+    void setPDQServiceURI(String pdqServiceURI);
 }

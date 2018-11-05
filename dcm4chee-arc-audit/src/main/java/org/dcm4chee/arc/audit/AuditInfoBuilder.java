@@ -87,6 +87,7 @@ class AuditInfoBuilder {
     final String patMismatchCode;
     final ConnectionEvent.Type connType;
     final Patient.VerificationStatus patVerificationStatus;
+    final String pdqServiceURI;
 
     static class Builder {
         private String callingHost;
@@ -122,6 +123,7 @@ class AuditInfoBuilder {
         private String patMismatchCode;
         private ConnectionEvent.Type connType;
         private Patient.VerificationStatus patVerificationStatus;
+        private String pdqServiceURI;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -271,6 +273,10 @@ class AuditInfoBuilder {
             patVerificationStatus = val;
             return this;
         }
+        Builder pdqServiceURI(String val) {
+            pdqServiceURI = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -310,6 +316,7 @@ class AuditInfoBuilder {
         patMismatchCode = builder.patMismatchCode;
         connType = builder.connType;
         patVerificationStatus = builder.patVerificationStatus;
+        pdqServiceURI = builder.pdqServiceURI;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

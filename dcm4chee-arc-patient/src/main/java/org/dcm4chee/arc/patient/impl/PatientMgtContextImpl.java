@@ -82,6 +82,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Patient patient;
     private HttpServletRequestInfo httpServletRequestInfo;
     private Patient.VerificationStatus patientVerificationStatus = Patient.VerificationStatus.UNVERIFIED;
+    private String pdqServiceURI;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -251,5 +252,15 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus) {
         this.patientVerificationStatus = patientVerificationStatus;
+    }
+
+    @Override
+    public String getPDQServiceURI() {
+        return pdqServiceURI;
+    }
+
+    @Override
+    public void setPDQServiceURI(String pdqServiceURI) {
+        this.pdqServiceURI = pdqServiceURI;
     }
 }

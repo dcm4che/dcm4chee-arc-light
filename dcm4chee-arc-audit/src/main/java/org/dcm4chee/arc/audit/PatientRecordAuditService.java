@@ -104,21 +104,6 @@ class PatientRecordAuditService {
     }
 
     AuditInfoBuilder getPatAuditInfo() {
-        return ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED
-            ? getPatVerificationAuditInfo() : getPatientAuditInfo();
-    }
-
-    private AuditInfoBuilder getPatientAuditInfo() {
-        return new AuditInfoBuilder.Builder()
-                .callingHost(callingHost)
-                .callingUserID(callingUserID)
-                .calledUserID(calledUserID)
-                .pIDAndName(ctx.getAttributes(), arcDev)
-                .outcome(outcome(ctx.getException()))
-                .build();
-    }
-
-    private AuditInfoBuilder getPatVerificationAuditInfo() {
         return new AuditInfoBuilder.Builder()
                 .callingHost(callingHost)
                 .callingUserID(callingUserID)
@@ -126,6 +111,7 @@ class PatientRecordAuditService {
                 .pIDAndName(ctx.getAttributes(), arcDev)
                 .outcome(outcome(ctx.getException()))
                 .patVerificationStatus(ctx.getPatientVerificationStatus())
+                .pdqServiceURI(ctx.getPDQServiceURI())
                 .build();
     }
     
@@ -136,6 +122,8 @@ class PatientRecordAuditService {
                 .calledUserID(calledUserID)
                 .pIDAndName(ctx.getPreviousAttributes(), arcDev)
                 .outcome(outcome(ctx.getException()))
+                .patVerificationStatus(ctx.getPatientVerificationStatus())
+                .pdqServiceURI(ctx.getPDQServiceURI())
                 .build();
     }
 

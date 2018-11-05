@@ -126,9 +126,9 @@ class AuditUtils {
                 null, null, null),
         PAT___READ(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        PAT_UPD_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+        PAT_UPD_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
                 null, null, null),
-        PAT_RD__SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+        PAT_RD__SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 null, null, null),
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,

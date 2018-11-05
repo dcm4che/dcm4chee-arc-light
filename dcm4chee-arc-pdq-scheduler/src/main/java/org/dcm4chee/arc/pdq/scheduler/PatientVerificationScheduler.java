@@ -43,8 +43,6 @@ package org.dcm4chee.arc.pdq.scheduler;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -175,6 +173,7 @@ public class PatientVerificationScheduler extends Scheduler {
                                boolean adjustIssuerOfPatientID) {
         PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
         ctx.setPatientID(patient.idWithIssuer);
+        ctx.setPDQServiceURI(pdqService.getPDQServiceDescriptor().getPDQServiceURI().toString());
         Attributes attrs;
         try {
             attrs = pdqService.query(adjustIssuerOfPatientID

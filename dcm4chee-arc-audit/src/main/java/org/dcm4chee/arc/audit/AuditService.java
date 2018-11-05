@@ -111,12 +111,12 @@ public class AuditService {
     private IHL7ApplicationCache hl7AppCache;
 
     private void aggregateAuditMessage(AuditLogger auditLogger, Path path) {
+        AuditUtils.EventType eventType = AuditUtils.EventType.fromFile(path);
+        if (path.toFile().length() == 0) {
+            LOG.warn("Attempt to read from an empty file.", eventType, path);
+            return;
+        }
         try {
-            AuditUtils.EventType eventType = AuditUtils.EventType.fromFile(path);
-            if (path.toFile().length() == 0) {
-                LOG.warn("Attempt to read from an empty file.", eventType, path);
-                return;
-            }
             switch (eventType.eventClass) {
                 case APPLN_ACTIVITY:
                     auditApplicationActivity(auditLogger, path, eventType);
@@ -166,7 +166,7 @@ public class AuditService {
                     break;
             }
         } catch (Exception e) {
-            LOG.warn("Failed in audit : " + e);
+            LOG.warn("Failed in audit with event type {} : {}", eventType, e);
         }
     }
 
@@ -987,15 +987,19 @@ public class AuditService {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         Calendar eventTime = getEventTime(path, auditLogger);
-        ActiveParticipantBuilder[] activeParticipantBuilder = isServiceUserTriggered(et.source)
-                ? auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null
-                    ? getOutgoingPatientRecordActiveParticipants(auditLogger, et, auditInfo)
-                    : getInternalPatientRecordActiveParticipants(auditLogger, et, auditInfo)
-                : getSchedulerTriggeredActiveParticipant(auditLogger, auditInfo);
+        boolean unverifiedPat = Patient.VerificationStatus.valueOf(
+                auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS)) == Patient.VerificationStatus.UNVERIFIED;
 
-        ParticipantObjectIdentificationBuilder patientPOI = Patient.VerificationStatus.valueOf(
-                auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS)) != Patient.VerificationStatus.UNVERIFIED
-            ? patVerStatusRecPOI(reader, auditInfo) : patRecPOI(reader, auditInfo);
+        ActiveParticipantBuilder[] activeParticipantBuilder = auditInfo.getField(AuditInfo.PDQ_SERVICE_URI) != null
+                ? patVerActiveParticipants(auditLogger, et, auditInfo)
+                : et.source == null
+                    ? getSchedulerTriggeredActiveParticipant(auditLogger, auditInfo)
+                    : auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null
+                        ? getOutgoingPatientRecordActiveParticipants(auditLogger, et, auditInfo)
+                        : getInternalPatientRecordActiveParticipants(auditLogger, et, auditInfo);
+
+        ParticipantObjectIdentificationBuilder patientPOI = unverifiedPat
+            ? patRecPOI(reader, auditInfo): patVerStatusRecPOI(reader, auditInfo);
 
         AuditMessage auditMsg = AuditMessages.createMessage(
                 patVerEventIdentification(et, auditInfo, eventTime),
@@ -1068,6 +1072,48 @@ public class AuditService {
                 .altUserID(AuditLogger.processID())
                 .isRequester()
                 .build();
+        return activeParticipantBuilder;
+    }
+
+    private ActiveParticipantBuilder[] patVerActiveParticipants(
+            AuditLogger auditLogger, AuditUtils.EventType et, AuditInfo auditInfo) {
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
+        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+
+        String pdqServiceURI = auditInfo.getField(AuditInfo.PDQ_SERVICE_URI);
+        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+                pdqServiceURI, null)
+                .userIDTypeCode(pdqServiceURI.indexOf('/') != -1
+                        ? AuditMessages.UserIDTypeCode.URI : AuditMessages.UserIDTypeCode.StationAETitle)
+                .roleIDCode(et.source)
+                .build();
+
+        activeParticipantBuilder[1] = calledUserID == null
+                ? new ActiveParticipantBuilder.Builder(
+                    callingUserID,
+                    getLocalHostName(auditLogger))
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
+                    .altUserID(AuditLogger.processID())
+                    .isRequester()
+                    .roleIDCode(et.destination)
+                    .build()
+                : new ActiveParticipantBuilder.Builder(
+                    calledUserID,
+                    getLocalHostName(auditLogger))
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
+                    .altUserID(AuditLogger.processID())
+                    .roleIDCode(et.destination)
+                    .build();
+
+        if (calledUserID != null)
+            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+                callingUserID,
+                auditInfo.getField(AuditInfo.CALLING_HOST))
+                .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                .isRequester()
+                .build();
+
         return activeParticipantBuilder;
     }
 

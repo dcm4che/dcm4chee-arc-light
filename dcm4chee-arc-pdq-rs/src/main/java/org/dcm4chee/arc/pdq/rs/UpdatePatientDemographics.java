@@ -102,6 +102,7 @@ public class UpdatePatientDemographics {
 
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
         ctx.setPatientID(patientID);
+        ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
         Attributes attrs;
         try {
             attrs = serviceFactory.getPDQService(descriptor).query(patientID);
