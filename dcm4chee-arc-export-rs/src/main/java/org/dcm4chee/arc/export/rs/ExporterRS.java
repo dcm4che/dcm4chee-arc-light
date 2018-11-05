@@ -167,7 +167,7 @@ public class ExporterRS {
 
             try {
                 if (bOnlyIAN || bOnlyStgCmt) {
-                    ExportContext ctx = createExportContext(studyUID, seriesUID, objectUID, exporter, aet);
+                    ExportContext ctx = createExportContext(studyUID, seriesUID, objectUID, exporter);
                     if (bOnlyIAN)
                         ianScheduler.scheduleIAN(ctx, exporter);
                     if (bOnlyStgCmt)
@@ -249,13 +249,14 @@ public class ExporterRS {
     }
 
     private ExportContext createExportContext(
-            String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle) {
+            String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter) {
         Exporter e = exporterFactory.getExporter(exporter);
         ExportContext ctx = e.createExportContext();
         ctx.setStudyInstanceUID(studyUID);
         ctx.setSeriesInstanceUID(seriesUID);
         ctx.setSopInstanceUID(objectUID);
-        ctx.setAETitle(aeTitle);
+        ctx.setAETitle(aet);
+        ctx.setBatchID(batchID);
         return ctx;
     }
 }

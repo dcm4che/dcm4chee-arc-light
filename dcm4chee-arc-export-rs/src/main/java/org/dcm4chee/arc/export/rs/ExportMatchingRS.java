@@ -270,7 +270,7 @@ public class ExportMatchingRS {
                 while (query.hasMoreMatches()) {
                     Attributes match = query.nextMatch();
                     if (bOnlyIAN || bOnlyStgCmt) {
-                        ExportContext exportContext = createExportContext(match, qrlevel, exporter, aet);
+                        ExportContext exportContext = createExportContext(match, qrlevel, exporter);
                         if (bOnlyIAN)
                             ianScheduler.scheduleIAN(exportContext, exporter);
                         if (bOnlyStgCmt)
@@ -349,7 +349,7 @@ public class ExportMatchingRS {
     }
 
     private ExportContext createExportContext(
-            Attributes match, QueryRetrieveLevel2 qrlevel, ExporterDescriptor exporter, String aeTitle) {
+            Attributes match, QueryRetrieveLevel2 qrlevel, ExporterDescriptor exporter) {
         Exporter e = exporterFactory.getExporter(exporter);
         ExportContext ctx = e.createExportContext();
         ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
@@ -359,7 +359,8 @@ public class ExportMatchingRS {
             case SERIES:
                 ctx.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
         }
-        ctx.setAETitle(aeTitle);
+        ctx.setAETitle(aet);
+        ctx.setBatchID(batchID);
         return ctx;
     }
 

@@ -197,7 +197,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             msg.setStringProperty("SeriesInstanceUID", ctx.getSeriesInstanceUID());
             msg.setStringProperty("SopInstanceUID", ctx.getSopInstanceUID());
             msg.setStringProperty("ExporterID", exporterID);
-            queueManager.scheduleMessage(StgCmtSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
+            queueManager.scheduleMessage(StgCmtSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, ctx.getBatchID());
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
@@ -217,7 +217,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     @Override
     public Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
-                               String sopInstanceUID, String exporterID, Attributes actionInfo) throws Exception  {
+                               String sopInstanceUID, String exporterID, String batchID, Attributes actionInfo)
+            throws Exception  {
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
         AAssociateRQ aarq = mkAAssociateRQ(localAE, localAET, TransferCapability.Role.SCU);
@@ -229,6 +230,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             result.setSeriesInstanceUID(seriesInstanceUID);
             result.setSopInstanceUID(sopInstanceUID);
             result.setExporterID(exporterID);
+            result.setBatchID(batchID);
             result.setDeviceName(device.getDeviceName());
             ejb.persistStgCmtResult(result);
             DimseRSP dimseRSP = as.naction(

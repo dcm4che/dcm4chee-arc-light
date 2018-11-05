@@ -54,6 +54,11 @@
         "description": "Exporter ID to filter by",
         "type": "string"
       },
+      "batchID": {
+        "title": "Batch ID",
+        "description": "Batch ID of Export",
+        "type": "string"
+      },
       "requested": {
         "title": "Requested",
         "description": "number of instances requested for Storage Commitment",
