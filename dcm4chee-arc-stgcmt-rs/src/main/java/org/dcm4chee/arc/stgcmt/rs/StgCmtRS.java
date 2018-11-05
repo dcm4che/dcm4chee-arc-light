@@ -88,6 +88,9 @@ public class StgCmtRS {
     @QueryParam("exporterID")
     private String exporterID;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @QueryParam("updatedBefore")
     @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
     private String updatedBefore;
@@ -106,7 +109,7 @@ public class StgCmtRS {
     public StreamingOutput listStgCmts() {
         logRequest();
         final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
-                statusOf(status), studyUID, exporterID, parseInt(offset), parseInt(limit));
+                statusOf(status), studyUID, exporterID, batchID, parseInt(offset), parseInt(limit));
         return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
