@@ -11371,6 +11371,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped Storage Commitment Results before first result in returned list",
