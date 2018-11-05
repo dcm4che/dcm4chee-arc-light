@@ -53,7 +53,6 @@ import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -86,9 +85,6 @@ public class ExportTaskRS {
 
     @Inject
     private ExportManager mgr;
-
-    @Inject
-    private QueueManager queueMgr;
 
     @Inject
     private Device device;

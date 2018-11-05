@@ -51,7 +51,6 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
@@ -87,9 +86,6 @@ public class RetrieveTaskRS {
 
     @Inject
     private RetrieveManager mgr;
-
-    @Inject
-    private QueueManager queueMgr;
 
     @Inject
     private Device device;
