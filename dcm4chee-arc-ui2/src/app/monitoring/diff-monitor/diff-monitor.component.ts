@@ -43,7 +43,22 @@ export class DiffMonitorComponent implements OnInit {
         stopText:"Stop Auto Refresh"
     };
     Object = Object;
+    filterTreeHeight = 3;
     tableHovered = false;
+    allAction;
+    allActionsActive = [];
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
     constructor(
         private service:DiffMonitorService,
         private mainservice:AppService,
@@ -118,9 +133,71 @@ export class DiffMonitorComponent implements OnInit {
                 });
             this.initSchema();
         });
+        this.onFormChange(this.filterObject);
+    }
+
+    onFormChange(filters){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                if(filters.status === '*' || !filters.status || filters.status === '')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
+            }
+        });
     }
     initSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,`COUNT ${((this.count || this.count == 0)?this.count:'')}`,this.devices),3);
+    }
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = Object.assign({}, this.filterObject);
+        delete filter["limit"];
+        delete filter["offset"];
+        this.confirm({
+            content: text
+        }).subscribe((ok)=>{
+            if(ok){
+                this.cfpLoadingBar.start();
+                switch (this.allAction){
+                    case "cancel":
+                        this.service.cancelAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' tasks deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+
+                        break;
+                    case "reschedule":
+                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' tasks rescheduled successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                        break;
+                    case "delete":
+                        this.deleteAllTasks(this.filterObject);
+                        break;
+                }
+                this.cfpLoadingBar.complete();
+            }
+            this.allAction = "";
+            this.allAction = undefined;
+        });
     }
     onSubmit(e){
         console.log("e",e);
@@ -413,6 +490,12 @@ export class DiffMonitorComponent implements OnInit {
                 this.statusValues[status].count = "!";
             });
         });
+    }
+    keyUp(e){
+        console.log("e",e);
+        if(e.which === 13){
+            this.getCounts();
+        }
     }
     ngOnDestroy(){
         if(this.timer.started){
