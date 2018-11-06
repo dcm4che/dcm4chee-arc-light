@@ -359,6 +359,8 @@ public class IocmRS {
         } catch (CircularPatientMergeException e) {
             throw new WebApplicationException(
                     errResponse("PriorPatientID same as target PatientID", Response.Status.CONFLICT));
+        } catch(Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -382,6 +384,8 @@ public class IocmRS {
         } catch (CircularPatientMergeException e) {
             throw new WebApplicationException(
                     errResponse("PriorPatientID same as target PatientID", Response.Status.CONFLICT));
+        } catch(Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
