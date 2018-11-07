@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -141,10 +141,6 @@ class AuditInfoBuilder {
             calledHost = val;
             return this;
         }
-        Builder studyUID(String val) {
-            studyUID = val;
-            return this;
-        }
         Builder pIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
             pID = arcDev.auditUnknownPatientID();
             if (attr != null) {
@@ -163,18 +159,21 @@ class AuditInfoBuilder {
             pName = toPatName(patName, arcDev);
             return this;
         }
-        Builder studyUIDAccNumDate(Attributes attrs) {
-            studyUID = attrs.getString(Tag.StudyInstanceUID);
-            accNum = attrs.getString(Tag.AccessionNumber);
-            studyDate = attrs.getString(Tag.StudyDate);
+        Builder studyUIDAccNumDate(Attributes attrs, ArchiveDeviceExtension arcDev) {
+            studyUID = arcDev.auditUnknownStudyInstanceUID();
+            if (attrs != null) {
+                studyUID = attrs.getString(Tag.StudyInstanceUID);
+                accNum = attrs.getString(Tag.AccessionNumber);
+                studyDate = attrs.getString(Tag.StudyDate);
+            }
             return this;
         }
-        Builder studyIUID(String studyIUID) {
-            studyUID = studyIUID;
+        Builder studyIUID(String val) {
+            studyUID = val;
             return this;
         }
-        Builder accNum(String acc) {
-            accNum = acc;
+        Builder accNum(String val) {
+            accNum = val;
             return this;
         }
         Builder outcome(String val) {

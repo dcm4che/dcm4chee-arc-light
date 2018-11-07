@@ -78,10 +78,11 @@ class DeletionAuditService {
         return auditInfoBuilders.toArray(new AuditInfoBuilder[0]);
     }
 
-    private static AuditInfoBuilder schedulerRejectedAuditInfo(Attributes attr, StoreContext ctx, ArchiveDeviceExtension arcDev) {
+    private static AuditInfoBuilder schedulerRejectedAuditInfo(Attributes attr, StoreContext ctx,
+                                                               ArchiveDeviceExtension arcDev) {
         return new AuditInfoBuilder.Builder()
                 .callingUserID(arcDev.getDevice().getDeviceName())
-                .studyUIDAccNumDate(attr)
+                .studyUIDAccNumDate(attr, arcDev)
                 .pIDAndName(attr, arcDev)
                 .outcome(outcome(ctx))
                 .warning(warning(ctx))
@@ -99,7 +100,7 @@ class DeletionAuditService {
                         : callingAET != null
                         ? callingAET : storeSession.getLocalApplicationEntity().getAETitle())
                 .calledUserID(req != null ? req.getRequestURI() : storeSession.getCalledAET())
-                .studyUIDAccNumDate(attr)
+                .studyUIDAccNumDate(attr, arcDev)
                 .pIDAndName(attr, arcDev)
                 .outcome(outcome(ctx))
                 .warning(warning(ctx))
@@ -130,7 +131,7 @@ class DeletionAuditService {
                         : null)
                 .outcome(rejectionNoteSent.failed() ? rejectionNoteSent.getErrorComment() : null)
                 .warning(codeItem.getString(Tag.CodeMeaning))
-                .studyUIDAccNumDate(attrs)
+                .studyUIDAccNumDate(attrs, arcDev)
                 .pIDAndName(attrs, arcDev)
                 .build();
     }
@@ -170,7 +171,7 @@ class DeletionAuditService {
                 .callingUserID(httpServletRequestInfo.requesterUserID)
                 .callingHost(httpServletRequestInfo.requesterHost)
                 .calledUserID(httpServletRequestInfo.requestURI)
-                .studyUIDAccNumDate(ctx.getStudy().getAttributes())
+                .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
                 .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
                 .outcome(outcome(ctx.getException()))
                 .build();
@@ -179,7 +180,7 @@ class DeletionAuditService {
     private static AuditInfoBuilder schedulerTriggeredPermDeletionAuditInfo(StudyDeleteContext ctx, ArchiveDeviceExtension arcDev) {
         return new AuditInfoBuilder.Builder()
                 .callingUserID(arcDev.getDevice().getDeviceName())
-                .studyUIDAccNumDate(ctx.getStudy().getAttributes())
+                .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
                 .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
                 .outcome(outcome(ctx.getException()))
                 .build();

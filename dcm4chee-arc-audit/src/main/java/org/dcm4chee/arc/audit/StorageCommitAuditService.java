@@ -76,7 +76,7 @@ class StorageCommitAuditService {
                 .callingHost(storageCmtCallingHost(ctx))
                 .calledUserID(storageCmtCalledAET(ctx))
                 .pIDAndName(eventInfo, arcDev)
-                .studyUID(studyIUID(eventInfo, arcDev))
+                .studyIUID(studyIUID(eventInfo, arcDev))
                 .build();
         for (int i = 1; i <= success.size(); i++)
             successAuditInfo[i] = buildRefSopAuditInfo(success.get(i-1));
@@ -103,7 +103,7 @@ class StorageCommitAuditService {
                 .callingHost(storageCmtCallingHost(ctx))
                 .calledUserID(storageCmtCalledAET(ctx))
                 .pIDAndName(eventInfo, arcDev)
-                .studyUID(studyIUID(eventInfo, arcDev))
+                .studyIUID(studyIUID(eventInfo, arcDev))
                 .outcome(failureReasons.stream().collect(Collectors.joining(";")))
                 .build();
 

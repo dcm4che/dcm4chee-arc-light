@@ -101,7 +101,7 @@ class ProcedureRecordAuditService {
                 .callingHost(studyMgtCtx.getRemoteHostName())
                 .callingUserID(msh.getSendingApplicationWithFacility())
                 .calledUserID(msh.getReceivingApplicationWithFacility())
-                .studyUIDAccNumDate(studyMgtCtx.getAttributes())
+                .studyUIDAccNumDate(studyMgtCtx.getAttributes(), arcDev)
                 .pIDAndName(studyMgtCtx.getStudy().getPatient().getAttributes(), arcDev)
                 .outcome(outcome(studyMgtCtx.getException()))
                 .build();
@@ -113,7 +113,7 @@ class ProcedureRecordAuditService {
                 .callingHost(studyMgtCtx.getRemoteHostName())
                 .callingUserID(KeycloakContext.valueOf(request).getUserName())
                 .calledUserID(studyMgtCtx.getHttpRequest().getRequestURI())
-                .studyUIDAccNumDate(studyMgtCtx.getAttributes())
+                .studyUIDAccNumDate(studyMgtCtx.getAttributes(), arcDev)
                 .pIDAndName(studyMgtCtx.getStudy().getPatient().getAttributes(), arcDev)
                 .outcome(outcome(studyMgtCtx.getException()))
                 .build();
@@ -125,7 +125,7 @@ class ProcedureRecordAuditService {
                 .callingHost(procCtx.getRemoteHostName())
                 .callingUserID(as.getCallingAET())
                 .calledUserID(as.getCalledAET())
-                .studyUIDAccNumDate(procCtx.getAttributes())
+                .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
                 .pIDAndName(procCtx.getPatient().getAttributes(), arcDev)
                 .outcome(outcome(procCtx.getException()))
                 .build();
@@ -137,7 +137,7 @@ class ProcedureRecordAuditService {
                 .callingHost(procCtx.getRemoteHostName())
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .calledUserID(req.getRequestURI())
-                .studyUIDAccNumDate(procCtx.getAttributes())
+                .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
                 .pIDAndName(procCtx.getPatient().getAttributes(), arcDev)
                 .outcome(outcome(procCtx.getException()))
                 .build();
@@ -152,7 +152,7 @@ class ProcedureRecordAuditService {
                 .callingHost(hl7ConnEvent.getConnection().getHostname())
                 .callingUserID(msh.getSendingApplicationWithFacility())
                 .calledUserID(msh.getReceivingApplicationWithFacility())
-                .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs())
+                .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs(), arcDev)
                 .patID(pid.getField(3, null), arcDev)
                 .patName(pid.getField(5, null), arcDev)
                 .outcome(outcome(hl7ConnEvent.getException()))

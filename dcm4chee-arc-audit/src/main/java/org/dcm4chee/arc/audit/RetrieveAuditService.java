@@ -109,7 +109,7 @@ class RetrieveAuditService {
         for (InstanceLocations instanceLocation : il) {
             Attributes attrs = instanceLocation.getAttributes();
             AuditInfoBuilder iI = new AuditInfoBuilder.Builder()
-                    .studyUIDAccNumDate(attrs)
+                    .studyUIDAccNumDate(attrs, arcDev)
                     .sopCUID(attrs.getString(Tag.SOPClassUID))
                     .sopIUID(attrs.getString(Tag.SOPInstanceUID))
                     .pIDAndName(attrs, arcDev)
