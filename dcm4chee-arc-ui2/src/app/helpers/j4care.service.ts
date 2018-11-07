@@ -565,4 +565,84 @@ export class j4care {
         });
         return table;
     };
+    /*
+    * Input:
+    * date:Date - javascript date
+    * format:string - format as string
+    * Output:
+    * formatted date as string
+    * defined format elements:
+    * yyyy - 4 digit year
+    * MM - month
+    * dd - date
+    * HH - Hour
+    * mm - minute
+    * ss - second
+    * SSS - milliseconds
+    * */
+    static formatDate(date:Date, format:string):string{
+        return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
+            if(g2)
+                return `${date.getFullYear()}`;
+            if(g3)
+                return this.setZeroPrefix(`${date.getMonth() + 1}`);
+            if(g4)
+                return this.setZeroPrefix(`${date.getDate()}`);
+            if(g5)
+                return this.setZeroPrefix(`${date.getHours()}`);
+            if(g6)
+                return this.setZeroPrefix(`${date.getMinutes()}`);
+            if(g7)
+                return this.setZeroPrefix(`${date.getSeconds()}`);
+            if(g8)
+                return `${date.getMilliseconds()}`;
+        });
+    }
+    /*
+    *Adding 0 as prefix if the input is on  digit string for Example: 1 => 01
+    */
+    static setZeroPrefix(str){
+        try{
+            if(typeof str === "number"){
+                str = str.toString();
+            }
+            return str.replace(/(\d*)(\d{1})/g,(g1, g2, g3)=>{
+                if(!g2){
+                    return `0${g3}`;
+                }else{
+                    return g1;
+                }
+            });
+        }catch (e) {
+            console.groupCollapsed("j4care setZeroPrefix(str)");
+            console.error(e);
+            console.groupEnd();
+            return str;
+        }
+    }
+    /*
+    * Get difference of two date:Date, secondDate > firstDate return in the format HH:mm:ss:SSS
+    * */
+    static diff(firstDate:Date, secondDate:Date):string{
+        try{
+            let diff  = secondDate.getTime()  - firstDate.getTime();
+            if(diff > -1){
+                return `${
+                    this.setZeroPrefix(parseInt(((diff/(1000*60*60))%24).toString()))
+                }:${
+                    this.setZeroPrefix(parseInt(((diff/(1000*60))%60).toString()))
+                }:${
+                    this.setZeroPrefix(parseInt(((diff/1000)%60).toString()))
+                }.${
+                    parseInt((diff % 1000).toString())
+                }`;
+            }
+            return '';
+        }catch (e) {
+            console.groupCollapsed("j4care diff(date, date2)");
+            console.error(e);
+            console.groupEnd();
+            return undefined;
+        }
+    }
 }
