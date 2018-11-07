@@ -263,7 +263,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             String[] studyUIDs, String[] seriesUIDs, String[] objectUIDs) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
-        ctx.setHttpRequest(request);
+        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
         ctx.setStudyInstanceUIDs(studyUIDs);
         if (studyUIDs.length == 1) {
             ctx.setSeriesInstanceUIDs(seriesUIDs);
