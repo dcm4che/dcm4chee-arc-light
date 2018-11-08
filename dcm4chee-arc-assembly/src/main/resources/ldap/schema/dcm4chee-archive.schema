@@ -1503,6 +1503,24 @@ attributetype ( 1.2.40.0.13.1.15.110.3.253 NAME 'dcmPatientVerificationAdjustIss
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.254 NAME 'dcmPurgeQueueMessageFailedDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which failed queue messages are purged. If absent, there is no deletion for that particular queue'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+
+attributetype ( 1.2.40.0.13.1.15.110.3.255 NAME 'dcmPurgeQueueMessageWarningDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which warning queue messages are purged. If absent, there is no deletion for that particular queue'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+
+attributetype ( 1.2.40.0.13.1.15.110.3.256 NAME 'dcmPurgeQueueMessageCanceledDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which canceled queue messages are purged. If absent, there is no deletion for that particular queue'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1821,6 +1839,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmRetryDelayMultiplier $
     dcmRetryOnWarning $
     dcmPurgeQueueMessageCompletedDelay $
+    dcmPurgeQueueMessageFailedDelay $
+    dcmPurgeQueueMessageWarningDelay $
+    dcmPurgeQueueMessageCanceledDelay $
     dcmMaxQueueSize ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'

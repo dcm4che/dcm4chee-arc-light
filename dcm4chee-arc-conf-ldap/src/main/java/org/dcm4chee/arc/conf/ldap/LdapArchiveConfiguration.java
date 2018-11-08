@@ -1794,7 +1794,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxRetryDelay", descriptor.getMaxRetryDelay(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryOnWarning", descriptor.isRetryOnWarning(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCompletedDelay", descriptor.getPurgeQueueMessageCompletedDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCompletedDelay",
+                descriptor.getPurgeQueueMessageCompletedDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageFailedDelay",
+                descriptor.getPurgeQueueMessageFailedDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageWarningDelay",
+                descriptor.getPurgeQueueMessageWarningDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCanceledDelay",
+                descriptor.getPurgeQueueMessageCanceledDelay(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxQueueSize", descriptor.getMaxQueueSize(), 0);
         return attrs;
     }
@@ -1813,7 +1820,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
                 desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 100));
                 desc.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
-                desc.setPurgeQueueMessageCompletedDelay(toDuration(attrs.get("dcmPurgeQueueMessageCompletedDelay"), null));
+                desc.setPurgeQueueMessageCompletedDelay(
+                        toDuration(attrs.get("dcmPurgeQueueMessageCompletedDelay"), null));
+                desc.setPurgeQueueMessageFailedDelay(
+                        toDuration(attrs.get("dcmPurgeQueueMessageFailedDelay"), null));
+                desc.setPurgeQueueMessageWarningDelay(
+                        toDuration(attrs.get("dcmPurgeQueueMessageWarningDelay"), null));
+                desc.setPurgeQueueMessageCanceledDelay(
+                        toDuration(attrs.get("dcmPurgeQueueMessageCanceledDelay"), null));
                 desc.setMaxQueueSize(LdapUtils.intValue(attrs.get("dcmMaxQueueSize"), 0));
                 arcdev.addQueueDescriptor(desc);
             }
@@ -1867,6 +1881,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetryOnWarning", prev.isRetryOnWarning(), desc.isRetryOnWarning(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCompletedDelay",
                 prev.getPurgeQueueMessageCompletedDelay(), desc.getPurgeQueueMessageCompletedDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageFailedDelay",
+                prev.getPurgeQueueMessageFailedDelay(), desc.getPurgeQueueMessageFailedDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageWarningDelay",
+                prev.getPurgeQueueMessageWarningDelay(), desc.getPurgeQueueMessageWarningDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCanceledDelay",
+                prev.getPurgeQueueMessageCanceledDelay(), desc.getPurgeQueueMessageCanceledDelay(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxQueueSize", prev.getMaxQueueSize(), desc.getMaxQueueSize(), 0);
         return mods;
     }

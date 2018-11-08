@@ -197,7 +197,7 @@ class ArchiveDeviceFactory {
             newHL7OrderSPSStatus("COMPLETED", "XO_CM")
     };
 
-    static QueueDescriptor newQueueDescriptor(String name, String description) {
+    private static QueueDescriptor newQueueDescriptor(String name, String description) {
         QueueDescriptor desc = new QueueDescriptor(name);
         desc.setDescription(description);
         desc.setJndiName("jms/queue/" + name);
@@ -209,14 +209,14 @@ class ArchiveDeviceFactory {
         return desc;
     }
 
-    static HL7OrderSPSStatus newHL7OrderSPSStatus(String spsStatus, String... orderStatuses) {
+    private static HL7OrderSPSStatus newHL7OrderSPSStatus(String spsStatus, String... orderStatuses) {
         HL7OrderSPSStatus hl7OrderSPSStatus = new HL7OrderSPSStatus();
         hl7OrderSPSStatus.setSPSStatus(SPSStatus.valueOf(spsStatus));
         hl7OrderSPSStatus.setOrderControlStatusCodes(orderStatuses);
         return hl7OrderSPSStatus;
     }
 
-    static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
+    private static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
         IDGenerator gen = new IDGenerator();
         gen.setName(name);
         gen.setFormat(format);

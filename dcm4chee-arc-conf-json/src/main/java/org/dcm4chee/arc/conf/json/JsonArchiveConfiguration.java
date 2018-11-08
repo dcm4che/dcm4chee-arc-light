@@ -396,7 +396,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMaxRetryDelay", qd.getMaxRetryDelay(), null);
             writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
             writer.writeNotDef("dcmRetryOnWarning", qd.isRetryOnWarning(), false);
-            writer.writeNotNullOrDef("dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay(), null);
+            writer.writeNotNullOrDef(
+                    "dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay(), null);
+            writer.writeNotNullOrDef(
+                    "dcmPurgeQueueMessageFailedDelay", qd.getPurgeQueueMessageFailedDelay(), null);
+            writer.writeNotNullOrDef(
+                    "dcmPurgeQueueMessageWarningDelay", qd.getPurgeQueueMessageWarningDelay(), null);
+            writer.writeNotNullOrDef(
+                    "dcmPurgeQueueMessageCanceledDelay", qd.getPurgeQueueMessageCanceledDelay(), null);
             writer.writeNotDef("dcmMaxQueueSize", qd.getMaxQueueSize(), 0);
             writer.writeEnd();
         }
@@ -1530,6 +1537,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmPurgeQueueMessageCompletedDelay":
                         qd.setPurgeQueueMessageCompletedDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmPurgeQueueMessageFailedDelay":
+                        qd.setPurgeQueueMessageFailedDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmPurgeQueueMessageWarningDelay":
+                        qd.setPurgeQueueMessageWarningDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmPurgeQueueMessageCanceledDelay":
+                        qd.setPurgeQueueMessageCanceledDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmMaxQueueSize":
                         qd.setMaxQueueSize(reader.intValue());
