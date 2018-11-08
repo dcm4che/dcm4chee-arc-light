@@ -8,7 +8,6 @@
     "dcmQueueName",
     "dcmExportPriority",
     "dcmInstanceAvailability",
-    "dcmExportPriority",
     "dicomAETitle"
   ],
   "properties": {

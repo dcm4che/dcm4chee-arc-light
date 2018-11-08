@@ -38,7 +38,8 @@
                         <div class="exporter_block">
 
                             <h4 (click)="showexporter = !showexporter">Exporter</h4>
-                            <div class="block" *ngIf="showexporter === true" >
+                            <div class="block"  >
+                                <!--<dynamic-form *ngIf="showexporter === true && formObj" [formelements]="formObj" [dontShowSearch]="true" [dontGroup]="true" (submitFunction)="submitFunction($event)"></dynamic-form>-->
                                 <div class="inputblock">
                                     <label class="title">Exporter ID</label>
                                     <input type="text" [(ngModel)]="dcmExporter.dcmExporterID">
@@ -93,6 +94,8 @@
                             </div>
                         </div>
                     </div>
+<!--                    <h4 (click)="showexporter = !showexporter">Exporter</h4>
+                    <dynamic-form *ngIf="showexporter === true && formObj" [formelements]="formObj" [dontShowSearch]="true" [dontGroup]="true" (submitFunction)="submitFunction($event)"></dynamic-form>-->
                 </div>
             </div>
             <div class="dialogbuttons">

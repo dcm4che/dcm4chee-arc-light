@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Http} from '@angular/http';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Injectable()
 export class CreateExporterService {
@@ -14,4 +15,6 @@ export class CreateExporterService {
     getQueue(){
         return this.$http.get('../queue').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
+    getExporterDescriptorSchema = () => this.$http.get('./assets/schema/exporter.schema.json').map(res => j4care.redirectOnAuthResponse(res));
+
 }
