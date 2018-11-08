@@ -459,7 +459,7 @@
       }
     },
     "dcmExportPriorsRule": {
-      "title": "Prefetch Rule",
+      "title": "Export Priors Rule",
       "description": "Export Priors Rules applied to DICOM objects received by this AE. Supplements Export Priors Rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
