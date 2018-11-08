@@ -154,7 +154,7 @@ public class ExportPriorsScheduler {
             if (rule.getEntitySelectors().length == 0) {
                 Attributes queryKeys = new Attributes(0);
                 exporterByAET.forEach((aet, exporters) ->
-                        export(pid, null, batchID, queryKeys, -1,
+                        export(pid, siuid, batchID, queryKeys, -1,
                                 arcdev, aet, exporters, notExportedAfter));
             } else {
                 Stream.of(rule.getEntitySelectors())
