@@ -233,7 +233,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
-    private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
+    private final ArrayList<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
+    private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
@@ -836,19 +837,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.wadoSpoolDirectory = Objects.requireNonNull(wadoSpoolDirectory, "WadoSpoolDirectory");
     }
 
-    public String getHl7LogFilePattern() {
+    public String getHL7LogFilePattern() {
         return hl7LogFilePattern;
     }
 
-    public void setHl7LogFilePattern(String hl7LogFilePattern) {
+    public void setHL7LogFilePattern(String hl7LogFilePattern) {
         this.hl7LogFilePattern = hl7LogFilePattern;
     }
 
-    public String getHl7ErrorLogFilePattern() {
+    public String getHL7ErrorLogFilePattern() {
         return hl7ErrorLogFilePattern;
     }
 
-    public void setHl7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
+    public void setHL7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
         this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
     }
 
@@ -1076,82 +1077,82 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                                 : request.getRemoteHost()));
     }
 
-    public String getHl7PSUSendingApplication() {
+    public String getHL7PSUSendingApplication() {
         return hl7PSUSendingApplication;
     }
 
-    public void setHl7PSUSendingApplication(String hl7PSUSendingApplication) {
+    public void setHL7PSUSendingApplication(String hl7PSUSendingApplication) {
         this.hl7PSUSendingApplication = hl7PSUSendingApplication;
     }
 
-    public Duration getHl7PSUTaskPollingInterval() {
+    public Duration getHL7PSUTaskPollingInterval() {
         return hl7PSUTaskPollingInterval;
     }
 
-    public void setHl7PSUTaskPollingInterval(Duration hl7PSUTaskPollingInterval) {
+    public void setHL7PSUTaskPollingInterval(Duration hl7PSUTaskPollingInterval) {
         this.hl7PSUTaskPollingInterval = hl7PSUTaskPollingInterval;
     }
 
-    public String[] getHl7PSUReceivingApplications() {
+    public String[] getHL7PSUReceivingApplications() {
         return hl7PSUReceivingApplications;
     }
 
-    public void setHl7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
+    public void setHL7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
         this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
     }
 
-    public Duration getHl7PSUDelay() {
+    public Duration getHL7PSUDelay() {
         return hl7PSUDelay;
     }
 
-    public void setHl7PSUDelay(Duration hl7PSUDelay) {
+    public void setHL7PSUDelay(Duration hl7PSUDelay) {
         this.hl7PSUDelay = hl7PSUDelay;
     }
 
-    public Duration getHl7PSUTimeout() {
+    public Duration getHL7PSUTimeout() {
         return hl7PSUTimeout;
     }
 
-    public void setHl7PSUTimeout(Duration hl7PSUTimeout) {
+    public void setHL7PSUTimeout(Duration hl7PSUTimeout) {
         this.hl7PSUTimeout = hl7PSUTimeout;
     }
 
-    public boolean isHl7PSUOnTimeout() {
+    public boolean isHL7PSUOnTimeout() {
         return hl7PSUOnTimeout;
     }
 
-    public void setHl7PSUOnTimeout(boolean hl7PSUOnTimeout) {
+    public void setHL7PSUOnTimeout(boolean hl7PSUOnTimeout) {
         this.hl7PSUOnTimeout = hl7PSUOnTimeout;
     }
 
-    public int getHl7PSUTaskFetchSize() {
+    public int getHL7PSUTaskFetchSize() {
         return hl7PSUTaskFetchSize;
     }
 
-    public void setHl7PSUTaskFetchSize(int hl7PSUTaskFetchSize) {
+    public void setHL7PSUTaskFetchSize(int hl7PSUTaskFetchSize) {
         this.hl7PSUTaskFetchSize = hl7PSUTaskFetchSize;
     }
 
-    public boolean isHl7PSUMWL() {
+    public boolean isHL7PSUMWL() {
         return hl7PSUMWL;
     }
 
-    public void setHl7PSUMWL(boolean hl7PSUMWL) {
+    public void setHL7PSUMWL(boolean hl7PSUMWL) {
         this.hl7PSUMWL = hl7PSUMWL;
     }
 
-    public String[] getHl7NoPatientCreateMessageTypes() {
+    public String[] getHL7NoPatientCreateMessageTypes() {
         return hl7NoPatientCreateMessageTypes.toArray(
                 new String[hl7NoPatientCreateMessageTypes.size()]);
     }
 
-    public void setHl7NoPatientCreateMessageTypes(String... messageTypes) {
+    public void setHL7NoPatientCreateMessageTypes(String... messageTypes) {
         hl7NoPatientCreateMessageTypes.clear();
         for (String messageType : messageTypes)
             hl7NoPatientCreateMessageTypes.add(messageType);
     }
 
-    public boolean isHl7NoPatientCreateMessageType(String messageType) {
+    public boolean isHL7NoPatientCreateMessageType(String messageType) {
         return hl7NoPatientCreateMessageTypes.contains(messageType);
     }
 
@@ -1442,23 +1443,39 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exportRules;
     }
 
-    public void removePrefetchRule(PrefetchRule rule) {
-        prefetchRules.remove(rule);
+    public void removeExportPriorsRule(ExportPriorsRule rule) {
+        exportPriorsRules.remove(rule);
     }
 
-    public void clearPrefetchRules() {
-        prefetchRules.clear();
+    public void clearExportPriorsRules() {
+        exportPriorsRules.clear();
     }
 
-    public void addPrefetchRule(PrefetchRule rule) {
-        prefetchRules.add(rule);
+    public void addExportPriorsRule(ExportPriorsRule rule) {
+        exportPriorsRules.add(rule);
     }
 
-    public Collection<PrefetchRule> getPrefetchRules() {
-        return prefetchRules;
+    public Collection<ExportPriorsRule> getExportPriorsRules() {
+        return exportPriorsRules;
     }
 
-    public void removeHL7PrefetchRule(PrefetchRule rule) {
+    public void removeHL7ExportRule(HL7ExportRule rule) {
+        hl7ExportRules.remove(rule);
+    }
+
+    public void clearHL7ExportRules() {
+        hl7ExportRules.clear();
+    }
+
+    public void addHL7ExportRule(HL7ExportRule rule) {
+        hl7ExportRules.add(rule);
+    }
+
+    public Collection<HL7ExportRule> getHL7ExportRules() {
+        return hl7ExportRules;
+    }
+
+    public void removeHL7PrefetchRule(HL7PrefetchRule rule) {
         hl7PrefetchRules.remove(rule);
     }
 
@@ -1723,11 +1740,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.linkMWLEntryUpdatePolicy = linkMWLEntryUpdatePolicy;
     }
 
-    public boolean isHl7TrackChangedPatientID() {
+    public boolean isHL7TrackChangedPatientID() {
         return hl7TrackChangedPatientID;
     }
 
-    public void setHl7TrackChangedPatientID(boolean hl7TrackChangedPatientID) {
+    public void setHL7TrackChangedPatientID(boolean hl7TrackChangedPatientID) {
         this.hl7TrackChangedPatientID = hl7TrackChangedPatientID;
     }
 
@@ -1755,35 +1772,35 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
     }
 
-    public String[] getHl7ADTReceivingApplication() {
+    public String[] getHL7ADTReceivingApplication() {
         return hl7ADTReceivingApplication;
     }
 
-    public void setHl7ADTReceivingApplication(String[] hl7ADTReceivingApplication) {
+    public void setHL7ADTReceivingApplication(String[] hl7ADTReceivingApplication) {
         this.hl7ADTReceivingApplication = hl7ADTReceivingApplication;
     }
 
-    public String getHl7ADTSendingApplication() {
+    public String getHL7ADTSendingApplication() {
         return hl7ADTSendingApplication;
     }
 
-    public void setHl7ADTSendingApplication(String hl7ADTSendingApplication) {
+    public void setHL7ADTSendingApplication(String hl7ADTSendingApplication) {
         this.hl7ADTSendingApplication = hl7ADTSendingApplication;
     }
 
-    public ScheduledProtocolCodeInOrder getHl7ScheduledProtocolCodeInOrder() {
+    public ScheduledProtocolCodeInOrder getHL7ScheduledProtocolCodeInOrder() {
         return hl7ScheduledProtocolCodeInOrder;
     }
 
-    public void setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
+    public void setHL7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
         this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
     }
 
-    public ScheduledStationAETInOrder getHl7ScheduledStationAETInOrder() {
+    public ScheduledStationAETInOrder getHL7ScheduledStationAETInOrder() {
         return hl7ScheduledStationAETInOrder;
     }
 
-    public void setHl7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
+    public void setHL7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
         this.hl7ScheduledStationAETInOrder = hl7ScheduledStationAETInOrder;
     }
 
@@ -1811,11 +1828,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return StringUtils.maskNull(auditUnknownPatientID, "<none>");
     }
 
-    public boolean isHl7UseNullValue() {
+    public boolean isHL7UseNullValue() {
         return hl7UseNullValue;
     }
 
-    public void setHl7UseNullValue(boolean hl7UseNullValue) {
+    public void setHL7UseNullValue(boolean hl7UseNullValue) {
         this.hl7UseNullValue = hl7UseNullValue;
     }
 
@@ -2246,8 +2263,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
-        prefetchRules.clear();
-        prefetchRules.addAll(arcdev.prefetchRules);
+        exportPriorsRules.clear();
+        exportPriorsRules.addAll(arcdev.exportPriorsRules);
+        hl7ExportRules.clear();
+        hl7ExportRules.addAll(arcdev.hl7ExportRules);
         hl7PrefetchRules.clear();
         hl7PrefetchRules.addAll(arcdev.hl7PrefetchRules);
         rsForwardRules.clear();

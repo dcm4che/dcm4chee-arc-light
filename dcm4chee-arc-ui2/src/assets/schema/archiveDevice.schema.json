@@ -1168,13 +1168,13 @@
         "$ref": "exportRule.schema.json"
       }
     },
-    "dcmPrefetchRule": {
-      "title": "DICOM Prefetch Rule",
-      "description": "Prefetch Rules applied to DICOM objects received by any AE. May be supplemented by configured Prefetch Rules for particular Archive Network AEs.",
+    "dcmExportPriorsRule": {
+      "title": "Export Priors Rule",
+      "description": "Export Priors Rules applied to DICOM objects received by any AE. May be supplemented by configured Export Priors Rules for particular Archive Network AEs.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
-        "$ref": "prefetchRule.schema.json"
+        "$ref": "exportPriorsRule.schema.json"
       }
     },
     "dcmRSForwardRule": {
@@ -1258,9 +1258,18 @@
         "$ref": "hl7ForwardRule.schema.json"
       }
     },
+    "hl7ExportRule": {
+      "title": "HL7 Export Rule",
+      "description": "Export Rules applied to HL7 messages received by any HL7 Application. May be supplemented by configured HL7 Export Rules for particular HL7 Application.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ExportRule.schema.json"
+      }
+    },
     "hl7PrefetchRule": {
       "title": "HL7 Prefetch Rule",
-      "description": "Prefetch Rules applied to HL7 messages received by any HL7 Application. May be supplemented by configured Prefetch Rules for particular HL7 Application.",
+      "description": "HL7 Prefetch Rules applied to HL7 messages received by any HL7 Application. May be supplemented by configured HL7 Prefetch Rules for particular HL7 Application.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {

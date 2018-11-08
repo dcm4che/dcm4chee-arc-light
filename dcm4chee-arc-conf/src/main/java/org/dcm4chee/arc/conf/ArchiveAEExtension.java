@@ -124,7 +124,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
-    private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
+    private final ArrayList<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -774,20 +774,20 @@ public class ArchiveAEExtension extends AEExtension {
         return exportRules;
     }
 
-    public void removePrefetchRule(PrefetchRule rule) {
-        prefetchRules.remove(rule);
+    public void removePrefetchRule(ExportPriorsRule rule) {
+        exportPriorsRules.remove(rule);
     }
 
     public void clearPrefetchRules() {
-        prefetchRules.clear();
+        exportPriorsRules.clear();
     }
 
-    public void addPrefetchRule(PrefetchRule rule) {
-        prefetchRules.add(rule);
+    public void addPrefetchRule(ExportPriorsRule rule) {
+        exportPriorsRules.add(rule);
     }
 
-    public Collection<PrefetchRule> getPrefetchRules() {
-        return prefetchRules;
+    public Collection<ExportPriorsRule> getExportPriorsRules() {
+        return exportPriorsRules;
     }
 
     public void removeRSForwardRule(RSForwardRule rule) {
@@ -910,88 +910,88 @@ public class ArchiveAEExtension extends AEExtension {
         return retrieveAETitles.length > 0 ? retrieveAETitles : getArchiveDeviceExtension().getRetrieveAETitles();
     }
 
-    public String getHl7PSUSendingApplication() {
+    public String getHL7PSUSendingApplication() {
         return hl7PSUSendingApplication;
     }
 
-    public void setHl7PSUSendingApplication(String hl7PSUSendingApplication) {
+    public void setHL7PSUSendingApplication(String hl7PSUSendingApplication) {
         this.hl7PSUSendingApplication = hl7PSUSendingApplication;
     }
 
     public String hl7PSUSendingApplication() {
         return hl7PSUSendingApplication != null
                 ? hl7PSUSendingApplication
-                : getArchiveDeviceExtension().getHl7PSUSendingApplication();
+                : getArchiveDeviceExtension().getHL7PSUSendingApplication();
     }
 
-    public String[] getHl7PSUReceivingApplications() {
+    public String[] getHL7PSUReceivingApplications() {
         return hl7PSUReceivingApplications;
     }
 
-    public void setHl7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
+    public void setHL7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
         this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
     }
 
     public String[] hl7PSUReceivingApplications() {
         return hl7PSUReceivingApplications.length > 0
                 ? hl7PSUReceivingApplications
-                : getArchiveDeviceExtension().getHl7PSUReceivingApplications();
+                : getArchiveDeviceExtension().getHL7PSUReceivingApplications();
     }
 
-    public Duration getHl7PSUDelay() {
+    public Duration getHL7PSUDelay() {
         return hl7PSUDelay;
     }
 
-    public void setHl7PSUDelay(Duration hl7PSUDelay) {
+    public void setHL7PSUDelay(Duration hl7PSUDelay) {
         this.hl7PSUDelay = hl7PSUDelay;
     }
 
     public Duration hl7PSUDelay() {
         return hl7PSUDelay != null
                 ? hl7PSUDelay
-                : getArchiveDeviceExtension().getHl7PSUDelay();
+                : getArchiveDeviceExtension().getHL7PSUDelay();
     }
 
-    public Duration getHl7PSUTimeout() {
+    public Duration getHL7PSUTimeout() {
         return hl7PSUTimeout;
     }
 
-    public void setHl7PSUTimeout(Duration hl7PSUTimeout) {
+    public void setHL7PSUTimeout(Duration hl7PSUTimeout) {
         this.hl7PSUTimeout = hl7PSUTimeout;
     }
 
     public Duration hl7PSUTimeout() {
         return hl7PSUTimeout != null
                 ? hl7PSUTimeout
-                : getArchiveDeviceExtension().getHl7PSUTimeout();
+                : getArchiveDeviceExtension().getHL7PSUTimeout();
     }
 
-    public Boolean getHl7PSUOnTimeout() {
+    public Boolean getHL7PSUOnTimeout() {
         return hl7PSUOnTimeout;
     }
 
-    public void setHl7PSUOnTimeout(Boolean hl7PSUOnTimeout) {
+    public void setHL7PSUOnTimeout(Boolean hl7PSUOnTimeout) {
         this.hl7PSUOnTimeout = hl7PSUOnTimeout;
     }
 
     public boolean hl7PSUOnTimeout() {
         return hl7PSUOnTimeout != null
                 ? hl7PSUOnTimeout
-                : getArchiveDeviceExtension().isHl7PSUOnTimeout();
+                : getArchiveDeviceExtension().isHL7PSUOnTimeout();
     }
 
-    public Boolean getHl7PSUMWL() {
+    public Boolean getHL7PSUMWL() {
         return hl7PSUMWL;
     }
 
-    public void setHl7PSUMWL(Boolean hl7PSUMWL) {
+    public void setHL7PSUMWL(Boolean hl7PSUMWL) {
         this.hl7PSUMWL = hl7PSUMWL;
     }
 
     public boolean hl7PSUMWL() {
         return hl7PSUMWL != null
                 ? hl7PSUMWL
-                : getArchiveDeviceExtension().isHl7PSUMWL();
+                : getArchiveDeviceExtension().isHL7PSUMWL();
     }
 
     public boolean hl7PSUOnStudy() {
@@ -1196,8 +1196,8 @@ public class ArchiveAEExtension extends AEExtension {
         acceptedUserRoles.addAll(aeExt.acceptedUserRoles);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
-        prefetchRules.clear();
-        prefetchRules.addAll(aeExt.prefetchRules);
+        exportPriorsRules.clear();
+        exportPriorsRules.addAll(aeExt.exportPriorsRules);
         rsForwardRules.clear();
         rsForwardRules.addAll(aeExt.rsForwardRules);
         compressionRules.clear();
@@ -1229,8 +1229,8 @@ public class ArchiveAEExtension extends AEExtension {
         return result;
     }
 
-    public Stream<PrefetchRule> prefetchRules() {
-        return Stream.concat(prefetchRules.stream(), getArchiveDeviceExtension().getPrefetchRules().stream());
+    public Stream<ExportPriorsRule> prefetchRules() {
+        return Stream.concat(exportPriorsRules.stream(), getArchiveDeviceExtension().getExportPriorsRules().stream());
     }
 
     public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation, HttpServletRequest request) {

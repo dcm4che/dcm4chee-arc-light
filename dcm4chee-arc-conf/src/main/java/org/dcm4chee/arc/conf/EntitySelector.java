@@ -41,26 +41,28 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.DateRange;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.temporal.TemporalAmount;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2018
  */
 public class EntitySelector {
+    private static final Logger LOG = LoggerFactory.getLogger(EntitySelector.class);
     private static final long MILLIS_PER_DAY = 24 * 3600_000;
+
     private final String value;
     private final Attributes keys = new Attributes();
+    private final Attributes dynamicKeys = new Attributes();
     private final int numberOfPriors;
 
     public static EntitySelector[] valuesOf(String... ss) {
@@ -82,6 +84,7 @@ public class EntitySelector {
 
     private int parseKeys(String queryParams) {
         AttributesBuilder builder = new AttributesBuilder(keys);
+        AttributesBuilder dynamicBuilder = new AttributesBuilder(dynamicKeys);
         int priors = -1;
         for (String queryParam : StringUtils.split(queryParams, '&')) {
             String[] keyValue = StringUtils.split(queryParam, '=');
@@ -98,6 +101,8 @@ public class EntitySelector {
 
                     keys.setDateRange(Tag.StudyDate, VR.DA,
                             new DateRange(age2Date(studyAge[1]), age2Date(studyAge[0])));
+                } else if (keyValue[1].startsWith("$")) {
+                    dynamicBuilder.setString(TagUtils.parseTagPath(keyValue[0]), keyValue[1].substring(1));
                 } else {
                     builder.setString(TagUtils.parseTagPath(keyValue[0]), keyValue[1]);
                 }
@@ -128,8 +133,76 @@ public class EntitySelector {
         throw new IllegalArgumentException(age);
     }
 
-    public Attributes getQueryKeys() {
-        return keys;
+    public Attributes getQueryKeys(HL7Fields hl7Fields) {
+        if (dynamicKeys.isEmpty())
+            return keys;
+
+        Attributes queryKeys = new Attributes(keys);
+        try {
+            dynamicKeys.accept(new Attributes.ItemPointerVisitor() {
+                    @Override
+                    public boolean visit(Attributes item, int tag, VR vr, Object value) {
+                        return addDynamicKey(queryKeys, itemPointers, tag, vr,
+                                hl7Fields.get(item.getString(tag), null));
+                    }
+                 },
+                    true);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return queryKeys;
+    }
+
+    public Attributes getQueryKeys(Attributes attrs) {
+        if (dynamicKeys.isEmpty())
+            return keys;
+
+        Attributes queryKeys = new Attributes(keys);
+        try {
+            dynamicKeys.accept(new Attributes.ItemPointerVisitor() {
+                    @Override
+                    public boolean visit(Attributes item, int tag, VR vr, Object value) {
+                       return addDynamicKey(queryKeys, itemPointers, tag, vr,
+                               valueFrom(attrs, item.getString(tag)));
+                    }
+                },
+                    true);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return queryKeys;
+    }
+
+    private static boolean addDynamicKey(
+            Attributes queryKeys, List<ItemPointer> itemPointers, int tag, VR vr, String value) {
+        if (value == null)
+            return true;
+
+        Attributes item = queryKeys;
+        for (ItemPointer itemPointer : itemPointers) {
+            Sequence sq = item.getSequence(itemPointer.sequenceTag);
+            if (sq == null)
+                sq = item.newSequence(itemPointer.sequenceTag, 1);
+            if (sq.isEmpty())
+                sq.add(new Attributes());
+            item = sq.get(0);
+        }
+        item.setString(tag, vr, value);
+        return true;
+    }
+
+    private static String valueFrom(Attributes src, String tagPathStr) {
+        int[] tagPath = TagUtils.parseTagPath(tagPathStr);
+        int last = tagPath.length - 1;
+        for (int i = 0; i < last; i++) {
+            if ((src = src.getNestedDataset(tagPath[i])) == null);
+                return null;
+        }
+        return src.getString(tagPath[last]);
     }
 
     public int getNumberOfPriors() {

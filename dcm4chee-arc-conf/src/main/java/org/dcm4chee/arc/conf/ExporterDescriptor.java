@@ -211,6 +211,7 @@ public class ExporterDescriptor {
                 ", exportURI=" + exportURI +
                 ", priority=" + priority +
                 ", queueName=" + queueName +
+                ", aeTitle=" + aeTitle +
                 ", ianDests=" + Arrays.toString(ianDestinations) +
                 ", retrieveAETs=" + Arrays.toString(retrieveAETitles) +
                 ", retrieveLocationUID=" + retrieveLocationUID +

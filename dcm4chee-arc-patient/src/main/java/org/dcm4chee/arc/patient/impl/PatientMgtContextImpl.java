@@ -154,7 +154,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7app.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        return arcHL7App != null && arcHL7App.isHl7NoPatientCreateMessageType(msg.msh().getMessageType());
+        return arcHL7App != null && arcHL7App.isHL7NoPatientCreateMessageType(msg.msh().getMessageType());
     }
 
     @Override

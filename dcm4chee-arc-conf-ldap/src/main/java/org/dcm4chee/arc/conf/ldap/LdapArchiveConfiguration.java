@@ -119,8 +119,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OutgoingPatientUpdateTemplateURI", ext.getOutgoingPatientUpdateTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern", ext.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryFetchSize", ext.getQueryFetchSize(), 100);
@@ -199,14 +199,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiImagingDocumentSourceAETitle", ext.getXDSiImagingDocumentSourceAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRemapRetrieveURL", ext.getRemapRetrieveURL(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmValidateCallingAEHostname", ext.isValidateCallingAEHostname(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHl7PSUReceivingApplications());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHl7PSUDelay(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.isHl7PSUOnTimeout(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTaskPollingInterval", ext.getHl7PSUTaskPollingInterval(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUTaskFetchSize", ext.getHl7PSUTaskFetchSize(), 100);
-        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUMWL", ext.isHl7PSUMWL(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication", ext.getHL7PSUSendingApplication(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHL7PSUReceivingApplications());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHL7PSUDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHL7PSUTimeout(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.isHL7PSUOnTimeout(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTaskPollingInterval", ext.getHL7PSUTaskPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUTaskFetchSize", ext.getHL7PSUTaskFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUMWL", ext.isHL7PSUMWL(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL(), null);
@@ -225,21 +225,21 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmStorageVerificationPollingInterval", ext.getStorageVerificationPollingInterval(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStorageVerificationSchedule", ext.getStorageVerificationSchedules());
         LdapUtils.storeNotDef(ldapObj, attrs,"dcmStorageVerificationFetchSize", ext.getStorageVerificationFetchSize(), 100);
-        LdapUtils.storeNotDef(ldapObj, attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7TrackChangedPatientID", ext.isHL7TrackChangedPatientID(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ADTSendingApplication", ext.getHl7ADTSendingApplication(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ADTReceivingApplication", ext.getHl7ADTReceivingApplication());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ADTSendingApplication", ext.getHL7ADTSendingApplication(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ADTReceivingApplication", ext.getHL7ADTReceivingApplication());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledProtocolCodeInOrder",
-                ext.getHl7ScheduledProtocolCodeInOrder(), ScheduledProtocolCodeInOrder.OBR_4_4);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
+                ext.getHL7ScheduledProtocolCodeInOrder(), ScheduledProtocolCodeInOrder.OBR_4_4);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownStudyInstanceUID",
                 ext.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownPatientID",
                 ext.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditSoftwareConfigurationVerbose", ext.isAuditSoftwareConfigurationVerbose(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "hl7UseNullValue", ext.isHl7UseNullValue(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7UseNullValue", ext.isHL7UseNullValue(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueueTasksFetchSize", ext.getQueueTasksFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteStorageAET",
                 ext.getRejectionNoteStorageAET(), null);
@@ -317,8 +317,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
         ext.setOutgoingPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7OutgoingPatientUpdateTemplateURI"), null));
-        ext.setHl7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
-        ext.setHl7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
+        ext.setHL7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
+        ext.setHL7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
         ext.setQueryFetchSize(LdapUtils.intValue(attrs.get("dcmQueryFetchSize"), 100));
@@ -394,14 +394,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setXDSiImagingDocumentSourceAETitle(LdapUtils.stringValue(attrs.get("dcmXDSiImagingDocumentSourceAETitle"), null));
         ext.setRemapRetrieveURL(LdapUtils.stringValue(attrs.get("dcmRemapRetrieveURL"), null));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), false));
-        ext.setHl7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
-        ext.setHl7PSUReceivingApplications(LdapUtils.stringArray(attrs.get("hl7PSUReceivingApplication")));
-        ext.setHl7PSUDelay(toDuration(attrs.get("hl7PSUDelay"), null));
-        ext.setHl7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
-        ext.setHl7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), false));
-        ext.setHl7PSUTaskPollingInterval(toDuration(attrs.get("hl7PSUTaskPollingInterval"), null));
-        ext.setHl7PSUTaskFetchSize(LdapUtils.intValue(attrs.get("hl7PSUTaskFetchSize"), 100));
-        ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), false));
+        ext.setHL7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
+        ext.setHL7PSUReceivingApplications(LdapUtils.stringArray(attrs.get("hl7PSUReceivingApplication")));
+        ext.setHL7PSUDelay(toDuration(attrs.get("hl7PSUDelay"), null));
+        ext.setHL7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
+        ext.setHL7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), false));
+        ext.setHL7PSUTaskPollingInterval(toDuration(attrs.get("hl7PSUTaskPollingInterval"), null));
+        ext.setHL7PSUTaskFetchSize(LdapUtils.intValue(attrs.get("hl7PSUTaskFetchSize"), 100));
+        ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), false));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), AcceptConflictingPatientID.MERGED));
@@ -427,22 +427,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorageVerificationSchedules(
                 ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmStorageVerificationSchedule"))));
         ext.setStorageVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmStorageVerificationFetchSize"), 100));
-        ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
+        ext.setHL7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
-        ext.setHl7ADTReceivingApplication(LdapUtils.stringArray(attrs.get("hl7ADTReceivingApplication")));
-        ext.setHl7ADTSendingApplication(LdapUtils.stringValue(attrs.get("hl7ADTSendingApplication"), null));
-        ext.setHl7ScheduledProtocolCodeInOrder(LdapUtils.enumValue(ScheduledProtocolCodeInOrder.class,
+        ext.setHL7ADTReceivingApplication(LdapUtils.stringArray(attrs.get("hl7ADTReceivingApplication")));
+        ext.setHL7ADTSendingApplication(LdapUtils.stringValue(attrs.get("hl7ADTSendingApplication"), null));
+        ext.setHL7ScheduledProtocolCodeInOrder(LdapUtils.enumValue(ScheduledProtocolCodeInOrder.class,
                 attrs.get("hl7ScheduledProtocolCodeInOrder"), ScheduledProtocolCodeInOrder.OBR_4_4));
-        ext.setHl7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
+        ext.setHL7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
                 attrs.get("hl7ScheduledStationAETInOrder"), null));
-        ext.setHl7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
+        ext.setHL7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
         ext.setAuditUnknownStudyInstanceUID(LdapUtils.stringValue(
                 attrs.get("dcmAuditUnknownStudyInstanceUID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID));
         ext.setAuditUnknownPatientID(LdapUtils.stringValue(
                 attrs.get("dcmAuditUnknownPatientID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID));
         ext.setAuditSoftwareConfigurationVerbose(LdapUtils.booleanValue(attrs.get("dcmAuditSoftwareConfigurationVerbose"), false));
-        ext.setHl7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), false));
+        ext.setHL7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), false));
         ext.setQueueTasksFetchSize(LdapUtils.intValue(attrs.get("dcmQueueTasksFetchSize"), 100));
         ext.setRejectionNoteStorageAET(LdapUtils.stringValue(
                 attrs.get("dcmRejectionNoteStorageAET"), null));
@@ -567,8 +567,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getScheduleProcedureTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OutgoingPatientUpdateTemplateURI", aa.getOutgoingPatientUpdateTemplateURI(),
                 bb.getOutgoingPatientUpdateTemplateURI(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7LogFilePattern", aa.getHL7LogFilePattern(), bb.getHL7LogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern", aa.getHL7ErrorLogFilePattern(), bb.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUnzipVendorDataToURI",
                 aa.getUnzipVendorDataToURI(), bb.getUnzipVendorDataToURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedSRClasses",
@@ -696,17 +696,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmValidateCallingAEHostname",
                 aa.isValidateCallingAEHostname(), bb.isValidateCallingAEHostname(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUSendingApplication",
-                aa.getHl7PSUSendingApplication(), bb.getHl7PSUSendingApplication(), null);
+                aa.getHL7PSUSendingApplication(), bb.getHL7PSUSendingApplication(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUReceivingApplication",
-                aa.getHl7PSUReceivingApplications(), bb.getHl7PSUReceivingApplications());
-        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUDelay", aa.getHl7PSUDelay(), bb.getHl7PSUDelay(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUOnTimeout", aa.isHl7PSUOnTimeout(), bb.isHl7PSUOnTimeout(), false);
+                aa.getHL7PSUReceivingApplications(), bb.getHL7PSUReceivingApplications());
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUDelay", aa.getHL7PSUDelay(), bb.getHL7PSUDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTimeout", aa.getHL7PSUTimeout(), bb.getHL7PSUTimeout(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUOnTimeout", aa.isHL7PSUOnTimeout(), bb.isHL7PSUOnTimeout(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTaskPollingInterval",
-                aa.getHl7PSUTaskPollingInterval(), bb.getHl7PSUTaskPollingInterval(), null);
+                aa.getHL7PSUTaskPollingInterval(), bb.getHL7PSUTaskPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUTaskFetchSize",
-                aa.getHl7PSUTaskFetchSize(), bb.getHl7PSUTaskFetchSize(), 100);
-        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUMWL", aa.isHl7PSUMWL(), bb.isHl7PSUMWL(), false);
+                aa.getHL7PSUTaskFetchSize(), bb.getHL7PSUTaskFetchSize(), 100);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUMWL", aa.isHL7PSUMWL(), bb.isHL7PSUMWL(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(),
                 AcceptConflictingPatientID.MERGED);
@@ -744,22 +744,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorageVerificationFetchSize(), bb.getStorageVerificationFetchSize(), 100);
 
         LdapUtils.storeDiff(ldapObj, mods, "hl7TrackChangedPatientID",
-                aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);
+                aa.isHL7TrackChangedPatientID(), bb.isHL7TrackChangedPatientID(), true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL",
                 aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayStudyURL",
                 aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7ADTReceivingApplication",
-                aa.getHl7ADTReceivingApplication(), bb.getHl7ADTReceivingApplication());
+                aa.getHL7ADTReceivingApplication(), bb.getHL7ADTReceivingApplication());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ADTSendingApplication",
-                aa.getHl7ADTSendingApplication(), bb.getHl7ADTSendingApplication(), null);
+                aa.getHL7ADTSendingApplication(), bb.getHL7ADTSendingApplication(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledProtocolCodeInOrder",
-                aa.getHl7ScheduledProtocolCodeInOrder(), bb.getHl7ScheduledProtocolCodeInOrder(),
+                aa.getHL7ScheduledProtocolCodeInOrder(), bb.getHL7ScheduledProtocolCodeInOrder(),
                 ScheduledProtocolCodeInOrder.OBR_4_4);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledStationAETInOrder",
-                aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder(), null);
+                aa.getHL7ScheduledStationAETInOrder(), bb.getHL7ScheduledStationAETInOrder(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientCreateMessageType",
-                aa.getHl7NoPatientCreateMessageTypes(), bb.getHl7NoPatientCreateMessageTypes());
+                aa.getHL7NoPatientCreateMessageTypes(), bb.getHL7NoPatientCreateMessageTypes());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditUnknownStudyInstanceUID",
                 aa.getAuditUnknownStudyInstanceUID(), bb.getAuditUnknownStudyInstanceUID(),
                 ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
@@ -769,7 +769,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmAuditSoftwareConfigurationVerbose",
                 aa.isAuditSoftwareConfigurationVerbose(), bb.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeDiff(ldapObj, mods, "hl7UseNullValue",
-                aa.isHl7UseNullValue(), bb.isHl7UseNullValue(), false);
+                aa.isHL7UseNullValue(), bb.isHL7UseNullValue(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmQueueTasksFetchSize",
                 aa.getQueueTasksFetchSize(),
                 bb.getQueueTasksFetchSize(),
@@ -854,7 +854,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storePDQServiceDescriptors(diffs, deviceDN, arcDev);
         storeExporterDescriptors(diffs, deviceDN, arcDev);
         storeExportRules(diffs, arcDev.getExportRules(), deviceDN);
-        storePrefetchRules(diffs, arcDev.getPrefetchRules(), deviceDN);
+        storePrefetchRules(diffs, arcDev.getExportPriorsRules(), deviceDN);
+        storeHL7ExportRules(diffs, arcDev.getHL7ExportRules(), deviceDN, config);
         storeHL7PrefetchRules(diffs, arcDev.getHL7PrefetchRules(), deviceDN, config);
         storeCompressionRules(diffs, arcDev.getCompressionRules(), deviceDN);
         storeStoreAccessControlIDRules(diffs, arcDev.getStoreAccessControlIDRules(), deviceDN);
@@ -885,7 +886,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadPDQServiceDescriptors(arcdev, deviceDN);
         loadExporterDescriptors(arcdev, deviceDN);
         loadExportRules(arcdev.getExportRules(), deviceDN);
-        loadPrefetchRules(arcdev.getPrefetchRules(), deviceDN);
+        loadPrefetchRules(arcdev.getExportPriorsRules(), deviceDN);
+        loadHL7ExportRules(arcdev.getHL7ExportRules(), deviceDN, config);
         loadHL7PrefetchRules(arcdev.getHL7PrefetchRules(), deviceDN, config);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
         loadStoreAccessControlIDRules(arcdev.getStoreAccessControlIDRules(), deviceDN);
@@ -924,7 +926,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergePDQServiceDescriptors(diffs, aa, bb, deviceDN);
         mergeExportDescriptors(diffs, aa, bb, deviceDN);
         mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), deviceDN);
-        mergePrefetchRules(diffs, aa.getPrefetchRules(), bb.getPrefetchRules(), deviceDN);
+        mergePrefetchRules(diffs, aa.getExportPriorsRules(), bb.getExportPriorsRules(), deviceDN);
+        mergeHL7ExportRules(diffs, aa.getHL7ExportRules(), bb.getHL7ExportRules(), deviceDN,
+                getDicomConfiguration());
         mergeHL7PrefetchRules(diffs, aa.getHL7PrefetchRules(), bb.getHL7PrefetchRules(), deviceDN,
                 getDicomConfiguration());
         mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
@@ -1000,12 +1004,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedMoveDestination", ext.getAcceptedMoveDestinations());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmValidateCallingAEHostname", ext.getValidateCallingAEHostname(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHl7PSUReceivingApplications());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHl7PSUDelay(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.getHl7PSUOnTimeout(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMWL", ext.getHl7PSUMWL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication", ext.getHL7PSUSendingApplication(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHL7PSUReceivingApplications());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHL7PSUDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHL7PSUTimeout(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.getHL7PSUOnTimeout(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMWL", ext.getHL7PSUMWL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy",
@@ -1089,12 +1093,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setAcceptedMoveDestinations(LdapUtils.stringArray(attrs.get("dcmAcceptedMoveDestination")));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), null));
-        ext.setHl7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
-        ext.setHl7PSUReceivingApplications(LdapUtils.stringArray(attrs.get("hl7PSUReceivingApplication")));
-        ext.setHl7PSUDelay(toDuration(attrs.get("hl7PSUDelay"), null));
-        ext.setHl7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
-        ext.setHl7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
-        ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
+        ext.setHL7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
+        ext.setHL7PSUReceivingApplications(LdapUtils.stringArray(attrs.get("hl7PSUReceivingApplication")));
+        ext.setHL7PSUDelay(toDuration(attrs.get("hl7PSUDelay"), null));
+        ext.setHL7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
+        ext.setHL7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
+        ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
         ext.setCopyMoveUpdatePolicy(
@@ -1232,17 +1236,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmValidateCallingAEHostname",
                 aa.getValidateCallingAEHostname(), bb.getValidateCallingAEHostname(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUSendingApplication",
-                aa.getHl7PSUSendingApplication(), bb.getHl7PSUSendingApplication(), null);
+                aa.getHL7PSUSendingApplication(), bb.getHL7PSUSendingApplication(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUReceivingApplication",
-                aa.getHl7PSUReceivingApplications(), bb.getHl7PSUReceivingApplications());
+                aa.getHL7PSUReceivingApplications(), bb.getHL7PSUReceivingApplications());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUDelay",
-                aa.getHl7PSUDelay(), bb.getHl7PSUDelay(), null);
+                aa.getHL7PSUDelay(), bb.getHL7PSUDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTimeout",
-                aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout(), null);
+                aa.getHL7PSUTimeout(), bb.getHL7PSUTimeout(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUOnTimeout",
-                aa.getHl7PSUOnTimeout(), bb.getHl7PSUOnTimeout(), null);
+                aa.getHL7PSUOnTimeout(), bb.getHL7PSUOnTimeout(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMWL",
-                aa.getHl7PSUMWL(), bb.getHl7PSUMWL(), null);
+                aa.getHL7PSUMWL(), bb.getHL7PSUMWL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy",
@@ -1273,7 +1277,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         storeExportRules(diffs, aeExt.getExportRules(), aeDN);
-        storePrefetchRules(diffs, aeExt.getPrefetchRules(), aeDN);
+        storePrefetchRules(diffs, aeExt.getExportPriorsRules(), aeDN);
         storeCompressionRules(diffs, aeExt.getCompressionRules(), aeDN);
         storeStoreAccessControlIDRules(diffs, aeExt.getStoreAccessControlIDRules(), aeDN);
         storeAttributeCoercions(diffs, aeExt.getAttributeCoercions(), aeDN);
@@ -1288,7 +1292,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         loadExportRules(aeExt.getExportRules(), aeDN);
-        loadPrefetchRules(aeExt.getPrefetchRules(), aeDN);
+        loadPrefetchRules(aeExt.getExportPriorsRules(), aeDN);
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
         loadStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
         loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN, ae.getDevice());
@@ -1310,7 +1314,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             bb = new ArchiveAEExtension();
 
         mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), aeDN);
-        mergePrefetchRules(diffs, aa.getPrefetchRules(), bb.getPrefetchRules(), aeDN);
+        mergePrefetchRules(diffs, aa.getExportPriorsRules(), bb.getExportPriorsRules(), aeDN);
         mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
         mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), aeDN);
         mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
@@ -2122,9 +2126,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void storePrefetchRules(ConfigurationChanges diffs, Collection<PrefetchRule> prefetchRules, String parentDN)
+    private void storePrefetchRules(ConfigurationChanges diffs, Collection<ExportPriorsRule> exportPriorsRules, String parentDN)
             throws NamingException {
-        for (PrefetchRule rule : prefetchRules) {
+        for (ExportPriorsRule rule : exportPriorsRules) {
             String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
             ConfigurationChanges.ModifiedObject ldapObj =
                     ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
@@ -2132,8 +2136,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, PrefetchRule rule, BasicAttributes attrs) {
-        attrs.put("objectclass", "dcmPrefetchRule");
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ExportPriorsRule rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmExportPriorsRule");
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", rule.getSchedules());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
@@ -2144,15 +2148,57 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private void loadPrefetchRules(Collection<PrefetchRule> prefetchRules, String parentDN) throws NamingException {
-        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmPrefetchRule)");
+    private void loadPrefetchRules(Collection<ExportPriorsRule> exportPriorsRules, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmExportPriorsRule)");
         try {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                PrefetchRule rule = new PrefetchRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                ExportPriorsRule rule = new ExportPriorsRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 rule.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
+                rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
+                rule.setSuppressDuplicateExportInterval(toDuration(attrs.get("dcmDuration"), null));
+                exportPriorsRules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    static void storeHL7ExportRules(ConfigurationChanges diffs, Collection<HL7ExportRule> prefetchRules,
+                                    String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        for (HL7ExportRule rule : prefetchRules) {
+            String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+        }
+    }
+
+    static private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, HL7ExportRule rule,
+                                      BasicAttributes attrs) {
+        attrs.put("objectclass", "hl7ExportRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExporterID", rule.getExporterIDs());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
+                rule.getSuppressDuplicateExportInterval(), null);
+        return attrs;
+    }
+
+    static void loadHL7ExportRules(Collection<HL7ExportRule> prefetchRules, String parentDN,
+                                   LdapDicomConfiguration config) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7ExportRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                HL7ExportRule rule = new HL7ExportRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateExportInterval(toDuration(attrs.get("dcmDuration"), null));
@@ -2164,7 +2210,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     static void storeHL7PrefetchRules(ConfigurationChanges diffs, Collection<HL7PrefetchRule> prefetchRules,
-                                      String parentDN, LdapDicomConfiguration config)
+                                    String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7PrefetchRule rule : prefetchRules) {
             String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
@@ -2178,26 +2224,35 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                       BasicAttributes attrs) {
         attrs.put("objectclass", "hl7PrefetchRule");
         attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", rule.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchCFindSCP",
+                rule.getPrefetchCFindSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchCMoveSCP",
+                rule.getPrefetchCMoveSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchCStoreSCP",
+                rule.getPrefetchCStoreSCP(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExporterID", rule.getExporterIDs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
-                rule.getSuppressDuplicateExportInterval(), null);
+                rule.getSuppressDuplicateRetrieveInterval(), null);
         return attrs;
     }
 
     static void loadHL7PrefetchRules(Collection<HL7PrefetchRule> prefetchRules, String parentDN,
-                                     LdapDicomConfiguration config) throws NamingException {
+                                   LdapDicomConfiguration config) throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7PrefetchRule)");
         try {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 HL7PrefetchRule rule = new HL7PrefetchRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+                rule.setPrefetchCFindSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCFindSCP"), null));
+                rule.setPrefetchCMoveSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCMoveSCP"), null));
+                rule.setPrefetchCStoreSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCStoreSCP"), null));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
-                rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
-                rule.setSuppressDuplicateExportInterval(toDuration(attrs.get("dcmDuration"), null));
+                rule.setSuppressDuplicateRetrieveInterval(toDuration(attrs.get("dcmDuration"), null));
                 prefetchRules.add(rule);
             }
         } finally {
@@ -2273,11 +2328,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private void mergePrefetchRules(ConfigurationChanges diffs,
-                                    Collection<PrefetchRule> prevRules,
-                                    Collection<PrefetchRule> rules,
+                                    Collection<ExportPriorsRule> prevRules,
+                                    Collection<ExportPriorsRule> rules,
                                     String parentDN)
             throws NamingException {
-        for (PrefetchRule prevRule : prevRules) {
+        for (ExportPriorsRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
             if (findPrefetchRuleByCN(rules, cn) == null) {
                 String dn = LdapUtils.dnOf("cn", cn, parentDN);
@@ -2285,10 +2340,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
         }
-        for (PrefetchRule rule : rules) {
+        for (ExportPriorsRule rule : rules) {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
-            PrefetchRule prevRule = findPrefetchRuleByCN(prevRules, cn);
+            ExportPriorsRule prevRule = findPrefetchRuleByCN(prevRules, cn);
             if (prevRule == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
@@ -2305,8 +2360,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
-                                              PrefetchRule prev,
-                                              PrefetchRule rule,
+                                              ExportPriorsRule prev,
+                                              ExportPriorsRule rule,
                                               ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
         storeDiffProperties(ldapObj, mods, "dcmProperty",
@@ -2319,18 +2374,72 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private PrefetchRule findPrefetchRuleByCN(Collection<PrefetchRule> rules, String cn) {
-        for (PrefetchRule rule : rules)
+    private ExportPriorsRule findPrefetchRuleByCN(Collection<ExportPriorsRule> rules, String cn) {
+        for (ExportPriorsRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
+        return null;
+    }
+
+    static void mergeHL7ExportRules(ConfigurationChanges diffs,
+                                    Collection<HL7ExportRule> prevRules,
+                                    Collection<HL7ExportRule> rules,
+                                    String parentDN,
+                                    LdapDicomConfiguration config)
+            throws NamingException {
+        for (HL7ExportRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findHL7ExportRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (HL7ExportRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            HL7ExportRule prevRule = findHL7ExportRuleByCN(prevRules, cn);
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                rule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
+                                              HL7ExportRule prev,
+                                              HL7ExportRule rule,
+                                              ArrayList<ModificationItem> mods) {
+        storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), rule.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmEntitySelector",
+                prev.getEntitySelectors(), rule.getEntitySelectors());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
+                prev.getSuppressDuplicateExportInterval(), rule.getSuppressDuplicateExportInterval(), null);
+        return mods;
+    }
+
+    private static HL7ExportRule findHL7ExportRuleByCN(Collection<HL7ExportRule> rules, String cn) {
+        for (HL7ExportRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
         return null;
     }
 
     static void mergeHL7PrefetchRules(ConfigurationChanges diffs,
-                                      Collection<HL7PrefetchRule> prevRules,
-                                      Collection<HL7PrefetchRule> rules,
-                                      String parentDN,
-                                      LdapDicomConfiguration config)
+                                    Collection<HL7PrefetchRule> prevRules,
+                                    Collection<HL7PrefetchRule> rules,
+                                    String parentDN,
+                                    LdapDicomConfiguration config)
             throws NamingException {
         for (HL7PrefetchRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
@@ -2365,11 +2474,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               ArrayList<ModificationItem> mods) {
         storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), rule.getConditions().getMap());
-        LdapUtils.storeDiff(ldapObj, mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEntitySelector",
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
-                prev.getSuppressDuplicateExportInterval(), rule.getSuppressDuplicateExportInterval(), null);
+                prev.getSuppressDuplicateRetrieveInterval(), rule.getSuppressDuplicateRetrieveInterval(), null);
         return mods;
     }
 

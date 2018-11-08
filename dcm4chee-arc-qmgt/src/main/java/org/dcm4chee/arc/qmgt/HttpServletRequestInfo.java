@@ -95,4 +95,8 @@ public class HttpServletRequestInfo {
         }
     }
 
+    public static void copyTo(HttpServletRequestInfo requestInfo, Message msg) {
+        if (requestInfo != null)
+            requestInfo.copyTo(msg);
+    }
 }

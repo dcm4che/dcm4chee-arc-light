@@ -865,17 +865,7 @@ public class WadoRS {
     private void setBulkdataURI(Attributes attrs, String retrieveURL) {
         try {
             final List<ItemPointer> itemPointers = new ArrayList<>(4);
-            attrs.accept(new Attributes.SequenceVisitor() {
-                @Override
-                public void startItem(int sqTag, int itemIndex) {
-                    itemPointers.add(new ItemPointer(sqTag, itemIndex));
-                }
-
-                @Override
-                public void endItem() {
-                    itemPointers.remove(itemPointers.size()-1);
-                }
-
+            attrs.accept(new Attributes.ItemPointerVisitor() {
                 @Override
                 public boolean visit(Attributes attrs, int tag, VR vr, Object value) {
                     if (value instanceof BulkData) {

@@ -41,34 +41,33 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
+
 import java.util.Arrays;
+import java.util.Calendar;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Nov 2018
+ * @since Aug 2018
  */
-public class HL7PrefetchRule {
+public class ExportPriorsRule {
 
     private String commonName;
 
-    private String aeTitle;
+    private ScheduleExpression[] schedules = {};
 
-    private String prefetchCFindSCP;
+    private Conditions conditions = new Conditions();
 
-    private String prefetchCMoveSCP;
+    private String[] exporterIDs = {};
 
-    private String prefetchCStoreSCP;
-
-    private HL7Conditions conditions = new HL7Conditions();
-
-    private Duration suppressDuplicateRetrieveInterval;
+    private Duration suppressDuplicateExportInterval;
 
     private EntitySelector[] entitySelectors = {};
 
-    public HL7PrefetchRule() {
+    public ExportPriorsRule() {
     }
 
-    public HL7PrefetchRule(String commonName) {
+    public ExportPriorsRule(String commonName) {
         setCommonName(commonName);
     }
 
@@ -80,52 +79,36 @@ public class HL7PrefetchRule {
         this.commonName = commonName;
     }
 
-    public String getAETitle() {
-        return aeTitle;
+    public ScheduleExpression[] getSchedules() {
+        return schedules;
     }
 
-    public void setAETitle(String aeTitle) {
-        this.aeTitle = aeTitle;
+    public void setSchedules(ScheduleExpression[] schedules) {
+        this.schedules = schedules;
     }
 
-    public String getPrefetchCFindSCP() {
-        return prefetchCFindSCP;
-    }
-
-    public void setPrefetchCFindSCP(String prefetchCFindSCP) {
-        this.prefetchCFindSCP = prefetchCFindSCP;
-    }
-
-    public String getPrefetchCMoveSCP() {
-        return prefetchCMoveSCP;
-    }
-
-    public void setPrefetchCMoveSCP(String prefetchCMoveSCP) {
-        this.prefetchCMoveSCP = prefetchCMoveSCP;
-    }
-
-    public String getPrefetchCStoreSCP() {
-        return prefetchCStoreSCP;
-    }
-
-    public void setPrefetchCStoreSCP(String prefetchCStoreSCP) {
-        this.prefetchCStoreSCP = prefetchCStoreSCP;
-    }
-
-    public HL7Conditions getConditions() {
+    public Conditions getConditions() {
         return conditions;
     }
 
-    public void setConditions(HL7Conditions conditions) {
+    public void setConditions(Conditions conditions) {
         this.conditions = conditions;
     }
 
-    public Duration getSuppressDuplicateRetrieveInterval() {
-        return suppressDuplicateRetrieveInterval;
+    public String[] getExporterIDs() {
+        return exporterIDs;
     }
 
-    public void setSuppressDuplicateRetrieveInterval(Duration suppressDuplicateRetrieveInterval) {
-        this.suppressDuplicateRetrieveInterval = suppressDuplicateRetrieveInterval;
+    public void setExporterIDs(String[] exporterIDs) {
+        this.exporterIDs = exporterIDs;
+    }
+
+    public Duration getSuppressDuplicateExportInterval() {
+        return suppressDuplicateExportInterval;
+    }
+
+    public void setSuppressDuplicateExportInterval(Duration suppressDuplicateExportInterval) {
+        this.suppressDuplicateExportInterval = suppressDuplicateExportInterval;
     }
 
     public EntitySelector[] getEntitySelectors() {
@@ -136,20 +119,19 @@ public class HL7PrefetchRule {
         this.entitySelectors = entitySelectors;
     }
 
-    public boolean match(String hostName, HL7Fields hl7Fields) {
-        return conditions.match(hostName, hl7Fields);
+    public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs, Calendar cal) {
+        return ScheduleExpression.emptyOrAnyContains(cal, schedules)
+                && conditions.match(hostName, sendingAET, receivingAET, attrs);
     }
 
     @Override
     public String toString() {
-        return "HL7PrefetchRule{" +
+        return "ExportPriorsRule{" +
                 "cn=" + commonName +
-                ", aeTitle=" + aeTitle +
-                ", findSCP=" + prefetchCFindSCP +
-                ", moveSCP=" + prefetchCMoveSCP +
-                ", storeSCP=" + prefetchCStoreSCP +
                 ", conditions=" + conditions +
-                ", suppressDups=" + suppressDuplicateRetrieveInterval +
+                ", schedules=" + Arrays.toString(schedules) +
+                ", exporterIDs=" + Arrays.toString(exporterIDs) +
+                ", suppressDups=" + suppressDuplicateExportInterval +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
                 '}';
     }

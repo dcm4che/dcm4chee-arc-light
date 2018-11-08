@@ -458,13 +458,13 @@
         "$ref": "exportRule.schema.json"
       }
     },
-    "dcmPrefetchRule": {
+    "dcmExportPriorsRule": {
       "title": "Prefetch Rule",
-      "description": "Prefetch Rules applied to DICOM objects received by this AE. Supplements Prefetch Rules specified on Device level.",
+      "description": "Export Priors Rules applied to DICOM objects received by this AE. Supplements Export Priors Rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
-        "$ref": "prefetchRule.schema.json"
+        "$ref": "exportPriorsRule.schema.json"
       }
     },
     "dcmRSForwardRule": {

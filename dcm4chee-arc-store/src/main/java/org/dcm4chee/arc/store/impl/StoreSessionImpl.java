@@ -251,12 +251,12 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public boolean isNotProcessed(PrefetchRule rule) {
+    public boolean isNotProcessed(ExportPriorsRule rule) {
         return !processedPrefetchRules.contains(rule.getCommonName());
     }
 
     @Override
-    public boolean markAsProcessed(PrefetchRule rule) {
+    public boolean markAsProcessed(ExportPriorsRule rule) {
         return processedPrefetchRules.add(rule.getCommonName());
     }
 

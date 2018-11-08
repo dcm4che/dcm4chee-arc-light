@@ -92,13 +92,13 @@ public class HL7PSUScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getHl7PSUTaskPollingInterval();
+        return arcDev.getHL7PSUTaskPollingInterval();
     }
 
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int fetchSize = arcDev.getHl7PSUTaskFetchSize();
+        int fetchSize = arcDev.getHL7PSUTaskFetchSize();
         long hl7psuTaskPk = 0;
         List<HL7PSUTask> hl7psuTasks;
         do {

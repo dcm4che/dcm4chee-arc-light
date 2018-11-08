@@ -485,6 +485,7 @@
     <module>dcm4chee-arc-pdq-rs</module>
     <module>dcm4chee-arc-pdq-scheduler</module>
     <module>dcm4chee-arc-pdq-xroad</module>
+    <module>dcm4chee-arc-prefetch</module>
     <module>dcm4chee-arc-procedure</module>
     <module>dcm4chee-arc-qido</module>
     <module>dcm4chee-arc-qmgt</module>

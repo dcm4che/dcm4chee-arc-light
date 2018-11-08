@@ -166,7 +166,7 @@ public class RetrieveRS {
 
     private Response queueExport(String destAET, Attributes keys) {
         try {
-            retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, keys), batchID);
+            retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, keys), batchID, null);
         } catch (QueueSizeLimitExceededException e) {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }

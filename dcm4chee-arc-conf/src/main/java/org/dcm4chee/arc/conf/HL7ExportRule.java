@@ -41,22 +41,17 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
-
 import java.util.Arrays;
-import java.util.Calendar;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2018
  */
-public class PrefetchRule {
+public class HL7ExportRule {
 
     private String commonName;
 
-    private ScheduleExpression[] schedules = {};
-
-    private Conditions conditions = new Conditions();
+    private HL7Conditions conditions = new HL7Conditions();
 
     private String[] exporterIDs = {};
 
@@ -64,10 +59,10 @@ public class PrefetchRule {
 
     private EntitySelector[] entitySelectors = {};
 
-    public PrefetchRule() {
+    public HL7ExportRule() {
     }
 
-    public PrefetchRule(String commonName) {
+    public HL7ExportRule(String commonName) {
         setCommonName(commonName);
     }
 
@@ -79,19 +74,11 @@ public class PrefetchRule {
         this.commonName = commonName;
     }
 
-    public ScheduleExpression[] getSchedules() {
-        return schedules;
-    }
-
-    public void setSchedules(ScheduleExpression[] schedules) {
-        this.schedules = schedules;
-    }
-
-    public Conditions getConditions() {
+    public HL7Conditions getConditions() {
         return conditions;
     }
 
-    public void setConditions(Conditions conditions) {
+    public void setConditions(HL7Conditions conditions) {
         this.conditions = conditions;
     }
 
@@ -119,17 +106,15 @@ public class PrefetchRule {
         this.entitySelectors = entitySelectors;
     }
 
-    public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs, Calendar cal) {
-        return ScheduleExpression.emptyOrAnyContains(cal, schedules)
-                && conditions.match(hostName, sendingAET, receivingAET, attrs);
+    public boolean match(String hostName, HL7Fields hl7Fields) {
+        return conditions.match(hostName, hl7Fields);
     }
 
     @Override
     public String toString() {
-        return "PrefetchRule{" +
+        return "HL7ExportRule{" +
                 "cn=" + commonName +
                 ", conditions=" + conditions +
-                ", schedules=" + Arrays.toString(schedules) +
                 ", exporterIDs=" + Arrays.toString(exporterIDs) +
                 ", suppressDups=" + suppressDuplicateExportInterval +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +

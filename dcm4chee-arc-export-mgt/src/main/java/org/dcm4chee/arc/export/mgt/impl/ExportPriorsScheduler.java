@@ -80,9 +80,9 @@ import java.util.stream.Stream;
  * @since Sep 2018
  */
 @ApplicationScoped
-public class PrefetchScheduler {
+public class ExportPriorsScheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PrefetchScheduler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExportPriorsScheduler.class);
 
     @Inject
     private Device device;
@@ -102,14 +102,14 @@ public class PrefetchScheduler {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
         arcAE.prefetchRules()
-                .filter(((Predicate<PrefetchRule>) session::isNotProcessed)
+                .filter(((Predicate<ExportPriorsRule>) session::isNotProcessed)
                         .and(rule -> rule.match(
                                 session.getRemoteHostName(),
                                 session.getCallingAET(),
                                 session.getCalledAET(),
                                 ctx.getAttributes(), now)))
                 .forEach(rule -> {
-                    prefetch(ctx, rule, arcdev, now);
+                    export(ctx, rule, arcdev, now);
                     session.markAsProcessed(rule);
                 });
     }
@@ -126,7 +126,7 @@ public class PrefetchScheduler {
 
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        if (arcHL7App == null || !arcHL7App.hasHL7PrefetchRules())
+        if (arcHL7App == null || !arcHL7App.hasHL7ExportRules())
             return;
 
         Socket sock = event.getSocket();
@@ -134,12 +134,12 @@ public class PrefetchScheduler {
         HL7Fields hl7Fields = new HL7Fields(hl7Message, hl7App.getHL7DefaultCharacterSet());
         Calendar now = Calendar.getInstance();
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        arcHL7App.hl7PrefetchRules()
+        arcHL7App.hl7ExportRules()
                 .filter(rule -> rule.match(host, hl7Fields))
-                .forEach(rule -> prefetch(sock, hl7Fields, rule, arcdev, now));
+                .forEach(rule -> export(sock, hl7Fields, rule, arcdev, now));
     }
 
-    private void prefetch(StoreContext ctx, PrefetchRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
+    private void export(StoreContext ctx, ExportPriorsRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
         try {
             LOG.info("{}: Apply {}", ctx.getStoreSession(), rule);
             Date notExportedAfter = new Date(
@@ -151,15 +151,26 @@ public class PrefetchScheduler {
             Map<String, List<ExporterDescriptor>> exporterByAET = Stream.of(rule.getExporterIDs())
                     .map(arcdev::getExporterDescriptorNotNull)
                     .collect(Collectors.groupingBy(ExporterDescriptor::getAETitle));
-            Stream.of(rule.getEntitySelectors())
-                    .forEach(selector -> exporterByAET.forEach((aet, exporters) ->
-                            prefetch(pid, siuid, batchID, selector, arcdev, aet, exporters, notExportedAfter)));
+            if (rule.getEntitySelectors().length == 0) {
+                Attributes queryKeys = new Attributes(0);
+                exporterByAET.forEach((aet, exporters) ->
+                        export(pid, null, batchID, queryKeys, -1,
+                                arcdev, aet, exporters, notExportedAfter));
+            } else {
+                Stream.of(rule.getEntitySelectors())
+                        .forEach(selector -> {
+                            Attributes queryKeys = selector.getQueryKeys(attrs);
+                            exporterByAET.forEach((aet, exporters) ->
+                                    export(pid, siuid, batchID, queryKeys, selector.getNumberOfPriors(),
+                                            arcdev, aet, exporters, notExportedAfter));
+                        });
+            }
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", ctx.getStoreSession(), rule, e);
         }
     }
 
-    private void prefetch(Socket sock, HL7Fields hl7Fields, HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
+    private void export(Socket sock, HL7Fields hl7Fields, HL7ExportRule rule, ArchiveDeviceExtension arcdev, Calendar now) {
         try {
             LOG.info("{}: Apply {}", sock, rule);
             Date notExportedAfter = new Date(
@@ -170,24 +181,35 @@ public class PrefetchScheduler {
             Map<String, List<ExporterDescriptor>> exporterByAET = Stream.of(rule.getExporterIDs())
                     .map(arcdev::getExporterDescriptorNotNull)
                     .collect(Collectors.groupingBy(ExporterDescriptor::getAETitle));
-            Stream.of(rule.getEntitySelectors())
-                    .forEach(selector -> exporterByAET.forEach((aet, exporters) ->
-                            prefetch(pid, null, batchID, selector, arcdev, aet, exporters, notExportedAfter)));
+            if (rule.getEntitySelectors().length == 0) {
+                Attributes queryKeys = new Attributes(0);
+                exporterByAET.forEach((aet, exporters) ->
+                        export(pid, null, batchID, queryKeys, -1,
+                                arcdev, aet, exporters, notExportedAfter));
+            } else {
+                Stream.of(rule.getEntitySelectors())
+                        .forEach(selector -> {
+                            Attributes queryKeys = selector.getQueryKeys(hl7Fields);
+                            exporterByAET.forEach((aet, exporters) ->
+                                    export(pid, null, batchID, queryKeys, selector.getNumberOfPriors(),
+                                            arcdev, aet, exporters, notExportedAfter));
+                        });
+            }
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", sock, rule, e);
         }
     }
 
-    private void prefetch(IDWithIssuer pid, String receivedStudyUID, String batchID, EntitySelector selector,
-                          ArchiveDeviceExtension arcdev, String aet, List<ExporterDescriptor> exporters,
-                          Date notExportedAfter) {
+    private void export(IDWithIssuer pid, String receivedStudyUID, String batchID, Attributes queryKeys,
+                        int numberOfPriors, ArchiveDeviceExtension arcdev, String aet,
+                        List<ExporterDescriptor> exporters, Date notExportedAfter) {
         ApplicationEntity ae = arcdev.getDevice().getApplicationEntity(aet, true);
         QueryContext queryCtx = queryService.newQueryContext(ae, new QueryParam(ae));
         queryCtx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         queryCtx.setPatientIDs(pid);
-        queryCtx.setQueryKeys(selector.getQueryKeys());
+        queryCtx.setQueryKeys(queryKeys);
         queryCtx.setOrderByTags(Collections.singletonList(new OrderByTag(Tag.StudyDate, Order.DESC)));
-        int remaining = selector.getNumberOfPriors();
+        int remaining = numberOfPriors;
         try (Query query = queryService.createStudyQuery(queryCtx)) {
             query.initQuery();
             query.executeQuery();

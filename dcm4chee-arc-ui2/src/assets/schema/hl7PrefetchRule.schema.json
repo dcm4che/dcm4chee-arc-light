@@ -4,8 +4,10 @@
   "type": "object",
   "required": [
     "cn",
-    "dcmExporterID",
-    "dcmEntitySelector",
+    "dicomAETitle",
+    "dcmPrefetchCFindSCP",
+    "dcmPrefetchCMoveSCP",
+    "dcmPrefetchCStoreSCP",
     "dcmDuration"
   ],
   "properties": {
@@ -14,31 +16,48 @@
       "description": "Arbitrary/Meaningful name of the Prefetch Rule",
       "type": "string"
     },
-    "dcmExporterID": {
-      "title": "Exporter ID",
-      "description": "Exporter ID",
-      "type": "array",
-      "items" : { "type": "string" },
-      "format": "dcmExporterID"
+    "dicomAETitle": {
+      "title": "Archive AE title",
+      "description": "AE Title of Archive Application Entity used for retrieving selected Studies from Prefetch C-Move SCP.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
-    "dcmEntitySelector": {
-      "title": "Entity Selector",
-      "description": "Specifies matching keys used to select entities to prefetch. Format: {key}={value}][&{key}={value}]..., with {key} = 'priors' | 'StudyAge' | {attributeID}. Example: 'priors=2&StudyAge=-5Y&ModalitiesInStudy=CT' => select at most 2 prior Studies not older than 5 years containing at least one CT Series.",
-      "type": "array",
-      "items" : { "type": "string" },
-      "format": "dcmEntitySelector"
+    "dcmPrefetchCFindSCP": {
+      "title": "Prefetch C-Find SCP",
+      "description": "AE Title of C-FIND SCP which is queried for Studies matching the specified Entity Selector.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCMoveSCP": {
+      "title": "Prefetch C-Move SCP",
+      "description": "AE Title of C-MOVE SCP from which selected Studies are retrieved.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCStoreSCP": {
+      "title": "Prefetch C-Store SCP",
+      "description": "AE Title of C-STORE SCP to which selected Studies are retrieved.",
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmProperty": {
       "title": "Conditions",
-      "description": "Conditions in format {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}. Examples: MSH-4=FORWARD or MSH-9=ADT\\^A28\\^ADT_A05",
+      "description": "Conditions in format {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}. Example: MSH-9=ORM\\^O01",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
+    "dcmEntitySelector": {
+      "title": "Entity Selector",
+      "description": "Specifies matching keys used to select Studies to prefetch. Format: {key}={value}[&{key}={value)]..., with {key} = 'StudyAge' | {attributeID}. {value} in the format '$'{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]] are replaced by the value of the specified HL7 field from the received HL7 message which triggered the prefetch. If no Entity Selector is specified, all Studies for the Patient will be pre-fetched. Example: 'StudyInstanceUID=$ZDS-1.1' => select the Study with the Study Instance UID from ZDS-1.1.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmEntitySelector"
+    },
     "dcmDuration": {
-      "title": "Suppress Duplicate Export Interval",
-      "description": "Suppress Export of entities already exported not earlier than the specified interval to avoid duplicate exports.",
+      "title": "Suppress Duplicate Retrieve Interval",
+      "description": "Suppress Retrieve of Studies already retrieved not earlier than the specified interval to avoid duplicate retrieves.",
       "type": "string",
       "format": "dcmDuration"
     }

@@ -1252,6 +1252,36 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.253 NAME 'dcmPatientVerificationAdju
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.254 NAME 'dcmPurgeQueueMessageFailedDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which failed queue messages are purged. If absent, there is no deletion for that particular queue'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.255 NAME 'dcmPurgeQueueMessageWarningDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which warning queue messages are purged. If absent, there is no deletion for that particular queue'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.256 NAME 'dcmPurgeQueueMessageCanceledDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which canceled queue messages are purged. If absent, there is no deletion for that particular queue'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.257 NAME 'dcmPrefetchCFindSCP'
+  DESC 'AE Title of C-FIND SCP which is queried for Studies matching the specified Entity Selector.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.258 NAME 'dcmPrefetchCMoveSCP'
+  DESC 'AE Title of C-MOVE SCP from which selected Studies are retrieved.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.259 NAME 'dcmPrefetchCStoreSCP'
+  DESC 'AE Title of C-STORE SCP to which selected Studies are retrieved.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1564,6 +1594,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmRetryDelayMultiplier $
     dcmRetryOnWarning $
     dcmPurgeQueueMessageCompletedDelay $
+    dcmPurgeQueueMessageFailedDelay $
+    dcmPurgeQueueMessageWarningDelay $
+    dcmPurgeQueueMessageCanceledDelay $
     dcmMaxQueueSize ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'
@@ -1740,25 +1773,25 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
     dcmTLSDisableTrustManager $
     uid $
     userPassword ) )
-olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmPrefetchRule'
-  DESC 'DICOM Prefetch Rule'
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmExportPriorsRule'
+  DESC 'Export Priors Rule'
   SUP top STRUCTURAL
   MUST (
     cn $
-    dcmEntitySelector $
     dcmExporterID )
   MAY (
+    dcmEntitySelector $
     dcmProperty $
     dcmSchedule $
     dcmDuration ) )
-olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.32 NAME 'hl7PrefetchRule'
-  DESC 'HL7 Prefetch Rule'
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.32 NAME 'hl7ExportRule'
+  DESC 'HL7 Export Rule'
   SUP top STRUCTURAL
   MUST (
     cn $
-    dcmEntitySelector $
     dcmExporterID )
   MAY (
+    dcmEntitySelector $
     dcmProperty $
     dcmDuration ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
@@ -1783,3 +1816,16 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.34 NAME 'dcmPDQService'
     dicomDescription $
     dcmTag $
     dcmProperty ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
+  DESC 'HL7 Prefetch Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dicomAETitle $
+    dcmPrefetchCFindSCP $
+    dcmPrefetchCMoveSCP $
+    dcmPrefetchCStoreSCP )
+  MAY (
+    dcmEntitySelector $
+    dcmProperty $
+    dcmDuration ) )
