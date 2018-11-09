@@ -184,7 +184,8 @@ public class QueryRetrieveRS {
             while ((line = reader.readLine()) != null) {
                 String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
                 if (count > 0 || UIDUtils.isValid(studyUID)) {
-                    if (retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null))
+                    if (retrieveManager.scheduleRetrieveTask(
+                            priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null))
                         count++;
                 }
             }
@@ -198,7 +199,7 @@ public class QueryRetrieveRS {
         if (warning == null)
             return count > 0
                     ? Response.accepted(count(count)).build()
-                    : Response.noContent().header("Warning", "Empty file").build();
+                    : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
 
         Response.ResponseBuilder builder = Response.status(errorStatus)
                 .header("Warning", warning);

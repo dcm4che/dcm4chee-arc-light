@@ -266,7 +266,7 @@ public class DiffRS {
         if (warning == null)
             return count > 0
                     ? Response.accepted(count(count)).build()
-                    : Response.noContent().header("Warning", "Empty file").build();
+                    : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
 
         Response.ResponseBuilder builder = Response.status(errorStatus)
                 .header("Warning", warning);
