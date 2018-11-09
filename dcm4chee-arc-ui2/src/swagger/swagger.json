@@ -6672,6 +6672,13 @@
             "type": "string"
           },
           {
+            "name": "field",
+            "in": "path",
+            "description": "field which contains the Study Instance UID",
+            "required": true,
+            "type": "integer"
+          },
+          {
             "name": "different",
             "in": "query",
             "description": "include Studies different at originalAET",
@@ -8052,6 +8059,13 @@
             "description": "Exporter ID",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "description": "field which contains the Study Instance UID",
+            "required": true,
+            "type": "integer"
           },
           {
             "name": "only-stgcmt",
