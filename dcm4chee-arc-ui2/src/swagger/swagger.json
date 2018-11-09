@@ -8025,6 +8025,72 @@
         }
       }
     },
+    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Studies specified in CSV",
+        "operationId": "ExportStudiesCSV",
+        "consumes": [
+          "text/csv"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Only enable storage commitment without export",
+            "type": "boolean"
+          },
+          {
+            "name": "only-ian",
+            "in": "query",
+            "description": "Only enable IAN without export",
+            "type": "boolean"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled export of Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/export/{exporterID}/studies": {
       "post": {
         "tags": [
@@ -8158,7 +8224,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Studies",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8309,7 +8375,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8467,7 +8533,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8618,7 +8684,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8776,7 +8842,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8941,7 +9007,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9373,7 +9439,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Studies",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9535,7 +9601,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9704,7 +9770,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9866,7 +9932,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -10035,7 +10101,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -10211,7 +10277,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
