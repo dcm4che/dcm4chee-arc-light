@@ -8068,18 +8068,6 @@
             "type": "integer"
           },
           {
-            "name": "only-stgcmt",
-            "in": "query",
-            "description": "Only enable storage commitment without export",
-            "type": "boolean"
-          },
-          {
-            "name": "only-ian",
-            "in": "query",
-            "description": "Only enable IAN without export",
-            "type": "boolean"
-          },
-          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
