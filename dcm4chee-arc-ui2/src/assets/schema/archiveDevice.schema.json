@@ -1121,10 +1121,12 @@
       "titleKey":"{dcmStorageID}",
       "use": [
         "dcmSeriesMetadataStorageID[*]",
-        "dcmStorageVerificationStorageID",
+        "dcmStorageVerificationStorageID[*]",
+        "dcmStorage[*].dcmExportStorageID",
+        "dcmStorage[*].dcmRetrieveCacheStorageID",
         "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
         "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID"
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID[*]"
       ],
       "items" : {
         "$ref": "storage.schema.json"
@@ -1135,6 +1137,9 @@
       "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
       "titleKey":"{dcmQueryRetrieveViewID}",
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmQueryRetrieveViewID"
+      ],
       "items" : {
         "$ref": "queryRetrieveView.schema.json"
       }
@@ -1144,6 +1149,10 @@
       "description": "Managed JMS Queue",
       "type": "array",
       "titleKey":"{dcmQueueName}",
+      "use": [
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiQueueName[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCompareSideObjects[*].dcmuiCompareSideQueueName"
+      ],
       "items" : {
         "$ref": "queue.schema.json"
       }
@@ -1153,6 +1162,9 @@
       "description": "PDQ Service Descriptor",
       "type": "array",
       "titleKey":"{dcmPDQServiceID}",
+      "use": [
+        "dcmPatientVerificationPDQServiceID"
+      ],
       "items" : {
         "$ref": "pdqService.schema.json"
       }
@@ -1162,6 +1174,15 @@
       "description": "Exporter Descriptor",
       "type": "array",
       "titleKey":"{dcmExporterID}",
+      "use": [
+        "dcmExportPriorsRule[*].dcmExporterID[*]",
+        "dcmExportRule[*].dcmExporterID[*]",
+        "hl7ExportRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportPriorsRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7ExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiExportName[*]"
+      ],
       "items" : {
         "$ref": "exporter.schema.json"
       }
@@ -1198,6 +1219,12 @@
       "description": "Keycloak Server",
       "type": "array",
       "titleKey":"{dcmKeycloakServerID}",
+      "use": [
+        "dcmRSForwardRule[*].dcmKeycloakServerID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmRSForwardRule[*].dcmKeycloakServerID",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDeviceClusterObject[*].dcmuiDeviceClusterKeycloakServer[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiElasticsearchConfig[*].dcmuiElasticsearchURLObjects[*].dcmuiElasticsearchURLKeycloakServer[*]"
+      ],
       "items" : {
         "$ref": "keycloakServer.schema.json"
       }
@@ -1225,6 +1252,9 @@
       "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
       "titleKey":"{dcmRejectionNoteLabel}",
+      "use": [
+        "dcmQueryRetrieveView[*].dcmShowInstancesRejectedByCode[*]"
+      ],
       "items" : {
         "$ref": "rejectionNote.schema.json"
       }
