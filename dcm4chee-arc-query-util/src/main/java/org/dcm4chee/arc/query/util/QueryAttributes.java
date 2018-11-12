@@ -79,6 +79,7 @@ public class QueryAttributes {
                 case "orderby":
                     addOrderByTag(entry.getValue());
                     break;
+                case "accept":
                 case "access_token":
                 case "comparefield":
                 case "count":

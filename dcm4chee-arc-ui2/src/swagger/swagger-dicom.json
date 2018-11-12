@@ -64,6 +64,12 @@
             "type": "string"
           },
           {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
+            "type": "string"
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -166,6 +172,12 @@
             "in": "path",
             "description": "Archive AE Title",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           },
           {
@@ -379,6 +391,12 @@
             "type": "string"
           },
           {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
+            "type": "string"
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -522,6 +540,12 @@
             "in": "path",
             "description": "Archive AE Title",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           },
           {
@@ -685,6 +709,12 @@
             "type": "string"
           },
           {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
+            "type": "string"
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -778,6 +808,12 @@
             "type": "string"
           },
           {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
+            "type": "string"
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -861,6 +897,12 @@
             "in": "path",
             "description": "Archive AE Title",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           },
           {

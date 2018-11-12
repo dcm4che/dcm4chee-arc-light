@@ -48,6 +48,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -71,15 +72,14 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -101,6 +101,9 @@ public class QidoRS {
 
     @Context
     private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
 
     @Inject
     private Device device;
@@ -158,6 +161,9 @@ public class QidoRS {
     @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
     private String patientVerificationStatus;
 
+    @QueryParam("accept")
+    private List<String> accept;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -166,141 +172,68 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/patients")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForPatientsXML() {
-        return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/patients")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForPatientsJSON() {
-        return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.JSON);
+    public Response searchForPatients() {
+        return search("SearchForPatients", Model.PATIENT,
+                null, null, QIDO.PATIENT);
     }
 
     @GET
     @NoCache
     @Path("/studies")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForStudiesXML() {
-        return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/studies")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForStudiesJSON() {
-        return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.JSON);
+    public Response searchForStudies() {
+        return search("SearchForStudies", Model.STUDY,
+                null, null, QIDO.STUDY);
     }
 
     @GET
     @NoCache
     @Path("/series")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForSeriesXML() throws Exception {
-        return search("SearchForSeries", Model.SERIES, null, null, QIDO.STUDY_SERIES, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/series")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForSeriesJSON() {
-        return search("SearchForSeries", Model.SERIES, null, null, QIDO.STUDY_SERIES, Output.JSON);
+    public Response searchForSeries() {
+        return search("SearchForSeries", Model.SERIES,
+                null, null, QIDO.STUDY_SERIES);
     }
 
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForSeriesOfStudyXML(
+    public Response searchForSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/studies/{StudyInstanceUID}/series")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForSeriesOfStudyJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.JSON);
+        return search("SearchForStudySeries", Model.SERIES,
+                studyInstanceUID, null, QIDO.SERIES);
     }
 
     @GET
     @NoCache
     @Path("/instances")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForInstancesXML() {
-        return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/instances")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForInstancesJSON() {
-        return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.JSON);
+    public Response searchForInstances() {
+        return search("SearchForInstances", Model.INSTANCE,
+                null, null, QIDO.STUDY_SERIES_INSTANCE);
     }
 
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/instances")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForInstancesOfStudyXML(
+    public Response searchForInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudyInstances", Model.INSTANCE,
-                studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/studies/{StudyInstanceUID}/instances")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForInstancesOfStudyJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return search("SearchForStudyInstances", Model.INSTANCE,
-                studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.JSON);
+                studyInstanceUID, null, QIDO.SERIES_INSTANCE);
     }
 
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForInstancesOfSeriesXML(
+    public Response searchForInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
-                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForInstancesOfSeriesJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return search("SearchForStudySeriesInstances", Model.INSTANCE,
-                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.JSON);
+                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE);
     }
 
     @GET
     @NoCache
     @Path("/mwlitems")
-    @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSPSXML() {
-        return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.DICOM_XML);
-    }
-
-    @GET
-    @NoCache
-    @Path("/mwlitems")
-    @Produces("application/dicom+json,application/json")
-    public Response searchForSPSJSON() {
-        return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.JSON);
+        return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL);
     }
 
     @GET
@@ -412,9 +345,9 @@ public class QidoRS {
         }
     }
 
-    private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
-                            QIDO qido, Output output) {
+    private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido) {
         logRequest();
+        Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         ctx.setReturnKeys(queryAttrs.getReturnKeys(qido.includetags));
@@ -453,6 +386,7 @@ public class QidoRS {
 
                 return builder.entity(
                         output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
+                        .type(output.type())
                         .build();
             } finally {
                 try {
@@ -468,6 +402,27 @@ public class QidoRS {
 
     private void logRequest() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Output selectMediaType() {
+        if (!accept.isEmpty()) {
+            headers.getRequestHeaders().put("Accept",
+                    accept.stream().flatMap(s -> Stream.of(StringUtils.split(s, ',')))
+                            .collect(Collectors.toList()));
+        }
+        List<MediaType> acceptableMediaTypes = headers.getAcceptableMediaTypes();
+        if (acceptableMediaTypes.stream()
+                .anyMatch(
+                        ((Predicate<MediaType>) MediaTypes.APPLICATION_DICOM_JSON_TYPE::isCompatible)
+                        .or(MediaType.APPLICATION_JSON_TYPE::isCompatible)))
+            return Output.JSON;
+
+        if (acceptableMediaTypes.stream()
+                .map(m -> MediaTypes.getMultiPartRelatedType(m))
+                .anyMatch(MediaTypes.APPLICATION_DICOM_XML_TYPE::isCompatible))
+            return Output.DICOM_XML;
+
+        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
     }
 
     private String warning(int remaining) {
@@ -620,6 +575,11 @@ public class QidoRS {
                     throws DicomServiceException {
                 return service.writeXML(method, query, model, coercion);
             }
+
+            @Override
+            MediaType type() {
+                return MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE;
+            }
         },
         JSON {
             @Override
@@ -627,10 +587,17 @@ public class QidoRS {
                     throws DicomServiceException {
                 return service.writeJSON(method, query, model, coercion);
             }
+
+            @Override
+            MediaType type() {
+                return MediaTypes.APPLICATION_DICOM_JSON_TYPE;
+            }
         };
 
         abstract Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
                 throws DicomServiceException;
+
+        abstract MediaType type();
     }
 
     private Object writeXML(String method, Query query, Model model, AttributesCoercion coercion)
