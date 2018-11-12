@@ -1120,7 +1120,7 @@
       "type": "array",
       "titleKey":"{dcmStorageID}",
       "use": [
-        "dcmSeriesMetadataStorageID",
+        "dcmSeriesMetadataStorageID[*]",
         "dcmStorageVerificationStorageID",
         "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
         "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
