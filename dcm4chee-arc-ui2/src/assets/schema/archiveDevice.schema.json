@@ -1119,6 +1119,13 @@
       "description": "Specifies Storage System",
       "type": "array",
       "titleKey":"{dcmStorageID}",
+      "use": [
+        "dcmSeriesMetadataStorageID",
+        "dcmStorageVerificationStorageID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID"
+      ],
       "items" : {
         "$ref": "storage.schema.json"
       }
