@@ -41,10 +41,32 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Issuer;
+
+import java.util.stream.Stream;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
 public enum NullifyIssuer {
-    ALWAYS, MATCHING, NOT_MATCHING
+    ALWAYS {
+        public boolean test(Issuer issuer, Issuer[] others) {
+            return issuer != null;
+        }
+    },
+    MATCHING {
+        @Override
+        public boolean test(Issuer issuer, Issuer[] others) {
+            return issuer != null && Stream.of(others).anyMatch(issuer::matches);
+        }
+    },
+    NOT_MATCHING {
+        @Override
+        public boolean test(Issuer issuer, Issuer[] others) {
+            return issuer != null && Stream.of(others).noneMatch(issuer::matches);
+        }
+    };
+
+    public abstract boolean test(Issuer issuer, Issuer[] others);
 }

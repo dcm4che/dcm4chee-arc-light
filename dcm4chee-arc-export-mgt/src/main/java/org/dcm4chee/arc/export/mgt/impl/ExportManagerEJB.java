@@ -305,7 +305,7 @@ public class ExportManagerEJB implements ExportManager {
                 exporter.getQueueName(),
                 createMessage(exportTask, httpServletRequestInfo),
                 exporter.getPriority(),
-                batchID);
+                batchID, 0L);
         exportTask.setQueueMessage(queueMessage);
         try {
             Attributes attrs = queryService.queryExportTaskInfo(

@@ -185,7 +185,7 @@ public class QueryRetrieveRS {
                 String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
                 if (count > 0 || UIDUtils.isValid(studyUID)) {
                     if (retrieveManager.scheduleRetrieveTask(
-                            priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null))
+                            priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null, 0L))
                         count++;
                 }
             }
@@ -262,7 +262,7 @@ public class QueryRetrieveRS {
             do {
                 status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                 if (Status.isPending(status)) {
-                    if (retrieveManager.scheduleRetrieveTask(priority, createExtRetrieveCtx(destAET, dimseRSP), batchID, null))
+                    if (retrieveManager.scheduleRetrieveTask(priority, createExtRetrieveCtx(destAET, dimseRSP), batchID, null, 0L))
                         count++;
                 }
             } while (dimseRSP.next()) ;

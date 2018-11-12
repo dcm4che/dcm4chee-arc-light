@@ -41,6 +41,9 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
+
 import java.util.Arrays;
 
 /**
@@ -57,13 +60,19 @@ public class HL7PrefetchRule {
 
     private String prefetchCMoveSCP;
 
-    private String prefetchCStoreSCP;
+    private String[] prefetchCStoreSCPs = {};
 
     private HL7Conditions conditions = new HL7Conditions();
 
     private Duration suppressDuplicateRetrieveInterval;
 
+    private NullifyIssuer ignoreAssigningAuthorityOfPatientID;
+
+    private Issuer[] assigningAuthorityOfPatientIDs = {};
+
     private EntitySelector[] entitySelectors = {};
+
+    private ScheduleExpression[] schedules = {};
 
     public HL7PrefetchRule() {
     }
@@ -104,12 +113,12 @@ public class HL7PrefetchRule {
         this.prefetchCMoveSCP = prefetchCMoveSCP;
     }
 
-    public String getPrefetchCStoreSCP() {
-        return prefetchCStoreSCP;
+    public String[] getPrefetchCStoreSCPs() {
+        return prefetchCStoreSCPs;
     }
 
-    public void setPrefetchCStoreSCP(String prefetchCStoreSCP) {
-        this.prefetchCStoreSCP = prefetchCStoreSCP;
+    public void setPrefetchCStoreSCPs(String... prefetchCStoreSCPs) {
+        this.prefetchCStoreSCPs = prefetchCStoreSCPs;
     }
 
     public HL7Conditions getConditions() {
@@ -128,12 +137,43 @@ public class HL7PrefetchRule {
         this.suppressDuplicateRetrieveInterval = suppressDuplicateRetrieveInterval;
     }
 
+    public NullifyIssuer getIgnoreAssigningAuthorityOfPatientID() {
+        return ignoreAssigningAuthorityOfPatientID;
+    }
+
+    public void setIgnoreAssigningAuthorityOfPatientID(NullifyIssuer ignoreAssigningAuthorityOfPatientID) {
+        this.ignoreAssigningAuthorityOfPatientID = ignoreAssigningAuthorityOfPatientID;
+    }
+
+    public Issuer[] getAssigningAuthorityOfPatientIDs() {
+        return assigningAuthorityOfPatientIDs;
+    }
+
+    public void setAssigningAuthorityOfPatientIDs(Issuer... assigningAuthorityOfPatientIDs) {
+        this.assigningAuthorityOfPatientIDs = assigningAuthorityOfPatientIDs;
+    }
+
+    public IDWithIssuer ignoreAssigningAuthorityOfPatientID(IDWithIssuer pid) {
+        return ignoreAssigningAuthorityOfPatientID != null
+                && ignoreAssigningAuthorityOfPatientID.test(pid.getIssuer(), assigningAuthorityOfPatientIDs)
+                ? pid.withoutIssuer()
+                : pid;
+    }
+
     public EntitySelector[] getEntitySelectors() {
         return entitySelectors;
     }
 
     public void setEntitySelectors(EntitySelector[] entitySelectors) {
         this.entitySelectors = entitySelectors;
+    }
+
+    public ScheduleExpression[] getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(ScheduleExpression... schedules) {
+        this.schedules = schedules;
     }
 
     public boolean match(String hostName, HL7Fields hl7Fields) {
@@ -147,10 +187,13 @@ public class HL7PrefetchRule {
                 ", aeTitle=" + aeTitle +
                 ", findSCP=" + prefetchCFindSCP +
                 ", moveSCP=" + prefetchCMoveSCP +
-                ", storeSCP=" + prefetchCStoreSCP +
+                ", storeSCPs=" + Arrays.toString(prefetchCStoreSCPs) +
                 ", conditions=" + conditions +
                 ", suppressDups=" + suppressDuplicateRetrieveInterval +
+                ", ignoreAssigningAuthorityOfPatientID=" + ignoreAssigningAuthorityOfPatientID +
+                ", issuerOfPatientIDs=" + Arrays.toString(assigningAuthorityOfPatientIDs) +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
+                ", schedules=" + Arrays.toString(schedules) +
                 '}';
     }
 }

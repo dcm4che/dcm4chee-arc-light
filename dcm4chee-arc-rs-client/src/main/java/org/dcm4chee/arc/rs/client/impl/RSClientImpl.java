@@ -94,7 +94,7 @@ public class RSClientImpl implements RSClient {
             msg.setStringProperty("KeycloakServerID", keycloakServerID);
             msg.setStringProperty("TLSAllowAnyHostname", String.valueOf(tlsAllowAnyHostName));
             msg.setStringProperty("TLSDisableTrustManager", String.valueOf(tlsDisableTrustManager));
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

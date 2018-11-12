@@ -176,8 +176,8 @@ public class ExportPriorsScheduler {
             Date notExportedAfter = new Date(
                     now.getTimeInMillis() - rule.getSuppressDuplicateExportInterval().getSeconds() * 1000L);
             String cx = hl7Fields.get("PID-3", null);
-            IDWithIssuer pid = new IDWithIssuer(cx);
-            String batchID = rule.getCommonName() + '[' + cx + ']';
+            IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(new IDWithIssuer(cx));
+            String batchID = rule.getCommonName() + '[' + pid + ']';
             Map<String, List<ExporterDescriptor>> exporterByAET = Stream.of(rule.getExporterIDs())
                     .map(arcdev::getExporterDescriptorNotNull)
                     .collect(Collectors.groupingBy(ExporterDescriptor::getAETitle));

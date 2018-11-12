@@ -296,7 +296,7 @@ public class StgCmtEJB {
                 httpServletRequestInfo.copyTo(msg);
             }
             QueueMessage queueMessage = queueManager.scheduleMessage(StgCmtManager.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY, batchID);
+                    Message.DEFAULT_PRIORITY, batchID, 0L);
             storageVerificationTask.setQueueMessage(queueMessage);
             em.persist(storageVerificationTask);
         } catch (JMSException e) {

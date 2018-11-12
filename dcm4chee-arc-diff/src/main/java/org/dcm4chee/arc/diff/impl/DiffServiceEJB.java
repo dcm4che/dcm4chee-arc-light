@@ -121,7 +121,7 @@ public class DiffServiceEJB {
             if (ctx.getHttpServletRequestInfo() != null)
                 ctx.getHttpServletRequestInfo().copyTo(msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(DiffService.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY, ctx.getBatchID());
+                    Message.DEFAULT_PRIORITY, ctx.getBatchID(), 0L);
             createDiffTask(ctx, queueMessage);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);

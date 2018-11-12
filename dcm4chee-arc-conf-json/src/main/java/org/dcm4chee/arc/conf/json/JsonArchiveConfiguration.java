@@ -278,7 +278,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writePDQServiceDescriptor(writer, arcDev.getPDQServiceDescriptors());
         writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
         writeExportRule(writer, arcDev.getExportRules());
-        writePrefetchRules(writer, arcDev.getExportPriorsRules());
+        writeExportPrefetchRules(writer, arcDev.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
@@ -463,7 +463,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writePrefetchRules(JsonWriter writer, Collection<ExportPriorsRule> exportPriorsRuleList) {
+    private void writeExportPrefetchRules(JsonWriter writer, Collection<ExportPriorsRule> exportPriorsRuleList) {
         writer.writeStartArray("dcmExportPriorsRule");
         for (ExportPriorsRule rule : exportPriorsRuleList) {
             writer.writeStartObject();
@@ -485,6 +485,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotEmpty("dcmExporterID", rule.getExporterIDs());
             writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
+            writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", rule.getIgnoreAssigningAuthorityOfPatientID(), null);
+            writer.writeNotEmpty("dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateExportInterval(), null);
             writer.writeEnd();
@@ -500,8 +502,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dicomAETitle", rule.getAETitle(), null);
             writer.writeNotNullOrDef("dcmPrefetchCFindSCP", rule.getPrefetchCFindSCP(), null);
             writer.writeNotNullOrDef("dcmPrefetchCMoveSCP", rule.getPrefetchCMoveSCP(), null);
-            writer.writeNotNullOrDef("dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCP(), null);
+            writer.writeNotEmpty("dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCPs());
             writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
+            writer.writeNotEmpty("dcmSchedule", rule.getSchedules());
+            writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", rule.getIgnoreAssigningAuthorityOfPatientID(), null);
+            writer.writeNotEmpty("dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateRetrieveInterval(), null);
             writer.writeEnd();
@@ -794,7 +799,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
         writeExportRule(writer, arcAE.getExportRules());
-        writePrefetchRules(writer, arcAE.getExportPriorsRules());
+        writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -1766,6 +1771,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmProperty":
                         rule.setConditions(new HL7Conditions(reader.stringArray()));
                         break;
+                    case "dcmNullifyIssuerOfPatientID":
+                        rule.setIgnoreAssigningAuthorityOfPatientID(NullifyIssuer.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmIssuerOfPatientID":
+                        rule.setAssigningAuthorityOfPatientIDs(toIssuers(reader.stringArray()));
+                        break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateExportInterval(Duration.valueOf(reader.stringValue()));
                         break;
@@ -1800,13 +1811,22 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         rule.setPrefetchCMoveSCP(reader.stringValue());
                         break;
                     case "dcmPrefetchCStoreSCP":
-                        rule.setPrefetchCStoreSCP(reader.stringValue());
+                        rule.setPrefetchCStoreSCPs(reader.stringArray());
                         break;
                     case "dcmEntitySelector":
                         rule.setEntitySelectors(EntitySelector.valuesOf(reader.stringArray()));
                         break;
                     case "dcmProperty":
                         rule.setConditions(new HL7Conditions(reader.stringArray()));
+                        break;
+                    case "dcmSchedule":
+                        rule.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
+                        break;
+                    case "dcmNullifyIssuerOfPatientID":
+                        rule.setIgnoreAssigningAuthorityOfPatientID(NullifyIssuer.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmIssuerOfPatientID":
+                        rule.setAssigningAuthorityOfPatientIDs(toIssuers(reader.stringArray()));
                         break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateRetrieveInterval(Duration.valueOf(reader.stringValue()));
@@ -1960,7 +1980,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private Issuer[] toIssuers(String[] issuerOfPatientIds) {
+    private static Issuer[] toIssuers(String[] issuerOfPatientIds) {
         Issuer[] issuers = new Issuer[issuerOfPatientIds.length];
         for (int i = 0; i < issuerOfPatientIds.length; i++)
             issuers[i] = new Issuer(issuerOfPatientIds[i]);

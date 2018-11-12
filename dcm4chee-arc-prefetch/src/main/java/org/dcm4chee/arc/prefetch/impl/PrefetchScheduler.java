@@ -114,14 +114,16 @@ public class PrefetchScheduler {
             LOG.info("{}: Apply {}", sock, rule);
             Date notRetrievedAfter = new Date(
                     now.getTimeInMillis() - rule.getSuppressDuplicateRetrieveInterval().getSeconds() * 1000L);
+            Calendar scheduledTime = ScheduleExpression.ceil(now, rule.getSchedules());
+            long delay = scheduledTime.getTimeInMillis() - now.getTimeInMillis();
             String cx = hl7Fields.get("PID-3", null);
-            IDWithIssuer pid = new IDWithIssuer(cx);
-            String batchID = rule.getCommonName() + '[' + cx + ']';
+            IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(new IDWithIssuer(cx));
+            String batchID = rule.getCommonName() + '[' + pid + ']';
             if (rule.getEntitySelectors().length == 0) {
-                prefetch(pid, batchID, new Attributes(0), rule, arcdev, notRetrievedAfter);
+                prefetch(pid, batchID, new Attributes(0), rule, arcdev, notRetrievedAfter, delay);
             } else {
                 for (EntitySelector selector : rule.getEntitySelectors()) {
-                    prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), rule, arcdev, notRetrievedAfter);
+                    prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), rule, arcdev, notRetrievedAfter, delay);
                 }
             }
         } catch (Exception e) {
@@ -130,13 +132,13 @@ public class PrefetchScheduler {
     }
 
     private void prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys,
-                          HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date notRetrievedAfter)
+                          HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date notRetrievedAfter, long delay)
             throws Exception {
         Attributes keys = new Attributes(queryKeys.size() + 4);
         keys.addAll(queryKeys);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         if (keys.containsValue(Tag.StudyInstanceUID)) {
-            scheduleRetrieveTask(keys, rule, batchID, notRetrievedAfter);
+            scheduleRetrieveTasks(keys, rule, batchID, notRetrievedAfter, delay);
             return;
         }
         keys.setString(Tag.PatientID, VR.LO, pid.getID());
@@ -153,7 +155,7 @@ public class PrefetchScheduler {
             dimseRSP.next();
             do {
                 if (Status.isPending(dimseRSP.getCommand().getInt(Tag.Status, -1))) {
-                    scheduleRetrieveTask(dimseRSP.getDataset(), rule, batchID, notRetrievedAfter);
+                    scheduleRetrieveTasks(dimseRSP.getDataset(), rule, batchID, notRetrievedAfter, delay);
                 }
             } while (dimseRSP.next()) ;
         } finally {
@@ -166,13 +168,21 @@ public class PrefetchScheduler {
         }
     }
 
-    private void scheduleRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID, Date notRetrievedAfter)
+    private void scheduleRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID, Date notRetrievedAfter, long delay)
+            throws QueueSizeLimitExceededException {
+        for (String destination : rule.getPrefetchCStoreSCPs()) {
+            scheduleRetrieveTask(keys, rule, batchID, notRetrievedAfter, delay, destination);
+        }
+    }
+
+    private void scheduleRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID, Date notRetrievedAfter, long delay,
+                                      String destination)
             throws QueueSizeLimitExceededException {
         ExternalRetrieveContext ctx = new ExternalRetrieveContext()
                 .setLocalAET(rule.getAETitle())
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
-                .setDestinationAET(rule.getPrefetchCStoreSCP())
+                .setDestinationAET(destination)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
-        retrieveManager.scheduleRetrieveTask(Priority.NORMAL, ctx, batchID, notRetrievedAfter);
+        retrieveManager.scheduleRetrieveTask(Priority.NORMAL, ctx, batchID, notRetrievedAfter, delay);
     }
 }

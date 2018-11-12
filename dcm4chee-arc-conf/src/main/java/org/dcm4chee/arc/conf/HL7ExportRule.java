@@ -41,6 +41,9 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
+
 import java.util.Arrays;
 
 /**
@@ -56,6 +59,10 @@ public class HL7ExportRule {
     private String[] exporterIDs = {};
 
     private Duration suppressDuplicateExportInterval;
+
+    private NullifyIssuer ignoreAssigningAuthorityOfPatientID;
+
+    private Issuer[] assigningAuthorityOfPatientIDs = {};
 
     private EntitySelector[] entitySelectors = {};
 
@@ -98,6 +105,29 @@ public class HL7ExportRule {
         this.suppressDuplicateExportInterval = suppressDuplicateExportInterval;
     }
 
+    public NullifyIssuer getIgnoreAssigningAuthorityOfPatientID() {
+        return ignoreAssigningAuthorityOfPatientID;
+    }
+
+    public void setIgnoreAssigningAuthorityOfPatientID(NullifyIssuer ignoreAssigningAuthorityOfPatientID) {
+        this.ignoreAssigningAuthorityOfPatientID = ignoreAssigningAuthorityOfPatientID;
+    }
+
+    public Issuer[] getAssigningAuthorityOfPatientIDs() {
+        return assigningAuthorityOfPatientIDs;
+    }
+
+    public void setAssigningAuthorityOfPatientIDs(Issuer[] assigningAuthorityOfPatientIDs) {
+        this.assigningAuthorityOfPatientIDs = assigningAuthorityOfPatientIDs;
+    }
+
+    public IDWithIssuer ignoreAssigningAuthorityOfPatientID(IDWithIssuer pid) {
+        return ignoreAssigningAuthorityOfPatientID != null
+                && ignoreAssigningAuthorityOfPatientID.test(pid.getIssuer(), assigningAuthorityOfPatientIDs)
+                ? pid.withoutIssuer()
+                : pid;
+    }
+
     public EntitySelector[] getEntitySelectors() {
         return entitySelectors;
     }
@@ -117,6 +147,8 @@ public class HL7ExportRule {
                 ", conditions=" + conditions +
                 ", exporterIDs=" + Arrays.toString(exporterIDs) +
                 ", suppressDups=" + suppressDuplicateExportInterval +
+                ", ignoreAssigningAuthorityOfPatientID=" + ignoreAssigningAuthorityOfPatientID +
+                ", issuerOfPatientIDs=" + Arrays.toString(assigningAuthorityOfPatientIDs) +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
                 '}';
     }

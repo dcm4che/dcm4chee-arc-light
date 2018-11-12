@@ -377,22 +377,22 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.75 NAME 'dcmPurgeQueueMessageComplet
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which completed queue messages are purged. If absent, there is no deletion for that particular queue'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.76 NAME 'dcmPurgeQueueMessagePollingInterval'
   DESC 'Polling Interval for purging queue messages in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.77 NAME 'dcmPurgeQueueMessageFetchSize'
   DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdatePolicy'
   DESC 'Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, the attributes will not be updated'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.79 NAME 'dcmWadoSpoolDirectory'
   DESC 'Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.'
   EQUALITY caseExactMatch
@@ -1259,17 +1259,17 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.254 NAME 'dcmPurgeQueueMessageFailed
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which failed queue messages are purged. If absent, there is no deletion for that particular queue'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.255 NAME 'dcmPurgeQueueMessageWarningDelay'
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which warning queue messages are purged. If absent, there is no deletion for that particular queue'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.256 NAME 'dcmPurgeQueueMessageCanceledDelay'
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which canceled queue messages are purged. If absent, there is no deletion for that particular queue'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.257 NAME 'dcmPrefetchCFindSCP'
   DESC 'AE Title of C-FIND SCP which is queried for Studies matching the specified Entity Selector.'
   EQUALITY caseExactIA5Match
@@ -1283,8 +1283,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.258 NAME 'dcmPrefetchCMoveSCP'
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.259 NAME 'dcmPrefetchCStoreSCP'
   DESC 'AE Title of C-STORE SCP to which selected Studies are retrieved.'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 delete: olcObjectClasses
 -
@@ -1800,6 +1799,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.32 NAME 'hl7ExportRule'
   MAY (
     dcmEntitySelector $
     dcmProperty $
+    dcmNullifyIssuerOfPatientID $
+    dcmIssuerOfPatientID $
     dcmDuration ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
   DESC 'Study Retention Policy'
@@ -1835,4 +1836,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
   MAY (
     dcmEntitySelector $
     dcmProperty $
+    dcmSchedule $
+    dcmNullifyIssuerOfPatientID $
+    dcmIssuerOfPatientID $
     dcmDuration ) )

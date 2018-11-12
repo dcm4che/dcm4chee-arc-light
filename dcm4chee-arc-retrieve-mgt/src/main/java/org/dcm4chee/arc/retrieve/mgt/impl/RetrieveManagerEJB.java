@@ -113,7 +113,7 @@ public class RetrieveManagerEJB {
     };
 
     public boolean scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID,
-                                        Date notRetrievedAfter)
+                                        Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
         if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter)) {
             return false;
@@ -127,7 +127,7 @@ public class RetrieveManagerEJB {
             msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY, batchID);
+                    Message.DEFAULT_PRIORITY, batchID, delay);
             createRetrieveTask(device, ctx, queueMessage);
             return true;
         } catch (JMSException e) {

@@ -2184,6 +2184,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExporterID", rule.getExporterIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID",
+                rule.getIgnoreAssigningAuthorityOfPatientID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
                 rule.getSuppressDuplicateExportInterval(), null);
@@ -2200,6 +2203,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 HL7ExportRule rule = new HL7ExportRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
+                rule.setIgnoreAssigningAuthorityOfPatientID(
+                        LdapUtils.enumValue(NullifyIssuer.class, attrs.get("dcmNullifyIssuerOfPatientID"), null));
+                rule.setAssigningAuthorityOfPatientIDs(toIssuers(LdapUtils.stringArray(attrs.get("dcmIssuerOfPatientID"))));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateExportInterval(toDuration(attrs.get("dcmDuration"), null));
                 prefetchRules.add(rule);
@@ -2229,9 +2235,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.getPrefetchCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchCMoveSCP",
                 rule.getPrefetchCMoveSCP(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchCStoreSCP",
-                rule.getPrefetchCStoreSCP(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCPs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", rule.getSchedules());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID",
+                rule.getIgnoreAssigningAuthorityOfPatientID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
                 rule.getSuppressDuplicateRetrieveInterval(), null);
@@ -2249,8 +2258,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 rule.setPrefetchCFindSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCFindSCP"), null));
                 rule.setPrefetchCMoveSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCMoveSCP"), null));
-                rule.setPrefetchCStoreSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCStoreSCP"), null));
+                rule.setPrefetchCStoreSCPs(LdapUtils.stringArray(attrs.get("dcmPrefetchCStoreSCP")));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                rule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
+                rule.setIgnoreAssigningAuthorityOfPatientID(
+                        LdapUtils.enumValue(NullifyIssuer.class, attrs.get("dcmNullifyIssuerOfPatientID"), null));
+                rule.setAssigningAuthorityOfPatientIDs(toIssuers(LdapUtils.stringArray(attrs.get("dcmIssuerOfPatientID"))));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateRetrieveInterval(toDuration(attrs.get("dcmDuration"), null));
                 prefetchRules.add(rule);
@@ -2421,6 +2434,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(ldapObj, mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmNullifyIssuerOfPatientID",
+                prev.getIgnoreAssigningAuthorityOfPatientID(), rule.getIgnoreAssigningAuthorityOfPatientID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIssuerOfPatientID",
+                prev.getAssigningAuthorityOfPatientIDs(), rule.getAssigningAuthorityOfPatientIDs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEntitySelector",
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
@@ -2472,8 +2489,21 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               HL7PrefetchRule prev,
                                               HL7PrefetchRule rule,
                                               ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle",
+                prev.getAETitle(), rule.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchCFindSCP",
+                prev.getPrefetchCFindSCP(), rule.getPrefetchCFindSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchCMoveSCP",
+                prev.getPrefetchCMoveSCP(), rule.getPrefetchCMoveSCP(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPrefetchCStoreSCP",
+                prev.getPrefetchCStoreSCPs(), rule.getPrefetchCStoreSCPs());
         storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), rule.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmNullifyIssuerOfPatientID",
+                prev.getIgnoreAssigningAuthorityOfPatientID(), rule.getIgnoreAssigningAuthorityOfPatientID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIssuerOfPatientID",
+                prev.getAssigningAuthorityOfPatientIDs(), rule.getAssigningAuthorityOfPatientIDs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEntitySelector",
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
@@ -3452,7 +3482,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private Issuer[] toIssuers(String[] issuerOfPatientIds) {
+    private static Issuer[] toIssuers(String[] issuerOfPatientIds) {
         Issuer[] issuers = new Issuer[issuerOfPatientIds.length];
         for (int i = 0; i < issuerOfPatientIds.length; i++)
             issuers[i] = new Issuer(issuerOfPatientIds[i]);
