@@ -15,6 +15,9 @@ import * as FileSaver from 'file-saver';
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
+import {CsvRetrieveComponent} from "../../widgets/dialogs/csv-retrieve/csv-retrieve.component";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 
 
 @Component({
@@ -27,6 +30,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     exporters;
     exporterID;
     showMenu;
+    aets;
     exportTasks = [];
 /*    filters = {
         ExporterID: undefined,
@@ -93,7 +97,9 @@ export class ExportComponent implements OnInit, OnDestroy {
         public dialog: MatDialog,
         public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        public aeListService:AeListService,
+        private permissionService:PermissionService
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -123,6 +129,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             }
         });
         this.initExporters(1);
+        this.getAets();
         // this.init();
         this.status.forEach(status =>{
             this.statusValues[status] = {
@@ -280,12 +287,25 @@ export class ExportComponent implements OnInit, OnDestroy {
                 }
             });
         });
-/*        this.service.downloadCsv(this.filterObject).subscribe((csv)=>{
-            let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
-            FileSaver.saveAs(file);
-        },(err)=>{
-            this.httpErrorHandler.handleError(err);
-        });*/
+    }
+    uploadCsv(){
+        this.dialogRef = this.dialog.open(CsvRetrieveComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.aets = this.aets ;
+        this.dialogRef.componentInstance.params = {
+            aet:this.filterObject['LocalAET']||'',
+            externalAET:this.filterObject['RemoteAET']||'',
+            destinationAET:this.filterObject['DestinationAET']||'',
+            batchID:this.filterObject['batchID']||'',
+        };
+        this.dialogRef.afterClosed().subscribe((ok)=>{
+            if(ok){
+                console.log("ok",ok);
+                //TODO
+            }
+        });
     }
     showTaskDetail(task){
         this.filterObject.batchID = task.properties.batchID;
@@ -852,6 +872,21 @@ export class ExportComponent implements OnInit, OnDestroy {
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
         });
+    }
+    getAets(){
+        this.aeListService.getAets()
+            .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal'))
+            .retry(3)
+            .subscribe(aets=>{
+                this.aets = aets.map(ae=>{
+                    return {
+                        value:ae.dicomAETitle,
+                        text:ae.dicomAETitle
+                    }
+                })
+            },(err)=>{
+                console.error("Could not get aets",err);
+            });
     }
     ngOnDestroy(){
         if(this.timer.started){

@@ -36,7 +36,7 @@ export class CsvRetrieveService {
             if (xmlHttpRequest.readyState == XMLHttpRequest.DONE) {
                 onloadend.call(this, xmlHttpRequest);
             }
-        }
+        };
         xmlHttpRequest.onerror = (e)=>{
             onerror.call(this, e);
         };
