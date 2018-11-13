@@ -212,9 +212,9 @@ public class StgCmtEJB {
         em.persist(result);
     }
 
-    public List<StgCmtResult> listStgCmts(
-            StgCmtResult.Status status, String studyUID, String exporterID, String batchID, int offset, int limit) {
-        HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID, batchID);
+    public List<StgCmtResult> listStgCmts(StgCmtResult.Status status, String studyUID, String exporterID, String batchID,
+                                          String msgID, int offset, int limit) {
+        HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID, batchID, msgID);
         if (limit > 0)
             query.limit(limit);
         if (offset > 0)
@@ -257,14 +257,15 @@ public class StgCmtEJB {
     }
 
     private HibernateQuery<StgCmtResult> getStgCmtResults(StgCmtResult.Status status, String studyUID, String exporterId,
-                                                          String batchID) {
-        Predicate predicate = getPredicates(status, studyUID, exporterId, batchID);
+                                                          String batchID, String msgID) {
+        Predicate predicate = getPredicates(status, studyUID, exporterId, batchID, msgID);
         HibernateQuery<StgCmtResult> query = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(QStgCmtResult.stgCmtResult).from(QStgCmtResult.stgCmtResult);
         return query.where(predicate);
     }
 
-    private Predicate getPredicates(StgCmtResult.Status status, String studyUID, String exporterId, String batchID) {
+    private Predicate getPredicates(StgCmtResult.Status status, String studyUID, String exporterId, String batchID,
+                                    String msgID) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (status != null)
             predicate.and(QStgCmtResult.stgCmtResult.status.eq(status));
@@ -274,6 +275,8 @@ public class StgCmtEJB {
             predicate.and(QStgCmtResult.stgCmtResult.exporterID.eq(exporterId.toUpperCase()));
         if (batchID != null)
             predicate.and(QStgCmtResult.stgCmtResult.batchID.eq(batchID));
+        if (msgID != null)
+            predicate.and(QStgCmtResult.stgCmtResult.messageID.eq(msgID));
         return predicate;
     }
 

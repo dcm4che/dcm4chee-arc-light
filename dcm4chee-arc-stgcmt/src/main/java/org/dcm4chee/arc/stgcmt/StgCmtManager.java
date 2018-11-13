@@ -70,8 +70,8 @@ public interface StgCmtManager {
 
     void persistStgCmtResult(StgCmtResult result);
 
-    List<StgCmtResult> listStgCmts(
-            StgCmtResult.Status status, String studyUID, String exporterID, String batchID, int offset, int limit);
+    List<StgCmtResult> listStgCmts(StgCmtResult.Status status, String studyUID, String exporterID, String batchID,
+                                   String msgID, int offset, int limit);
 
     boolean deleteStgCmt(String transactionUID);
 
