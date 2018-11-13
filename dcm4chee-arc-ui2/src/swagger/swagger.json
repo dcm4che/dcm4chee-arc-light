@@ -11439,6 +11439,12 @@
             "type": "string"
           },
           {
+            "name": "JMSMessageID",
+            "in": "query",
+            "description": "JMS Message ID of Export Task to filter by",
+            "type": "string"
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID to filter by",
