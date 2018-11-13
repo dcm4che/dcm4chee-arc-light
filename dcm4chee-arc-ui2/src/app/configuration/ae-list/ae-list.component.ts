@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
 import {CreateAeComponent} from '../../widgets/dialogs/create-ae/create-ae.component';
-import {DevicesService} from '../../devices/devices.service';
+import {DevicesService} from '../devices/devices.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";

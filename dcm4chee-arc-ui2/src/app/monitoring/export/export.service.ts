@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import {DevicesService} from "../../devices/devices.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import * as _ from 'lodash';
 import {j4care} from "../../helpers/j4care.service";

@@ -10,13 +10,13 @@ import {InputNumber} from '../../helpers/form/input-number';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {AppService} from "../../app.service";
 import {Observable} from "rxjs";
-import {DevicesService} from "../../devices/devices.service";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {Globalvar} from "../../constants/globalvar";
 import {j4care} from "../../helpers/j4care.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
+import {DevicesService} from "../devices/devices.service";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -239,22 +239,37 @@ export class DeviceConfiguratorService{
             return null;
         }
     };
-    addChangesToDevice(value, devicereff){
+    addChangesToDevice(value, devicereff,  device?){
         /*
         * Check if the changed part is a child (or in the root)
         * */
         if (devicereff){
-            //If the part is already in the device override / call setWith with the child refference otherwise use lodash to append the object
-            if (_.hasIn(this.device, devicereff)){
-                this.setWith(_.get(this.device, devicereff), value);
+            if(device){
+                //If the part is already in the device override / call setWith with the child refference otherwise use lodash to append the object
+                if (_.hasIn(device, devicereff)){
+                    this.setWith(_.get(device, devicereff), value);
+                }else{
+                    let newValue = {};
+                    this.setWith(newValue, value);
+                    _.set(device,  devicereff,  newValue);
+                }
             }else{
-                let newValue = {};
-                this.setWith(newValue, value);
-                _.set(this.device,  devicereff,  newValue);
+                //If the part is already in the device override / call setWith with the child refference otherwise use lodash to append the object
+                if (_.hasIn(this.device, devicereff)){
+                    this.setWith(_.get(this.device, devicereff), value);
+                }else{
+                    let newValue = {};
+                    this.setWith(newValue, value);
+                    _.set(this.device,  devicereff,  newValue);
+                }
             }
         }else{
-            //The root of the device was changed call setWith
-            this.setWith(this.device, value);
+            if(device){
+                this.setWith(device, value);
+            }else{
+                //The root of the device was changed call setWith
+                this.setWith(this.device, value);
+            }
         }
     }
     setWith(device, value){
@@ -383,7 +398,7 @@ export class DeviceConfiguratorService{
                 _.forEach(schemaProperties, (m, i) => {
                     if(_.hasIn(m,'format')){
                         //Get the value / array that is needed for the defined format
-                        this.getFormatValue(m.format, this.device).subscribe(
+                        this.getFormatValue(m.format, this.device || device).subscribe(
                             (formatValue) =>{
                                 // setTimeout(()=>{
 

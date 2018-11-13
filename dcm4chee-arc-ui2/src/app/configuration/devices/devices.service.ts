@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
-import {WindowRefService} from "../helpers/window-ref.service";
+import {WindowRefService} from "../../helpers/window-ref.service";
 import {Headers, Http} from "@angular/http";
-import {J4careHttpService} from "../helpers/j4care-http.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Injectable()
 export class DevicesService {
@@ -10,13 +11,6 @@ export class DevicesService {
 
     constructor(private $http:J4careHttpService) { }
 
-    appendExporterToDevice(device, exporter){
-        device.dcmDevice = device.dcmDevice || {};
-        device.dcmDevice.dcmArchiveDevice = device.dcmDevice.dcmArchiveDevice || {};
-        device.dcmDevice.dcmArchiveDevice.dcmExporter = device.dcmDevice.dcmArchiveDevice.dcmExporter || [];
-        device.dcmDevice.dcmArchiveDevice.dcmExporter.push(this.removeEmptyFieldsFromExporter(exporter));
-        return device;
-    }
     removeEmptyFieldsFromExporter(exporter){
         _.forEach(exporter,(m,i)=>{
             if(m === "" || m === undefined){
@@ -52,7 +46,7 @@ export class DevicesService {
     getDevices(){
        return this.$http.get(
             '../devices'
-        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+        ).map(res => j4care.redirectOnAuthResponse(res));
     }
     generateNewTitle(oldTitle, aes, titleName){
         let newTitle;

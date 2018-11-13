@@ -2482,6 +2482,70 @@ mat-dialog-container{
 .diff_mode_result_input{
   margin-bottom: 5px;
 }
+.float-left{
+  float:left !important;
+}
+.float-right{
+  float:right !important;
+}
+.more{
+  &.functions{
+    position: relative;
+    ul{
+      position: absolute;
+      width: 100%;
+      z-index: 999;
+    }
+  }
+}
+dicom-list{
+  margin-bottom: 2px;
+}
+
+.cdk-overlay-container{
+  mat-dialog-container.mat-dialog-content{
+    position: relative;
+    margin: 50px 0;
+  }
+  .dynamic_form_dialog{
+    .dialog_content{
+      position: relative;
+      margin: 50px 0px;
+    }
+    .dropdown{
+      overflow: auto;
+      height: auto;
+      box-shadow: none;
+      position: static;
+    }
+    select.dropdown{
+      height: 30px;
+    }
+    .toggle{
+      display: none;
+    }
+    .submit_button_block{
+      position: absolute;
+      bottom: -65px;
+      right: 15px;
+    }
+    .search_form{
+      position: absolute;
+      top: -38px;
+      left: 0px;
+      -webkit-transform: translate3d(0, 0, 0);
+      -moz-transform: translate3d(0, 0, 0);
+      -ms-transform: translate3d(0, 0, 0);
+      -o-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+    }
+    .fa-spin{
+      font-size: 40px;
+      text-align: center;
+      width: 100%;
+    }
+  }
+}
 /* New black and white design*/
 $pink:rgba(82, 36, 88, 0.85);
 $backgroundColor:rgba(28, 36, 43, 0.92);
@@ -2650,6 +2714,25 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       line-height: 105px;
       vertical-align: middle;
       font-size: 20px;
+      &.double_block{
+        width: 414px;
+        border-right: 1px solid rgba(255, 255, 255, 0.18);
+      }
+    }
+    .info_block_pointer{
+      .too_long{
+        color: #a94442;
+      }
+      .normal{
+        color:#60ad8d;
+      }
+      &:hover{
+        cursor: pointer;
+        background:rgba(6, 29, 47, 0.12);
+      }
+      &.error{
+        color: rgba(119, 119, 119, 0.84);
+      }
     }
   }
   .filter{

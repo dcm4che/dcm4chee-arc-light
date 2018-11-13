@@ -21,6 +21,7 @@ export class AppService implements OnInit, OnDestroy{
     }
     private _deviceName;
     private _archiveDevice;
+    private _archiveDeviceName;
     get global() {
         return this._global;
     }
@@ -64,9 +65,16 @@ export class AppService implements OnInit, OnDestroy{
     set archiveDevice(value) {
         this._archiveDevice = value;
     }
+    get archiveDeviceName() {
+        return this._archiveDeviceName;
+    }
+
+    set archiveDeviceName(value) {
+        this._archiveDeviceName = value;
+    }
 
 // Observable string sources
-    private setMessageSource = new Subject<string>();
+    private setMessageSource = new Subject<any>();
     private setGlobalSource = new Subject<string>();
     private createPatientSource = new Subject<string>();
 
@@ -78,6 +86,27 @@ export class AppService implements OnInit, OnDestroy{
     setMessage(msg: any) {
         console.log('in set message', msg);
         this.setMessageSource.next(msg);
+    }
+    showError(msg:string){
+        this.setMessageSource.next({
+            "title":"Error",
+            "text":msg,
+            "status":"error"
+        })
+    }
+    showMsg(msg:string){
+        this.setMessageSource.next({
+            "title":"Info",
+            "text":msg,
+            "status":"info"
+        })
+    }
+    showWarning(msg:string){
+        this.setMessageSource.next({
+            "title":"Warning",
+            "text":msg,
+            "status":"warning"
+        })
     }
     setGlobal(object: any) {
         // if(this._global){
@@ -169,4 +198,8 @@ export class AppService implements OnInit, OnDestroy{
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     */}
 
+    getUniqueID(){
+        let newDate = new Date(this.serverTime);
+        return `${newDate.getFullYear().toString().substr(-2)}${newDate.getMonth()}${newDate.getDate()}${newDate.getHours()}${newDate.getMinutes()}${newDate.getSeconds()}`;
+    }
 }

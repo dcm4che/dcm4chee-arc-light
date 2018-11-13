@@ -38,11 +38,13 @@ export class PermissionService {
     }
     getConfig(response){
         let deviceName;
+        let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
             return this.$http.get('../devicename')
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
+                    archiveDeviceName = res.dicomDeviceName;
                     return this.$http.get('../devices/' + deviceName)
                 })
                 .map(res => res.json())
@@ -54,13 +56,11 @@ export class PermissionService {
                         global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
                         global["myDevice"] = res;
                         this.mainservice.deviceName = deviceName;
+                        this.mainservice.archiveDeviceName = archiveDeviceName;
                         this.mainservice.setGlobal(global);
                     }catch(e){
                         console.warn("Permission not found!",e);
-                        this.mainservice.setMessage({
-                            'text': "Permission not found!",
-                            'status': 'error'
-                        })
+                        this.mainservice.showError("Permission not found!");
                         return response.apply(this,[]);
                     }
                     // return this.checkMenuTabAccess(url);
@@ -71,6 +71,7 @@ export class PermissionService {
     }
     getConfigWithUser(response){
         let deviceName;
+        let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
             return this.mainservice.getUserInfo()
                 .map(user=>{
@@ -81,6 +82,7 @@ export class PermissionService {
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
+                    archiveDeviceName = res.dicomDeviceName;
                     return this.$http.get('../devices/' + deviceName);
                 })
                 .map(res => j4care.redirectOnAuthResponse(res))
@@ -91,6 +93,7 @@ export class PermissionService {
                         let global = _.cloneDeep(this.mainservice.global);
                         global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
                         global["myDevice"] = res;
+                        this.mainservice.archiveDeviceName = archiveDeviceName;
                         this.mainservice.deviceName = deviceName;
                         this.mainservice.setGlobal(global);
                     }catch(e){

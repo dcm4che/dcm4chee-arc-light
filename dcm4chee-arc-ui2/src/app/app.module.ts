@@ -38,8 +38,7 @@ import { TooltipDirective } from './helpers/tooltip/tooltip.directive';
 import { ComparewithiodPipe } from './pipes/comparewithiod.pipe';
 import { PlaceholderchangerDirective } from './helpers/placeholderchanger.directive';
 import {QueuesService} from './monitoring/queues/queues.service';
-import { DevicesComponent } from './devices/devices.component';
-import {DevicesService} from './devices/devices.service';
+import { DevicesComponent } from './configuration/devices/devices.component';
 import { DeviceConfiguratorComponent } from './configuration/device-configurator/device-configurator.component';
 import {DynamicFormElementComponent} from './widgets/dynamicform/dynamic-form-element.component';
 import {DynamicFormComponent} from './widgets/dynamicform/dynamic-form.component';
@@ -90,6 +89,7 @@ import {RangePickerService} from "./widgets/range-picker/range-picker.service";
 import { StorageVerificationComponent } from './monitoring/storage-verification/storage-verification.component';
 import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
 import { ConfigTabComponent } from './configuration/config-tab.component';
+import {DevicesService} from './configuration/devices/devices.service';
 
 @NgModule({
     declarations: [

@@ -1,19 +1,20 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import * as _ from 'lodash';
-import {ConfirmComponent} from '../widgets/dialogs/confirm/confirm.component';
-import {AppService} from '../app.service';
+import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
+import {AppService} from '../../app.service';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
 import {DevicesService} from './devices.service';
 import {HostListener} from '@angular/core';
-import {CreateExporterComponent} from '../widgets/dialogs/create-exporter/create-exporter.component';
+import {CreateExporterComponent} from '../../widgets/dialogs/create-exporter/create-exporter.component';
 import {Router} from '@angular/router';
-import {WindowRefService} from "../helpers/window-ref.service";
-import {Hl7ApplicationsService} from "../configuration/hl7-applications/hl7-applications.service";
-import {HttpErrorHandler} from "../helpers/http-error-handler";
-import {J4careHttpService} from "../helpers/j4care-http.service";
-import {DeviceConfiguratorService} from "../configuration/device-configurator/device-configurator.service";
+import {WindowRefService} from "../../helpers/window-ref.service";
+import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {DeviceConfiguratorService} from "../device-configurator/device-configurator.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {Globalvar} from "../../constants/globalvar";
 
 @Component({
   selector: 'app-devices',
@@ -299,8 +300,12 @@ export class DevicesComponent implements OnInit{
             console.log('re', re);
             if (re && re.device && re.device.dicomDeviceName && re.exporter){
                 let headers = new Headers({ 'Content-Type': 'application/json' });
-                // console.log("newdevice",$this.service.appendExporterToDevice(re.device,re.exporter));
-                $this.$http.put('../devices/' + re.device.dicomDeviceName, $this.service.appendExporterToDevice(re.device, re.exporter), headers).subscribe(res => {
+                let i = 0;
+                if(_.hasIn(re.device,Globalvar.EXPORTER_CONFIG_PATH)){
+                    i = (<any>_.get(re.device,Globalvar.EXPORTER_CONFIG_PATH)).length;
+                }
+                this.deviceConfigurator.addChangesToDevice(re.exporter,`${Globalvar.EXPORTER_CONFIG_PATH}[${i}]`,re.device);
+                $this.$http.put('../devices/' + re.device.dicomDeviceName,re.device, headers).subscribe(res => {
                     $this.mainservice.setMessage({
                         'title': 'Info',
                         'text': 'The new exporter description appended successfully to the device: ' + re.device.dicomDeviceName,

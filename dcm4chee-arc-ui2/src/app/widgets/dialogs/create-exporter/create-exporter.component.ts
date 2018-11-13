@@ -96,6 +96,7 @@ export class CreateExporterComponent implements OnInit{
         }
     };
     formObj;
+    archive;
     private _aes;
     private _devices;
     _ = _;
@@ -115,7 +116,7 @@ export class CreateExporterComponent implements OnInit{
         this.service.getQueue().subscribe(queue => {
             $this.queue = queue;
         });
-        this.getSchema();
+        this.getArchiveDevice(2);
     }
     get aes() {
         return this._aes;
@@ -149,9 +150,9 @@ export class CreateExporterComponent implements OnInit{
     getSchema(){
         this.service.getExporterDescriptorSchema().subscribe(schema=>{
             this.schema = schema;
-            this.formObj = this.deviceConfigService.convertSchemaToForm({}, this.schema, {}, 'attr');
+            this.formObj = this.deviceConfigService.convertSchemaToForm(this.archive, this.schema, {}, 'attr');
         },err=>{
-            this.formObj = this.deviceConfigService.convertSchemaToForm({}, this.schema, {}, 'attr');
+            this.formObj = this.deviceConfigService.convertSchemaToForm(this.archive, this.schema, {}, 'attr');
         })
     }
     selectDevice(e){
@@ -171,6 +172,36 @@ export class CreateExporterComponent implements OnInit{
         });
     }
 
+    getArchiveDevice(retries){
+        if(!this.mainservice.archiveDeviceName){
+            if(retries){
+                console.log("retry",retries);
+                setTimeout(()=>{
+                    this.getArchiveDevice(retries-1);
+                },400);
+            }
+        }else{
+            this.service.getDevice(this.mainservice.archiveDeviceName).subscribe((res)=>{
+                this.archive = res;
+                this.getSchema();
+            },(err)=>{
+                if(retries)
+                    this.getArchiveDevice(retries-1);
+                else{
+                    this.httpErrorHandler.handleError(err);
+                }
+            });
+        }
+    }
+    submitFunction(e){
+        console.log("e",e);
+        // this.deviceConfigService.addChangesToDevice(e, '', this.archive);
+        // this.deviceConfiguratiorComponent.submitFunction(e);
+        this.dialogRef.close({
+            device:this.archive,
+            exporter:e
+        });
+    }
     validAeForm(){
         if (!this.dcmExporter.dcmExporterID || this.dcmExporter.dcmExporterID === ''){
             return false;

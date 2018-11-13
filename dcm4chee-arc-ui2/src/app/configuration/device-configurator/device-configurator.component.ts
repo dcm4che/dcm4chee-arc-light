@@ -11,9 +11,9 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
-import {DevicesService} from "../../devices/devices.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {DevicesService} from "../devices/devices.service";
 
 @Component({
   selector: 'app-device-configurator',
