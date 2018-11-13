@@ -96,6 +96,7 @@ public class StgCmtSCUMDB implements MessageListener {
                     msg.getStringProperty("SeriesInstanceUID"),
                     msg.getStringProperty("SopInstanceUID"),
                     msg.getStringProperty("ExporterID"),
+                    msg.getStringProperty("MessageID"),
                     queueMessage.getBatchID(),
                     actionInfo);
             queueManager.onProcessingSuccessful(msgID, outcome);

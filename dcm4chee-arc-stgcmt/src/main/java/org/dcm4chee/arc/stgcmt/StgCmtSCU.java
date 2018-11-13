@@ -59,6 +59,6 @@ public interface StgCmtSCU {
 
     Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID,
                         String seriesInstanceUID, String sopInstanceUID, String exporterID,
-                        String batchID, Attributes actionInfo)
+                        String messageID, String batchID, Attributes actionInfo)
             throws Exception;
 }
