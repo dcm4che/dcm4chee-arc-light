@@ -8,6 +8,11 @@ jms-queue add --queue-address=Export2 --entries=java:/jms/queue/Export2
 jms-queue add --queue-address=Export3 --entries=java:/jms/queue/Export3
 jms-queue add --queue-address=Export4 --entries=java:/jms/queue/Export4
 jms-queue add --queue-address=Export5 --entries=java:/jms/queue/Export5
+jms-queue add --queue-address=Export6 --entries=java:/jms/queue/Export6
+jms-queue add --queue-address=Export7 --entries=java:/jms/queue/Export7
+jms-queue add --queue-address=Export8 --entries=java:/jms/queue/Export8
+jms-queue add --queue-address=Export9 --entries=java:/jms/queue/Export9
+jms-queue add --queue-address=Export10 --entries=java:/jms/queue/Export10
 jms-queue add --queue-address=HL7Send --entries=java:/jms/queue/HL7Send
 jms-queue add --queue-address=RSClient --entries=java:/jms/queue/RSClient
 jms-queue add --queue-address=CMoveSCU --entries=java:/jms/queue/CMoveSCU
