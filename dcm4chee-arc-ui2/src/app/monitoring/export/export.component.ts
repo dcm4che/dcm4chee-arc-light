@@ -18,6 +18,7 @@ import {ActivatedRoute} from "@angular/router";
 import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
+import {Validators} from "@angular/forms";
 
 
 @Component({
@@ -65,7 +66,6 @@ export class ExportComponent implements OnInit, OnDestroy {
         "CANCELED"
     ];
     batchGrouped = false;
-    isRole: any = (user)=>{return false;};
     dialogRef: MatDialogRef<any>;
     _ = _;
     devices;
@@ -293,12 +293,54 @@ export class ExportComponent implements OnInit, OnDestroy {
             height: 'auto',
             width: '500px'
         });
-        this.dialogRef.componentInstance.aets = this.aets ;
         this.dialogRef.componentInstance.params = {
-            aet:this.filterObject['LocalAET']||'',
-            externalAET:this.filterObject['RemoteAET']||'',
-            destinationAET:this.filterObject['DestinationAET']||'',
-            batchID:this.filterObject['batchID']||'',
+            exporterID:this.exporterID || '',
+            batchID:this.filterObject['batchID'] || '',
+            formSchema:[
+                {
+                    tag:"select",
+                    options:this.aets,
+                    showStar:true,
+                    filterKey:"LocalAET",
+                    description:"Local AET",
+                    placeholder:"Local AET",
+                    validation:Validators.required
+                },
+                {
+                    tag:"select",
+                    options:this.exporters.map(exporter=>{
+                        return {
+                            value:exporter.id,
+                            text:exporter.id
+                        }
+                    }),
+                    showStar:true,
+                    filterKey:"exporterID",
+                    description:"Exporter ID",
+                    placeholder:"Exporter ID",
+                    validation:Validators.required
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"field",
+                    description:"Field",
+                    placeholder:"Field",
+                    validation:Validators.minLength(1),
+                    defaultValue:1
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"batchID",
+                    description:"Batch ID",
+                    placeholder:"Batch ID"
+                }
+            ],
+            prepareUrl:(filter)=>{
+                let clonedFilters = {};
+                if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
+                return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+            }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
             if(ok){
@@ -847,10 +889,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
-                    console.log('res', res);
-                    console.log('exporters', $this.exporters);
                     $this.exporters = res;
-                    console.log('exporters2', $this.exporters);
                     if (res && res[0] && res[0].id){
                         $this.exporterID = res[0].id;
                     }

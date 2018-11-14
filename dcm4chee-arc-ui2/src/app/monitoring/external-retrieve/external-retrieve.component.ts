@@ -295,9 +295,9 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         });
         this.dialogRef.componentInstance.aes = this.remoteAET;
         this.dialogRef.componentInstance.params = {
-            aet:this.filterObject['LocalAET']||'',
-            externalAET:this.filterObject['RemoteAET']||'',
-            destinationAET:this.filterObject['DestinationAET']||'',
+            LocalAET:this.filterObject['LocalAET']||'',
+            RemoteAET:this.filterObject['RemoteAET']||'',
+            DestinationAET:this.filterObject['DestinationAET']||'',
             batchID:this.filterObject['batchID']||'',
             formSchema:[
                 {
@@ -314,14 +314,30 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                     showStar:true,
                     filterKey:"RemoteAET",
                     description:"Romote AET",
-                    placeholder:"Romote AET"
+                    placeholder:"Romote AET",
+                    validation:Validators.required
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"field",
+                    description:"Field",
+                    placeholder:"Field",
+                    validation:Validators.minLength(1),
+                    defaultValue:1
                 },{
                     tag:"select",
                     options:this.remoteAET,
                     showStar:true,
                     filterKey:"DestinationAET",
                     description:"Destination AET",
-                    placeholder:"Destination AET"
+                    placeholder:"Destination AET",
+                    validation:Validators.required
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"priority",
+                    description:"Priority",
+                    placeholder:"Priority"
                 },
                 {
                     tag:"input",
@@ -335,7 +351,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                 let clonedFilters = {};
                 if(filter['priority']) clonedFilters['priority'] = filter['priority'];
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
-                return `../aets/${filter.aet}/dimse/${filter.externalAET}/studies/csv:${filter.field}/export/dicom:${filter.destinationAET}${j4care.getUrlParams(clonedFilters)}`;
+                return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
