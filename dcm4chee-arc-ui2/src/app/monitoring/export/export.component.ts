@@ -33,20 +33,6 @@ export class ExportComponent implements OnInit, OnDestroy {
     showMenu;
     aets;
     exportTasks = [];
-/*    filters = {
-        ExporterID: undefined,
-        offset: undefined,
-        limit: 20,
-        status: '*',
-        dicomDeviceName: '',
-        StudyInstanceUID: undefined,
-        updatedTime: undefined,
-        // updatedTimeObject: undefined,
-        createdTime: undefined,
-        batchID: undefined,
-        orderby: undefined,
-        // createdTimeObject: undefined
-    };*/
     timer = {
         started:false,
         startText:"Start Auto Refresh",
@@ -137,50 +123,6 @@ export class ExportComponent implements OnInit, OnDestroy {
                 loader: false
             };
         });
-/*        let $this = this;
-        if (!this.mainservice.user){
-            // console.log("in if studies ajax");
-            this.mainservice.user = this.mainservice.getUserInfo().share();
-            this.mainservice.user
-                .subscribe(
-                    (response) => {
-                        $this.user.user  = response.user;
-                        $this.mainservice.user.user = response.user;
-                        $this.user.roles = response.roles;
-                        $this.mainservice.user.roles = response.roles;
-                        $this.isRole = (role) => {
-                            if (response.user === null && response.roles.length === 0){
-                                return true;
-                            }else{
-                                if (response.roles && response.roles.indexOf(role) > -1){
-                                    return true;
-                                }else{
-                                    return false;
-                                }
-                            }
-                        };
-                    },
-                    (response) => {
-                        // $this.user = $this.user || {};
-                        console.log('get user error');
-                        $this.user.user = 'user';
-                        $this.mainservice.user.user = 'user';
-                        $this.user.roles = ['user', 'admin'];
-                        $this.mainservice.user.roles = ['user', 'admin'];
-                        $this.isRole = (role) => {
-                            if (role === 'admin'){
-                                return false;
-                            }else{
-                                return true;
-                            }
-                        };
-                    }
-                );
-
-        }else{
-            this.user = this.mainservice.user;
-            this.isRole = this.mainservice.isRole;
-        }*/
         this.statusChange();
     }
     initSchema(){
@@ -358,17 +300,9 @@ export class ExportComponent implements OnInit, OnDestroy {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.filterObject, offset,this.batchGrouped)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe((res) => {
-/*                    res = [{"batchID":"test12","tasks":{
-                        "completed":60,
-                        "warning":24,
-                        "failed":12,
-                        "in-process":5,
-                        "scheduled":123,
-                        "canceled":26
-                    },"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3,"warning":34},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];
-               */ if (res && res.length > 0){
+                if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
                         if(this.batchGrouped){
                             let propertiesAttr = Object.assign({},properties);

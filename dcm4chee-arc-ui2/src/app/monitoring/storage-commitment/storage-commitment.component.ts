@@ -10,6 +10,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
   selector: 'app-storage-commitment',
@@ -30,7 +31,6 @@ export class StorageCommitmentComponent implements OnInit {
         updatedBefore: undefined,
         dicomDeviceName: undefined
     };
-    // isRole: any = (user)=>{return false;};
     dialogRef: MatDialogRef<any>;
     _ = _;
     filterSchema = [];
@@ -83,7 +83,7 @@ export class StorageCommitmentComponent implements OnInit {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.filters, offset)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe((res) => {
                 if (res && res.length > 0){
                     if(this.filters.limit < res.length){
@@ -125,9 +125,7 @@ export class StorageCommitmentComponent implements OnInit {
         }
     };
     msToTime(duration) {
-
         if (duration > 999){
-
             let milliseconds: any = parseInt((((duration % 1000))).toString())
                 , seconds: any = parseInt(((duration / 1000) % 60).toString())
                 , minutes: any = parseInt(((duration / (1000 * 60)) % 60).toString())
@@ -190,8 +188,6 @@ export class StorageCommitmentComponent implements OnInit {
             saveButtonClass: 'btn-danger'
         };
         let $this = this;
-        // let beforeDate = datePipeEn.transform(this.before,'yyyy-mm-dd');
-        // console.log("beforeDate",beforeDate);
         this.confirm(parameters).subscribe(result => {
             if (result){
                 // console.log("parametersdate",datePipeEn.transform(parameters.result.date,'yyyy-mm-dd'));
@@ -203,9 +199,8 @@ export class StorageCommitmentComponent implements OnInit {
                         'status': 'error'
                     });
                 }else{
-
                     this.service.flush(parameters.result.select, parameters.result.date)
-                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                        .map(res => j4care.redirectOnAuthResponse(res))
                         .subscribe((res) => {
                             console.log('resflush', res);
                             $this.mainservice.setMessage({

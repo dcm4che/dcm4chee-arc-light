@@ -35,14 +35,6 @@ export class CsvUploadComponent implements OnInit {
             formContent[form.filterKey] =[j4care.getValue(form.filterKey, this.params), form.validation]
         });
         this.form = this._fb.group(formContent);
-/*        this.form = this._fb.group({
-            aet:[j4care.getValue('aet', this.params), Validators.required],
-            externalAET:[j4care.getValue('externalAET', this.params), Validators.required],
-            field:[j4care.getValue('field', this.params,1),  Validators.minLength(1)],
-            destinationAET:[j4care.getValue('destinationAET', this.params), Validators.required],
-            priority:j4care.getValue('priority', this.params,NaN),
-            batchID:j4care.getValue('batchID', this.params)
-        });*/
     }
     submit(){
         this.showLoader = true;

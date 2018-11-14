@@ -113,7 +113,11 @@ export class StorageCommitmentService {
                         description:"Study Instance UID",
                         placeholder:"Study Instance UID"
                     },{
-                        tag:"dummy"
+                        tag:"input",
+                        type:"text",
+                        filterKey:"batchID",
+                        description:"Batch ID",
+                        placeholder:"Batch ID"
                     }
                 ],
                 [
