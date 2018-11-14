@@ -4,18 +4,14 @@ import {AppService} from "../../../app.service";
 import {j4care} from "../../../helpers/j4care.service";
 
 @Injectable()
-export class CsvRetrieveService {
+export class CsvUploadService {
 
   constructor(
       private $http:J4careHttpService,
       public mainservice:AppService
   ) { }
 
-  uploadCSV(filters, file, onloadend, onerror){
-    let clonedFilters = {};
-    if(filters['priority']) clonedFilters['priority'] = filters['priority'];
-    if(filters['batchID']) clonedFilters['batchID'] = filters['batchID'];
-    let url = `../aets/${filters.aet}/dimse/${filters.externalAET}/studies/csv:${filters.field}/export/dicom:${filters.destinationAET}${j4care.getUrlParams(clonedFilters)}`;
+  uploadCSV(url, file, onloadend, onerror){
     let xmlHttpRequest = new XMLHttpRequest();
     xmlHttpRequest.open('POST', url, true);
     let token;

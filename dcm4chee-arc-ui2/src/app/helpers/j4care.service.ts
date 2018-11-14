@@ -408,6 +408,12 @@ export class j4care {
         }
         return '';
     }
+    static getValue(key, object, defaultVal?){
+        if(object[key])
+            return object[key];
+        else
+            return defaultVal || '';
+    }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
             let token;
@@ -552,7 +558,8 @@ export class j4care {
     };
 
     static getUrlParams(params){
-        return '?' + jQuery.param(params);
+        let paramString = jQuery.param(params);
+        return paramString ? '?' + paramString : '';
     };
 
     get(url: string): Observable<any> {

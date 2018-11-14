@@ -15,7 +15,7 @@ import * as FileSaver from 'file-saver';
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
-import {CsvRetrieveComponent} from "../../widgets/dialogs/csv-retrieve/csv-retrieve.component";
+import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 
@@ -289,7 +289,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         });
     }
     uploadCsv(){
-        this.dialogRef = this.dialog.open(CsvRetrieveComponent, {
+        this.dialogRef = this.dialog.open(CsvUploadComponent, {
             height: 'auto',
             width: '500px'
         });

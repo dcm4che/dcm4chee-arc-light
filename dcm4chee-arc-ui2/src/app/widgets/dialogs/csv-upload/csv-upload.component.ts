@@ -1,47 +1,48 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MatDialogRef} from "@angular/material";
-import {CsvRetrieveService} from "./csv-retrieve.service";
+import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
-  selector: 'csv-retrieve',
-  templateUrl: './csv-retrieve.component.html',
-  styleUrls: ['./csv-retrieve.component.scss']
+  selector: 'csv-upload',
+  templateUrl: './csv-upload.component.html',
+  styleUrls: ['./csv-upload.component.scss']
 })
-export class CsvRetrieveComponent implements OnInit {
+export class CsvUploadComponent implements OnInit {
 
     form: FormGroup;
     csvFile:File;
     aes;
-    params;
+    params = {
+        formSchema:[],
+        prepareUrl:undefined
+    };
     showLoader = false;
+    model = {};
     constructor(
-        public dialogRef: MatDialogRef<CsvRetrieveComponent>,
+        public dialogRef: MatDialogRef<CsvUploadComponent>,
         private _fb: FormBuilder,
-        private service:CsvRetrieveService,
+        private service:CsvUploadService,
         private appService:AppService
     ){}
 
     ngOnInit() {
+        console.log("formSchema",this.params);
         this.form = this._fb.group({
-            aet:[this.getValue('aet'), Validators.required],
-            externalAET:[this.getValue('externalAET'), Validators.required],
-            field:[this.getValue('field',1),  Validators.minLength(1)],
-            destinationAET:[this.getValue('destinationAET'), Validators.required],
-            priority:this.getValue('priority',NaN),
-            batchID:this.getValue('batchID')
+            aet:[j4care.getValue('aet', this.params), Validators.required],
+            externalAET:[j4care.getValue('externalAET', this.params), Validators.required],
+            field:[j4care.getValue('field', this.params,1),  Validators.minLength(1)],
+            destinationAET:[j4care.getValue('destinationAET', this.params), Validators.required],
+            priority:j4care.getValue('priority', this.params,NaN),
+            batchID:j4care.getValue('batchID', this.params)
         });
-    }
-    getValue(key,defaultVal?){
-       if(this.params[key])
-           return this.params[key];
-       else
-           return defaultVal || '';
     }
     submit(){
         this.showLoader = true;
-        this.service.uploadCSV(this.form.value, this.csvFile, (end)=>{
+        let url = this.params.prepareUrl(this.form.value);
+        this.service.uploadCSV(url, this.csvFile, (end)=>{
             this.showLoader = false;
             if(end.status >= 199 && end.status < 300){
                 let msg = "Tasks created successfully!";

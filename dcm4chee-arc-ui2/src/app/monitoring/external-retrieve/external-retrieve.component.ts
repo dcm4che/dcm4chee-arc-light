@@ -16,10 +16,11 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import "rxjs/add/observable/forkJoin";
 import {LoadingBarService} from '@ngx-loading-bar/core';
 import {environment} from "../../../environments/environment";
-import {CsvRetrieveComponent} from "../../widgets/dialogs/csv-retrieve/csv-retrieve.component";
+import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
 import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
 import {PermissionService} from "../../helpers/permissions/permission.service";
+import {Validators} from "@angular/forms";
 
 @Component({
   selector: 'external-retrieve',
@@ -288,16 +289,54 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         })
     }
     uploadCsv(){
-        this.dialogRef = this.dialog.open(CsvRetrieveComponent, {
+        this.dialogRef = this.dialog.open(CsvUploadComponent, {
             height: 'auto',
             width: '500px'
         });
-        this.dialogRef.componentInstance.aes = this.remoteAET ;
+        this.dialogRef.componentInstance.aes = this.remoteAET;
         this.dialogRef.componentInstance.params = {
             aet:this.filterObject['LocalAET']||'',
             externalAET:this.filterObject['RemoteAET']||'',
             destinationAET:this.filterObject['DestinationAET']||'',
             batchID:this.filterObject['batchID']||'',
+            formSchema:[
+                {
+                    tag:"select",
+                    options:this.remoteAET,
+                    showStar:true,
+                    filterKey:"LocalAET",
+                    description:"Local AET",
+                    placeholder:"Local AET",
+                    validation:Validators.required
+                },{
+                    tag:"select",
+                    options:this.remoteAET,
+                    showStar:true,
+                    filterKey:"RemoteAET",
+                    description:"Romote AET",
+                    placeholder:"Romote AET"
+                },{
+                    tag:"select",
+                    options:this.remoteAET,
+                    showStar:true,
+                    filterKey:"DestinationAET",
+                    description:"Destination AET",
+                    placeholder:"Destination AET"
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"batchID",
+                    description:"Batch ID",
+                    placeholder:"Batch ID"
+                }
+            ],
+            prepareUrl:(filter)=>{
+                let clonedFilters = {};
+                if(filter['priority']) clonedFilters['priority'] = filter['priority'];
+                if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
+                return `../aets/${filter.aet}/dimse/${filter.externalAET}/studies/csv:${filter.field}/export/dicom:${filter.destinationAET}${j4care.getUrlParams(clonedFilters)}`;
+            }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
             if(ok){

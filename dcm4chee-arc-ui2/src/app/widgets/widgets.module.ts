@@ -34,7 +34,7 @@ import { ModalityComponent } from './modality/modality.component';
 import { RangePickerComponent } from './range-picker/range-picker.component';
 import { DynamicFieldComponent } from './dynamic-field/dynamic-field.component';
 import { DcmSelectComponent } from './dcm-select/dcm-select.component';
-import { CsvRetrieveComponent } from './dialogs/csv-retrieve/csv-retrieve.component';
+import { CsvUploadComponent } from './dialogs/csv-upload/csv-upload.component';
 
 
 @NgModule({
@@ -79,5 +79,5 @@ export const WidgetsComponents = [
     RangePickerComponent,
     DynamicFieldComponent,
     DcmSelectComponent,
-    CsvRetrieveComponent
+    CsvUploadComponent
 ];

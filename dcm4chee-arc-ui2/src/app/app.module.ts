@@ -79,7 +79,7 @@ import {PermissionService} from "./helpers/permissions/permission.service";
 import { PermissionDirective } from './helpers/permissions/permission.directive';
 import {LoadingBarModule} from "@ngx-loading-bar/core";
 import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied.component";
-import {CsvRetrieveService} from "./widgets/dialogs/csv-retrieve/csv-retrieve.service";
+import {CsvUploadService} from "./widgets/dialogs/csv-upload/csv-upload.service";
 import { StackedProgressComponent } from './helpers/stacked-progress/stacked-progress.component';
 import { DiffMonitorComponent } from './monitoring/diff-monitor/diff-monitor.component';
 import {DiffMonitorService} from "./monitoring/diff-monitor/diff-monitor.service";
@@ -226,7 +226,7 @@ import {DevicesService} from './configuration/devices/devices.service';
         DynamicFieldService,
         AuthGuard,
         PermissionService,
-        CsvRetrieveService,
+        CsvUploadService,
         DiffMonitorService,
         RangePickerService,
         StorageVerificationService,
