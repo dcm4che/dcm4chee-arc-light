@@ -17,7 +17,7 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 })
 export class StorageCommitmentComponent implements OnInit {
     matches = [];
-    user: User;
+    // user: User;
     exporters;
     exporterID;
     exportTasks = [];
@@ -30,10 +30,10 @@ export class StorageCommitmentComponent implements OnInit {
         updatedBefore: undefined,
         dicomDeviceName: undefined
     };
-    isRole: any = (user)=>{return false;};
+    // isRole: any = (user)=>{return false;};
     dialogRef: MatDialogRef<any>;
     _ = _;
-
+    filterSchema = [];
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: LoadingBarService,
@@ -63,51 +63,6 @@ export class StorageCommitmentComponent implements OnInit {
     }
     init(){
         this.initExporters(2);
-        // this.init();
-        let $this = this;
-        if (!this.mainservice.user){
-            // console.log("in if studies ajax");
-            this.mainservice.user = this.mainservice.getUserInfo().share();
-            this.mainservice.user
-                .subscribe(
-                    (response) => {
-                        $this.user.user  = response.user;
-                        $this.mainservice.user.user = response.user;
-                        $this.user.roles = response.roles;
-                        $this.mainservice.user.roles = response.roles;
-                        $this.isRole = (role) => {
-                            if (response.user === null && response.roles.length === 0){
-                                return true;
-                            }else{
-                                if (response.roles && response.roles.indexOf(role) > -1){
-                                    return true;
-                                }else{
-                                    return false;
-                                }
-                            }
-                        };
-                    },
-                    (response) => {
-                        // $this.user = $this.user || {};
-                        console.log('get user error');
-                        $this.user.user = 'user';
-                        $this.mainservice.user.user = 'user';
-                        $this.user.roles = ['user', 'admin'];
-                        $this.mainservice.user.roles = ['user', 'admin'];
-                        $this.isRole = (role) => {
-                            if (role === 'admin'){
-                                return false;
-                            }else{
-                                return true;
-                            }
-                        };
-                    }
-                );
-
-        }else{
-            this.user = this.mainservice.user;
-            this.isRole = this.mainservice.isRole;
-        }
     };
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
@@ -130,11 +85,11 @@ export class StorageCommitmentComponent implements OnInit {
         this.service.search(this.filters, offset)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
-                console.log('res2', res);
-                console.log('res', res.length);
                 if (res && res.length > 0){
+                    if(this.filters.limit < res.length){
+                        res.pop();
+                    }
                     $this.matches = res.map((properties, index) => {
-                        $this.cfpLoadingBar.complete();
                         if (_.hasIn(properties, 'Modality')){
                             properties.Modality = properties.Modality.join(',');
                         }
@@ -144,6 +99,7 @@ export class StorageCommitmentComponent implements OnInit {
                             showProperties: false
                         };
                     });
+                    $this.cfpLoadingBar.complete();
                 }else{
                     $this.cfpLoadingBar.complete();
                     $this.matches = [];
@@ -311,19 +267,14 @@ export class StorageCommitmentComponent implements OnInit {
     };
 
     initExporters(retries) {
-        let $this = this;
-        this.$http.get('../export')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+        this.service.getExporters()
             .subscribe(
                 (res) => {
-                    console.log('res', res);
-                    console.log('exporters', $this.exporters);
-                    $this.exporters = res;
-                    console.log('exporters2', $this.exporters);
+                    this.exporters = res;
+                    this.filterSchema = this.service.getFiltersSchema(this.exporters);
                     if (res && res[0] && res[0].id){
-                        $this.exporterID = res[0].id;
+                        this.exporterID = res[0].id;
                     }
-                    // $this.mainservice.setGlobal({exporterID:$this.exporterID});
                 },
                 (res) => {
                     if (retries)

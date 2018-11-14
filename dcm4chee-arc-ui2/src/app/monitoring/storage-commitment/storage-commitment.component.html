@@ -1,75 +1,17 @@
-<div class="main_content monitoring">
+<div class="main_content monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <div class="row filter"  (keyup)="filterKeyUp($event)">
-            <div class="main_filter_block">
-                <div class="col-md-3 block-1-1">
-                    <div class="row">
-                        <label for="ExporterID" class="col-md-6 text-right control-label">Exporter ID:</label>
-<!--                        <div class="col-md-6">
-                            <input id="ExporterID" type="text" [(ngModel)]="filters.ExporterID" class="col-md-12"/>
-                        </div>-->
-                        <div class="col-md-6">
-                            <select id="exporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
-                                <option>*</option>
-                                <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
-                            </select>
-                        </div>
-<!--                        <div class="col-md-6">
-                            <select id="ExporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
-                                <option>*</option>
-                                <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
-                            </select>
-                        </div>-->
-                    </div>
-                    <div class="row">
-                        <label for="status" class="col-md-6 text-right control-label">Status:</label>
-                        <div class="col-md-6">
-                            <select id="status" [(ngModel)]="filters.status" class="col-md-12">
-                                <option>*</option>
-                                <option>PENDING</option>
-                                <option>COMPLETED</option>
-                                <option>WARNING</option>
-                                <option>FAILED</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="limit" class="col-md-6 text-right control-label">Page Size:</label>
-                        <div class="col-md-6">
-                            <input id="limit" type="number" min="1" [(ngModel)]="filters.limit" class="col-md-12" />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 block-2-1">
-                    <!--<div class="row">-->
-                        <!--<label class="col-md-6 text-right control-label">Study UID</label>-->
-                        <!--<div class="col-md-6">-->
-                            <!--<p-calendar  dataType="string" [(ngModel)]="filters.updatedBefore" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated before"></p-calendar>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                    <div class="row">
-                        <label for="StudyUID" class="col-md-6 text-right control-label">Study UID:</label>
-                        <div class="col-md-6">
-                            <input id="StudyUID" type="text" min="1" [(ngModel)]="filters.StudyUID" class="col-md-12" />
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-default submit col-md-12" (click)="search(0)" title="Refresh">
-                                <span class="glyphicon glyphicon-refresh"></span>
-                                SUBMIT
-                            </button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                        </div>
-                        <div class="col-md-6">
-                            <button *ngIf="isRole('admin')" class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before</button>
-                        </div>
+        <h2>Storage commitments</h2>
+        <div class="filter_line" (keyup)="filterKeyUp($event)">
+            <div class="filter_block">
+                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-commitment" [model]="filters" (submit)="search(0)"></filter-generator>
+            </div>
+        </div>
+        <div class="filter_line">
+            <div class="filter single_block">
+                <div class="filter_block">
+                    <div class="line">
+                        <button class="submit btn-default pull-left" (click)="flushBefore()">Flush before</button>
                     </div>
                 </div>
             </div>
@@ -116,7 +58,7 @@
                         <a *ngIf="isRole('admin') && (match.properties.status && (match.properties.status === 'TO SCHEDULE' || match.properties.status === 'CANCELED' || match.properties.status === 'COMPLETED' || match.properties.status === 'FAILED'))" (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>-->
-                        <a *ngIf="isRole('admin')" (click)="$event.preventDefault();delete(match)" href="" title="Delete">
+                        <a (click)="$event.preventDefault();delete(match)" href="" title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>
