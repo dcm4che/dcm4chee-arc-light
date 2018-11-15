@@ -463,7 +463,7 @@ public class ExportManagerEJB implements ExportManager {
             queueManager.deleteTask(queueMsgID, null);
 
         int count = (int) new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .where(QExportTask.exportTask.queueMessage.isNull())
+                .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
                 .execute();
 
         return referencedQueueMsgIDs.size() + count;
