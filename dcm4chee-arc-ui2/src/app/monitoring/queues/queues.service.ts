@@ -12,6 +12,7 @@ export class QueuesService {
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
 
     search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
+
         return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -86,6 +87,138 @@ export class QueuesService {
     getDevices(){
         return this.deviceService.getDevices()
     }
+    sortValues(){
+        return [
+            {
+                value:"createdTime",
+                text:"Sort by creation time (ASC)"
+            },
+            {
+                value:"-createdTime",
+                text:"Sort by creation time (DESC)"
+            },
+            {
+                value:"updatedTime",
+                text:"Sort by updated time (ASC)"
+            },
+            {
+                value:"-updatedTime",
+                text:"Sort by updated time (DESC)"
+            }
+        ]
+    };
 
+    statuses(){
+        return [
+            {
+                value:"SCHEDULED",
+                text:"SCHEDULED"
+            },
+            {
+                value:"IN PROCESS",
+                text:"IN PROCESS"
+            },
+            {
+                value:"COMPLETED",
+                text:"COMPLETED"
+            },
+            {
+                value:"WARNING",
+                text:"WARNING"
+            },
+            {
+                value:"FAILED",
+                text:"FAILED"
+            },
+            {
+                value:"CANCELED",
+                text:"CANCELED"
+            },
+        ]
+    }
+    getFilterSchema(queueNames, devices, counText){
+        return [
+            {
+                tag:"select",
+                options:queueNames.map(d=>{
+                    return{
+                        text:d.description || d.name,
+                        value:d.name
+                    }
+                }),
+                showStar:true,
+                filterKey:"queueName",
+                description:"Queue name",
+                placeholder:"Queue"
+            },{
+                tag:"select",
+                options:this.sortValues(),
+                showStar:true,
+                filterKey:"orderby",
+                description:"Sort",
+                placeholder:"Sort"
+            },
+            {
+                tag:"select",
+                options:this.statuses(),
+                showStar:true,
+                filterKey:"status",
+                description:"Status",
+                placeholder:"Status"
+            },{
+                tag:"select",
+                options:devices.map(d=>{
+                    return{
+                        text:d.dicomDescription ? `${d.dicomDescription} ( ${d.dicomDeviceName} )` : d.dicomDeviceName,
+                        value:d.dicomDeviceName
+                    }
+                }),
+                showStar:true,
+                filterKey:"dicomDeviceName",
+                description:"Device name",
+                placeholder:"Device name"
+            },
+            {
+                tag:"label",
+                text:"Page size"
+            },
+            {
+                tag:"input",
+                type:"number",
+                filterKey:"limit",
+                description:"Limit"
+            },
+            {
+                tag:"range-picker",
+                filterKey:"createdTime",
+                description:"Created Date"
+            },
+            {
+                tag:"range-picker",
+                filterKey:"updatedTime",
+                description:"Updated Date"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"batchID",
+                description:"Batch ID",
+                placeholder:"Batch ID"
+            },{
+                tag:"dummy"
+            },
+            {
+                tag:"button",
+                text:counText,
+                id:"count",
+                description:"Get Count"
+            },
+            {
+                tag:"button",
+                id:"submit",
+                text:"SUBMIT",
+                description:"Maximal number of tasks in returned list"
+            }
+        ]
+    }
 
 }

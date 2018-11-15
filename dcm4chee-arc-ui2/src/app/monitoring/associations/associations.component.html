@@ -1,61 +1,77 @@
-<div class="main_content ctrl monitoring">
+<div class="main_content white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-<!--        <h3>Archive</h3>
-        <p [innerHtml]="status === 'STARTED' ? 'Archive is running' : 'Archive is not running'"></p>
-        <div class="btn-group">
-            <button type="button" class="btn btn-default" (click)="start()" [disabled]="status === 'STARTED'" title="Start Archive">Start</button>
-            <button type="button" class="btn btn-default" (click)="stop()" [disabled]="status === 'STOPPED'" title="Stop Archive">Stop</button>
-            <button type="button" class="btn btn-default" (click)="reload()" title="Reload Archive Configuration">Reload</button>
-            <button type="button" class="btn btn-default" (click)="fetchStatus()" title="Fetch Archive Status">Status</button>
-        </div>-->
         <div class="monitor">
-            <!-- <code> -->
-            <h3>Open Associations</h3>
-            <p>Press Start or Refresh to get associations</p>
-            <button type="button" class="btn btn-default refresh" (click)="refresh()" title="Get associations">Refresh</button>
-            <span title="Set the refresh interval in sec or millisec (with .)">Timer (sec)</span> : <input title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
-            <button *ngIf="stopLoop" type="button" class="btn btn-default" (click)="monitor()" title="Start getting associations">Start</button>
-            <button *ngIf="!stopLoop" type="button" class="btn btn-default" (click)="stopLoop=true" title="Stop auto refresh">Stop</button>
-            <!--<span *ngIf="!stopLoop" class="loader"></span>-->
-            <button type="button" class="btn btn-default" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>
-            <div *ngIf="!stopLoop" id="loading-bar-spinner">
-                <div class="spinner-icon" *ngIf="!pause">
-                    <mat-progress-spinner mode="indeterminate" [diameter]="30" ></mat-progress-spinner>
-                </div>
-                <div class="pause" *ngIf="pause">
-                   <i class="material-icons">pause_circle_outline</i>
+            <h2>Open Associations</h2>
+            <h4>Press Start or Refresh to get associations <span *ngIf="selectedArchive?.dcmuiDeviceURLName">from {{selectedArchive.dcmuiDeviceURLName}}</span></h4>
+            <div class="filter_line">
+                <div class="filter_block">
+                    <div class="filter">
+                        <div class="filter_block">
+                            <div class="line">
+                                <label>Timer (sec)</label>
+                                <input title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
+                            </div>
+                            <div class="line">
+                                <div *ngIf="stopLoop" class="dummy"></div>
+                                <mat-progress-spinner *ngIf="!stopLoop" mode="indeterminate" [diameter]="28" ></mat-progress-spinner>
+                                <button *ngIf="stopLoop" type="button" class="btn-default submit" (click)="monitor()" title="Start getting associations">Start</button>
+                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" title="Stop auto refresh">Stop</button>
+                            </div>
+                        </div>
+                        <div class="filter_block height_2">
+                            <div class="line">
+                            </div>
+                            <div class="line">
+                                <button type="button" class="btn-default submit pull-left" (click)="refresh()" title="Get associations">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <table  class="table table-inverse"  (mouseenter)="mauseEnter()" (mouseleave)="mauseLeave()">
+            <div class="filter_line">
+                <div class="filter_block">
+                    <div class="filter single_block">
+                        <div class="filter_block">
+                            <div class="line">
+                                <div class="w45percent csv_button pull-left" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">
+                                    <span class="custom_icon csv_icon"></span>
+                                    <span class="text">Download copy</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <table  class="table table-inverse"  (mouseenter)="mauseEnter()" (mouseleave)="mauseLeave()">
                 <tr>
                     <th>
-                            <span title="Sort by Local AE Title" (click)="sortBy('localAETitle')">
-                                Local AE Title
-                            </span>
+                        <span title="Sort by Local AE Title" class="pointer" (click)="sortBy('localAETitle')">
+                            Local AE Title
+                        </span>
                     </th>
                     <th>
-                        <span title="Sort by initiated" (click)="sortBy('initiated')">
-                                ⇆
-                            </span>
+                        <span title="Sort by initiated" class="pointer" (click)="sortBy('initiated')">
+                            ⇆
+                        </span>
                     </th>
                     <th>
-                        <span title="Sort by Remote AE Title" (click)="sortBy('remoteAETitle')">
-                                Remote AE Title
-                            </span>
+                        <span title="Sort by Remote AE Title" class="pointer" (click)="sortBy('remoteAETitle')">
+                            Remote AE Title
+                        </span>
                     </th>
                     <th>
-                            <span  title="Sort by Invoked Ops." (click)="sortBy('invokedOps')">
-                                Invoked Ops.
-                            </span>
+                        <span  title="Sort by Invoked Ops." class="pointer" (click)="sortBy('invokedOps')">
+                            Invoked Ops.
+                        </span>
                     </th>
-                    <th><span  title="Sort by Performed Ops." (click)="sortBy('performedOps')" >Performed Ops.</span></th>
-                    <th><span title="Sort by Connection time (Server)" (click)="sortBy('connectTime')" >Connection time (Server)</span></th>
-                    <th><span title="Sort by Connection time (Local)" (click)="sortBy('browserTime')" >Connection time (Browser)</span></th>
-                    <th><span title="Sort by Duration" (click)="sortBy('openSinceOrder')" >Duration (hh:mm:ss.SSS)</span></th>
+                    <th><span  title="Sort by Performed Ops." class="pointer" (click)="sortBy('performedOps')" >Performed Ops.</span></th>
+                    <th><span title="Sort by Connection time (Server)" class="pointer" (click)="sortBy('connectTime')" >Connection time (Server)</span></th>
+                    <th><span title="Sort by Connection time (Local)" class="pointer" (click)="sortBy('browserTime')" >Connection time (Browser)</span></th>
+                    <th><span title="Sort by Duration" class="pointer" (click)="sortBy('openSinceOrder')" >Duration (hh:mm:ss.SSS)</span></th>
                     <th *ngIf="others">
-                            <span title="Sort by Other attributes" (click)="sortBy('others')" >Other attributes
-                            </span>
+                        <span title="Sort by Other attributes" class="pointer" (click)="sortBy('others')" >Other attributes
+                        </span>
                     </th>
                     <th>
                         Abort
@@ -74,19 +90,9 @@
                         <td>{{value.remoteAETitle}}</td>
                     </ng-container>
                     <td>
-                        <!--<pre>-->
-                        <!--invokedopsobj:{{value?.invokedOps|json}}-->
-                        <!--invokedops:{{toArray(value?.invokedOps|json)}}-->
-                        <!--</pre>-->
                         <div *ngFor="let m of value?.invokedOps | getKey">
-                            <!--m:{{m|json}}-->
-                            <!--k:{{k}}-->
-                            <!--key:{{m._KEY}}-->
-                            <!--value:{{m._VALUE|json}}-->
                             {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
                         </div>
-                        <!--<div *ngFor="let m of value?.invokedOps; let k = index;">-->
-                        <!--</div>-->
                     </td>
                     <td>
                         <div *ngFor="let m of value?.performedOps | getKey">
@@ -97,16 +103,17 @@
                     <td class="text-right" [innerHtml]="value.browserTime"></td>
                     <td class="text-right" [innerHtml]="value.openSince"></td>
                     <td *ngIf="others" class="others" [innerHtml]="value.others"></td>
-                    <td class="abort" (click)="abort(value.serialNo)">
-                        <span class="glyphicon glyphicon-remove"></span>
+                    <td class="abort">
+                        <a class="crud_button" (click)="$event.preventDefault();abort(value.serialNo)">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </a>
                     </td>
 
                 </tr>
                 <tr *ngIf="!associationStatus">
-                    <td colspan="5">No open associations found!</td>
+                    <td colspan="9">No open associations found!</td>
                 </tr>
             </table>
-            <!-- </code> -->
         </div>
     </div>
 </div>

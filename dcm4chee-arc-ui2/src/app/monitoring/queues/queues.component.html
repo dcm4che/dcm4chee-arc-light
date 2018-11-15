@@ -1,92 +1,11 @@
-<div class="main_content queues monitoring">
+<div class="main_content queues monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-            <div class="row filter" (keyup)="filterKeyUp($event)">
-                <div class="main_filter_block">
-                <div class="col-md-3 block-1-1">
-                    <div class="row">
-                        <label for="queue" class="col-md-6 text-right control-label">Queue:</label>
-                        <div class="col-md-6">
-                            <mat-select id="queue" [(ngModel)]="queueName" class="col-md-12" placeholder="Queue Name">
-                                <mat-option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <mat-select id="sort" [(ngModel)]="orderby" class="col-md-12" placeholder="Sort">
-                                <mat-option>*</mat-option>
-                                <mat-option value="createdTime">Sort by creation time (ASC)</mat-option>
-                                <mat-option value="-createdTime">Sort by creation time (DESC)</mat-option>
-                                <mat-option value="updatedTime">Sort by updated time (ASC)</mat-option>
-                                <mat-option value="-updatedTime">Sort by updated time (DESC)</mat-option>
-                            </mat-select>
-                        </div>
-                        <div class="col-md-6">
-                            <mat-select id="status" [(ngModel)]="status" (change)="statusChange()" class="col-md-12" placeholder="Status">
-                                <mat-option>*</mat-option>
-                                <mat-option value="SCHEDULED">SCHEDULED</mat-option>
-                                <mat-option value="IN PROCESS">IN PROCESS</mat-option>
-                                <mat-option value="COMPLETED">COMPLETED</mat-option>
-                                <mat-option value="WARNING">WARNING</mat-option>
-                                <mat-option value="FAILED">FAILED</mat-option>
-                                <mat-option value="CANCELED">CANCELED</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="limit" class="col-md-6 text-right control-label">Page Size:</label>
-                        <div class="col-md-6">
-                            <input id="limit" type="number" min="1" [(ngModel)]="limit" class="col-md-12" required/>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 block-2-1">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="text" [(ngModel)]="batchID" class="col-md-12" placeholder="Batch ID"/>
-                        </div>
-                        <div class="col-md-6" *ngIf="devices">
-<!--                            <select [(ngModel)]="dicomDeviceName" class="col-md-12">
-                                <option value="">*</option>
-                                <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
-                            </select >-->
-                            <mat-select [(ngModel)]="dicomDeviceName" class="col-md-12" placeholder="Device Name">
-                                <mat-option value="">*</mat-option>
-                                <mat-option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</mat-option>
-                            </mat-select>
-                        </div>
-                        <div class="col-md-6" *ngIf="!devices">
-                            <input type="text" [(ngModel)]="dicomDeviceName" class="col-md-12"/>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!--<button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before:</button>-->
-                            <range-picker [model]="createdTime" (modelChange)="createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
-                        </div>
-                        <div class="col-md-6">
-                            <!--<input id="before" type="date" class="col-md-12" [(ngModel)]="before"/>-->
-                            <!--<p-calendar  dataType="string" [(ngModel)]="before" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Flush before this date"></p-calendar>-->
-                            <range-picker [model]="updatedTime" (modelChange)="updatedTime = $event" mode="range" placeholder="Updated" dateFormat="yymmdd"></range-picker>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button class="btn btn-default submit col-md-12" (click)="getCount()" title="Get count">
-                                <span class="glyphicon glyphicon-refresh"></span>
-                                COUNT {{count}}
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-default submit col-md-12" (click)="getCounts()" title="Refresh">
-                                <span class="glyphicon glyphicon-refresh"></span>
-                                SUBMIT
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="filter">
+        <h2>Queues</h2>
+        <div class="filter_line">
+            <div class="filter_block">
+                <filter-generator [schema]="filterSchema" filterIdTemplate="monitoring-queues" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="statusChange()"></filter-generator>
+                <div class="filter" (keyup)="filterKeyUp($event)">
                     <div class="filter_block auto_reloader">
                         <table>
                             <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
@@ -112,30 +31,17 @@
                         </div>
                     </div>
                 </div>
-                <!--<label for="status">Status:</label>-->
-            <!--</div>-->
-            <!--<div class="form-group">-->
-                <!--<label for="limit">Page Size:</label>-->
-                <!--<input id="limit" type="number" min="1" style="width: 3em" [(ngModel)]="limit" required/>-->
-            <!--</div>-->
-            <!--<div class="form-group" *ngIf="isRole('admin')">-->
-                <!--<button class="btn btn-danger" (click)="flushBefore()">Flush before:</button>-->
-                <!--<input id="before" type="date" [(ngModel)]="before"/>-->
-            <!--</div>-->
-    <!--        <div class="form-group" *ngIf="isRole('admin')">
-                <button class="btn btn-default submit" (click)="search(0)" title="Refresh">
-                    <span class="glyphicon glyphicon-refresh"></span>
-                    Submit
-                </button>
-            </div>-->
             </div>
-            </div>
-        <!--</div>-->
-        <div class="main_filter_block" [permission]="{id:'action-monitoring->queues-all_action',param:'visible'}">
-            <div class="morefunctionblock">
-                <mat-select [(ngModel)]="allAction" class="w45percent" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
-                    <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
-                </mat-select>
+        </div>
+        <div class="filter_line">
+            <div class="filter single_block" [permission]="{id:'action-monitoring->queues-all_action',param:'visible'}">
+                <div class="filter_block">
+                    <div class="line">
+                        <mat-select [(ngModel)]="allAction" class="w45percent pull-left" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                            <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
+                        </mat-select>
+                    </div>
+                </div>
             </div>
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
@@ -212,7 +118,7 @@
                     <td [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
-                    <td colspan="9">
+                    <td colspan="10">
                         <table class="table table-bordered table-condensed attribute_list">
                             <tr *ngFor="let key of match.properties | getKey">
                                 <th [innerHtml]="key._KEY"></th>
