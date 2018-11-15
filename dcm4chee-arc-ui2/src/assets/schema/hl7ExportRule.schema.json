@@ -1,0 +1,59 @@
+{
+  "title": "HL7 Export Rule",
+  "description": "HL7 Export Rule",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmExporterID",
+    "dcmDuration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the HL7 Export Rule",
+      "type": "string"
+    },
+    "dcmExporterID": {
+      "title": "Exporter ID",
+      "description": "Exporter ID",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmExporterID"
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}. Example: MSH-9=ORM\\^O01",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmEntitySelector": {
+      "title": "Entity Selector",
+      "description": "Specifies matching keys used to select Studies to export. Format: {key}={value}[&{key}={value)]..., with {key} = 'StudyAge' | {attributeID}. {value} in the format '$'{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]] are replaced by the value of the specified HL7 field from the received HL7 message which triggered the export. If no Entity Selector is specified, all Studies for the Patient will be exported. Example: 'priors=2&StudyAge=-5Y&ModalitiesInStudy=CT' => select at most 2 prior Studies not older than 5 years containing at least one CT Series.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmEntitySelector"
+    },
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "Ignore Assigning Authority of Patient ID",
+      "description": "Conditionally ignore Assigning Authority of Patient ID (PID-3.4) in received HL7 message which triggered the export for selecting Studies of the Patient.",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "Assigning Authority of Patient ID",
+      "description": "Assigning Authority of Patient ID against values in received HL7 message are matched, if Assigning Authority of Patient ID is set to MATCHING or NOT_MATCHING. Format: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>].",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmDuration": {
+      "title": "Suppress Duplicate Export Interval",
+      "description": "Suppress Export of Studies already exported not earlier than the specified interval to avoid duplicate exports.",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

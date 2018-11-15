@@ -293,23 +293,8 @@ public class ArchiveAttributeCoercion {
     }
 
     private boolean nullifyIssuerOfPatientID(Attributes attrs) {
-        Issuer issuer;
-        if (nullifyIssuerOfPatientID == null
-                || (issuer = Issuer.fromIssuerOfPatientID(attrs)) == null)
-            return false;
-
-        return nullifyIssuerOfPatientID == NullifyIssuer.ALWAYS ||
-                (matchIssuerOfPatientID(issuer)
-                    ? nullifyIssuerOfPatientID == NullifyIssuer.MATCHING
-                    : nullifyIssuerOfPatientID == NullifyIssuer.NOT_MATCHING);
-    }
-
-    private boolean matchIssuerOfPatientID(Issuer other) {
-        for (Issuer issuer : issuerOfPatientIDs) {
-            if (issuer.matches(other))
-                return true;
-        }
-        return false;
+        return nullifyIssuerOfPatientID != null
+                && nullifyIssuerOfPatientID.test(Issuer.fromIssuerOfPatientID(attrs), issuerOfPatientIDs);
     }
 
     @Override

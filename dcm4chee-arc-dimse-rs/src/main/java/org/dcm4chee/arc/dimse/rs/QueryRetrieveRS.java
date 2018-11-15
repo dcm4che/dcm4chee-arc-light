@@ -184,7 +184,8 @@ public class QueryRetrieveRS {
             while ((line = reader.readLine()) != null) {
                 String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
                 if (count > 0 || UIDUtils.isValid(studyUID)) {
-                    if (retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID))
+                    if (retrieveManager.scheduleRetrieveTask(
+                            priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null, 0L))
                         count++;
                 }
             }
@@ -198,7 +199,7 @@ public class QueryRetrieveRS {
         if (warning == null)
             return count > 0
                     ? Response.accepted(count(count)).build()
-                    : Response.noContent().header("Warning", "Empty file").build();
+                    : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
 
         Response.ResponseBuilder builder = Response.status(errorStatus)
                 .header("Warning", warning);
@@ -254,13 +255,14 @@ public class QueryRetrieveRS {
         Response.Status errorStatus = Response.Status.BAD_GATEWAY;
         try {
             as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0, 1, splitStudyDateRange());
+            int priority = priority();
+            DimseRSP dimseRSP = findSCU.query(as, priority, keys, 0, 1, splitStudyDateRange());
             dimseRSP.next();
             int status;
             do {
                 status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                 if (Status.isPending(status)) {
-                    if (retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, dimseRSP), batchID))
+                    if (retrieveManager.scheduleRetrieveTask(priority, createExtRetrieveCtx(destAET, dimseRSP), batchID, null, 0L))
                         count++;
                 }
             } while (dimseRSP.next()) ;

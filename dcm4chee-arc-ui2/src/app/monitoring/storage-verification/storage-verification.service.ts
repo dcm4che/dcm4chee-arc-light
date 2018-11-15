@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {j4care} from "../../helpers/j4care.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import {DevicesService} from "../../devices/devices.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 import {AppService} from "../../app.service";
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
@@ -176,7 +176,7 @@ export class StorageVerificationService {
                 type:"index",
                 title:"#",
                 description:"Index",
-                widthWeight:0.1,
+                widthWeight:0.2,
                 calculatedWidth:"4%"
             },{
                 type:"buttons",
@@ -262,7 +262,7 @@ export class StorageVerificationService {
                 title:"Tasks",
                 description:"Tasks",
                 key:"tasks",
-                diffMode:true,
+                diffMode:false,
                 widthWeight:2,
                 calculatedWidth:"30%",
                 cssClass:"hideOn800px"
@@ -276,14 +276,16 @@ export class StorageVerificationService {
             options:devices,
             showStar:true,
             filterKey:"dicomDeviceName",
-            description:"Device Name to filter by"
+            description:"Device Name to filter by",
+            placeholder:"Device Name"
         },
         {
             tag:"select",
             options:localAET,
             showStar:true,
             filterKey:"LocalAET",
-            description:"Archive AE Title to filter by"
+            description:"Archive AE Title to filter by",
+            placeholder:"Archive AE Title"
         },
         {
             tag:"input",
@@ -379,9 +381,8 @@ export class StorageVerificationService {
         return this.$http.post(`../monitor/stgver/cancel${urlParam}`, {}, this.header)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
-    cancel(pk){
-        return this.$http.post(`../monitor/stgver/${pk}/cancel`, {});
-    }
+    cancel = (pk) => this.$http.post(`../monitor/stgver/${pk}/cancel`, {});
+
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
@@ -397,10 +398,12 @@ export class StorageVerificationService {
         return this.$http.delete(`../monitor/stgver${urlParam}`, this.header)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
-    delete(pk){
-        return this.$http.delete('../monitor/stgver/' + pk);
-    }
-  getDevices(){
-      return this.deviceService.getDevices()
-  }
+
+    delete = (pk)=> this.$http.delete('../monitor/stgver/' + pk);
+
+    getDevices = ()=> this.deviceService.getDevices();
+
+    scheduleStorageVerification  = (param, aet) => this.$http.post(`../aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{});
+
+    getUniqueID = () => this.mainservice.getUniqueID();
 }

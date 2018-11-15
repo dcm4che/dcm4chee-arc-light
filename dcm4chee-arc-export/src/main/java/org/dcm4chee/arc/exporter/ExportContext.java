@@ -57,6 +57,10 @@ public interface ExportContext {
 
     void setMessageID(String messageID);
 
+    String getBatchID();
+
+    void setBatchID(String batchID);
+
     String getStudyInstanceUID();
 
     void setStudyInstanceUID(String studyInstanceUID);

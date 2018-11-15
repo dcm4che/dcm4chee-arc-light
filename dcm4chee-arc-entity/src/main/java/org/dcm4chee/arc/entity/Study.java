@@ -388,6 +388,11 @@ public class Study {
         return StringUtils.split(storageIDs, '\\');
     }
 
+    public void setStorageIDs(String... storageIDs) {
+        Arrays.sort(storageIDs);
+        this.storageIDs = StringUtils.concat(storageIDs, '\\');
+    }
+
     public boolean addStorageID(String storageID) {
         String newStorageIDs = addStorageID(storageIDs, storageID);
         if (newStorageIDs.equals(storageIDs)) {

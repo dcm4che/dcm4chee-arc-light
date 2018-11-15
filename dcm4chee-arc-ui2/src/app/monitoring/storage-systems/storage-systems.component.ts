@@ -23,18 +23,20 @@ export class StorageSystemsComponent implements OnInit {
     exportTasks = [];
     filters = {
         offset: undefined,
-        uriScheme: '',
-        dicomAETitle: '',
-        usage: '',
-        usableSpaceBelow: undefined
+        uriScheme: undefined,
+        dicomAETitle: undefined,
+        usage: undefined,
+        usableSpaceBelow: undefined,
+        usableSpaceBelowMode:"GB"
     };
     isRole: any;
     dialogRef: MatDialogRef<any>;
     _ = _;
     aets;
-    usableSpaceBelow;
-    usableSpaceBelowMode = "GB";
-
+    // usableSpaceBelow;
+    // usableSpaceBelowMode = "GB";
+    Object = Object;
+    filterSchema = [];
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: LoadingBarService,
@@ -66,7 +68,7 @@ export class StorageSystemsComponent implements OnInit {
         // this.initExporters(1);
         // this.init();
         this.getAets();
-        let $this = this;
+/*        let $this = this;
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
@@ -109,7 +111,7 @@ export class StorageSystemsComponent implements OnInit {
         }else{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
-        }
+        }*/
     };
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
@@ -126,37 +128,45 @@ export class StorageSystemsComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
-    calculateUsableSpaceBelowFilter(){
-        console.log("sl",this.usableSpaceBelow);
-        console.log("sl",this.usableSpaceBelowMode);
-        console.log("sl",this.filters.usableSpaceBelow);
-        switch(this.usableSpaceBelowMode) {
-            case "TB":
-                this.filters.usableSpaceBelow = this.usableSpaceBelow * 1000000000000;
-                break;
-            case "GB":
-                this.filters.usableSpaceBelow = this.usableSpaceBelow * 1000000000;
-                break;
-            case "MB":
-                this.filters.usableSpaceBelow = this.usableSpaceBelow * 1000000;
-                break;
-            default:
-                this.filters.usableSpaceBelow = this.usableSpaceBelow;
+    calculateUsableSpaceBelowFilter(filters){
+        if(filters.usableSpaceBelow){
+            switch(filters.usableSpaceBelowMode) {
+                case "TB":
+                    filters.usableSpaceBelow = filters.usableSpaceBelow * 1000000000000;
+                    break;
+                case "GB":
+                    filters.usableSpaceBelow = filters.usableSpaceBelow * 1000000000;
+                    break;
+                case "MB":
+                    filters.usableSpaceBelow = filters.usableSpaceBelow * 1000000;
+                    break;
+            }
         }
-        console.log("sl",this.filters.usableSpaceBelow);
+        return filters;
     }
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.calculateUsableSpaceBelowFilter();
-        this.service.search(this.filters, offset)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+        let filters = Object.assign({},this.filters);
+        filters = this.calculateUsableSpaceBelowFilter(filters);
+        delete filters.usableSpaceBelowMode;
+        this.service.search(filters, offset)
+            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
 /*                        if(_.hasIn(properties,'dicomAETitle')){
                             properties.dicomAETitle = properties.dicomAETitle.join(' | ');
                         }*/
+                        if(_.hasIn(properties, 'deleterThreshold') && _.hasIn(properties, 'usableSpace')){
+                            let deleterThreshold;
+                            properties.deleterThreshold.map((deleter, i) => {
+                                deleterThreshold = _.values(deleter)[0];
+                            });
+                            if(deleterThreshold && (deleterThreshold > properties.usableSpace)){
+                                properties.warning = true;
+                            }
+                        }
                         if (_.hasIn(properties, 'deleterThreshold')){
                             properties.deleterThreshold = properties.deleterThreshold.map((deleter, i) => {
                                 if (_.keys(deleter)[0] != ''){
@@ -165,6 +175,12 @@ export class StorageSystemsComponent implements OnInit {
                                     return $this.convertBtoGBorMB(_.values(deleter)[0]);
                                 }
                             });
+                        }
+                        if(_.hasIn(properties, 'usableSpace') && _.hasIn(properties, 'totalSpace')){
+                            properties.usedSpace = (Math.round((((properties.totalSpace-properties.usableSpace)*100)/properties.totalSpace) * 100)/100).toFixed(2);
+                            if(properties.usedSpace){
+                                properties.usedSpace += ' %';
+                            }
                         }
                         if (_.hasIn(properties, 'usableSpace')){
                             properties.usableSpace = $this.convertBtoGBorMB(properties.usableSpace);
@@ -341,14 +357,11 @@ export class StorageSystemsComponent implements OnInit {
         });
     }
     getAets(){
-
-        let $this = this;
-        this.$http.get(
-            '../aets'
-        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+        this.$http.get('../aets')
+            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe((response) => {
-                $this.aets = j4care.extendAetObjectWithAlias(response);
-
+                this.aets = j4care.extendAetObjectWithAlias(response);
+                this.filterSchema = this.service.getFiltersSchema(this.aets);
             }, (err) => {
                 console.log('error getting aets', err);
             });

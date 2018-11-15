@@ -55,6 +55,7 @@ public class DefaultExportContext implements ExportContext {
 
     private final Exporter exporter;
     private String messageID;
+    private String batchID;
     private String studyInstanceUID;
     private String seriesInstanceUID;
     private String sopInstanceUID;
@@ -83,6 +84,16 @@ public class DefaultExportContext implements ExportContext {
     @Override
     public void setMessageID(String messageID) {
         this.messageID = messageID;
+    }
+
+    @Override
+    public String getBatchID() {
+        return batchID;
+    }
+
+    @Override
+    public void setBatchID(String batchID) {
+        this.batchID = batchID;
     }
 
     @Override

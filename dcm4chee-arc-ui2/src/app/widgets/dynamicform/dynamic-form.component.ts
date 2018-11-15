@@ -10,7 +10,7 @@ import {OrderByPipe} from '../../pipes/order-by.pipe';
 import * as _ from 'lodash';
 import {SearchPipe} from '../../pipes/search.pipe';
 import {AppService} from "../../app.service";
-import {DeviceConfiguratorComponent} from "../../device-configurator/device-configurator.component";
+import {DeviceConfiguratorComponent} from "../../configuration/device-configurator/device-configurator.component";
 import {ActivatedRoute} from "@angular/router";
 
 @Component({

@@ -1,7 +1,7 @@
 <div class="main_content monitoring export">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"></filter-generator>
+        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
         <div class="filter">
             <div class="filter_block auto_reloader">
                 <table>
@@ -41,14 +41,15 @@
                 <div class="filter_block">
                     <div class="line">
                         <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
-                        <mat-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
-                            <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
-                        </mat-select>
+                        <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span class="text">Upload CSV</span></div>
                     </div>
                 </div>
                 <div class="filter_block">
                     <div class="line">
-                        <div class="checkbox_button pull-left" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)">Batch ID grouped</mat-checkbox></div>
+                        <mat-select class="pull-left"  [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                            <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
+                        </mat-select>
+                        <div class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)">Batch ID grouped</mat-checkbox></div>
                     </div>
                 </div>
             </div>
@@ -133,6 +134,9 @@
                         </a>
                         <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" title="Show Tasks Detail">
                             <span class="glyphicon glyphicon-list-alt"></span>
+                        </a>
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" title="Delete Task with this BatchID">
+                            <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>

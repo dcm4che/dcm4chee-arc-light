@@ -26,13 +26,24 @@ export class j4care {
                 if(typeof object[key] === "object"){
                     this.traverse(object[key],func);
                 }else{
-                    object[key] = func.apply(object,[object[key],key]);
+                    object[key] = func.apply(object,[object[key],key,object]);
                 }
             }
         }
         return object;
     }
-
+    static firstLetterToUpperCase(str){
+        return str && str[0].toUpperCase() + str.slice(1);
+    }
+    static firstLetterToLowerCase(str) {
+        return str && str[0].toLowerCase() + str.slice(1);
+    }
+    static isSet(value){
+        if((value === undefined || value === null) && (value != 0 && value != "")){
+            return false;
+        }
+        return true;
+    }
     static prepareFlatFilterObject(array,lineLength?){
         if(!lineLength){
             lineLength = 3;
@@ -269,6 +280,18 @@ export class j4care {
         }
         return null;
     }
+    static getMainAet(aets){
+        try{
+            return [aets.filter(aet => {
+                return aet.dcmAcceptedUserRole && aet.dcmAcceptedUserRole.indexOf('user') > -1;
+            })[0] || aets[0]];
+        }catch (e) {
+            console.groupCollapsed("j4care getMainAet(aets[])");
+            console.error(e);
+            console.groupEnd();
+            return aets && aets.length > 0 ? [aets[0]] : [];
+        }
+    }
     static stringValidDate(string:string){
         if(Date.parse(string))
             return true;
@@ -327,8 +350,7 @@ export class j4care {
         }
         return resjson;
     }
-    static     attrs2rows(level, attrs, rows) {
-        console.log('in attrs2rows');
+    static attrs2rows(level, attrs, rows) {
         function privateCreator(tag) {
             if ('02468ACE'.indexOf(tag.charAt(3)) < 0) {
                 let block = tag.slice(4, 6);
@@ -351,14 +373,15 @@ export class j4care {
                 });
             }
         });
-        console.log('attrs ende', attrs);
-
     };
     static dateToString(date:Date){
         return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}`;
     }
     static fullDateToString(date:Date){
         return `${date.getFullYear()}.${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}.${this.getSingleDateTimeValueFromInt(date.getDate())} ${this.getSingleDateTimeValueFromInt(date.getHours())}:${this.getSingleDateTimeValueFromInt(date.getMinutes())}:${this.getSingleDateTimeValueFromInt(date.getSeconds())}`;
+    }
+    static fullDateToStringFilter(date:Date){
+        return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}${this.getSingleDateTimeValueFromInt(date.getHours())}${this.getSingleDateTimeValueFromInt(date.getMinutes())}${this.getSingleDateTimeValueFromInt(date.getSeconds())}`;
     }
     static getTimeFromDate(date:Date){
         return `${j4care.getSingleDateTimeValueFromInt(date.getHours())}:${j4care.getSingleDateTimeValueFromInt(date.getMinutes())}:${j4care.getSingleDateTimeValueFromInt(date.getSeconds())}`;
@@ -384,6 +407,12 @@ export class j4care {
             return datePipe.transform(date,'yyyyMMdd')
         }
         return '';
+    }
+    static getValue(key, object, defaultVal?){
+        if(object[key])
+            return object[key];
+        else
+            return defaultVal || '';
     }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
@@ -529,7 +558,8 @@ export class j4care {
     };
 
     static getUrlParams(params){
-        return '?' + jQuery.param(params);
+        let paramString = jQuery.param(params);
+        return paramString ? '?' + paramString : '';
     };
 
     get(url: string): Observable<any> {
@@ -554,7 +584,108 @@ export class j4care {
             };
         });
     }
+    static splitDate(object){
+        let endDate = [];
+        let endDatePare = [];
+        let m;
+        let range;
+        if(_.hasIn(object,'StudyDate'))
+            range = object.StudyDate;
+        else
+            range = object;
+        const regex = /((\d{4})(\d{2})(\d{2}))(?:\d{6})?-((\d{4})(\d{2})(\d{2}))(?:\d{6})?/;
+        if ((m = regex.exec(range)) !== null) {
+            let fromString = `${m[2]}-${m[3]}-${m[4]}`;
+            let toString = `${m[6]}-${m[7]}-${m[8]}`;
+            let from = new Date(fromString).getTime();
+            let to = new Date(toString).getTime();
+            let diff = to-from;
+            let block = 86400000;
+            if(diff > block){
+                endDate.push(this.convertToDateString(fromString));
+                let daysInDiff = diff/block;
+                let dateStep = from;
+                while(daysInDiff > 0){
+                    endDatePare.push(this.convertToDatePareString(dateStep,dateStep+block));
+                    dateStep = dateStep+block;
+                    endDate.push(this.convertToDateString(new Date(dateStep)));
+                    daysInDiff--;
+                }
+                return endDate;
+            }else{
+                return range;
+            }
+        }
+        return null;
+    }
+    static addZero(nr){
+        if(nr < 10){
+            return `0${nr}`;
+        }
+        return nr;
+    };
+    static convertToDateString(date){
+        if(date != undefined){
+            let dateConverted = new Date(date);
+            let dateObject =  {
+                yyyy:dateConverted.getFullYear(),
+                mm:this.addZero(dateConverted.getMonth()+1),
+                dd:this.addZero(dateConverted.getDate())
+            };
+            return `${dateObject.yyyy}${(dateObject.mm)}${dateObject.dd}`;
+        }
+    }
+    static getLastMonthRangeFromNow(){
+        let firstDate = new Date();
+        firstDate.setMonth(firstDate.getMonth()-1)
+        return this.convertToDatePareString(firstDate,new Date());
+    }
+    static convertToDatePareString(firstDate,secondDate){
+        if(firstDate === undefined && secondDate === undefined){
+            return undefined;
+        }
+        let firstDateConverted = new Date(firstDate);
+        let secondDateConverted = new Date(secondDate);
+        let firstDateObject =  {
+            yyyy:firstDateConverted.getFullYear(),
+            mm:this.addZero(firstDateConverted.getMonth()+1),
+            dd:this.addZero(firstDateConverted.getDate())
+        };
+        let firstDateString = `${firstDateObject.yyyy}${(firstDateObject.mm)}${firstDateObject.dd}`;
+        if(new Date(firstDate).getTime() == new Date(secondDate).getTime()){
+            return firstDateString;
+        }else{
+            let secondDateObject =  {
+                yyyy:secondDateConverted.getFullYear(),
+                mm:this.addZero(secondDateConverted.getMonth()+1),
+                dd:this.addZero(secondDateConverted.getDate())
+            };
+            let secondDateString = `${secondDateObject.yyyy}${(secondDateObject.mm)}${secondDateObject.dd}`;
+            return `${firstDateString}-${secondDateString}`;
+        }
+    }
+    static flatten(data) {
+        var result = {};
 
+        function recurse(cur, prop) {
+            if (Object(cur) !== cur) {
+                result[prop] = cur;
+            } else if (Array.isArray(cur)) {
+                for (var i = 0, l = cur.length; i < l; i++)
+                    recurse(cur[i], prop + "[" + i + "]");
+                if (l == 0) result[prop] = [];
+            } else {
+                var isEmpty = true;
+                for (var p in cur) {
+                    isEmpty = false;
+                    recurse(cur[p], prop ? prop + "." + p : p);
+                }
+                if (isEmpty && prop) result[prop] = {};
+            }
+        }
+        recurse(data, "");
+        return result;
+    };
     static calculateWidthOfTable(table){
         let summ = 0;
         table.forEach((m)=>{
@@ -565,4 +696,113 @@ export class j4care {
         });
         return table;
     };
+
+    static encode64(inputStr) {
+        let b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+        let outputStr = "";
+        let i = 0;
+
+        while (i < inputStr.length) {
+            let byte1 = inputStr.charCodeAt(i++) & 0xff;
+            let byte2 = inputStr.charCodeAt(i++) & 0xff;
+            let byte3 = inputStr.charCodeAt(i++) & 0xff;
+
+            let enc1 = byte1 >> 2;
+            let enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
+
+            let enc3, enc4;
+            if (isNaN(byte2)) {
+                enc3 = enc4 = 64;
+            } else {
+                enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
+                if (isNaN(byte3)) {
+                    enc4 = 64;
+                } else {
+                    enc4 = byte3 & 63;
+                }
+            }
+            outputStr += b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
+        }
+        return outputStr;
+    }
+    /*
+    * Input:
+    * date:Date - javascript date
+    * format:string - format as string
+    * Output:
+    * formatted date as string
+    * defined format elements:
+    * yyyy - 4 digit year
+    * MM - month
+    * dd - date
+    * HH - Hour
+    * mm - minute
+    * ss - second
+    * SSS - milliseconds
+    * */
+    static formatDate(date:Date, format:string):string{
+        return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
+            if(g2)
+                return `${date.getFullYear()}`;
+            if(g3)
+                return this.setZeroPrefix(`${date.getMonth() + 1}`);
+            if(g4)
+                return this.setZeroPrefix(`${date.getDate()}`);
+            if(g5)
+                return this.setZeroPrefix(`${date.getHours()}`);
+            if(g6)
+                return this.setZeroPrefix(`${date.getMinutes()}`);
+            if(g7)
+                return this.setZeroPrefix(`${date.getSeconds()}`);
+            if(g8)
+                return `${date.getMilliseconds()}`;
+        });
+    }
+    /*
+    *Adding 0 as prefix if the input is on  digit string for Example: 1 => 01
+    */
+    static setZeroPrefix(str){
+        try{
+            if(typeof str === "number"){
+                str = str.toString();
+            }
+            return str.replace(/(\d*)(\d{1})/g,(g1, g2, g3)=>{
+                if(!g2){
+                    return `0${g3}`;
+                }else{
+                    return g1;
+                }
+            });
+        }catch (e) {
+            console.groupCollapsed("j4care setZeroPrefix(str)");
+            console.error(e);
+            console.groupEnd();
+            return str;
+        }
+    }
+    /*
+    * Get difference of two date:Date, secondDate > firstDate return in the format HH:mm:ss:SSS
+    * */
+    static diff(firstDate:Date, secondDate:Date):string{
+        try{
+            let diff  = secondDate.getTime()  - firstDate.getTime();
+            if(diff > -1){
+                return `${
+                    this.setZeroPrefix(parseInt(((diff/(1000*60*60))%24).toString()))
+                }:${
+                    this.setZeroPrefix(parseInt(((diff/(1000*60))%60).toString()))
+                }:${
+                    this.setZeroPrefix(parseInt(((diff/1000)%60).toString()))
+                }.${
+                    parseInt((diff % 1000).toString())
+                }`;
+            }
+            return '';
+        }catch (e) {
+            console.groupCollapsed("j4care diff(date, date2)");
+            console.error(e);
+            console.groupEnd();
+            return undefined;
+        }
+    }
 }

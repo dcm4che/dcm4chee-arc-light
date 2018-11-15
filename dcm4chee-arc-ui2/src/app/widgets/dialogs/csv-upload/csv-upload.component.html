@@ -1,0 +1,27 @@
+<div class="modal_form">
+  <h5>Upload csv file with Studie Instance UIDs</h5>
+  <div class="content">
+    <form [formGroup]="form" >
+    <div class="form_control" *ngFor="let form of params.formSchema">
+      <label>{{form.placeholder}}</label>
+      <ng-container [ngSwitch]="form.tag">
+        <mat-select *ngSwitchCase="'select'" formControlName="{{form.filterKey}}" placeholder="{{form.placeholder}}" class="form-control" >
+          <mat-option *ngIf="form.showStar" value="*">*</mat-option>
+          <mat-option *ngFor="let ae of form.options" value="{{ae.value}}">{{ae.text}}</mat-option>
+        </mat-select>
+        <input *ngSwitchCase="'input'" formControlName="{{form.filterKey}}" type="{{form.type}}" placeholder="{{form.placeholder}}" class="form-control" >
+      </ng-container>
+    </div>
+      <div class="form_control">
+        <label>Select CSV-File:</label>
+        <input type="file" (change)="onFileChange($event)" class="form-control">
+      </div>
+      <div class="dialogbuttons">
+        <button class="save" (click)="submit()" [disabled]="!form.valid || !csvFile">
+          <span *ngIf="showLoader" class="fa fa-circle-o-notch fa-spin csv_upload_loader"></span>
+          Upload
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

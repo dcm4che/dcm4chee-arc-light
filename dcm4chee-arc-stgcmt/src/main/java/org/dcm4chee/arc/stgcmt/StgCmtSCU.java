@@ -57,6 +57,8 @@ public interface StgCmtSCU {
     void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor)
             throws QueueSizeLimitExceededException;
 
-    Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID, String exporterID, Attributes actionInfo)
+    Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID,
+                        String seriesInstanceUID, String sopInstanceUID, String exporterID,
+                        String messageID, String batchID, Attributes actionInfo)
             throws Exception;
 }

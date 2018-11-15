@@ -351,7 +351,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             // }
             this.modalities = Globalvar.MODALITIES;
 
-            this.initAETs(2);
+            this.initAETs(2,);
             this.getAllAes(2);
             this.initAttributeFilter('Patient', 1);
             this.initExporters(2);
@@ -794,7 +794,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         index++;
                     }
                     tags.splice(index, 0, '00201200');
-                    tags.push('77770010','77771010','77771011');
+                    tags.push('77770010','77771010','77771011','77771012','77771013','77771014');
                     console.log('res', res);
                     res.forEach(function (studyAttrs, index) {
                         patAttrs = {};
@@ -2247,38 +2247,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     [
                         {
                             tag:"label",
-                            text:"Marked as incomplete"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"incomplete",
-                        }
-                    ],[
-                        {
-                            tag:"label",
-                            text:"Failed to be retrieved"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"retrievefailed"
-                        }
-                    ],[
-                        {
-                            tag:"label",
                             text:"Failed storage verification"
                         },
                         {
                             tag:"checkbox",
                             filterKey:"storageVerificationFailed"
-                        }
-                    ],[
-                        {
-                            tag:"label",
-                            text:"Compression Failed"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"compressionfailed"
                         }
                     ],[
                         {
@@ -4182,51 +4155,38 @@ export class StudiesComponent implements OnDestroy,OnInit{
         return a;
     }
     aesdropdown: SelectItem[] = [];
-    initAETs(retries) {
+    initAETs(retries, mode?) {
         if (!this.aes){
             let $this = this;
+            if(!mode){
+                mode = "internal";
+            }
            this.$http.get('../aets')
-                .map(res => {let resjson; try{
-                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                    if(pattern.exec(res.url)){
-                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                    }
-                    resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                .map(res => j4care.redirectOnAuthResponse(res))
+                .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,mode))
                 .subscribe((res)=> {
                         $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.mainservice.user, res));
-                        console.log('aes', $this.aes);
-                        // $this.aesdropdown = $this.aes;
-/*                        $this.aes.map((ae, i) => {
-                            console.log('in map ae', ae);
-                            console.log('in map i', i);
-                            console.log('aesi=', $this.aes[i]);
-                            $this.aesdropdown.push({label: ae.title, value: ae.title});
-                            $this.aes[i]['label'] = ae.title;
-                            $this.aes[i]['value'] = ae.value;
-
-                        });*/
-                        console.log('$this.aes after map', $this.aes);
-                        $this.aet = $this.aes[0].dicomAETitle.toString();
-                        if (!$this.aetmodel){
-                            $this.aetmodel = $this.aes[0];
+                        try{
+                            $this.aet = $this.aes[0].dicomAETitle.toString();
+                            if (!$this.aetmodel){
+                                $this.aetmodel = $this.aes[0];
+                            }
+                        }catch(e){
+                            console.warn(e);
                         }
                         // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
                     },
                     (res)=> {
                         if (retries)
-                            $this.initAETs(retries - 1);
+                            $this.initAETs(retries - 1, mode);
                 });
         }
     }
     getAllAes(retries) {
         let $this = this;
         this.$http.get('../aes')
-            .map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+            .map(res => j4care.redirectOnAuthResponse(res))
+            .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,"external"))
             .subscribe(
                 (res)=> {
                     $this.allAes = j4care.extendAetObjectWithAlias(res.map((res)=>{
@@ -4235,24 +4195,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         return res;
                     }));
                     $this.externalInternalAetModel = $this.allAes[0];
-                    // $this.aes = $this.service.getAes($this.user, res);
-/*                    console.log('aes', $this.aes);
-                    // $this.aesdropdown = $this.aes;
-                    $this.aes.map((ae, i) => {
-                        console.log('in map ae', ae);
-                        console.log('in map i', i);
-                        console.log('aesi=', $this.aes[i]);
-                        $this.aesdropdown.push({label: ae.title, value: ae.title});
-                        $this.aes[i]['label'] = ae.title;
-                        $this.aes[i]['value'] = ae.value;
-
-                    });
-                    console.log('$this.aes after map', $this.aes);
-                    $this.aet = $this.aes[0].title.toString();
-                    if (!$this.aetmodel){
-                        $this.aetmodel = $this.aes[0];
-                    }*/
-                    // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
                 },
                 (res)=> {
                     if (retries)

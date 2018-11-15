@@ -53,7 +53,6 @@ import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -71,7 +70,6 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,9 +85,6 @@ public class ExportTaskRS {
 
     @Inject
     private ExportManager mgr;
-
-    @Inject
-    private QueueManager queueMgr;
 
     @Inject
     private Device device;
@@ -349,7 +344,7 @@ public class ExportTaskRS {
         int count;
         int deleteTasksFetchSize = queueTasksFetchSize();
         do {
-            count = mgr.deleteTasks(status,
+            count = mgr.deleteTasks(
                     matchQueueMessage(status, deviceName, null),
                     matchExportTask(updatedTime));
             deleted += count;

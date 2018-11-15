@@ -41,7 +41,6 @@ package org.dcm4chee.arc.retrieve.mgt;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -60,7 +59,9 @@ public interface RetrieveManager {
 
     Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
 
-    boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID) throws QueueSizeLimitExceededException;
+    boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID, Date notRetrievedAfter,
+                                 long delay)
+            throws QueueSizeLimitExceededException;
 
     RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
                                         OrderSpecifier<Date> order, int offset, int limit);

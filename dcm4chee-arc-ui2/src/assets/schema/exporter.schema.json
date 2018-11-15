@@ -8,7 +8,6 @@
     "dcmQueueName",
     "dcmExportPriority",
     "dcmInstanceAvailability",
-    "dcmExportPriority",
     "dicomAETitle"
   ],
   "properties": {
@@ -31,7 +30,12 @@
         "Export2",
         "Export3",
         "Export4",
-        "Export5"
+        "Export5",
+        "Export6",
+        "Export7",
+        "Export8",
+        "Export9",
+        "Export10"
       ]
     },
     "dcmExportPriority": {
@@ -70,9 +74,7 @@
       "title": "Retrieve AE Title",
       "description": "AE Title associated with Network AE",
       "type": "array",
-      "items": {
-        "type": "string"
-      },
+      "items": { "type": "string" },
       "format": "dcmArchiveAETitle"
     },
     "dcmRetrieveLocationUID": {
@@ -93,21 +95,17 @@
       ]
     },
     "dcmSchedule": {
-      "title": "Schedule",
-      "description": "Schedule Expression in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "title": "Export Schedule",
+      "description": "Delay export to specified time periods. If no Export Schedule is specified, queue the export task for processing immediately. Format: 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
       "type": "array",
-      "items": {
-        "type": "string"
-      },
+      "items": { "type": "string" },
       "format": "dcmSchedule"
     },
     "dcmProperty": {
       "title": "Property",
       "description": "Property in format <name>=<value>",
       "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     }
   }
 }

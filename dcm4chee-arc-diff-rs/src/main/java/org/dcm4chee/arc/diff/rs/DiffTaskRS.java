@@ -56,7 +56,6 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -91,9 +90,6 @@ public class DiffTaskRS {
 
     @Inject
     private DiffService diffService;
-
-    @Inject
-    private QueueManager queueMgr;
 
     @Inject
     private Device device;

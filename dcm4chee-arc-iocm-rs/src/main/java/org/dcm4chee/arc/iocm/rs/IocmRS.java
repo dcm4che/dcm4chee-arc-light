@@ -359,6 +359,8 @@ public class IocmRS {
         } catch (CircularPatientMergeException e) {
             throw new WebApplicationException(
                     errResponse("PriorPatientID same as target PatientID", Response.Status.CONFLICT));
+        } catch(Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -382,6 +384,8 @@ public class IocmRS {
         } catch (CircularPatientMergeException e) {
             throw new WebApplicationException(
                     errResponse("PriorPatientID same as target PatientID", Response.Status.CONFLICT));
+        } catch(Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -542,7 +546,7 @@ public class IocmRS {
         ctx.setSourceInstanceRefs(instanceRefs);
 
 
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity())
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null)
                 .withObjectStorageID(rejectionNoteObjectStorageID);
         restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instanceLocations = retrieveService.queryInstances(session, instanceRefs, studyUID);
@@ -634,7 +638,7 @@ public class IocmRS {
         try {
             ArchiveAEExtension arcAE = getArchiveAE();
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
-            StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity())
+            StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null)
                     .withObjectStorageID(rejectionNoteObjectStorageID());
             storeService.restoreInstances(session, studyUID, seriesUID, null);
 
@@ -665,8 +669,7 @@ public class IocmRS {
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         ArchiveAEExtension arcAE = getArchiveAE();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity()
-        );
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null);
         if (rjNote != null) {
             session.withObjectStorageID(rejectionNoteObjectStorageID());
         }

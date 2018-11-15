@@ -19,6 +19,9 @@ public class QueueDescriptor {
     private int retryDelayMultiplier = 100;
     private boolean retryOnWarning;
     private Duration purgeQueueMessageCompletedDelay;
+    private Duration purgeQueueMessageFailedDelay;
+    private Duration purgeQueueMessageWarningDelay;
+    private Duration purgeQueueMessageCanceledDelay;
     private int maxQueueSize = 0;
 
     public QueueDescriptor(String queueName) {
@@ -109,6 +112,30 @@ public class QueueDescriptor {
 
     public void setPurgeQueueMessageCompletedDelay(Duration purgeQueueMessageCompletedDelay) {
         this.purgeQueueMessageCompletedDelay = purgeQueueMessageCompletedDelay;
+    }
+
+    public Duration getPurgeQueueMessageFailedDelay() {
+        return purgeQueueMessageFailedDelay;
+    }
+
+    public void setPurgeQueueMessageFailedDelay(Duration purgeQueueMessageFailedDelay) {
+        this.purgeQueueMessageFailedDelay = purgeQueueMessageFailedDelay;
+    }
+
+    public Duration getPurgeQueueMessageWarningDelay() {
+        return purgeQueueMessageWarningDelay;
+    }
+
+    public void setPurgeQueueMessageWarningDelay(Duration purgeQueueMessageWarningDelay) {
+        this.purgeQueueMessageWarningDelay = purgeQueueMessageWarningDelay;
+    }
+
+    public Duration getPurgeQueueMessageCanceledDelay() {
+        return purgeQueueMessageCanceledDelay;
+    }
+
+    public void setPurgeQueueMessageCanceledDelay(Duration purgeQueueMessageCanceledDelay) {
+        this.purgeQueueMessageCanceledDelay = purgeQueueMessageCanceledDelay;
     }
 
     public int getMaxQueueSize() {

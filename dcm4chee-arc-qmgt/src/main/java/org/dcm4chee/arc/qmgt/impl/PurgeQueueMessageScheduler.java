@@ -88,8 +88,12 @@ public class PurgeQueueMessageScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        for (QueueDescriptor desc : arcDev.getQueueDescriptors())
+        for (QueueDescriptor desc : arcDev.getQueueDescriptors()) {
             delete(desc.getQueueName(), QueueMessage.Status.COMPLETED, desc.getPurgeQueueMessageCompletedDelay());
+            delete(desc.getQueueName(), QueueMessage.Status.FAILED, desc.getPurgeQueueMessageFailedDelay());
+            delete(desc.getQueueName(), QueueMessage.Status.WARNING, desc.getPurgeQueueMessageWarningDelay());
+            delete(desc.getQueueName(), QueueMessage.Status.CANCELED, desc.getPurgeQueueMessageCanceledDelay());
+        }
     }
 
     private void delete(String queueName, QueueMessage.Status status, Duration delay) {
@@ -99,14 +103,17 @@ public class PurgeQueueMessageScheduler extends Scheduler {
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
         int deleted = 0;
         int count;
-        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                    .getQueueTasksFetchSize();
         do {
             count = mgr.deleteTasks(
-                    MatchTask.matchQueueMessage(queueName, null, status, null, null,null, null, before),
+                    MatchTask.matchQueueMessage(
+                            queueName, null, status, null, null,null,
+                            null, before),
                     deleteTaskFetchSize);
             deleted += count;
         } while (count >= deleteTaskFetchSize);
         if (deleted > 0)
-            LOG.info("Deleted " + deleted + " messages from queue: " + queueName);
+            LOG.info("Deleted " + deleted + " " + status + " messages from queue: " + queueName);
     }
 }

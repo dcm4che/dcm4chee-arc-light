@@ -51,6 +51,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -130,6 +131,10 @@ public class StgVerMatchingRS {
 
     @QueryParam("ExternalRetrieveAET!")
     private String externalRetrieveAETNot;
+
+    @QueryParam("patientVerificationStatus")
+    @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
+    private String patientVerificationStatus;
 
     @QueryParam("batchID")
     private String batchID;
@@ -312,6 +317,8 @@ public class StgVerMatchingRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        if (patientVerificationStatus != null)
+            queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         return queryParam;
     }
 

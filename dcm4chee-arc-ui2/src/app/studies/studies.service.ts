@@ -86,7 +86,7 @@ export class StudiesService {
                         'status': "error"
                     });
                 }
-            return endAes;
+                return endAes;
             }else{
                 this.mainservice.setMessage({
                     'title': "Error",

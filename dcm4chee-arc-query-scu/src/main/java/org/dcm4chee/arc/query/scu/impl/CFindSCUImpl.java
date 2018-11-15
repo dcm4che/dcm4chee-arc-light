@@ -47,11 +47,8 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.query.scu.CFindSCU;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -66,7 +63,6 @@ import java.util.List;
 @ApplicationScoped
 public class CFindSCUImpl implements CFindSCU {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CFindSCUImpl.class);
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
     private static final int PCID = 1;
 
@@ -77,25 +73,94 @@ public class CFindSCUImpl implements CFindSCU {
     private IApplicationEntityCache aeCache;
 
     @Override
-    public List<Attributes> find(ApplicationEntity localAE, String calledAET, int priority, QueryRetrieveLevel2 level,
-                           String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
-            throws Exception {
-         Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
-                queryOptions(level, studyIUID, seriesIUID));
+    public List<Attributes> findPatient(ApplicationEntity localAE, String calledAET, int priority, IDWithIssuer pid,
+                                        int... returnKeys) throws Exception {
+        Association as = openAssociation(localAE, calledAET, UID.PatientRootQueryRetrieveInformationModelFIND,
+                queryOptions(false));
         try {
-            return find(as, priority, level, studyIUID, seriesIUID, sopIUID, returnKeys);
+            return findPatient(as, priority, pid, returnKeys);
         } finally {
             as.waitForOutstandingRSP();
             as.release();
         }
     }
 
-    private EnumSet<QueryOption> queryOptions(QueryRetrieveLevel2 level, String studyIUID, String seriesIUID) {
-        return level.compareTo(QueryRetrieveLevel2.STUDY) > 0
-                && (studyIUID == null || level.compareTo(QueryRetrieveLevel2.SERIES) > 0 && seriesIUID == null)
-                        ? EnumSet.of(QueryOption.RELATIONAL)
-                        : EnumSet.noneOf(QueryOption.class);
+    @Override
+    public List<Attributes> findPatient(Association as, int priority, IDWithIssuer pid, int... returnKeys)
+            throws Exception {
+        return find(as, priority,
+                pid.exportPatientIDWithIssuer(
+                        withQueryLevelAndReturnKeys("PATIENT", returnKeys,
+                                new Attributes(3 + returnKeys.length))));
+    }
 
+    @Override
+    public List<Attributes> findStudy(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
+                                      int... returnKeys) throws Exception {
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+                queryOptions(false));
+        try {
+            return findStudy(as, priority, studyIUID, returnKeys);
+        } finally {
+            as.waitForOutstandingRSP();
+            as.release();
+        }
+    }
+
+    @Override
+    public List<Attributes> findStudy(Association as, int priority, String studyIUID, int... returnKeys)
+            throws Exception {
+        return find(as, priority,
+                withUID(Tag.StudyInstanceUID, studyIUID,
+                        withQueryLevelAndReturnKeys("STUDY", returnKeys,
+                                new Attributes(2 + returnKeys.length))));
+    }
+
+    @Override
+    public List<Attributes> findSeries(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
+                                       String seriesIUID, int... returnKeys) throws Exception {
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+                queryOptions(studyIUID == null));
+        try {
+            return findSeries(as, priority, studyIUID, seriesIUID, returnKeys);
+        } finally {
+            as.waitForOutstandingRSP();
+            as.release();
+        }
+    }
+
+    @Override
+    public List<Attributes> findSeries(Association as, int priority, String studyIUID, String seriesIUID,
+                                       int... returnKeys) throws Exception {
+        return find(as, priority,
+                withUID(Tag.SeriesInstanceUID, seriesIUID,
+                        withUID(Tag.StudyInstanceUID, studyIUID,
+                                withQueryLevelAndReturnKeys("SERIES", returnKeys,
+                                        new Attributes(3 + returnKeys.length)))));
+    }
+
+    @Override
+    public List<Attributes> findInstance(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
+                                         String seriesIUID, String sopIUID, int... returnKeys) throws Exception {
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+                queryOptions(studyIUID == null || seriesIUID == null));
+        try {
+            return findInstance(as, priority, studyIUID, seriesIUID, sopIUID, returnKeys);
+        } finally {
+            as.waitForOutstandingRSP();
+            as.release();
+        }
+    }
+
+    @Override
+    public List<Attributes> findInstance(Association as, int priority, String studyIUID, String seriesIUID,
+                                         String sopIUID, int... returnKeys) throws Exception {
+        return find(as, priority,
+                withUID(Tag.SOPInstanceUID, sopIUID,
+                        withUID(Tag.SeriesInstanceUID, seriesIUID,
+                                withUID(Tag.StudyInstanceUID, studyIUID,
+                                        withQueryLevelAndReturnKeys("IMAGE", returnKeys,
+                                                new Attributes(4 + returnKeys.length))))));
     }
 
     @Override
@@ -103,26 +168,6 @@ public class CFindSCUImpl implements CFindSCU {
                                        String cuid, EnumSet<QueryOption> queryOptions)
             throws Exception {
         return localAE.connect(aeCache.findApplicationEntity(calledAET), createAARQ(cuid, queryOptions));
-    }
-
-    @Override
-    public List<Attributes> find(Association as, int priority, QueryRetrieveLevel2 level,
-                                 String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
-            throws Exception {
-        List<Attributes> list = new ArrayList<>();
-        DimseRSP rsp = query(as, priority, mkQueryKeys(level, studyIUID, seriesIUID, sopIUID, returnKeys),
-                0, 1, null);
-        rsp.next();
-        Attributes match = rsp.getDataset();
-        while (rsp.next()) {
-            list.add(match);
-            match = rsp.getDataset();
-        }
-        Attributes cmd = rsp.getCommand();
-        int status = cmd.getInt(Tag.Status, -1);
-        if (status != Status.Success)
-            throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
-        return list;
     }
 
     @Override
@@ -150,6 +195,22 @@ public class CFindSCUImpl implements CFindSCU {
         return as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel, capacity);
     }
 
+    private List<Attributes> find(Association as, int priority, Attributes keys) throws Exception {
+        List<Attributes> list = new ArrayList<>();
+        DimseRSP rsp = query(as, priority, keys, 0, 1, null);
+        rsp.next();
+        Attributes match = rsp.getDataset();
+        while (rsp.next()) {
+            list.add(match);
+            match = rsp.getDataset();
+        }
+        Attributes cmd = rsp.getCommand();
+        int status = cmd.getInt(Tag.Status, -1);
+        if (status != Status.Success)
+            throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
+        return list;
+    }
+
     private static Attributes.Visitor nullifyTM = new Attributes.Visitor(){
         @Override
         public boolean visit(Attributes attrs, int tag, VR vr, Object value) throws Exception {
@@ -160,23 +221,27 @@ public class CFindSCUImpl implements CFindSCU {
         }
     };
 
-    private Attributes mkQueryKeys(QueryRetrieveLevel2 level, String studyIUID, String seriesIUID, String sopIUID,
-                                   int... returnKeys) {
-        Attributes keys = new Attributes(returnKeys.length + 4);
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
+    private static EnumSet<QueryOption> queryOptions(boolean relational) {
+        EnumSet<QueryOption> queryOptions = EnumSet.noneOf(QueryOption.class);
+        if (relational)
+            queryOptions.add(QueryOption.RELATIONAL);
+        return queryOptions;
+    }
+
+    private static Attributes withQueryLevelAndReturnKeys(String level, int[] returnKeys, Attributes keys) {
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, level);
         for (int tag : returnKeys)
             keys.setNull(tag, DICT.vrOf(tag));
-        keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-        if (seriesIUID != null) {
-            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
-            if (sopIUID != null) {
-                keys.setString(Tag.SOPInstanceUID, VR.UI, sopIUID);
-            }
-        }
         return keys;
     }
 
-    private AAssociateRQ createAARQ(String cuid, EnumSet<QueryOption> queryOptions) {
+    private static Attributes withUID(int tag, String value, Attributes keys) {
+        if (value != null)
+            keys.setString(tag, VR.UI, value);
+        return keys;
+    }
+
+    private static AAssociateRQ createAARQ(String cuid, EnumSet<QueryOption> queryOptions) {
         AAssociateRQ aarq = new AAssociateRQ();
         aarq.addPresentationContext(new PresentationContext(PCID, cuid, UID.ImplicitVRLittleEndian));
         if (queryOptions != null)

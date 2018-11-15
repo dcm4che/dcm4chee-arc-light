@@ -69,146 +69,157 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
             "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 
-    private String defaultCharacterSet;
-    private String fuzzyAlgorithmClass;
-    private String[] seriesMetadataStorageIDs = {};
-    private Duration seriesMetadataDelay;
-    private Duration seriesMetadataPollingInterval;
-    private int seriesMetadataFetchSize = 100;
-    private boolean purgeInstanceRecords;
-    private Duration purgeInstanceRecordsDelay;
-    private Duration purgeInstanceRecordsPollingInterval;
-    private int purgeInstanceRecordsFetchSize = 100;
-    private OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
-    private ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
-    private ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
-    private String bulkDataSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private boolean validateCallingAEHostname = false;
-    private boolean sendPendingCGet = false;
-    private Duration sendPendingCMoveInterval;
-    private boolean personNameComponentOrderInsensitiveMatching = false;
-    private int queryFetchSize = 100;
-    private int queryMaxNumberOfResults = 0;
-    private int qidoMaxNumberOfResults = 0;
-    private String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
-    private String wadoSR2HtmlTemplateURI;
-    private String wadoSR2TextTemplateURI;
-    private String wadoCDA2HtmlTemplateURI;
-    private String patientUpdateTemplateURI;
-    private String importReportTemplateURI;
-    private String scheduleProcedureTemplateURI;
-    private String unzipVendorDataToURI;
-    private String outgoingPatientUpdateTemplateURI;
-    private String[] mppsForwardDestinations = {};
-    private String[] ianDestinations = {};
-    private Duration ianDelay;
-    private Duration ianTimeout;
-    private boolean ianOnTimeout;
-    private Duration ianTaskPollingInterval;
-    private int ianTaskFetchSize = 100;
-    private String spanningCFindSCP;
-    private String[] spanningCFindSCPRetrieveAETitles = {};
-    private SpanningCFindSCPPolicy spanningCFindSCPPolicy = SpanningCFindSCPPolicy.REPLACE;
-    private String fallbackCMoveSCP;
-    private String fallbackCMoveSCPDestination;
-    private String fallbackCMoveSCPLeadingCFindSCP;
-    private int fallbackCMoveSCPRetries;
-    private String externalRetrieveAEDestination;
-    private String xdsiImagingDocumentSourceAETitle;
-    private String alternativeCMoveSCP;
-    private Duration exportTaskPollingInterval;
-    private int exportTaskFetchSize = 5;
-    private Duration deleteRejectedPollingInterval;
-    private int deleteRejectedFetchSize = 100;
-    private Duration purgeStoragePollingInterval;
-    private int purgeStorageFetchSize = 100;
-    private int deleteStudyBatchSize = 10;
-    private boolean deletePatientOnDeleteLastStudy = false;
-    private Duration maxAccessTimeStaleness;
-    private Duration aeCacheStaleTimeout;
-    private Duration leadingCFindSCPQueryCacheStaleTimeout;
-    private int leadingCFindSCPQueryCacheSize = 10;
-    private String auditSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private Duration auditPollingInterval;
-    private Duration auditAggregateDuration;
-    private String stowSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private String wadoSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private Duration purgeQueueMessagePollingInterval;
-    private Duration purgeStgCmtPollingInterval;
-    private Duration purgeStgCmtCompletedDelay;
-    private SPSStatus[] hideSPSWithStatusFrom = {};
-    private String hl7LogFilePattern;
-    private String hl7ErrorLogFilePattern;
-    private Duration rejectExpiredStudiesPollingInterval;
-    private LocalTime rejectExpiredStudiesPollingStartTime;
-    private int rejectExpiredStudiesFetchSize = 0;
-    private int rejectExpiredSeriesFetchSize = 0;
-    private String rejectExpiredStudiesAETitle;
-    private String fallbackCMoveSCPStudyOlderThan;
-    private String storePermissionServiceURL;
-    private Pattern storePermissionServiceResponsePattern;
-    private Pattern storePermissionServiceExpirationDatePattern;
-    private Pattern storePermissionServiceErrorCommentPattern;
-    private Pattern storePermissionServiceErrorCodePattern;
-    private Duration storePermissionCacheStaleTimeout;
-    private int storePermissionCacheSize = 10;
-    private Duration mergeMWLCacheStaleTimeout;
-    private int mergeMWLCacheSize = 10;
-    private int storeUpdateDBMaxRetries = 1;
-    private int storeUpdateDBMaxRetryDelay = 1000;
-    private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =
+    private volatile String defaultCharacterSet;
+    private volatile String fuzzyAlgorithmClass;
+    private volatile String[] seriesMetadataStorageIDs = {};
+    private volatile Duration seriesMetadataDelay;
+    private volatile Duration seriesMetadataPollingInterval;
+    private volatile int seriesMetadataFetchSize = 100;
+    private volatile int seriesMetadataThreads = 1;
+    private volatile boolean purgeInstanceRecords;
+    private volatile Duration purgeInstanceRecordsDelay;
+    private volatile Duration purgeInstanceRecordsPollingInterval;
+    private volatile int purgeInstanceRecordsFetchSize = 100;
+    private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
+    private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
+    private volatile ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
+    private volatile String bulkDataSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
+    private volatile boolean validateCallingAEHostname = false;
+    private volatile boolean sendPendingCGet = false;
+    private volatile Duration sendPendingCMoveInterval;
+    private volatile boolean personNameComponentOrderInsensitiveMatching = false;
+    private volatile int queryFetchSize = 100;
+    private volatile int queryMaxNumberOfResults = 0;
+    private volatile int qidoMaxNumberOfResults = 0;
+    private volatile String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
+    private volatile String wadoSR2HtmlTemplateURI;
+    private volatile String wadoSR2TextTemplateURI;
+    private volatile String wadoCDA2HtmlTemplateURI;
+    private volatile String patientUpdateTemplateURI;
+    private volatile String importReportTemplateURI;
+    private volatile String scheduleProcedureTemplateURI;
+    private volatile String unzipVendorDataToURI;
+    private volatile String outgoingPatientUpdateTemplateURI;
+    private volatile String[] mppsForwardDestinations = {};
+    private volatile String[] ianDestinations = {};
+    private volatile Duration ianDelay;
+    private volatile Duration ianTimeout;
+    private volatile boolean ianOnTimeout;
+    private volatile Duration ianTaskPollingInterval;
+    private volatile int ianTaskFetchSize = 100;
+    private volatile String spanningCFindSCP;
+    private volatile String[] spanningCFindSCPRetrieveAETitles = {};
+    private volatile SpanningCFindSCPPolicy spanningCFindSCPPolicy = SpanningCFindSCPPolicy.REPLACE;
+    private volatile String fallbackCMoveSCP;
+    private volatile String fallbackCMoveSCPDestination;
+    private volatile String fallbackCMoveSCPLeadingCFindSCP;
+    private volatile int fallbackCMoveSCPRetries;
+    private volatile String externalRetrieveAEDestination;
+    private volatile String xdsiImagingDocumentSourceAETitle;
+    private volatile String alternativeCMoveSCP;
+    private volatile Duration exportTaskPollingInterval;
+    private volatile int exportTaskFetchSize = 5;
+    private volatile Duration deleteRejectedPollingInterval;
+    private volatile int deleteRejectedFetchSize = 100;
+    private volatile Duration purgeStoragePollingInterval;
+    private volatile int purgeStorageFetchSize = 100;
+    private volatile int deleteStudyBatchSize = 10;
+    private volatile boolean deletePatientOnDeleteLastStudy = false;
+    private volatile Duration maxAccessTimeStaleness;
+    private volatile Duration aeCacheStaleTimeout;
+    private volatile Duration leadingCFindSCPQueryCacheStaleTimeout;
+    private volatile int leadingCFindSCPQueryCacheSize = 10;
+    private volatile String auditSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
+    private volatile Duration auditPollingInterval;
+    private volatile Duration auditAggregateDuration;
+    private volatile String stowSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
+    private volatile String wadoSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
+    private volatile Duration purgeQueueMessagePollingInterval;
+    private volatile Duration purgeStgCmtPollingInterval;
+    private volatile Duration purgeStgCmtCompletedDelay;
+    private volatile SPSStatus[] hideSPSWithStatusFrom = {};
+    private volatile String hl7LogFilePattern;
+    private volatile String hl7ErrorLogFilePattern;
+    private volatile Duration rejectExpiredStudiesPollingInterval;
+    private volatile LocalTime rejectExpiredStudiesPollingStartTime;
+    private volatile int rejectExpiredStudiesFetchSize = 0;
+    private volatile int rejectExpiredSeriesFetchSize = 0;
+    private volatile String rejectExpiredStudiesAETitle;
+    private volatile String fallbackCMoveSCPStudyOlderThan;
+    private volatile String storePermissionServiceURL;
+    private volatile Pattern storePermissionServiceResponsePattern;
+    private volatile Pattern storePermissionServiceExpirationDatePattern;
+    private volatile Pattern storePermissionServiceErrorCommentPattern;
+    private volatile Pattern storePermissionServiceErrorCodePattern;
+    private volatile Duration storePermissionCacheStaleTimeout;
+    private volatile int storePermissionCacheSize = 10;
+    private volatile Duration mergeMWLCacheStaleTimeout;
+    private volatile int mergeMWLCacheSize = 10;
+    private volatile int storeUpdateDBMaxRetries = 1;
+    private volatile int storeUpdateDBMaxRetryDelay = 1000;
+    private volatile AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =
             AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET;
-    private AcceptMissingPatientID acceptMissingPatientID = AcceptMissingPatientID.CREATE;
-    private AllowDeletePatient allowDeletePatient = AllowDeletePatient.WITHOUT_STUDIES;
-    private AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
-    private AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
-    private String[] retrieveAETitles = {};
-    private String remapRetrieveURL;
-    private String remapRetrieveURLClientHost;
-    private String hl7PSUSendingApplication;
-    private String[] hl7PSUReceivingApplications = {};
-    private Duration hl7PSUDelay;
-    private Duration hl7PSUTimeout;
-    private boolean hl7PSUOnTimeout;
-    private int hl7PSUTaskFetchSize = 100;
-    private Duration hl7PSUTaskPollingInterval;
-    private boolean hl7PSUMWL = false;
-    private String auditRecordRepositoryURL;
-    private String atna2JsonFhirTemplateURI;
-    private String atna2XmlFhirTemplateURI;
-    private Attributes.UpdatePolicy copyMoveUpdatePolicy;
-    private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
-    private boolean hl7TrackChangedPatientID = true;
-    private boolean auditSoftwareConfigurationVerbose = false;
-    private boolean hl7UseNullValue = false;
-    private String invokeImageDisplayPatientURL;
-    private String invokeImageDisplayStudyURL;
-    private String[] hl7ADTReceivingApplication = {};
-    private String hl7ADTSendingApplication;
-    private int queueTasksFetchSize = 100;
-    private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder = ScheduledProtocolCodeInOrder.OBR_4_4;
-    private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
-    private String auditUnknownStudyInstanceUID = AUDIT_UNKNOWN_STUDY_INSTANCE_UID;
-    private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
-    private String rejectionNoteStorageAET;
-    private String uiConfigurationDeviceName;
-    private StorageVerificationPolicy storageVerificationPolicy = StorageVerificationPolicy.OBJECT_CHECKSUM;
-    private boolean storageVerificationUpdateLocationStatus;
-    private String[] storageVerificationStorageIDs = {};
-    private String storageVerificationAETitle;
-    private String storageVerificationBatchID;
-    private Period storageVerificationInitialDelay;
-    private Period storageVerificationPeriod;
-    private int storageVerificationMaxScheduled;
-    private Duration storageVerificationPollingInterval;
-    private ScheduleExpression[] storageVerificationSchedules = {};
-    private int storageVerificationFetchSize = 100;
-    private String compressionAETitle;
-    private Duration compressionPollingInterval;
-    private int compressionFetchSize = 100;
-    private int compressionThreads = 1;
-    private ScheduleExpression[] compressionSchedules = {};
-    private Duration diffTaskProgressUpdateInterval;
+    private volatile AcceptMissingPatientID acceptMissingPatientID = AcceptMissingPatientID.CREATE;
+    private volatile AllowDeletePatient allowDeletePatient = AllowDeletePatient.WITHOUT_STUDIES;
+    private volatile AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
+    private volatile AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
+    private volatile String[] retrieveAETitles = {};
+    private volatile String remapRetrieveURL;
+    private volatile String remapRetrieveURLClientHost;
+    private volatile String hl7PSUSendingApplication;
+    private volatile String[] hl7PSUReceivingApplications = {};
+    private volatile Duration hl7PSUDelay;
+    private volatile Duration hl7PSUTimeout;
+    private volatile boolean hl7PSUOnTimeout;
+    private volatile int hl7PSUTaskFetchSize = 100;
+    private volatile Duration hl7PSUTaskPollingInterval;
+    private volatile boolean hl7PSUMWL = false;
+    private volatile String auditRecordRepositoryURL;
+    private volatile String atna2JsonFhirTemplateURI;
+    private volatile String atna2XmlFhirTemplateURI;
+    private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy;
+    private volatile Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
+    private volatile boolean hl7TrackChangedPatientID = true;
+    private volatile boolean auditSoftwareConfigurationVerbose = false;
+    private volatile boolean hl7UseNullValue = false;
+    private volatile String invokeImageDisplayPatientURL;
+    private volatile String invokeImageDisplayStudyURL;
+    private volatile String[] hl7ADTReceivingApplication = {};
+    private volatile String hl7ADTSendingApplication;
+    private volatile int queueTasksFetchSize = 100;
+    private volatile ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder =
+            ScheduledProtocolCodeInOrder.OBR_4_4;
+    private volatile ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
+    private volatile String auditUnknownStudyInstanceUID = AUDIT_UNKNOWN_STUDY_INSTANCE_UID;
+    private volatile String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
+    private volatile String rejectionNoteStorageAET;
+    private volatile String uiConfigurationDeviceName;
+    private volatile StorageVerificationPolicy storageVerificationPolicy = StorageVerificationPolicy.OBJECT_CHECKSUM;
+    private volatile boolean storageVerificationUpdateLocationStatus;
+    private volatile String[] storageVerificationStorageIDs = {};
+    private volatile String storageVerificationAETitle;
+    private volatile String storageVerificationBatchID;
+    private volatile Period storageVerificationInitialDelay;
+    private volatile Period storageVerificationPeriod;
+    private volatile int storageVerificationMaxScheduled;
+    private volatile Duration storageVerificationPollingInterval;
+    private volatile ScheduleExpression[] storageVerificationSchedules = {};
+    private volatile int storageVerificationFetchSize = 100;
+    private volatile String compressionAETitle;
+    private volatile Duration compressionPollingInterval;
+    private volatile int compressionFetchSize = 100;
+    private volatile int compressionThreads = 1;
+    private volatile ScheduleExpression[] compressionSchedules = {};
+    private volatile Duration diffTaskProgressUpdateInterval;
+    private volatile String patientVerificationPDQServiceID;
+    private volatile Duration patientVerificationPollingInterval;
+    private volatile int patientVerificationFetchSize = 100;
+    private volatile Duration patientVerificationMaxStaleness;
+    private volatile Period patientVerificationPeriod;
+    private volatile Period patientVerificationPeriodOnNotFound;
+    private volatile Duration patientVerificationRetryInterval;
+    private volatile int patientVerificationMaxRetries;
+    private volatile boolean patientVerificationAdjustIssuerOfPatientID;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -218,10 +229,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
+    private final Map<String, PDQServiceDescriptor> pdqServiceDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
-    private final ArrayList<PrefetchRule> prefetchRules = new ArrayList<>();
+    private final ArrayList<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
+    private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
@@ -229,6 +242,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
+    private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
@@ -351,6 +365,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSeriesMetadataFetchSize(int seriesMetadataFetchSize) {
         this.seriesMetadataFetchSize =  greaterZero(seriesMetadataFetchSize, "seriesMetadataFetchSize");
+    }
+
+    public int getSeriesMetadataThreads() {
+        return seriesMetadataThreads;
+    }
+
+    public void setSeriesMetadataThreads(int seriesMetadataThreads) {
+        this.seriesMetadataThreads = seriesMetadataThreads;
     }
 
     public boolean isPurgeInstanceRecords() {
@@ -815,19 +837,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.wadoSpoolDirectory = Objects.requireNonNull(wadoSpoolDirectory, "WadoSpoolDirectory");
     }
 
-    public String getHl7LogFilePattern() {
+    public String getHL7LogFilePattern() {
         return hl7LogFilePattern;
     }
 
-    public void setHl7LogFilePattern(String hl7LogFilePattern) {
+    public void setHL7LogFilePattern(String hl7LogFilePattern) {
         this.hl7LogFilePattern = hl7LogFilePattern;
     }
 
-    public String getHl7ErrorLogFilePattern() {
+    public String getHL7ErrorLogFilePattern() {
         return hl7ErrorLogFilePattern;
     }
 
-    public void setHl7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
+    public void setHL7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
         this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
     }
 
@@ -1055,82 +1077,82 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                                 : request.getRemoteHost()));
     }
 
-    public String getHl7PSUSendingApplication() {
+    public String getHL7PSUSendingApplication() {
         return hl7PSUSendingApplication;
     }
 
-    public void setHl7PSUSendingApplication(String hl7PSUSendingApplication) {
+    public void setHL7PSUSendingApplication(String hl7PSUSendingApplication) {
         this.hl7PSUSendingApplication = hl7PSUSendingApplication;
     }
 
-    public Duration getHl7PSUTaskPollingInterval() {
+    public Duration getHL7PSUTaskPollingInterval() {
         return hl7PSUTaskPollingInterval;
     }
 
-    public void setHl7PSUTaskPollingInterval(Duration hl7PSUTaskPollingInterval) {
+    public void setHL7PSUTaskPollingInterval(Duration hl7PSUTaskPollingInterval) {
         this.hl7PSUTaskPollingInterval = hl7PSUTaskPollingInterval;
     }
 
-    public String[] getHl7PSUReceivingApplications() {
+    public String[] getHL7PSUReceivingApplications() {
         return hl7PSUReceivingApplications;
     }
 
-    public void setHl7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
+    public void setHL7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
         this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
     }
 
-    public Duration getHl7PSUDelay() {
+    public Duration getHL7PSUDelay() {
         return hl7PSUDelay;
     }
 
-    public void setHl7PSUDelay(Duration hl7PSUDelay) {
+    public void setHL7PSUDelay(Duration hl7PSUDelay) {
         this.hl7PSUDelay = hl7PSUDelay;
     }
 
-    public Duration getHl7PSUTimeout() {
+    public Duration getHL7PSUTimeout() {
         return hl7PSUTimeout;
     }
 
-    public void setHl7PSUTimeout(Duration hl7PSUTimeout) {
+    public void setHL7PSUTimeout(Duration hl7PSUTimeout) {
         this.hl7PSUTimeout = hl7PSUTimeout;
     }
 
-    public boolean isHl7PSUOnTimeout() {
+    public boolean isHL7PSUOnTimeout() {
         return hl7PSUOnTimeout;
     }
 
-    public void setHl7PSUOnTimeout(boolean hl7PSUOnTimeout) {
+    public void setHL7PSUOnTimeout(boolean hl7PSUOnTimeout) {
         this.hl7PSUOnTimeout = hl7PSUOnTimeout;
     }
 
-    public int getHl7PSUTaskFetchSize() {
+    public int getHL7PSUTaskFetchSize() {
         return hl7PSUTaskFetchSize;
     }
 
-    public void setHl7PSUTaskFetchSize(int hl7PSUTaskFetchSize) {
+    public void setHL7PSUTaskFetchSize(int hl7PSUTaskFetchSize) {
         this.hl7PSUTaskFetchSize = hl7PSUTaskFetchSize;
     }
 
-    public boolean isHl7PSUMWL() {
+    public boolean isHL7PSUMWL() {
         return hl7PSUMWL;
     }
 
-    public void setHl7PSUMWL(boolean hl7PSUMWL) {
+    public void setHL7PSUMWL(boolean hl7PSUMWL) {
         this.hl7PSUMWL = hl7PSUMWL;
     }
 
-    public String[] getHl7NoPatientCreateMessageTypes() {
+    public String[] getHL7NoPatientCreateMessageTypes() {
         return hl7NoPatientCreateMessageTypes.toArray(
                 new String[hl7NoPatientCreateMessageTypes.size()]);
     }
 
-    public void setHl7NoPatientCreateMessageTypes(String... messageTypes) {
+    public void setHL7NoPatientCreateMessageTypes(String... messageTypes) {
         hl7NoPatientCreateMessageTypes.clear();
         for (String messageType : messageTypes)
             hl7NoPatientCreateMessageTypes.add(messageType);
     }
 
-    public boolean isHl7NoPatientCreateMessageType(String messageType) {
+    public boolean isHL7NoPatientCreateMessageType(String messageType) {
         return hl7NoPatientCreateMessageTypes.contains(messageType);
     }
 
@@ -1366,6 +1388,29 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.put(destination.getExporterID(), destination);
     }
 
+    public PDQServiceDescriptor getPDQServiceDescriptor(String pdqServiceID) {
+        return pdqServiceDescriptorMap.get(pdqServiceID);
+    }
+
+    public PDQServiceDescriptor getPDQServiceDescriptorNotNull(String pdqServiceID) {
+        PDQServiceDescriptor descriptor = getPDQServiceDescriptor(pdqServiceID);
+        if (descriptor == null)
+            throw new IllegalArgumentException("No PDQService configured with ID:" + pdqServiceID);
+        return descriptor;
+    }
+
+    public PDQServiceDescriptor removePDQServiceDescriptor(String pDQServiceID) {
+        return pdqServiceDescriptorMap.remove(pDQServiceID);
+    }
+
+    public void addPDQServiceDescriptor(PDQServiceDescriptor destination) {
+        pdqServiceDescriptorMap.put(destination.getPDQServiceID(), destination);
+    }
+
+    public Collection<PDQServiceDescriptor> getPDQServiceDescriptors() {
+        return pdqServiceDescriptorMap.values();
+    }
+
     private int greaterZero(int i, String prompt) {
         if (i <= 0)
             throw new IllegalArgumentException(prompt + ": " + i);
@@ -1398,23 +1443,39 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exportRules;
     }
 
-    public void removePrefetchRule(PrefetchRule rule) {
-        prefetchRules.remove(rule);
+    public void removeExportPriorsRule(ExportPriorsRule rule) {
+        exportPriorsRules.remove(rule);
     }
 
-    public void clearPrefetchRules() {
-        prefetchRules.clear();
+    public void clearExportPriorsRules() {
+        exportPriorsRules.clear();
     }
 
-    public void addPrefetchRule(PrefetchRule rule) {
-        prefetchRules.add(rule);
+    public void addExportPriorsRule(ExportPriorsRule rule) {
+        exportPriorsRules.add(rule);
     }
 
-    public Collection<PrefetchRule> getPrefetchRules() {
-        return prefetchRules;
+    public Collection<ExportPriorsRule> getExportPriorsRules() {
+        return exportPriorsRules;
     }
 
-    public void removeHL7PrefetchRule(PrefetchRule rule) {
+    public void removeHL7ExportRule(HL7ExportRule rule) {
+        hl7ExportRules.remove(rule);
+    }
+
+    public void clearHL7ExportRules() {
+        hl7ExportRules.clear();
+    }
+
+    public void addHL7ExportRule(HL7ExportRule rule) {
+        hl7ExportRules.add(rule);
+    }
+
+    public Collection<HL7ExportRule> getHL7ExportRules() {
+        return hl7ExportRules;
+    }
+
+    public void removeHL7PrefetchRule(HL7PrefetchRule rule) {
         hl7PrefetchRules.remove(rule);
     }
 
@@ -1524,6 +1585,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public Collection<StudyRetentionPolicy> getStudyRetentionPolicies() {
         return studyRetentionPolicies;
+    }
+
+    public void removeHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.remove(policy);
+    }
+
+    public void clearHL7StudyRetentionPolicies() {
+        hl7StudyRetentionPolicies.clear();
+    }
+
+    public void addHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.add(policy);
+    }
+
+    public Collection<HL7StudyRetentionPolicy> getHL7StudyRetentionPolicies() {
+        return hl7StudyRetentionPolicies;
     }
 
     public void removeAttributeCoercion(ArchiveAttributeCoercion coercion) {
@@ -1663,11 +1740,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.linkMWLEntryUpdatePolicy = linkMWLEntryUpdatePolicy;
     }
 
-    public boolean isHl7TrackChangedPatientID() {
+    public boolean isHL7TrackChangedPatientID() {
         return hl7TrackChangedPatientID;
     }
 
-    public void setHl7TrackChangedPatientID(boolean hl7TrackChangedPatientID) {
+    public void setHL7TrackChangedPatientID(boolean hl7TrackChangedPatientID) {
         this.hl7TrackChangedPatientID = hl7TrackChangedPatientID;
     }
 
@@ -1695,35 +1772,35 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
     }
 
-    public String[] getHl7ADTReceivingApplication() {
+    public String[] getHL7ADTReceivingApplication() {
         return hl7ADTReceivingApplication;
     }
 
-    public void setHl7ADTReceivingApplication(String[] hl7ADTReceivingApplication) {
+    public void setHL7ADTReceivingApplication(String[] hl7ADTReceivingApplication) {
         this.hl7ADTReceivingApplication = hl7ADTReceivingApplication;
     }
 
-    public String getHl7ADTSendingApplication() {
+    public String getHL7ADTSendingApplication() {
         return hl7ADTSendingApplication;
     }
 
-    public void setHl7ADTSendingApplication(String hl7ADTSendingApplication) {
+    public void setHL7ADTSendingApplication(String hl7ADTSendingApplication) {
         this.hl7ADTSendingApplication = hl7ADTSendingApplication;
     }
 
-    public ScheduledProtocolCodeInOrder getHl7ScheduledProtocolCodeInOrder() {
+    public ScheduledProtocolCodeInOrder getHL7ScheduledProtocolCodeInOrder() {
         return hl7ScheduledProtocolCodeInOrder;
     }
 
-    public void setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
+    public void setHL7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
         this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
     }
 
-    public ScheduledStationAETInOrder getHl7ScheduledStationAETInOrder() {
+    public ScheduledStationAETInOrder getHL7ScheduledStationAETInOrder() {
         return hl7ScheduledStationAETInOrder;
     }
 
-    public void setHl7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
+    public void setHL7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
         this.hl7ScheduledStationAETInOrder = hl7ScheduledStationAETInOrder;
     }
 
@@ -1751,11 +1828,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return StringUtils.maskNull(auditUnknownPatientID, "<none>");
     }
 
-    public boolean isHl7UseNullValue() {
+    public boolean isHL7UseNullValue() {
         return hl7UseNullValue;
     }
 
-    public void setHl7UseNullValue(boolean hl7UseNullValue) {
+    public void setHL7UseNullValue(boolean hl7UseNullValue) {
         this.hl7UseNullValue = hl7UseNullValue;
     }
 
@@ -1892,7 +1969,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setCompressionFetchSize(int compressionFetchSize) {
-        this.compressionFetchSize = compressionFetchSize;
+        this.compressionFetchSize = greaterZero(compressionFetchSize, "CompressionFetchSize");
     }
 
     public int getCompressionThreads() {
@@ -1900,7 +1977,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setCompressionThreads(int compressionThreads) {
-        this.compressionThreads = compressionThreads;
+        this.compressionThreads = greaterZero(compressionThreads, "CompressionThreads");
     }
 
     public ScheduleExpression[] getCompressionSchedules() {
@@ -1917,6 +1994,78 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDiffTaskProgressUpdateInterval(Duration diffTaskProgressUpdateInterval) {
         this.diffTaskProgressUpdateInterval = diffTaskProgressUpdateInterval;
+    }
+
+    public void setPatientVerificationPDQServiceID(String patientVerificationPDQServiceID) {
+        this.patientVerificationPDQServiceID = patientVerificationPDQServiceID;
+    }
+
+    public Duration getPatientVerificationPollingInterval() {
+        return patientVerificationPollingInterval;
+    }
+
+    public void setPatientVerificationPollingInterval(Duration patientVerificationPollingInterval) {
+        this.patientVerificationPollingInterval = patientVerificationPollingInterval;
+    }
+
+    public int getPatientVerificationFetchSize() {
+        return patientVerificationFetchSize;
+    }
+
+    public void setPatientVerificationFetchSize(int patientVerificationFetchSize) {
+        this.patientVerificationFetchSize = patientVerificationFetchSize;
+    }
+
+    public String getPatientVerificationPDQServiceID() {
+        return patientVerificationPDQServiceID;
+    }
+
+    public Period getPatientVerificationPeriod() {
+        return patientVerificationPeriod;
+    }
+
+    public void setPatientVerificationPeriod(Period patientVerificationPeriod) {
+        this.patientVerificationPeriod = patientVerificationPeriod;
+    }
+
+    public Period getPatientVerificationPeriodOnNotFound() {
+        return patientVerificationPeriodOnNotFound;
+    }
+
+    public void setPatientVerificationPeriodOnNotFound(Period patientVerificationPeriodOnNotFound) {
+        this.patientVerificationPeriodOnNotFound = patientVerificationPeriodOnNotFound;
+    }
+
+    public Duration getPatientVerificationRetryInterval() {
+        return patientVerificationRetryInterval;
+    }
+
+    public void setPatientVerificationRetryInterval(Duration patientVerificationRetryInterval) {
+        this.patientVerificationRetryInterval = patientVerificationRetryInterval;
+    }
+
+    public int getPatientVerificationMaxRetries() {
+        return patientVerificationMaxRetries;
+    }
+
+    public void setPatientVerificationMaxRetries(int patientVerificationMaxRetries) {
+        this.patientVerificationMaxRetries = patientVerificationMaxRetries;
+    }
+
+    public boolean isPatientVerificationAdjustIssuerOfPatientID() {
+        return patientVerificationAdjustIssuerOfPatientID;
+    }
+
+    public void setPatientVerificationAdjustIssuerOfPatientID(boolean patientVerificationAdjustIssuerOfPatientID) {
+        this.patientVerificationAdjustIssuerOfPatientID = patientVerificationAdjustIssuerOfPatientID;
+    }
+
+    public Duration getPatientVerificationMaxStaleness() {
+        return patientVerificationMaxStaleness;
+    }
+
+    public void setPatientVerificationMaxStaleness(Duration patientVerificationMaxStaleness) {
+        this.patientVerificationMaxStaleness = patientVerificationMaxStaleness;
     }
 
     public Collection<KeycloakServer> getKeycloakServers() {
@@ -1952,6 +2101,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
+        seriesMetadataThreads = arcdev.seriesMetadataThreads;
         purgeInstanceRecords = arcdev.purgeInstanceRecords;
         purgeInstanceRecordsDelay = arcdev.purgeInstanceRecordsDelay;
         purgeInstanceRecordsPollingInterval = arcdev.purgeInstanceRecordsPollingInterval;
@@ -2088,6 +2238,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionSchedules = arcdev.compressionSchedules;
         compressionThreads = arcdev.compressionThreads;
         diffTaskProgressUpdateInterval = arcdev.diffTaskProgressUpdateInterval;
+        patientVerificationPDQServiceID = arcdev.patientVerificationPDQServiceID;
+        patientVerificationPollingInterval = arcdev.patientVerificationPollingInterval;
+        patientVerificationFetchSize = arcdev.patientVerificationFetchSize;
+        patientVerificationMaxStaleness = arcdev.patientVerificationMaxStaleness;
+        patientVerificationPeriod = arcdev.patientVerificationPeriod;
+        patientVerificationRetryInterval = arcdev.patientVerificationRetryInterval;
+        patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
+        patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
+        patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
@@ -2098,12 +2257,16 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
         queueDescriptorMap.clear();
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
+        pdqServiceDescriptorMap.clear();
+        pdqServiceDescriptorMap.putAll(arcdev.pdqServiceDescriptorMap);
         exporterDescriptorMap.clear();
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
-        prefetchRules.clear();
-        prefetchRules.addAll(arcdev.prefetchRules);
+        exportPriorsRules.clear();
+        exportPriorsRules.addAll(arcdev.exportPriorsRules);
+        hl7ExportRules.clear();
+        hl7ExportRules.addAll(arcdev.hl7ExportRules);
         hl7PrefetchRules.clear();
         hl7PrefetchRules.addAll(arcdev.hl7PrefetchRules);
         rsForwardRules.clear();
@@ -2120,6 +2283,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionRules.addAll(arcdev.compressionRules);
         studyRetentionPolicies.clear();
         studyRetentionPolicies.addAll(arcdev.studyRetentionPolicies);
+        hl7StudyRetentionPolicies.clear();
+        hl7StudyRetentionPolicies.addAll(arcdev.hl7StudyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
         storeAccessControlIDRules.clear();

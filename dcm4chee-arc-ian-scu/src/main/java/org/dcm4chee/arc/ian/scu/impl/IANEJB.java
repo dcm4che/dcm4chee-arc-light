@@ -150,7 +150,7 @@ public class IANEJB {
             msg.setStringProperty("LocalAET", callingAET);
             msg.setStringProperty("RemoteAET", remoteAET);
             msg.setStringProperty("SOPInstanceUID", UIDUtils.createUID());
-            queueManager.scheduleMessage(IANSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
+            queueManager.scheduleMessage(IANSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

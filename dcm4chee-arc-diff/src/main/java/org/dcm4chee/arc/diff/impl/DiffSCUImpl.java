@@ -242,8 +242,7 @@ public class DiffSCUImpl implements DiffSCU {
                 if (compare < 0) break;
             } while (dimseRSP2.next());
         }
-        List<Attributes> matches = findSCU.find(as2, ctx.priority(), QueryRetrieveLevel2.STUDY,
-                studyIUID, null, null, ctx.getReturnKeys());
+        List<Attributes> matches = findSCU.findStudy(as2, ctx.priority(), studyIUID, ctx.getReturnKeys());
         return !matches.isEmpty() ? matches.get(0) : null;
     }
 }

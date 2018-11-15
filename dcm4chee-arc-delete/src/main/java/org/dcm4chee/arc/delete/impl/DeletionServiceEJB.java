@@ -65,6 +65,7 @@ import javax.persistence.TypedQuery;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -113,16 +114,21 @@ public class DeletionServiceEJB {
     }
 
     public List<Study.PKUID> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
+        List<String> studyStorageIDs = getStudyStorageIDs(desc);
+        LOG.debug("Query for Studies for deletion on {} with StorageIDs={}", desc, studyStorageIDs);
         return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Study.PKUID.class)
-                .setParameter(1, getStudyStorageIDs(desc))
+                .setParameter(1, studyStorageIDs)
                 .setMaxResults(limit)
                 .getResultList();
     }
 
     public int instancesNotStoredOnExportStorage(Long studyPk, StorageDescriptor desc) {
+        List<String> storageIDsOfCluster = getStorageIDsOfCluster(desc);
+        LOG.debug("Query for Instances of Study[pk={}] on Storages{} not stored on Storage[{}]",
+                studyPk, storageIDsOfCluster, desc.getExportStorageID());
         Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
                 .setParameter(1, studyPk)
-                .setParameter(2, getStorageIDsOfCluster(desc))
+                .setParameter(2, storageIDsOfCluster)
                 .getResultList());
         onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
                 .setParameter(1, studyPk)
@@ -132,36 +138,51 @@ public class DeletionServiceEJB {
     }
 
     public List<Study.PKUID> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
+        List<String> studyStorageIDs = getStudyStorageIDs(desc);
+        String externalRetrieveAETitle = desc.getExternalRetrieveAETitle();
+        LOG.debug("Query for Studies for deletion on {} with ExternalRetrieveAET={} and StorageIDs={}",
+                desc, externalRetrieveAETitle, studyStorageIDs);
         return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Study.PKUID.class)
-                .setParameter(1, getStudyStorageIDs(desc))
-                .setParameter(2, desc.getExternalRetrieveAETitle())
+                .setParameter(1, studyStorageIDs)
+                .setParameter(2, externalRetrieveAETitle)
                 .setMaxResults(limit)
                 .getResultList();
     }
 
     public List<Series> findSeriesWithPurgedInstances(Long studyPk) {
+        LOG.debug("Query for Series with purged Instance records of Study[pk={}]", studyPk);
         return em.createNamedQuery(Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE, Series.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, Series.InstancePurgeState.PURGED)
                 .getResultList();
     }
 
-    public void failedToDelete(Location location) {
-        location.setStatus(Location.Status.FAILED_TO_DELETE);
-        em.merge(location);
+    public boolean claimDeleteObject(Location location) {
+        return em.createNamedQuery(Location.UPDATE_STATUS_FROM)
+                .setParameter(1, location.getPk())
+                .setParameter(2, Location.Status.TO_DELETE)
+                .setParameter(3, Location.Status.FAILED_TO_DELETE)
+                .executeUpdate() > 0;
     }
 
-    public void failedToDelete(Metadata metadata) {
-        metadata.setStatus(Metadata.Status.FAILED_TO_DELETE);
-        em.merge(metadata);
+    public boolean claimDeleteMetadata(Metadata metadata) {
+        return em.createNamedQuery(Metadata.UPDATE_STATUS_FROM)
+                .setParameter(1, metadata.getPk())
+                .setParameter(2, Metadata.Status.TO_DELETE)
+                .setParameter(3, Metadata.Status.FAILED_TO_DELETE)
+                .executeUpdate() > 0;
     }
 
     public void removeLocation(Location location) {
-        em.remove(em.merge(location));
+        em.createNamedQuery(Location.DELETE_BY_PK)
+                .setParameter(1, location.getPk())
+                .executeUpdate();
     }
 
     public void removeMetadata(Metadata metadata) {
-        em.remove(em.merge(metadata));
+        em.createNamedQuery(Metadata.DELETE_BY_PK)
+                .setParameter(1, metadata.getPk())
+                .executeUpdate();
     }
 
     public Study deleteStudy(StudyDeleteContext ctx) {
@@ -172,13 +193,32 @@ public class DeletionServiceEJB {
         return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE, false), ctx);
     }
 
-    public Study deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
+    public boolean hasObjectsOnStorage(Long studyPk, StorageDescriptor desc) {
+        Study study = em.find(Study.class, studyPk);
+        return Stream.of(study.getStorageIDs())
+                .anyMatch(storageID -> storageID.equals(desc.getStorageID()));
+    }
+
+    public boolean deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
+        Study study = em.find(Study.class, studyPk);
         List<String> storageIDs = getStorageIDsOfCluster(desc);
+        if (!Stream.of(study.getStorageIDs()).anyMatch(storageID -> storageIDs.contains(storageID))) {
+            LOG.info("{} does not contain objects at Storage{}", study, storageIDs);
+            return false;
+        }
+        LOG.debug("Query for objects of {} at Storage{}", study, storageIDs);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDs)
                 .getResultList();
+        if (locations.isEmpty()) {
+            LOG.warn("{} does not contain objects at Storage{}", study, storageIDs);
+            return false;
+        }
+        LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), study, storageIDs);
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
+        LOG.debug("Finish marking {}/{} objects/instances of {} for deletion at Storage{}",
+                locations.size(), insts.size(), study, storageIDs);
         Set<Long> seriesPks = new HashSet<>();
         for (Instance inst : insts) {
             Series series = inst.getSeries();
@@ -187,16 +227,12 @@ public class DeletionServiceEJB {
                     && series.getMetadata() != null)
                 scheduleMetadataUpdate(series.getPk());
         }
-        Study study = em.find(Study.class, studyPk);
-        if (locations.isEmpty()) {
-            LOG.warn("{} does not contains objects at Storage{}", study, storageIDs);
-        }
         String studyEncodedStorageIDs = study.getEncodedStorageIDs();
         for (String storageID : storageIDs) {
             study.removeStorageID(storageID);
         }
         LOG.info("Update Storage IDs of {} from {} to {}", study, studyEncodedStorageIDs, study.getEncodedStorageIDs());
-        return study;
+        return true;
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
@@ -466,6 +502,7 @@ public class DeletionServiceEJB {
         return desc.getStorageClusterID() != null
             ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getStorageIDsOfCluster(desc.getStorageClusterID())
+                .filter(storageID -> !storageID.equals(desc.getExportStorageID()))
                 .collect(Collectors.toList())
             : Collections.singletonList(desc.getStorageID());
     }

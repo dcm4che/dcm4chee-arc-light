@@ -1,0 +1,43 @@
+{
+  "title": "PDQ Service",
+  "description": "PDQ Service Descriptor",
+  "type": "object",
+  "required": [
+    "dcmPDQServiceID",
+    "dcmURI"
+  ],
+  "properties": {
+    "dcmPDQServiceID": {
+      "title": "PDQ Service ID",
+      "description": "PDQ Service ID",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "PDQ Service URI",
+      "description": "PDQ Service URI, e.g. 'pdq-dicom:FINDSCP'.",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "PDQ Service Description",
+      "description": "Unconstrained text description of the PDQ Service",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "Patient Attributes",
+      "description": "Queried Patient Attributes - if not specified all available Patient attributes will be queried",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    },
+    "dcmProperty": {
+      "title": "PDQ Service Property",
+      "description": "Property in format <name>=<value>, e.g. 'LocalAET=DCM4CHEE'",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

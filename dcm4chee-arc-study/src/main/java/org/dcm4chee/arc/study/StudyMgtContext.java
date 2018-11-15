@@ -42,6 +42,8 @@ package org.dcm4chee.arc.study;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
@@ -62,6 +64,8 @@ public interface StudyMgtContext {
     FuzzyStr getFuzzyStr();
 
     HttpServletRequest getHttpRequest();
+
+    UnparsedHL7Message getUnparsedHL7Message();
 
     String getRemoteHostName();
 

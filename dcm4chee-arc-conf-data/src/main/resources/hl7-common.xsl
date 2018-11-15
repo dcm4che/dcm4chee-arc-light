@@ -24,9 +24,7 @@
         <xsl:when test="$val = 'F' or $val = 'M' or $val = 'O'">
           <xsl:value-of select="$val"/>
         </xsl:when>
-        <xsl:when test="$val = 'Female'">F</xsl:when>
-        <xsl:when test="$val = 'Male'">M</xsl:when>
-        <xsl:when test="$val = 'Other' or $val = 'A' or $val = 'N'">O</xsl:when>
+        <xsl:when test="$val = 'A' or $val = 'N'">O</xsl:when>
         <xsl:otherwise>&quot;&quot;</xsl:otherwise>
       </xsl:choose>
     </xsl:if>

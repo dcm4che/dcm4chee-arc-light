@@ -11,6 +11,15 @@
       "description": "UI Configuration Name",
       "type": "string"
     },
+    "dcmuiAetConfig": {
+      "title": "AET drop-down list",
+      "description": "Define which AETs should be visible in the drop-down lists in the UI",
+      "titleKey":"{dcmuiAetListName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiAet.schema.json"
+      }
+    },
     "dcmuiPermission": {
       "title": "Permission",
       "description": "Permission",

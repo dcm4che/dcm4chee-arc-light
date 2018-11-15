@@ -14,6 +14,9 @@ export class DynamicFieldComponent implements OnInit {
     key = '';
     longMode = false;
     search = '';
+    warning = false;
+    showRaw = false;
+    Object = Object;
     @Input() checked;
     @Input() mode;
     @Output() onValueChange = new EventEmitter();
@@ -47,6 +50,9 @@ export class DynamicFieldComponent implements OnInit {
         else
             this.onValueChange.emit(this.model);
     }
+    showRawValues(){
+        this.showRaw = !this.showRaw;
+    }
     getObject(functionName){
         if(Array.isArray(this.checked)){
             this.checked = this.checked || [];
@@ -64,6 +70,22 @@ export class DynamicFieldComponent implements OnInit {
         this.service[functionName]().subscribe((res)=>{
           this.elements = res;
           this.loader = false;
+        console.log("element",this.elements);
+        console.log("element",this.model);
+        console.log("checked",this.checked);
+        if(this.checked && this.checked.length > 1){
+            this.checked.forEach(c=>{
+                let found = false;
+                this.elements.forEach(e =>{
+                    if(c === e[this.key]){
+                        found = true;
+                    }
+                });
+                if(!found){
+                    this.warning = true;
+                }
+            });
+        }
           this.ref.detectChanges();
           if(this.type === 'array'){
               let height = this.elementView.nativeElement.offsetHeight;
@@ -76,5 +98,17 @@ export class DynamicFieldComponent implements OnInit {
           this.loader = false;
         });
     }
-
+/*    update(){
+        console.log("this.checked",this.checked);
+        this.checked.forEach(element =>{
+            if(element != "")
+                this.model[element] = true;
+        });
+    }*/
+    deleteElement(e){
+        var index = this.checked.indexOf(e);
+        if (index !== -1) this.checked.splice(index, 1);
+        delete this.model[e];
+        this.valueChanged();
+    }
 }

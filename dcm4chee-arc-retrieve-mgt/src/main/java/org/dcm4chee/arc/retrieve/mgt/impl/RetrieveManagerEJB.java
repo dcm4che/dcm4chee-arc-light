@@ -45,7 +45,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateDeleteClause;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -53,6 +53,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -75,10 +76,8 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -113,9 +112,10 @@ public class RetrieveManagerEJB {
             QQueueMessage.queueMessage.batchID
     };
 
-    public boolean scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID)
+    public boolean scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID,
+                                        Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
-        if (isAlreadyScheduled(em, ctx)) {
+        if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter)) {
             return false;
         }
         try {
@@ -125,9 +125,9 @@ public class RetrieveManagerEJB {
             msg.setIntProperty("Priority", priority);
             msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
             msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
-            ctx.getHttpServletRequestInfo().copyTo(msg);
+            HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY, batchID);
+                    Message.DEFAULT_PRIORITY, batchID, delay);
             createRetrieveTask(device, ctx, queueMessage);
             return true;
         } catch (JMSException e) {
@@ -135,9 +135,15 @@ public class RetrieveManagerEJB {
         }
     }
 
-    private boolean isAlreadyScheduled(EntityManager em, ExternalRetrieveContext ctx) {
-        BooleanBuilder predicate = new BooleanBuilder(QRetrieveTask.retrieveTask.queueMessage.status.in(
-                QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
+    private boolean isAlreadyScheduledOrRetrievedAfter(
+            EntityManager em, ExternalRetrieveContext ctx, Date retrievedAfter) {
+        Predicate statusPredicate = QRetrieveTask.retrieveTask.queueMessage.status.in(
+                QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS);
+        if (retrievedAfter != null) {
+            statusPredicate = ExpressionUtils.or(statusPredicate,
+                    QRetrieveTask.retrieveTask.updatedTime.after(retrievedAfter));
+        }
+        BooleanBuilder predicate = new BooleanBuilder(statusPredicate);
         predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(ctx.getRemoteAET()));
         predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(ctx.getDestinationAET()));
         predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(ctx.getStudyInstanceUID()));
@@ -155,13 +161,15 @@ public class RetrieveManagerEJB {
                         QRetrieveTask.retrieveTask.sopInstanceUID.eq(ctx.getSOPInstanceUID())));
             }
         }
-        try (CloseableIterator<Long> iterate = new HibernateQuery<>(em.unwrap(Session.class))
-                .select(QRetrieveTask.retrieveTask.pk)
+        RetrieveTask prevTask = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                 .from(QRetrieveTask.retrieveTask)
                 .where(predicate)
-                .iterate()) {
-            return iterate.hasNext();
+                .fetchFirst();
+        if (prevTask != null) {
+            LOG.info("Previous {} found - suppress duplicate retrieve", prevTask);
+            return true;
         }
+        return false;
     }
 
     private void createRetrieveTask(Device device, ExternalRetrieveContext ctx, QueueMessage queueMessage) {
@@ -220,8 +228,7 @@ public class RetrieveManagerEJB {
         if (task == null)
             return false;
 
-        queueEvent.setQueueMsg(task.getQueueMessage());
-        em.remove(task);
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent);
         LOG.info("Delete {}", task);
         return true;
     }
@@ -276,16 +283,21 @@ public class RetrieveManagerEJB {
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchRetrieveTask)
-                    .select(QRetrieveTask.retrieveTask.queueMessage.pk)
+        List<String> referencedQueueMsgIDs = createQuery(matchQueueMessage, matchRetrieveTask)
+                    .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
                     .limit(deleteTasksFetchSize)
                     .fetch();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
-                .execute();
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+        for (String queueMsgID : referencedQueueMsgIDs)
+            queueManager.deleteTask(queueMsgID, null);
+
+        return referencedQueueMsgIDs.size();
+
+//        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+//                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
+//                .execute();
+//        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+//                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
     }
 
     public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {

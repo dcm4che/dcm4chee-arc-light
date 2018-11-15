@@ -78,6 +78,10 @@ class AuditInfo {
     static final int QUEUE_MSG = 27;
     static final int TASK_POID = 28;
     static final int ERROR_CODE = 29;
+    static final int PAT_MISMATCH_CODE = 30;
+    static final int CONN_TYPE = 31;
+    static final int PAT_VERIFICATION_STATUS = 32;
+    static final int PDQ_SERVICE_URI = 33;
 
     private final String[] fields;
 
@@ -112,7 +116,11 @@ class AuditInfo {
                 String.valueOf(i.count),
                 i.queueMsg,
                 i.taskPOID,
-                i.errorCode
+                i.errorCode,
+                i.patMismatchCode,
+                i.connType != null ? i.connType.name() : null,
+                i.patVerificationStatus != null ? i.patVerificationStatus.name() : null,
+                i.pdqServiceURI
         };
     }
 

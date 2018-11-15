@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {DevicesService} from "../../devices/devices.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
@@ -59,14 +59,14 @@ export class DiffMonitorService {
               placeholder:"Device Name"
           },{
               tag:"select",
-              options:aes,
+              options:aets,
               showStar:true,
               filterKey:"LocalAET",
               description:"Local AET",
               placeholder:"Local AET"
           },{
               tag:"select",
-              options:aets,
+              options:aes,
               showStar:true,
               filterKey:"PrimaryAET",
               description:"Primary AET",
@@ -74,7 +74,7 @@ export class DiffMonitorService {
           },
           {
               tag:"select",
-              options:aets,
+              options:aes,
               showStar:true,
               filterKey:"SecondaryAET",
               description:"Secondary AET",

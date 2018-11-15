@@ -71,9 +71,9 @@ public class RESTfulHL7Sender {
 
     public void sendHL7Message(String msgType, PatientMgtContext ctx) throws Exception {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String sender = arcDev.getHl7ADTSendingApplication();
+        String sender = arcDev.getHL7ADTSendingApplication();
         if (sender != null) 
-            for (String receiver : arcDev.getHl7ADTReceivingApplication()) 
+            for (String receiver : arcDev.getHL7ADTReceivingApplication()) 
                 scheduleHL7Message(msgType, ctx, sender, receiver);
     }
 
@@ -149,7 +149,7 @@ public class RESTfulHL7Sender {
                                                 .getHL7Application(sender, true);
             ArchiveHL7ApplicationExtension arcHL7AppExt = hl7Application.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
             hl7cs = hl7Application.getHL7SendingCharacterSet();
-            hl7UseNullValue = arcHL7AppExt != null ? arcHL7AppExt.hl7UseNullValue() : arcDev.isHl7UseNullValue();
+            hl7UseNullValue = arcHL7AppExt != null ? arcHL7AppExt.hl7UseNullValue() : arcDev.isHL7UseNullValue();
             msgControlID = HL7Segment.nextMessageControlID();
             msgTimestamp = HL7Segment.timeStamp(new Date());
         }
@@ -159,7 +159,7 @@ public class RESTfulHL7Sender {
             receivingAppWithFacility = appWithFacility(receiver);
             ArchiveHL7ApplicationExtension arcHL7AppExt = sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
             hl7cs = sender.getHL7SendingCharacterSet();
-            hl7UseNullValue = arcHL7AppExt != null ? arcHL7AppExt.hl7UseNullValue() : arcDev.isHl7UseNullValue();
+            hl7UseNullValue = arcHL7AppExt != null ? arcHL7AppExt.hl7UseNullValue() : arcDev.isHL7UseNullValue();
             msgControlID = HL7Segment.nextMessageControlID();
             msgTimestamp = HL7Segment.timeStamp(new Date());
         }

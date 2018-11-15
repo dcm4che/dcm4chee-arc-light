@@ -20,7 +20,8 @@
     "dcmKeycloakServerID": {
       "title": "Keycloak Server ID",
       "description": "Identifier of the Keycloak Server from which the access token shall be granted. If absent, no token will be sent.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmKeycloakServer"
     },
     "dcmTLSAllowAnyHostname": {
       "title": "TLS Allow Any Hostname",

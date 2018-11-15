@@ -41,10 +41,12 @@
 
 package org.dcm4chee.arc.compress.impl;
 
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -63,7 +65,7 @@ import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,7 +75,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CompressionScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompressionScheduler.class);
-    private AtomicInteger threadCount = new AtomicInteger();
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -91,7 +92,7 @@ public class CompressionScheduler extends Scheduler {
     private StoreService storeService;
 
     protected CompressionScheduler() {
-        super(Mode.scheduleAtFixedRate);
+        super(Mode.scheduleWithFixedDelay);
     }
 
     @Override
@@ -119,23 +120,40 @@ public class CompressionScheduler extends Scheduler {
             LOG.warn("No such Application Entity: " + aet);
             return;
         }
-        try {
-            if (threadCount.incrementAndGet() > arcDev.getCompressionThreads()) {
-                LOG.info("Maximal number of Compression Threads[={}] reached", arcDev.getCompressionThreads());
-            } else {
-                int fetchSize = arcDev.getCompressionFetchSize();
-                List<Series.Compression> compressions;
-                do {
-                    for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {
-                        if (ejb.claimForCompression(compression.seriesPk) > 0) {
-                            process(ae, compression);
-                        }
-                    }
+        int fetchSize = arcDev.getCompressionFetchSize();
+        int permits = arcDev.getCompressionThreads();
+        Semaphore semaphore = new Semaphore(permits);
+        List<Series.Compression> compressions;
+        do {
+            for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {
+                if (ejb.claimForCompression(compression.seriesPk) > 0) {
+                    acquire(semaphore, 1);
+                    device.execute(() -> {
+                        process(ae, compression);
+                        semaphore.release();
+                    });
                 }
-                while (getPollingInterval() != null && compressions.size() == fetchSize);
             }
-        } finally {
-            threadCount.decrementAndGet();
+            int acquire = permits - (permits = arcDev.getCompressionThreads());
+            if (acquire > 0)
+                acquire(semaphore, acquire);
+            else if (acquire < 0)
+                semaphore.release(-acquire);
+        }
+        while (arcDev.getCompressionPollingInterval() != null && compressions.size() == fetchSize);
+        acquire(semaphore, permits);
+    }
+
+    private static void acquire(Semaphore semaphore, int permits) {
+        if (!semaphore.tryAcquire(permits)) {
+            try {
+                int n = permits - semaphore.availablePermits();
+                LOG.debug("Wait for completion of compression of {} Series", n);
+                semaphore.acquire(permits);
+                LOG.debug("Compression of {} Series completed", n);
+            } catch (InterruptedException e) {
+                LOG.warn("Failed to wait for completion of compression of Series", e);
+            }
         }
     }
 
@@ -154,18 +172,25 @@ public class CompressionScheduler extends Scheduler {
             }
         }
         try (
-                RetrieveContext retrCtx = retrieveService.newRetrieveContext(
-                    ae.getAETitle(), compr.studyInstanceUID, compr.seriesInstanceUID, null);
-                StoreSession session = storeService.newStoreSession(ae)) {
+            RetrieveContext retrCtx = retrieveService.newRetrieveContext(
+                ae.getAETitle(), compr.studyInstanceUID, compr.seriesInstanceUID, null);
+            StoreSession session = storeService.newStoreSession(ae)) {
             retrieveService.calculateMatches(retrCtx);
             LOG.info("Start compression of {} Instances of Series[iuid={}] of Study[iuid={}]",
                     retrCtx.getNumberOfMatches(), compr.seriesInstanceUID, compr.studyInstanceUID);
             int failures = 0;
             int completed = 0;
+            int skipped = 0;
             ArchiveCompressionRule compressionRule = new ArchiveCompressionRule();
             compressionRule.setTransferSyntax(compr.transferSyntaxUID);
             compressionRule.setImageWriteParams(compr.imageWriteParams());
             for (InstanceLocations inst : retrCtx.getMatches()) {
+                if (alreadyCompressed(inst.getLocations(), compr.transferSyntaxUID)) {
+                    LOG.info("{} of Series[iuid={}] of Study[iuid={}] already compressed with {} - skipped",
+                            inst, compr.seriesInstanceUID, compr.studyInstanceUID, UID.nameOf(compr.transferSyntaxUID));
+                    skipped++;
+                    continue;
+                }
                 try (LocationInputStream lis = retrieveService.openLocationInputStream(retrCtx, inst)) {
                     StoreContext ctx = storeService.newStoreContext(session);
                     ctx.setCompressionRule(compressionRule);
@@ -178,11 +203,15 @@ public class CompressionScheduler extends Scheduler {
                 }
             }
             ejb.updateDB(compr, completed, failures);
-            LOG.info("Finished compression of {} Instances of Series[iuid={}] of Study[iuid={}] - {} failures",
-                    completed, compr.seriesInstanceUID, compr.studyInstanceUID, failures);
+            LOG.info("Finished compression of {} Instances of Series[iuid={}] of Study[iuid={}] - {} failures, {} skipped",
+                    completed, compr.seriesInstanceUID, compr.studyInstanceUID, failures, skipped);
         } catch (IOException e) {
             LOG.warn("Failed to calculate Instances for compression of Series[iuid={}] of Study[iuid={}]:\n",
                     compr.seriesInstanceUID, compr.studyInstanceUID, e);
         }
+    }
+
+    private boolean alreadyCompressed(List<Location> locations, String tsuid) {
+        return locations.stream().anyMatch(l -> Location.isDicomFile(l) && l.getTransferSyntaxUID().equals(tsuid));
     }
 }

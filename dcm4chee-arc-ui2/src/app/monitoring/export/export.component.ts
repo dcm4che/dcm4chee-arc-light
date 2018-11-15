@@ -15,6 +15,10 @@ import * as FileSaver from 'file-saver';
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
+import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
+import {PermissionService} from "../../helpers/permissions/permission.service";
+import {Validators} from "@angular/forms";
 
 
 @Component({
@@ -27,21 +31,8 @@ export class ExportComponent implements OnInit, OnDestroy {
     exporters;
     exporterID;
     showMenu;
+    aets;
     exportTasks = [];
-/*    filters = {
-        ExporterID: undefined,
-        offset: undefined,
-        limit: 20,
-        status: '*',
-        dicomDeviceName: '',
-        StudyInstanceUID: undefined,
-        updatedTime: undefined,
-        // updatedTimeObject: undefined,
-        createdTime: undefined,
-        batchID: undefined,
-        orderby: undefined,
-        // createdTimeObject: undefined
-    };*/
     timer = {
         started:false,
         startText:"Start Auto Refresh",
@@ -61,7 +52,6 @@ export class ExportComponent implements OnInit, OnDestroy {
         "CANCELED"
     ];
     batchGrouped = false;
-    isRole: any = (user)=>{return false;};
     dialogRef: MatDialogRef<any>;
     _ = _;
     devices;
@@ -93,7 +83,9 @@ export class ExportComponent implements OnInit, OnDestroy {
         public dialog: MatDialog,
         public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        public aeListService:AeListService,
+        private permissionService:PermissionService
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -123,6 +115,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             }
         });
         this.initExporters(1);
+        this.getAets();
         // this.init();
         this.status.forEach(status =>{
             this.statusValues[status] = {
@@ -130,50 +123,6 @@ export class ExportComponent implements OnInit, OnDestroy {
                 loader: false
             };
         });
-/*        let $this = this;
-        if (!this.mainservice.user){
-            // console.log("in if studies ajax");
-            this.mainservice.user = this.mainservice.getUserInfo().share();
-            this.mainservice.user
-                .subscribe(
-                    (response) => {
-                        $this.user.user  = response.user;
-                        $this.mainservice.user.user = response.user;
-                        $this.user.roles = response.roles;
-                        $this.mainservice.user.roles = response.roles;
-                        $this.isRole = (role) => {
-                            if (response.user === null && response.roles.length === 0){
-                                return true;
-                            }else{
-                                if (response.roles && response.roles.indexOf(role) > -1){
-                                    return true;
-                                }else{
-                                    return false;
-                                }
-                            }
-                        };
-                    },
-                    (response) => {
-                        // $this.user = $this.user || {};
-                        console.log('get user error');
-                        $this.user.user = 'user';
-                        $this.mainservice.user.user = 'user';
-                        $this.user.roles = ['user', 'admin'];
-                        $this.mainservice.user.roles = ['user', 'admin'];
-                        $this.isRole = (role) => {
-                            if (role === 'admin'){
-                                return false;
-                            }else{
-                                return true;
-                            }
-                        };
-                    }
-                );
-
-        }else{
-            this.user = this.mainservice.user;
-            this.isRole = this.mainservice.isRole;
-        }*/
         this.statusChange();
     }
     initSchema(){
@@ -182,6 +131,10 @@ export class ExportComponent implements OnInit, OnDestroy {
             this.filterObject = this.urlParam;
             this.filterObject["limit"] = 20;
         }
+    }
+    onFormChange(e){
+        console.log("e",e);
+        this.statusChange();
     }
     // changeTest(e){
     //     console.log("changetest",e);
@@ -276,12 +229,67 @@ export class ExportComponent implements OnInit, OnDestroy {
                 }
             });
         });
-/*        this.service.downloadCsv(this.filterObject).subscribe((csv)=>{
-            let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
-            FileSaver.saveAs(file);
-        },(err)=>{
-            this.httpErrorHandler.handleError(err);
-        });*/
+    }
+    uploadCsv(){
+        this.dialogRef = this.dialog.open(CsvUploadComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.params = {
+            exporterID:this.exporterID || '',
+            batchID:this.filterObject['batchID'] || '',
+            formSchema:[
+                {
+                    tag:"select",
+                    options:this.aets,
+                    showStar:true,
+                    filterKey:"LocalAET",
+                    description:"Local AET",
+                    placeholder:"Local AET",
+                    validation:Validators.required
+                },
+                {
+                    tag:"select",
+                    options:this.exporters.map(exporter=>{
+                        return {
+                            value:exporter.id,
+                            text:exporter.id
+                        }
+                    }),
+                    showStar:true,
+                    filterKey:"exporterID",
+                    description:"Exporter ID",
+                    placeholder:"Exporter ID",
+                    validation:Validators.required
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"field",
+                    description:"Field",
+                    placeholder:"Field",
+                    validation:Validators.minLength(1),
+                    defaultValue:1
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"batchID",
+                    description:"Batch ID",
+                    placeholder:"Batch ID"
+                }
+            ],
+            prepareUrl:(filter)=>{
+                let clonedFilters = {};
+                if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
+                return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+            }
+        };
+        this.dialogRef.afterClosed().subscribe((ok)=>{
+            if(ok){
+                console.log("ok",ok);
+                //TODO
+            }
+        });
     }
     showTaskDetail(task){
         this.filterObject.batchID = task.properties.batchID;
@@ -292,17 +300,9 @@ export class ExportComponent implements OnInit, OnDestroy {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.filterObject, offset,this.batchGrouped)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe((res) => {
-/*                    res = [{"batchID":"test12","tasks":{
-                        "completed":60,
-                        "warning":24,
-                        "failed":12,
-                        "in-process":5,
-                        "scheduled":123,
-                        "canceled":26
-                    },"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3,"warning":34},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];
-               */ if (res && res.length > 0){
+                if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
                         if(this.batchGrouped){
                             let propertiesAttr = Object.assign({},properties);
@@ -628,6 +628,38 @@ export class ExportComponent implements OnInit, OnDestroy {
             return duration.toString() + ' ms';
         }*/
     }
+    deleteBatchedTask(batchedTask){
+        this.confirm({
+            content: 'Are you sure you want to delete all tasks to this batch?'
+        }).subscribe(ok=>{
+            if(ok){
+                if(batchedTask.properties.batchID){
+                    let filter = Object.assign({},this.filterObject);
+                    filter["batchID"] = batchedTask.properties.batchID;
+                    delete filter["limit"];
+                    delete filter["offset"];
+                    this.service.deleteAll(filter).subscribe((res)=>{
+                        this.mainservice.setMessage({
+                            'title': 'Info',
+                            'text': res.deleted + ' tasks deleted successfully!',
+                            'status': 'info'
+                        });
+                        this.cfpLoadingBar.complete();
+                        this.search(0);
+                    }, (err) => {
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }else{
+                    this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': 'Batch ID not found!',
+                        'status': 'error'
+                    });
+                }
+            }
+        });
+    }
     delete(match){
         let $this = this;
         let parameters: any = {
@@ -731,6 +763,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.dialogRef.componentInstance.title = 'Task reschedule';
         this.dialogRef.componentInstance.warning = null;
         this.dialogRef.componentInstance.mode = "reschedule";
+        this.dialogRef.componentInstance.quantity = "single";
         this.dialogRef.componentInstance.result = result;
         this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
         this.dialogRef.afterClosed().subscribe(result => {
@@ -790,10 +823,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
-                    console.log('res', res);
-                    console.log('exporters', $this.exporters);
                     $this.exporters = res;
-                    console.log('exporters2', $this.exporters);
                     if (res && res[0] && res[0].id){
                         $this.exporterID = res[0].id;
                     }
@@ -815,6 +845,21 @@ export class ExportComponent implements OnInit, OnDestroy {
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
         });
+    }
+    getAets(){
+        this.aeListService.getAets()
+            .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal'))
+            .retry(3)
+            .subscribe(aets=>{
+                this.aets = aets.map(ae=>{
+                    return {
+                        value:ae.dicomAETitle,
+                        text:ae.dicomAETitle
+                    }
+                })
+            },(err)=>{
+                console.error("Could not get aets",err);
+            });
     }
     ngOnDestroy(){
         if(this.timer.started){

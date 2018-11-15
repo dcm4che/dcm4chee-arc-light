@@ -17,8 +17,10 @@ alter table series add compress_failures integer default 0 not null;
 
 create sequence stgver_task_pk_seq;
 
---doesn't work error about reorg of table
+--works after reorg of queue_msg
 alter table stgver_task add constraint FK_hch5fanx7ejwew2ag2ividq9r foreign key (queue_msg_fk) references queue_msg;
+
+--works after reorg of series
 create index UK_ftv3ijh2ud6ogoknneyqc6t9i on series (stgver_time);
 create index UK_s1vceb8cu9c45j0q8tbldgol9 on series (stgver_failures);
 create index UK_38mfgfnjhan2yhnwqtcrawe4 on series (compress_time);

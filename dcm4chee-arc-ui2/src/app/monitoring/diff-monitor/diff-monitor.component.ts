@@ -4,7 +4,7 @@ import {AppService} from "../../app.service";
 import {ActivatedRoute} from "@angular/router";
 import * as _ from 'lodash';
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import {AeListService} from "../../ae-list/ae-list.service";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
@@ -13,6 +13,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MatDialogConfig, MatDialog, MatDialogRef} from "@angular/material";
 import {Globalvar} from "../../constants/globalvar";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 
 @Component({
     selector: 'diff-monitor',
@@ -42,7 +43,22 @@ export class DiffMonitorComponent implements OnInit {
         stopText:"Stop Auto Refresh"
     };
     Object = Object;
+    filterTreeHeight = 3;
     tableHovered = false;
+    allAction;
+    allActionsActive = [];
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
     constructor(
         private service:DiffMonitorService,
         private mainservice:AppService,
@@ -54,6 +70,7 @@ export class DiffMonitorComponent implements OnInit {
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public dialogConfig: MatDialogConfig,
+        private permissionService:PermissionService
     ){}
 
     ngOnInit(){
@@ -90,8 +107,8 @@ export class DiffMonitorComponent implements OnInit {
             offset:0
         };
         Observable.forkJoin(
-            this.aeListService.getAes(),
-            this.aeListService.getAets(),
+            this.aeListService.getAes().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external')),
+            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.aes = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
@@ -116,9 +133,71 @@ export class DiffMonitorComponent implements OnInit {
                 });
             this.initSchema();
         });
+        this.onFormChange(this.filterObject);
+    }
+
+    onFormChange(filters){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                if(filters.status === '*' || !filters.status || filters.status === '')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
+            }
+        });
     }
     initSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,`COUNT ${((this.count || this.count == 0)?this.count:'')}`,this.devices),3);
+    }
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = Object.assign({}, this.filterObject);
+        delete filter["limit"];
+        delete filter["offset"];
+        this.confirm({
+            content: text
+        }).subscribe((ok)=>{
+            if(ok){
+                this.cfpLoadingBar.start();
+                switch (this.allAction){
+                    case "cancel":
+                        this.service.cancelAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' tasks deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+
+                        break;
+                    case "reschedule":
+                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' tasks rescheduled successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                        break;
+                    case "delete":
+                        this.deleteAllTasks(this.filterObject);
+                        break;
+                }
+                this.cfpLoadingBar.complete();
+            }
+            this.allAction = "";
+            this.allAction = undefined;
+        });
     }
     onSubmit(e){
         console.log("e",e);
@@ -411,6 +490,12 @@ export class DiffMonitorComponent implements OnInit {
                 this.statusValues[status].count = "!";
             });
         });
+    }
+    keyUp(e){
+        console.log("e",e);
+        if(e.which === 13){
+            this.getCounts();
+        }
     }
     ngOnDestroy(){
         if(this.timer.started){

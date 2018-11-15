@@ -47,7 +47,6 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -82,8 +81,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TemporalType;
-import java.time.Instant;
-import java.time.Period;
 import java.util.*;
 
 /**
@@ -215,9 +212,9 @@ public class StgCmtEJB {
         em.persist(result);
     }
 
-    public List<StgCmtResult> listStgCmts(
-            StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit) {
-        HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID);
+    public List<StgCmtResult> listStgCmts(StgCmtResult.Status status, String studyUID, String exporterID, String batchID,
+                                          String msgID, int offset, int limit) {
+        HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID, batchID, msgID);
         if (limit > 0)
             query.limit(limit);
         if (offset > 0)
@@ -259,14 +256,16 @@ public class StgCmtEJB {
         return results.size();
     }
 
-    private HibernateQuery<StgCmtResult> getStgCmtResults(StgCmtResult.Status status, String studyUID, String exporterId) {
-        Predicate predicate = getPredicates(status, studyUID, exporterId);
+    private HibernateQuery<StgCmtResult> getStgCmtResults(StgCmtResult.Status status, String studyUID, String exporterId,
+                                                          String batchID, String msgID) {
+        Predicate predicate = getPredicates(status, studyUID, exporterId, batchID, msgID);
         HibernateQuery<StgCmtResult> query = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(QStgCmtResult.stgCmtResult).from(QStgCmtResult.stgCmtResult);
         return query.where(predicate);
     }
 
-    private Predicate getPredicates(StgCmtResult.Status status, String studyUID, String exporterId) {
+    private Predicate getPredicates(StgCmtResult.Status status, String studyUID, String exporterId, String batchID,
+                                    String msgID) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (status != null)
             predicate.and(QStgCmtResult.stgCmtResult.status.eq(status));
@@ -274,10 +273,14 @@ public class StgCmtEJB {
             predicate.and(QStgCmtResult.stgCmtResult.studyInstanceUID.eq(studyUID));
         if (exporterId != null)
             predicate.and(QStgCmtResult.stgCmtResult.exporterID.eq(exporterId.toUpperCase()));
+        if (batchID != null)
+            predicate.and(QStgCmtResult.stgCmtResult.batchID.eq(batchID));
+        if (msgID != null)
+            predicate.and(QStgCmtResult.stgCmtResult.messageID.eq(msgID));
         return predicate;
     }
 
-    public boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
+    public boolean  scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
                                       String batchID) throws QueueSizeLimitExceededException {
         if (isAlreadyScheduled(storageVerificationTask))
             return false;
@@ -296,7 +299,7 @@ public class StgCmtEJB {
                 httpServletRequestInfo.copyTo(msg);
             }
             QueueMessage queueMessage = queueManager.scheduleMessage(StgCmtManager.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY, batchID);
+                    Message.DEFAULT_PRIORITY, batchID, 0L);
             storageVerificationTask.setQueueMessage(queueMessage);
             em.persist(storageVerificationTask);
         } catch (JMSException e) {
@@ -449,23 +452,21 @@ public class StgCmtEJB {
         if (task == null)
             return false;
 
-        queueEvent.setQueueMsg(task.getQueueMessage());
-        em.remove(task);
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent);
         LOG.info("Delete {}", task);
         return true;
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgs = createQuery(matchQueueMessage, matchStgVerTask)
-                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.pk)
+        List<String> referencedQueueMsgIDs = createQuery(matchQueueMessage, matchStgVerTask)
+                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.messageID)
                 .limit(deleteTasksFetchSize)
                 .fetch();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QStorageVerificationTask.storageVerificationTask)
-                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.pk.in(referencedQueueMsgs))
-                .execute();
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+        for (String queueMsgID : referencedQueueMsgIDs)
+            queueManager.deleteTask(queueMsgID, null);
+
+        return referencedQueueMsgIDs.size();
     }
 
     public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,

@@ -44,6 +44,7 @@ import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Patient;
 
 
 /**
@@ -66,6 +67,7 @@ public class QueryParam {
     private boolean compressionfailed;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
+    private Patient.VerificationStatus patientVerificationStatus;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -199,5 +201,13 @@ public class QueryParam {
 
     public void setExternalRetrieveAETNot(String externalRetrieveAETNot) {
         this.externalRetrieveAETNot = externalRetrieveAETNot;
+    }
+
+    public Patient.VerificationStatus getPatientVerificationStatus() {
+        return patientVerificationStatus;
+    }
+
+    public void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus) {
+        this.patientVerificationStatus = patientVerificationStatus;
     }
 }

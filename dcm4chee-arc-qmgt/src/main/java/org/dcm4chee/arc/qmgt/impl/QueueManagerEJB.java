@@ -102,15 +102,15 @@ public class QueueManagerEJB {
         return jmsCtx.createObjectMessage(object);
     }
 
-    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg, int priority, String batchID)
+    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg, int priority, String batchID, long delay)
             throws QueueSizeLimitExceededException {
         QueueDescriptor queueDescriptor = descriptorOf(queueName);
         int maxQueueSize = queueDescriptor.getMaxQueueSize();
         if (maxQueueSize > 0 && maxQueueSize < countScheduledMessagesOnThisDevice(queueName))
             throw new QueueSizeLimitExceededException(queueDescriptor);
 
-        sendMessage(queueDescriptor, msg, 0L, priority);
-        QueueMessage entity = new QueueMessage(device.getDeviceName(), queueName, msg);
+        sendMessage(queueDescriptor, msg, delay, priority);
+        QueueMessage entity = new QueueMessage(device.getDeviceName(), queueName, msg, delay);
         entity.setBatchID(batchID);
         em.persist(entity);
         LOG.info("Schedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
@@ -431,12 +431,16 @@ public class QueueManagerEJB {
         if (entity == null)
             return false;
 
-        queueEvent.setQueueMsg(entity);
+        if (queueEvent != null)
+            queueEvent.setQueueMsg(entity);
         deleteTask(entity);
         return true;
     }
 
     private void deleteTask(QueueMessage entity) {
+        if (entity.getStatus() == QueueMessage.Status.IN_PROCESS)
+            messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
+
         if (entity.getExportTask() != null)
             em.remove(entity.getExportTask());
         else if (entity.getRetrieveTask() != null)

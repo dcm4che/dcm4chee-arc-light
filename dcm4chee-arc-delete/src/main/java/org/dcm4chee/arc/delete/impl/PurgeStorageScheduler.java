@@ -74,6 +74,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -126,45 +128,45 @@ public class PurgeStorageScheduler extends Scheduler {
 
     @Override
     protected void execute() {
+        for (StorageDescriptor desc : arcdev().getStorageDescriptors()) {
+            if (!desc.isReadOnly() && inProcess.add(desc.getStorageID()))
+                device.execute(() -> {
+                    LOG.info("Check {} for deletion", desc);
+                    try {
+                        process(desc);
+                    } catch (Throwable e) {
+                        LOG.warn("Deletion on {} throws:\n", desc, e);
+                    } finally {
+                        inProcess.remove(desc.getStorageID());
+                        LOG.info("Finished deletion on {}", desc);
+                    }
+                });
+        }
+    }
+
+    private void process(StorageDescriptor desc) {
         ArchiveDeviceExtension arcDev = arcdev();
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
-        for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
-            if (desc.isReadOnly())
-                continue;
-
-            if (!inProcess.add(desc.getStorageID()))
-                continue;
-
-            try {
-                long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
-                long deleteSize = deleteSize(desc, minUsableSpace);
-                if (deleteSize > 0L) {
-                    LOG.info("Usable Space on {} below {} - start deleting {}", desc,
-                            BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
-                }
-                for (int i = 0; i == 0 || deleteSize > 0L; i++) {
-                    if (getPollingInterval() == null)
-                        return;
-                    if (deleteSize > 0L) {
-                        if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
-                            deleteSize = 0L;
-                    }
-                    while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
-                    if (deleteSize > 0L) {
-                        deleteSize = deleteSize(desc, minUsableSpace);
-                    }
-                }
-                while (deleteSize > 0L) ;
-                while (deleteSeriesMetadata(desc, fetchSize)) ;
-            } finally {
-                inProcess.remove(desc.getStorageID());
+        long minUsableSpace = desc.hasDeleterThresholds() ?
+                desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
+        long deleteSize;
+        int n = 0;
+        do {
+            deleteObjectsFromStorage(desc, fetchSize);
+            if (getPollingInterval() == null) return;
+            deleteSize = sizeToDelete(desc, minUsableSpace);
+            if (deleteSize == 0L) break;
+            if (n++ == 0) {
+                LOG.info("Usable Space on {} below {} - start deleting {}", desc,
+                        BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
             }
-        }
+        } while (deleteStudies(desc, deleteStudyBatchSize, deletePatient) > 0);
+        deleteSeriesMetadata(desc, fetchSize);
     }
 
-    private long deleteSize(StorageDescriptor desc, long minUsableSpace) {
+    private long sizeToDelete(StorageDescriptor desc, long minUsableSpace) {
         if (minUsableSpace < 0L)
             return 0L;
 
@@ -234,7 +236,7 @@ public class PurgeStorageScheduler extends Scheduler {
                     }
                 }
                 if (notStoredOnOtherStorage > 0) {
-                    LOG.warn("{} of instances of {} on {} not stored on Storage[id={}] - defer deletion of objects",
+                    LOG.info("{} instances of {} on {} not stored on Storage[id={}] - defer deletion of objects",
                             notStoredOnOtherStorage, studyPkUID, desc, exportStorageID);
                     ejb.updateStudyAccessTime(studyPkUID.pk);
                     iter.remove();
@@ -270,6 +272,7 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private static int instancesNotStoredOnOtherStorage(ReadContext ctx, String storageID, String exportStorageID) {
         int count = 0;
+        LOG.debug("Read Metadata {} from {}", ctx.getStoragePath(), ctx.getStorage().getStorageDescriptor());
         try (InputStream in = ctx.getStorage().openInputStream(ctx)) {
             ZipInputStream zip = new ZipInputStream(in);
             while (zip.getNextEntry() != null) {
@@ -336,62 +339,136 @@ public class PurgeStorageScheduler extends Scheduler {
             if (getPollingInterval() == null)
                 break;
             try {
-                Study study = ejb.deleteObjectsOfStudy(studyPkUID.pk, desc);
-                removed++;
-                LOG.info("Successfully delete objects of {} on {}", study, desc);
+                if (ejb.deleteObjectsOfStudy(studyPkUID.pk, desc)) {
+                    removed++;
+                    LOG.info("Successfully marked objects of {} at {} for deletion", studyPkUID, desc);
+                }
             } catch (Exception e) {
-                LOG.warn("Failed to delete objects of {} on {}", studyPkUID, desc, e);
+                if (ejb.hasObjectsOnStorage(studyPkUID.pk, desc))
+                    LOG.warn("Failed to mark objects of {} at {} for deletion", studyPkUID, desc, e);
+                else
+                    LOG.info("{} does not contain objects at {}", studyPkUID, desc);
             }
         }
         return removed;
     }
 
-    private boolean deleteSeriesMetadata(StorageDescriptor desc, int fetchSize) {
-        List<Metadata> metadata = ejb.findMetadataToDelete(desc.getStorageID(), fetchSize);
-        if (metadata.isEmpty())
-            return false;
-
-        try (Storage storage = storageFactory.getStorage(desc)) {
-            for (Metadata m : metadata) {
-                if (getPollingInterval() == null)
-                    return false;
-                try {
-                    storage.deleteObject(m.getStoragePath());
-                    ejb.removeMetadata(m);
-                    LOG.debug("Successfully delete {} from {}", m, desc);
-                } catch (Exception e) {
-                    ejb.failedToDelete(m);
-                    LOG.warn("Failed to delete {} from {}", m, desc, e);
-                }
+    private void deleteSeriesMetadata(StorageDescriptor desc, int fetchSize) {
+        List<Metadata> metadataList;
+        do {
+            if (getPollingInterval() == null) return;
+            LOG.debug("Query for Metadata marked for deletion from {}", desc);
+            metadataList = ejb.findMetadataToDelete(desc.getStorageID(), fetchSize);
+            if (metadataList.isEmpty()) {
+                LOG.debug("No Metadata marked for deletion found at {}", desc);
+                break;
             }
-        } catch (Exception e) {
-            LOG.warn("Failed to access {}", desc, e);
-        }
-        return metadata.size() == fetchSize;
+            LOG.info("Start deleting {} Metadata from {}", metadataList.size(), desc);
+            AtomicInteger success = new AtomicInteger();
+            AtomicInteger skipped = new AtomicInteger();
+            int deleteThreads = desc.getDeleterThreads();
+            Semaphore semaphore = deleteThreads > 1 ? new Semaphore(deleteThreads) : null;
+            try (Storage storage = storageFactory.getStorage(desc)) {
+                for (Metadata metadata : metadataList) {
+                    if (semaphore == null) {
+                        deleteSeriesMetadata(storage, metadata, success, skipped);
+                    } else {
+                        semaphore.acquire();
+                        device.execute(() -> {
+                            try {
+                                deleteSeriesMetadata(storage, metadata, success, skipped);
+                            } finally {
+                                semaphore.release();
+                            }
+                        });
+                    }
+                }
+                if (semaphore != null) {
+                    LOG.debug("Waiting for finishing deleting {} Metadata from {}", metadataList.size(), desc);
+                    semaphore.acquire(deleteThreads);
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to access {}", desc, e);
+            } finally {
+                LOG.info("Finished deleting {} (skipped={}, failed={}) Metadata from {}",
+                        success, skipped, metadataList.size() - success.get() - skipped.get(), desc);
+            }
+        } while (metadataList.size() == fetchSize);
     }
 
-    private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) {
-        List<Location> locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
-        if (locations.isEmpty())
-            return false;
-
-        try (Storage storage = storageFactory.getStorage(desc)) {
-            for (Location location : locations) {
-                if (getPollingInterval() == null)
-                    return false;
-                try {
-                    storage.deleteObject(location.getStoragePath());
-                    ejb.removeLocation(location);
-                    LOG.debug("Successfully delete {} from {}", location, desc);
-                } catch (Exception e) {
-                    ejb.failedToDelete(location);
-                    LOG.warn("Failed to delete {} from {}", location, desc, e);
-                }
+    private void deleteSeriesMetadata(Storage storage, Metadata metadata, AtomicInteger success,
+                                      AtomicInteger skipped) {
+        try {
+            if (ejb.claimDeleteMetadata(metadata)) {
+                storage.deleteObject(metadata.getStoragePath());
+                ejb.removeMetadata(metadata);
+                LOG.debug("Successfully delete {} from {}", metadata, storage);
+                success.getAndIncrement();
+            } else {
+                skipped.getAndIncrement();
             }
         } catch (Exception e) {
-            LOG.warn("Failed to access {}", desc, e);
+            LOG.warn("Failed to delete {} from {}", metadata, storage, e);
         }
-        return locations.size() == fetchSize;
+    }
+
+    private void deleteObjectsFromStorage(StorageDescriptor desc, int fetchSize) {
+        List<Location> locations;
+        do {
+            if (getPollingInterval() == null) return;
+            LOG.debug("Query for objects marked for deletion at {}", desc);
+            locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
+            if (locations.isEmpty()) {
+                LOG.debug("No objects marked for deletion found at {}", desc);
+                break;
+            }
+
+            LOG.info("Start deleting {} objects from {}", locations.size(), desc);
+            int deleteThreads = desc.getDeleterThreads();
+            Semaphore semaphore = deleteThreads > 1 ? new Semaphore(deleteThreads) : null;
+            AtomicInteger success = new AtomicInteger();
+            AtomicInteger skipped = new AtomicInteger();
+            try (Storage storage = storageFactory.getStorage(desc)) {
+                for (Location location : locations) {
+                    if (semaphore == null) {
+                        deleteLocation(storage, location, success, skipped);
+                    } else {
+                        semaphore.acquire();
+                        device.execute(() -> {
+                            try {
+                                deleteLocation(storage, location, success, skipped);
+                            } finally {
+                                semaphore.release();
+                            }
+                        });
+                    }
+                }
+                if (semaphore != null) {
+                    LOG.debug("Waiting for finishing deleting {} objects from {}", locations.size(), desc);
+                    semaphore.acquire(deleteThreads);
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to access {}", desc, e);
+            } finally {
+                LOG.info("Finished deleting {} (skipped={}, failed={}) objects from {}",
+                        success, skipped, locations.size() - success.get() - skipped.get(), desc);
+            }
+        } while (locations.size() == fetchSize);
+    }
+
+    private void deleteLocation(Storage storage, Location location, AtomicInteger success, AtomicInteger skipped) {
+        try {
+            if (ejb.claimDeleteObject(location)) {
+                storage.deleteObject(location.getStoragePath());
+                ejb.removeLocation(location);
+                LOG.debug("Successfully delete {} from {}", location, storage);
+                success.getAndIncrement();
+            } else {
+                skipped.getAndIncrement();
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to delete {} from {}", location, storage, e);
+        }
     }
 
 }

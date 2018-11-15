@@ -40,11 +40,8 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -65,9 +62,11 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
+    private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
+    private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
 
@@ -87,12 +86,16 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
+        hl7ExportRules.clear();
+        hl7ExportRules.addAll(arcapp.hl7ExportRules);
         hl7PrefetchRules.clear();
         hl7PrefetchRules.addAll(arcapp.hl7PrefetchRules);
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         hl7OrderScheduledStations.clear();
         hl7OrderScheduledStations.addAll(arcapp.hl7OrderScheduledStations);
+        hl7StudyRetentionPolicies.clear();
+        hl7StudyRetentionPolicies.addAll(arcapp.hl7StudyRetentionPolicies);
         hl7OrderSPSStatuses.clear();
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
@@ -146,64 +149,88 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 : getArchiveDeviceExtension().getScheduleProcedureTemplateURI();
     }
 
-    public String getHl7LogFilePattern() {
+    public String getHL7LogFilePattern() {
         return hl7LogFilePattern;
     }
 
-    public void setHl7LogFilePattern(String hl7LogFilePattern) {
+    public void setHL7LogFilePattern(String hl7LogFilePattern) {
         this.hl7LogFilePattern = hl7LogFilePattern;
     }
 
     public String hl7LogFilePattern() {
         return hl7LogFilePattern != null ? hl7LogFilePattern
-                : getArchiveDeviceExtension().getHl7LogFilePattern();
+                : getArchiveDeviceExtension().getHL7LogFilePattern();
     }
 
-    public String getHl7ErrorLogFilePattern() {
+    public String getHL7ErrorLogFilePattern() {
         return hl7ErrorLogFilePattern;
     }
 
-    public void setHl7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
+    public void setHL7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
         this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
     }
 
     public String hl7ErrorLogFilePattern() {
         return hl7ErrorLogFilePattern != null ? hl7ErrorLogFilePattern
-                : getArchiveDeviceExtension().getHl7ErrorLogFilePattern();
+                : getArchiveDeviceExtension().getHL7ErrorLogFilePattern();
     }
 
-    public String[] getHl7NoPatientCreateMessageTypes() {
+    public String[] getHL7NoPatientCreateMessageTypes() {
         return hl7NoPatientCreateMessageTypes.toArray(
                 new String[hl7NoPatientCreateMessageTypes.size()]);
     }
 
-    public void setHl7NoPatientCreateMessageTypes(String... messageTypes) {
+    public void setHL7NoPatientCreateMessageTypes(String... messageTypes) {
         hl7NoPatientCreateMessageTypes.clear();
         for (String messageType : messageTypes)
             hl7NoPatientCreateMessageTypes.add(messageType);
     }
 
-    public boolean isHl7NoPatientCreateMessageType(String messageType) {
+    public boolean isHL7NoPatientCreateMessageType(String messageType) {
         return hl7NoPatientCreateMessageTypes.isEmpty()
-            ? getArchiveDeviceExtension().isHl7NoPatientCreateMessageType(messageType)
+            ? getArchiveDeviceExtension().isHL7NoPatientCreateMessageType(messageType)
             : hl7NoPatientCreateMessageTypes.contains(messageType);
     }
 
-    public Boolean getHl7UseNullValue() {
+    public Boolean getHL7UseNullValue() {
         return hl7UseNullValue;
     }
 
-    public void setHl7UseNullValue(Boolean hl7UseNullValue) {
+    public void setHL7UseNullValue(Boolean hl7UseNullValue) {
         this.hl7UseNullValue = hl7UseNullValue;
     }
 
     public boolean hl7UseNullValue() {
         return hl7UseNullValue != null
                 ? hl7UseNullValue
-                : getArchiveDeviceExtension().isHl7UseNullValue();
+                : getArchiveDeviceExtension().isHL7UseNullValue();
     }
 
-    public void removeHL7PrefetchRule(PrefetchRule rule) {
+    public void removeHL7ExportRule(HL7ExportRule rule) {
+        hl7ExportRules.remove(rule);
+    }
+
+    public void clearHL7ExportRules() {
+        hl7ExportRules.clear();
+    }
+
+    public void addHL7ExportRule(HL7ExportRule rule) {
+        hl7ExportRules.add(rule);
+    }
+
+    public Collection<HL7ExportRule> getHL7ExportRules() {
+        return hl7ExportRules;
+    }
+
+    public Stream<HL7ExportRule> hl7ExportRules() {
+        return Stream.concat(hl7ExportRules.stream(), getArchiveDeviceExtension().getHL7ExportRules().stream());
+    }
+
+    public boolean hasHL7ExportRules() {
+        return !hl7ExportRules.isEmpty() || !getArchiveDeviceExtension().getHL7ExportRules().isEmpty();
+    }
+
+    public void removeHL7PrefetchRule(HL7PrefetchRule rule) {
         hl7PrefetchRules.remove(rule);
     }
 
@@ -284,6 +311,32 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return scheduledStations;
     }
 
+    public void removeHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.remove(policy);
+    }
+
+    public void clearHL7StudyRetentionPolicies() {
+        hl7StudyRetentionPolicies.clear();
+    }
+
+    public void addHL7StudyRetentionPolicy(HL7StudyRetentionPolicy policy) {
+        hl7StudyRetentionPolicies.add(policy);
+    }
+
+    public Collection<HL7StudyRetentionPolicy> getHL7StudyRetentionPolicies() {
+        return hl7StudyRetentionPolicies;
+    }
+
+    public Stream<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies() {
+        return Stream.concat(hl7StudyRetentionPolicies.stream(),
+                getArchiveDeviceExtension().getHL7StudyRetentionPolicies().stream());
+    }
+
+    public boolean hasHL7StudyRetentionPolicies() {
+        return !hl7StudyRetentionPolicies.isEmpty()
+                || !getArchiveDeviceExtension().getHL7StudyRetentionPolicies().isEmpty();
+    }
+
     public void removeHL7OrderSPSStatus(HL7OrderSPSStatus rule) {
         hl7OrderSPSStatuses.remove(rule.getSPSStatus());
     }
@@ -306,31 +359,31 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 : hl7OrderSPSStatuses).values();
     }
 
-    public ScheduledProtocolCodeInOrder getHl7ScheduledProtocolCodeInOrder() {
+    public ScheduledProtocolCodeInOrder getHL7ScheduledProtocolCodeInOrder() {
         return hl7ScheduledProtocolCodeInOrder;
     }
 
-    public void setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
+    public void setHL7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
         this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
     }
 
     public ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder() {
         return hl7ScheduledProtocolCodeInOrder != null
                 ? hl7ScheduledProtocolCodeInOrder
-                : getArchiveDeviceExtension().getHl7ScheduledProtocolCodeInOrder();
+                : getArchiveDeviceExtension().getHL7ScheduledProtocolCodeInOrder();
     }
 
-    public ScheduledStationAETInOrder getHl7ScheduledStationAETInOrder() {
+    public ScheduledStationAETInOrder getHL7ScheduledStationAETInOrder() {
         return hl7ScheduledStationAETInOrder;
     }
 
-    public void setHl7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
+    public void setHL7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
         this.hl7ScheduledStationAETInOrder = hl7ScheduledStationAETInOrder;
     }
 
     public ScheduledStationAETInOrder hl7ScheduledStationAETInOrder() {
         return hl7ScheduledStationAETInOrder != null
                 ? hl7ScheduledStationAETInOrder
-                : getArchiveDeviceExtension().getHl7ScheduledStationAETInOrder();
+                : getArchiveDeviceExtension().getHL7ScheduledStationAETInOrder();
     }
 }

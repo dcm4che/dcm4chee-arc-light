@@ -79,6 +79,7 @@ public class QueryAttributes {
                 case "orderby":
                     addOrderByTag(entry.getValue());
                     break;
+                case "accept":
                 case "access_token":
                 case "comparefield":
                 case "count":
@@ -93,6 +94,7 @@ public class QueryAttributes {
                 case "expired":
                 case "retrievefailed":
                 case "compressionfailed":
+                case "patientVerificationStatus":
                 case "storageVerificationFailed":
                 case "storageVerificationPolicy":
                 case "storageVerificationUpdateLocationStatus":

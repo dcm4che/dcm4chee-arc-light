@@ -311,6 +311,8 @@ public class Series {
     public static final String UPDATE_COMPRESSION_FAILURES_AND_TSUID = "Series.updateCompressionFailuresAndTSUID";
     public static final String UPDATE_COMPRESSION_COMPLETED = "Series.updateCompressionCompleted";
 
+    private static final long MILLIS_PER_DAY = 24 * 3600_000;
+
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
     public static class MetadataUpdate {
@@ -773,7 +775,7 @@ public class Series {
 
     public void scheduleStorageVerification(Period delay) {
         if (delay != null && storageVerificationTime == null)
-            storageVerificationTime = new Date(Instant.now().plus(delay).toEpochMilli());
+            storageVerificationTime = new Date(LocalDate.now().plus(delay).toEpochDay() * MILLIS_PER_DAY);
     }
 
     public int getFailuresOfLastStorageVerification() {
@@ -816,14 +818,6 @@ public class Series {
                     Stream.of(imageWriteParams).map(Property::toString).toArray(String[]::new),
                     '\\')
                 : null;
-    }
-
-    public void scheduleCompression(Period delay, String tsuid, Property[] imageWriteParams) {
-        if (delay != null && compressionTime == null) {
-            compressionTime = new Date(Instant.now().plus(delay).toEpochMilli());
-            compressionTransferSyntaxUID = tsuid;
-            setCompressionImageWriteParams(imageWriteParams);
-        }
     }
 
     public int getCompressionFailures() {

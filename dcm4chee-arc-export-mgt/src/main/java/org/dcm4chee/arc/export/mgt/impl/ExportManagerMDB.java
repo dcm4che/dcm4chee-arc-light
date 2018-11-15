@@ -98,13 +98,13 @@ public class ExportManagerMDB implements MessageListener {
         if (queueMessage == null)
             return;
 
-        Long exportTaskPk = (Long) queueMessage.getMessageBody();
         Outcome outcome;
         try {
             ExporterDescriptor exporterDesc = getExporterDescriptor(msg.getStringProperty("ExporterID"));
             Exporter exporter = exporterFactory.getExporter(exporterDesc);
             ExportContext exportContext = exporter.createExportContext();
             exportContext.setMessageID(msgID);
+            exportContext.setBatchID(queueMessage.getBatchID());
             exportContext.setStudyInstanceUID(msg.getStringProperty("StudyInstanceUID"));
             exportContext.setSeriesInstanceUID(msg.getStringProperty("SeriesInstanceUID"));
             exportContext.setSopInstanceUID(msg.getStringProperty("SopInstanceUID"));

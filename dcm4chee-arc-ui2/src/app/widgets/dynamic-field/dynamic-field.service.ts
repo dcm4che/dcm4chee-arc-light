@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import {Observable} from "rxjs/Observable";
-import {DevicesService} from "../../devices/devices.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 import {AppService} from "../../app.service";
 import * as _ from 'lodash';
-import {Hl7ApplicationsService} from "../../hl7-applications/hl7-applications.service";
-import {AeListService} from "../../ae-list/ae-list.service";
+import {Hl7ApplicationsService} from "../../configuration/hl7-applications/hl7-applications.service";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import "rxjs/add/observable/of";
 
 @Injectable()

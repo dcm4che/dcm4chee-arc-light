@@ -68,8 +68,6 @@ export class CustomValidatorDirective{
                 return null;  // don't validate empty values to allow optional controls
             }
             let re = new RegExp(patern, 'g');
-            console.log('exec', re.exec(control.value));
-            console.log('exec', (re.exec(control.value) === null));
             // {'msg': {'pattern': patern, 'value': control.value}} :
             return (re.exec(control.value) === null) ?
             {'msg': `The given value is not a valid string!`} :

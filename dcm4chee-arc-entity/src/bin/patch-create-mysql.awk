@@ -38,6 +38,8 @@ BEGIN { FS = "[ )]" }
             && $6 != "(inst_purge_state" \
             && $6 != "(check_missing" \
             && $6 != "(check_different" \
+            && $6 != "(verification_status" \
+            && $6 != "(verification_time" \
         ) {
         print $1 " " $2 " " $3 " " $4 " " $5 " " $6 "(64));"
     } else {

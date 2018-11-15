@@ -67,9 +67,10 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID)
+    public QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID,
+                                        long delay)
             throws QueueSizeLimitExceededException {
-        return ejb.scheduleMessage(queueName, message, priority, batchID);
+        return ejb.scheduleMessage(queueName, message, priority, batchID, delay);
     }
 
     @Override

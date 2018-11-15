@@ -43,14 +43,6 @@
       "description": "Send HL7 message to remote HL7 Application"
     },
     {
-      "name": "STGCMT-RS",
-      "description": "Storage Commitment"
-    },
-    {
-      "name": "STGVER-RS",
-      "description": "Storage Verification"
-    },
-    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -63,12 +55,24 @@
       "description": "Modality Worklist Management"
     },
     {
+      "name": "PDQ-RS",
+      "description": "Patient Demographics Query"
+    },
+    {
       "name": "QUEUE-RS",
       "description": "Queue Management"
     },
     {
       "name": "RETRIEVE-RS",
       "description": "Retrieve Tasks"
+    },
+    {
+      "name": "STGCMT-RS",
+      "description": "Storage Commitment"
+    },
+    {
+      "name": "STGVER-RS",
+      "description": "Storage Verification"
     },
     {
       "name": "IMPAX-REPORT-RS",
@@ -6668,6 +6672,13 @@
             "type": "string"
           },
           {
+            "name": "field",
+            "in": "path",
+            "description": "field which contains the Study Instance UID",
+            "required": true,
+            "type": "integer"
+          },
+          {
             "name": "different",
             "in": "query",
             "description": "include Studies different at originalAET",
@@ -7266,6 +7277,67 @@
         "responses": {
           "204": {
             "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{patientID}/pdq/{PDQServiceID}": {
+      "post": {
+        "tags": [
+          "IOCM-RS",
+          "PDQ-RS"
+        ],
+        "summary": "Verify Patient Demographics",
+        "operationId": "verifyPatientDemographics",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "PDQServiceID",
+            "in": "path",
+            "description": "PDQ Service ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "title": "action",
+                  "description": "Event Action Code",
+                  "type": "string",
+                  "enum": [ "C", "R", "U"]
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Patient was not found by the specified PDQ Service"
+          },
+          "404": {
+            "description": "no such PDQ Service"
+          },
+          "502": {
+            "description": "PDQ Service failure"
           },
           "default": {
             "description": "unexpected error"
@@ -7960,6 +8032,67 @@
         }
       }
     },
+    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Studies specified in CSV",
+        "operationId": "ExportStudiesCSV",
+        "consumes": [
+          "text/csv"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "description": "field which contains the Study Instance UID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled export of Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/export/{exporterID}/studies": {
       "post": {
         "tags": [
@@ -8074,6 +8207,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8081,7 +8226,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Studies",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8213,6 +8358,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8220,7 +8377,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8359,6 +8516,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8366,7 +8535,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8498,6 +8667,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8505,7 +8686,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8644,6 +8825,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8651,7 +8844,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -8797,6 +8990,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "export only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
@@ -8804,7 +9009,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled export of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9187,6 +9392,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9224,7 +9441,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Studies",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9337,6 +9554,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9374,7 +9603,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9494,6 +9723,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9531,7 +9772,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Series",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9644,6 +9885,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9681,7 +9934,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9801,6 +10054,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -9838,7 +10103,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -9965,6 +10230,18 @@
             "default": false
           },
           {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "match only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
             "name": "storageVerificationPolicy",
             "in": "query",
             "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
@@ -10002,7 +10279,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "description": "Successfully scheduled Storage Verification of Instances",
             "schema": {
               "$ref": "#/definitions/Count"
@@ -11162,6 +11439,18 @@
             "type": "string"
           },
           {
+            "name": "JMSMessageID",
+            "in": "query",
+            "description": "JMS Message ID of Export Task to filter by",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped Storage Commitment Results before first result in returned list",
@@ -11396,6 +11685,76 @@
           },
           "502": {
             "description": "x-road RR441 returns error response"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/pdq": {
+      "get": {
+        "tags": [
+          "CONFIG-RS",
+          "PDQ-RS"
+        ],
+        "summary": "List PDQ Services",
+        "operationId": "listPDQServices",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDQ Services",
+            "schema": {
+              "$ref": "pdqServices.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/pdq/{PDQServiceID}/patients/{patientID}": {
+      "get": {
+        "tags": [
+          "PDQ-RS"
+        ],
+        "summary": "Query Patient Demographics",
+        "operationId": "queryPatientDemographics",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "PDQServiceID",
+            "in": "path",
+            "description": "PDQ Service ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "no PDQ Service or no Patient with specified ID found"
+          },
+          "502": {
+            "description": "Query of PDQ Service fails"
           },
           "default": {
             "description": "unexpected error"

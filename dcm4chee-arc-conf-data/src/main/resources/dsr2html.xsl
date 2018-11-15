@@ -26,9 +26,26 @@
             <xsl:with-param name="dob" select="DicomAttribute[@tag='00100030']/Value"/>
             <xsl:with-param name="sex" select="DicomAttribute[@tag='00100040']/Value"/>
           </xsl:call-template>
-          <xsl:apply-templates mode="trpn" select="DicomAttribute[@tag='00080090']/PersonName">
-            <xsl:with-param name="label">Referring Physician:</xsl:with-param>
-          </xsl:apply-templates>
+          <xsl:variable name="refReq" select="DicomAttribute[@tag='0040A370']/Item"/>
+          <xsl:variable name="accno" select="DicomAttribute[@tag='00080050']/Value"/>
+          <xsl:if test="$accno != $refReq/DicomAttribute[@tag='00080050']/Value">
+            <xsl:apply-templates mode="tr" select="$accno">
+              <xsl:with-param name="label">(Study) Accession Number:</xsl:with-param>
+            </xsl:apply-templates>
+          </xsl:if>
+          <xsl:variable name="referring" select="DicomAttribute[@tag='00080090']/PersonName"/>
+          <xsl:if test="$referring/Alphabetic/FamilyName != $refReq/DicomAttribute[@tag='00080090']/PersonName/Alphabetic/FamilyName">
+            <xsl:apply-templates mode="trpn" select="$referring">
+              <xsl:with-param name="label">(Study) Referring Physician:</xsl:with-param>
+            </xsl:apply-templates>
+          </xsl:if>
+          <xsl:variable name="studyDesc" select="DicomAttribute[@tag='00081030']/Value"/>
+          <xsl:if test="$studyDesc != $refReq/DicomAttribute[@tag='00321060']/Value">
+            <xsl:apply-templates mode="tr" select="$studyDesc">
+              <xsl:with-param name="label">Study Description:</xsl:with-param>
+            </xsl:apply-templates>
+          </xsl:if>
+          <xsl:apply-templates mode="refReq" select="$refReq"/>
           <xsl:apply-templates mode="tr" select="DicomAttribute[@tag='00080070']/Value">
             <xsl:with-param name="label">Manufacturer:</xsl:with-param>
           </xsl:apply-templates>
@@ -49,6 +66,7 @@
           </xsl:apply-templates>
           <xsl:apply-templates mode="verifyingObserver" select="DicomAttribute[@tag='0040A073']/Item"/>
           <xsl:apply-templates mode="authorObserver" select="DicomAttribute[@tag='0040A078']/Item"/>
+          <xsl:apply-templates mode="participant" select="DicomAttribute[@tag='0040A07A']/Item"/>
           <xsl:call-template name="contentDateTime">
             <xsl:with-param name="date" select="DicomAttribute[@tag='00080023']/Value"/>
             <xsl:with-param name="time" select="DicomAttribute[@tag='00080033']/Value"/>
@@ -199,11 +217,13 @@
   </xsl:template>
 
   <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='UIDREF']">
-    <xsl:value-of select="DicomAttribute[@tag='0040A124']"/>
+    <xsl:value-of select="DicomAttribute[@tag='0040A124']/Value"/>
   </xsl:template>
 
   <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='DATE']">
-    <xsl:value-of select="DicomAttribute[@tag='0040A121']"/>
+    <xsl:call-template name="formatDA">
+      <xsl:with-param name="da" select="DicomAttribute[@tag='0040A121']/Value"/>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='NUM']">
@@ -269,7 +289,7 @@
     <xsl:param name="len"/>
     <xsl:variable name="first" select="substring-before($text,$lf)"/>
     <xsl:choose>
-      <xsl:when test="$first">
+      <xsl:when test="$first or starts-with($text,$lf)">
         <xsl:value-of select="$first"/>
         <br/>
         <xsl:call-template name="replace_lf_by_br">
@@ -297,9 +317,9 @@
         </xsl:call-template>
         <xsl:variable name="sex1">
           <xsl:choose>
-            <xsl:when test="$sex='M'">male</xsl:when>
-            <xsl:when test="$sex='F'">female</xsl:when>
-            <xsl:when test="$sex='O'">other</xsl:when>
+            <xsl:when test="$sex='M'">Male</xsl:when>
+            <xsl:when test="$sex='F'">Female</xsl:when>
+            <xsl:when test="$sex='O'">Other</xsl:when>
           </xsl:choose>
         </xsl:variable>
         <xsl:if test="$id or $dob or $sex1">
@@ -367,20 +387,47 @@
         </xsl:if>
       </td>
       <td>
-        <xsl:call-template name="formatDT">
+        <xsl:call-template name="formatIdPersonName">
+          <xsl:with-param name="idTag" select="'0040A088'"/>
+          <xsl:with-param name="nameTag" select="'0040A075'"/>
+        </xsl:call-template>
+        <xsl:variable name="org" select="DicomAttribute[@tag='0040A027']/Value"/>
+        <xsl:if test="$org">
+          <xsl:value-of select="concat(', ', $org)"/>
+        </xsl:if>
+        <xsl:call-template name="optFormatDT">
           <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A030']/Value"/>
         </xsl:call-template>
-        <xsl:text> - </xsl:text>
-        <xsl:call-template name="spanCode">
-          <xsl:with-param name="class">under</xsl:with-param>
-          <xsl:with-param name="code" select="DicomAttribute[@tag='0040A088']/Item"/>
-          <xsl:with-param name="text">
-            <xsl:call-template name="formatPN">
-              <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A075']/PersonName/Alphabetic"/>
-            </xsl:call-template>
-          </xsl:with-param>
+      </td>
+    </tr>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="participant">
+    <tr>
+      <td>
+        <b>
+          <xsl:variable name="participationType" select="DicomAttribute[@tag='0040A080']/Value"/>
+          <xsl:choose>
+            <xsl:when test="$participationType = 'ENT'">
+              <xsl:text>Data Enterer:</xsl:text>
+            </xsl:when>
+            <xsl:when test="$participationType = 'ATTEST'">
+              <xsl:text>Attestor:</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$participationType" />
+            </xsl:otherwise>
+          </xsl:choose>
+        </b>
+      </td>
+      <td>
+        <xsl:call-template name="formatIdPersonName">
+          <xsl:with-param name="idTag" select="'00401101'"/>
+          <xsl:with-param name="nameTag" select="'0040A123'"/>
         </xsl:call-template>
-        <xsl:value-of select="concat(', ',DicomAttribute[@tag='0040A027']/Value)"/>
+        <xsl:call-template name="optFormatDT">
+          <xsl:with-param name="dt" select="DicomAttribute[@tag='0040A082']/Value"/>
+        </xsl:call-template>
       </td>
     </tr>
   </xsl:template>
@@ -393,17 +440,26 @@
         </xsl:if>
       </td>
       <td>
-        <xsl:call-template name="spanCode">
-          <xsl:with-param name="class">under</xsl:with-param>
-          <xsl:with-param name="code" select="DicomAttribute[@tag='00401101']/Item"/>
-          <xsl:with-param name="text">
-            <xsl:call-template name="formatPN">
-              <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
-            </xsl:call-template>
-          </xsl:with-param>
+        <xsl:call-template name="formatIdPersonName">
+          <xsl:with-param name="idTag" select="'00401101'"/>
+          <xsl:with-param name="nameTag" select="'0040A123'"/>
         </xsl:call-template>
       </td>
     </tr>
+  </xsl:template>
+
+  <xsl:template name="formatIdPersonName">
+    <xsl:param name="idTag"/>
+    <xsl:param name="nameTag"/>
+    <xsl:call-template name="spanCode">
+      <xsl:with-param name="class">under</xsl:with-param>
+      <xsl:with-param name="code" select="DicomAttribute[@tag=$idTag]/Item"/>
+      <xsl:with-param name="text">
+        <xsl:call-template name="formatPN">
+          <xsl:with-param name="pnc" select="DicomAttribute[@tag=$nameTag]/PersonName/Alphabetic"/>
+        </xsl:call-template>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="contentDateTime">
@@ -421,6 +477,21 @@
         </xsl:call-template>
       </td>
     </tr>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="refReq">
+    <xsl:apply-templates mode="tr" select="DicomAttribute[@tag='00080050']/Value">
+      <xsl:with-param name="label">Accession Number:</xsl:with-param>
+    </xsl:apply-templates>
+    <xsl:apply-templates mode="trpn" select="DicomAttribute[@tag='00080090']/PersonName">
+      <xsl:with-param name="label">Referring Physician:</xsl:with-param>
+    </xsl:apply-templates>
+    <xsl:apply-templates mode="tr" select="DicomAttribute[@tag='00321060']/Value">
+      <xsl:with-param name="label">Procedure Description:</xsl:with-param>
+    </xsl:apply-templates>
+    <xsl:apply-templates mode="tr" select="DicomAttribute[@tag='00401002']/Value">
+      <xsl:with-param name="label">Reason for Procedure:</xsl:with-param>
+    </xsl:apply-templates>
   </xsl:template>
 
   <xsl:template name="formatPN">
@@ -461,6 +532,19 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template name="optFormatDT">
+    <xsl:param name="dt"/>
+    <xsl:if test="$dt">
+      <small>
+        <xsl:text> (</xsl:text>
+        <xsl:call-template name="formatDT">
+          <xsl:with-param name="dt" select="$dt"/>
+        </xsl:call-template>
+        <xsl:text>)</xsl:text>
+      </small>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template name="formatDT">
     <xsl:param name="dt"/>
     <xsl:call-template name="formatDA">
@@ -494,16 +578,18 @@
     <xsl:param name="code"/>
     <xsl:param name="text"/>
     <span>
-      <xsl:if test="$class">
-        <xsl:attribute name="class">
-          <xsl:value-of select="$class"/>
+      <xsl:if test="$code">
+        <xsl:if test="$class">
+          <xsl:attribute name="class">
+            <xsl:value-of select="$class"/>
+          </xsl:attribute>
+        </xsl:if>
+        <xsl:attribute name="title">
+          <xsl:call-template name="formatCode">
+            <xsl:with-param name="code" select="$code"/>
+          </xsl:call-template>
         </xsl:attribute>
       </xsl:if>
-      <xsl:attribute name="title">
-        <xsl:call-template name="formatCode">
-          <xsl:with-param name="code" select="$code"/>
-        </xsl:call-template>
-      </xsl:attribute>
       <xsl:value-of select="$text"/>
     </span>
   </xsl:template>

@@ -5,6 +5,7 @@
   "required": [
     "dcmFuzzyAlgorithmClass",
     "dcmSeriesMetadataFetchSize",
+    "dcmSeriesMetadataThreads",
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
     "dcmOverwritePolicy",
@@ -49,6 +50,9 @@
     "dcmStorageVerificationFetchSize",
     "dcmCompressionThreads",
     "dcmCompressionFetchSize",
+    "dcmPatientVerificationFetchSize",
+    "dcmPatientVerificationAdjustIssuerOfPatientID",
+    "dcmPatientVerificationMaxRetries",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -97,6 +101,14 @@
       "description": "Maximal number of Series scheduled for Metadata update fetched by one query.",
       "type": "integer",
       "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmSeriesMetadataThreads": {
+      "title": "Update Series Metadata Threads",
+      "description": "Number of Threads used for creation and update of Series Metadata.",
+      "type": "integer",
+      "default" : 1,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -357,7 +369,8 @@
       "title": "Fallback C-Move SCP Retries",
       "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever.",
       "type": "integer",
-      "default": 0
+      "default": 0,
+      "minimum": -1
     },
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
@@ -849,13 +862,13 @@
     },
     "dcmStorageVerificationInitialDelay": {
       "title": "Storage Verification Initial Delay",
-      "description": "Delay in ISO-8601 duration format PnYnMnD or PnW of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Delay of first Storage Verification of a Series after it was received. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "format": "dcmPeriod"
     },
     "dcmStorageVerificationPeriod": {
       "title": "Storage Verification Period",
-      "description": "Period between successive Storage Verifications of one Series in ISO-8601 period format PnYnMnD or PnW",
+      "description": "Period between successive Storage Verifications of one Series.",
       "type": "string",
       "format": "dcmPeriod"
     },
@@ -928,7 +941,64 @@
     },
     "dcmDiffTaskProgressUpdateInterval": {
       "title": "Diff Task Progress Update Interval",
-      "description": "Interval of updating Diff Tasks in process for progress monitoring in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent.",
+      "description": "Interval of updating Diff Tasks in process for progress monitoring; disabled if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPatientVerificationPDQServiceID": {
+      "title": "Patient Verification PDQ Service ID",
+      "description": "ID of PDQ Service used for Verification of Patient Demographic. If absent, no Patient Verification will be performed.",
+      "type": "string",
+      "format": "dcmPDQServiceID"
+    },
+    "dcmPatientVerificationPollingInterval": {
+      "title": "Patient Verification Polling Interval",
+      "description": "Patient Verification Polling Interval. If absent, no Patient Verification will be performed.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPatientVerificationFetchSize": {
+      "title": "Patient Verification Fetch Size",
+      "description": "Maximal number of Patients fetched for Patient Verification in one query.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmPatientVerificationAdjustIssuerOfPatientID": {
+      "title": "Patient Verification Adjust Issuer of Patient ID",
+      "description": "Indicates if the Issuer Of Patient ID shall be adjusted to the value returned by the PDQ Service.",
+      "type": "boolean",
+      "default" : false
+    },
+    "dcmPatientVerificationPeriod": {
+      "title": "Patient Verification Period",
+      "description": "Period in which Patient Demographic will be verified. If absent, Patient Verification will not be renewed for Patients verified in the past.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmPatientVerificationPeriodOnNotFound": {
+      "title": "Patient Verification Period Not Found",
+      "description": "Period in which Patient Demographic will be retried for Patients which were not found by the configured PDQ Service on last attempt. If absent, Patient Verification will not be retried for Patients not found in the past.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmPatientVerificationRetryInterval": {
+      "title": "Patient Verification Retry Interval",
+      "description": "Patient Verification Retry Interval in which failed attempts to verify Patient Demographics against the PDQ Service configured by Patient Verification PDQ Service ID will be retried until the maximal number of retries specified by Patient Verification Max Retries is reached. If absent, failed Patient Verification attempts will not be retried.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPatientVerificationMaxRetries": {
+      "title": "Patient Verification Maximum Number of Retries",
+      "description": "Maximum number of retries to verify Patient Demographics against the PDQ Service configured by dcmPatientVerificationPDQServiceID. Only effective if Patient Verification Retry Interval is specified. -1 = forever.",
+      "type": "integer",
+      "default": 0,
+      "minimum": -1
+    },
+    "dcmPatientVerificationMaxStaleness": {
+      "title": "Patient Verification Maximum Staleness",
+      "description": "Indicates to renew the verification of Patient Demographics on receive of objects for a patient, if previous verification is longer ago as the specified Interval. If absent, Patient Verification on receive of objects is disabled.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -1049,6 +1119,15 @@
       "description": "Specifies Storage System",
       "type": "array",
       "titleKey":"{dcmStorageID}",
+      "use": [
+        "dcmSeriesMetadataStorageID[*]",
+        "dcmStorageVerificationStorageID[*]",
+        "dcmStorage[*].dcmExportStorageID",
+        "dcmStorage[*].dcmRetrieveCacheStorageID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID[*]"
+      ],
       "items" : {
         "$ref": "storage.schema.json"
       }
@@ -1058,6 +1137,9 @@
       "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
       "titleKey":"{dcmQueryRetrieveViewID}",
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmQueryRetrieveViewID"
+      ],
       "items" : {
         "$ref": "queryRetrieveView.schema.json"
       }
@@ -1067,8 +1149,24 @@
       "description": "Managed JMS Queue",
       "type": "array",
       "titleKey":"{dcmQueueName}",
+      "use": [
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiQueueName[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCompareSideObjects[*].dcmuiCompareSideQueueName"
+      ],
       "items" : {
         "$ref": "queue.schema.json"
+      }
+    },
+    "dcmPDQService": {
+      "title": "PDQ Service Descriptor",
+      "description": "PDQ Service Descriptor",
+      "type": "array",
+      "titleKey":"{dcmPDQServiceID}",
+      "use": [
+        "dcmPatientVerificationPDQServiceID"
+      ],
+      "items" : {
+        "$ref": "pdqService.schema.json"
       }
     },
     "dcmExporter": {
@@ -1076,6 +1174,15 @@
       "description": "Exporter Descriptor",
       "type": "array",
       "titleKey":"{dcmExporterID}",
+      "use": [
+        "dcmExportPriorsRule[*].dcmExporterID[*]",
+        "dcmExportRule[*].dcmExporterID[*]",
+        "hl7ExportRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportPriorsRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7ExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiExportName[*]"
+      ],
       "items" : {
         "$ref": "exporter.schema.json"
       }
@@ -1089,13 +1196,13 @@
         "$ref": "exportRule.schema.json"
       }
     },
-    "dcmPrefetchRule": {
-      "title": "DICOM Prefetch Rule",
-      "description": "Prefetch Rules applied to DICOM objects received by any AE. May be supplemented by configured Prefetch Rules for particular Archive Network AEs.",
+    "dcmExportPriorsRule": {
+      "title": "Export Priors Rule",
+      "description": "Export Priors Rules applied to DICOM objects received by any AE. May be supplemented by configured Export Priors Rules for particular Archive Network AEs.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
-        "$ref": "prefetchRule.schema.json"
+        "$ref": "exportPriorsRule.schema.json"
       }
     },
     "dcmRSForwardRule": {
@@ -1112,6 +1219,12 @@
       "description": "Keycloak Server",
       "type": "array",
       "titleKey":"{dcmKeycloakServerID}",
+      "use": [
+        "dcmRSForwardRule[*].dcmKeycloakServerID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmRSForwardRule[*].dcmKeycloakServerID",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDeviceClusterObject[*].dcmuiDeviceClusterKeycloakServer[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiElasticsearchConfig[*].dcmuiElasticsearchURLObjects[*].dcmuiElasticsearchURLKeycloakServer[*]"
+      ],
       "items" : {
         "$ref": "keycloakServer.schema.json"
       }
@@ -1139,6 +1252,9 @@
       "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
       "titleKey":"{dcmRejectionNoteLabel}",
+      "use": [
+        "dcmQueryRetrieveView[*].dcmShowInstancesRejectedByCode[*]"
+      ],
       "items" : {
         "$ref": "rejectionNote.schema.json"
       }
@@ -1179,13 +1295,31 @@
         "$ref": "hl7ForwardRule.schema.json"
       }
     },
+    "hl7ExportRule": {
+      "title": "HL7 Export Rule",
+      "description": "Export Rules applied to HL7 messages received by any HL7 Application. May be supplemented by configured HL7 Export Rules for particular HL7 Application.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ExportRule.schema.json"
+      }
+    },
     "hl7PrefetchRule": {
       "title": "HL7 Prefetch Rule",
-      "description": "Prefetch Rules applied to HL7 messages received by any HL7 Application. May be supplemented by configured Prefetch Rules for particular HL7 Application.",
+      "description": "HL7 Prefetch Rules applied to HL7 messages received by any HL7 Application. May be supplemented by configured HL7 Prefetch Rules for particular HL7 Application.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
         "$ref": "hl7PrefetchRule.schema.json"
+      }
+    },
+    "hl7StudyRetentionPolicy": {
+      "title": "HL7 Study Retention Policy",
+      "description": "HL7 Study Retention Policies triggered by HL7 messages received by any HL7 Application. May be supplemented by configured Study Retention Policies for particular HL7 Applications.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7StudyRetentionPolicy.schema.json"
       }
     },
     "hl7OrderScheduledStation": {

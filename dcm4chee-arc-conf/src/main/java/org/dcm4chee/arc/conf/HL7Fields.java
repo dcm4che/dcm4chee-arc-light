@@ -71,7 +71,8 @@ public class HL7Fields {
         int[] is = new int[ss.length];
         try {
             for (int i = 0; i < ss.length; i++) {
-                is[i] = Integer.parseUnsignedInt(ss[i]);
+                if ((is[i] = Integer.parseInt(ss[i]) - 1) < 0)
+                    throw new IllegalArgumentException(field);
             }
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(field);
@@ -79,8 +80,8 @@ public class HL7Fields {
         HL7Segment seg;
         if (field.startsWith("MSH")) {
             seg = msg.msh();
-            is[0]--;
         } else {
+            is[0]++;
             HL7Message hl7Message = this.hl7Message;
             if (hl7Message == null) {
                 this.hl7Message = hl7Message = HL7Message.parse(msg.data(), defCharset);

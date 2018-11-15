@@ -8,16 +8,42 @@ export class StorageSystemsService {
 
     constructor(public $http:J4careHttpService, public mainservice: AppService) {
     }
-
+    usage = [
+        {
+            value:"dcmObjectStorageID",
+            text:"Object Storage"
+        },
+        {
+            value:"dcmMetadataStorageID",
+            text:"Metadata Storage"
+        },
+        {
+            value:"dcmSeriesMetadataStorageID",
+            text:"SeriesMetadata Storage"
+        },
+    ];
+    uriSchema = [
+        {
+            text:"file",
+            value:"file"
+        },{
+            text:"jclouds",
+            value:"jclouds"
+        },{
+            text:"emc-ecs-s3",
+            value:"emc-ecs-s3"
+        },{
+            text:"hcp",
+            value:"hcp"
+        },{
+            text:"documentu",
+            value:"documentu"
+        }
+    ];
     search(filters, offset) {
         return this.$http.get('../storage' + '?' + this.mainservice.param(this.queryParams(filters, offset)));
     };
     queryParams(filters, offset) {
-        /*        var params = {
-         offset: (offset && offset != '') ? offset : 0,
-         limit: limit,
-         status:undefined
-         }*/
         filters.offset = (offset && offset != '') ? offset : 0;
         if (filters.status && filters.status === '*'){
             delete filters.status;
@@ -34,14 +60,84 @@ export class StorageSystemsService {
         });
         return this.$http.delete('../stgcmt' + '?' + urlParam);
     };
-    // cancel(pk){
-    //     return this.$http.post("../monitor/export/"+pk+"/cancel",{});
-    // }
     delete(pk){
         return this.$http.delete('../stgcmt/' + pk);
     }
-    // reschedule(pk, exporterID){
-    //     return this.$http.post("../monitor/export/"+pk+"/reschedule/"+exporterID,{});
-    // }
+
+    getFiltersSchema(aets){
+        return [
+            [
+                [
+                    {
+                        tag:"select",
+                        options:aets.map(d=>{
+                            return{
+                                text:d.dicomAETitle,
+                                value:d.dicomAETitle
+                            }
+                        }),
+                        showStar:true,
+                        filterKey:"dicomAETitle",
+                        description:"AETitle",
+                        placeholder:"AETitle"
+                    },
+                    {
+                        tag:"select",
+                        options:this.uriSchema,
+                        showStar:true,
+                        filterKey:"uriScheme",
+                        description:"Uri Schema",
+                        placeholder:"Uri Schema"
+                    }
+                ],
+                [
+                    {
+                        tag:"select",
+                        options:this.usage,
+                        showStar:true,
+                        filterKey:"usage",
+                        description:"Usage",
+                        placeholder:"Usage"
+                    },
+                    {
+                        tag:"combined",
+                        firstField:{
+                            tag:"number",
+                            type:"number",
+                            min:1,
+                            filterKey:"usableSpaceBelow",
+                            placeholder:"Usablespace below",
+                            title:"Usablespace below"
+                        },
+                        secondField:{
+                            tag:"select",
+                            filterKey:"usableSpaceBelowMode",
+                            showStar:false,
+                            options:[
+                                {"value":"TB",text:"TB"},
+                                {"value":"GB",text:"GB"},
+                                {"value":"MB",text:"MB"},
+                                {"value":"BYTE",text:"Byte"},
+                            ],
+                            placeholder:"Unite",
+                            title:"Unite"
+                        }
+                    }
+                ]
+            ],[
+                [
+                        {
+                            tag:"button",
+                            id:"submit",
+                            text:"SUBMIT",
+                            description:"Get Storage commitments"
+                        },
+                        {
+                            tag:"dummy"
+                        }
+                ],[]
+            ]
+        ]
+    }
 
 }

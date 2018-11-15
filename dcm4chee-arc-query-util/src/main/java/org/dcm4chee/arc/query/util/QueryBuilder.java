@@ -256,6 +256,8 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QPatient.patient.patientCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
+        if (queryParam.getPatientVerificationStatus() != null)
+            builder.and(QPatient.patient.verificationStatus.eq(queryParam.getPatientVerificationStatus()));
     }
 
     public static boolean hasPatientLevelPredicates(
@@ -265,7 +267,8 @@ public class QueryBuilder {
                 return true;
         }
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
-        return !isUniversalMatching(keys.getString(Tag.PatientName))
+        return queryParam.getPatientVerificationStatus() != null
+                || !isUniversalMatching(keys.getString(Tag.PatientName))
                 || !isUniversalMatching(keys.getString(Tag.PatientSex))
                 || !isUniversalMatching(keys.getString(Tag.PatientSex))
                 || !isUniversalMatching(keys.getString(Tag.PatientBirthDate))

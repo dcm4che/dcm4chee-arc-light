@@ -41,23 +41,38 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
+
 import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2018
+ * @since Nov 2018
  */
 public class HL7PrefetchRule {
 
     private String commonName;
 
+    private String aeTitle;
+
+    private String prefetchCFindSCP;
+
+    private String prefetchCMoveSCP;
+
+    private String[] prefetchCStoreSCPs = {};
+
     private HL7Conditions conditions = new HL7Conditions();
 
-    private String[] exporterIDs = {};
+    private Duration suppressDuplicateRetrieveInterval;
 
-    private Duration suppressDuplicateExportInterval;
+    private NullifyIssuer ignoreAssigningAuthorityOfPatientID;
+
+    private Issuer[] assigningAuthorityOfPatientIDs = {};
 
     private EntitySelector[] entitySelectors = {};
+
+    private ScheduleExpression[] schedules = {};
 
     public HL7PrefetchRule() {
     }
@@ -74,6 +89,38 @@ public class HL7PrefetchRule {
         this.commonName = commonName;
     }
 
+    public String getAETitle() {
+        return aeTitle;
+    }
+
+    public void setAETitle(String aeTitle) {
+        this.aeTitle = aeTitle;
+    }
+
+    public String getPrefetchCFindSCP() {
+        return prefetchCFindSCP;
+    }
+
+    public void setPrefetchCFindSCP(String prefetchCFindSCP) {
+        this.prefetchCFindSCP = prefetchCFindSCP;
+    }
+
+    public String getPrefetchCMoveSCP() {
+        return prefetchCMoveSCP;
+    }
+
+    public void setPrefetchCMoveSCP(String prefetchCMoveSCP) {
+        this.prefetchCMoveSCP = prefetchCMoveSCP;
+    }
+
+    public String[] getPrefetchCStoreSCPs() {
+        return prefetchCStoreSCPs;
+    }
+
+    public void setPrefetchCStoreSCPs(String... prefetchCStoreSCPs) {
+        this.prefetchCStoreSCPs = prefetchCStoreSCPs;
+    }
+
     public HL7Conditions getConditions() {
         return conditions;
     }
@@ -82,20 +129,35 @@ public class HL7PrefetchRule {
         this.conditions = conditions;
     }
 
-    public String[] getExporterIDs() {
-        return exporterIDs;
+    public Duration getSuppressDuplicateRetrieveInterval() {
+        return suppressDuplicateRetrieveInterval;
     }
 
-    public void setExporterIDs(String[] exporterIDs) {
-        this.exporterIDs = exporterIDs;
+    public void setSuppressDuplicateRetrieveInterval(Duration suppressDuplicateRetrieveInterval) {
+        this.suppressDuplicateRetrieveInterval = suppressDuplicateRetrieveInterval;
     }
 
-    public Duration getSuppressDuplicateExportInterval() {
-        return suppressDuplicateExportInterval;
+    public NullifyIssuer getIgnoreAssigningAuthorityOfPatientID() {
+        return ignoreAssigningAuthorityOfPatientID;
     }
 
-    public void setSuppressDuplicateExportInterval(Duration suppressDuplicateExportInterval) {
-        this.suppressDuplicateExportInterval = suppressDuplicateExportInterval;
+    public void setIgnoreAssigningAuthorityOfPatientID(NullifyIssuer ignoreAssigningAuthorityOfPatientID) {
+        this.ignoreAssigningAuthorityOfPatientID = ignoreAssigningAuthorityOfPatientID;
+    }
+
+    public Issuer[] getAssigningAuthorityOfPatientIDs() {
+        return assigningAuthorityOfPatientIDs;
+    }
+
+    public void setAssigningAuthorityOfPatientIDs(Issuer... assigningAuthorityOfPatientIDs) {
+        this.assigningAuthorityOfPatientIDs = assigningAuthorityOfPatientIDs;
+    }
+
+    public IDWithIssuer ignoreAssigningAuthorityOfPatientID(IDWithIssuer pid) {
+        return ignoreAssigningAuthorityOfPatientID != null
+                && ignoreAssigningAuthorityOfPatientID.test(pid.getIssuer(), assigningAuthorityOfPatientIDs)
+                ? pid.withoutIssuer()
+                : pid;
     }
 
     public EntitySelector[] getEntitySelectors() {
@@ -106,18 +168,32 @@ public class HL7PrefetchRule {
         this.entitySelectors = entitySelectors;
     }
 
+    public ScheduleExpression[] getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(ScheduleExpression... schedules) {
+        this.schedules = schedules;
+    }
+
     public boolean match(String hostName, HL7Fields hl7Fields) {
         return conditions.match(hostName, hl7Fields);
     }
 
     @Override
     public String toString() {
-        return "PrefetchRule{" +
+        return "HL7PrefetchRule{" +
                 "cn=" + commonName +
+                ", aeTitle=" + aeTitle +
+                ", findSCP=" + prefetchCFindSCP +
+                ", moveSCP=" + prefetchCMoveSCP +
+                ", storeSCPs=" + Arrays.toString(prefetchCStoreSCPs) +
                 ", conditions=" + conditions +
-                ", exporterIDs=" + Arrays.toString(exporterIDs) +
-                ", suppressDups=" + suppressDuplicateExportInterval +
+                ", suppressDups=" + suppressDuplicateRetrieveInterval +
+                ", ignoreAssigningAuthorityOfPatientID=" + ignoreAssigningAuthorityOfPatientID +
+                ", issuerOfPatientIDs=" + Arrays.toString(assigningAuthorityOfPatientIDs) +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
+                ", schedules=" + Arrays.toString(schedules) +
                 '}';
     }
 }

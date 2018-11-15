@@ -7,11 +7,12 @@ import {Globalvar} from "../../constants/globalvar";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {Observable} from "rxjs/Observable";
-import {AeListService} from "../../ae-list/ae-list.service";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 
 @Component({
   selector: 'app-storage-verification',
@@ -56,21 +57,28 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     externalRetrieveEntries;
     tableConfig;
     moreTasks;
+    openedBlock = "monitor";
+    triggerFilterSchema = [];
+    triggerFilterSchemaHidden = [];
+    triggerFilterObject = {};
+    showFilter = false;
     constructor(
       private cfpLoadingBar: LoadingBarService,
-      private mainservice: AppService,
+      public mainservice: AppService,
       private aeListService:AeListService,
       private httpErrorHandler:HttpErrorHandler,
       private service:StorageVerificationService,
       private $http:J4careHttpService,
       public dialog: MatDialog,
       public config: MatDialogConfig,
-      public viewContainerRef: ViewContainerRef
+      public viewContainerRef: ViewContainerRef,
+      private permissionService:PermissionService
   ) { }
 
     ngOnInit(){
         this.initCheck(10);
     }
+
     initCheck(retries){
         let $this = this;
         if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
@@ -97,7 +105,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             offset:0
         };
         Observable.forkJoin(
-            this.aeListService.getAets(),
+            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.localAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
@@ -120,11 +128,82 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     initSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema( this.devices, this.localAET,`COUNT ${((this.count || this.count == 0)?this.count:'')}`),3);
-/*        if(this.urlParam){
-            this.filterObject = this.urlParam;
-            this.filterObject["limit"] = 20;
-            this.getTasks(0);
-        }*/
+        this.triggerFilterSchema = j4care.prepareFlatFilterObject([
+                ...Globalvar.STUDY_FILTER_SCHEMA(this.localAET).filter((filter, i)=>{
+                    return i < 14 && filter.filterKey != "limit";
+                }),
+                ...[
+                    {
+                        tag:"input",
+                        type:"text",
+                        filterKey:"batchID",
+                        description:"Batch ID",
+                        placeholder:"Batch ID"
+                    },
+                    {
+                        tag:"select",
+                        options:[
+                            {
+                                value:"DB_RECORD_EXISTS",
+                                text:"DB_RECORD_EXISTS",
+                                title:"Check for existence of DB records"
+                            },
+                            {
+                                value:"OBJECT_EXISTS",
+                                text:"OBJECT_EXISTS",
+                                title:"check if object exists on Storage System"
+                            },
+                            {
+                                value:"OBJECT_SIZE",
+                                text:"OBJECT_SIZE",
+                                title:"check size of object on Storage System"
+                            },
+                            {
+                                value:"OBJECT_FETCH",
+                                text:"OBJECT_FETCH",
+                                title:"Fetch object from Storage System"
+                            },
+                            {
+                                value:"OBJECT_CHECKSUM",
+                                text:"OBJECT_CHECKSUM",
+                                title:"recalculate checksum of object on Storage System"
+                            },
+                            {
+                                value:"S3_MD5SUM",
+                                text:"S3_MD5SUM",
+                                title:"Check MD5 checksum of object on S3 Storage System"
+                            }
+                        ],
+                        showStar:true,
+                        filterKey:"storageVerificationPolicy",
+                        description:"Verification Policy",
+                        placeholder:"Verification Policy"
+                    },
+                    {
+                        tag:"checkbox",
+                        filterKey:"storageVerificationUpdateLocationStatus",
+                        text:"Update location",
+                        description:"Update Location DB"
+                    },
+                    {
+                        tag:"checkbox",
+                        filterKey:"storageVerificationFailed",
+                        text:"Failed verification",
+                        description:"Failed storage verification"
+                    },
+                    {
+                        tag:"button",
+                        text:"TRIGGER",
+                        description:"TRIGGER"
+                    }
+                ]
+        ]);
+        this.triggerFilterSchemaHidden = j4care.prepareFlatFilterObject([
+                ...Globalvar.STUDY_FILTER_SCHEMA(this.localAET,true),
+                ...Globalvar.STUDY_FILTER_SCHEMA(this.localAET).filter((filter, i)=>{
+                    return i > 13 && filter.filterKey != "limit";
+                })
+            ],3);
         this.tableConfig = {
             table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action)),
             filter:this.filterObject
@@ -133,20 +212,47 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     toggleAutoRefresh(){
         this.timer.started = !this.timer.started;
         if(this.timer.started){
-            this.getCounts();
+            this.getCounts(true);
             this.refreshInterval = setInterval(()=>{
-                this.getCounts();
+                this.getCounts(true);
             },this.interval*1000);
         }else
             clearInterval(this.refreshInterval);
+    }
+    onTriggerSubmit(object){
+        console.log("this.triggerFilterObject",this.triggerFilterObject);
+        this.cfpLoadingBar.start();
+        if(this.triggerFilterObject["aet"]){
+            let filter = Object.assign({},this.triggerFilterObject);
+            let aet = filter["aet"];
+            delete filter["aet"];
+            this.service.scheduleStorageVerification(filter, aet).subscribe((res)=>{
+                this.mainservice.showMsg('Storage Verification scheduled successfully!');
+                this.cfpLoadingBar.complete();
+                setTimeout(()=>{
+                    this.filterObject["batchID"] = filter["batchID"] || this.service.getUniqueID();
+                    this.batchGrouped = true;
+                    this.openedBlock = "monitor";
+                    this.getCounts(true);
+                },500);
+            },(err)=>{
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            });
+        }else{
+            this.mainservice.showError("Aet is required!");
+            this.cfpLoadingBar.complete();
+        }
     }
     onSubmit(object){
         if(_.hasIn(object,"id") && _.hasIn(object,"model")){
             if(object.id === "submit"){
                 let filter = Object.assign({},this.filterObject);
+                // let filterCount = Object.assign({},this.filterObject);
                 if(filter['limit'])
                     filter['limit']++;
                 this.getTasks(filter);
+                this.getCounts(false);
             }else{
                 // this.getTasks(0);
                 let filter = Object.assign({},this.filterObject);
@@ -233,10 +339,16 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             this.allAction = undefined;
         });
     }
-    getCounts(){
+    getCounts(getTasks?){
         let filters = Object.assign({},this.filterObject);
-        if(!this.tableHovered)
-            this.getTasks(0);
+        if(!this.tableHovered && getTasks){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
+                this.filterObject['offset'] = 0;
+                filter['limit']++;
+            }
+            this.getTasks(filter);
+        }
         Object.keys(this.statusValues).forEach(status=>{
             filters.status = status;
             this.statusValues[status].loader = true;

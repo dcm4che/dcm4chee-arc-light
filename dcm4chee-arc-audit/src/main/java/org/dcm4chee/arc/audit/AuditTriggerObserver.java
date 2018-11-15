@@ -43,6 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
+import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -99,12 +100,12 @@ public class AuditTriggerObserver {
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV_BEGIN, ctx);
+            auditService.spoolRetrieve(AuditUtils.EventType.RTRV_BEGIN, ctx);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV___TRF, ctx);
+            auditService.spoolRetrieve(AuditUtils.EventType.RTRV___TRF, ctx);
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
@@ -126,12 +127,12 @@ public class AuditTriggerObserver {
         if (deviceHasAuditLoggers())
             switch (event.getType()) {
                 case ESTABLISHED:
-                case FAILED:
                 case REJECTED_BLACKLISTED:
                 case ACCEPTED:
                     break;
+                case FAILED:
                 case REJECTED:
-                    auditService.spoolConnectionRejected(event);
+                    auditService.spoolConnectionFailure(event);
                     break;
             }
     }
@@ -187,6 +188,20 @@ public class AuditTriggerObserver {
     public void onHL7Message(@Observes HL7ConnectionEvent hl7ConnectionEvent) {
         if (deviceHasAuditLoggers())
             auditService.spoolHL7Message(hl7ConnectionEvent);
+    }
+
+    public void onAssociation(@Observes AssociationEvent associationEvent) {
+        if (deviceHasAuditLoggers()) {
+            switch (associationEvent.getType()) {
+                case ACCEPTED:
+                case ESTABLISHED:
+                    break;
+                case FAILED:
+                case REJECTED:
+                    auditService.spoolAssociationFailure(associationEvent);
+                    break;
+            }
+        }
     }
 
     private boolean deviceHasAuditLoggers() {

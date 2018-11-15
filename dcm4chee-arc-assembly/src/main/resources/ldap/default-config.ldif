@@ -526,6 +526,50 @@ dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/Export5
 
+dn: dcmQueueName=Export6,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Export6
+dcmQueueName: Export6
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export6
+
+dn: dcmQueueName=Export7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Export7
+dcmQueueName: Export7
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export7
+
+dn: dcmQueueName=Export8,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Export8
+dcmQueueName: Export8
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export8
+
+dn: dcmQueueName=Export9,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Export9
+dcmQueueName: Export9
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export9
+
 dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: HL7 Forward Tasks
 dcmQueueName: HL7Send
@@ -588,6 +632,17 @@ objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/CMoveSCU
+
+dn: dcmQueueName=Export10,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Export10
+dcmQueueName: Export10
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export10
 
 dn: dcmQueueName=RSClient,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: RESTful Forward Tasks
@@ -6427,12 +6482,28 @@ dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.50
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.51,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.51
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.53,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.53
+objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.55,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.55
+objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.57,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
@@ -6463,12 +6534,14 @@ dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageReader
+dcmImageReadParam: YBR2RGB=true
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIIOFormatName: jpeg

@@ -263,7 +263,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             String[] studyUIDs, String[] seriesUIDs, String[] objectUIDs) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
-        ctx.setHttpRequest(request);
+        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
         ctx.setStudyInstanceUIDs(studyUIDs);
         if (studyUIDs.length == 1) {
             ctx.setSeriesInstanceUIDs(seriesUIDs);
@@ -979,8 +979,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         for (String studyIUID : ctx.getStudyInstanceUIDs()) {
             List<Attributes> studies;
             try {
-                studies = cfindscu.find(localAE, findSCP, Priority.NORMAL,
-                        QueryRetrieveLevel2.STUDY, studyIUID, null, null,
+                studies = cfindscu.findStudy(localAE, findSCP, Priority.NORMAL, studyIUID,
                         Tag.NumberOfStudyRelatedInstances);
             } catch (Exception e) {
                 LOG.warn("Failed to query Study[{}] from {} - cannot verify number of retrieved objects from {}:\n",

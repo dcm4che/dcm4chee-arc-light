@@ -384,7 +384,7 @@
       ]
     },
     "dcmStorageVerificationPolicy": {
-      "title": "Storage Commitment Policy",
+      "title": "Storage Verification Policy",
       "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
@@ -397,13 +397,13 @@
       ]
     },
     "dcmStorageVerificationUpdateLocationStatus": {
-      "title": "Storage Commitment Update Location Status",
-      "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. Overwrites value specified on Device level.",
+      "title": "Storage Verification Update Location Status",
+      "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly. Not effective with Storage Verification Policy: DB_RECORD_EXISTS. Overwrites value specified on Device level.",
       "type": "boolean"
     },
     "dcmStorageVerificationStorageID": {
-      "title": "Storage Commitment Storage IDs",
-      "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. Overwrites values specified on Device level.",
+      "title": "Storage Verification Storage IDs",
+      "description": "Only accept Storage Verification if the validation of the storage of the object on one of the specified Storage Systems is successful. Not effective with Storage Verification Policy: DB_RECORD_EXISTS. Overwrites values specified on Device level.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmStorageID"
@@ -458,13 +458,13 @@
         "$ref": "exportRule.schema.json"
       }
     },
-    "dcmPrefetchRule": {
-      "title": "Prefetch Rule",
-      "description": "Prefetch Rules applied to DICOM objects received by this AE. Supplements Prefetch Rules specified on Device level.",
+    "dcmExportPriorsRule": {
+      "title": "Export Priors Rule",
+      "description": "Export Priors Rules applied to DICOM objects received by this AE. Supplements Export Priors Rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
-        "$ref": "prefetchRule.schema.json"
+        "$ref": "exportPriorsRule.schema.json"
       }
     },
     "dcmRSForwardRule": {

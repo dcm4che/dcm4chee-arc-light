@@ -185,12 +185,13 @@ public class QueueMessage {
     public QueueMessage() {
     }
 
-    public QueueMessage(String deviceName, String queueName, ObjectMessage msg) {
+    public QueueMessage(String deviceName, String queueName, ObjectMessage msg, long delay) {
         try {
             this.deviceName = deviceName;
             this.queueName = queueName;
             this.messageID = msg.getJMSMessageID();
             this.priority = msg.getJMSPriority();
+            this.scheduledTime = new Date(System.currentTimeMillis() + delay);
             this.messageProperties = propertiesOf(msg);
             this.messageBody = serialize(msg.getObject());
             this.status = Status.SCHEDULED;
@@ -479,7 +480,6 @@ public class QueueMessage {
         Date now = new Date();
         createdTime = now;
         updatedTime = now;
-        scheduledTime = now;
     }
 
     @PreUpdate

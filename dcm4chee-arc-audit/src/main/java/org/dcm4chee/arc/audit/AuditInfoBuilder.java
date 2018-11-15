@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -43,8 +43,10 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
+import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
+import org.dcm4chee.arc.entity.Patient;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -82,6 +84,10 @@ class AuditInfoBuilder {
     final String queueMsg;
     final String taskPOID;
     final String errorCode;
+    final String patMismatchCode;
+    final ConnectionEvent.Type connType;
+    final Patient.VerificationStatus patVerificationStatus;
+    final String pdqServiceURI;
 
     static class Builder {
         private String callingHost;
@@ -114,6 +120,10 @@ class AuditInfoBuilder {
         private String queueMsg;
         private String taskPOID;
         private String errorCode;
+        private String patMismatchCode;
+        private ConnectionEvent.Type connType;
+        private Patient.VerificationStatus patVerificationStatus;
+        private String pdqServiceURI;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -131,14 +141,14 @@ class AuditInfoBuilder {
             calledHost = val;
             return this;
         }
-        Builder studyUID(String val) {
-            studyUID = val;
-            return this;
-        }
         Builder pIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
-            IDWithIssuer pidWithIssuer = IDWithIssuer.pidOf(attr);
-            pID = pidWithIssuer == null ? arcDev.auditUnknownPatientID() : toPID(pidWithIssuer, arcDev);
-            pName = toPatName(attr.getString(Tag.PatientName), arcDev);
+            pID = arcDev.auditUnknownPatientID();
+            if (attr != null) {
+                pName = toPatName(attr.getString(Tag.PatientName), arcDev);
+                IDWithIssuer pidWithIssuer = IDWithIssuer.pidOf(attr);
+                if (pidWithIssuer != null)
+                    pID = toPID(pidWithIssuer, arcDev);
+            }
             return this;
         }
         Builder patID(String pid, ArchiveDeviceExtension arcDev) {
@@ -149,18 +159,21 @@ class AuditInfoBuilder {
             pName = toPatName(patName, arcDev);
             return this;
         }
-        Builder studyUIDAccNumDate(Attributes attrs) {
-            studyUID = attrs.getString(Tag.StudyInstanceUID);
-            accNum = attrs.getString(Tag.AccessionNumber);
-            studyDate = attrs.getString(Tag.StudyDate);
+        Builder studyUIDAccNumDate(Attributes attrs, ArchiveDeviceExtension arcDev) {
+            studyUID = arcDev.auditUnknownStudyInstanceUID();
+            if (attrs != null) {
+                studyUID = attrs.getString(Tag.StudyInstanceUID);
+                accNum = attrs.getString(Tag.AccessionNumber);
+                studyDate = attrs.getString(Tag.StudyDate);
+            }
             return this;
         }
-        Builder studyIUID(String studyIUID) {
-            studyUID = studyIUID;
+        Builder studyIUID(String val) {
+            studyUID = val;
             return this;
         }
-        Builder accNum(String acc) {
-            accNum = acc;
+        Builder accNum(String val) {
+            accNum = val;
             return this;
         }
         Builder outcome(String val) {
@@ -247,6 +260,22 @@ class AuditInfoBuilder {
             errorCode = errorCodeAsString(val);
             return this;
         }
+        Builder patMismatchCode(String val) {
+            patMismatchCode = val;
+            return this;
+        }
+        Builder connType(ConnectionEvent.Type val) {
+            connType = val;
+            return this;
+        }
+        Builder patVerificationStatus(Patient.VerificationStatus val) {
+            patVerificationStatus = val;
+            return this;
+        }
+        Builder pdqServiceURI(String val) {
+            pdqServiceURI = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -283,6 +312,10 @@ class AuditInfoBuilder {
         queueMsg = builder.queueMsg;
         taskPOID = builder.taskPOID;
         errorCode = builder.errorCode;
+        patMismatchCode = builder.patMismatchCode;
+        connType = builder.connType;
+        patVerificationStatus = builder.patVerificationStatus;
+        pdqServiceURI = builder.pdqServiceURI;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

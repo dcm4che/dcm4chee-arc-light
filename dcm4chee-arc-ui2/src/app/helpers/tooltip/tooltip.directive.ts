@@ -87,11 +87,7 @@ export class TooltipDirective {
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            this.mainservice.setMessage({
-                'title': 'Info',
-                'text': 'Text copied successfully in the clipboard',
-                'status': 'info'
-            });
+            this.mainservice.showMsg('Text copied successfully in the clipboard');
         }
     }
     showTooltip(){

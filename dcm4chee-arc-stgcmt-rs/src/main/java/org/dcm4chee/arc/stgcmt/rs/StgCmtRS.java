@@ -88,6 +88,12 @@ public class StgCmtRS {
     @QueryParam("exporterID")
     private String exporterID;
 
+    @QueryParam("batchID")
+    private String batchID;
+
+    @QueryParam("JMSMessageID")
+    private String msgID;
+
     @QueryParam("updatedBefore")
     @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
     private String updatedBefore;
@@ -106,7 +112,7 @@ public class StgCmtRS {
     public StreamingOutput listStgCmts() {
         logRequest();
         final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
-                statusOf(status), studyUID, exporterID, parseInt(offset), parseInt(limit));
+                statusOf(status), studyUID, exporterID, batchID, msgID, parseInt(offset), parseInt(limit));
         return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
@@ -120,6 +126,8 @@ public class StgCmtRS {
                     writer.writeNotNullOrDef("seriesUID", stgCmtResult.getSeriesInstanceUID(), null);
                     writer.writeNotNullOrDef("objectUID", stgCmtResult.getSopInstanceUID(), null);
                     writer.writeNotNullOrDef("exporterID", stgCmtResult.getExporterID(), null);
+                    writer.writeNotNullOrDef("JMSMessageID", stgCmtResult.getMessageID(), null);
+                    writer.writeNotNullOrDef("batchID", stgCmtResult.getBatchID(), null);
                     writer.writeNotNullOrDef("requested", stgCmtResult.getNumberOfInstances(), 0);
                     writer.writeNotNullOrDef("failures", stgCmtResult.getNumberOfFailures(), 0);
                     writer.writeNotNullOrDef("createdTime", stgCmtResult.getCreatedTime().toString(), null);

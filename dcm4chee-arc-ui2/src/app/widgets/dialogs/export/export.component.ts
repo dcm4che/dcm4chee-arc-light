@@ -23,6 +23,7 @@ export class ExportDialogComponent{
     private _mode;
     private _count;
     private _subTitle;
+    private _quantity;
     private _result = {
         exportType: 'dicom',
         selectedAet: undefined,
@@ -190,4 +191,12 @@ export class ExportDialogComponent{
             dialogRef.close(null);
         }
     };
+
+    get quantity() {
+        return this._quantity;
+    }
+
+    set quantity(value) {
+        this._quantity = value;
+    }
 }

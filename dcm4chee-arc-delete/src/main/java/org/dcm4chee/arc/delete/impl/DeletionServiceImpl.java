@@ -182,19 +182,24 @@ public class DeletionServiceImpl implements DeletionService {
                 ? AllowDeleteStudyPermanently.ALWAYS : arcAE.allowDeleteStudy();
         RejectionState rejectionState = study.getRejectionState();
         if (rejectionState == RejectionState.NONE && allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
-            storeService.restoreInstances(
-                    storeService.newStoreSession(device.getApplicationEntities().iterator().next()),
-                    study.getStudyInstanceUID(),
-                    null,
-                    device.getDeviceExtension(ArchiveDeviceExtension.class).getPurgeInstanceRecordsDelay());
-            ejb.deleteStudy(ctx);
+            List<Series> seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(study.getPk());
+            if (!seriesWithPurgedInstances.isEmpty()) {
+                for (Series series : seriesWithPurgedInstances)
+                    storeService.restoreInstances(
+                            storeService.newStoreSession(device.getApplicationEntities().iterator().next()),
+                            study.getStudyInstanceUID(),
+                            series.getSeriesInstanceUID(),
+                            device.getDeviceExtension(ArchiveDeviceExtension.class).getPurgeInstanceRecordsDelay());
+                ejb.deleteStudy(ctx);
+                return;
+            }
         }
         if (rejectionState == RejectionState.COMPLETE
                 || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS)
             ejb.deleteStudy(ctx);
         else if (rejectionState == RejectionState.EMPTY)
             ejb.deleteEmptyStudy(ctx);
-
-        throw new StudyNotEmptyException("Study is not empty.");
+        else
+            throw new StudyNotEmptyException("Study is not empty.");
     }
 }

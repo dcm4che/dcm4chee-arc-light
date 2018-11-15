@@ -157,7 +157,8 @@ public class ApplyRetentionPolicy {
                         continue;
                     }
 
-                    LocalDate expirationDate = retentionStartDate(attrs, retentionPolicy)
+                    LocalDate expirationDate =
+                            retentionStartDate(attrs, retentionPolicy.isStartRetentionPeriodOnStudyDate())
                             .plus(retentionPolicy.getRetentionPeriod());
 
                     String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
@@ -190,10 +191,9 @@ public class ApplyRetentionPolicy {
         return Response.ok("{\"count\":" + count + '}').build();
     }
 
-    private LocalDate retentionStartDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {
+    static LocalDate retentionStartDate(Attributes attrs, boolean startRetentionPeriodOnStudyDate) {
         String s;
-        if (retentionPolicy.isStartRetentionPeriodOnStudyDate()
-                && (s = attrs.getString(Tag.StudyDate)) != null) {
+        if (startRetentionPeriodOnStudyDate && (s = attrs.getString(Tag.StudyDate)) != null) {
             try {
                 return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
             } catch (Exception e) {}

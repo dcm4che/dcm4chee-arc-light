@@ -46,7 +46,6 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -145,9 +144,10 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID)
+    public boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID,
+                                        Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
-        return ejb.scheduleRetrieveTask(device, priority, ctx, batchID);
+        return ejb.scheduleRetrieveTask(device, priority, ctx, batchID, notRetrievedAfter, delay);
     }
 
     @Override

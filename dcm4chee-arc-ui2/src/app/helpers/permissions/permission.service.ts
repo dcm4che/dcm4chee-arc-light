@@ -4,6 +4,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {J4careHttpService} from "../j4care-http.service";
 import {AppService} from "../../app.service";
 import {Route, Router} from "@angular/router";
+import * as _ from 'lodash';
 
 @Injectable()
 export class PermissionService {
@@ -36,21 +37,30 @@ export class PermissionService {
             return this.getConfig(()=>{return this.checkMenuTabAccess(url)});
     }
     getConfig(response){
+        let deviceName;
+        let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
             return this.$http.get('../devicename')
                 .map(res => j4care.redirectOnAuthResponse(res))
-                .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
+                .switchMap(res => {
+                    deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
+                    archiveDeviceName = res.dicomDeviceName;
+                    return this.$http.get('../devices/' + deviceName)
+                })
                 .map(res => res.json())
                 .map((res)=>{
                     try{
                         this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                        let global = _.cloneDeep(this.mainservice.global);
+                        global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
+                        global["myDevice"] = res;
+                        this.mainservice.deviceName = deviceName;
+                        this.mainservice.archiveDeviceName = archiveDeviceName;
+                        this.mainservice.setGlobal(global);
                     }catch(e){
                         console.warn("Permission not found!",e);
-                        this.mainservice.setMessage({
-                            'text': "Permission not found!",
-                            'status': 'error'
-                        })
+                        this.mainservice.showError("Permission not found!");
                         return response.apply(this,[]);
                     }
                     // return this.checkMenuTabAccess(url);
@@ -60,6 +70,8 @@ export class PermissionService {
             return response.apply(this,[]);
     }
     getConfigWithUser(response){
+        let deviceName;
+        let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
             return this.mainservice.getUserInfo()
                 .map(user=>{
@@ -68,12 +80,22 @@ export class PermissionService {
                 })
                 .switchMap(res => this.$http.get('../devicename'))
                 .map(res => j4care.redirectOnAuthResponse(res))
-                .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
+                .switchMap(res => {
+                    deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
+                    archiveDeviceName = res.dicomDeviceName;
+                    return this.$http.get('../devices/' + deviceName);
+                })
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .map((res)=>{
                     try{
                         this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                        let global = _.cloneDeep(this.mainservice.global);
+                        global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
+                        global["myDevice"] = res;
+                        this.mainservice.archiveDeviceName = archiveDeviceName;
+                        this.mainservice.deviceName = deviceName;
+                        this.mainservice.setGlobal(global);
                     }catch(e){
                         console.warn("Permission not found!",e);
                         if(this.mainservice.global.notSecure || (this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)){
@@ -151,5 +173,38 @@ export class PermissionService {
             return false;
         }
     }
-
+    filterAetDependingOnUiConfig(aets, mode){
+        if(this.uiConfig && this.uiConfig.dcmuiAetConfig){
+            try{
+                let aetConfig = this.uiConfig.dcmuiAetConfig.filter(config=>{
+                    let oneAetRolesHasUser = false;
+                    if(_.hasIn(config, "dcmAcceptedUserRole") && config.dcmAcceptedUserRole && _.hasIn(this.mainservice.global,"authentication.roles") && this.mainservice.global.authentication.roles.length > 0){
+                        config.dcmAcceptedUserRole.forEach(role=>{
+                            if(this.mainservice.global.authentication.roles.indexOf(role) > -1){
+                                oneAetRolesHasUser = true;
+                            }
+                        });
+                    }
+                    return oneAetRolesHasUser;
+                });
+                if(mode){
+                    aetConfig = aetConfig.filter(config=>{
+                        return !config.dcmuiMode || config.dcmuiMode === mode;
+                    });
+                }
+                if(aetConfig.length > 0){
+                    return aets.filter(aet=>{
+                        return aetConfig[0].dcmuiAets.indexOf(aet.dicomAETitle) > -1;
+                    });
+                }else{
+                    return [];
+                }
+            }catch(e){
+                console.warn(e);
+                return [];
+            }
+        }else{
+            return aets;
+        }
+    }
 }

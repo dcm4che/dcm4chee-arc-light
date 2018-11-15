@@ -307,6 +307,29 @@ attributetype ( 1.2.40.0.13.1.15.111.3.52 NAME 'dcmuiElasticsearchURLKeycloakSer
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.111.3.53 NAME 'dcmuiAetListName'
+  DESC 'Aet List Name'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.54 NAME 'dcmuiAetListDescription'
+  DESC 'Aet List Description'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.55 NAME 'dcmuiMode'
+  DESC 'Aet List Mode internal or external'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.56 NAME 'dcmuiAets'
+  DESC 'Aet Selected List'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
+
 objectclass ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -428,3 +451,14 @@ objectclass ( 1.2.40.0.13.1.15.111.4.11 NAME 'dcmuiFilterTemplateObject'
     dcmuiFilterTemplateUsername $
     dcmuiFilterTemplateRole $
     dcmuiFilterTemplateDefault ) )
+
+objectclass ( 1.2.40.0.13.1.15.111.4.12 NAME 'dcmuiAetConfig'
+  DESC 'Filter template'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiAetListName $
+    dcmuiAets )
+  MAY (
+    dcmuiAetListDescription $
+    dcmuiMode $
+    dcmAcceptedUserRole ) )

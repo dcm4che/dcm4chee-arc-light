@@ -4,8 +4,10 @@
   "type": "object",
   "required": [
     "cn",
-    "dcmExporterID",
-    "dcmEntitySelector",
+    "dicomAETitle",
+    "dcmPrefetchCFindSCP",
+    "dcmPrefetchCMoveSCP",
+    "dcmPrefetchCStoreSCP",
     "dcmDuration"
   ],
   "properties": {
@@ -14,33 +16,72 @@
       "description": "Arbitrary/Meaningful name of the Prefetch Rule",
       "type": "string"
     },
-    "dcmExporterID": {
-      "title": "Exporter ID",
-      "description": "Exporter ID",
+    "dicomAETitle": {
+      "title": "Archive AE title",
+      "description": "AE Title of Archive Application Entity used for retrieving selected Studies from Prefetch C-Move SCP.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmPrefetchCFindSCP": {
+      "title": "Prefetch C-Find SCP",
+      "description": "AE Title of C-FIND SCP which is queried for Studies matching the specified Entity Selector.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCMoveSCP": {
+      "title": "Prefetch C-Move SCP",
+      "description": "AE Title of C-MOVE SCP from which selected Studies are retrieved.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCStoreSCP": {
+      "title": "Prefetch C-Store SCP",
+      "description": "AE Title of C-STORE SCP to which selected Studies are retrieved.",
       "type": "array",
-      "items" : { "type": "string" },
-      "format": "dcmExporterID"
+      "items": { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}. Example: MSH-9=ORM\\^O01",
+      "type": "array",
+      "items": { "type": "string" }
     },
     "dcmEntitySelector": {
       "title": "Entity Selector",
-      "description": "Specifies matching keys used to select entities to prefetch. Format: priors=<n>[&{attributeID}={value}]... .",
+      "description": "Specifies matching keys used to select Studies to prefetch. Format: {key}={value}[&{key}={value)]..., with {key} = 'StudyAge' | {attributeID}. {value} in the format '$'{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]] are replaced by the value of the specified HL7 field from the received HL7 message which triggered the prefetch. If no Entity Selector is specified, all Studies for the Patient will be pre-fetched. Example: 'StudyInstanceUID=$ZDS-1.1' => select the Study with the Study Instance UID from ZDS-1.1.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmEntitySelector"
     },
-    "dcmProperty": {
-      "title": "Conditions",
-      "description": "Conditions in format {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}. Examples: MSH-4=FORWARD or MSH-9=ADT\\^A28\\^ADT_A05",
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "Ignore Assigning Authority of Patient ID",
+      "description": "Conditionally ignore Assigning Authority of Patient ID (PID-3.4) in received HL7 message which triggered the prefetch for selecting Studies of the Patient.",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "Assigning Authority of Patient ID",
+      "description": "Assigning Authority of Patient ID against values in received HL7 message are matched, if Assigning Authority of Patient ID is set to MATCHING or NOT_MATCHING. Format: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>].",
       "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "dcmDuration": {
-      "title": "Suppress Duplicate Export Interval",
-      "description": "Suppress Export of entities already exported not earlier than the specified interval to avoid duplicate exports.",
+      "title": "Suppress Duplicate Retrieve Interval",
+      "description": "Suppress Retrieve of Studies already retrieved not earlier than the specified interval to avoid duplicate retrieves.",
       "type": "string",
       "format": "dcmDuration"
+    },
+    "dcmSchedule": {
+      "title": "Prefetch Schedule",
+      "description": "Delay prefetch to specified time periods. If no Prefetch Schedule is specified, queue a Prefetch Task for the selected Studies of the Patient immediately. Format: 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
     }
   }
 }

@@ -102,4 +102,12 @@ public interface PatientMgtContext {
     HttpServletRequestInfo getHttpServletRequestInfo();
 
     void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
+
+    Patient.VerificationStatus getPatientVerificationStatus();
+
+    void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus);
+
+    String getPDQServiceURI();
+
+    void setPDQServiceURI(String pdqServiceURI);
 }

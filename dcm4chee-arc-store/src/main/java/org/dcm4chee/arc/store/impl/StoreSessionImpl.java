@@ -79,6 +79,7 @@ class StoreSessionImpl implements StoreSession {
     private HttpServletRequest httpRequest;
     private HL7Application hl7App;
     private String calledAET;
+    private String callingAET;
     private Socket socket;
     private UnparsedHL7Message msg;
     private final StoreService storeService;
@@ -94,6 +95,7 @@ class StoreSessionImpl implements StoreSession {
     private AcceptConflictingPatientID acceptConflictingPatientID;
     private Attributes.UpdatePolicy patientUpdatePolicy;
     private Attributes.UpdatePolicy studyUpdatePolicy;
+    private String impaxReportEndpoint;
 
     StoreSessionImpl(StoreService storeService) {
         this.serialNo = prevSerialNo.incrementAndGet();
@@ -132,12 +134,17 @@ class StoreSessionImpl implements StoreSession {
         this.calledAET = calledAET;
     }
 
+    void setCallingAET(String callingAET) {
+        this.callingAET = callingAET;
+    }
+
     void setSocket(Socket socket) {
         this.socket = socket;
     }
 
     public void setMsg(UnparsedHL7Message msg) {
         this.msg = msg;
+        this.callingAET = msg.msh().getSendingApplicationWithFacility();
     }
 
     void setAssociation(Association as) {
@@ -145,6 +152,7 @@ class StoreSessionImpl implements StoreSession {
         this.as = as;
         this.socket = as.getSocket();
         this.calledAET = as.getCalledAET();
+        this.callingAET = as.getCallingAET();
     }
 
     @Override
@@ -211,7 +219,7 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getCallingAET() {
-        return as != null ? as.getCallingAET() : msg != null ? msg.msh().getSendingApplicationWithFacility() : null;
+        return callingAET;
     }
 
     @Override
@@ -243,12 +251,12 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public boolean isNotProcessed(PrefetchRule rule) {
+    public boolean isNotProcessed(ExportPriorsRule rule) {
         return !processedPrefetchRules.contains(rule.getCommonName());
     }
 
     @Override
-    public boolean markAsProcessed(PrefetchRule rule) {
+    public boolean markAsProcessed(ExportPriorsRule rule) {
         return processedPrefetchRules.add(rule.getCommonName());
     }
 
@@ -329,5 +337,15 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public void setStudyUpdatePolicy(Attributes.UpdatePolicy studyUpdatePolicy) {
         this.studyUpdatePolicy = studyUpdatePolicy;
+    }
+
+    @Override
+    public String getImpaxReportEndpoint() {
+        return impaxReportEndpoint;
+    }
+
+    @Override
+    public void setImpaxReportEndpoint(String impaxReportEndpoint) {
+        this.impaxReportEndpoint = impaxReportEndpoint;
     }
 }

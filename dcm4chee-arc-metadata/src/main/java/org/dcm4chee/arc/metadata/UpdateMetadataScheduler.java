@@ -70,6 +70,8 @@ import javax.json.stream.JsonGenerator;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -132,24 +134,45 @@ public class UpdateMetadataScheduler extends Scheduler {
 
         List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
         int fetchSize = arcDev.getSeriesMetadataFetchSize();
+        int threads = arcDev.getSeriesMetadataThreads();
+        Semaphore semaphore = threads > 1 ? new Semaphore(threads) : null;
         List<Series.MetadataUpdate> metadataUpdates;
         do {
+            if (getPollingInterval() == null) return;
+            LOG.debug("Query for Series scheduled for Creating/Updating Metadata");
             metadataUpdates = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
-            if (!metadataUpdates.isEmpty())
-                try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
-                    for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
-                        if (getPollingInterval() == null)
-                            return;
-
-                        try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
-                            updateMetadata(ctx, storage);
-                        } catch (Exception e) {
-                            LOG.error("{} failed:\n", metadataUpdate, e);
-                        }
+            if (metadataUpdates.isEmpty()) {
+                LOG.debug("No Series scheduled for Creating/Updating Metadata");
+                break;
+            }
+            LOG.info("Start Creating/Updating Metadata of {} Series", metadataUpdates.size());
+            AtomicInteger success = new AtomicInteger();
+            AtomicInteger skipped = new AtomicInteger();
+            try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
+                for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
+                    if (semaphore == null) {
+                        updateMetadata(storage, metadataUpdate, success, skipped);
+                    } else {
+                        semaphore.acquire();
+                        device.execute(() -> {
+                            try {
+                                updateMetadata(storage, metadataUpdate, success, skipped);
+                            } finally {
+                                semaphore.release();
+                            }
+                        });
                     }
-                } catch (IOException e) {
-                    LOG.error("Failed to access Storage:\n", e);
                 }
+                if (semaphore != null) {
+                    LOG.debug("Waiting for finishing Creating/Updating Metadata of {} Series", metadataUpdates.size());
+                    semaphore.acquire(threads);
+                }
+            } catch (Exception e) {
+                LOG.error("Failed to access Storage:\n", e);
+            } finally {
+                LOG.info("Finished Creating/Updating Metadata of {} (skipped={}, failed={}) Series",
+                        success, skipped, metadataUpdates.size() - success.get() - skipped.get());
+            }
         }
         while (metadataUpdates.size() == fetchSize);
         if (descriptors.size() < storageIDs.length) {
@@ -173,42 +196,48 @@ public class UpdateMetadataScheduler extends Scheduler {
         }
     }
 
-    private void updateMetadata(RetrieveContext ctx, Storage storage) throws IOException {
-        if (!claim(ctx, storage) || !retrieveService.calculateMatches(ctx))
-            return;
-
-        LOG.info("Creating/Updating Metadata for Series[pk={}] on {}",
-                ctx.getSeriesMetadataUpdate().seriesPk,
-                storage.getStorageDescriptor());
-        WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
-        try {
-            try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
-                for (InstanceLocations match : ctx.getMatches()) {
-                    out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
-                    JsonGenerator gen = Json.createGenerator(out);
-                    new JSONWriter(gen).write(loadMetadata(ctx, match));
-                    gen.flush();
-                    out.closeEntry();
+    private void updateMetadata(Storage storage, Series.MetadataUpdate metadataUpdate, AtomicInteger success,
+                                AtomicInteger skipped) {
+        try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
+            if (claim(ctx, storage) && retrieveService.calculateMatches(ctx)) {
+                LOG.debug("Creating/Updating Metadata for Series[pk={}] on {}",
+                        ctx.getSeriesMetadataUpdate().seriesPk,
+                        storage.getStorageDescriptor());
+                WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
+                try {
+                    try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
+                        for (InstanceLocations match : ctx.getMatches()) {
+                            out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
+                            JsonGenerator gen = Json.createGenerator(out);
+                            new JSONWriter(gen).write(loadMetadata(ctx, match));
+                            gen.flush();
+                            out.closeEntry();
+                        }
+                        out.finish();
+                    }
+                    storage.commitStorage(writeCtx);
+                    ejb.commit(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
+                } catch (Exception e) {
+                    LOG.warn("Failed to Create/Update Metadata for Series[pk={}] on {}:\n",
+                            ctx.getSeriesMetadataUpdate().seriesPk,
+                            storage.getStorageDescriptor(),
+                            e);
+                    try {
+                        storage.revokeStorage(writeCtx);
+                    } catch (Exception e1) {
+                        LOG.warn("Failed to revoke storage", e1);
+                    }
                 }
-                out.finish();
+                LOG.debug("Created/Updated Metadata for Series[pk={}] on {}",
+                        ctx.getSeriesMetadataUpdate().seriesPk,
+                        storage.getStorageDescriptor());
+                success.getAndIncrement();
+            } else {
+                skipped.getAndIncrement();
             }
-            storage.commitStorage(writeCtx);
-            ejb.commit(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
         } catch (Exception e) {
-            LOG.warn("Failed to create/update Metadata for Series[pk={}] on {}:\n",
-                    ctx.getSeriesMetadataUpdate().seriesPk,
-                    storage.getStorageDescriptor(),
-                    e);
-            try {
-                storage.revokeStorage(writeCtx);
-            } catch (Exception e1) {
-                LOG.warn("Failed to revoke storage", e1);
-            }
-            throw e;
+            LOG.error("Unexpected exception on closing Retrieve Context for {}:\n", metadataUpdate, e);
         }
-        LOG.info("Created/Updated Metadata for Series[pk={}] on {}",
-                ctx.getSeriesMetadataUpdate().seriesPk,
-                storage.getStorageDescriptor());
     }
 
     private boolean claim(RetrieveContext ctx, Storage storage) {

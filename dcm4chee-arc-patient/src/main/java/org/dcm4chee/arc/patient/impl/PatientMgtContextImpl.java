@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.patient.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
@@ -76,10 +77,12 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private IDWithIssuer previousPatientID;
     private Attributes previousAttributes;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
-    private String eventActionCode;
+    private String eventActionCode = AuditMessages.EventActionCode.Read;
     private Exception exception;
     private Patient patient;
     private HttpServletRequestInfo httpServletRequestInfo;
+    private Patient.VerificationStatus patientVerificationStatus = Patient.VerificationStatus.UNVERIFIED;
+    private String pdqServiceURI;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -151,7 +154,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7app.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        return arcHL7App != null && arcHL7App.isHl7NoPatientCreateMessageType(msg.msh().getMessageType());
+        return arcHL7App != null && arcHL7App.isHL7NoPatientCreateMessageType(msg.msh().getMessageType());
     }
 
     @Override
@@ -239,5 +242,25 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
+    }
+
+    @Override
+    public Patient.VerificationStatus getPatientVerificationStatus() {
+        return patientVerificationStatus;
+    }
+
+    @Override
+    public void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus) {
+        this.patientVerificationStatus = patientVerificationStatus;
+    }
+
+    @Override
+    public String getPDQServiceURI() {
+        return pdqServiceURI;
+    }
+
+    @Override
+    public void setPDQServiceURI(String pdqServiceURI) {
+        this.pdqServiceURI = pdqServiceURI;
     }
 }

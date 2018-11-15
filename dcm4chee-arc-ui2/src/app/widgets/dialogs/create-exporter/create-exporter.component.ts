@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Http} from '@angular/http';
 import {MatDialogRef} from '@angular/material';
 import {AppService} from '../../../app.service';
@@ -7,12 +7,13 @@ import {CreateExporterService} from './create-exporter.service';
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
 
 @Component({
   selector: 'app-create-exporter',
   templateUrl: './create-exporter.component.html'
 })
-export class CreateExporterComponent {
+export class CreateExporterComponent implements OnInit{
     showselectdevice = true;
     showexternalae = true;
     showexporter = false;
@@ -32,6 +33,70 @@ export class CreateExporterComponent {
     externalAe;
     externalAeObject;
     queue;
+    schema = {
+        "title": "Exporter Descriptor",
+        "description": "Exporter Descriptor",
+        "type": "object",
+        "required": [
+            "dcmExporterID",
+            "dcmURI",
+            "dcmQueueName",
+            "dcmExportPriority",
+            "dcmInstanceAvailability",
+            "dicomAETitle"
+        ],
+        "properties": {
+            "dcmExporterID": {
+                "title": "Exporter ID",
+                "description": "Exporter ID",
+                "type": "string"
+            },
+            "dcmURI": {
+                "title": "URI",
+                "description": "RFC2079: Uniform Resource Identifier",
+                "type": "string"
+            },
+            "dcmQueueName": {
+                "title": "Queue Name",
+                "description": "JMS Queue Name",
+                "type": "string",
+                "enum" : [
+                    "Export1",
+                    "Export2",
+                    "Export3",
+                    "Export4",
+                    "Export5"
+                ]
+            },
+            "dcmExportPriority": {
+                "title": "Export Priority",
+                "description": "JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).",
+                "type": "integer",
+                "default" : 4,
+                "minimum": 0,
+                "maximum": 9
+            },
+            "dcmInstanceAvailability": {
+                "title": "Instance Availability",
+                "description": "Instance Availability.",
+                "type": "string",
+                "default": "ONLINE",
+                "enum": [
+                    "ONLINE",
+                    "NEARLINE",
+                    "OFFLINE"
+                ]
+            },
+            "dicomAETitle": {
+                "title": "Application Entity (AE) title",
+                "description": "Application Entity (AE) title",
+                "type": "string",
+                "format": "dcmArchiveAETitle"
+            }
+        }
+    };
+    formObj;
+    archive;
     private _aes;
     private _devices;
     _ = _;
@@ -41,15 +106,18 @@ export class CreateExporterComponent {
         public mainservice: AppService,
         public cfpLoadingBar: LoadingBarService,
         private service: CreateExporterService,
-        private httpErrorHandler:HttpErrorHandler
+        private httpErrorHandler:HttpErrorHandler,
+        public deviceConfigService:DeviceConfiguratorService,
     ) {
+    }
+    ngOnInit(){
         this.cfpLoadingBar.complete();
         let $this = this;
         this.service.getQueue().subscribe(queue => {
             $this.queue = queue;
         });
+        this.getArchiveDevice(2);
     }
-
     get aes() {
         return this._aes;
     }
@@ -77,9 +145,16 @@ export class CreateExporterComponent {
     }
     setDcmStgCmtSCP(e){
             this.dcmExporter.dcmStgCmtSCP = e.dicomAETitle;
-            let $this = this;
             this.externalAeObject = e;
     };
+    getSchema(){
+        this.service.getExporterDescriptorSchema().subscribe(schema=>{
+            this.schema = schema;
+            this.formObj = this.deviceConfigService.convertSchemaToForm(this.archive, this.schema, {}, 'attr');
+        },err=>{
+            this.formObj = this.deviceConfigService.convertSchemaToForm(this.archive, this.schema, {}, 'attr');
+        })
+    }
     selectDevice(e){
         // this.getDevice(e, this.selectedDeviceObject);
         this.selectedDevice = e;
@@ -97,6 +172,36 @@ export class CreateExporterComponent {
         });
     }
 
+    getArchiveDevice(retries){
+        if(!this.mainservice.archiveDeviceName){
+            if(retries){
+                console.log("retry",retries);
+                setTimeout(()=>{
+                    this.getArchiveDevice(retries-1);
+                },400);
+            }
+        }else{
+            this.service.getDevice(this.mainservice.archiveDeviceName).subscribe((res)=>{
+                this.archive = res;
+                this.getSchema();
+            },(err)=>{
+                if(retries)
+                    this.getArchiveDevice(retries-1);
+                else{
+                    this.httpErrorHandler.handleError(err);
+                }
+            });
+        }
+    }
+    submitFunction(e){
+        console.log("e",e);
+        // this.deviceConfigService.addChangesToDevice(e, '', this.archive);
+        // this.deviceConfiguratiorComponent.submitFunction(e);
+        this.dialogRef.close({
+            device:this.archive,
+            exporter:e
+        });
+    }
     validAeForm(){
         if (!this.dcmExporter.dcmExporterID || this.dcmExporter.dcmExporterID === ''){
             return false;

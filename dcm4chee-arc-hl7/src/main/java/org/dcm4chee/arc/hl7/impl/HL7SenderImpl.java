@@ -90,7 +90,8 @@ public class HL7SenderImpl implements HL7Sender {
     private QueueManager queueManager;
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
-        if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED)
+        if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED
+            || event.getException() != null)
             return;
 
         UnparsedHL7Message msg = event.getHL7Message();
@@ -163,7 +164,7 @@ public class HL7SenderImpl implements HL7Sender {
             msg.setStringProperty("MessageControlID", messageControlID);
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.copyTo(msg);
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

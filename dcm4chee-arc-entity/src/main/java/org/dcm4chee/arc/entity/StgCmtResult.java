@@ -83,6 +83,8 @@ import java.util.Date;
             @Index(columnList = "updated_time"),
             @Index(columnList = "device_name"),
             @Index(columnList = "exporter_id"),
+            @Index(columnList = "msg_id"),
+            @Index(columnList = "batch_id"),
             @Index(columnList = "study_iuid"),
             @Index(columnList = "stgcmt_status")
     }
@@ -123,6 +125,12 @@ public class StgCmtResult {
     @Basic(optional = false)
     @Column(name = "exporter_id", updatable = false)
     private String exporterID;
+
+    @Column(name = "msg_id")
+    private String messageID;
+
+    @Column(name = "batch_id", updatable = false)
+    private String batchID;
 
     @Basic(optional = false)
     @Column(name = "study_iuid", updatable = false)
@@ -176,6 +184,22 @@ public class StgCmtResult {
 
     public void setExporterID(String exporterID) {
         this.exporterID = exporterID;
+    }
+
+    public String getMessageID() {
+        return messageID;
+    }
+
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
+    }
+
+    public String getBatchID() {
+        return batchID;
+    }
+
+    public void setBatchID(String batchID) {
+        this.batchID = batchID;
     }
 
     public String getStudyInstanceUID() {

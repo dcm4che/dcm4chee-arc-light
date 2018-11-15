@@ -46,6 +46,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.query.impl.QuerySizeEJB;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -66,6 +67,9 @@ public class CompressionEJB {
     @Inject
     private Device device;
 
+    @Inject
+    private QuerySizeEJB querySizeEJB;
+
     public List<Series.Compression> findSeriesForCompression(int fetchSize) {
         return em.createNamedQuery(Series.SCHEDULED_COMPRESSION, Series.Compression.class)
                 .setMaxResults(fetchSize)
@@ -80,6 +84,8 @@ public class CompressionEJB {
 
     public void updateDB(Series.Compression compr, int completed, int failures) {
         if (completed > 0) {
+            querySizeEJB.calculateSeriesSize(compr.seriesPk);
+            querySizeEJB.calculateStudySize(compr.studyPk);
             em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
                     .setParameter(1, compr.seriesPk);
             em.createNamedQuery(failures > 0
@@ -97,10 +103,16 @@ public class CompressionEJB {
             em.createNamedQuery(Study.SET_STORAGE_IDS)
                     .setParameter(1, compr.studyPk)
                     .setParameter(2, StringUtils.concat(storageIDs, '\\'));
-        } else {
+        } else if (failures > 0) {
             em.createNamedQuery(Series.UPDATE_COMPRESSION_FAILURES)
                     .setParameter(1, compr.seriesPk)
                     .setParameter(2, failures)
+                    .executeUpdate();
+        } else { // all skipped
+            em.createNamedQuery(Series.UPDATE_COMPRESSION_COMPLETED)
+                    .setParameter(1, compr.seriesPk)
+                    .setParameter(2, failures)
+                    .setParameter(3, compr.transferSyntaxUID)
                     .executeUpdate();
         }
     }
