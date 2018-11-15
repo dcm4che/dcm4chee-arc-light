@@ -455,18 +455,25 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
-        HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueMessage, matchExportTask);
-        List<String> referencedQueueMsgIDs = exportTaskQuery.select(QExportTask.exportTask.queueMessage.messageID).fetch();
+    public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
+        int refQueueMsgsCount = 0;
+        if (status != QueueMessage.Status.TO_SCHEDULE) {
+            HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueMessage, matchExportTask);
+            List<String> referencedQueueMsgIDs = exportTaskQuery.select(QExportTask.exportTask.queueMessage.messageID).fetch();
 
-        for (String queueMsgID : referencedQueueMsgIDs)
-            queueManager.deleteTask(queueMsgID, null);
+            for (String queueMsgID : referencedQueueMsgIDs)
+                queueManager.deleteTask(queueMsgID, null);
 
-        int count = (int) new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
-                .execute();
+            refQueueMsgsCount = referencedQueueMsgIDs.size();
+        }
 
-        return referencedQueueMsgIDs.size() + count;
+        int toScheduleCount = 0;
+        if (status == null || status == QueueMessage.Status.TO_SCHEDULE)
+            toScheduleCount = (int) new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
+                    .execute();
+
+        return refQueueMsgsCount + toScheduleCount;
     }
 
     @Override
