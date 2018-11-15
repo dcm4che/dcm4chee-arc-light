@@ -1,137 +1,59 @@
-<div class="main_content monitoring">
+<div class="main_content monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <div class="row filter"  (keyup)="filterKeyUp($event)">
-            <div class="main_filter_block">
-                <div class="col-md-3 block-1-1">
-                    <div class="row">
-                        <label class="col-md-6 text-right control-label">Uri Schema:</label>
-                        <div class="col-md-6">
-                            <mat-select [(ngModel)]="filters.uriScheme" class="col-md-12">
-                                <!--<mat-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>-->
-                                <mat-option value="">*</mat-option>
-                                <mat-option value="file">file</mat-option>
-                                <mat-option value="jclouds">jclouds</mat-option>
-                                <mat-option value="emc-ecs-s3">emc-ecs-s3</mat-option>
-                                <mat-option value="hcp">hcp</mat-option>
-                                <mat-option value="documentu">documentu</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label class="col-md-6 text-right control-label">AETitle:</label>
-                        <div class="col-md-6">
-                            <mat-select [(ngModel)]="filters.dicomAETitle" class="col-md-12">
-                                <mat-option value="">*</mat-option>
-                                <mat-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="usage" class="col-md-6 text-right control-label">Usablespace below:</label>
-                        <div class="col-md-6">
-                            <div class="input_group_dropdown">
-                                <input id="usage" type="number" min="1" [(ngModel)]="usableSpaceBelow"/>
-                                <select name="tes" id="tes" [(ngModel)]="usableSpaceBelowMode">
-                                    <option value="TB">TB</option>
-                                    <option value="GB">GB</option>
-                                    <option value="MB">MB</option>
-                                    <option value="BYTE">Byte</option>
-                                </select>
-<!--                                <mat-select [(ngModel)]="usableSpaceBelowMode" class="col-md-12">
-                                    <mat-option value="GB">GB</mat-option>
-                                    <mat-option value="MB">MB</mat-option>
-                                    <mat-option value="BYTE">Byte</mat-option>
-                                </mat-select>-->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 block-2-1">
-                    <!--<div class="row">-->
-                    <!--<label class="col-md-6 text-right control-label">Study UID</label>-->
-                    <!--<div class="col-md-6">-->
-                    <!--<p-calendar  dataType="string" [(ngModel)]="filters.updatedBefore" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated before"></p-calendar>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <div class="row" title="Only return Storage Systems used for the specified content">
-                        <label for="usage" class="col-md-6 text-right control-label">Usage:</label>
-                        <div class="col-md-6">
-                            <!--<input id="usage" type="text" min="1" [(ngModel)]="filters.usage" class="col-md-12" />-->
-                            <mat-select [(ngModel)]="filters.usage" class="col-md-12">
-                                <mat-option value="">*</mat-option>
-                                <mat-option value="dcmObjectStorageID">Object Storage</mat-option>
-                                <mat-option value="dcmMetadataStorageID">Metadata Storage</mat-option>
-                                <mat-option value="dcmSeriesMetadataStorageID">SeriesMetadata Storage</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                    <div class="row" title="Only return Storage Systems which have usable space below specified value">
-
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-default submit col-md-12" (click)="search(0)" title="Refresh">
-                                <span class="glyphicon glyphicon-refresh"></span>
-                                SUBMIT
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <h2>Storage systems</h2>
+        <div class="filter_line" (keyup)="filterKeyUp($event)">
+            <div class="filter_block">
+                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters" (submit)="search(0)"></filter-generator>
             </div>
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr>
                 <th colspan="2">
-<!--                    <button class="btn btn-link btn-xs"
-                            [disabled]="!hasNewer(matches)"
-                            (click)="search(newerOffset(matches))"
-                            title="Newer">
-                        <span class="glyphicon glyphicon-menu-left"></span>
-                    </button>
-                    <button class="btn btn-link btn-xs"
-                            [disabled]="!hasOlder(matches)"
-                            (click)="search(olderOffset(matches))"
-                            title="Older">
-                        <span class="glyphicon glyphicon-menu-right"></span>
-                    </button>-->
                 </th>
                 <th>Storage ID</th>
                 <th>Storage URI</th>
                 <th>Read Only</th>
                 <th>AE Title</th>
-                <th>Space(Usable/Total)</th>
+                <th>Space ( Usable / Total )</th>
+                <th>Used</th>
                 <th>Deleter Threshold</th>
                 <th>Storage Threshold</th>
             </tr>
             </thead>
             <tbody>
-            <ng-container *ngFor="let match of matches">
-                <tr>
+            <ng-container *ngFor="let match of matches" >
+                <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td>
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
+                        </a>
+                        <a class="material_icon_button" (click)="$event.preventDefault();" href="" title="Comming soon...">
+                            <i class="material-icons">
+                                trending_up
+                            </i>
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.dcmStorageID"></td>
                     <td [innerHtml]="match.properties.dcmURI" ></td>
                     <td [innerHtml]="match.properties.dcmReadOnly || 'false'" ></td>
                     <td [innerHtml]="match.properties.dicomAETitle" ></td>
-                    <td >{{match.properties.usableSpace}} / {{match.properties.totalSpace}}</td>
-                    <td [innerHtml]="match.properties.deleterThreshold || ''" ></td>
+                    <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} <span *ngIf="match.properties.usableSpace && match.properties.totalSpace">/</span> {{match.properties.totalSpace}}</td>
+                    <td [innerHtml]="match.properties.usedSpace || ''" ></td>
+                    <td [ngClass]="{'error':match.properties.warning}" [innerHtml]="match.properties.deleterThreshold || ''" ></td>
                     <td [innerHtml]="match.properties.storageThreshold || ''" ></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">
                         <table class="table table-bordered table-condensed attribute_list">
-                            <tr *ngFor="let key of match.properties | getKey">
-                                <th [innerHtml]="key._KEY"></th>
-                                <td [innerHtml]="key._VALUE"></td>
-                            </tr>
+                            <ng-container *ngFor="let key of Object.keys(match.properties)">
+                                <tr *ngIf="key != 'warning'">
+                                    <th [innerHtml]="key"></th>
+                                    <td [innerHtml]="match.properties[key]"></td>
+                                </tr>
+                            </ng-container>
                         </table>
                     </td>
                 </tr>
