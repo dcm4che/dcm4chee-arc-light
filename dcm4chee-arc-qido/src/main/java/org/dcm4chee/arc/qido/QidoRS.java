@@ -76,8 +76,6 @@ import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -158,12 +156,14 @@ public class QidoRS {
     @QueryParam("ExternalRetrieveAET!")
     private String externalRetrieveAETNot;
 
-    @QueryParam("accept")
-    private List<String> accept;
-
     @QueryParam("patientVerificationStatus")
     @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
     private String patientVerificationStatus;
+
+    @QueryParam("accept")
+    private List<String> accept;
+
+    private char csvDelimiter = ',';
 
     @Override
     public String toString() {
@@ -174,21 +174,24 @@ public class QidoRS {
     @NoCache
     @Path("/patients")
     public Response searchForPatients() {
-        return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT);
+        return search("SearchForPatients", Model.PATIENT,
+                null, null, QIDO.PATIENT);
     }
 
     @GET
     @NoCache
     @Path("/studies")
     public Response searchForStudies() {
-        return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY);
+        return search("SearchForStudies", Model.STUDY,
+                null, null, QIDO.STUDY);
     }
 
     @GET
     @NoCache
     @Path("/series")
     public Response searchForSeries() {
-        return search("SearchForSeries", Model.SERIES, null, null, QIDO.STUDY_SERIES);
+        return search("SearchForSeries", Model.SERIES,
+                null, null, QIDO.STUDY_SERIES);
     }
 
     @GET
@@ -196,14 +199,16 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/series")
     public Response searchForSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES);
+        return search("SearchForStudySeries", Model.SERIES,
+                studyInstanceUID, null, QIDO.SERIES);
     }
 
     @GET
     @NoCache
     @Path("/instances")
     public Response searchForInstances() {
-        return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE);
+        return search("SearchForInstances", Model.INSTANCE,
+                null, null, QIDO.STUDY_SERIES_INSTANCE);
     }
 
     @GET
@@ -211,7 +216,8 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/instances")
     public Response searchForInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return search("SearchForStudyInstances", Model.INSTANCE, studyInstanceUID, null, QIDO.SERIES_INSTANCE);
+        return search("SearchForStudyInstances", Model.INSTANCE,
+                studyInstanceUID, null, QIDO.SERIES_INSTANCE);
     }
 
     @GET
@@ -220,7 +226,8 @@ public class QidoRS {
     public Response searchForInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return search("SearchForStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE);
+        return search("SearchForStudySeriesInstances", Model.INSTANCE,
+                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE);
     }
 
     @GET
@@ -399,7 +406,7 @@ public class QidoRS {
     }
 
     private Output selectMediaType() {
-        if (accept != null && !accept.isEmpty()) {
+        if (!accept.isEmpty()) {
             headers.getRequestHeaders().put("Accept",
                     accept.stream().flatMap(s -> Stream.of(StringUtils.split(s, ',')))
                             .collect(Collectors.toList()));
@@ -416,9 +423,13 @@ public class QidoRS {
                 .anyMatch(MediaTypes.APPLICATION_DICOM_XML_TYPE::isCompatible))
             return Output.DICOM_XML;
 
-        if (acceptableMediaTypes.stream()
-                .anyMatch(MediaTypes.TEXT_CSV_UTF8_TYPE::isCompatible))
+        Optional<MediaType> csvMediaType = acceptableMediaTypes.stream()
+                .filter(MediaTypes.TEXT_CSV_UTF8_TYPE::isCompatible).findFirst();
+        if (csvMediaType.isPresent()) {
+            if ("semicolon".equals(csvMediaType.get().getParameters().get("delimiter")))
+                csvDelimiter = ';';
             return Output.CSV;
+        }
 
         throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
     }
@@ -477,7 +488,8 @@ public class QidoRS {
     }
 
     private enum Model {
-        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk, UID.PatientRootQueryRetrieveInformationModelFIND){
+        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk, UID.PatientRootQueryRetrieveInformationModelFIND,
+                CSV.PATIENT){
             @Override
             public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
                 return null;
@@ -486,49 +498,32 @@ public class QidoRS {
             @Override
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
-
-            @Override
-            CSV csv() {
-                return CSV.PATIENT;
-            }
         },
-        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND,
+                CSV.STUDY) {
             @Override
             public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return super.retrieveURL(qidoRS, match)
                         .append("/studies/").append(match.getString(Tag.StudyInstanceUID));
             }
-
-            @Override
-            CSV csv() {
-                return CSV.STUDY;
-            }
         },
-        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk, UID.StudyRootQueryRetrieveInformationModelFIND,
+                CSV.SERIES) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return STUDY.retrieveURL(qidoRS, match)
                         .append("/series/").append(match.getString(Tag.SeriesInstanceUID));
             }
-
-            @Override
-            CSV csv() {
-                return CSV.SERIES;
-            }
         },
-        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk, UID.StudyRootQueryRetrieveInformationModelFIND,
+                CSV.INSTANCE) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return SERIES.retrieveURL(qidoRS, match)
                         .append("/instances/").append(match.getString(Tag.SOPInstanceUID));
             }
-
-            @Override
-            CSV csv() {
-                return CSV.INSTANCE;
-            }
         },
-        MWL(null, QMWLItem.mWLItem.pk, UID.ModalityWorklistInformationModelFIND) {
+        MWL(null, QMWLItem.mWLItem.pk, UID.ModalityWorklistInformationModelFIND, CSV.MWL) {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createMWLQuery(ctx);
@@ -542,21 +537,18 @@ public class QidoRS {
             @Override
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
-
-            @Override
-            CSV csv() {
-                return CSV.MWL;
-            }
         };
 
         final QueryRetrieveLevel2 qrLevel;
         final NumberPath<Long> pk;
-        final private String sopClassUID;
+        final String sopClassUID;
+        final CSV csv;
 
-        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID) {
+        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID, CSV csv) {
             this.qrLevel = qrLevel;
             this.pk = pk;
             this.sopClassUID = sopClassUID;
+            this.csv = csv;
         }
 
         QueryRetrieveLevel2 getQueryRetrieveLevel() {
@@ -589,8 +581,6 @@ public class QidoRS {
         String getSOPClassUID() {
             return sopClassUID;
         }
-
-        abstract CSV csv();
     }
 
     private enum Output {
@@ -678,18 +668,12 @@ public class QidoRS {
     private Object writeCSV(String method, Query query, Model model, AttributesCoercion coercion)
             throws DicomServiceException {
         final ArrayList<Attributes> matches = matches(method, query, model, coercion);
-        MediaType type = headers.getAcceptableMediaTypes().get(0);
-        char delimiter = type.getParameters().keySet().contains("delimiter")
-                && type.getParameters().get("delimiter").equals("semicolon")
-                ? ';' : ',';
-
         return (StreamingOutput) out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-            writeCSVHeader(writer, model.csv(), delimiter);
+            writeCSVHeader(writer, model.csv, csvDelimiter);
             for (Attributes match : matches)
-                write(writer, match, model.csv(), delimiter);
+                write(writer, match, model.csv, csvDelimiter);
             writer.flush();
-            writer.close();
         };
     }
 
