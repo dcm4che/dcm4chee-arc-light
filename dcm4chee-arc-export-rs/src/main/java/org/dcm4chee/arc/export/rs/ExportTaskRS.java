@@ -344,7 +344,7 @@ public class ExportTaskRS {
         int count;
         int deleteTasksFetchSize = queueTasksFetchSize();
         do {
-            count = mgr.deleteTasks(
+            count = mgr.deleteTasks(status,
                     matchQueueMessage(status, deviceName, null),
                     matchExportTask(updatedTime));
             deleted += count;

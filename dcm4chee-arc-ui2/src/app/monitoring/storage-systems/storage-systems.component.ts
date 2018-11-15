@@ -11,6 +11,7 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-storage-systems',
@@ -68,50 +69,6 @@ export class StorageSystemsComponent implements OnInit {
         // this.initExporters(1);
         // this.init();
         this.getAets();
-/*        let $this = this;
-        if (!this.mainservice.user){
-            // console.log("in if studies ajax");
-            this.mainservice.user = this.mainservice.getUserInfo().share();
-            this.mainservice.user
-                .subscribe(
-                    (response) => {
-                        $this.user.user  = response.user;
-                        $this.mainservice.user.user = response.user;
-                        $this.user.roles = response.roles;
-                        $this.mainservice.user.roles = response.roles;
-                        $this.isRole = (role) => {
-                            if (response.user === null && response.roles.length === 0){
-                                return true;
-                            }else{
-                                if (response.roles && response.roles.indexOf(role) > -1){
-                                    return true;
-                                }else{
-                                    return false;
-                                }
-                            }
-                        };
-                    },
-                    (response) => {
-                        // $this.user = $this.user || {};
-                        console.log('get user error');
-                        $this.user.user = 'user';
-                        $this.mainservice.user.user = 'user';
-                        $this.user.roles = ['user', 'admin'];
-                        $this.mainservice.user.roles = ['user', 'admin'];
-                        $this.isRole = (role) => {
-                            if (role === 'admin'){
-                                return false;
-                            }else{
-                                return true;
-                            }
-                        };
-                    }
-                );
-
-        }else{
-            this.user = this.mainservice.user;
-            this.isRole = this.mainservice.isRole;
-        }*/
     };
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
@@ -153,6 +110,9 @@ export class StorageSystemsComponent implements OnInit {
         this.service.search(filters, offset)
             .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe((res) => {
+                if(!environment.production){
+                    res = [{"dcmStorageID":"fs1","dcmURI":"file:///storage/fs1/","dcmDigestAlgorithm":"MD5","dcmInstanceAvailability":"ONLINE","dcmProperty":["pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}","checkMountFile=NO_MOUNT"],"usableSpace":341985411072,"totalSpace":412715171840},{"dcmStorageID":"nfscache1","dcmURI":"file:///storage/archive1tln-cache","dcmDigestAlgorithm":"MD5","dcmInstanceAvailability":"ONLINE","deleterThreshold":[{"":1000000000000}],"dcmExportStorageID":"s3-data","dcmProperty":["pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}","checkMountFile=NO_MOUNT"],"dicomAETitle":["ARCHIVE1TLN"],"dcmStorageClusterID":"nfscachetln","usages":["dcmObjectStorageID"],"usableSpace":2458130055168,"totalSpace":7612746563584},{"dcmStorageID":"nfscache2","dcmURI":"file:///storage/archive2tln-cache","dcmDigestAlgorithm":"MD5","dcmInstanceAvailability":"ONLINE","dcmReadOnly":true,"dcmProperty":["pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}","checkMountFile=NO_MOUNT"],"dcmStorageClusterID":"nfscachetln","usableSpace":2458130055168,"totalSpace":7612746563584},{"dcmStorageID":"nfscache3","dcmURI":"file:///storage/archive3tln-cache","dcmDigestAlgorithm":"MD5","dcmInstanceAvailability":"ONLINE","dcmReadOnly":true,"dcmProperty":["pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}","checkMountFile=NO_MOUNT"],"dcmStorageClusterID":"nfscachetln","usableSpace":2458130055168,"totalSpace":7612746563584},{"dcmStorageID":"nfscache4","dcmURI":"file:///storage/archive4tln-cache","dcmDigestAlgorithm":"MD5","dcmInstanceAvailability":"ONLINE","dcmReadOnly":true,"dcmProperty":["pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}","checkMountFile=NO_MOUNT"],"dcmStorageClusterID":"nfscachetln","usableSpace":2458130055168,"totalSpace":7612746563584},{"dcmStorageID":"s3-data","dcmURI":"jclouds:s3:http://ecscls1tln.vna.pacs.ee:9020","dcmDigestAlgorithm":"MD5","dcmInstanceAvailability":"NEARLINE","dcmRetrieveCacheStorageID":"nfscache1","dcmRetrieveCacheMaxParallel":20,"dcmProperty":["container=archive","jclouds.s3.virtual-host-buckets=false","credential=tzJaK0XSBYRfZcGRCAbktjwnM8WYCisqbPeemJH8","identity=lives3.service","pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}","jclouds.strip-expect-header=true","containerExists=true","jclouds.relax-hostname=true","jclouds.trust-all-certs=true"],"dicomAETitle":["ARCHIVE1TLN_S3"],"usages":["dcmObjectStorageID"],"usableSpace":-1,"totalSpace":-1},{"dcmStorageID":"s3-metadata","dcmURI":"jclouds:s3:http://ecscls1tln.vna.pacs.ee:9020","dcmInstanceAvailability":"ONLINE","dcmReadOnly":true,"dcmProperty":["container=metadata","jclouds.s3.virtual-host-buckets=false","credential=tzJaK0XSBYRfZcGRCAbktjwnM8WYCisqbPeemJH8","identity=lives3.service","pathFormat={now,date,yyyy/MM/dd}/{0020000D}/{0020000E}/{now,date,yyyyMMddHHmmss}.zip","jclouds.strip-expect-header=true","containerExists=true","jclouds.relax-hostname=true","jclouds.trust-all-certs=true"],"usages":["dcmSeriesMetadataStorageID"],"usableSpace":-1,"totalSpace":-1}];
+                }
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
 /*                        if(_.hasIn(properties,'dicomAETitle')){

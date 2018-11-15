@@ -9,51 +9,53 @@
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
-            <tr>
-                <th colspan="2">
-                </th>
-                <th>Storage ID</th>
-                <th>Storage URI</th>
-                <th>Read Only</th>
-                <th>AE Title</th>
-                <th>Space ( Usable / Total )</th>
-                <th>Used</th>
-                <th>Deleter Threshold</th>
-                <th>Storage Threshold</th>
-            </tr>
+                <tr>
+                    <th colspan="2">
+                    </th>
+                    <th>Storage ID</th>
+                    <th>Storage URI</th>
+                    <th>Read Only</th>
+                    <th>Storage Cluster ID</th>
+                    <th>AE Title</th>
+                    <th>Space ( Usable / Total )</th>
+                    <th>Used</th>
+                    <th>Deleter Threshold</th>
+                    <th>Storage Threshold</th>
+                </tr>
             </thead>
             <tbody>
-            <ng-container *ngFor="let match of matches" >
-                <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
-                    <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-                    <td>
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
-                            <span class="glyphicon glyphicon-list"></span>
-                        </a>
-                    </td>
-                    <td [innerHtml]="match.properties.dcmStorageID"></td>
-                    <td [innerHtml]="match.properties.dcmURI" ></td>
-                    <td [innerHtml]="match.properties.dcmReadOnly || 'false'" ></td>
-                    <td [innerHtml]="match.properties.dicomAETitle" ></td>
-                    <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} <span *ngIf="match.properties.usableSpace && match.properties.totalSpace">/</span> {{match.properties.totalSpace}}</td>
-                    <td [innerHtml]="match.properties.usedSpace || ''" ></td>
-                    <td [ngClass]="{'error':match.properties.warning}" [innerHtml]="match.properties.deleterThreshold || ''" ></td>
-                    <td [innerHtml]="match.properties.storageThreshold || ''" ></td>
-                </tr>
-                <tr *ngIf="match.showProperties">
-                    <td colspan="11">
-                        <table class="table table-bordered table-condensed attribute_list">
-                            <ng-container *ngFor="let key of Object.keys(match.properties)">
-                                <tr *ngIf="key != 'warning'">
-                                    <th [innerHtml]="key"></th>
-                                    <td [innerHtml]="match.properties[key]"></td>
-                                </tr>
-                            </ng-container>
-                        </table>
-                    </td>
-                </tr>
-                <tr [hidden]="true"></tr>
-            </ng-container>
+                <ng-container *ngFor="let match of matches" >
+                    <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
+                        <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
+                        <td>
+                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+                                <span class="glyphicon glyphicon-list"></span>
+                            </a>
+                        </td>
+                        <td [innerHtml]="match.properties.dcmStorageID"></td>
+                        <td [innerHtml]="match.properties.dcmURI" ></td>
+                        <td [innerHtml]="match.properties.dcmReadOnly || 'false'" ></td>
+                        <td [innerHtml]="match.properties.dcmStorageClusterID" ></td>
+                        <td [innerHtml]="match.properties.dicomAETitle" ></td>
+                        <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} <span *ngIf="match.properties.usableSpace && match.properties.totalSpace">/</span> {{match.properties.totalSpace}}</td>
+                        <td [innerHtml]="match.properties.usedSpace || ''" ></td>
+                        <td [ngClass]="{'error':match.properties.warning}" [innerHtml]="match.properties.deleterThreshold || ''" ></td>
+                        <td [innerHtml]="match.properties.storageThreshold || ''" ></td>
+                    </tr>
+                    <tr *ngIf="match.showProperties">
+                        <td colspan="11">
+                            <table class="table table-bordered table-condensed attribute_list">
+                                <ng-container *ngFor="let key of Object.keys(match.properties)">
+                                    <tr *ngIf="key != 'warning'">
+                                        <th [innerHtml]="key"></th>
+                                        <td [innerHtml]="match.properties[key]"></td>
+                                    </tr>
+                                </ng-container>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr [hidden]="true"></tr>
+                </ng-container>
             </tbody>
         </table>
     </div>

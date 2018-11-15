@@ -61,6 +61,11 @@
         "description": "Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.",
         "type": "string"
       },
+      "dcmNoDeletionConstraint": {
+        "title": "No Deletion Constraint",
+        "description": "Specifies if Studies shall be deleted without any condition (= no External Retrieve AET and no Export Storage ID)",
+        "type": "boolean"
+      },
       "dcmRetrieveCacheStorageID": {
         "title": "Retrieve Cache Storage ID",
         "description": "Specifies another Storage to which objects are copied in parallel on retrieve to increase the performance on accessing storage systems which provides more bandwidth using multiple connections in parallel.",
