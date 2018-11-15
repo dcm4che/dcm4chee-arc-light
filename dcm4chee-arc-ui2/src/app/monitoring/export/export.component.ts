@@ -42,15 +42,6 @@ export class ExportComponent implements OnInit, OnDestroy {
     refreshInterval;
     interval = 10;
     Object = Object;
-    status = [
-        "TO SCHEDULE",
-        "SCHEDULED",
-        "IN PROCESS",
-        "COMPLETED",
-        "WARNING",
-        "FAILED",
-        "CANCELED"
-    ];
     batchGrouped = false;
     dialogRef: MatDialogRef<any>;
     _ = _;
@@ -117,7 +108,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.initExporters(1);
         this.getAets();
         // this.init();
-        this.status.forEach(status =>{
+        this.service.statusValues().forEach(status =>{
             this.statusValues[status] = {
                 count: 0,
                 loader: false
@@ -339,11 +330,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 }else{
                     $this.cfpLoadingBar.complete();
                     $this.matches = [];
-                    $this.mainservice.setMessage({
-                        'title': 'Info',
-                        'text': 'No tasks found!',
-                        'status': 'info'
-                    });
+                    this.mainservice.showMsg('No tasks found!')
                 }
             }, (err) => {
                 $this.cfpLoadingBar.complete();
@@ -401,11 +388,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if (ok) {
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(filter).subscribe((res) => {
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' queues deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg(res.count + ' queues deleted successfully!')
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -441,11 +424,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if (ok) {
                         this.cfpLoadingBar.start();
                         this.service.rescheduleAll(filter,ok.selectedExporter).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks rescheduled successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -463,11 +442,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if(ok){
                         this.cfpLoadingBar.start();
                         this.service.deleteAll(filter).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.deleted + ' tasks deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg(res.deleted + ' tasks deleted successfully!');
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -603,30 +578,6 @@ export class ExportComponent implements OnInit, OnDestroy {
                 return ((duration*6 / 6000).toFixed(4)).toString() + ' s';
         else
             return ((duration / 60000).toFixed(4)).toString() + ' min';
-  /*      if (duration > 999){
-
-            let milliseconds: any = parseInt((((duration % 1000))).toString())
-                , seconds: any = parseInt(((duration / 1000) % 60).toString())
-                , minutes: any = parseInt(((duration / (1000 * 60)) % 60).toString())
-                , hours: any = parseInt(((duration / (1000 * 60 * 60))).toString());
-            if (hours === 0){
-                if (minutes === 0){
-                    return seconds.toString() + '.' + milliseconds.toString() + ' sec';
-                }else{
-                    seconds = (seconds < 10) ? '0' + seconds : seconds;
-                    return minutes.toString() + ':' + seconds.toString() + '.' + milliseconds.toString() + ' min';
-                }
-            }else{
-
-                hours = (hours < 10) ? '0' + hours : hours;
-                minutes = (minutes < 10) ? '0' + minutes : minutes;
-                seconds = (seconds < 10) ? '0' + seconds : seconds;
-
-                return hours.toString() + ':' + minutes.toString() + ':' + seconds.toString() + '.' + milliseconds.toString() + ' h';
-            }
-        }else{
-            return duration.toString() + ' ms';
-        }*/
     }
     deleteBatchedTask(batchedTask){
         this.confirm({
@@ -639,11 +590,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     delete filter["limit"];
                     delete filter["offset"];
                     this.service.deleteAll(filter).subscribe((res)=>{
-                        this.mainservice.setMessage({
-                            'title': 'Info',
-                            'text': res.deleted + ' tasks deleted successfully!',
-                            'status': 'info'
-                        });
+                        this.mainservice.showMsg(res.deleted + ' tasks deleted successfully!');
                         this.cfpLoadingBar.complete();
                         this.search(0);
                     }, (err) => {
@@ -651,11 +598,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         this.httpErrorHandler.handleError(err);
                     });
                 }else{
-                    this.mainservice.setMessage({
-                        'title': 'Error',
-                        'text': 'Batch ID not found!',
-                        'status': 'error'
-                    });
+                    this.mainservice.showError('Batch ID not found!');
                 }
             }
         });
@@ -678,11 +621,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             // match.properties.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
                             $this.search(0);
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Task deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg('Task deleted successfully!')
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
@@ -708,11 +647,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         (res) => {
                             match.properties.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Task canceled successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg('Task canceled successfully!')
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
@@ -779,11 +714,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         (res) => {
                             $this.search(0);
                             $this.cfpLoadingBar.complete();
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Task rescheduled successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg('Task rescheduled successfully!');
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
@@ -806,21 +737,10 @@ export class ExportComponent implements OnInit, OnDestroy {
         return objs[0].offset + this.filterObject.limit;
     };
 
-/*    init() {
-        let $this = this;
-        $this.cfpLoadingBar.start();
-        this.$http.get("../monitor/export")
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-            .subscribe((res) => {
-                $this.exportTasks = res;
-                // $this.queueName = res[0].name;
-                $this.cfpLoadingBar.complete();
-            })
-    }*/
     initExporters(retries) {
         let $this = this;
         this.$http.get('../export')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe(
                 (res) => {
                     $this.exporters = res;

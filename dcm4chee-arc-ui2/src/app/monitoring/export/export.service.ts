@@ -94,30 +94,13 @@ export class ExportService {
     }
     statusValues(){
         return [
-            {
-                value:"SCHEDULED",
-                text:"SCHEDULED"
-            },
-            {
-                value:"IN PROCESS",
-                text:"IN PROCESS"
-            },
-            {
-                value:"COMPLETED",
-                text:"COMPLETED"
-            },
-            {
-                value:"WARNING",
-                text:"WARNING"
-            },
-            {
-                value:"FAILED",
-                text:"FAILED"
-            },
-            {
-                value:"CANCELED",
-                text:"CANCELED"
-            }
+            "TO SCHEDULE",
+            "SCHEDULED",
+            "IN PROCESS",
+            "COMPLETED",
+            "WARNING",
+            "FAILED",
+            "CANCELED"
         ];
     }
     getFilterSchema(exporters, devices, countText){
@@ -173,7 +156,12 @@ export class ExportService {
                     },
                     {
                         tag:"select",
-                        options:this.statusValues(),
+                        options:this.statusValues().map(status=>{
+                            return {
+                                text:status,
+                                value:status
+                            }
+                        }),
                         filterKey:"status",
                         showStar:true,
                         description:"Status of tasks to filter by",

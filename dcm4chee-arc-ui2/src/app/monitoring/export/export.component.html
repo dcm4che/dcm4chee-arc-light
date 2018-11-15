@@ -1,6 +1,9 @@
-<div class="main_content monitoring export">
+<div class="main_content monitoring export white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
+        <h2>Export</h2>
+        <div class="filter_line">
+        <div class="filter_block">
         <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
         <div class="filter">
             <div class="filter_block auto_reloader">
@@ -26,9 +29,11 @@
                         <span *ngIf="timer.started">{{timer.stopText}}</span>
                     </button>
                 </div>
+                </div>
+                </div>
             </div>
         </div>
-        <div class="main_filter_block" [permission]="{id:'action-monitoring->export-all_action',param:'visible'}">
+        <div class="filter_line" [permission]="{id:'action-monitoring->export-all_action',param:'visible'}">
 <!--            <div class="morefunctionblock">
                 <div class="w45percent">
                     <mat-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
