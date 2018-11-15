@@ -30,11 +30,6 @@
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a class="material_icon_button" (click)="$event.preventDefault();" href="" title="Comming soon...">
-                            <i class="material-icons">
-                                trending_up
-                            </i>
-                        </a>
                     </td>
                     <td [innerHtml]="match.properties.dcmStorageID"></td>
                     <td [innerHtml]="match.properties.dcmURI" ></td>

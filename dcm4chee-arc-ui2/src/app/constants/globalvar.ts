@@ -648,4 +648,188 @@ export class Globalvar {
             return actionObject;
         }
     }
+    static STUDY_FILTER_SCHEMA(aets,hidden?){
+        if(hidden){
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"InstitutionName",
+                    description:"Institution name",
+                    placeholder:"Institution name"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StationName",
+                    description:"Station name",
+                    placeholder:"Station name"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SOPClassesInStudy",
+                    description:"SOP classes in study",
+                    placeholder:"SOP classes in study"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SeriesDescription",
+                    description:"Series description",
+                    placeholder:"Series description"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"expired",
+                    text:"Only expired studies"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"incomplete",
+                    text:"Only incomplete",
+                    description:"Only incomplete studies"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StudyDescription",
+                    description:"Study description",
+                    placeholder:"Study description"
+                },{
+                    tag:"select",
+                    options:aets,
+                    showStar:true,
+                    filterKey:"ExternalRetrieveAET",
+                    description:"Retrievable from external retrieve AET",
+                    placeholder:"External retrieve AET"
+                },{
+                    tag:"select",
+                    options:aets,
+                    showStar:true,
+                    filterKey:"ExternalRetrieveAET!",
+                    description:"Not retrievable from external retrieve AET",
+                    placeholder:"Not retrievable from AET"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"BodyPartExamined",
+                    description:"Body part examined",
+                    placeholder:"Body part examined"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"compressionfailed",
+                    text:"Compression Failed"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"retrievefailed",
+                    text:"Only failed retrieving",
+                    description:"Only failed to be retrieved"
+                }
+            ];
+        }
+        return [
+            {
+                tag:"select",
+                options:aets,
+                showStar:true,
+                filterKey:"aet",
+                description:"AET",
+                placeholder:"AET"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientName",
+                description:"Patient name",
+                placeholder:"Patient name"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"fuzzymatching",
+                text:"Fuzzy Matching"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientID",
+                description:"Patient ID",
+                placeholder:"Patient ID"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"IssuerOfPatientID",
+                description:"Issuer of patient",
+                placeholder:"Issuer of patient"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"AccessionNumber",
+                description:"Accession number",
+                placeholder:"Accession number"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
+                description:"Issuer of accession number",
+                placeholder:"Issuer of accession number"
+            },
+            {
+                tag:"modality",
+                type:"text",
+                filterKey:"ModalitiesInStudy",
+                placeholder:"Modality",
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"ReferringPhysicianName",
+                description:"Referring physician name",
+                placeholder:"Referring physician name"
+            },
+            {
+                tag:"input",
+                type:"number",
+                filterKey:"limit",
+                description:"Limit",
+                placeholder:"Limit of studies"
+            },{
+                tag:"range-picker-limit",
+                type:"text",
+                filterKey:"StudyDate",
+                description:"Study date"
+            },{
+                tag:"range-picker-time",
+                type:"text",
+                filterKey:"StudyTime",
+                description:"Study time"
+            },{
+                tag:"range-picker",
+                type:"text",
+                filterKey:"StudyReceiveDateTime",
+                description:"Study created"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"InstitutionalDepartmentName",
+                description:"Institutional Department Name",
+                placeholder:"Institutional Department Name"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"SendingApplicationEntityTitleOfSeries",
+                description:"Sending Application Entity Title of Series",
+                placeholder:"Sending AET of Series"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"StudyID",
+                description:"Study ID",
+                placeholder:"Study ID"
+            }
+        ];
+    }
 }
