@@ -118,6 +118,17 @@ export class StorageSystemsComponent implements OnInit {
 /*                        if(_.hasIn(properties,'dicomAETitle')){
                             properties.dicomAETitle = properties.dicomAETitle.join(' | ');
                         }*/
+                        if(
+                            properties.dcmNoDeletionConstraint ||
+                            (
+                                j4care.isSetInObject(properties, 'deleterThreshold') &&
+                                (
+                                    j4care.isSetInObject(properties, 'dcmExportStorageID') || j4care.isSetInObject(properties, 'dcmExternalRetrieveAET')
+                                )
+                            )
+                        ){
+                            properties.noDeleter = true;
+                        }
                         if(_.hasIn(properties, 'deleterThreshold') && _.hasIn(properties, 'usableSpace')){
                             let deleterThreshold;
                             properties.deleterThreshold.map((deleter, i) => {
@@ -128,6 +139,9 @@ export class StorageSystemsComponent implements OnInit {
                             }
                         }
                         if (_.hasIn(properties, 'deleterThreshold')){
+                            properties.deleterThresholdProcent = properties.deleterThreshold.map((deleter, i) => {
+                                return (100 - Math.round(((parseInt(<string>_.values(deleter)[0]) * 100) / properties.totalSpace) *100)/100).toFixed(2);
+                            });
                             properties.deleterThreshold = properties.deleterThreshold.map((deleter, i) => {
                                 if (_.keys(deleter)[0] != ''){
                                     return _.keys(deleter)[0] + ':' + $this.convertBtoGBorMB(_.values(deleter)[0]);
@@ -138,9 +152,9 @@ export class StorageSystemsComponent implements OnInit {
                         }
                         if(_.hasIn(properties, 'usableSpace') && _.hasIn(properties, 'totalSpace')){
                             properties.usedSpace = (Math.round((((properties.totalSpace-properties.usableSpace)*100)/properties.totalSpace) * 100)/100).toFixed(2);
-                            if(properties.usedSpace){
+/*                            if(properties.usedSpace){
                                 properties.usedSpace += ' %';
-                            }
+                            }*/
                         }
                         if (_.hasIn(properties, 'usableSpace')){
                             properties.usableSpace = $this.convertBtoGBorMB(properties.usableSpace);

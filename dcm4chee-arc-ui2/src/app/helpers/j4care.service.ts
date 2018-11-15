@@ -44,6 +44,9 @@ export class j4care {
         }
         return true;
     }
+    static isSetInObject(object:any, key:string){
+        return _.hasIn(object,key) && this.isSet(object[key]);
+    }
     static prepareFlatFilterObject(array,lineLength?){
         if(!lineLength){
             lineLength = 3;

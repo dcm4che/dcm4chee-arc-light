@@ -19,8 +19,8 @@
                     <th>AE Title</th>
                     <th>Space ( Usable / Total )</th>
                     <th>Used</th>
-                    <th>Deleter Threshold</th>
-                    <th>Storage Threshold</th>
+                    <th>No Deleter</th>
+                    <th>Deleter / Storage Threshold</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,9 +38,18 @@
                         <td [innerHtml]="match.properties.dcmStorageClusterID" ></td>
                         <td [innerHtml]="match.properties.dicomAETitle" ></td>
                         <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} <span *ngIf="match.properties.usableSpace && match.properties.totalSpace">/</span> {{match.properties.totalSpace}}</td>
-                        <td [innerHtml]="match.properties.usedSpace || ''" ></td>
-                        <td [ngClass]="{'error':match.properties.warning}" [innerHtml]="match.properties.deleterThreshold || ''" ></td>
-                        <td [innerHtml]="match.properties.storageThreshold || ''" ></td>
+                        <td class="used_space_bar">
+                            <span [innerHtml]="match.properties.usedSpace + ' %' || ''"></span>
+                            <div class="bar" [ngStyle]="{'width.%': match.properties.usedSpace}"></div>
+                            <div *ngIf="match.properties.deleterThresholdProcent" class="marker" [ngStyle]="{'left.%': match.properties.deleterThresholdProcent}"></div>
+                        </td>
+                        <td>{{match.properties.noDeleter || 'false'}}</td>
+                        <td [ngClass]="{'error':match.properties.warning}">
+                            <span *ngIf="match.properties.deleterThresholdProcent">
+                                {{match.properties.deleterThresholdProcent}} % ( {{match.properties.deleterThreshold}} )
+                            </span>
+                            <span *ngIf="match.properties.storageThreshold"> / {{match.properties.storageThreshold}}</span>
+                        </td>
                     </tr>
                     <tr *ngIf="match.showProperties">
                         <td colspan="11">

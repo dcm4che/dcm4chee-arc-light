@@ -3281,4 +3281,29 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     color: rgb(22, 29, 35);
     border-left: 1px solid rgba(0, 0, 0, 0.18);
   }
+  td.used_space_bar{
+    position: relative;
+    & > div.bar{
+      display: block;
+      background: rgba(28, 36, 43, 0.46);
+      top: 0px;
+      bottom: 0px;
+      left: 0px;
+      position: absolute;
+      color: white;
+      text-align: center;
+      line-height: 30px;
+      font-size: 13px;
+    }
+    .marker {
+      display: block;
+      background: #a94442;
+      width: 2px;
+      bottom: 1px;
+      top: 0px;
+      border-radius: 16px;
+      position: absolute;
+    }
+
+  }
 }
