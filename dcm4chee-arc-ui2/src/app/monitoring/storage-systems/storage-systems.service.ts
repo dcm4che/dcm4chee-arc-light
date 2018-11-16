@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Http} from '@angular/http';
 import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Injectable()
 export class StorageSystemsService {
@@ -140,4 +141,15 @@ export class StorageSystemsService {
         ]
     }
 
+    getNextStorage(storages:any){
+        let grouped = {};
+        storages.forEach(storage=>{
+            if(j4care.isSetInObject(storage, "dicomAETitle")){
+                storage["dicomAETitle"].forEach(aet=>{
+                    grouped[aet] = grouped[aet] || [];
+                    grouped[aet].push(storage);
+                });
+            }
+        });
+    }
 }

@@ -20,6 +20,7 @@
                     <th>Space ( Usable / Total )</th>
                     <th>Used</th>
                     <th>No Deleter</th>
+                    <th>Export Storage ID / External Retrieve AET</th>
                     <th>Deleter / Storage Threshold</th>
                 </tr>
             </thead>
@@ -44,11 +45,17 @@
                             <div *ngIf="match.properties.deleterThresholdProcent" class="marker" [ngStyle]="{'left.%': match.properties.deleterThresholdProcent}"></div>
                         </td>
                         <td>{{match.properties.noDeleter || 'false'}}</td>
+                        <td>
+                            <span>{{match.properties.dcmExportStorageID || '-'}}</span> /
+                            <span>{{match.properties.dcmExternalRetrieveAET || '-'}}</span>
+                        </td>
                         <td [ngClass]="{'error':match.properties.warning}">
                             <span *ngIf="match.properties.deleterThresholdProcent">
                                 {{match.properties.deleterThresholdProcent}} % ( {{match.properties.deleterThreshold}} )
                             </span>
-                            <span *ngIf="match.properties.storageThreshold"> / {{match.properties.storageThreshold}}</span>
+                            <span *ngIf="!match.properties.deleterThresholdProcent">-</span>
+                            /
+                            <span>{{match.properties.storageThreshold || '-'}}</span>
                         </td>
                     </tr>
                     <tr *ngIf="match.showProperties">
