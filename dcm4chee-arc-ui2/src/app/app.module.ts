@@ -6,9 +6,15 @@ import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
 import {
     MatCheckboxModule,
-    MatDialogConfig, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatDialogConfig,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatProgressSpinnerModule,
-    MatSelectModule
+    MatSelectModule,
+    MatRadioModule,
 } from '@angular/material';
 import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
@@ -157,6 +163,7 @@ import {DevicesService} from './configuration/devices/devices.service';
         MatFormFieldModule,
         MatProgressSpinnerModule,
         MatCheckboxModule,
+        MatRadioModule,
         WidgetsModule,
         CommonModule,
         CalendarModule,
@@ -203,7 +210,6 @@ import {DevicesService} from './configuration/devices/devices.service';
         MatDialogConfig,
         WidgetsComponents,
         AppService,
-        StudiesService,
         ControlService,
         QueuesService,
         DevicesService,
@@ -218,6 +224,7 @@ import {DevicesService} from './configuration/devices/devices.service';
         DeviceConfiguratorService,
         UploadDicomService,
         WindowRefService,
+        StudiesService,
         Hl7ApplicationsService,
         AeListService,
         HttpErrorHandler,

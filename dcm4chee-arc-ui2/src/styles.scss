@@ -583,6 +583,21 @@ mat-grid-list{
     }
   }
 }
+.mat-select-trigger{
+  height: 30px;
+  border-bottom: 1px solid #ccc;
+}
+.filter_template_function{
+  mat-checkbox{
+    margin-top: 4px;
+    float: left;
+    margin-left: 2px;
+    .mat-checkbox-inner-container {
+      height: 15px!important;
+      width: 15px!important;
+    }
+  }
+}
 .arrow{
   float: left;
   position: absolute;
@@ -606,7 +621,13 @@ mat-grid-list{
 .mat-progress-spinner path, .mat-spinner path{
   stroke: $lightBlue;
 }
-
+.subtable{
+  width: 100%;
+  table-layout: fixed;
+  td{
+    overflow: auto;
+  }
+}
 .loader{
   position: absolute;
   top: 50%;
