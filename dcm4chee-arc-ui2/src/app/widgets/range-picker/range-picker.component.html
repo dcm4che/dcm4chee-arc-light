@@ -6,7 +6,7 @@
     </div>
     <div class="picker" *ngIf="showPicker">
         <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-        <h4>{{header}}</h4>
+        <h5>{{header}}</h5>
         <div class="left {{mode}}_mode" *ngIf="!onlyTime">
             <p-calendar (onFocus)="closeCalendar('fromCalendarObject')" #fromCalendar *ngIf="mode === 'range' || mode === 'rightOpen'" dataType="string" [(ngModel)]="fromModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="from (yyyymmdd)" showIcon="true" showOnFocus="false" monthNavigator="true" showButtonBar="true"></p-calendar>
             <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
