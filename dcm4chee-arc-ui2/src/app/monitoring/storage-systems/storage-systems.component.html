@@ -42,20 +42,24 @@
                         <td class="used_space_bar">
                             <span [innerHtml]="match.properties.usedSpace + ' %' || ''"></span>
                             <div class="bar" [ngStyle]="{'width.%': match.properties.usedSpace}"></div>
-                            <div *ngIf="match.properties.deleterThresholdProcent" class="marker" [ngStyle]="{'left.%': match.properties.deleterThresholdProcent}"></div>
+                            <div *ngIf="match.properties.deleterThresholdProcent" class="marker" [ngStyle]="{'left.%': ( 100 - match.properties.deleterThresholdProcent )}"></div>
                         </td>
                         <td>{{match.properties.noDeleter || 'false'}}</td>
                         <td>
-                            <span>{{match.properties.dcmExportStorageID || '-'}}</span> /
-                            <span>{{match.properties.dcmExternalRetrieveAET || '-'}}</span>
+                            <ng-container *ngIf="match.properties.dcmExportStorageID || match.properties.dcmExternalRetrieveAET">
+                                <span>{{match.properties.dcmExportStorageID || '-'}}</span> /
+                                <span>{{match.properties.dcmExternalRetrieveAET || '-'}}</span>
+                            </ng-container>
                         </td>
                         <td [ngClass]="{'error':match.properties.warning}">
-                            <span *ngIf="match.properties.deleterThresholdProcent">
-                                {{match.properties.deleterThresholdProcent}} % ( {{match.properties.deleterThreshold}} )
-                            </span>
-                            <span *ngIf="!match.properties.deleterThresholdProcent">-</span>
-                            /
-                            <span>{{match.properties.storageThreshold || '-'}}</span>
+                            <ng-container *ngIf="match.properties.deleterThreshold || match.properties.storageThreshold">
+                                <span *ngIf="match.properties.deleterThresholdProcent">
+                                    {{match.properties.deleterThresholdProcent}} % ( {{match.properties.deleterThreshold}} )
+                                </span>
+                                <span *ngIf="!match.properties.deleterThresholdProcent">-</span>
+                                /
+                                <span>{{match.properties.storageThreshold || '-'}}</span>
+                            </ng-container>
                         </td>
                     </tr>
                     <tr *ngIf="match.showProperties">

@@ -140,7 +140,7 @@ export class StorageSystemsComponent implements OnInit {
                         }
                         if (_.hasIn(properties, 'deleterThreshold')){
                             properties.deleterThresholdProcent = properties.deleterThreshold.map((deleter, i) => {
-                                return (100 - Math.round(((parseInt(<string>_.values(deleter)[0]) * 100) / properties.totalSpace) *100)/100).toFixed(2);
+                                return (Math.round(((parseInt(<string>_.values(deleter)[0]) * 100) / properties.totalSpace) *100)/100).toFixed(2);
                             });
                             properties.deleterThreshold = properties.deleterThreshold.map((deleter, i) => {
                                 if (_.keys(deleter)[0] != ''){
