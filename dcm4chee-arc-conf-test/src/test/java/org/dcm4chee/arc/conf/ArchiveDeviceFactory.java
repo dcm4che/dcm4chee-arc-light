@@ -669,7 +669,9 @@ class ArchiveDeviceFactory {
             UID.ImplantationPlanSRStorage,
             UID.AcquisitionContextSRStorage,
             UID.SimplifiedAdultEchoSRStorage,
-            UID.PatientRadiationDoseSRStorage
+            UID.PatientRadiationDoseSRStorage,
+            UID.PlannedImagingAgentAdministrationSRStorage,
+            UID.PerformedImagingAgentAdministrationSRStorage
     };
 
     static final String[] SR_TSUIDS = {
@@ -747,6 +749,8 @@ class ArchiveDeviceFactory {
             UID.RTTreatmentSummaryRecordStorage,
             UID.RTIonPlanStorage,
             UID.RTIonBeamsTreatmentRecordStorage,
+            UID.RTPhysicianIntentStorage,
+            UID.RTSegmentAnnotationStorage,
             UID.RTBeamsDeliveryInstructionStorage,
             UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
             UID.PrivateAgfaArrivalTransaction,
