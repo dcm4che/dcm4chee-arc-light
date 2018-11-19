@@ -203,7 +203,7 @@ public class ExportTaskRS {
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
-                    matchQueueMessage(status, deviceName, updatedTime),
+                    matchQueueMessage(status, null, updatedTime),
                     matchExportTask(null),
                     status);
             queueEvent.setCount(count);
@@ -342,17 +342,21 @@ public class ExportTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         QueueMessage.Status status = status();
         int deleted = 0;
+
+        if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
+            return deleted(deleted);
+
         int count;
         int deleteTasksFetchSize = queueTasksFetchSize();
         do {
             count = mgr.deleteTasks(status,
-                    matchQueueMessage(status, deviceName, null),
+                    matchQueueMessage(status, null, null),
                     matchExportTask(updatedTime));
             deleted += count;
         } while (count >= deleteTasksFetchSize);
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
-        return "{\"deleted\":" + deleted + '}';
+        return deleted(deleted);
     }
 
     private static Response rsp(Response.Status status, Object entity) {
@@ -372,6 +376,10 @@ public class ExportTaskRS {
 
     private static Response count(long count) {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+    }
+
+    private static String deleted(int deleted) {
+        return "{\"deleted\":" + deleted + '}';
     }
 
     private int count(Response response, String devName) {
