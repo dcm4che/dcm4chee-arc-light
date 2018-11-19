@@ -305,6 +305,14 @@ p-calendar{
     background-position: center center;
     float: left;
   }
+  &.csv_icon_black{
+    background-image: url("assets/img/csv_icon_black.png");
+    background-repeat:no-repeat;
+    height:100%;
+    width:25px;
+    background-position: center center;
+    float: left;
+  }
 }
 .checkbox_button{
   padding-left: 1vw;

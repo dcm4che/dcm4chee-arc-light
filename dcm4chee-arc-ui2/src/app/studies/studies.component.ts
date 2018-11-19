@@ -2238,7 +2238,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             "study"
         );
     }
-    downloadCSV(){
+    downloadCSV(attr?, mode?){
         let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
         this.confirm({
             content:"Do you want to use semicolon as delimiter?",
@@ -2250,6 +2250,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             if(ok)
                 semicolon = true;
             let token;
+            let url = `${this.rsURL()}/studies`;
             this.$http.refreshToken().subscribe((response)=>{
                 if(!this.mainservice.global.notSecure){
                     if(response && response.length != 0){
@@ -2262,13 +2263,21 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 let filterClone = _.cloneDeep(queryParameters);
                 delete filterClone['offset'];
                 delete filterClone['limit'];
-                console.log("this.rsURL()",this.rsURL());
-   /*             if(!this.mainservice.global.notSecure){
-                    WindowRefService.nativeWindow.open(`${this.rsURL()}/studies?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
-                }else{
-                    WindowRefService.nativeWindow.open(`${this.rsURL()}/studies?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`);
-                } */
-                WindowRefService.nativeWindow.open(`../aets/DCM4CHEE/rs/studies/2.16.840.1.113662.4.8796818069641.798806497.93296077602350.30/series?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
+                filterClone["accept"] = `text/csv${(semicolon?';delimiter=semicolon':'')}`;
+                if(attr && mode){
+                    filterClone["PatientID"] =  this.valueOf(attr['00100020']);
+                    filterClone["IssuerOfPatientID"] = this.valueOf(attr['00100021']);
+                    if(mode === "series" && _.hasIn(attr,'0020000D')){
+                        url =`${url}/${this.valueOf(attr['0020000D'])}/series`;
+                    }
+                    if(mode === "instance"){
+                        url =`${url}/${this.valueOf(attr['0020000D'])}/series/${this.valueOf(attr['0020000E'])}/instances`;
+                    }
+                }
+                if(!this.mainservice.global.notSecure){
+                    filterClone["access_token"] = token;
+                }
+                WindowRefService.nativeWindow.open(`${url}?${this.mainservice.param(filterClone)}`);
             });
         })
     }

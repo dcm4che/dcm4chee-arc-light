@@ -618,6 +618,9 @@
                           <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer" [permission]="{id:'action-studies-viewer',param:'visible'}">
                               <span class="glyphicon glyphicon-eye-open"></span>
                           </a>
+                          <a class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();downloadCSV(patient._VALUE.attrs,'study')" href="" title="Download all patients studies as CSV">
+                              <span class="custom_icon csv_icon_black"></span>
+                          </a>
                       </div>
                   </div>
               </div>
@@ -703,6 +706,9 @@
                                     </a>
                                     <a class="hiddenbuttons" *ngIf="aetmodel.dcmInvokeImageDisplayStudyURL && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-viewer',param:'visible'}" (click)="$event.preventDefault();openViewer(study._VALUE.attrs,'study')" href="" title="Open study in the viewer">
                                         <span class="glyphicon glyphicon-eye-open"></span>
+                                    </a>
+                                    <a class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();downloadCSV(study._VALUE.attrs,'series')" href="" title="Download all series of study as CSV">
+                                        <span class="custom_icon csv_icon_black"></span>
                                     </a>
                                 </div>
                             </div>
@@ -810,6 +816,9 @@
                                                     </a>
                                                     <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0)) && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" (click)="$event.preventDefault();;downloadZip(series._VALUE, 'serie','compressed')" href="" title="Retrieve Serie as stored at the archive">
                                                         <span class="glyphicon glyphicon-download-alt"></span>
+                                                    </a>
+                                                    <a class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();downloadCSV(series._VALUE.attrs,'instance')" href="" title="Download all instances of series as CSV">
+                                                        <span class="custom_icon csv_icon_black"></span>
                                                     </a>
                                                 </div>
                                             </div>
