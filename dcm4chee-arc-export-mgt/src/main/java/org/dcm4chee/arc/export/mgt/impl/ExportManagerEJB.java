@@ -42,6 +42,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
@@ -354,22 +355,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public long countExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        if (matchQueueMessage == null) {
-            if (status == QueueMessage.Status.TO_SCHEDULE)
-                return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                        .from(QExportTask.exportTask)
-                        .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull()).fetchCount();
-
-            return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                    .from(QExportTask.exportTask)
-                    .where(matchExportTask).fetchCount();
-        }
-
-        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .from(QExportTask.exportTask)
-                .innerJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, QExportTask.exportTask.queueMessage.in(createQuery(matchQueueMessage)))
-                .fetchCount();
+        return createQuery(status, matchQueueMessage, matchExportTask).fetchCount();
     }
 
     private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
@@ -383,6 +369,21 @@ public class ExportManagerEJB implements ExportManager {
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
                 .where(matchExportTask, QExportTask.exportTask.queueMessage.in(createQuery(matchQueueMessage)));
+    }
+
+    private HibernateQuery<ExportTask> createQuery(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
+        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .from(QExportTask.exportTask)
+                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(matchExportTask, queuePredicate(status, createQuery(matchQueueMessage)));
+    }
+
+    private Predicate queuePredicate(QueueMessage.Status status, HibernateQuery<QueueMessage> queueMsgQuery) {
+        return status == QueueMessage.Status.TO_SCHEDULE
+                    ? QExportTask.exportTask.queueMessage.isNull()
+                    : status == null
+                        ? ExpressionUtils.or(QExportTask.exportTask.queueMessage.isNull(), QExportTask.exportTask.queueMessage.in(queueMsgQuery))
+                        : QExportTask.exportTask.queueMessage.in(queueMsgQuery);
     }
 
     @Override
