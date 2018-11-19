@@ -2238,6 +2238,40 @@ export class StudiesComponent implements OnDestroy,OnInit{
             "study"
         );
     }
+    downloadCSV(){
+        let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
+        this.confirm({
+            content:"Do you want to use semicolon as delimiter?",
+            cancelButton:"No",
+            saveButton:"Yes",
+            result:"yes"
+        }).subscribe((ok)=>{
+            let semicolon = false;
+            if(ok)
+                semicolon = true;
+            let token;
+            this.$http.refreshToken().subscribe((response)=>{
+                if(!this.mainservice.global.notSecure){
+                    if(response && response.length != 0){
+                        this.$http.resetAuthenticationInfo(response);
+                        token = response['token'];
+                    }else{
+                        token = this.mainservice.global.authentication.token;
+                    }
+                }
+                let filterClone = _.cloneDeep(queryParameters);
+                delete filterClone['offset'];
+                delete filterClone['limit'];
+                console.log("this.rsURL()",this.rsURL());
+   /*             if(!this.mainservice.global.notSecure){
+                    WindowRefService.nativeWindow.open(`${this.rsURL()}/studies?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
+                }else{
+                    WindowRefService.nativeWindow.open(`${this.rsURL()}/studies?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`);
+                } */
+                WindowRefService.nativeWindow.open(`../aets/DCM4CHEE/rs/studies/2.16.840.1.113662.4.8796818069641.798806497.93296077602350.30/series?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
+            });
+        })
+    }
     storageVerification(){
         this.confirm({
             content: 'Schedule Storage Verification of matching Studies',
