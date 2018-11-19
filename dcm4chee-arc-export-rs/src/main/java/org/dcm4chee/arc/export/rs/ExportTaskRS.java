@@ -167,9 +167,10 @@ public class ExportTaskRS {
     public Response countExportTasks() {
         logRequest();
         QueueMessage.Status status = status();
-        return count(mgr.countExportTasks(status,
-                matchQueueMessage(status, deviceName, null),
-                matchExportTask(updatedTime)));
+        if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
+            return count(0);
+
+        return count(mgr.countExportTasks(status, batchID, matchExportTask(updatedTime)));
     }
 
     @POST
