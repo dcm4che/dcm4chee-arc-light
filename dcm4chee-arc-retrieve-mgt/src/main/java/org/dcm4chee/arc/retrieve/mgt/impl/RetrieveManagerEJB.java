@@ -38,14 +38,12 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -292,12 +290,6 @@ public class RetrieveManagerEJB {
             queueManager.deleteTask(queueMsgID, null);
 
         return referencedQueueMsgIDs.size();
-
-//        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-//                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
-//                .execute();
-//        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-//                .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
     }
 
     public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
