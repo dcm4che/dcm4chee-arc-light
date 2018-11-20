@@ -79,7 +79,8 @@ export class QueuesComponent implements OnInit, OnDestroy{
         public dialog: MatDialog,
         public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private j4care:j4care
     ) {};
     ngOnInit(){
         this.initCheck(10);
@@ -172,6 +173,29 @@ export class QueuesComponent implements OnInit, OnDestroy{
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
                         });
+/*                        this.j4care.selectDevice((res)=>{
+                            console.log("j4carehelper select deviceres",res);
+                            if(res){
+                                this.cfpLoadingBar.start();
+                                this.service.rescheduleAll(filter,this.filterObject.queueName).subscribe((res)=>{
+                                    this.mainservice.setMessage({
+                                        'title': 'Info',
+                                        'text': res.count + ' tasks rescheduled successfully!',
+                                        'status': 'info'
+                                    });
+                                    this.cfpLoadingBar.complete();
+                                }, (err) => {
+                                    this.cfpLoadingBar.complete();
+                                    this.httpErrorHandler.handleError(err);
+                                });
+                            }
+                        },
+                        this.devices.map(device=>{
+                            return {
+                                text:device.dicomDeviceName,
+                                value:device.dicomDeviceName
+                            }
+                        }));*/
                     }
                     this.allAction = "";
                     this.allAction = undefined;
@@ -200,6 +224,20 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 });
             break;
         }
+    }
+    test(){
+        this.j4care.selectDevice((res)=>{
+            console.log("j4carehelper select deviceres",res);
+            if(res){
+
+            }
+        },
+        this.devices.map(device=>{
+            return {
+                text:device.dicomDeviceName,
+                value:device.dicomDeviceName
+            }
+        }));
     }
     init(){
         this.initQuery();

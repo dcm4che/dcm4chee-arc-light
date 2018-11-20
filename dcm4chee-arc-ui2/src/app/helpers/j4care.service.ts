@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {AppService} from "../app.service";
 import {J4careHttpService} from "./j4care-http.service";
 import {Http, ResponseContentType, Headers} from "@angular/http";
@@ -10,15 +10,21 @@ import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
 import localeUs from '@angular/common/locales/es-US';
+import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
+import {DevicesService} from "../configuration/devices/devices.service";
 
 
 @Injectable()
 export class j4care {
     header = new Headers();
+    dialogRef: MatDialogRef<any>;
     constructor(
         public mainservice:AppService,
         public httpJ4car:J4careHttpService,
-        public ngHttp:Http
+        public ngHttp:Http,
+        public dialog: MatDialog,
+        public config: MatDialogConfig
     ) {}
     static traverse(object,func){
         for(let key in object){
@@ -808,4 +814,64 @@ export class j4care {
             return undefined;
         }
     }
+
+    selectDevice(callBack, devices? ){
+        let setParams = function(tempDevices){
+            return {
+                content: 'Select device if you wan\'t to rescedule to an other device',
+                form_id:"storage_verification",
+                form_schema:[
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:"Device"
+                            },
+                            {
+                                tag:"select",
+                                options:tempDevices,
+                                showStar:true,
+                                filterKey:"newDeviceName",
+                                description:"Device",
+                                placeholder:"Device"
+                            }
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {
+                        newDeviceName:''
+                    }
+                },
+                saveButton: 'SUBMIT'
+            }
+        };
+
+        if(devices){
+            this.openDialog(setParams(devices)).subscribe(callBack);
+        }else{
+            this.getDevices().subscribe((devices)=>{
+                devices = devices.map(device=>{
+                    return {
+                        text:device.dicomDeviceName,
+                        value:device.dicomDeviceName
+                    }
+                });
+                this.openDialog(setParams(devices)).subscribe(callBack);
+            },(err)=>{
+
+            });
+        }
+
+    }
+    getDevices = ()=>this.httpJ4car.get('../devices').map(res => j4care.redirectOnAuthResponse(res));
+
+    openDialog(parameters, width?, height?){
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: height || 'auto',
+            width: width || '500px'
+        });
+        this.dialogRef.componentInstance.parameters = parameters;
+        return this.dialogRef.afterClosed();
+    };
 }
