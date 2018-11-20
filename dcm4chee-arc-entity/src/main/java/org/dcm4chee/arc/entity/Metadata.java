@@ -55,6 +55,9 @@ import javax.persistence.*;
 @NamedQueries({
         @NamedQuery(name = Metadata.FIND_BY_STORAGE_ID_AND_STATUS,
                 query = "select m from Metadata m where m.storageID=?1 and m.status=?2"),
+        @NamedQuery(name=Metadata.FIND_BY_SERIES_IUID_AND_STORAGE_ID,
+                query="select se.metadata from Series se " +
+                        "where se.seriesInstanceUID = ?1 and se.metadata.storageID = ?2"),
         @NamedQuery(name = Metadata.UPDATE_STATUS_FROM,
                 query = "update Metadata m set m.status = ?3 where m.pk = ?1 and m.status = ?2"),
         @NamedQuery(name = Metadata.DELETE_BY_PK,
@@ -64,6 +67,7 @@ import javax.persistence.*;
 public class Metadata {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Metadata.FindByStorageIDAndStatus";
+    public static final String FIND_BY_SERIES_IUID_AND_STORAGE_ID = "Metadata.FindBySeriesIUIDAndStorageID";
     public static final String UPDATE_STATUS_FROM = "Metadata.UpdateStatusFrom";
     public static final String DELETE_BY_PK = "Metadata.DeleteByPk";
 
@@ -76,7 +80,8 @@ public class Metadata {
         FAILED_TO_FETCH_OBJECT,     // 5
         DIFFERING_OBJECT_SIZE,      // 6
         DIFFERING_OBJECT_CHECKSUM,  // 7
-        DIFFERING_S3_MD5SUM         // 8
+        DIFFERING_S3_MD5SUM,        // 8
+        FAILED_TO_DELETE2           // 9
     }
 
     @Id

@@ -67,6 +67,8 @@ import java.util.Date;
         @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS,
                 query = "select l from Location l join fetch l.instance inst " +
                         "where inst.series.study.pk=?1 and l.storageID in ?2"),
+        @NamedQuery(name = Location.FIND_BY_SOP_IUID_AND_STORAGE_ID,
+                query = "select l from Location l where l.instance.sopInstanceUID=?1 and l.storageID=?2"),
         @NamedQuery(name = Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS,
                 query = "select l.instance.pk from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
         @NamedQuery(name = Location.STORAGE_IDS_BY_STUDY_PK_AND_OBJECT_TYPE,
@@ -111,6 +113,7 @@ public class Location {
     public static final String FIND_BY_STUDY_PK = "Location.FindByStudyPk";
     public static final String FIND_BY_SERIES_PK = "Location.FindBySeriesPk";
     public static final String FIND_BY_STUDY_PK_AND_STORAGE_IDS = "Location.FindByStudyPkAndStorageIDs";
+    public static final String FIND_BY_SOP_IUID_AND_STORAGE_ID = "Location.FindBySOPIUIDAndStorageID";
     public static final String INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS = "Location.InstancePksByStudyPkAndStorageIDs";
     public static final String STORAGE_IDS_BY_STUDY_PK_AND_OBJECT_TYPE = "Location.StorageIDsByStudyPkAndObjectType";
     public static final String FIND_BY_REJECTION_CODE = "Location.FindByRejectionCode";
@@ -134,7 +137,8 @@ public class Location {
         FAILED_TO_FETCH_OBJECT,     // 5
         DIFFERING_OBJECT_SIZE,      // 6
         DIFFERING_OBJECT_CHECKSUM,  // 7
-        DIFFERING_S3_MD5SUM         // 8
+        DIFFERING_S3_MD5SUM,        // 8
+        FAILED_TO_DELETE2           // 9
     }
 
     public enum ObjectType { DICOM_FILE, METADATA }

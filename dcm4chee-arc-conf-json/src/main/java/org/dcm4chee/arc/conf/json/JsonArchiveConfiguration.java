@@ -130,6 +130,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 5);
         writer.writeNotNullOrDef("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval(), null);
         writer.writeNotDef("dcmPurgeStorageFetchSize", arcDev.getPurgeStorageFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmFailedToDeletePollingInterval", arcDev.getFailedToDeletePollingInterval(), null);
+        writer.writeNotDef("dcmFailedToDeleteFetchSize", arcDev.getFailedToDeleteFetchSize(), 100);
         writer.writeNotDef("dcmDeleteStudyBatchSize", arcDev.getDeleteStudyBatchSize(), 10);
         writer.writeNotDef("dcmDeletePatientOnDeleteLastStudy", arcDev.isDeletePatientOnDeleteLastStudy(), false);
         writer.writeNotNullOrDef("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval(), null);
@@ -953,6 +955,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPurgeStorageFetchSize":
                     arcDev.setPurgeStorageFetchSize(reader.intValue());
+                    break;
+                case "dcmFailedToDeletePollingInterval":
+                    arcDev.setFailedToDeletePollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmFailedToDeleteFetchSize":
+                    arcDev.setFailedToDeleteFetchSize(reader.intValue());
                     break;
                 case "dcmDeleteStudyBatchSize":
                     arcDev.setDeleteStudyBatchSize(reader.intValue());

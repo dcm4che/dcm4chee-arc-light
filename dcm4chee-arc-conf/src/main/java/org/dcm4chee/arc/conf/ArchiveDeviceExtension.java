@@ -125,6 +125,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int purgeStorageFetchSize = 100;
     private volatile int deleteStudyBatchSize = 10;
     private volatile boolean deletePatientOnDeleteLastStudy = false;
+    private volatile Duration failedToDeletePollingInterval;
+    private volatile int failedToDeleteFetchSize = 100;
     private volatile Duration maxAccessTimeStaleness;
     private volatile Duration aeCacheStaleTimeout;
     private volatile Duration leadingCFindSCPQueryCacheStaleTimeout;
@@ -746,6 +748,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy) {
         this.deletePatientOnDeleteLastStudy = deletePatientOnDeleteLastStudy;
+    }
+
+    public Duration getFailedToDeletePollingInterval() {
+        return failedToDeletePollingInterval;
+    }
+
+    public void setFailedToDeletePollingInterval(Duration failedToDeletePollingInterval) {
+        this.failedToDeletePollingInterval = failedToDeletePollingInterval;
+    }
+
+    public int getFailedToDeleteFetchSize() {
+        return failedToDeleteFetchSize;
+    }
+
+    public void setFailedToDeleteFetchSize(int failedToDeleteFetchSize) {
+        this.failedToDeleteFetchSize = failedToDeleteFetchSize;
     }
 
     public Duration getMaxAccessTimeStaleness() {
@@ -2154,6 +2172,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStorageFetchSize = arcdev.purgeStorageFetchSize;
         deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
         deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
+        failedToDeletePollingInterval = arcdev.failedToDeletePollingInterval;
+        failedToDeleteFetchSize = arcdev.failedToDeleteFetchSize;
         maxAccessTimeStaleness = arcdev.maxAccessTimeStaleness;
         aeCacheStaleTimeout = arcdev.aeCacheStaleTimeout;
         leadingCFindSCPQueryCacheStaleTimeout = arcdev.leadingCFindSCPQueryCacheStaleTimeout;

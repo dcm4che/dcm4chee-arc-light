@@ -97,18 +97,18 @@ public class DeletionServiceEJB {
     @Inject
     private QueryService queryService;
 
-    public List<Location> findLocationsToDelete(String storageID, int limit) {
+    public List<Location> findLocationsWithStatus(String storageID, Location.Status status, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
                 .setParameter(1, storageID)
-                .setParameter(2, Location.Status.TO_DELETE)
+                .setParameter(2, status)
                 .setMaxResults(limit)
                 .getResultList();
     }
 
-    public List<Metadata> findMetadataToDelete(String storageID, int limit) {
+    public List<Metadata> findMetadataWithStatus(String storageID, Metadata.Status status, int limit) {
         return em.createNamedQuery(Metadata.FIND_BY_STORAGE_ID_AND_STATUS, Metadata.class)
                 .setParameter(1, storageID)
-                .setParameter(2, Metadata.Status.TO_DELETE)
+                .setParameter(2, status)
                 .setMaxResults(limit)
                 .getResultList();
     }
@@ -165,11 +165,57 @@ public class DeletionServiceEJB {
                 .executeUpdate() > 0;
     }
 
+    public boolean claimResolveFailedToDelete(Location location) {
+        return em.createNamedQuery(Location.UPDATE_STATUS_FROM)
+                .setParameter(1, location.getPk())
+                .setParameter(2, Location.Status.FAILED_TO_DELETE)
+                .setParameter(3, Location.Status.FAILED_TO_DELETE2)
+                .executeUpdate() > 0;
+    }
+
+    public boolean rescheduleDeleteMetadata(Metadata metadata) {
+        return em.createNamedQuery(Metadata.UPDATE_STATUS_FROM)
+                .setParameter(1, metadata.getPk())
+                .setParameter(2, Metadata.Status.FAILED_TO_DELETE2)
+                .setParameter(3, Metadata.Status.TO_DELETE)
+                .executeUpdate() > 0;
+    }
+
+    public boolean rescheduleDeleteObject(Location location) {
+        return em.createNamedQuery(Location.UPDATE_STATUS_FROM)
+                .setParameter(1, location.getPk())
+                .setParameter(2, Location.Status.FAILED_TO_DELETE2)
+                .setParameter(3, Location.Status.TO_DELETE)
+                .executeUpdate() > 0;
+    }
+
+    public List<Location> findLocationsForInstanceOnStorage(String iuid, String storageID) {
+        return em.createNamedQuery(Location.FIND_BY_SOP_IUID_AND_STORAGE_ID)
+                .setParameter(1, iuid)
+                .setParameter(2, storageID)
+                .getResultList();
+    }
+
+    public List<Metadata> findMetadataForSeriesOnStorage(String iuid, String storageID) {
+        return em.createNamedQuery(Metadata.FIND_BY_SERIES_IUID_AND_STORAGE_ID)
+                .setParameter(1, iuid)
+                .setParameter(2, storageID)
+                .getResultList();
+    }
+
     public boolean claimDeleteMetadata(Metadata metadata) {
         return em.createNamedQuery(Metadata.UPDATE_STATUS_FROM)
                 .setParameter(1, metadata.getPk())
                 .setParameter(2, Metadata.Status.TO_DELETE)
                 .setParameter(3, Metadata.Status.FAILED_TO_DELETE)
+                .executeUpdate() > 0;
+    }
+
+    public boolean claimResolveFailedToDeleteMetadata(Metadata metadata) {
+        return em.createNamedQuery(Metadata.UPDATE_STATUS_FROM)
+                .setParameter(1, metadata.getPk())
+                .setParameter(2, Metadata.Status.FAILED_TO_DELETE)
+                .setParameter(3, Metadata.Status.FAILED_TO_DELETE2)
                 .executeUpdate() > 0;
     }
 

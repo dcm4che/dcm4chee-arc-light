@@ -149,12 +149,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.29 NAME 'dcmSchedule'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.30 NAME 'dcmDuration'
-  DESC 'Duration in ISO-8601 duration format PnDTnHnMn.nS'
+  DESC 'Duration in ISO-8601 duration format PnDTnHnMnS.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.31 NAME 'dcmExportTaskPollingInterval'
-  DESC 'Export Task Polling Interval in ISO-8601 duration format PnDTnHnMn.nS'
+  DESC 'Export Task Polling Interval in ISO-8601 duration format PnDTnHnMnS.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -205,12 +205,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.40 NAME 'dcmNoKeywords'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.41 NAME 'dcmPurgeStoragePollingInterval'
-  DESC 'Polling Interval for deleting objects in ISO-8601 duration format PnDTnHnMn.nS'
+  DESC 'Polling Interval for deleting objects in ISO-8601 duration format PnDTnHnMnS.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.42 NAME 'dcmPurgeStorageFetchSize'
-  DESC 'Maximal number of objects to delete in one diffTask; 100 if absent'
+  DESC 'Maximal number of objects to delete in one task; 100 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -257,12 +257,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.50 NAME 'dcmDeleteRejectionNoteDelay
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.51 NAME 'dcmDeleteRejectedPollingInterval'
-  DESC 'Polling Interval for deleting rejected instances from the DB in ISO-8601 duration format PnDTnHnMn.nS'
+  DESC 'Polling Interval for deleting rejected instances from the DB in ISO-8601 duration format PnDTnHnMnS.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.52 NAME 'dcmDeleteRejectedFetchSize'
-  DESC 'Maximal number of rejected instances to delete from the DB in one diffTask; 100 if absent'
+  DESC 'Maximal number of rejected instances to delete from the DB in one task; 100 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1284,6 +1284,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.259 NAME 'dcmPrefetchCStoreSCP'
   DESC 'AE Title of C-STORE SCP to which selected Studies are retrieved.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.260 NAME 'dcmFailedToDeletePollingInterval'
+  DESC 'Polling Interval for resolving deletion failures in ISO-8601 duration format PnDTnHnMnS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.261 NAME 'dcmFailedToDeleteStorageFetchSize'
+  DESC 'Maximal number of Location records fetched for resolving deletion failures in one query; 100 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1351,6 +1361,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmExportTaskFetchSize $
     dcmPurgeStoragePollingInterval $
     dcmPurgeStorageFetchSize $
+    dcmFailedToDeletePollingInterval $
+    dcmFailedToDeleteStorageFetchSize $
     dcmDeleteStudyBatchSize $
     dcmDeletePatientOnDeleteLastStudy $
     dcmDeleteRejectedPollingInterval $

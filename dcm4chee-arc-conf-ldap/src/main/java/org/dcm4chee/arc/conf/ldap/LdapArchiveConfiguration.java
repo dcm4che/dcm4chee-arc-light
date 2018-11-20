@@ -137,6 +137,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportTaskFetchSize", ext.getExportTaskFetchSize(), 5);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeStoragePollingInterval", ext.getPurgeStoragePollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPurgeStorageFetchSize", ext.getPurgeStorageFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFailedToDeletePollingInterval", ext.getFailedToDeletePollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmFailedToDeleteFetchSize", ext.getFailedToDeleteFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteRejectedPollingInterval", ext.getDeleteRejectedPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteRejectedFetchSize", ext.getDeleteRejectedFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteStudyBatchSize", ext.getDeleteStudyBatchSize(), 10);
@@ -335,6 +337,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setExportTaskFetchSize(LdapUtils.intValue(attrs.get("dcmExportTaskFetchSize"), 5));
         ext.setPurgeStoragePollingInterval(toDuration(attrs.get("dcmPurgeStoragePollingInterval"), null));
         ext.setPurgeStorageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeStorageFetchSize"), 100));
+        ext.setFailedToDeletePollingInterval(toDuration(attrs.get("dcmFailedToDeletePollingInterval"), null));
+        ext.setFailedToDeleteFetchSize(LdapUtils.intValue(attrs.get("dcmFailedToDeleteFetchSize"), 100));
         ext.setDeleteRejectedPollingInterval(toDuration(attrs.get("dcmDeleteRejectedPollingInterval"), null));
         ext.setDeleteRejectedFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteRejectedFetchSize"), 100));
         ext.setDeleteStudyBatchSize(LdapUtils.intValue(attrs.get("dcmDeleteStudyBatchSize"), 10));
@@ -596,6 +600,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPurgeStoragePollingInterval(), bb.getPurgeStoragePollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmPurgeStorageFetchSize",
                 aa.getPurgeStorageFetchSize(), bb.getPurgeStorageFetchSize(), 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFailedToDeletePollingInterval",
+                aa.getFailedToDeletePollingInterval(), bb.getFailedToDeletePollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFailedToDeleteFetchSize",
+                aa.getFailedToDeleteFetchSize(), bb.getFailedToDeleteFetchSize(), 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteRejectedPollingInterval",
                 aa.getDeleteRejectedPollingInterval(), bb.getDeleteRejectedPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteRejectedFetchSize",
