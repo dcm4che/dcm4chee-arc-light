@@ -69,7 +69,7 @@ public interface ExportManager {
 
     boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID);
 
-    ExportTaskQuery listExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask,
+    ExportTaskQuery listExportTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask,
                                     OrderSpecifier<Date> order, int offset, int limit);
 
     long countExportTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask);
@@ -89,7 +89,7 @@ public interface ExportManager {
 
     int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 
-    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchExportTask);
+    List<String> listDistinctDeviceNames(Predicate matchExportTask);
 
     List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                         OrderSpecifier<Date> order, int offset, int limit);

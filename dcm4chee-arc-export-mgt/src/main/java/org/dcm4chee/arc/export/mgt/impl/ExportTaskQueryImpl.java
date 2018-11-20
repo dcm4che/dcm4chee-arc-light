@@ -42,7 +42,6 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
 import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -68,20 +67,20 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
     private Transaction transaction;
     private CloseableIterator<ExportTask> iterate;
 
-    public ExportTaskQueryImpl(QueueMessage.Status status, StatelessSession session, int fetchSize,
-                               Predicate matchQueueMessage,
-                               Predicate matchExportTask,
-                               OrderSpecifier<Date> order,
-                               int offset, int limit) {
+    public ExportTaskQueryImpl(QueueMessage.Status status, String batchID, StatelessSession session, int fetchSize,
+                               Predicate matchExportTask, OrderSpecifier<Date> order, int offset, int limit) {
         this.session = session;
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(session)
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-
         query = new HibernateQuery<ExportTask>(session)
                 .from(QExportTask.exportTask)
-                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, queuePredicate(status, queueMsgQuery));
+                .where(matchExportTask);
+        if (status == QueueMessage.Status.TO_SCHEDULE)
+            query.where(QExportTask.exportTask.queueMessage.isNull());
+        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
+            query.where(QExportTask.exportTask.queueMessage.status.eq(status));
+        if (batchID != null)
+            query.where(QExportTask.exportTask.queueMessage.batchID.eq(batchID));
+        if (status == null && batchID == null)
+            query.leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage);
         if (limit > 0)
             query.limit(limit);
         if (offset > 0)
@@ -89,14 +88,6 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
         if (order != null)
             query.orderBy(order);
         query.setFetchSize(fetchSize);
-    }
-
-    private Predicate queuePredicate(QueueMessage.Status status, HibernateQuery<QueueMessage> queueMsgQuery) {
-        return status == QueueMessage.Status.TO_SCHEDULE
-                ? QExportTask.exportTask.queueMessage.isNull()
-                : status == null
-                   ? ExpressionUtils.or(QExportTask.exportTask.queueMessage.isNull(), QExportTask.exportTask.queueMessage.in(queueMsgQuery))
-                    : QExportTask.exportTask.queueMessage.in(queueMsgQuery);
     }
 
     @Override

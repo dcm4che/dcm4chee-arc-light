@@ -346,17 +346,16 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public ExportTaskQuery listExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask,
-                                           OrderSpecifier<Date> order, int offset, int limit) {
-        return new ExportTaskQueryImpl(status,
-                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchExportTask, order, offset, limit);
+    public ExportTaskQuery listExportTasks(
+            QueueMessage.Status status, String batchID, Predicate matchExportTask, OrderSpecifier<Date> order,
+            int offset, int limit) {
+        return new ExportTaskQueryImpl(status, batchID, openStatelessSession(), queryFetchSize(), matchExportTask,
+                order, offset, limit);
     }
 
     @Override
     public long countExportTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask) {
-        HibernateQuery<ExportTask> exportTaskQuery = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .from(QExportTask.exportTask)
-                .where(matchExportTask);
+        HibernateQuery<ExportTask> exportTaskQuery = exportTaskQuery(matchExportTask);
         if (status == QueueMessage.Status.TO_SCHEDULE)
             exportTaskQuery.where(QExportTask.exportTask.queueMessage.isNull());
         if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
@@ -364,6 +363,12 @@ public class ExportManagerEJB implements ExportManager {
         if (batchID != null)
             exportTaskQuery.where(QExportTask.exportTask.queueMessage.batchID.eq(batchID));
         return exportTaskQuery.fetchCount();
+    }
+
+    private HibernateQuery<ExportTask> exportTaskQuery(Predicate matchExportTask) {
+        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .from(QExportTask.exportTask)
+                .where(matchExportTask);
     }
 
     private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
@@ -470,9 +475,9 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchExportTask) {
-        return createQuery(matchQueueMessage, matchExportTask)
-                .select(QQueueMessage.queueMessage.deviceName)
+    public List<String> listDistinctDeviceNames(Predicate matchExportTask) {
+        return exportTaskQuery(matchExportTask)
+                .select(QExportTask.exportTask.deviceName)
                 .distinct()
                 .fetch();
     }

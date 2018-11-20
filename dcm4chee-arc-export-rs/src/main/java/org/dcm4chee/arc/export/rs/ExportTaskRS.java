@@ -151,9 +151,8 @@ public class ExportTaskRS {
             return notAcceptable();
 
         QueueMessage.Status status = status();
-        ExportTaskQuery tasks = mgr.listExportTasks(status,
-                matchQueueMessage(status, deviceName, null),
-                matchExportTask(updatedTime),
+        ExportTaskQuery tasks = mgr.listExportTasks(status, batchID,
+                matchExportTask(deviceName, updatedTime),
                 MatchTask.exportTaskOrder(orderby),
                 parseInt(offset), parseInt(limit)
         );
@@ -170,7 +169,7 @@ public class ExportTaskRS {
         if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
             return count(0);
 
-        return count(mgr.countExportTasks(status, batchID, matchExportTask(updatedTime)));
+        return count(mgr.countExportTasks(status, batchID, matchExportTask(deviceName, updatedTime)));
     }
 
     @POST
@@ -204,7 +203,7 @@ public class ExportTaskRS {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
                     matchQueueMessage(status, null, updatedTime),
-                    matchExportTask(null),
+                    matchExportTask(deviceName, null),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -276,37 +275,35 @@ public class ExportTaskRS {
             if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            Predicate matchExportTask = matchExportTask(updatedTime);
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(newExporter, status, matchExportTask)
-                    : rescheduleTasks(newExporter, status, matchQueueMessage(status, devName, null), matchExportTask));
+                    ? rescheduleOnDistinctDevices(newExporter, status)
+                    : rescheduleTasks(newExporter, status,
+                        matchExportTask(devName, updatedTime)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(
-            ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchExportTask) throws Exception {
-        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(
-                matchQueueMessage(status, null, null),
-                matchExportTask);
+    private int rescheduleOnDistinctDevices(ExporterDescriptor newExporter, QueueMessage.Status status) throws Exception {
+        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchExportTask(null, updatedTime));
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(newExporter, status, matchQueueMessage(status, devName, null), matchExportTask)
+                    ? rescheduleTasks(newExporter, status,
+                        matchExportTask(devName, updatedTime))
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
         return count;
     }
 
     private int rescheduleTasks(
-            ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask)
+            ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchExportTask)
             throws Exception {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count = 0;
             try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
-                    matchQueueMessage, matchExportTask, null, 0, 0)) {
+                    batchID, matchExportTask, null, 0, 0)) {
                 for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(
                             task,
@@ -351,7 +348,7 @@ public class ExportTaskRS {
         do {
             count = mgr.deleteTasks(status,
                     matchQueueMessage(status, null, null),
-                    matchExportTask(updatedTime));
+                    matchExportTask(deviceName, updatedTime));
             deleted += count;
         } while (count >= deleteTasksFetchSize);
         queueEvent.setCount(deleted);
@@ -478,8 +475,8 @@ public class ExportTaskRS {
         return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
-    private Predicate matchExportTask(String updatedTime) {
-        return MatchTask.matchExportTask(exporterIDs, deviceName, studyUID, createdTime, updatedTime);
+    private Predicate matchExportTask(String devName, String updatedTime) {
+        return MatchTask.matchExportTask(exporterIDs, devName, studyUID, createdTime, updatedTime);
     }
 
     private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime) {
