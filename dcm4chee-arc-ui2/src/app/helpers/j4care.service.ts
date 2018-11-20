@@ -818,7 +818,7 @@ export class j4care {
     selectDevice(callBack, devices? ){
         let setParams = function(tempDevices){
             return {
-                content: 'Select device if you wan\'t to rescedule to an other device',
+                content: 'Select device if you wan\'t to reschedule to an other device',
                 form_id:"storage_verification",
                 form_schema:[
                     [
