@@ -87,7 +87,7 @@ public interface ExportManager {
 
     void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
 
-    int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
+    int deleteTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask);
 
     List<String> listDistinctDeviceNames(Predicate matchExportTask);
 
