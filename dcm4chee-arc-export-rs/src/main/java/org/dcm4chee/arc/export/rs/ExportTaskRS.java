@@ -202,7 +202,8 @@ public class ExportTaskRS {
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
-                    matchQueueMessage(status, null, updatedTime),
+                    MatchTask.matchQueueMessage(null, null, status, batchID, null,
+                             null, updatedTime, null),
                     matchExportTask(deviceName, null),
                     status);
             queueEvent.setCount(count);
@@ -234,7 +235,7 @@ public class ExportTaskRS {
                 return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
 
             mgr.rescheduleExportTask(pk, exporter, queueEvent);
-            return rsp(Response.Status.NO_CONTENT);
+            return Response.status(Response.Status.NO_CONTENT).build();
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -359,10 +360,6 @@ public class ExportTaskRS {
         return Response.status(status).entity(entity).build();
     }
 
-    private Response rsp(Response.Status status) {
-        return Response.status(status).build();
-    }
-
     private static Response rsp(boolean result) {
         return Response.status(result
                 ? Response.Status.NO_CONTENT
@@ -476,11 +473,6 @@ public class ExportTaskRS {
 
     private Predicate matchExportTask(String devName, String updatedTime) {
         return MatchTask.matchExportTask(exporterIDs, devName, studyUID, createdTime, updatedTime);
-    }
-
-    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime) {
-        return MatchTask.matchQueueMessage(
-                null, devName, status, batchID, null, null, updatedTime, null);
     }
 
     private Response notAcceptable() {
