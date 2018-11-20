@@ -161,22 +161,12 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     content: text
                 }).subscribe((ok)=>{
                     if(ok){
-                        this.cfpLoadingBar.start();
-                        this.service.rescheduleAll(filter,this.filterObject.queueName).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks rescheduled successfully!',
-                                'status': 'info'
-                            });
-                            this.cfpLoadingBar.complete();
-                        }, (err) => {
-                            this.cfpLoadingBar.complete();
-                            this.httpErrorHandler.handleError(err);
-                        });
-/*                        this.j4care.selectDevice((res)=>{
-                            console.log("j4carehelper select deviceres",res);
+                        this.j4care.selectDevice((res)=>{
                             if(res){
                                 this.cfpLoadingBar.start();
+                                if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                    filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                }
                                 this.service.rescheduleAll(filter,this.filterObject.queueName).subscribe((res)=>{
                                     this.mainservice.setMessage({
                                         'title': 'Info',
@@ -195,7 +185,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                                 text:device.dicomDeviceName,
                                 value:device.dicomDeviceName
                             }
-                        }));*/
+                        }));
                     }
                     this.allAction = "";
                     this.allAction = undefined;
