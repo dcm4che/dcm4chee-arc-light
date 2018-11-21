@@ -80,7 +80,8 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
       public dialog: MatDialog,
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
-      private permissionService:PermissionService
+      private permissionService:PermissionService,
+      private j4care:j4care
     ) { }
 
     ngOnInit(){
@@ -387,17 +388,23 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
 
                     break;
                 case "reschedule":
-                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks rescheduled successfully!',
-                                'status': 'info'
-                            });
-                            this.cfpLoadingBar.complete();
-                        }, (err) => {
-                            this.cfpLoadingBar.complete();
-                            this.httpErrorHandler.handleError(err);
-                        });
+                    this.j4care.selectDevice((res)=>{
+                            if(res){
+                                let filter = Object.assign({},this.filterObject);
+                                if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                    filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                }
+                                this.service.rescheduleAll(filter).subscribe((res)=>{
+                                    this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
+                                    this.cfpLoadingBar.complete();
+                                }, (err) => {
+                                    this.cfpLoadingBar.complete();
+                                    this.httpErrorHandler.handleError(err);
+                                });
+                            }
+                        },
+                        this.devices);
+
                     break;
                 case "delete":
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
@@ -524,22 +531,32 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         };
         this.confirm(parameters).subscribe(result => {
             if (result){
-                $this.cfpLoadingBar.start();
-                this.service.reschedule(match.properties.pk)
-                    .subscribe(
-                        (res) => {
-                            $this.getTasks(match.offset||0);
-                            $this.cfpLoadingBar.complete();
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Task rescheduled successfully!',
-                                'status': 'info'
-                            });
-                        },
-                        (err) => {
-                            $this.cfpLoadingBar.complete();
-                            $this.httpErrorHandler.handleError(err);
-                        });
+                this.j4care.selectDevice((res)=>{
+                        if(res){
+                            let filter = {};
+                            if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                filter["newDeviceName"] = res.schema_model.newDeviceName;
+                            }
+                            $this.cfpLoadingBar.start();
+                            this.service.reschedule(match.properties.pk, filter)
+                                .subscribe(
+                                    (res) => {
+                                        $this.getTasks(match.offset||0);
+                                        $this.cfpLoadingBar.complete();
+                                        $this.mainservice.showMsg('Task rescheduled successfully!');
+                                    },
+                                    (err) => {
+                                        $this.cfpLoadingBar.complete();
+                                        $this.httpErrorHandler.handleError(err);
+                                    });
+                        }
+                    },
+                    this.devices.map(device=>{
+                        return {
+                            text:device.dicomDeviceName,
+                            value:device.dicomDeviceName
+                        }
+                    }));
             }
         });
     };
@@ -724,7 +741,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                         $this.initExporters(retries - 1);
                 });
     }
-    getDevices(){
+/*    getDevices(){
         this.cfpLoadingBar.start();
         this.service.getDevices().subscribe(devices=>{
             this.cfpLoadingBar.complete();
@@ -733,7 +750,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
         });
-    }
+    }*/
     ngOnDestroy(){
         if(this.timer.started){
             this.timer.started = false;

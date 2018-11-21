@@ -43,8 +43,8 @@ export class ExternalRetrieveService {
         return this.$http.delete(`../monitor/retrieve${urlParam}`, this.header)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
-    reschedule(pk){
-        return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, {});
+    reschedule(pk, data){
+        return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, data);
     }
      rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
