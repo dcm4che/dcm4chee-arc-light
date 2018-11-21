@@ -33,8 +33,8 @@ export class QueuesService {
             .map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    reschedule(queueName, msgId) {
-        return this.$http.post(this.url3(queueName, msgId, 'reschedule'), {}, this.header)
+    reschedule(queueName, msgId, filter) {
+        return this.$http.post(this.url3(queueName, msgId, 'reschedule'), filter, this.header)
     };
     rescheduleAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);

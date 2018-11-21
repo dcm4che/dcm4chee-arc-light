@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 
@@ -19,6 +19,7 @@ export class ConfirmComponent{
     set parameters(value) {
         this._parameters = value;
     }
+
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
         if (code === 13){
@@ -28,5 +29,4 @@ export class ConfirmComponent{
             dialogRef.close(null);
         }
     }
-
 }

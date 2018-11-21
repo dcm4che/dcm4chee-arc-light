@@ -285,9 +285,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public mainservice: AppService,
         public cfpLoadingBar: LoadingBarService,
         private loadingBar:LoadingBarService,
-        public viewContainerRef: ViewContainerRef ,
-        public dialog: MatDialog,
-        public config: MatDialogConfig,
+        private viewContainerRef: ViewContainerRef ,
+        private dialog: MatDialog,
+        private config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
         public j4care:j4care,
         public permissionService:PermissionService,
@@ -2284,7 +2284,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     storageVerification(){
         this.confirm({
             content: 'Schedule Storage Verification of matching Studies',
-            form_id:"storage_verification",
+            doNotSave:true,
             form_schema:[
                 [
                     [

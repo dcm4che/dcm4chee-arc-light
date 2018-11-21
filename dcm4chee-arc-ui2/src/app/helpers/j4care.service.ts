@@ -819,7 +819,7 @@ export class j4care {
         let setParams = function(tempDevices){
             return {
                 content: 'Select device if you wan\'t to reschedule to an other device',
-                form_id:"storage_verification",
+                doNotSave:true,
                 form_schema:[
                     [
                         [

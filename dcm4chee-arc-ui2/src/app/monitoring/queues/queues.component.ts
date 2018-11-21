@@ -441,15 +441,29 @@ export class QueuesComponent implements OnInit, OnDestroy{
     };
     reschedule(match) {
         let $this = this;
-        $this.cfpLoadingBar.start();
-        this.service.reschedule(this.filterObject.queueName, match.properties.JMSMessageID)
-            .subscribe((res) => {
-                $this.search(0);
-                $this.cfpLoadingBar.complete();
-            }, (err) => {
-                $this.cfpLoadingBar.complete();
-                $this.httpErrorHandler.handleError(err);
-            });
+        this.j4care.selectDevice((res)=>{
+                if(res){
+                    $this.cfpLoadingBar.start();
+                    let filter = {};
+                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                    }
+                    this.service.reschedule(this.filterObject.queueName, match.properties.JMSMessageID, filter)
+                        .subscribe((res) => {
+                            $this.search(0);
+                            $this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            $this.cfpLoadingBar.complete();
+                            $this.httpErrorHandler.handleError(err);
+                        });
+                }
+            },
+            this.devices.map(device=>{
+                return {
+                    text:device.dicomDeviceName,
+                    value:device.dicomDeviceName
+                }
+            }));
     };
     checkAll(event){
         console.log("in checkall",event.target.checked);

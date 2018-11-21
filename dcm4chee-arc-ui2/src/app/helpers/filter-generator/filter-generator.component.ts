@@ -62,27 +62,29 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                 this.filterID = `${location.hostname}-${location.hash.replace(/#/g,'').replace(/\//g,'-')}`;
             }
         }
-       let savedFilters = localStorage.getItem(this.filterID);
-        let parsedFilter = JSON.parse(savedFilters);
-        if(this.doNotSave){
-            this.doNotSave.forEach(f=>{
-                if(parsedFilter[f]){
-                    delete parsedFilter[f];
-                }
-            })
+        if(!_.isBoolean(this.doNotSave)){
+           let savedFilters = localStorage.getItem(this.filterID);
+            let parsedFilter = JSON.parse(savedFilters);
+            if(this.doNotSave){
+                this.doNotSave.forEach(f=>{
+                    if(parsedFilter[f]){
+                        delete parsedFilter[f];
+                    }
+                })
+            }
+           if(savedFilters){
+               this.model = _.mergeWith(this.model, parsedFilter,(a, b)=>{
+                   if(a){
+                       return a;
+                   }
+                   if(!a && a != '' && b){
+                       return b;
+                   }else{
+                       return a;
+                   }
+               });
+           }
         }
-       if(savedFilters){
-           this.model = _.mergeWith(this.model, parsedFilter,(a, b)=>{
-               if(a){
-                   return a;
-               }
-               if(!a && a != '' && b){
-                   return b;
-               }else{
-                   return a;
-               }
-           });
-       }
     }
     submitEmit(id){
         this.model = j4care.clearEmptyObject(this.model);
@@ -254,13 +256,15 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
     }
     ngOnDestroy(){
-        if(this.doNotSave){
-            this.doNotSave.forEach(f=>{
-                if(this.model[f]){
-                    delete this.model[f];
-                }
-            })
+        if(!_.isBoolean(this.doNotSave)){
+            if(this.doNotSave){
+                this.doNotSave.forEach(f=>{
+                    if(this.model[f]){
+                        delete this.model[f];
+                    }
+                })
+            }
+            localStorage.setItem(this.filterID, JSON.stringify(this.model));
         }
-        localStorage.setItem(this.filterID, JSON.stringify(this.model));
     }
 }
