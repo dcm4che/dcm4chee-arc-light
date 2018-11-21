@@ -79,6 +79,9 @@ public class MWLCFindSCP extends BasicCFindSCP {
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
+        if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
+            ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
         return new MWLQueryTask(as, pc, rq, keys, queryService.createMWLQuery(ctx));
