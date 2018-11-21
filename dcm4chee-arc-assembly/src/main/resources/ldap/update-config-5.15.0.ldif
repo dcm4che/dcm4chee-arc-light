@@ -67,6 +67,7 @@ dcmJndiName: jms/queue/Export10
 
 dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
+add: dcmWadoSupportedSRClasses
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.74
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.75
 
