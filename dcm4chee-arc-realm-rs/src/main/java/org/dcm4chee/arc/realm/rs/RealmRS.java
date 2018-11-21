@@ -50,9 +50,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.stream.Stream;
 
@@ -79,29 +83,50 @@ public class RealmRS {
     @Produces("application/json")
     public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return out -> {
-                if (request.getUserPrincipal() != null) {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    JsonWriter writer = new JsonWriter(gen);
-                    gen.writeStartObject();
-                    KeycloakContext ctx = KeycloakContext.valueOf(request);
-                    writer.writeNotNullOrDef("auth-server-url", System.getProperty("auth-server-url", "/auth"), null);
-                    writer.writeNotNullOrDef("realm", System.getProperty("realm-name"), null);
-                    writer.writeNotNullOrDef("token", ctx.getToken(), null);
-                    writer.writeNotNullOrDef("user", ctx.getUserName(), null);
-                    writer.write("expiration", ctx.getExpiration());
-                    writer.write("systemCurrentTime", (int) (System.currentTimeMillis()/1000L));
-                    writer.writeNotEmpty("roles", ctx.getUserRoles());
-                    writer.writeNotDef("su",
-                            Stream.of(ctx.getUserRoles()).anyMatch(x -> x.equals(System.getProperty("super-user-role"))),
-                            false);
-                    gen.writeEnd();
-                    gen.flush();
-                } else {
-                    Writer w = new OutputStreamWriter(out, "UTF-8");
-                    w.write("{\"auth-server-url\":null,\"realm\":null,\"token\":null,\"user\":null,\"roles\":[]}");
-                    w.flush();
-                }
-        };
+        try {
+            return out -> {
+                    if (request.getUserPrincipal() != null) {
+                        JsonGenerator gen = Json.createGenerator(out);
+                        JsonWriter writer = new JsonWriter(gen);
+                        gen.writeStartObject();
+                        KeycloakContext ctx = KeycloakContext.valueOf(request);
+                        writer.writeNotNullOrDef(
+                                "auth-server-url",
+                                System.getProperty("auth-server-url", "/auth"),
+                                null);
+                        writer.writeNotNullOrDef("realm", System.getProperty("realm-name"), null);
+                        writer.writeNotNullOrDef("token", ctx.getToken(), null);
+                        writer.writeNotNullOrDef("user", ctx.getUserName(), null);
+                        writer.write("expiration", ctx.getExpiration());
+                        writer.write("systemCurrentTime", (int) (System.currentTimeMillis()/1000L));
+                        writer.writeNotEmpty("roles", ctx.getUserRoles());
+                        writer.writeNotDef("su",
+                                Stream.of(ctx.getUserRoles())
+                                      .anyMatch(x -> x.equals(System.getProperty("super-user-role"))),
+                                false);
+                        gen.writeEnd();
+                        gen.flush();
+                    } else {
+                        Writer w = new OutputStreamWriter(out, "UTF-8");
+                        w.write("{\"auth-server-url\":null,\"realm\":null,\"token\":null,\"user\":null,\"roles\":[]}");
+                        w.flush();
+                    }
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

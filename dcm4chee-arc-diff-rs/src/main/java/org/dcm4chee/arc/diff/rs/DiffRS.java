@@ -352,14 +352,20 @@ public class DiffRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(), request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private Response errResponseAsTextPlain(Exception e) {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
     }
 
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
 }

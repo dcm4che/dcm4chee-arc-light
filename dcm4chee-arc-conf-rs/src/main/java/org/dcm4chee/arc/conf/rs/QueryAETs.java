@@ -55,8 +55,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Comparator;
 
 /**
@@ -80,14 +84,18 @@ public class QueryAETs {
     @Produces("application/json")
     public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return out -> {
+        try {
+            return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (ApplicationEntity ae : sortedApplicationEntities())
                     writeTo(ae, gen);
                 gen.writeEnd();
                 gen.flush();
-        };
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
     }
 
     private void writeTo(ApplicationEntity ae, JsonGenerator gen) {
@@ -116,5 +124,18 @@ public class QueryAETs {
         return device.getApplicationEntities().stream()
                 .sorted(Comparator.comparing(ApplicationEntity::getAETitle))
                 .toArray(ApplicationEntity[]::new);
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

@@ -56,6 +56,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 /**
@@ -84,17 +86,34 @@ public class QueryImpaxReportRS {
         try {
             reports = service.queryReportByStudyUid(studyUID);
         } catch (ConfigurationException e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         } catch (WebServiceException e) {
             throw new WebApplicationException(e, Response.Status.BAD_GATEWAY);
         }
-        if (reports.isEmpty()) {
+        if (reports.isEmpty())
             throw new WebApplicationException(Response.Status.CONFLICT);
+
+        try {
+            MultipartRelatedOutput output = new MultipartRelatedOutput();
+            for (String report : reports)
+                output.addPart(report, MediaType.TEXT_XML_TYPE);
+
+            return output;
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
-        MultipartRelatedOutput output = new MultipartRelatedOutput();
-        for (String report : reports) {
-            output.addPart(report, MediaType.TEXT_XML_TYPE);
-        }
-        return output;
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

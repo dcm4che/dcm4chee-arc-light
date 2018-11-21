@@ -72,6 +72,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 /**
@@ -235,48 +237,65 @@ public class StgVerMatchingRS {
         if (ae == null || !ae.isInstalled())
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
-        String warning = null;
-        int count = 0;
-        Response.Status status = Response.Status.ACCEPTED;
-        try (Query query = queryService.createQuery(ctx)) {
-            query.initQuery();
-            Transaction transaction = query.beginTransaction();
-            try {
-                query.setFetchSize(arcDev.getQueryFetchSize());
-                query.executeQuery();
-                while (query.hasMoreMatches()) {
-                    Attributes match = query.nextMatch();
-                    if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(match, qrlevel),
-                            HttpServletRequestInfo.valueOf(request), batchID)) {
-                        count++;
+        try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
+            String warning = null;
+            int count = 0;
+            Response.Status status = Response.Status.ACCEPTED;
+            try (Query query = queryService.createQuery(ctx)) {
+                query.initQuery();
+                Transaction transaction = query.beginTransaction();
+                try {
+                    query.setFetchSize(arcDev.getQueryFetchSize());
+                    query.executeQuery();
+                    while (query.hasMoreMatches()) {
+                        Attributes match = query.nextMatch();
+                        if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(match, qrlevel),
+                                HttpServletRequestInfo.valueOf(request), batchID)) {
+                            count++;
+                        }
+                    }
+                } catch (QueueSizeLimitExceededException e) {
+                    status = Response.Status.SERVICE_UNAVAILABLE;
+                    warning = e.getMessage();
+                } catch (Exception e) {
+                    warning = e.getMessage();
+                    status = Response.Status.INTERNAL_SERVER_ERROR;
+                } finally {
+                    try {
+                        transaction.commit();
+                    } catch (Exception e) {
+                        LOG.warn("Failed to commit transaction:\n", e);
                     }
                 }
-            } catch (QueueSizeLimitExceededException e) {
-                status = Response.Status.SERVICE_UNAVAILABLE;
-                warning = e.getMessage();
-            } catch (Exception e) {
-                warning = e.getMessage();
-                status = Response.Status.INTERNAL_SERVER_ERROR;
-            } finally {
-                try {
-                    transaction.commit();
-                } catch (Exception e) {
-                    LOG.warn("Failed to commit transaction:\n", e);
-                }
             }
+            Response.ResponseBuilder builder = Response.status(status);
+            if (warning != null)
+                builder.header("Warning", warning);
+            return builder.entity("{\"count\":" + count + '}').build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
         }
-        Response.ResponseBuilder builder = Response.status(status);
-        if (warning != null)
-            builder.header("Warning", warning);
-        return builder.entity("{\"count\":" + count + '}').build();
     }
 
     private static Response errResponse(Response.Status status, String message) {
         return Response.status(status)
                 .entity("{\"errorMessage\":\"" + message + "\"}")
                 .build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
     private QueryContext queryContext(

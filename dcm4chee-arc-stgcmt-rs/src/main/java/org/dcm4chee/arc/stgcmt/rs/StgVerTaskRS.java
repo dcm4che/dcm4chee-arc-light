@@ -146,15 +146,19 @@ public class StgVerTaskRS {
     @NoCache
     public Response listStgVerTasks(@QueryParam("accept") String accept) {
         logRequest();
-        Output output = selectMediaType(accept);
-        if (output == null)
-            return notAcceptable();
+        try {
+            Output output = selectMediaType(accept);
+            if (output == null)
+                return notAcceptable();
 
-        StgVerTaskQuery tasks = stgCmtMgr.listStgVerTasks(
-                matchQueueMessage(status(), deviceName, null),
-                matchStgVerTask(updatedTime),
-                MatchTask.stgVerTaskOrder(orderby), parseInt(offset), parseInt(limit));
-        return Response.ok(output.entity(tasks), output.type).build();
+            StgVerTaskQuery tasks = stgCmtMgr.listStgVerTasks(
+                    matchQueueMessage(status(), deviceName, null),
+                    matchStgVerTask(updatedTime),
+                    MatchTask.stgVerTaskOrder(orderby), parseInt(offset), parseInt(limit));
+            return Response.ok(output.entity(tasks), output.type).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     @GET
@@ -163,9 +167,13 @@ public class StgVerTaskRS {
     @Produces("application/json")
     public Response countStgVerTasks() {
         logRequest();
-        return count(stgCmtMgr.countStgVerTasks(
-                matchQueueMessage(status(), deviceName, null),
-                matchStgVerTask(updatedTime)));
+        try {
+            return count(stgCmtMgr.countStgVerTasks(
+                    matchQueueMessage(status(), deviceName, null),
+                    matchStgVerTask(updatedTime)));
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     @POST
@@ -178,6 +186,9 @@ public class StgVerTaskRS {
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -205,6 +216,9 @@ public class StgVerTaskRS {
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -296,28 +310,39 @@ public class StgVerTaskRS {
     public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        boolean deleteStgVerTask = stgCmtMgr.deleteStgVerTask(pk, queueEvent);
-        queueMsgEvent.fire(queueEvent);
-        return rsp(deleteStgVerTask);
+        try {
+            return rsp(stgCmtMgr.deleteStgVerTask(pk, queueEvent));
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
+        } finally {
+            queueMsgEvent.fire(queueEvent);
+        }
     }
 
     @DELETE
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = 0;
-        int count;
-        int deleteTasksFetchSize = queueTasksFetchSize();
-        do {
-            count = stgCmtMgr.deleteTasks(
-                    matchQueueMessage(status(), deviceName, null),
-                    matchStgVerTask(updatedTime),
-                    deleteTasksFetchSize);
-            deleted += count;
-        } while (count >= deleteTasksFetchSize);
-        queueEvent.setCount(deleted);
-        bulkQueueMsgEvent.fire(queueEvent);
-        return "{\"deleted\":" + deleted + '}';
+        try {
+            int deleted = 0;
+            int count;
+            int deleteTasksFetchSize = queueTasksFetchSize();
+            do {
+                count = stgCmtMgr.deleteTasks(
+                        matchQueueMessage(status(), deviceName, null),
+                        matchStgVerTask(updatedTime),
+                        deleteTasksFetchSize);
+                deleted += count;
+            } while (count >= deleteTasksFetchSize);
+            queueEvent.setCount(deleted);
+            return "{\"deleted\":" + deleted + '}';
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        } finally {
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
     }
 
     private Output selectMediaType(String accept) {
@@ -447,10 +472,16 @@ public class StgVerTaskRS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 
     private int queueTasksFetchSize() {

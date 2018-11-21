@@ -69,6 +69,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -156,7 +158,7 @@ public class ExporterRS {
 
         boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
         boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter != null) {
             if (bOnlyIAN && exporter.getIanDestinations().length == 0)
@@ -177,6 +179,8 @@ public class ExporterRS {
                             HttpServletRequestInfo.valueOf(request), batchID);
             } catch (QueueSizeLimitExceededException e) {
                 return errResponse(Response.Status.SERVICE_UNAVAILABLE, e.getMessage());
+            } catch (Exception e) {
+                return errResponseAsTextPlain(e);
             }
 
             return Response.accepted().build();
@@ -202,7 +206,7 @@ public class ExporterRS {
         } catch (ConfigurationNotFoundException e) {
             return errResponse(Response.Status.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
-            return errResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+            return errResponseAsTextPlain(e);
         }
     }
 
@@ -246,6 +250,19 @@ public class ExporterRS {
         return Response.status(status)
                 .entity("{\"errorMessage\":\"" + message + "\"}")
                 .build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
     private ExportContext createExportContext(

@@ -126,17 +126,15 @@ public class HL7RS {
     }
 
     private Attributes toAttributes(InputStream in) {
-        JSONReader reader;
         try {
-            reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e);
-        }
-        try {
-            return reader.readDataset(null);
+            return new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")))
+                    .readDataset(null);
         } catch (JsonParsingException e) {
-            throw new WebApplicationException(errResponse(e.getMessage() + " at location : "
-                    + e.getLocation(), Response.Status.BAD_REQUEST));
+            throw new WebApplicationException(errResponse(
+                    e.getMessage() + " at location : " + e.getLocation(),
+                    Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -164,16 +162,17 @@ public class HL7RS {
     }
 
     private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) {
-        HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
-        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
         try {
+            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
+            ctx.setHttpServletRequestInfo(httpServletRequestInfo);
             if (queue) {
                 rsHL7Sender.scheduleHL7Message(msgType, ctx, appName, externalAppName);
                 return Response.accepted().build();
             }
             else {
                 HL7Application sender = getSendingHl7Application();
-                UnparsedHL7Message rsp = rsHL7Sender.sendHL7Message(httpServletRequestInfo, msgType, ctx, sender, externalAppName);
+                UnparsedHL7Message rsp = rsHL7Sender.sendHL7Message(
+                                            httpServletRequestInfo, msgType, ctx, sender, externalAppName);
                 return response(HL7Message.parse(rsp.data(), sender.getHL7DefaultCharacterSet()));
             }
         } catch (ConnectException e) {
@@ -188,7 +187,7 @@ public class HL7RS {
     }
 
     private HL7Application getSendingHl7Application() throws ConfigurationNotFoundException {
-        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
+        HL7DeviceExtension hl7Dev = device.getDeviceExtensionNotNull(HL7DeviceExtension.class);
         HL7Application sender = hl7Dev.getHL7Application(appName, true);
         if (sender == null)
             throw new ConfigurationNotFoundException("Sending HL7 Application not configured : " + appName);
@@ -236,9 +235,15 @@ public class HL7RS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 }

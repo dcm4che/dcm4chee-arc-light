@@ -63,6 +63,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -119,11 +121,16 @@ public class ExportBatchRS {
     @NoCache
     public Response listExportBatches() {
         logRequest();
-        List<ExportBatch> exportBatches = mgr.listExportBatches(
-                MatchTask.matchQueueBatch(deviceName, status(), batchID),
-                MatchTask.matchExportBatch(uriInfo.getQueryParameters().get("ExporterID"), deviceName, createdTime, updatedTime),
-                MatchTask.exportBatchOrder(orderby), parseInt(offset), parseInt(limit));
-        return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
+        try {
+            List<ExportBatch> exportBatches = mgr.listExportBatches(
+                    MatchTask.matchQueueBatch(deviceName, status(), batchID),
+                    MatchTask.matchExportBatch(uriInfo.getQueryParameters().get("ExporterID"), deviceName, createdTime,
+                            updatedTime),
+                    MatchTask.exportBatchOrder(orderby), parseInt(offset), parseInt(limit));
+            return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     private enum Output {
@@ -186,5 +193,18 @@ public class ExportBatchRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

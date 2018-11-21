@@ -150,13 +150,20 @@ public class ExportTaskRS {
         if (output == null)
             return notAcceptable();
 
-        QueueMessage.Status status = status();
-        ExportTaskQuery tasks = mgr.listExportTasks(status, batchID,
-                matchExportTask(deviceName, updatedTime),
-                MatchTask.exportTaskOrder(orderby),
-                parseInt(offset), parseInt(limit)
-        );
-        return Response.ok(output.entity(tasks, device.getDeviceExtension(ArchiveDeviceExtension.class)), output.type).build();
+        try {
+            QueueMessage.Status status = status();
+            ExportTaskQuery tasks = mgr.listExportTasks(status, batchID,
+                    matchExportTask(deviceName, updatedTime),
+                    MatchTask.exportTaskOrder(orderby),
+                    parseInt(offset), parseInt(limit)
+            );
+            return Response.ok(
+                    output.entity(tasks, device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)),
+                    output.type)
+                    .build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     @GET
@@ -169,7 +176,11 @@ public class ExportTaskRS {
         if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
             return count(0);
 
-        return count(mgr.countExportTasks(status, batchID, matchExportTask(deviceName, updatedTime)));
+        try {
+            return count(mgr.countExportTasks(status, batchID, matchExportTask(deviceName, updatedTime)));
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     @POST
@@ -183,6 +194,9 @@ public class ExportTaskRS {
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -211,6 +225,9 @@ public class ExportTaskRS {
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -229,7 +246,7 @@ public class ExportTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
             if (exporter == null)
                 return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
@@ -329,9 +346,14 @@ public class ExportTaskRS {
     public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        boolean deleteExportTask = mgr.deleteExportTask(pk, queueEvent);
-        queueMsgEvent.fire(queueEvent);
-        return rsp(deleteExportTask);
+        try {
+            return rsp(mgr.deleteExportTask(pk, queueEvent));
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
+        } finally {
+            queueMsgEvent.fire(queueEvent);
+        }
     }
 
     @DELETE
@@ -344,16 +366,22 @@ public class ExportTaskRS {
         if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
             return deleted(deleted);
 
-        int count;
-        int deleteTasksFetchSize = queueTasksFetchSize();
-        do {
-            count = mgr.deleteTasks(status, batchID,
-                    matchExportTask(deviceName, updatedTime));
-            deleted += count;
-        } while (count >= deleteTasksFetchSize);
-        queueEvent.setCount(deleted);
-        bulkQueueMsgEvent.fire(queueEvent);
-        return deleted(deleted);
+        try {
+            int count;
+            int deleteTasksFetchSize = queueTasksFetchSize();
+            do {
+                count = mgr.deleteTasks(status, batchID,
+                        matchExportTask(deviceName, updatedTime));
+                deleted += count;
+            } while (count >= deleteTasksFetchSize);
+            queueEvent.setCount(deleted);
+            return deleted(deleted);
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        } finally {
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
     }
 
     private static Response rsp(Response.Status status, Object entity) {
@@ -495,10 +523,16 @@ public class ExportTaskRS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 
     private int queueTasksFetchSize() {

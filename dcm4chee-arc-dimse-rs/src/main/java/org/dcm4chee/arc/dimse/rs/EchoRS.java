@@ -62,6 +62,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -104,18 +106,33 @@ public class EchoRS {
         return ae;
     }
 
-    private ApplicationEntity getRemoteApplicationEntity() throws ConfigurationException {
+    private ApplicationEntity getRemoteApplicationEntity() {
         try {
             return conf.findApplicationEntity(remoteAET);
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(errResponse(
                     "No such Application Entity configured: " + remoteAET,
                     Response.Status.NOT_FOUND));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
     private Response errResponse(String errorMessage, Response.Status status) {
         return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
     private AAssociateRQ createAARQ() {
@@ -126,50 +143,54 @@ public class EchoRS {
 
     @POST
     @Produces("application/json")
-    public StreamingOutput echo() throws Exception {
+    public StreamingOutput echo() {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         int remotePort = parseInt(port);
         ApplicationEntity ae = getApplicationEntity();
         ApplicationEntity remote = host != null && remotePort > 0 ? createRemoteAE(remotePort) : getRemoteApplicationEntity();
-        Association as = null;
-        long t1, t2;
-        Result result = new Result();
         try {
-            t1 = System.currentTimeMillis();
-            as = ae.connect(remote, createAARQ());
-            t2 = System.currentTimeMillis();
-            result.connectionTime = Long.toString(t2-t1);
+            Association as = null;
+            long t1, t2;
+            Result result = new Result();
             try {
-                DimseRSP rsp = as.cecho();
+                t1 = System.currentTimeMillis();
+                as = ae.connect(remote, createAARQ());
+                t2 = System.currentTimeMillis();
+                result.connectionTime = Long.toString(t2 - t1);
                 try {
-                    rsp.next();
-                    t1 = System.currentTimeMillis();
-                    result.echoTime = Long.toString(t1-t2);
+                    DimseRSP rsp = as.cecho();
+                    try {
+                        rsp.next();
+                        t1 = System.currentTimeMillis();
+                        result.echoTime = Long.toString(t1 - t2);
+                    } catch (IOException e) {
+                        result.error(Result.Code.FailedToSendCEchoRQ, e);
+                    }
                 } catch (IOException e) {
-                    result.error(Result.Code.FailedToSendCEchoRQ, e);
+                    result.error(Result.Code.FailedToReceiveCEchoRSP, e);
                 }
+            } catch (IncompatibleConnectionException e) {
+                result.error(Result.Code.IncompatibleConnection, e);
+            } catch (AAssociateRJ e) {
+                result.error(Result.Code.AssociationRejected, e);
             } catch (IOException e) {
-                result.error(Result.Code.FailedToReceiveCEchoRSP, e);
-            }
-        } catch (IncompatibleConnectionException e) {
-            result.error(Result.Code.IncompatibleConnection, e);
-        } catch (AAssociateRJ e) {
-            result.error(Result.Code.AssociationRejected, e);
-        } catch (IOException e) {
-            result.error(Result.Code.FailedToConnect, e);
-        } finally {
-            if (as != null) {
-                try {
-                    t1 = System.currentTimeMillis();
-                    as.release();
-                    t2 = System.currentTimeMillis();
-                    result.releaseTime = Long.toString(t2-t1);
-                } catch (IOException e) {
-                    result.error(Result.Code.FailedToRelease, e);
+                result.error(Result.Code.FailedToConnect, e);
+            } finally {
+                if (as != null) {
+                    try {
+                        t1 = System.currentTimeMillis();
+                        as.release();
+                        t2 = System.currentTimeMillis();
+                        result.releaseTime = Long.toString(t2 - t1);
+                    } catch (IOException e) {
+                        result.error(Result.Code.FailedToRelease, e);
+                    }
                 }
             }
+            return result;
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
-        return result;
     }
 
     private ApplicationEntity createRemoteAE(int remotePort) {

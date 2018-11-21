@@ -68,10 +68,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.EnumSet;
 
 /**
@@ -134,7 +131,7 @@ public class QueryRetrieveRS {
     @Produces("application/json")
     public Response retrieveMatchingStudies(
             @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET) throws Exception {
+            @PathParam("DestinationAET") String destAET) {
         return retrieveMatching(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET);
     }
 
@@ -145,7 +142,7 @@ public class QueryRetrieveRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
-            throws Exception {
+            {
         return retrieveMatching(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET);
     }
 
@@ -157,7 +154,7 @@ public class QueryRetrieveRS {
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
-            throws Exception {
+            {
         return retrieveMatching(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET);
     }
 
@@ -168,44 +165,48 @@ public class QueryRetrieveRS {
     public Response retrieveMatchingStudiesFromCSV(
             @PathParam("field") int field,
             @PathParam("destinationAET") String destAET,
-            InputStream in) throws Exception {
+            InputStream in) {
         logRequest();
         checkAE(aet, device.getApplicationEntity(aet, true));
-        checkAE(externalAET, aeCache.get(externalAET));
-        Response.Status errorStatus = Response.Status.BAD_REQUEST;
-        if (field < 1)
-            return Response.status(errorStatus)
-                    .entity("CSV field for Study Instance UID should be greater than or equal to 1").build();
+        try {
+            checkAE(externalAET, aeCache.get(externalAET));
+            Response.Status errorStatus = Response.Status.BAD_REQUEST;
+            if (field < 1)
+                return Response.status(errorStatus)
+                        .entity("CSV field for Study Instance UID should be greater than or equal to 1").build();
 
-        int count = 0;
-        String warning = null;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
-                if (count > 0 || UIDUtils.isValid(studyUID)) {
-                    if (retrieveManager.scheduleRetrieveTask(
-                            priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null, 0L))
-                        count++;
+            int count = 0;
+            String warning = null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
+                    if (count > 0 || UIDUtils.isValid(studyUID)) {
+                        if (retrieveManager.scheduleRetrieveTask(
+                                priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null, 0L))
+                            count++;
+                    }
                 }
+            } catch (QueueSizeLimitExceededException e) {
+                errorStatus = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
             }
-        } catch (QueueSizeLimitExceededException e) {
-            errorStatus = Response.Status.SERVICE_UNAVAILABLE;
-            warning = e.getMessage();
+
+            if (warning == null)
+                return count > 0
+                        ? Response.accepted(count(count)).build()
+                        : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
+
+            Response.ResponseBuilder builder = Response.status(errorStatus)
+                    .header("Warning", warning);
+            if (count > 0)
+                builder.entity(count(count));
+            return builder.build();
         } catch (Exception e) {
-            warning = e.getMessage();
+            return errResponseAsTextPlain(e);
         }
-
-        if (warning == null)
-            return count > 0
-                    ? Response.accepted(count(count)).build()
-                    : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
-
-        Response.ResponseBuilder builder = Response.status(errorStatus)
-                .header("Warning", warning);
-        if (count > 0)
-            builder.entity(count(count));
-        return builder.build();
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
@@ -218,6 +219,19 @@ public class QueryRetrieveRS {
 
     private Response errResponse(String errorMessage, Response.Status status) {
         return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
     private int priority() {
@@ -233,61 +247,66 @@ public class QueryRetrieveRS {
     }
 
     private Response retrieveMatching(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
-                                      String queryAET, String destAET) throws Exception {
+                                      String queryAET, String destAET) {
         logRequest();
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
-        checkAE(externalAET, aeCache.get(externalAET));
-        checkAE(queryAET, aeCache.get(queryAET));
-        QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
-        queryAttributes.addReturnTags(level.uniqueKey());
-        Attributes keys = queryAttributes.getQueryKeys();
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
-        if (studyInstanceUID != null)
-            keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
-        if (seriesInstanceUID != null)
-            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-        EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
-        if (Boolean.parseBoolean(fuzzymatching))
-            queryOptions.add(QueryOption.FUZZY);
-        Association as = null;
-        String warning;
-        int count = 0;
-        Response.Status errorStatus = Response.Status.BAD_GATEWAY;
         try {
-            as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-            int priority = priority();
-            DimseRSP dimseRSP = findSCU.query(as, priority, keys, 0, 1, splitStudyDateRange());
-            dimseRSP.next();
-            int status;
-            do {
-                status = dimseRSP.getCommand().getInt(Tag.Status, -1);
-                if (Status.isPending(status)) {
-                    if (retrieveManager.scheduleRetrieveTask(priority, createExtRetrieveCtx(destAET, dimseRSP), batchID, null, 0L))
-                        count++;
-                }
-            } while (dimseRSP.next()) ;
-            warning = warning(status);
-        } catch (QueueSizeLimitExceededException e) {
-            errorStatus = Response.Status.SERVICE_UNAVAILABLE;
-            warning = e.getMessage();
-        } catch (Exception e) {
-            warning = e.getMessage();
-        } finally {
-            if (as != null)
-                try {
-                    as.release();
-                } catch (IOException e) {
-                    LOG.info("{}: Failed to release association:\\n", as, e);
-                }
-        }
-        if (warning == null)
-            return Response.accepted(count(count)).build();
+            checkAE(externalAET, aeCache.get(externalAET));
+            checkAE(queryAET, aeCache.get(queryAET));
+            QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
+            queryAttributes.addReturnTags(level.uniqueKey());
+            Attributes keys = queryAttributes.getQueryKeys();
+            keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
+            if (studyInstanceUID != null)
+                keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
+            if (seriesInstanceUID != null)
+                keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+            EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
+            if (Boolean.parseBoolean(fuzzymatching))
+                queryOptions.add(QueryOption.FUZZY);
+            Association as = null;
+            String warning;
+            int count = 0;
+            Response.Status errorStatus = Response.Status.BAD_GATEWAY;
+            try {
+                as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+                int priority = priority();
+                DimseRSP dimseRSP = findSCU.query(as, priority, keys, 0, 1, splitStudyDateRange());
+                dimseRSP.next();
+                int status;
+                do {
+                    status = dimseRSP.getCommand().getInt(Tag.Status, -1);
+                    if (Status.isPending(status)) {
+                        if (retrieveManager.scheduleRetrieveTask(priority,
+                                createExtRetrieveCtx(destAET, dimseRSP), batchID, null, 0L))
+                            count++;
+                    }
+                } while (dimseRSP.next());
+                warning = warning(status);
+            } catch (QueueSizeLimitExceededException e) {
+                errorStatus = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+            } finally {
+                if (as != null)
+                    try {
+                        as.release();
+                    } catch (IOException e) {
+                        LOG.info("{}: Failed to release association:\\n", as, e);
+                    }
+            }
+            if (warning == null)
+                return Response.accepted(count(count)).build();
 
-        Response.ResponseBuilder builder = Response.status(errorStatus)
-                .header("Warning", warning);
-        if (count > 0)
-            builder.entity(count(count));
-        return builder.build();
+            Response.ResponseBuilder builder = Response.status(errorStatus)
+                    .header("Warning", warning);
+            if (count > 0)
+                builder.entity(count(count));
+            return builder.build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     private void logRequest() {

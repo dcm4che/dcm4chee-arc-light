@@ -73,6 +73,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.ConnectException;
 import java.util.EnumSet;
 
@@ -139,7 +141,7 @@ public class QueryRS {
     @NoCache
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
-    public void searchForPatientsJSON(@Suspended AsyncResponse ar) throws Exception {
+    public void searchForPatientsJSON(@Suspended AsyncResponse ar) {
         search(ar, Level.PATIENT, null, null, QIDO.PATIENT, false);
     }
 
@@ -147,7 +149,7 @@ public class QueryRS {
     @NoCache
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
-    public void searchForStudiesJSON(@Suspended AsyncResponse ar) throws Exception {
+    public void searchForStudiesJSON(@Suspended AsyncResponse ar) {
         search(ar, Level.STUDY, null, null, QIDO.STUDY, false);
     }
 
@@ -157,8 +159,7 @@ public class QueryRS {
     @Produces("application/dicom+json,application/json")
     public void searchForSeriesOfStudyJSON(
             @Suspended AsyncResponse ar,
-            @PathParam("StudyInstanceUID") String studyInstanceUID)
-            throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         search(ar, Level.SERIES, studyInstanceUID, null, QIDO.STUDY_SERIES, false);
     }
 
@@ -169,8 +170,7 @@ public class QueryRS {
     public void searchForInstancesOfSeriesJSON(
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID)
-            throws Exception {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.STUDY_SERIES_INSTANCE, false);
     }
 
@@ -178,7 +178,7 @@ public class QueryRS {
     @NoCache
     @Path("/patients/count")
     @Produces("application/json")
-    public void countPatients(@Suspended AsyncResponse ar) throws Exception {
+    public void countPatients(@Suspended AsyncResponse ar) {
         search(ar, Level.PATIENT, null, null, QIDO.PATIENT, true);
     }
 
@@ -186,7 +186,7 @@ public class QueryRS {
     @NoCache
     @Path("/studies/count")
     @Produces("application/json")
-    public void countStudies(@Suspended AsyncResponse ar) throws Exception {
+    public void countStudies(@Suspended AsyncResponse ar) {
         search(ar, Level.STUDY, null, null, QIDO.STUDY, true);
     }
 
@@ -196,8 +196,7 @@ public class QueryRS {
     @Produces("application/json")
     public void countSeriesOfStudy(
             @Suspended AsyncResponse ar,
-            @PathParam("StudyInstanceUID") String studyInstanceUID)
-            throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         search(ar, Level.SERIES, studyInstanceUID, null, QIDO.STUDY_SERIES, true);
     }
 
@@ -208,8 +207,7 @@ public class QueryRS {
     public void countInstancesOfSeries(
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID)
-            throws Exception {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.STUDY_SERIES_INSTANCE, true);
     }
 
@@ -234,12 +232,11 @@ public class QueryRS {
     }
 
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
-                        boolean count)
-            throws Exception {
+                        boolean count) {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
-        checkAE(externalAET, aeCache.get(externalAET));
         try {
+            checkAE(externalAET, aeCache.get(externalAET));
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
             if (!count) {
                 queryAttributes.addReturnTags(qido.includetags);
@@ -281,6 +278,8 @@ public class QueryRS {
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
         } catch (ConnectException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -376,4 +375,16 @@ public class QueryRS {
         };
     }
 
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
 }

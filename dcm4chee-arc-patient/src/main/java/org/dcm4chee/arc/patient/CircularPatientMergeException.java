@@ -41,8 +41,13 @@
 package org.dcm4chee.arc.patient;
 
 /**
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2017
  */
 public class CircularPatientMergeException extends RuntimeException {
     public CircularPatientMergeException() {super();}
+
+    public CircularPatientMergeException(String message) {
+        super(message);
+    }
 }

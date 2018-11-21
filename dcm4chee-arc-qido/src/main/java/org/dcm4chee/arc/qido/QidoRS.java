@@ -317,11 +317,12 @@ public class QidoRS {
         try (Query query = service.createStudyQuery(ctx)) {
             Transaction transaction = query.beginTransaction();
             try {
-                Iterator<Long> studyPks = query.withUnknownSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
+                Iterator<Long> studyPks = query.withUnknownSize(
+                        device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
                 while (studyPks.hasNext())
                     ctx.getQueryService().calculateStudySize(studyPks.next());
             } catch (Exception e) {
-                throw new WebApplicationException(errResponseAsTextPlain(e));
+                return errResponseAsTextPlain(e);
             } finally {
                 try {
                     transaction.commit();
@@ -342,7 +343,7 @@ public class QidoRS {
         try (Query query = model.createQuery(service, ctx)) {
             return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(e);
         }
     }
 
@@ -397,7 +398,7 @@ public class QidoRS {
                 }
             }
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(e);
         }
     }
 
@@ -568,7 +569,7 @@ public class QidoRS {
         }
 
         StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
-            StringBuffer sb = qidoRS.device.getDeviceExtension(ArchiveDeviceExtension.class)
+            StringBuffer sb = qidoRS.device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .remapRetrieveURL(qidoRS.request);
             sb.setLength(sb.lastIndexOf("/rs/") + 3);
             return sb;
@@ -736,9 +737,15 @@ public class QidoRS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 }

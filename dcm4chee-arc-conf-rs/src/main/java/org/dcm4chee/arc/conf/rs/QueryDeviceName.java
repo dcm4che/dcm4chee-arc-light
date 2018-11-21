@@ -53,8 +53,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -77,19 +81,36 @@ public class QueryDeviceName {
     @Produces("application/json")
     public StreamingOutput devicename() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return out -> {
-            JsonGenerator gen = Json.createGenerator(out);
-            JsonWriter writer = new JsonWriter(gen);
-            gen.writeStartObject();
-            writer.writeNotNullOrDef("dicomDeviceName", device.getDeviceName(), null);
-            if (arcDev != null) {
-                writer.writeNotNullOrDef("xRoad", arcDev.hasXRoadProperties(), false);
-                writer.writeNotNullOrDef("impaxReport", arcDev.hasImpaxReportProperties(), false);
-                writer.writeNotNullOrDef("UIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
-            }
-            gen.writeEnd();
-            gen.flush();
-        };
+        try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            return out -> {
+                JsonGenerator gen = Json.createGenerator(out);
+                JsonWriter writer = new JsonWriter(gen);
+                gen.writeStartObject();
+                writer.writeNotNullOrDef("dicomDeviceName", device.getDeviceName(), null);
+                if (arcDev != null) {
+                    writer.writeNotNullOrDef("xRoad", arcDev.hasXRoadProperties(), false);
+                    writer.writeNotNullOrDef("impaxReport", arcDev.hasImpaxReportProperties(), false);
+                    writer.writeNotNullOrDef("UIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
+                }
+                gen.writeEnd();
+                gen.flush();
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

@@ -55,6 +55,8 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -111,24 +113,52 @@ public class DeleteRejected {
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
         LOG.info("Process DELETE {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = arcDev();
         Code code = new Code(codeValue, designator, null, "?");
         RejectionNote rjNote = arcDev.getRejectionNote(code);
         if (rjNote == null)
             throw new WebApplicationException(
                     errResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
 
-        Date before = parseDate(rejectedBefore);
-        int fetchSize = arcDev.getDeleteRejectedFetchSize();
-        int deleted = service.deleteRejectedInstancesBefore(rjNote.getRejectionNoteCode(), before, fetchSize);
-        if (!Boolean.parseBoolean(keepRejectionNote))
-            deleted += service.deleteRejectionNotesBefore(rjNote.getRejectionNoteCode(), before, fetchSize);
+        try {
+            Date before = parseDate(rejectedBefore);
+            int fetchSize = arcDev.getDeleteRejectedFetchSize();
+            int deleted = service.deleteRejectedInstancesBefore(rjNote.getRejectionNoteCode(), before, fetchSize);
+            if (!Boolean.parseBoolean(keepRejectionNote))
+                deleted += service.deleteRejectionNotesBefore(rjNote.getRejectionNoteCode(), before, fetchSize);
 
-        LOG.info("Deleted {} instances permanently", deleted);
-        return "{\"deleted\":" + deleted + '}';
+            LOG.info("Deleted {} instances permanently", deleted);
+            return "{\"deleted\":" + deleted + '}';
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    private ArchiveDeviceExtension arcDev() {
+        try {
+            return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        } catch (IllegalStateException e) {
+            throw new WebApplicationException(
+                    errResponse("Archive Device Extension not configured for device: "
+                                    + device.getDeviceName(),
+                            Response.Status.NOT_FOUND));
+        }
     }
 
     private Response errResponse(String errorMessage, Response.Status status) {
         return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

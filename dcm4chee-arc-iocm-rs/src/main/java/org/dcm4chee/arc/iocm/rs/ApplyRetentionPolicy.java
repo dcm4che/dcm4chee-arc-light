@@ -132,63 +132,67 @@ public class ApplyRetentionPolicy {
         if (ae == null || !ae.isInstalled())
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
-        ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
-        int queryFetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
-        int count = 0;
-        QueryContext ctx = queryContext(ae);
-        try (Query query = queryService.createQuery(ctx)) {
-            query.initQuery();
-            Transaction transaction = query.beginTransaction();
-            try {
-                query.setFetchSize(queryFetchSize);
-                query.executeQuery();
-                String prevStudyInstanceUID = null;
-                LocalDate prevStudyExpirationDate = null;
-                while (query.hasMoreMatches()) {
-                    Attributes attrs = query.nextMatch();
-                    StudyRetentionPolicy retentionPolicy =
-                            arcAE.findStudyRetentionPolicy(
-                                    null,
-                                    attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries),
-                                    aet,
-                                    attrs);
-
-                    if (retentionPolicy == null) {
-                        continue;
-                    }
-
-                    LocalDate expirationDate =
-                            retentionStartDate(attrs, retentionPolicy.isStartRetentionPeriodOnStudyDate())
-                            .plus(retentionPolicy.getRetentionPeriod());
-
-                    String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-                    if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
-                        prevStudyInstanceUID = studyInstanceUID;
-                        prevStudyExpirationDate = expirationDate;
-                        updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
-                        count++;
-                    } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
-                        prevStudyExpirationDate = expirationDate;
-                        if (!retentionPolicy.isExpireSeriesIndividually())
-                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
-                    }
-
-                    if (retentionPolicy.isExpireSeriesIndividually())
-                        updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, ae);
-                }
-            } catch (Exception e) {
-                LOG.warn("Unexpected exception:", e);
-                return errResponseAsTextPlain(e);
-            } finally {
+        try {
+            ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+            int queryFetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
+            int count = 0;
+            QueryContext ctx = queryContext(ae);
+            try (Query query = queryService.createQuery(ctx)) {
+                query.initQuery();
+                Transaction transaction = query.beginTransaction();
                 try {
-                    transaction.commit();
+                    query.setFetchSize(queryFetchSize);
+                    query.executeQuery();
+                    String prevStudyInstanceUID = null;
+                    LocalDate prevStudyExpirationDate = null;
+                    while (query.hasMoreMatches()) {
+                        Attributes attrs = query.nextMatch();
+                        StudyRetentionPolicy retentionPolicy =
+                                arcAE.findStudyRetentionPolicy(
+                                        null,
+                                        attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries),
+                                        aet,
+                                        attrs);
+
+                        if (retentionPolicy == null) {
+                            continue;
+                        }
+
+                        LocalDate expirationDate =
+                                retentionStartDate(attrs, retentionPolicy.isStartRetentionPeriodOnStudyDate())
+                                        .plus(retentionPolicy.getRetentionPeriod());
+
+                        String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+                        if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
+                            prevStudyInstanceUID = studyInstanceUID;
+                            prevStudyExpirationDate = expirationDate;
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
+                            count++;
+                        } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
+                            prevStudyExpirationDate = expirationDate;
+                            if (!retentionPolicy.isExpireSeriesIndividually())
+                                updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
+                        }
+
+                        if (retentionPolicy.isExpireSeriesIndividually())
+                            updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, ae);
+                    }
                 } catch (Exception e) {
-                    LOG.info("Failed to commit transaction:\n{}", e);
+                    LOG.warn("Unexpected exception:", e);
+                    return errResponseAsTextPlain(e);
+                } finally {
+                    try {
+                        transaction.commit();
+                    } catch (Exception e) {
+                        LOG.info("Failed to commit transaction:\n{}", e);
+                    }
                 }
             }
+            rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, null, request);
+            return Response.ok("{\"count\":" + count + '}').build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
         }
-        rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, null, request);
-        return Response.ok("{\"count\":" + count + '}').build();
     }
 
     static LocalDate retentionStartDate(Attributes attrs, boolean startRetentionPeriodOnStudyDate) {
@@ -208,10 +212,16 @@ public class ApplyRetentionPolicy {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 
     private QueryContext queryContext(ApplicationEntity ae) {

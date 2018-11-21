@@ -57,8 +57,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Comparator;
 
 /**
@@ -82,20 +86,37 @@ public class QueryExporters {
     @Produces("application/json")
     public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return out -> {
+        try {
+            return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptors().stream()
+                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getExporterDescriptors().stream()
                         .sorted(Comparator.comparing(ExporterDescriptor::getExporterID))
                         .forEach(exporter -> {
-                    JsonWriter writer = new JsonWriter(gen);
-                    gen.writeStartObject();
-                    writer.writeNotNullOrDef("id", exporter.getExporterID(), null);
-                    writer.writeNotNullOrDef("description", exporter.getDescription(), null);
-                    gen.writeEnd();
-                });
+                            JsonWriter writer = new JsonWriter(gen);
+                            gen.writeStartObject();
+                            writer.writeNotNullOrDef("id", exporter.getExporterID(), null);
+                            writer.writeNotNullOrDef("description", exporter.getDescription(), null);
+                            gen.writeEnd();
+                        });
                 gen.writeEnd();
                 gen.flush();
-        };
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

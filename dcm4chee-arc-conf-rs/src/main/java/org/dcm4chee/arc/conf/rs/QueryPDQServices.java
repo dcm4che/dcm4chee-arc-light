@@ -44,7 +44,6 @@ package org.dcm4chee.arc.conf.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -58,8 +57,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Comparator;
 
 /**
@@ -82,20 +85,37 @@ public class QueryPDQServices {
     @Produces("application/json")
     public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return out -> {
+        try {
+            return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                device.getDeviceExtension(ArchiveDeviceExtension.class).getPDQServiceDescriptors().stream()
+                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getPDQServiceDescriptors().stream()
                         .sorted(Comparator.comparing(PDQServiceDescriptor::getPDQServiceID))
                         .forEach(exporter -> {
-                    JsonWriter writer = new JsonWriter(gen);
-                    gen.writeStartObject();
-                    writer.writeNotNullOrDef("id", exporter.getPDQServiceID(), null);
-                    writer.writeNotNullOrDef("description", exporter.getDescription(), null);
-                    gen.writeEnd();
-                });
+                            JsonWriter writer = new JsonWriter(gen);
+                            gen.writeStartObject();
+                            writer.writeNotNullOrDef("id", exporter.getPDQServiceID(), null);
+                            writer.writeNotNullOrDef("description", exporter.getDescription(), null);
+                            gen.writeEnd();
+                        });
                 gen.writeEnd();
                 gen.flush();
-        };
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

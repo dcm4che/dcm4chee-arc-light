@@ -62,6 +62,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -136,12 +138,16 @@ public class DiffBatchRS {
     @NoCache
     public Response listDiffBatches() {
         logRequest();
-        List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                matchQueueBatch(status(), batchID),
-                matchDiffBatch(createdTime, updatedTime),
-                MatchTask.diffBatchOrder(orderby),
-                parseInt(offset), parseInt(limit));
-        return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
+        try {
+            List<DiffBatch> diffBatches = diffService.listDiffBatches(
+                    matchQueueBatch(status(), batchID),
+                    matchDiffBatch(createdTime, updatedTime),
+                    MatchTask.diffBatchOrder(orderby),
+                    parseInt(offset), parseInt(limit));
+            return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     @GET
@@ -150,15 +156,19 @@ public class DiffBatchRS {
     @Produces("application/dicom+json,application/json")
     public Response getDiffBatchResult(@PathParam("batchID") String batchID) {
         logRequest();
-        if (diffService.diffTasksOfBatch(batchID) == 0)
-            return Response.status(Response.Status.NOT_FOUND).build();
+        try {
+            if (diffService.diffTasksOfBatch(batchID) == 0)
+                return Response.status(Response.Status.NOT_FOUND).build();
 
-        return Response.ok(entity(diffService.getDiffTaskAttributes(
-                            matchQueueBatch(null, batchID),
-                            matchDiffBatch(null, null),
-                            parseInt(offset),
-                            parseInt(limit))))
-                .build();
+            return Response.ok(entity(diffService.getDiffTaskAttributes(
+                    matchQueueBatch(null, batchID),
+                    matchDiffBatch(null, null),
+                    parseInt(offset),
+                    parseInt(limit))))
+                    .build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     private enum Output {
@@ -250,6 +260,19 @@ public class DiffBatchRS {
     private Predicate matchDiffBatch(String createdTime, String updatedTime) {
         return MatchTask.matchDiffBatch(
                 localAET, primaryAET, secondaryAET, comparefields, checkMissing, checkDifferent, createdTime, updatedTime);
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
 }

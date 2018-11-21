@@ -62,6 +62,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -118,11 +120,15 @@ public class StgVerBatchRS {
     @NoCache
     public Response listStgVerBatches() {
         logRequest();
-        List<StgVerBatch> stgVerBatches =  stgCmtMgr.listStgVerBatches(
-                MatchTask.matchQueueBatch(deviceName, status(), batchID),
-                MatchTask.matchStgCmtBatch(localAET, createdTime, updatedTime),
-                MatchTask.stgCmtBatchOrder(orderby), parseInt(offset), parseInt(limit));
-        return Response.ok().entity(Output.JSON.entity(stgVerBatches)).build();
+        try {
+            List<StgVerBatch> stgVerBatches = stgCmtMgr.listStgVerBatches(
+                    MatchTask.matchQueueBatch(deviceName, status(), batchID),
+                    MatchTask.matchStgCmtBatch(localAET, createdTime, updatedTime),
+                    MatchTask.stgCmtBatchOrder(orderby), parseInt(offset), parseInt(limit));
+            return Response.ok().entity(Output.JSON.entity(stgVerBatches)).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     private enum Output {
@@ -139,11 +145,16 @@ public class StgVerBatchRS {
                         writeTasks(stgVerBatch, writer);
                         writer.writeNotEmpty("dicomDeviceName", stgVerBatch.getDeviceNames());
                         writer.writeNotEmpty("LocalAET", stgVerBatch.getLocalAETs());
-                        writer.writeNotEmpty("createdTimeRange", datesAsStrings(stgVerBatch.getCreatedTimeRange()));
-                        writer.writeNotEmpty("updatedTimeRange", datesAsStrings(stgVerBatch.getUpdatedTimeRange()));
-                        writer.writeNotEmpty("scheduledTimeRange", datesAsStrings(stgVerBatch.getScheduledTimeRange()));
-                        writer.writeNotEmpty("processingStartTimeRange", datesAsStrings(stgVerBatch.getProcessingStartTimeRange()));
-                        writer.writeNotEmpty("processingEndTimeRange", datesAsStrings(stgVerBatch.getProcessingEndTimeRange()));
+                        writer.writeNotEmpty("createdTimeRange",
+                                datesAsStrings(stgVerBatch.getCreatedTimeRange()));
+                        writer.writeNotEmpty("updatedTimeRange",
+                                datesAsStrings(stgVerBatch.getUpdatedTimeRange()));
+                        writer.writeNotEmpty("scheduledTimeRange",
+                                datesAsStrings(stgVerBatch.getScheduledTimeRange()));
+                        writer.writeNotEmpty("processingStartTimeRange",
+                                datesAsStrings(stgVerBatch.getProcessingStartTimeRange()));
+                        writer.writeNotEmpty("processingEndTimeRange",
+                                datesAsStrings(stgVerBatch.getProcessingEndTimeRange()));
                         gen.writeEnd();
                     }
                     gen.writeEnd();
@@ -185,5 +196,18 @@ public class StgVerBatchRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

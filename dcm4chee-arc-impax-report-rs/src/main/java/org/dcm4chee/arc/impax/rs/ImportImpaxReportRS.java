@@ -69,6 +69,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -108,33 +110,31 @@ public class ImportImpaxReportRS {
                 request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = getApplicationEntity();
         Attributes studyAttrs = queryStudyAttributes(studyUID);
-        Map<String, String> props = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                .getImpaxReportProperties();
-        ImpaxReportConverter converter = createConverter(studyAttrs, props);
         List<String> xmlReports = queryReports(studyUID);
-        List<Attributes> srReports;
         try {
-            srReports = converter.convert(xmlReports);
-        } catch (Exception e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        if (srReports.isEmpty()) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
-        Attributes response = new Attributes();
-        response.setString(Tag.RetrieveURL, VR.UR, studyRetrieveURL().toString());
-        try (StoreSession session = storeService.newStoreSession(request, ae, props.get("SourceAET"))) {
-            session.setImpaxReportEndpoint(converter.getEndpoint());
-            for (Attributes sr : srReports) {
-                StoreContext storeCtx = storeService.newStoreContext(session);
-                storeCtx.setImpaxReportPatientMismatch(converter.patientMismatchOf(sr));
-                storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-                storeReport(storeCtx, sr, response);
+            Map<String, String> props = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getImpaxReportProperties();
+            ImpaxReportConverter converter = new ImpaxReportConverter(props, studyAttrs);
+            List<Attributes> srReports = converter.convert(xmlReports);
+
+            if (srReports.isEmpty())
+                return Response.status(Response.Status.CONFLICT).build();
+
+            Attributes response = new Attributes();
+            response.setString(Tag.RetrieveURL, VR.UR, studyRetrieveURL().toString());
+            try (StoreSession session = storeService.newStoreSession(request, ae, props.get("SourceAET"))) {
+                session.setImpaxReportEndpoint(converter.getEndpoint());
+                for (Attributes sr : srReports) {
+                    StoreContext storeCtx = storeService.newStoreContext(session);
+                    storeCtx.setImpaxReportPatientMismatch(converter.patientMismatchOf(sr));
+                    storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+                    storeReport(storeCtx, sr, response);
+                }
             }
+            return buildResponse(xmlReports, response);
         } catch (Exception e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            return errResponseAsTextPlain(e);
         }
-        return buildResponse(xmlReports, response);
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -153,23 +153,13 @@ public class ImportImpaxReportRS {
         return studyAttrs;
     }
 
-    private ImpaxReportConverter createConverter(Attributes studyAttrs, Map<String, String> props) {
-        ImpaxReportConverter converter = null;
-        try {
-            converter = new ImpaxReportConverter(props, studyAttrs);
-        } catch (Exception e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        return converter;
-    }
-
     private List<String> queryReports(String studyUID) {
         try {
             return reportService.queryReportByStudyUid(studyUID);
         } catch (ConfigurationException e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         } catch (WebServiceException e) {
-            throw new WebApplicationException(e, Response.Status.BAD_GATEWAY);
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         }
     }
 
@@ -236,4 +226,20 @@ public class ImportImpaxReportRS {
         return attrs;
     }
 
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
 }

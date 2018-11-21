@@ -47,7 +47,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
-import org.dcm4chee.arc.pdq.PDQService;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -61,7 +60,6 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.PrintWriter;
@@ -94,16 +92,18 @@ public class QueryPatientDemographicRS {
     @Produces("application/dicom+json,application/json")
     public Response query(@PathParam("PatientID") IDWithIssuer patientID) {
         logRequest();
-        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
-        if (descriptor == null)
-            throw new WebApplicationException("No such PDQ Service: " + pdqServiceID,Response.Status.NOT_FOUND);
-
         Attributes attrs;
         try {
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
+            if (descriptor == null)
+                return errResponse("No such PDQ Service: " + pdqServiceID,Response.Status.NOT_FOUND);
+
             attrs = serviceFactory.getPDQService(descriptor).query(patientID);
         } catch (PDQServiceException e) {
             return errResponseAsTextPlain(e, Response.Status.BAD_GATEWAY);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
         return (attrs == null ? Response.status(Response.Status.NOT_FOUND) : Response.ok(toJSON(attrs))).build();
     }
@@ -111,6 +111,10 @@ public class QueryPatientDemographicRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private static Response errResponseAsTextPlain(Exception e, Response.Status status) {

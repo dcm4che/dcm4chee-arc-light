@@ -144,34 +144,39 @@ public class StgVerRS {
         if (!storageVerificationStorageIDs.isEmpty())
             ctx.setStgCmtStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
         try {
-            if (!stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID)) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity("{\"errorMessage\":\"No matching instances\"}")
-                        .build();
-            }
+            if (!stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID))
+                return errResponse("No matching instances", Response.Status.NOT_FOUND);
+
         } catch (IOException e) {
             ctx.setException(e);
-            stgCmtEvent.fire(ctx);
             return errResponseAsTextPlain(e);
+        } finally {
+            stgCmtEvent.fire(ctx);
         }
-        stgCmtEvent.fire(ctx);
         Attributes eventInfo = ctx.getEventInfo();
         return Response.status(toStatus(eventInfo))
                 .entity(toStreamingOutput(eventInfo))
                 .build();
     }
 
-    private static Response errResponseAsTextPlain(Exception e) {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
+    private Response errResponseAsTextPlain(Exception e) {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString)
+                .entity(exceptionAsString(e))
                 .type("text/plain")
                 .build();
     }
 
-    private static Response.Status toStatus(Attributes eventInfo) {
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response.Status toStatus(Attributes eventInfo) {
         int completed = sizeOf(eventInfo.getSequence(Tag.ReferencedSOPSequence));
         int failed = sizeOf(eventInfo.getSequence(Tag.FailedSOPSequence));
         return failed == 0 ? Response.Status.OK
@@ -179,11 +184,11 @@ public class StgVerRS {
                 : Response.Status.ACCEPTED;
     }
 
-    private static int sizeOf(Sequence seq) {
+    private int sizeOf(Sequence seq) {
         return seq != null ? seq.size() : 0;
     }
 
-    private static StreamingOutput toStreamingOutput(Attributes eventInfo) {
+    private StreamingOutput toStreamingOutput(Attributes eventInfo) {
         return out -> {
             try (JsonGenerator gen = Json.createGenerator(out)) {
                 JSONWriter writer = new JSONWriter(gen);
@@ -198,9 +203,7 @@ public class StgVerRS {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
-                    Response.status(Response.Status.NOT_FOUND)
-                            .entity("{\"errorMessage\":\"No such Application Entity: " + aet + "\"}")
-                            .build());
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 }

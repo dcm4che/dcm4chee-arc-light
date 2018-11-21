@@ -67,7 +67,6 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -141,10 +140,14 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() {
         logRequest();
-        QueueMessageQuery queueMessages = mgr.listQueueMessages(
-                matchQueueMessage(status(), null),
-                MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit));
-        return Response.ok(toEntity(queueMessages)).build();
+        try {
+            QueueMessageQuery queueMessages = mgr.listQueueMessages(
+                    matchQueueMessage(status(), null),
+                    MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit));
+            return Response.ok(toEntity(queueMessages)).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     @GET
@@ -153,7 +156,11 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() {
         logRequest();
-        return count(mgr.countTasks(matchQueueMessage(status(), null)));
+        try {
+            return count(mgr.countTasks(matchQueueMessage(status(), null)));
+        } catch (Exception e) {
+          return errResponseAsTextPlain(e);
+        }
     }
 
     @POST
@@ -166,6 +173,9 @@ public class QueueManagerRS {
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -190,6 +200,9 @@ public class QueueManagerRS {
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -252,8 +265,8 @@ public class QueueManagerRS {
 
     private int rescheduleMessages(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        int rescheduleTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         try {
+            int rescheduleTaskFetchSize = queueTasksFetchSize();
             int count;
             int rescheduled = 0;
             do {
@@ -279,9 +292,14 @@ public class QueueManagerRS {
     public Response deleteMessage(@PathParam("msgId") String msgId) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        boolean deleteTask = mgr.deleteTask(msgId, queueEvent);
-        queueMsgEvent.fire(queueEvent);
-        return rsp(deleteTask);
+        try {
+            return rsp(mgr.deleteTask(msgId, queueEvent));
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(e);
+        } finally {
+            queueMsgEvent.fire(queueEvent);
+        }
     }
 
     @DELETE
@@ -289,16 +307,22 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = 0;
-        int count;
-        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
-        do {
-            count = mgr.deleteTasks(matchQueueMessage(status(), null), deleteTaskFetchSize);
-            deleted += count;
-        } while (count >= deleteTaskFetchSize);
-        queueEvent.setCount(deleted);
-        bulkQueueMsgEvent.fire(queueEvent);
-        return "{\"deleted\":" + deleted + '}';
+        try {
+            int deleted = 0;
+            int count;
+            int deleteTaskFetchSize = queueTasksFetchSize();
+            do {
+                count = mgr.deleteTasks(matchQueueMessage(status(), null), deleteTaskFetchSize);
+                deleted += count;
+            } while (count >= deleteTaskFetchSize);
+            queueEvent.setCount(deleted);
+            return "{\"deleted\":" + deleted + '}';
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        } finally {
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
     }
 
     private static Response rsp(Response.Status status, Object entity) {
@@ -380,9 +404,19 @@ public class QueueManagerRS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
+    }
+
+    private int queueTasksFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
     }
 }

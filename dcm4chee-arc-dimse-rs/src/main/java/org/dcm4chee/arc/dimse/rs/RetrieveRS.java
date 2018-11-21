@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
@@ -124,7 +125,7 @@ public class RetrieveRS {
     @Produces("application/json")
     public Response exportStudy(
             @PathParam("StudyUID") String studyUID,
-            @PathParam("DestinationAET") String destinationAET) throws Exception {
+            @PathParam("DestinationAET") String destinationAET) {
         return export(destinationAET, studyUID);
     }
 
@@ -134,7 +135,7 @@ public class RetrieveRS {
     public Response exportSeries(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
-            @PathParam("DestinationAET") String destinationAET) throws Exception {
+            @PathParam("DestinationAET") String destinationAET) {
         return export(destinationAET, studyUID, seriesUID);
     }
 
@@ -145,7 +146,7 @@ public class RetrieveRS {
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ObjectUID") String objectUID,
-            @PathParam("DestinationAET") String destinationAET) throws Exception {
+            @PathParam("DestinationAET") String destinationAET) {
         return export(destinationAET, studyUID, seriesUID, objectUID);
     }
 
@@ -157,16 +158,26 @@ public class RetrieveRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
-    private Response export(String destAET, String... uids) throws Exception {
+    private Response export(String destAET, String... uids) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        Attributes keys = toKeys(uids);
-        checkAE(externalAET, aeCache.get(externalAET));
-        return queue ? queueExport(destAET, keys) : export(destAET, keys);
+        try {
+            checkAE(externalAET, aeCache.get(externalAET));
+        } catch (ConfigurationException e) {
+            return errResponseAsTextPlain(e);
+        }
+
+        try {
+            Attributes keys = toKeys(uids);
+            return queue ? queueExport(destAET, keys) : export(destAET, keys);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
     }
 
     private Response queueExport(String destAET, Attributes keys) {
         try {
-            retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, keys), batchID, null, 0L);
+            retrieveManager.scheduleRetrieveTask(
+                    priority(), createExtRetrieveCtx(destAET, keys), batchID, null, 0L);
         } catch (QueueSizeLimitExceededException e) {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
@@ -185,8 +196,6 @@ public class RetrieveRS {
                     .setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()))
                     .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
-        } catch (Exception e) {
-            return errResponseAsTextPlain(e);
         } finally {
             try {
                 as.release();
@@ -209,10 +218,16 @@ public class RetrieveRS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {

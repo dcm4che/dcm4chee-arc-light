@@ -267,7 +267,7 @@ public class ConfigurationRS {
     }
 
     private EnumSet<DicomConfiguration.Option> options() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         EnumSet<DicomConfiguration.Option> options = EnumSet.of(
                 DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
                 DicomConfiguration.Option.PRESERVE_CERTIFICATE,
@@ -283,20 +283,10 @@ public class ConfigurationRS {
     @Consumes("application/json")
     public void createDevice(@PathParam("DeviceName") String deviceName, Reader content) {
         logRequest();
+        Device device = toDevice(deviceName, content);
         try {
-            Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
-            if (!device.getDeviceName().equals(deviceName))
-                throw new IllegalArgumentException(
-                        "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL");
             ConfigurationChanges diffs = conf.persist(device, options());
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
-        } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
-        } catch (JsonParsingException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
@@ -309,21 +299,11 @@ public class ConfigurationRS {
     @Consumes("application/json")
     public void updateDevice(@PathParam("DeviceName") String deviceName, Reader content) {
         logRequest();
+        Device device = toDevice(deviceName, content);
         try {
-            Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
-            if (!device.getDeviceName().equals(deviceName))
-                throw new IllegalArgumentException(
-                        "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL");
             ConfigurationChanges diffs = conf.merge(device, options());
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
-        } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
-        } catch (JsonParsingException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
@@ -386,7 +366,7 @@ public class ConfigurationRS {
                 throw new WebApplicationException(errResponse(
                         "HL7 Application " + appName + " not registered.", Response.Status.NOT_FOUND));
                 hl7Conf.unregisterHL7Application(appName);
-        } catch (Exception e) {
+        } catch (ConfigurationException e) {
             throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
@@ -424,7 +404,8 @@ public class ConfigurationRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
-        return Response.ok(content).status(status).type("application/zip").header("Content-Disposition", "attachment; filename=vendordata.zip").build();
+        return Response.ok(content).status(status).type("application/zip")
+                .header("Content-Disposition", "attachment; filename=vendordata.zip").build();
     }
 
     @PUT
@@ -458,6 +439,28 @@ public class ConfigurationRS {
             return errResponseAsTextPlain(e);
         }
         return Response.ok().status(Response.Status.NO_CONTENT).build();
+    }
+
+    private Device toDevice(String deviceName, Reader content) {
+        Device device;
+        try {
+            device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    errResponse(e.getMessage() + " at location : " + e.getLocation(),
+                            Response.Status.BAD_REQUEST));
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+
+        if (!device.getDeviceName().equals(deviceName))
+            throw new WebApplicationException(errResponse(
+                    "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
+                    Response.Status.BAD_REQUEST));
+
+        return device;
     }
 
     private static DeviceInfo toDeviceInfo(UriInfo info) {
@@ -605,9 +608,15 @@ public class ConfigurationRS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 }

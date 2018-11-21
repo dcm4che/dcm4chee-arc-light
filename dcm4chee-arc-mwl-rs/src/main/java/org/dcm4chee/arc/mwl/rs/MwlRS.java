@@ -113,24 +113,26 @@ public class MwlRS {
     @Produces("application/dicom+json,application/json")
     public StreamingOutput updateSPS(InputStream in) {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        final Attributes attrs = toAttributes(in);
+        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+        if (patientID == null)
+            throw new WebApplicationException(
+                    errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+
+        Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (spsItem == null)
+            throw new WebApplicationException(
+                    errResponse("Missing or empty (0040,0100) Scheduled Procedure Step Sequence",
+                    Response.Status.BAD_REQUEST));
+
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException(
+                    errResponse("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND));
+
         try {
-            ArchiveAEExtension arcAE = getArchiveAE();
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-            final Attributes attrs = reader.readDataset(null);
-            IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-            if (patientID == null)
-                throw new WebApplicationException(errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
-
-            Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            if (spsItem == null)
-                throw new WebApplicationException(errResponse(
-                        "Missing or empty (0040,0100) Scheduled Procedure Step Sequence", Response.Status.BAD_REQUEST));
-
-            Patient patient = patientService.findPatient(patientID);
-            if (patient == null)
-                throw new WebApplicationException(errResponse("Patient[id=" + patientID + "] does not exists",
-                        Response.Status.NOT_FOUND));
-
             if (!attrs.containsValue(Tag.AccessionNumber))
                 idService.newAccessionNumber(attrs);
             if (!attrs.containsValue(Tag.RequestedProcedureID))
@@ -153,9 +155,6 @@ public class MwlRS {
                         new JSONWriter(gen).write(attrs);
                     }
             };
-        } catch (JsonParsingException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(e));
         }
@@ -166,14 +165,33 @@ public class MwlRS {
     public void deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
-        ctx.setStudyInstanceUID(studyIUID);
-        ctx.setSpsID(spsID);
-        procedureService.deleteProcedure(ctx);
-        if (ctx.getEventActionCode() == null)
-            throw new WebApplicationException(errResponse("MWLItem with study instance UID : " + studyIUID +
-                    " and SPS ID : " + spsID + " not found.", Response.Status.NOT_FOUND));
-        rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
+        try {
+            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ctx.setStudyInstanceUID(studyIUID);
+            ctx.setSpsID(spsID);
+            procedureService.deleteProcedure(ctx);
+            if (ctx.getEventActionCode() == null)
+                throw new WebApplicationException(errResponse(
+                        "MWLItem with study instance UID : " + studyIUID + " and SPS ID : "
+                                + spsID + " not found.",
+                        Response.Status.NOT_FOUND));
+            rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    private Attributes toAttributes(InputStream in) {
+        try {
+            return new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")))
+                    .readDataset(null);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    errResponse(e.getMessage() + " at location : " + e.getLocation(),
+                            Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
     }
 
     private Response errResponse(String errorMessage, Response.Status status) {
@@ -195,9 +213,15 @@ public class MwlRS {
     }
 
     private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 }

@@ -60,7 +60,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
@@ -95,38 +94,38 @@ public class UpdatePatientDemographics {
     public Response update(@PathParam("PDQServiceID") String pdqServiceID,
                        @PathParam("PatientID") IDWithIssuer patientID) {
         logRequest();
-        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
-        if (descriptor == null)
-            throw new WebApplicationException("No such PDQ Service: " + pdqServiceID,Response.Status.NOT_FOUND);
+        try {
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
+            if (descriptor == null)
+                return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
 
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
-        ctx.setPatientID(patientID);
-        ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
-        Attributes attrs;
-        try {
-            attrs = serviceFactory.getPDQService(descriptor).query(patientID);
-        } catch (PDQServiceException e) {
-            ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
-            patientService.updatePatientStatus(ctx);
-            return errResponseAsTextPlain(e, Response.Status.BAD_GATEWAY);
-        }
-        if (attrs == null) {
-            ctx.setPatientVerificationStatus(Patient.VerificationStatus.NOT_FOUND);
-            patientService.updatePatientStatus(ctx);
-            return Response.status(Response.Status.ACCEPTED).build();
-        }
-        ctx.setAttributes(attrs);
-        ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
-        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+            ctx.setPatientID(patientID);
+            ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
+            Attributes attrs;
+            try {
+                attrs = serviceFactory.getPDQService(descriptor).query(patientID);
+            } catch (PDQServiceException e) {
+                ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
+                patientService.updatePatientStatus(ctx);
+                return errResponseAsTextPlain(e, Response.Status.BAD_GATEWAY);
+            }
+            if (attrs == null) {
+                ctx.setPatientVerificationStatus(Patient.VerificationStatus.NOT_FOUND);
+                patientService.updatePatientStatus(ctx);
+                return Response.status(Response.Status.ACCEPTED).build();
+            }
+            ctx.setAttributes(attrs);
+            ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
             patientService.updatePatient(ctx);
-        } catch(Exception e) {
+            return Response.ok()
+                    .entity("{\"action\":\"" + ctx.getEventActionCode() + "\"}")
+                    .type("application/json")
+                    .build();
+        } catch (Exception e) {
             return errResponseAsTextPlain(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return Response.ok()
-                .entity("{\"action\":\"" + ctx.getEventActionCode() + "\"}")
-                .type("application/json")
-                .build();
     }
 
     private void logRequest() {
@@ -134,14 +133,18 @@ public class UpdatePatientDemographics {
                 request.getRemoteUser(), request.getRemoteHost());
     }
 
-    private static Response errResponseAsTextPlain(Exception e, Response.Status status) {
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e, Response.Status status) {
         return Response.status(status)
                 .entity(exceptionAsString(e))
                 .type("text/plain")
                 .build();
     }
 
-    private static String exceptionAsString(Exception e) {
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();

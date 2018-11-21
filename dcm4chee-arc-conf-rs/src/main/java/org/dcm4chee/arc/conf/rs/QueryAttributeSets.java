@@ -55,6 +55,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -103,6 +105,8 @@ public class QueryAttributeSets {
             throw new WebApplicationException(
                     Response.status(Response.Status.NOT_FOUND)
                             .entity("Attribute Set of type : " + type + " not found.").build());
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -111,5 +115,18 @@ public class QueryAttributeSets {
                             .filter(AttributeSet::isInstalled)
                             .sorted(Comparator.comparing(AttributeSet::getID))
                             .toArray(AttributeSet[]::new);
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(exceptionAsString(e))
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }
