@@ -49,11 +49,7 @@ import java.util.Map;
 public class AttributeSet implements Comparable<AttributeSet> {
 
     public enum Type {
-        QIDO_RS_PATIENT,
-        QIDO_RS_STUDY,
-        QIDO_RS_SERIES,
-        QIDO_RS_INSTANCE,
-        QIDO_RS_MWL,
+        QIDO_RS,
         WADO_RS,
         DIFF_RS,
         LEADING_CFIND_SCP
