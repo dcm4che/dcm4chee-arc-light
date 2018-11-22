@@ -77,7 +77,7 @@ import java.util.zip.ZipInputStream;
 @ApplicationScoped
 public class FailedToDeleteScheduler extends Scheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PurgeStorageScheduler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FailedToDeleteScheduler.class);
 
     @Inject
     private Device device;
