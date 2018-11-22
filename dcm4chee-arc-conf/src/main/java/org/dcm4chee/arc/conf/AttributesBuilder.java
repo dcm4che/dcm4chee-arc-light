@@ -44,6 +44,8 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.util.StringUtils;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,7 +63,37 @@ public class AttributesBuilder {
 
     public void setString(int[] tagPath, String... ss) {
         int tag = tagPath[tagPath.length-1];
-        nestedKeys(tagPath).setString(tag, DICT.vrOf(tag), ss);
+        VR vr = DICT.vrOf(tag);
+        if (vr == VR.UI && containsCommaSeparatedValues(ss)) {
+            ss = splitCommaSeparatedValues(ss);
+        }
+        nestedKeys(tagPath).setString(tag, vr, ss);
+    }
+
+    private static boolean containsCommaSeparatedValues(String[] ss) {
+        for (String s : ss)
+            if (s.indexOf(',') >= 0)
+                return true;
+
+        return false;
+    }
+
+    private static String[] splitCommaSeparatedValues(String[] ss) {
+        if (ss.length == 1)
+            return StringUtils.split(ss[0], ',');
+
+        String[][] sss = new String[ss.length][];
+        int n = 0;
+        for (int i = 0; i < ss.length; i++) {
+            n += (sss[i] = StringUtils.split(ss[i], ',')).length;
+        }
+        String[] dest = new String[n];
+        int destPos = 0;
+        for (String[] src : sss) {
+            System.arraycopy(src, 0, dest, destPos, src.length);
+            destPos += src.length;
+        }
+        return dest;
     }
 
     public void setNullIfAbsent(int... tagPath) {
