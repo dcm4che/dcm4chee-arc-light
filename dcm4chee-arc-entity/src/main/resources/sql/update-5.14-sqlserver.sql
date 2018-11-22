@@ -26,5 +26,5 @@ create sequence stgver_task_pk_seq;
 update series set stgver_failures = 0, compress_failures = 0;
 
 -- shall be applied on stopped or running archive 5.14
-alter table patient alter column verification_status int not null;
-alter table patient alter column failed_verifications int not null;
+alter table series alter column stgver_failures int not null,
+alter table series alter column compress_failures int not null;
