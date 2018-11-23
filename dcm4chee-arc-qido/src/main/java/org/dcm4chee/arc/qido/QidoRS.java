@@ -60,7 +60,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.hibernate.Transaction;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -89,7 +89,7 @@ import java.util.stream.Stream;
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
-@ValidUriInfo(type = QueryAttributes.class)
+@InvokeValidate(type = QidoRS.class)
 public class QidoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(QidoRS.class);
@@ -174,6 +174,10 @@ public class QidoRS {
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
+    }
+
+    public void validate() {
+        new QueryAttributes(uriInfo);
     }
 
     @GET

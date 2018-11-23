@@ -52,7 +52,7 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ import java.util.EnumSet;
  */
 @RequestScoped
 @Path("aets/{AETitle}/dimse/{ExternalAET}")
-@ValidUriInfo(type = QueryAttributes.class)
+@InvokeValidate(type = QueryRS.class)
 public class QueryRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryRS.class);
@@ -135,6 +135,10 @@ public class QueryRS {
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
+    }
+
+    public void validate() {
+        new QueryAttributes(uriInfo);
     }
 
     @GET
