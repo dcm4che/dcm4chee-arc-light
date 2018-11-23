@@ -108,6 +108,7 @@ public class QueryAttributes {
                 case "queue":
                 case "SplitStudyDateRange":
                 case "ForceQueryByStudyUID":
+                case "includedefaults":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,

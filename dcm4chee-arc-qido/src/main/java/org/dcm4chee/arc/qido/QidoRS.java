@@ -52,6 +52,8 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.AttributeSet;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -162,6 +164,10 @@ public class QidoRS {
 
     @QueryParam("accept")
     private List<String> accept;
+
+    @QueryParam("includedefaults")
+    @Pattern(regexp = "true|false")
+    private String includedefaults;
 
     private char csvDelimiter = ',';
 
@@ -354,6 +360,8 @@ public class QidoRS {
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         ctx.setReturnKeys(queryAttrs.getReturnKeys(qido.includetags));
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        if (output == Output.CSV)
+            model.setQueryAttrs(queryAttrs);
         try (Query query = model.createQuery(service, ctx)) {
             query.initQuery();
             int maxResults = arcAE.qidoMaxNumberOfResults();
@@ -416,7 +424,7 @@ public class QidoRS {
         if (acceptableMediaTypes.stream()
                 .anyMatch(
                         ((Predicate<MediaType>) MediaTypes.APPLICATION_DICOM_JSON_TYPE::isCompatible)
-                        .or(MediaType.APPLICATION_JSON_TYPE::isCompatible)))
+                                .or(MediaType.APPLICATION_JSON_TYPE::isCompatible)))
             return Output.JSON;
 
         if (acceptableMediaTypes.stream()
@@ -500,8 +508,7 @@ public class QidoRS {
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
         },
-        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND,
-                CSV.STUDY) {
+        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND, CSV.STUDY) {
             @Override
             public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return super.retrieveURL(qidoRS, match)
@@ -544,6 +551,8 @@ public class QidoRS {
         final NumberPath<Long> pk;
         final String sopClassUID;
         final CSV csv;
+        QueryAttributes queryAttrs;
+        int[] tags;
 
         Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID, CSV csv) {
             this.qrLevel = qrLevel;
@@ -581,6 +590,14 @@ public class QidoRS {
 
         String getSOPClassUID() {
             return sopClassUID;
+        }
+
+        void setQueryAttrs(QueryAttributes queryAttrs) {
+            this.queryAttrs = queryAttrs;
+        }
+
+        QueryAttributes getQueryAttrs() {
+            return queryAttrs;
         }
     }
 
@@ -671,9 +688,12 @@ public class QidoRS {
         final ArrayList<Attributes> matches = matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-            writeCSVHeader(writer, model.csv, csvDelimiter);
-            for (Attributes match : matches)
-                write(writer, match, model.csv, csvDelimiter);
+            int[] tags = tagsFrom(model);
+            if (tags.length != 0) {
+                writeCSVHeader(writer, tags, csvDelimiter);
+                for (Attributes match : matches)
+                    write(writer, match, tags, csvDelimiter);
+            }
             writer.flush();
         };
     }
@@ -694,24 +714,93 @@ public class QidoRS {
         return matches;
     }
 
-    private void writeCSVHeader(Writer writer, CSV csv, char delimiter) throws IOException {
-        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
-        writer.write(dict.keywordOf(csv.tags[0]));
-        writer.write(delimiter);
-        for (int i = 1; i < csv.tags.length; i++) {
-            writer.write(dict.keywordOf(csv.tags[i]));
-            writer.write(delimiter);
+    private int[] tagsFrom(Model model) {
+        QueryAttributes queryAttrs = model.getQueryAttrs();
+        return queryAttrs.isIncludeAll()
+                ? allFields(model)
+                : queryAttrs.getQueryKeys() != null
+                    ? includedefaults != null && !Boolean.parseBoolean(includedefaults)
+                        ? onlyIncludeFields(queryAttrs.getQueryKeys())
+                        : includeFieldsAndDefaults(queryAttrs.getQueryKeys(), model.csv.tags)
+                    : model.csv.tags;
+    }
+
+    private int[] allFields(Model model) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        int[] tags = arcDev.getAttributeFilter(Entity.Patient).getSelection();
+        switch (model) {
+            case STUDY:
+                return allNonSeqTags(tags, arcDev.getAttributeFilter(Entity.Study).getSelection());
+            case SERIES:
+                return allNonSeqTags(tags,
+                        arcDev.getAttributeFilter(Entity.Study).getSelection(),
+                        arcDev.getAttributeFilter(Entity.Series).getSelection());
+            case INSTANCE:
+                return allNonSeqTags(tags,
+                        arcDev.getAttributeFilter(Entity.Study).getSelection(),
+                        arcDev.getAttributeFilter(Entity.Series).getSelection(),
+                        arcDev.getAttributeFilter(Entity.Instance).getSelection());
+            case MWL:
+                return allNonSeqTags(tags,
+                        arcDev.getAttributeFilter(Entity.MWL).getSelection());
         }
+        return allNonSeqTags(tags);
+    }
+
+    private int[] allNonSeqTags(int[]... tags) {
+        Set<Integer> allNonSeqTags = new HashSet<>();
+        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
+        for (int entityTags[] : tags)
+            for (int tag : entityTags)
+                if (dict.vrOf(tag) != VR.SQ)
+                    allNonSeqTags.add(tag);
+
+        return allNonSeqTags.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private int[] onlyIncludeFields(Attributes attrs) {
+        return extractTags(attrs).stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private Set<Integer> extractTags(Attributes attrs) {
+        Set<Integer> tags = new HashSet<>();
+        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
+        try {
+            attrs.accept((attrs1, tag, vr, value) -> {
+                if (dict.vrOf(tag) != VR.SQ)
+                    tags.add(tag);
+                return true;
+            }, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return tags;
+    }
+
+    private int[] includeFieldsAndDefaults(Attributes attrs, int[] entityTags) {
+        Set<Integer> tags = extractTags(attrs);
+        for (int tag : entityTags)
+            tags.add(tag);
+        return tags.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private void writeCSVHeader(Writer writer, int[] tags, char delimiter) throws IOException {
+        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
+        writer.write(dict.keywordOf(tags[0]));
+        for (int i = 1; i < tags.length; i++) {
+            writer.write(delimiter);
+            writer.write(dict.keywordOf(tags[i]));
+        }
+
         writer.write('\r');
         writer.write('\n');
     }
 
-    private void write(Writer writer, Attributes attrs, CSV csv, char delimiter) throws IOException {
-        writeNotNull(writer, attrs.getString(csv.tags[0]));
-        writer.write(delimiter);
-        for (int i = 1; i < csv.tags.length; i++) {
-            writeNotNull(writer, attrs.getString(csv.tags[i]));
+    private void write(Writer writer, Attributes attrs, int[] tags, char delimiter) throws IOException {
+        writeNotNull(writer, attrs.getString(tags[0]));
+        for (int i = 1; i < tags.length; i++) {
             writer.write(delimiter);
+            writeNotNull(writer, attrs.getString(tags[i]));
         }
         writer.write('\r');
         writer.write('\n');
