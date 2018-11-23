@@ -74,6 +74,8 @@ public class InvokeValidateValidator implements ConstraintValidator<InvokeValida
       try {
          validate.invoke(obj);
       } catch (Exception e) {
+         context.disableDefaultConstraintViolation();
+         context.buildConstraintViolationWithTemplate(e.getCause().getMessage()).addConstraintViolation();
          return false;
       }
       return true;
