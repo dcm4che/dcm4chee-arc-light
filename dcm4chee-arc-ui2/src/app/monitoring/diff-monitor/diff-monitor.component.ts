@@ -70,7 +70,8 @@ export class DiffMonitorComponent implements OnInit {
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public dialogConfig: MatDialogConfig,
-        private permissionService:PermissionService
+        private permissionService:PermissionService,
+        private j4care:j4care
     ){}
 
     ngOnInit(){
@@ -177,17 +178,27 @@ export class DiffMonitorComponent implements OnInit {
 
                         break;
                     case "reschedule":
-                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks rescheduled successfully!',
-                                'status': 'info'
-                            });
-                            this.cfpLoadingBar.complete();
-                        }, (err) => {
-                            this.cfpLoadingBar.complete();
-                            this.httpErrorHandler.handleError(err);
-                        });
+                        this.cfpLoadingBar.complete();
+                        this.j4care.selectDevice((res)=>{
+                                if(res){
+                                    this.cfpLoadingBar.start();
+                                    let filter = Object.assign({},this.filterObject);
+                                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                    }
+                                    delete filter["limit"];
+                                    delete filter["offset"];
+                                    this.service.rescheduleAll(filter).subscribe((res)=>{
+                                        this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
+                                        this.cfpLoadingBar.complete();
+                                    }, (err) => {
+                                        this.cfpLoadingBar.complete();
+                                        this.httpErrorHandler.handleError(err);
+                                    });
+                                }
+                            },
+                            this.devices);
+
                         break;
                     case "delete":
                         this.deleteAllTasks(this.filterObject);
@@ -311,22 +322,27 @@ export class DiffMonitorComponent implements OnInit {
                 if (ok){
                     switch (mode) {
                         case 'reschedule':
-                            this.cfpLoadingBar.start();
-                            this.service.reschedule(match.pk)
-                                .subscribe(
-                                    (res) => {
-                                        this.getDiffTasks(this.filterObject['offset'] || 0);
-                                        this.cfpLoadingBar.complete();
-                                        this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Task rescheduled successfully!',
-                                            'status': 'info'
-                                        });
-                                    },
-                                    (err) => {
-                                        this.cfpLoadingBar.complete();
-                                        this.httpErrorHandler.handleError(err);
-                                    });
+                            this.j4care.selectDevice((res)=>{
+                                    if(res){
+                                        this.cfpLoadingBar.start();
+                                        let filter = {};
+                                        if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                            filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                        }
+                                        this.service.reschedule(match.pk, filter)
+                                            .subscribe(
+                                                (res) => {
+                                                    this.getDiffTasks(this.filterObject['offset'] || 0);
+                                                    this.cfpLoadingBar.complete();
+                                                    this.mainservice.showMsg('Task rescheduled successfully!');
+                                                },
+                                                (err) => {
+                                                    this.cfpLoadingBar.complete();
+                                                    this.httpErrorHandler.handleError(err);
+                                                });
+                                    }
+                                },
+                                this.devices);
                         break;
                         case 'delete':
                             this.cfpLoadingBar.start();
