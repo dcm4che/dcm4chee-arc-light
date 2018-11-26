@@ -228,7 +228,7 @@ public class ApplyRetentionPolicy {
         QueryContext ctx = queryService.newQueryContextQIDO(
                 request, "applyRetentionPolicy", ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)

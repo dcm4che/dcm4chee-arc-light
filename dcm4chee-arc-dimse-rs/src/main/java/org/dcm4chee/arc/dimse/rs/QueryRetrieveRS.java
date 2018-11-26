@@ -127,7 +127,7 @@ public class QueryRetrieveRS {
     }
 
     public void validate() {
-        new QueryAttributes(uriInfo);
+        new QueryAttributes(uriInfo, null);
     }
 
     @POST
@@ -257,7 +257,7 @@ public class QueryRetrieveRS {
         try {
             checkAE(externalAET, aeCache.get(externalAET));
             checkAE(queryAET, aeCache.get(queryAET));
-            QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
+            QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             queryAttributes.addReturnTags(level.uniqueKey());
             Attributes keys = queryAttributes.getQueryKeys();
             keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());

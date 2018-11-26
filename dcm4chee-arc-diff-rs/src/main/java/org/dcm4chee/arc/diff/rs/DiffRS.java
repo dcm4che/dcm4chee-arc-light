@@ -157,7 +157,7 @@ public class DiffRS {
     }
 
     public void validate() {
-        new QueryAttributes(uriInfo);
+        new QueryAttributes(uriInfo, null);
     }
 
     @GET

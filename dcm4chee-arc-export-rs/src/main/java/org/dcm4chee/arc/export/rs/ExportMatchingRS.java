@@ -316,7 +316,7 @@ public class ExportMatchingRS {
             ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(request, method, ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(qrlevel);
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)

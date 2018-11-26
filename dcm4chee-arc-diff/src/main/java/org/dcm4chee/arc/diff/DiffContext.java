@@ -127,7 +127,7 @@ public class DiffContext {
 
     public DiffContext setQueryString(String queryString, MultivaluedMap<String, String> queryParameters) {
         this.queryString = queryString;
-        this.queryAttributes = new QueryAttributes(queryParameters);
+        this.queryAttributes = new QueryAttributes(queryParameters, null);
         this.forceQueryByStudyUID = parseBoolean(queryParameters.getFirst("ForceQueryByStudyUID"), false);
         this.splitStudyDateRange = parseDuration(queryParameters.getFirst("SplitStudyDateRange"));
         this.compareKeys = parseComparefields(queryParameters.get("comparefield"));

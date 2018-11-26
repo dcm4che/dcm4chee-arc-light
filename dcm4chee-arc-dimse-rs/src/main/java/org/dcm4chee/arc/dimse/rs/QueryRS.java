@@ -138,7 +138,7 @@ public class QueryRS {
     }
 
     public void validate() {
-        new QueryAttributes(uriInfo);
+        new QueryAttributes(uriInfo, null);
     }
 
     @GET
@@ -241,7 +241,7 @@ public class QueryRS {
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         try {
             checkAE(externalAET, aeCache.get(externalAET));
-            QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
+            QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             if (!count) {
                 queryAttributes.addReturnTags(qido.includetags);
                 if (queryAttributes.isIncludeAll()) {

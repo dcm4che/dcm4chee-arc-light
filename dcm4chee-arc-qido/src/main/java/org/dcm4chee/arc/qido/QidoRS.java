@@ -177,7 +177,7 @@ public class QidoRS {
     }
 
     public void validate() {
-        new QueryAttributes(uriInfo);
+        new QueryAttributes(uriInfo, attributeSetMap());
     }
 
     @GET
@@ -321,7 +321,7 @@ public class QidoRS {
     @Produces("application/json")
     public Response sizeOfStudies() {
         logRequest();
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         QueryContext ctx = newQueryContext(
                 "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
         try (Query query = service.createStudyQuery(ctx)) {
@@ -348,7 +348,7 @@ public class QidoRS {
 
     private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
         logRequest();
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         try (Query query = model.createQuery(service, ctx)) {
             return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
@@ -357,10 +357,14 @@ public class QidoRS {
         }
     }
 
+    private Map<String, AttributeSet> attributeSetMap() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getAttributeSet(AttributeSet.Type.QIDO_RS);
+    }
+
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido) {
         logRequest();
         Output output = selectMediaType();
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         ctx.setReturnKeys(queryAttrs.getReturnKeys(qido.includetags));
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
@@ -556,7 +560,6 @@ public class QidoRS {
         final String sopClassUID;
         final CSV csv;
         QueryAttributes queryAttrs;
-        int[] tags;
 
         Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID, CSV csv) {
             this.qrLevel = qrLevel;
@@ -721,7 +724,7 @@ public class QidoRS {
     private int[] tagsFrom(Model model) {
         QueryAttributes queryAttrs = model.getQueryAttrs();
         return queryAttrs.isIncludeAll()
-                ? allFields(model)
+                ? allFieldsOf(model)
                 : queryAttrs.getQueryKeys() != null
                     ? includedefaults != null && !Boolean.parseBoolean(includedefaults)
                         ? onlyIncludeFields(queryAttrs.getQueryKeys())
@@ -729,7 +732,7 @@ public class QidoRS {
                     : model.csv.tags;
     }
 
-    private int[] allFields(Model model) {
+    private int[] allFieldsOf(Model model) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int[] tags = arcDev.getAttributeFilter(Entity.Patient).getSelection();
         switch (model) {
