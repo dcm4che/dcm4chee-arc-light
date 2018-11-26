@@ -86,6 +86,12 @@ $hoverBlue:#5293C1;
         & > label:first-child{
           text-align: right;
         }
+        & > label.label_large{
+          width:100%;
+          float: left;
+          text-align: left;
+          height:auto;
+        }
       }
     }
   }
@@ -102,6 +108,10 @@ $hoverBlue:#5293C1;
         }
         & > label:first-child{
           text-align: left;
+        }
+        &.label_large{
+          text-align: left;
+          height:auto;
         }
       }
     }
@@ -488,6 +498,12 @@ mat-grid-list{
         }
         &:last-child{
           float: right;
+        }
+        &.label_large{
+          width:100%;
+          float: left;
+          text-align:left;
+          height:auto;
         }
       }
       & > input,p-calendar input, modality input,range-picker input{

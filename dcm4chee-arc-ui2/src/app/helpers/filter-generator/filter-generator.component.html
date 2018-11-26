@@ -85,7 +85,8 @@
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
                     ></range-picker>
                   </ng-container>
-                  <div *ngSwitchCase="'dummy'"></div>
+                    <div *ngSwitchCase="'dummy'"></div>
+                    <label *ngSwitchCase="'label_large'" class="label_large">{{line[index].text}}</label>
                   <button (click)="submitEmit(line[index].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[index].description}}"><span class="glyphicon glyphicon-refresh"></span>  {{line[index].text}}</button>
                 </ng-container>
               </ng-container>
