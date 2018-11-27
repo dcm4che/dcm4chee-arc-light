@@ -366,10 +366,14 @@ public class QidoRS {
         Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
-        ctx.setReturnKeys(queryAttrs.getReturnKeys(qido.includetags));
+        ctx.setReturnKeys(includedefaults == null || Boolean.parseBoolean(includedefaults)
+                ? queryAttrs.getReturnKeys(qido.includetags)
+                : queryAttrs.getReturnKeysWithoutDefaults());
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        if (output == Output.CSV)
-            model.setQueryAttrs(queryAttrs);
+        if (output == Output.CSV) {
+            model.setIncludeAll(queryAttrs.isIncludeAll());
+            model.setReturnKeys(ctx.getReturnKeys());
+        }
         try (Query query = model.createQuery(service, ctx)) {
             query.initQuery();
             int maxResults = arcAE.qidoMaxNumberOfResults();
@@ -505,8 +509,7 @@ public class QidoRS {
     }
 
     private enum Model {
-        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk, UID.PatientRootQueryRetrieveInformationModelFIND,
-                CSV.PATIENT){
+        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk, UID.PatientRootQueryRetrieveInformationModelFIND){
             @Override
             public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
                 return null;
@@ -516,30 +519,28 @@ public class QidoRS {
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
         },
-        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND, CSV.STUDY) {
+        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
             @Override
             public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return super.retrieveURL(qidoRS, match)
                         .append("/studies/").append(match.getString(Tag.StudyInstanceUID));
             }
         },
-        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk, UID.StudyRootQueryRetrieveInformationModelFIND,
-                CSV.SERIES) {
+        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return STUDY.retrieveURL(qidoRS, match)
                         .append("/series/").append(match.getString(Tag.SeriesInstanceUID));
             }
         },
-        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk, UID.StudyRootQueryRetrieveInformationModelFIND,
-                CSV.INSTANCE) {
+        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return SERIES.retrieveURL(qidoRS, match)
                         .append("/instances/").append(match.getString(Tag.SOPInstanceUID));
             }
         },
-        MWL(null, QMWLItem.mWLItem.pk, UID.ModalityWorklistInformationModelFIND, CSV.MWL) {
+        MWL(null, QMWLItem.mWLItem.pk, UID.ModalityWorklistInformationModelFIND) {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createMWLQuery(ctx);
@@ -558,14 +559,13 @@ public class QidoRS {
         final QueryRetrieveLevel2 qrLevel;
         final NumberPath<Long> pk;
         final String sopClassUID;
-        final CSV csv;
-        QueryAttributes queryAttrs;
+        Attributes returnKeys;
+        boolean includeAll;
 
-        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID, CSV csv) {
+        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID) {
             this.qrLevel = qrLevel;
             this.pk = pk;
             this.sopClassUID = sopClassUID;
-            this.csv = csv;
         }
 
         QueryRetrieveLevel2 getQueryRetrieveLevel() {
@@ -599,12 +599,12 @@ public class QidoRS {
             return sopClassUID;
         }
 
-        void setQueryAttrs(QueryAttributes queryAttrs) {
-            this.queryAttrs = queryAttrs;
+        void setIncludeAll(boolean includeAll) {
+            this.includeAll = includeAll;
         }
 
-        QueryAttributes getQueryAttrs() {
-            return queryAttrs;
+        void setReturnKeys(Attributes returnKeys) {
+            this.returnKeys = returnKeys;
         }
     }
 
@@ -722,14 +722,9 @@ public class QidoRS {
     }
 
     private int[] tagsFrom(Model model) {
-        QueryAttributes queryAttrs = model.getQueryAttrs();
-        return queryAttrs.isIncludeAll()
+        return model.includeAll
                 ? allFieldsOf(model)
-                : queryAttrs.getQueryKeys() != null
-                    ? includedefaults != null && !Boolean.parseBoolean(includedefaults)
-                        ? onlyIncludeFields(queryAttrs.getQueryKeys())
-                        : includeFieldsAndDefaults(queryAttrs.getQueryKeys(), model.csv.tags)
-                    : model.csv.tags;
+                : nonSeqTagsFrom(model.returnKeys);
     }
 
     private int[] allFieldsOf(Model model) {
@@ -765,11 +760,7 @@ public class QidoRS {
         return allNonSeqTags.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    private int[] onlyIncludeFields(Attributes attrs) {
-        return extractTags(attrs).stream().mapToInt(Integer::intValue).toArray();
-    }
-
-    private Set<Integer> extractTags(Attributes attrs) {
+    private int[] nonSeqTagsFrom(Attributes attrs) {
         Set<Integer> tags = new HashSet<>();
         ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
         try {
@@ -781,13 +772,6 @@ public class QidoRS {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return tags;
-    }
-
-    private int[] includeFieldsAndDefaults(Attributes attrs, int[] entityTags) {
-        Set<Integer> tags = extractTags(attrs);
-        for (int tag : entityTags)
-            tags.add(tag);
         return tags.stream().mapToInt(Integer::intValue).toArray();
     }
 

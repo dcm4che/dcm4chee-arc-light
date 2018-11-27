@@ -196,6 +196,15 @@ public class QueryAttributes {
             returnKeys.setNull(tag, DICT.vrOf(tag));
         return returnKeys;
     }
+    
+    public Attributes getReturnKeysWithoutDefaults() {
+        if (includeAll)
+            return null;
+
+        Attributes returnKeys = new Attributes(keys.size());
+        returnKeys.addAll(keys);
+        return returnKeys;
+    }
 
     public ArrayList<OrderByTag> getOrderByTags() {
         return orderByTags;
