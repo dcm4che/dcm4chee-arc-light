@@ -366,9 +366,11 @@ public class QidoRS {
         Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
-        ctx.setReturnKeys(includedefaults == null || Boolean.parseBoolean(includedefaults)
+        ctx.setReturnKeys(queryAttrs.isIncludeAll()
+                ? null
+                : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
                 ? queryAttrs.getReturnKeys(qido.includetags)
-                : queryAttrs.getReturnKeysWithoutDefaults());
+                : queryAttrs.getQueryKeys());
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         if (output == Output.CSV) {
             model.setIncludeAll(queryAttrs.isIncludeAll());
@@ -420,6 +422,10 @@ public class QidoRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
+    }
+
+    private boolean includeDefaults() {
+        return !"false".equals(includedefaults);
     }
 
     private void logRequest() {

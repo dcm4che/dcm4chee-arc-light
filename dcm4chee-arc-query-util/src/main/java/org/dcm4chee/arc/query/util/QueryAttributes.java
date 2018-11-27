@@ -183,9 +183,6 @@ public class QueryAttributes {
     }
 
     public Attributes getReturnKeys(int[] includetags) {
-        if (includeAll)
-            return null;
-
         Attributes returnKeys = new Attributes(keys.size() + 4 + includetags.length);
         returnKeys.addAll(keys);
         returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
@@ -197,15 +194,6 @@ public class QueryAttributes {
         return returnKeys;
     }
     
-    public Attributes getReturnKeysWithoutDefaults() {
-        if (includeAll)
-            return null;
-
-        Attributes returnKeys = new Attributes(keys.size());
-        returnKeys.addAll(keys);
-        return returnKeys;
-    }
-
     public ArrayList<OrderByTag> getOrderByTags() {
         return orderByTags;
     }
