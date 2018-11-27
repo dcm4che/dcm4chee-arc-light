@@ -989,8 +989,9 @@ public class AuditService {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         Calendar eventTime = getEventTime(path, auditLogger);
-        boolean unverifiedPat = Patient.VerificationStatus.valueOf(
-                auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS)) == Patient.VerificationStatus.UNVERIFIED;
+        String patVerStatus = auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS);
+        boolean unverifiedPat = patVerStatus == null
+                || Patient.VerificationStatus.valueOf(patVerStatus) == Patient.VerificationStatus.UNVERIFIED;
 
         ActiveParticipantBuilder[] activeParticipantBuilder = auditInfo.getField(AuditInfo.PDQ_SERVICE_URI) != null
                 ? patVerActiveParticipants(auditLogger, et, auditInfo)
@@ -1010,11 +1011,15 @@ public class AuditService {
         emitAuditMessage(auditMsg, auditLogger);
     }
 
+    private Patient.VerificationStatus patVerStatus(String patVerStatus) {
+        return patVerStatus != null ? Patient.VerificationStatus.valueOf(patVerStatus) : null;
+    }
+
     private EventIdentificationBuilder patVerEventIdentification(
             AuditUtils.EventType et, AuditInfo auditInfo, Calendar eventTime) {
-        Patient.VerificationStatus patVerStatus = Patient.VerificationStatus.valueOf(
-                auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS));
+        Patient.VerificationStatus patVerStatus = patVerStatus(auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS));
         String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+
         String eoi = patVerStatus == Patient.VerificationStatus.VERIFICATION_FAILED
                 ? AuditMessages.EventOutcomeIndicator.SeriousFailure
                 : patVerStatus == Patient.VerificationStatus.NOT_FOUND || outcome != null
@@ -1023,6 +1028,7 @@ public class AuditService {
         String outcomeDesc = patVerStatus == Patient.VerificationStatus.NOT_FOUND
                 || patVerStatus == Patient.VerificationStatus.VERIFICATION_FAILED
                 ? patVerStatus.name() : outcome;
+
         return new EventIdentificationBuilder.Builder(et.eventID, et.eventActionCode, eventTime, eoi)
                 .outcomeDesc(outcomeDesc).build();
     }
