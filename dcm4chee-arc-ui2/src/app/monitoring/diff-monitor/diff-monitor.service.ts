@@ -448,8 +448,8 @@ export class DiffMonitorService {
         return this.$http.post(`../monitor/diff/reschedule${urlParam}`, {}, this.header)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
-    reschedule(pk){
-        return this.$http.post(`../monitor/diff/${pk}/reschedule`, {});
+    reschedule(pk, data){
+        return this.$http.post(`../monitor/diff/${pk}/reschedule`, data);
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);

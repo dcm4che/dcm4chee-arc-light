@@ -142,7 +142,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent,{
             height: 'auto',
-            width: '500px'
+            width: '465px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -400,30 +400,13 @@ export class ExportComponent implements OnInit, OnDestroy {
                 });
                 break;
             case "reschedule":
-                let dicomPrefixes = [];
-                let noDicomExporters = [];
-                _.forEach(this.exporters, (m, i) => {
-                    if (m.id.indexOf(':') > -1) {
-                        dicomPrefixes.push(m);
-                    } else {
-                        noDicomExporters.push(m);
-                    }
-                });
-                this.config.viewContainerRef = this.viewContainerRef;
-                this.dialogRef = this.dialog.open(ExportDialogComponent, {
-                    height: 'auto',
-                    width: '500px'
-                });
-                this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
-                this.dialogRef.componentInstance.title = `Are you sure, you want to reschedule all matching tasks?`;
-                this.dialogRef.componentInstance.warning = null;
-                this.dialogRef.componentInstance.mode = "reschedule";
-                this.dialogRef.componentInstance.subTitle = "Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:";
-                this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
-                this.dialogRef.afterClosed().subscribe((ok) => {
+                this.rescheduleDialog((ok)=>{
                     if (ok) {
                         this.cfpLoadingBar.start();
-                        this.service.rescheduleAll(filter,ok.selectedExporter).subscribe((res)=>{
+                        if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
+                            filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                        }
+                        this.service.rescheduleAll(filter,ok.schema_model.selectedExporter).subscribe((res)=>{
                             this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
                             this.cfpLoadingBar.complete();
                         }, (err) => {
@@ -470,6 +453,28 @@ export class ExportComponent implements OnInit, OnDestroy {
     checkAll(event){
         this.matches.forEach((match)=>{
             match.checked = event.target.checked;
+        });
+    }
+    rescheduleDialog(callBack){
+        let dicomPrefixes = [];
+        let noDicomExporters = [];
+        _.forEach(this.exporters, (m, i) => {
+            if (m.id.indexOf(':') > -1) {
+                dicomPrefixes.push(m);
+            } else {
+                noDicomExporters.push(m);
+            }
+        });
+        this.confirm({
+            content: 'Are you sure, you want to reschedule all matching tasks?',
+            doNotSave:true,
+            form_schema: this.devices.getDialogSchema(noDicomExporters, this.devices),
+            result: {
+                schema_model: {}
+            },
+            saveButton: 'SUBMIT'
+        }).subscribe((ok)=>{
+                callBack.call(this, ok);
         });
     }
     executeAll(mode){

@@ -71,8 +71,11 @@ export class ExportService {
         return this.$http.delete(`../monitor/export${urlParam}`, this.header)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
-    reschedule(pk, exporterID){
-        return this.$http.post('../monitor/export/' + pk + '/reschedule/' + exporterID, {});
+    reschedule(pk, exporterID, filter?){
+        filter = filter || "";
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post('../monitor/export/' + pk + '/reschedule/' + exporterID + urlParam, {});
     }
 
     rescheduleAll(filter, exporterID){
@@ -102,6 +105,61 @@ export class ExportService {
             "FAILED",
             "CANCELED"
         ];
+    }
+    getDialogSchema(noDicomExporters, devices){
+        return [
+            [
+                [
+                    {
+                        tag:"label_large",
+                        text:"Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:"
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:"Exporter ID"
+                    },
+                    {
+                        tag:"select",
+                        options:noDicomExporters.map(exporter=>{
+                            return {
+                                text:exporter.description,
+                                value:exporter.id
+                            }
+                        }),
+                        filterKey:"selectedExporter",
+                        description:"Exporter ID",
+                        placeholder:"Exporter ID"
+                    }
+                ],
+                [
+                    {
+                        tag:"label_large",
+                        text:'Select device if you wan\'t to reschedule to an other device:'
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:"Device"
+                    },
+                    {
+                        tag:"select",
+                        options:devices.map(device=>{
+                            return {
+                                text:device.dicomDeviceName,
+                                value:device.dicomDeviceName
+                            }
+                        }),
+                        showStar:true,
+                        filterKey:"newDeviceName",
+                        description:"Device",
+                        placeholder:"Device"
+                    }
+                ]
+            ]
+        ]
     }
     getFilterSchema(exporters, devices, countText){
         return [
