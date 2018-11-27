@@ -427,6 +427,22 @@ class ArchiveDeviceFactory {
             Tag.AccessionNumber,
             Tag.IssuerOfAccessionNumberSequence,
     };
+    static final int[] QIDO_STUDY_ATTRS = {
+            Tag.StudyDate,
+            Tag.StudyTime,
+            Tag.AccessionNumber,
+            Tag.ModalitiesInStudy,
+            Tag.ReferringPhysicianName,
+            Tag.PatientName,
+            Tag.PatientID,
+            Tag.PatientBirthDate,
+            Tag.PatientSex,
+            Tag.StudyID,
+            Tag.StudyInstanceUID,
+            Tag.StudyDescription,
+            Tag.NumberOfStudyRelatedSeries,
+            Tag.NumberOfStudyRelatedInstances
+    };
     static final int[] MPPS_ATTRS = {
             Tag.SpecificCharacterSet,
             Tag.Modality,
@@ -1517,6 +1533,11 @@ class ArchiveDeviceFactory {
                 "Default",
                 null,
                 LEADING_CFIND_SCP_ATTRS));
+        ext.addAttributeSet(newAttributeSet(AttributeSet.Type.QIDO_RS,
+                0, "study",
+                "QIDO Study attribute set",
+                "QIDO Study attribute set for CSV",
+                QIDO_STUDY_ATTRS));
 
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
