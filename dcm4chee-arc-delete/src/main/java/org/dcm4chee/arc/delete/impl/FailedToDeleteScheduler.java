@@ -67,7 +67,10 @@ import javax.json.Json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -94,8 +97,10 @@ public class FailedToDeleteScheduler extends Scheduler {
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
 
+    private Set<String> inProcess = Collections.synchronizedSet(new HashSet<>());
+
     protected FailedToDeleteScheduler() {
-        super(Mode.scheduleWithFixedDelay);
+        super(Mode.scheduleAtFixedRate);
     }
 
     @Override
@@ -112,23 +117,26 @@ public class FailedToDeleteScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
-            if (!desc.isReadOnly()) {
-                if (arcDev.getFailedToDeletePollingInterval() == null) return;
-                LOG.info("Start resolving deletion failures on {}", desc);
-                try {
-                    resolveObjectDeletionFailures(arcDev, desc);
-                    resolveSeriesMetadatDeletionFailures(arcDev, desc);
-                } catch (Throwable e) {
-                    LOG.warn("Resolving deletion failures on {} throws:\n", desc, e);
-                } finally {
-                    LOG.info("Finished resolving deletion failures on {}", desc);
-                }
+            if (arcDev.getFailedToDeletePollingInterval() == null) return;
+            if (!desc.isReadOnly() && inProcess.add(desc.getStorageID())) {
+                device.execute(() -> {
+                    LOG.info("Start resolving deletion failures on {}", desc);
+                    try {
+                        resolveObjectDeletionFailures(arcDev, desc);
+                        resolveSeriesMetadatDeletionFailures(arcDev, desc);
+                    } catch (Throwable e) {
+                        LOG.warn("Resolving deletion failures on {} throws:\n", desc, e);
+                    } finally {
+                        inProcess.remove(desc.getStorageID());
+                        LOG.info("Finished resolving deletion failures on {}", desc);
+                    }
+                });
             }
         }
     }
 
     private enum Result {
-        SKIPPED("{} deletion failures on {} already processed by another node."),
+        SKIPPED("Skipped {} deletion failures on {} already processed by another node."),
         NO_OBJECT("Resolved {} deletion failures on {}: object was already deleted."),
         IN_USE("Resolved {} deletion failures on {}: object in-use - do not delete."),
         TO_DELETE("Resolved {} deletion failures on {}: deletion rescheduled."),
