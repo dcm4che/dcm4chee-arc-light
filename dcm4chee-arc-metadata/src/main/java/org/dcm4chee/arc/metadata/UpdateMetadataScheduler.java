@@ -227,6 +227,7 @@ public class UpdateMetadataScheduler extends Scheduler {
                     } catch (Exception e1) {
                         LOG.warn("Failed to revoke storage", e1);
                     }
+                    return;
                 }
                 LOG.debug("Created/Updated Metadata for Series[pk={}] on {}",
                         ctx.getSeriesMetadataUpdate().seriesPk,
