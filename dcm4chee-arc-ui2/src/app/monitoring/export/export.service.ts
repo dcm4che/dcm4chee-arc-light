@@ -106,23 +106,23 @@ export class ExportService {
             "CANCELED"
         ];
     }
-    getDialogSchema(noDicomExporters, devices){
+    getDialogSchema(exporters, devices, text?){
         return [
             [
                 [
                     {
                         tag:"label_large",
-                        text:"Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:"
+                        text:text || "Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:"
                     }
                 ],
                 [
                     {
                         tag:"label",
-                        text:"Exporter ID"
+                        text:"Exporter ID",
                     },
                     {
                         tag:"select",
-                        options:noDicomExporters.map(exporter=>{
+                        options:exporters.map(exporter=>{
                             return {
                                 text:exporter.description,
                                 value:exporter.id

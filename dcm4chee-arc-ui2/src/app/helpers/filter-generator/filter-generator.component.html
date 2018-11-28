@@ -21,9 +21,9 @@
     </div>
     <ng-container *ngFor="let filter of schema;trackBy:trackByFn">
         <div class="filter_block {{cssBlockClass}}" (click)="inFilterClicked()">
-            <div *ngFor="let line of filter;trackBy:trackByFn" class="line" [ngSwitch]="filter.type">
+            <div *ngFor="let line of filter;trackBy:trackByFn" [ngClass]="{'line':((line && line[0] && (!line[0].showIf || line[0].showIf(model)) && ((line[0].dependingOn && model[line[0].dependingOn]) || !line[0].dependingOn))||(line && line[1] && (!line[1].showIf || line[1].showIf(model)) && ((line[1].dependingOn && model[line[1].dependingOn]) || !line[1].dependingOn)))}" [ngSwitch]="filter.type">
               <ng-container *ngFor="let index of [0,1]">
-                <ng-container *ngIf="line && line[index] && (!line[index].showIf || line[index].showIf(model))" [ngSwitch]="line[index].tag">
+                <ng-container *ngIf="line && line[index] && (!line[index].showIf || line[index].showIf(model)) && ((line[index].dependingOn && model[line[index].dependingOn]) || !line[index].dependingOn)" [ngSwitch]="line[index].tag">
                     <div class="input_group_dropdown" *ngSwitchCase="'combined'">
                         <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
                         <mat-select [(ngModel)]="model[line[index].secondField.filterKey]">

@@ -455,22 +455,13 @@ export class ExportComponent implements OnInit, OnDestroy {
             match.checked = event.target.checked;
         });
     }
-    rescheduleDialog(callBack){
-        let dicomPrefixes = [];
-        let noDicomExporters = [];
-        _.forEach(this.exporters, (m, i) => {
-            if (m.id.indexOf(':') > -1) {
-                dicomPrefixes.push(m);
-            } else {
-                noDicomExporters.push(m);
-            }
-        });
+    rescheduleDialog(callBack:Function,  schema_model?:any, title?:string, text?:string){
         this.confirm({
-            content: 'Are you sure, you want to reschedule all matching tasks?',
+            content: title || 'Task reschedule',
             doNotSave:true,
-            form_schema: this.devices.getDialogSchema(noDicomExporters, this.devices),
+            form_schema: this.service.getDialogSchema(this.exporters, this.devices, text),
             result: {
-                schema_model: {}
+                schema_model: schema_model || {}
             },
             saveButton: 'SUBMIT'
         }).subscribe((ok)=>{
@@ -478,86 +469,49 @@ export class ExportComponent implements OnInit, OnDestroy {
         });
     }
     executeAll(mode){
-        this.confirm({
-            content: `Are you sure you want to ${mode} selected entries?`
-        }).subscribe(result => {
-            if (result){
-                if(mode === "reschedule"){
-                    let $this = this;
+        if(mode === "reschedule"){
+            this.rescheduleDialog((ok)=>{
+                if (ok) {
+                    this.cfpLoadingBar.start();
+                    let filter  = {};
                     let id;
-                    let noDicomExporters = [];
-                    let dicomPrefixes = [];
-                    _.forEach(this.exporters, (m, i) => {
-                        if (m.id.indexOf(':') > -1){
-                            dicomPrefixes.push(m);
-                        }else{
-                            noDicomExporters.push(m);
+                    if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
+                        filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(ok, "schema_model.selectedExporter")){
+                        id = ok.schema_model.selectedExporter;
+                    }
+                    this.matches.forEach((match, i)=>{
+                        if(match.checked){
+                            this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
+                                .subscribe(
+                                    (res) => {
+                                        this.mainservice.showMsg(`Task ${match.properties.pk} rescheduled successfully!`);
+                                        if(this.matches.length === i+1){
+                                            this.cfpLoadingBar.complete();
+                                        }
+                                    },
+                                    (err) => {
+                                        this.httpErrorHandler.handleError(err);
+                                        if(this.matches.length === i+1){
+                                            this.cfpLoadingBar.complete();
+                                        }
+                                    });
+                        }
+                        if(this.matches.length === i+1){
+                            this.cfpLoadingBar.complete();
                         }
                     });
-                    // if (match.properties.ExporterID){
-/*                        if (match.properties.ExporterID.indexOf(':') > -1){
-                            let parameters = _.split(match.properties.ExporterID, ':');
-                            result = {
-                                exportType: 'dicom',
-                                selectedAet: parameters[1],
-                                selectedExporter: undefined,
-                                dicomPrefix: parameters[0] + ':'
-                            };
-                        }else{
-                            result = {
-                                exportType: 'nonedicom',
-                                selectedAet: undefined,
-                                selectedExporter: match.properties.ExporterID,
-                                dicomPrefix: undefined
-                            };
-                        }*/
-                    // }
-                    this.dialogRef = this.dialog.open(ExportDialogComponent, {
-                        height: 'auto',
-                        width: '500px'
-                    });
-                    this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
-                    this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
-                    this.dialogRef.componentInstance.title = 'Task reschedule';
-                    this.dialogRef.componentInstance.warning = null;
-                    // this.dialogRef.componentInstance.result = result;
-                    this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
-                    this.dialogRef.componentInstance.externalInternalAetMode = "internal";
-                    this.dialogRef.componentInstance.mode = "single";
-                    this.dialogRef.afterClosed().subscribe(result => {
-                        if (result){
-                            $this.cfpLoadingBar.start();
-                            if (result.exportType === 'dicom'){
-                                // id = result.dicomPrefix + result.selectedAet;
-                                id = 'dicom:' + result.selectedAet;
-                            }else{
-                                id = result.selectedExporter;
-                            }
-                            this.matches.forEach((match)=>{
-                                if(match.checked){
-                                    // $this.cfpLoadingBar.start();
-                                    $this.service.reschedule(match.properties.pk, id)
-                                        .subscribe(
-                                            (res) => {
-                                                // $this.mainservice.setMessage({
-                                                //     'title': 'Info',
-                                                //     'text': 'Task rescheduled successfully!',
-                                                //     'status': 'info'
-                                                // });
-                                                console.log("Execute result",res);
-                                            },
-                                            (err) => {
-                                                $this.httpErrorHandler.handleError(err);
-                                            });
-                                }
-                            });
-                            setTimeout(()=>{
-                                this.search(this.matches[0].offset || 0);
-                                this.cfpLoadingBar.complete();
-                            },300);
-                        }
-                    });
-                }else{
+                }
+                this.allAction = "";
+                this.allAction = undefined;
+            });
+            ////
+        }else{
+            this.confirm({
+                content: `Are you sure you want to ${mode} selected entries?`
+            }).subscribe(result => {
+                if (result){
                     this.cfpLoadingBar.start();
                     this.matches.forEach((match)=>{
                         if(match.checked){
@@ -573,9 +527,10 @@ export class ExportComponent implements OnInit, OnDestroy {
                         this.search(this.matches[0].offset || 0);
                         this.cfpLoadingBar.complete();
                     },300);
+
                 }
-            }
-        });
+            });
+        }
     }
     msToTime(duration,mode?) {
         if(mode)
@@ -663,7 +618,37 @@ export class ExportComponent implements OnInit, OnDestroy {
         });
     };
     reschedule(match) {
-        let $this = this;
+        this.rescheduleDialog((ok)=>{
+            if (ok) {
+                this.cfpLoadingBar.start();
+                let filter  = {};
+                let id;
+                if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
+                    filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                }
+                if(_.hasIn(ok, "schema_model.selectedExporter")){
+                    id = ok.schema_model.selectedExporter;
+                }
+                this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
+                    .subscribe(
+                        (res) => {
+                            this.mainservice.showMsg(`Task ${match.properties.pk} rescheduled successfully!`);
+                                this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            this.httpErrorHandler.handleError(err);
+                                this.cfpLoadingBar.complete();
+                        });
+
+            }
+        },
+        {
+            selectedExporter: match.properties.ExporterID
+        },
+        undefined,
+        "Change the Exporter Id only if you wan't to reschedule to another exporter!"
+        );
+/*        let $this = this;
         let id;
         let noDicomExporters = [];
         let dicomPrefixes = [];
@@ -726,7 +711,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             $this.httpErrorHandler.handleError(err);
                         });
             }
-        });
+        });*/
     };
 
     hasOlder(objs) {

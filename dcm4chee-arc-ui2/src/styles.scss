@@ -506,6 +506,9 @@ mat-grid-list{
           height:auto;
         }
       }
+      mat-radio-group{
+        height: auto;
+      }
       & > input,p-calendar input, modality input,range-picker input{
         border:none;
         border-bottom:1px solid #cccccc;
@@ -2591,6 +2594,14 @@ dicom-list{
     }
   }
 }
+.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+  border-color: #061d2f;
+}
+
+.mat-radio-button.mat-accent .mat-radio-inner-circle {
+  background-color: #061d2f;
+}
+
 /* New black and white design*/
 $pink:rgba(82, 36, 88, 0.85);
 $backgroundColor:rgba(28, 36, 43, 0.92);
