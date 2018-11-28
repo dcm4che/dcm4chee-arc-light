@@ -52,6 +52,12 @@
       "items" : {
         "$ref": "uiCompareSide.schema.json"
       }
+    },
+    "dicomuiDockerContainer": {
+      "title": "Archive Docker Containers",
+      "description": "Names of the archive docker containers used in the hardware page",
+      "type": "array",
+      "items" : { "type": "string" }
     }
   }
 }

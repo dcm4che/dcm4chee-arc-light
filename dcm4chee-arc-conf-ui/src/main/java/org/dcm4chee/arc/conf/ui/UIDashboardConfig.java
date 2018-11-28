@@ -54,6 +54,7 @@ public class UIDashboardConfig {
     private String[] deviceNames = {};
     private String countAet;
     private String[] ignoreParams = {};
+    private String[] dockerContainers = {};
     private final Map<String,UICompareSide> compareSide = new HashMap<>();
 
 
@@ -122,5 +123,13 @@ public class UIDashboardConfig {
 
     public Collection<UICompareSide> getCompareSides(){
         return this.compareSide.values();
+    }
+
+    public String[] getDockerContainers() {
+        return dockerContainers;
+    }
+
+    public void setDockerContainers(String[] dockerContainers) {
+        this.dockerContainers = dockerContainers;
     }
 }

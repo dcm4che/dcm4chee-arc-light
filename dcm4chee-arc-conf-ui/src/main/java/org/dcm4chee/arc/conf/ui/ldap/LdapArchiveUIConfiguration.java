@@ -265,6 +265,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiExportName", uiDashboardConfig.getExportNames());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDockerContainer", uiDashboardConfig.getDockerContainers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiCountAET",uiDashboardConfig.getCountAet(),null);
         return attrs;
     }
@@ -515,6 +516,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiDashboardConfig.setExportNames(LdapUtils.stringArray(attrs.get("dcmuiExportName")));
                 uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomuiDeviceName")));
                 uiDashboardConfig.setIgnoreParams(LdapUtils.stringArray(attrs.get("dicomuiIgnoreParams")));
+                uiDashboardConfig.setDockerContainers(LdapUtils.stringArray(attrs.get("dicomuiDockerContainer")));
                 String uiDashboardConfigDN = LdapUtils.dnOf("dcmuiDashboardConfigName" , uiDashboardConfig.getName(), uiConfigDN);
                 loadCompareSide(uiDashboardConfig, uiDashboardConfigDN);
                 uiConfig.addDashboardConfig(uiDashboardConfig);
@@ -1049,6 +1051,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dicomuiIgnoreParams",
                 prev.getIgnoreParams(),
                 uiDashboardConfig.getIgnoreParams());
+        LdapUtils.storeDiff(ldapObj, mods, "dicomuiDockerContainer",
+                prev.getDockerContainers(),
+                uiDashboardConfig.getDockerContainers());
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiCountAET",
                 prev.getCountAet(),
                 uiDashboardConfig.getCountAet(), null);
