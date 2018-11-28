@@ -369,10 +369,6 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
-/*        let filter = {
-            dicomDeviceName:this.filterObject.dicomDeviceName?this.filterObject.dicomDeviceName:undefined,
-            status:this.filterObject.status?this.filterObject.status:undefined
-        };*/
         let filter = _.cloneDeep(this.filterObject);
         if(filter.status === '*')
             delete filter.status;
