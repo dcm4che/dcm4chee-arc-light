@@ -167,6 +167,15 @@ public class CloudStorage extends AbstractStorage {
     }
 
     private void upload(WriteContext ctx, InputStream in) throws IOException {
+        if (isSynchronizeUpload())
+            synchronized (descriptor) {
+                upload(in, ctx);
+            }
+        else
+            upload(in, ctx);
+    }
+
+    private void upload(InputStream in, WriteContext ctx) throws IOException {
         BlobStore blobStore = context.getBlobStore();
         String storagePath = pathFormat.format(ctx.getAttributes());
         if (count++ == 0 && !blobStore.containerExists(container))
@@ -178,6 +187,10 @@ public class CloudStorage extends AbstractStorage {
         }
         uploader.upload(context, in, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);
+    }
+
+    private boolean isSynchronizeUpload() {
+        return "true".equals(descriptor.getProperty("synchronizeUpload", "false"));
     }
 
     @Override
