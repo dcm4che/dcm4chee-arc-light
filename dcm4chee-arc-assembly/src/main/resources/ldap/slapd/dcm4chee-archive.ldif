@@ -1291,6 +1291,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.261 NAME 'dcmFailedToDeleteFetchSize
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.262 NAME 'dcmSeriesMetadataSpoolDirectory'
+  DESC 'Path to Spool Directory used for buffering aggregated Metadata of all instances of a Series before storing it to the specified Storage System to reduce the storage/upload time. If absent, the Metadata is streamed to storage as part of the aggregation without buffering.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1303,6 +1308,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $
+    dcmSeriesMetadataSpoolDirectory $
     dcmSeriesMetadataDelay $
     dcmSeriesMetadataPollingInterval $
     dcmSeriesMetadataFetchSize $

@@ -85,6 +85,11 @@
       },
       "format": "dcmStorageID"
     },
+    "dcmSeriesMetadataSpoolDirectory": {
+      "title": "Series Metadata Spool Directory",
+      "description": "Path to Spool Directory used for buffering aggregated Metadata of all instances of a Series before storing it to the specified Storage System to reduce the storage/upload time. If absent, the Metadata is streamed to storage as part of the aggregation without buffering.",
+      "type": "string"
+    },
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMnS for storing aggregated Series Metadata on storage. If absent, no aggregated Series Metadata will be stored.",
