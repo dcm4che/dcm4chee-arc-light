@@ -335,6 +335,12 @@ attributetype ( 1.2.40.0.13.1.15.111.3.57 NAME 'dicomuiDockerContainer'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.111.3.58 NAME 'dcmuiShowStarBlock'
+  DESC 'Show Star Block - tasks without defined deviceName'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -386,6 +392,7 @@ objectclass ( 1.2.40.0.13.1.15.111.4.5 NAME 'dcmuiDashboardConfig'
   MAY (
     dcmuiQueueName $
     dcmuiExportName $
+    dcmuiShowStarBlock $
     dcmuiCountAET $
     dicomuiDeviceName $
     dicomuiIgnoreParams $

@@ -11,6 +11,12 @@
       "description": "UI Dashboard Configuration Name",
       "type": "string"
     },
+    "dcmuiShowStarBlock":{
+      "title": "Show Star Block",
+      "description": "Show Star Block - tasks without defined deviceName",
+      "type": "boolean",
+      "default" : true
+    },
     "dcmuiQueueName": {
       "title": "Queues",
       "description": "Queue Names for UI Dashboard Configuration used in queue block",

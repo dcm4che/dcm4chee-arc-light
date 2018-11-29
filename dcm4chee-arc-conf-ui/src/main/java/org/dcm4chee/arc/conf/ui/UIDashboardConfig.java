@@ -50,6 +50,7 @@ import java.util.Map;
 public class UIDashboardConfig {
     private String name;
     private String[] queueNames = {};
+    private boolean showStarBlock;
     private String[] exportNames = {};
     private String[] deviceNames = {};
     private String countAet;
@@ -79,6 +80,14 @@ public class UIDashboardConfig {
 
     public void setQueueNames(String[] queueNames) {
         this.queueNames = queueNames;
+    }
+
+    public boolean isShowStarBlock() {
+        return showStarBlock;
+    }
+
+    public void setShowStarBlock(boolean showStarBlock) {
+        this.showStarBlock = showStarBlock;
     }
 
     public String[] getExportNames() {
