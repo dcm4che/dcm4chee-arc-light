@@ -222,6 +222,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
+    private volatile String seriesMetadataSpoolDirectory;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2086,6 +2087,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.patientVerificationMaxStaleness = patientVerificationMaxStaleness;
     }
 
+    public String getSeriesMetadataSpoolDirectory() {
+        return seriesMetadataSpoolDirectory;
+    }
+
+    public void setSeriesMetadataSpoolDirectory(String seriesMetadataSpoolDirectory) {
+        this.seriesMetadataSpoolDirectory = seriesMetadataSpoolDirectory;
+    }
+
     public Collection<KeycloakServer> getKeycloakServers() {
         return keycloakServerMap.values();
     }
@@ -2267,6 +2276,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
+        seriesMetadataSpoolDirectory = arcdev.seriesMetadataSpoolDirectory;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

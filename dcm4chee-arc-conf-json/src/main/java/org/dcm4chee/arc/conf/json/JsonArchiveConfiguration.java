@@ -273,6 +273,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationMaxRetries(), 0);
         writer.writeNotNullOrDef("dcmPatientVerificationMaxStaleness",
                 arcDev.getPatientVerificationMaxStaleness(), null);
+        writer.writeNotNullOrDef("dcmSeriesMetadataSpoolDirectory",
+                arcDev.getSeriesMetadataSpoolDirectory(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1289,6 +1291,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPatientVerificationMaxStaleness":
                     arcDev.setPatientVerificationMaxStaleness(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmSeriesMetadataSpoolDirectory":
+                    arcDev.setSeriesMetadataSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

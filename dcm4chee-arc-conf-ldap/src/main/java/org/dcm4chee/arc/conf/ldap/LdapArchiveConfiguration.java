@@ -274,6 +274,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPatientVerificationMaxRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationMaxStaleness",
                 ext.getPatientVerificationMaxStaleness(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataSpoolDirectory",
+                ext.getSeriesMetadataSpoolDirectory(), null);
     }
 
     @Override
@@ -480,6 +482,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.intValue(attrs.get("dcmPatientVerificationMaxRetries"), 0));
         ext.setPatientVerificationMaxStaleness(
                 toDuration(attrs.get("dcmPatientVerificationMaxStaleness"), null));
+        ext.setSeriesMetadataSpoolDirectory(
+                LdapUtils.stringValue(attrs.get("dcmSeriesMetadataSpoolDirectory"), null));
     }
 
     @Override
@@ -843,6 +847,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPatientVerificationMaxStaleness",
                 aa.getPatientVerificationMaxStaleness(),
                 bb.getPatientVerificationMaxStaleness(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataSpoolDirectory",
+                aa.getSeriesMetadataSpoolDirectory(),
+                bb.getSeriesMetadataSpoolDirectory(),
                 null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
