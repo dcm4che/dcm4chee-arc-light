@@ -316,7 +316,7 @@ public class WadoRS {
                 .filter(t -> t != null)
                 .collect(Collectors.toList());
         acceptableTransferSyntaxes = transferSyntaxesOf(acceptableMultipartRelatedMediaTypes.stream()
-                .filter(m -> m.isCompatible(MediaTypes.APPLICATION_DICOM_JSON_TYPE)));
+                .filter(m -> m.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)));
         acceptableZipTransferSyntaxes = transferSyntaxesOf(acceptableMediaTypes.stream()
                 .filter(m -> m.isCompatible(MediaTypes.APPLICATION_ZIP_TYPE)));
     }
