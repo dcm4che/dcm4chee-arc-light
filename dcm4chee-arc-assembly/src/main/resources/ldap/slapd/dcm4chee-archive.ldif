@@ -1834,6 +1834,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.34 NAME 'dcmPDQService'
   MAY (
     dicomDescription $
     dcmTag $
+    dcmDefaultCharacterSet $
     dcmProperty ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
   DESC 'HL7 Prefetch Rule'
