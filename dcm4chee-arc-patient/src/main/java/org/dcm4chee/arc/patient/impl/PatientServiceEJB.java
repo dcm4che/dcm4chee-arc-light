@@ -216,7 +216,6 @@ public class PatientServiceEJB {
 
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         Patient pat = findPatient(ctx.getPreviousPatientID());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
@@ -235,6 +234,7 @@ public class PatientServiceEJB {
             updateIssuer(pat.getPatientID(), patientID.getIssuer());
         else
             throw new PatientAlreadyExistsException("Patient with Patient ID " + pat2.getPatientID() + "already exists");
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         updatePatientAttrs(ctx, pat);
         return pat;
     }

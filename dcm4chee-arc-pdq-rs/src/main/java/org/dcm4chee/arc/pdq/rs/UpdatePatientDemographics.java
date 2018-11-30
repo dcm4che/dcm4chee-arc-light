@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.pdq.rs;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
@@ -57,9 +58,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.validation.constraints.Pattern;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
@@ -89,43 +89,70 @@ public class UpdatePatientDemographics {
     @PathParam("AETitle")
     private String aet;
 
+    @QueryParam("adjustIssuerOfPatientID")
+    @Pattern(regexp = "true|false")
+    private String adjustIssuerOfPatientID;
+
     @POST
     @Path("/patients/{PatientID}/pdq/{PDQServiceID}")
+    @Produces("application/json")
     public Response update(@PathParam("PDQServiceID") String pdqServiceID,
                        @PathParam("PatientID") IDWithIssuer patientID) {
         logRequest();
         try {
-            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
-            if (descriptor == null)
-                return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
-
+            PDQServiceDescriptor descriptor = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                                .getPDQServiceDescriptorNotNull(pdqServiceID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
             ctx.setPatientID(patientID);
             ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
             Attributes attrs;
+            boolean adjustIssuerOfPatientID = adjustIssuerOfPatientID();
             try {
-                attrs = serviceFactory.getPDQService(descriptor).query(patientID);
+                attrs = serviceFactory.getPDQService(descriptor)
+                        .query(adjustIssuerOfPatientID
+                                ? patientID.withoutIssuer()
+                                : patientID);
             } catch (PDQServiceException e) {
                 ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
                 patientService.updatePatientStatus(ctx);
                 return errResponseAsTextPlain(e, Response.Status.BAD_GATEWAY);
             }
+
             if (attrs == null) {
                 ctx.setPatientVerificationStatus(Patient.VerificationStatus.NOT_FOUND);
                 patientService.updatePatientStatus(ctx);
                 return Response.status(Response.Status.ACCEPTED).build();
             }
+
             ctx.setAttributes(attrs);
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
-            patientService.updatePatient(ctx);
-            return Response.ok()
-                    .entity("{\"action\":\"" + ctx.getEventActionCode() + "\"}")
-                    .type("application/json")
-                    .build();
+            if (adjustIssuerOfPatientID && !ctx.getPatientID().equals(patientID)) {
+                ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+                patientService.changePatientID(ctx);
+                LOG.info("Updated {} on verification against {}", patientID, descriptor);
+            } else {
+                patientService.updatePatient(ctx);
+                LOG.info(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
+                                ? "Updated {} on verification against {}"
+                                : "Verified {} against {}",
+                        patientID, descriptor);
+            }
+            return rsp(ctx);
+        } catch(IllegalArgumentException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response rsp(PatientMgtContext ctx) {
+        return Response.ok()
+                .entity("{\"action\":\"" + ctx.getEventActionCode() + "\"}")
+                .build();
+    }
+
+    private boolean adjustIssuerOfPatientID() {
+        return "true".equals(adjustIssuerOfPatientID);
     }
 
     private void logRequest() {
