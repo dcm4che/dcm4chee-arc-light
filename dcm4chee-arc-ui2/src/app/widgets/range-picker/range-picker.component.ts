@@ -16,7 +16,7 @@ export class RangePickerComponent implements OnInit {
     @Input() onlyTime;
     @Input() onlyDate;
     @Input() dateRange;
-    @Input() mode:("leftOpen"|"rightOpen"|"range"|"single");
+    @Input() mode:"leftOpen"|"rightOpen"|"range"|"single"|string;
     @Output() modelChange = new EventEmitter();
     @Output() splitDateRangeChanged = new EventEmitter();
     @ViewChild('fromCalendar') fromCalendarObject;

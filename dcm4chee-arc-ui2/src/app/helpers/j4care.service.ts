@@ -13,6 +13,7 @@ import localeUs from '@angular/common/locales/es-US';
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {DevicesService} from "../configuration/devices/devices.service";
+import {Router} from "@angular/router";
 
 
 @Injectable()
@@ -24,7 +25,8 @@ export class j4care {
         public httpJ4car:J4careHttpService,
         public ngHttp:Http,
         public dialog: MatDialog,
-        public config: MatDialogConfig
+        public config: MatDialogConfig,
+        private router: Router
     ) {}
     static traverse(object,func){
         for(let key in object){
@@ -52,6 +54,9 @@ export class j4care {
     }
     static isSetInObject(object:any, key:string){
         return _.hasIn(object,key) && this.isSet(object[key]);
+    }
+    navigateTo(url){
+        this.router.navigateByUrl(url);
     }
     static prepareFlatFilterObject(array,lineLength?){
         if(!lineLength){
@@ -219,7 +224,7 @@ export class j4care {
         else
             return '00';
     }
-    static extractDateTimeFromString(str){
+    static extractDateTimeFromString(str):{mode:string|"range" | "leftOpen" | "rightOpen" | "single",firstDateTime:any,secondDateTime:any}{
         const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$/m;
         const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)/g;
         let matchString = checkRegex.exec(str);
@@ -237,7 +242,7 @@ export class j4care {
             }
             if(resultArray.length === 2){
                 if(resultArray[0][8] ==='-' || resultArray[0][16] ==='-')
-                    mode = "range"
+                    mode = "range";
                 firstDateTime = {
                     FullYear:resultArray[0][2],
                     Month:resultArray[0][3],
@@ -280,6 +285,36 @@ export class j4care {
                         Seconds:resultArray[0][7] || resultArray[0][15]
                     };
                 }
+            }
+            if(firstDateTime){
+                firstDateTime["dateObject"] = new Date(`${
+                        firstDateTime.FullYear
+                    }-${
+                        firstDateTime.Month
+                    }-${
+                        firstDateTime.Date
+                    } ${
+                        firstDateTime.Hours || '00'
+                    }:${
+                        firstDateTime.Minutes || '00'
+                    }:${
+                        firstDateTime.Seconds || '00'
+                    }`);
+            }
+            if(secondDateTime){
+                secondDateTime["dateObject"] = new Date(`${
+                        secondDateTime.FullYear
+                    }-${
+                        secondDateTime.Month
+                    }-${
+                        secondDateTime.Date
+                    } ${
+                        secondDateTime.Hours || '00'
+                    }:${
+                        secondDateTime.Minutes || '00'
+                    }:${
+                        secondDateTime.Seconds || '00'
+                    }`);
             }
             return {
                 mode:mode,
@@ -331,7 +366,7 @@ export class j4care {
         return false;
     }
     static splitTimeAndTimezone(string){
-        const regex = /(.*)([+-])(\d{4})/;
+        const regex = /(.*)([+-])(\d{2}:?\d{2})/;
         let m;
         if ((m = regex.exec(string)) !== null) {
             return {
@@ -434,59 +469,7 @@ export class j4care {
             }else{
                 token = this.mainservice.global.authentication.token;
             }
-/*            let xhttp = new XMLHttpRequest();
-            let filename = url.substring(url.lastIndexOf("/") + 1).split("?")[0];*/
-/*            xhttp.onload = function() {
-                let a = document.createElement('a');
-                a.href = window.URL.createObjectURL(xhttp.response); // xhr.response is a blob
-                xhttp.onreadystatechange = null;
-                xhttp.abort();
-                let attr = document.createAttribute("download");
-                // attr.value = "true";
-                a.setAttributeNode(attr);
-                // a.download = filename; // Set the file name.
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            };*/
-/*            xhttp.onreadystatechange = ()=>{
-                if (xhttp.readyState == 4){
-                    if ((xhttp.status == 200) || (xhttp.status == 0)){
-                        let a = document.createElement('a');
-                        a.href = window.URL.createObjectURL(xhttp.response); // xhr.response is a blob
-                        let attr = document.createAttribute("download");
-                        xhttp.abort();
-                        // attr.value = "true";
-                        a.setAttributeNode(attr);
-                        // a.download = filename; // Set the file name.
-                        a.style.display = 'none';
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-
-                    }
-                }
-            };
-            xhttp.open("GET", url);
-            xhttp.responseType = "blob";
-            xhttp.setRequestHeader('Authorization', `Bearer ${token}`);
-            xhttp.send();*/
             this.header.append('Authorization', `Bearer ${token}`);
-/*            this.header.append('Authorization', `Bearer ${token}`);
-            this.get(url).subscribe((res)=>{
-                a.href = res;
-                let attr = document.createAttribute("download");
-                a.setAttributeNode(attr);
-                // a.download = filename; // Set the file name.
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            },(err)=>{
-
-            })*/
-            console.log("header",this.header);
             this.ngHttp.get(url,{
                         headers:this.header,
                         responseType: ResponseContentType.Blob
@@ -506,31 +489,6 @@ export class j4care {
                 a.click();
                 a.remove();
             });
-/*            console.log("token",token);
-            var myHeaders = new Headers();
-            myHeaders.append('Authorization', `Bearer ${token}`);
-
-            var myInit = { method: 'GET',
-                headers: myHeaders,
-                mode: 'cors',
-                cache: 'default' };
-            let a = document.createElement('a');;
-
-            fetch(url,myInit)
-                .then((response)=> {
-                    console.log("response.url",response);
-                    return response.blob();
-                })
-                .then((myBlob)=> {
-                    a.href = window.URL.createObjectURL(myBlob);
-                    let attr = document.createAttribute("download");
-                    a.setAttributeNode(attr);
-                    // a.download = filename; // Set the file name.
-                    a.style.display = 'none';
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                });*/
         });
     }
     static convertBtoHumanReadable(value,mantissa?){
@@ -574,7 +532,6 @@ export class j4care {
     get(url: string): Observable<any> {
         return new Observable((observer: Subscriber<any>) => {
             let objectUrl: string = null;
-
             this.ngHttp
                 .get(url, {
                     headers:this.header,
@@ -790,6 +747,19 @@ export class j4care {
         }
     }
     /*
+    * create new Date javascript object while ignoring zone information in the date-time string
+    * */
+    static newDate(dateString:string):Date{
+        console.log("this.splitTimeAndTimezone(dateString).time",this.splitTimeAndTimezone(dateString));
+        console.log("d",new Date(this.splitTimeAndTimezone(dateString).time));
+
+        try{
+            return new Date(this.splitTimeAndTimezone(dateString).time);
+        }catch (e) {
+            return new Date(dateString);
+        }
+    }
+    /*
     * Get difference of two date:Date, secondDate > firstDate return in the format HH:mm:ss:SSS
     * */
     static diff(firstDate:Date, secondDate:Date):string{
@@ -874,4 +844,10 @@ export class j4care {
         this.dialogRef.componentInstance.parameters = parameters;
         return this.dialogRef.afterClosed();
     };
+    static log(txt:string, e:any){
+        console.groupCollapsed(txt);
+        console.trace();
+        console.error(e);
+        console.groupEnd();
+    }
 }

@@ -68,9 +68,9 @@ export class AssociationsComponent implements OnDestroy{
         });
         return local;
     };
-    timeCalculator(data){
+    timeCalculator(data):any{
         data.forEach((m, i) => {
-            let date: Date    = new Date(m.connectTime);
+            let date: Date    = j4care.newDate(m.connectTime);
             let today: Date   = this.appservices.serverTime;
             data[i]['browserTime'] = j4care.formatDate(date,"yyyy-MM-dd HH:mm:ss");
             data[i]['openSince'] = j4care.diff(date, today);

@@ -51,6 +51,7 @@ describe('j4care', () => {
         expect(j4care.diff(new Date("2018-11-01T12:02:01.582+02:00"), new Date("2018-11-01T12:42:03.342+02:00"))).toBe("00:40:01.760");
         expect(j4care.diff(new Date("2018-11-01T12:32:01.582+02:00"), new Date("2018-11-01T12:22:03.582+02:00"))).toBe('');
         expect(j4care.diff(new Date("2018-11-01T10:32:01.582+02:00"), new Date("2018-11-01T12:22:03.582+02:00"))).toBe("01:50:02.0");
+        expect(j4care.diff(new Date("2018-11-30T11:56:13.862+02:00"), new Date("2018-11-30T11:56:47.683+0200"))).toBe("00:00:33.821");
     });
 
     it("Should format date", () => {
@@ -86,4 +87,64 @@ describe('j4care', () => {
             "dcmAcceptedUserRole": ["user", "admin"],
         }])
     })
+
+    it("Should return date range as object from string extractDateTimeFromString(input:string)",()=>{
+        expect(j4care.extractDateTimeFromString('20181012-20181130')).toEqual({
+            mode:"range",
+            firstDateTime:{
+                FullYear:"2018",
+                Month:"10",
+                Date:"12",
+                Hours:undefined,
+                Minutes:undefined,
+                Seconds:undefined,
+                dateObject: new Date("2018-10-12 00:00:00")
+            },
+            secondDateTime:{
+                FullYear:"2018",
+                Month:"11",
+                Date:"30",
+                Hours:undefined,
+                Minutes:undefined,
+                Seconds:undefined,
+                dateObject: new Date("2018-11-30 00:00:00")
+            }
+        });
+        expect(j4care.extractDateTimeFromString('20181104051400-20181122090335')).toEqual({
+            mode:"range",
+            firstDateTime:{
+                FullYear:"2018",
+                Month:"11",
+                Date:"04",
+                Hours:"05",
+                Minutes:"14",
+                Seconds:"00",
+                dateObject: new Date("2018-11-04 05:14:00")
+            },
+            secondDateTime:{
+                FullYear:"2018",
+                Month:"11",
+                Date:"22",
+                Hours:"09",
+                Minutes:"03",
+                Seconds:"35",
+                dateObject: new Date("2018-11-22 09:03:35")
+            }
+        });
+        expect(j4care.extractDateTimeFromString('-20180326')).toEqual({
+            mode:"leftOpen",
+            firstDateTime:undefined,
+            secondDateTime:{
+                FullYear:"2018",
+                Month:"03",
+                Date:"26",
+                Hours:undefined,
+                Minutes:undefined,
+                Seconds:undefined,
+                dateObject: new Date("2018-03-26 00:00:00")
+            }
+        });
+        expect(j4care.extractDateTimeFromString('test')).toEqual(null);
+        expect(isNaN(j4care.extractDateTimeFromString('12345678').firstDateTime.dateObject.getTime())).toBe(true);
+    });
 });
