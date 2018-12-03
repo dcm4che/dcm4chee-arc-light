@@ -1929,6 +1929,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", desc.getDescription(), null);
         storeNotEmptyTags(ldapObj, attrs, "dcmTag", desc.getSelection());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(desc.getProperties()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet", desc.getDefaultCharacterSet(), null);
         return attrs;
     }
 
@@ -1944,6 +1945,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 desc.setSelection(tags(attrs.get("dcmTag")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
+                desc.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
                 arcdev.addPDQServiceDescriptor(desc);
             }
         } finally {
@@ -1994,6 +1996,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 null);
         storeDiffTags(mods, "dcmTag", prev.getSelection(), desc.getSelection());
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet",
+                prev.getDefaultCharacterSet(), desc.getDefaultCharacterSet(), null);
         return mods;
     }
 

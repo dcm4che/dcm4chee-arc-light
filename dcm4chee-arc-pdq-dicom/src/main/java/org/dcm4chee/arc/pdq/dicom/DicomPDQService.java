@@ -43,6 +43,8 @@ package org.dcm4chee.arc.pdq.dicom;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
@@ -52,6 +54,8 @@ import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -60,6 +64,7 @@ import java.util.List;
  * @since Oct 2018
  */
 public class DicomPDQService extends AbstractPDQService {
+    private static final Logger LOG = LoggerFactory.getLogger(DicomPDQService.class);
 
     private final Device device;
     private final CFindSCU cFindSCU;
@@ -77,10 +82,20 @@ public class DicomPDQService extends AbstractPDQService {
             case 0:
                 return null;
             case 1:
-                return attrs.get(0);
+                return ensureCharSet(attrs.get(0));
             default:
                 throw new PDQServiceException("Patient ID '" + pid + "' not unique at " + descriptor);
         }
+    }
+
+    private Attributes ensureCharSet(Attributes attrs) {
+        String characterSet = descriptor.getDefaultCharacterSet();
+        if (!attrs.contains(Tag.SpecificCharacterSet) && characterSet != null) {
+                LOG.debug("{}: No Specific Character Set (0008,0005) in received data set - " +
+                        "supplement configured Default Character Set: {}", attrs, characterSet);
+                attrs.setString(Tag.SpecificCharacterSet, VR.CS, characterSet);
+        }
+        return attrs;
     }
 
     private ApplicationEntity localAE() throws PDQServiceException {
