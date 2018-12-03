@@ -74,7 +74,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class CloudStorage extends AbstractStorage {
 
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
-    private static final Uploader DEFAULT_UPLOADER = new Uploader() {
+    private static final Uploader STREAMING_UPLOADER = new Uploader() {
         @Override
         public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore, String container,
                            String storagePath) throws IOException {
@@ -87,7 +87,7 @@ public class CloudStorage extends AbstractStorage {
     private final AttributesFormat pathFormat;
     private final String container;
     private final BlobStoreContext context;
-    private final Uploader uploader;
+    private final boolean streamingUpload;
     private int count;
 
     @Override
@@ -108,7 +108,7 @@ public class CloudStorage extends AbstractStorage {
             endpoint = api.substring(endApi + 1);
             api = api.substring(0, endApi);
         }
-        this.uploader = api.endsWith("s3") ? new S3Uploader() : DEFAULT_UPLOADER;
+        this.streamingUpload = Boolean.parseBoolean(descriptor.getProperty("streamingUpload", null));
         ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
@@ -185,6 +185,7 @@ public class CloudStorage extends AbstractStorage {
                 storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                         .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
+        Uploader uploader = streamingUpload ? STREAMING_UPLOADER : new S3Uploader();
         uploader.upload(context, in, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);
     }

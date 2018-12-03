@@ -68,7 +68,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class EMCECSStorage extends AbstractStorage {
 
-    public static final String PROPERTY_STREAMING = "emc-ecs-s3.streaming";
     public static final String PROPERTY_URL_CONNECTION_CLIENT_HANDLER = "emc-ecs-s3.URLConnectionClientHandler";
 
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
@@ -83,7 +82,7 @@ public class EMCECSStorage extends AbstractStorage {
     private final AttributesFormat pathFormat;
     private final String container;
     private final S3Client s3;
-    private final Uploader uploader;
+    private final boolean streamingUpload;
     private int count;
 
     public EMCECSStorage(StorageDescriptor descriptor, Device device) {
@@ -97,9 +96,7 @@ public class EMCECSStorage extends AbstractStorage {
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
             config.withIdentity(identity).withSecretKey(descriptor.getProperty("credential", null));
-        this.uploader = Boolean.parseBoolean(descriptor.getProperty(PROPERTY_STREAMING, null))
-                ? STREAMING_UPLOADER
-                : new S3Uploader();
+        this.streamingUpload = Boolean.parseBoolean(descriptor.getProperty("streamingUpload", null));
         s3 = new S3JerseyClient(config,
                 Boolean.parseBoolean(descriptor.getProperty(PROPERTY_URL_CONNECTION_CLIENT_HANDLER, null))
                         ? new URLConnectionClientHandler()
@@ -162,6 +159,7 @@ public class EMCECSStorage extends AbstractStorage {
             storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                     .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
+        Uploader uploader = streamingUpload ? STREAMING_UPLOADER : new S3Uploader();
         uploader.upload(s3, in, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
