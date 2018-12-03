@@ -90,7 +90,7 @@ public class DicomPDQService extends AbstractPDQService {
 
     private Attributes ensureCharSet(Attributes attrs) {
         String characterSet = descriptor.getDefaultCharacterSet();
-        if (!attrs.contains(Tag.SpecificCharacterSet) && characterSet != null) {
+        if (!attrs.containsValue(Tag.SpecificCharacterSet) && characterSet != null) {
                 LOG.debug("{}: No Specific Character Set (0008,0005) in received data set - " +
                         "supplement configured Default Character Set: {}", attrs, characterSet);
                 attrs.setString(Tag.SpecificCharacterSet, VR.CS, characterSet);
