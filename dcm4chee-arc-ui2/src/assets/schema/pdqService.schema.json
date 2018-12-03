@@ -4,7 +4,8 @@
   "type": "object",
   "required": [
     "dcmPDQServiceID",
-    "dcmURI"
+    "dcmURI",
+    "dcmEntity"
   ],
   "properties": {
     "dcmPDQServiceID": {
@@ -31,9 +32,16 @@
       },
       "format": "dcmTag"
     },
+    "dcmEntity": {
+      "title": "Query Entity",
+      "description": "Indicates if the C-FIND SCP is queried for a particular Patient or for Studies of a particular Patient. Only effective for DICOM PDQ Services (URI: pdq-dicom:{AETitle}).",
+      "type": "string",
+      "enum": [ "Patient", "Study" ],
+      "default": "Patient"
+    },
     "dcmDefaultCharacterSet": {
       "title": "Default Character Set",
-      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received from the DICOM Patient Root Query C-FIND SCP. Only effective for DICOM PDQ Services (URI: pdq-dicom:{AETitle})",
+      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received from the C-FIND SCP. Only effective for DICOM PDQ Services (URI: pdq-dicom:{AETitle}).",
       "type": "string",
       "format": "dcmCharset"
     },
