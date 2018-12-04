@@ -94,6 +94,9 @@ public class DicomPDQService extends AbstractPDQService {
 
     private Attributes queryStudiesOfPatient(IDWithIssuer pid) throws PDQServiceException {
         List<Attributes> attrs = findStudiesOfPatient(localAE(), calledAET(), pid, studyReturnKeys());
+        if (attrs.isEmpty())
+            return null;
+
         Attributes attr = attrs.stream()
                 .filter(s -> s.getDate(Tag.StudyDate) != null)
                 .max(Comparator.comparing(s -> s.getDate(Tag.StudyDate)))
