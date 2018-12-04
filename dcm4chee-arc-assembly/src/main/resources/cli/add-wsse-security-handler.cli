@@ -1,0 +1,2 @@
+/subsystem=webservices/endpoint-config=Standard-Endpoint-Config/post-handler-chain=standard-handlers:add(protocol-bindings="##SOAP11_HTTP ##SOAP11_HTTP_MTOM ##SOAP12_HTTP ##SOAP12_HTTP_MTOM")
+/subsystem=webservices/endpoint-config=Standard-Endpoint-Config/post-handler-chain=standard-handlers/handler=WSSESecurityUnderstandPretender:add(class=org.dcm4che3.xdsi.WSSESecurityUnderstandPretender)
