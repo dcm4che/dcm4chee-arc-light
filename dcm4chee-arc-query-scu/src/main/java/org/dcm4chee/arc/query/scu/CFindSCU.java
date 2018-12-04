@@ -61,6 +61,9 @@ public interface CFindSCU {
 
     List<Attributes> findPatient(Association as, int priority, IDWithIssuer pid, int... returnKeys) throws Exception;
 
+    List<Attributes> findStudiesOfPatient(ApplicationEntity localAE, String calledAET, int priority, IDWithIssuer pid,
+                                 int... returnKeys) throws Exception;
+
     List<Attributes> findStudy(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
                                int... returnKeys) throws Exception;
 

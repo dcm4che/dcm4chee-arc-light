@@ -67,9 +67,6 @@ public class CFindSCUImpl implements CFindSCU {
     private static final int PCID = 1;
 
     @Inject
-    private Device device;
-
-    @Inject
     private IApplicationEntityCache aeCache;
 
     @Override
@@ -92,6 +89,23 @@ public class CFindSCUImpl implements CFindSCU {
                 pid.exportPatientIDWithIssuer(
                         withQueryLevelAndReturnKeys("PATIENT", returnKeys,
                                 new Attributes(3 + returnKeys.length))));
+    }
+
+    @Override
+    public List<Attributes> findStudiesOfPatient(
+            ApplicationEntity localAE, String calledAET, int priority, IDWithIssuer pid, int... returnKeys)
+            throws Exception {
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+                queryOptions(false));
+        try {
+            return find(as, priority,
+                    pid.exportPatientIDWithIssuer(
+                            withQueryLevelAndReturnKeys("STUDY", returnKeys,
+                                    new Attributes(3 + returnKeys.length))));
+        } finally {
+            as.waitForOutstandingRSP();
+            as.release();
+        }
     }
 
     @Override
