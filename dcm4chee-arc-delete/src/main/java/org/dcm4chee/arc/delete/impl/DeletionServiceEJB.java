@@ -259,6 +259,7 @@ public class DeletionServiceEJB {
                 .getResultList();
         if (locations.isEmpty()) {
             LOG.warn("{} does not contain objects at Storage{}", study, storageIDs);
+            updateStorageIDs(study, storageIDs);
             return false;
         }
         LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), study, storageIDs);
@@ -273,12 +274,16 @@ public class DeletionServiceEJB {
                     && series.getMetadata() != null)
                 scheduleMetadataUpdate(series.getPk());
         }
+        updateStorageIDs(study, storageIDs);
+        return true;
+    }
+
+    private void updateStorageIDs(Study study, List<String> storageIDs) {
         String studyEncodedStorageIDs = study.getEncodedStorageIDs();
         for (String storageID : storageIDs) {
             study.removeStorageID(storageID);
         }
         LOG.info("Update Storage IDs of {} from {} to {}", study, studyEncodedStorageIDs, study.getEncodedStorageIDs());
-        return true;
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
