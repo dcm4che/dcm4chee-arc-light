@@ -110,63 +110,59 @@ public class AuditService {
     @Inject
     private IHL7ApplicationCache hl7AppCache;
 
-    private void aggregateAuditMessage(AuditLogger auditLogger, Path path) {
+    private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws Exception {
         AuditUtils.EventType eventType = AuditUtils.EventType.fromFile(path);
         if (path.toFile().length() == 0) {
             LOG.warn("Attempt to read from an empty file.", eventType, path);
             return;
         }
-        try {
-            switch (eventType.eventClass) {
-                case APPLN_ACTIVITY:
-                    auditApplicationActivity(auditLogger, path, eventType);
-                    break;
-                case CONN_FAILURE:
-                    auditConnectionFailure(auditLogger, path, eventType);
-                    break;
-                case STORE_WADOR:
-                    auditStoreOrWADORetrieve(auditLogger, path, eventType);
-                    break;
-                case RETRIEVE:
-                    auditRetrieve(auditLogger, path, eventType);
-                    break;
-                case USER_DELETED:
-                case SCHEDULER_DELETED:
-                    auditDeletion(auditLogger, path, eventType);
-                    break;
-                case QUERY:
-                    auditQuery(auditLogger, path, eventType);
-                    break;
-                case HL7:
-                    auditPatientRecord(auditLogger, path, eventType);
-                    break;
-                case PROC_STUDY:
-                    auditProcedureRecord(auditLogger, path, eventType);
-                    break;
-                case PROV_REGISTER:
-                    auditProvideAndRegister(auditLogger, path, eventType);
-                    break;
-                case STGCMT:
-                    auditStorageCommit(auditLogger, path, eventType);
-                    break;
-                case INST_RETRIEVED:
-                    auditExternalRetrieve(auditLogger, path, eventType);
-                    break;
-                case LDAP_CHANGES:
-                    auditSoftwareConfiguration(auditLogger, path, eventType);
-                    break;
-                case QUEUE_EVENT:
-                    auditQueueMessageEvent(auditLogger, path, eventType);
-                    break;
-                case IMPAX:
-                    auditPatientMismatch(auditLogger, path, eventType);
-                    break;
-                case ASSOCIATION_FAILURE:
-                    auditAssociationFailure(auditLogger, path, eventType);
-                    break;
-            }
-        } catch (Exception e) {
-            LOG.warn("Failed in audit with event type {} : {}", eventType, e);
+        switch (eventType.eventClass) {
+            case APPLN_ACTIVITY:
+                auditApplicationActivity(auditLogger, path, eventType);
+                break;
+            case CONN_FAILURE:
+                auditConnectionFailure(auditLogger, path, eventType);
+                break;
+            case STORE_WADOR:
+                auditStoreOrWADORetrieve(auditLogger, path, eventType);
+                break;
+            case RETRIEVE:
+                auditRetrieve(auditLogger, path, eventType);
+                break;
+            case USER_DELETED:
+            case SCHEDULER_DELETED:
+                auditDeletion(auditLogger, path, eventType);
+                break;
+            case QUERY:
+                auditQuery(auditLogger, path, eventType);
+                break;
+            case HL7:
+                auditPatientRecord(auditLogger, path, eventType);
+                break;
+            case PROC_STUDY:
+                auditProcedureRecord(auditLogger, path, eventType);
+                break;
+            case PROV_REGISTER:
+                auditProvideAndRegister(auditLogger, path, eventType);
+                break;
+            case STGCMT:
+                auditStorageCommit(auditLogger, path, eventType);
+                break;
+            case INST_RETRIEVED:
+                auditExternalRetrieve(auditLogger, path, eventType);
+                break;
+            case LDAP_CHANGES:
+                auditSoftwareConfiguration(auditLogger, path, eventType);
+                break;
+            case QUEUE_EVENT:
+                auditQueueMessageEvent(auditLogger, path, eventType);
+                break;
+            case IMPAX:
+                auditPatientMismatch(auditLogger, path, eventType);
+                break;
+            case ASSOCIATION_FAILURE:
+                auditAssociationFailure(auditLogger, path, eventType);
+                break;
         }
     }
 
