@@ -509,12 +509,9 @@ public class DeletionServiceEJB {
     }
 
     public boolean claimPurgeInstanceRecordsOfSeries(Long seriesPk) {
-        Series series = em.find(Series.class, seriesPk);
-        if (series.getInstancePurgeTime() == null)
-            return false;
-
-        series.setInstancePurgeTime(null);
-        return true;
+        return em.createNamedQuery(Series.CLAIM_PURGE_INSTANCE_RECORDS)
+                .setParameter(1, seriesPk)
+                .executeUpdate() > 0;
     }
 
     public boolean scheduleMetadataUpdate(Long seriesPk) {
