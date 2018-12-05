@@ -68,6 +68,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.IOException;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -151,12 +152,12 @@ public class UpdateMetadataScheduler extends Scheduler {
             try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
                 for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
                     if (semaphore == null) {
-                        updateMetadata(storage, metadataUpdate, success, skipped);
+                        updateMetadata(arcDev, storage, metadataUpdate, success, skipped);
                     } else {
                         semaphore.acquire();
                         device.execute(() -> {
                             try {
-                                updateMetadata(storage, metadataUpdate, success, skipped);
+                                updateMetadata(arcDev, storage, metadataUpdate, success, skipped);
                             } finally {
                                 semaphore.release();
                             }
@@ -196,8 +197,8 @@ public class UpdateMetadataScheduler extends Scheduler {
         }
     }
 
-    private void updateMetadata(Storage storage, Series.MetadataUpdate metadataUpdate, AtomicInteger success,
-                                AtomicInteger skipped) {
+    private void updateMetadata(ArchiveDeviceExtension arcDev, Storage storage, Series.MetadataUpdate metadataUpdate,
+                                AtomicInteger success, AtomicInteger skipped) {
         try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
             if (claim(ctx, storage) && retrieveService.calculateMatches(ctx)) {
                 LOG.debug("Creating/Updating Metadata for Series[pk={}] on {}",
@@ -223,6 +224,13 @@ public class UpdateMetadataScheduler extends Scheduler {
                             storage.getStorageDescriptor(),
                             e);
                     try {
+                        ejb.setScheduledUpdateTime(
+                                ctx.getSeriesMetadataUpdate().seriesPk,
+                                nextRetry(arcDev.getSeriesMetadataRetryInterval()));
+                    } catch (Exception e1) {
+                        LOG.warn("Failed to update Metadata Update time", e1);
+                    }
+                    try {
                         storage.revokeStorage(writeCtx);
                     } catch (Exception e1) {
                         LOG.warn("Failed to revoke storage", e1);
@@ -241,9 +249,15 @@ public class UpdateMetadataScheduler extends Scheduler {
         }
     }
 
+    private static Date nextRetry(Duration retryInterval) {
+        return retryInterval != null
+                ? new Date(System.currentTimeMillis() + retryInterval.getSeconds() * 1000L)
+                : null;
+    }
+
     private boolean claim(RetrieveContext ctx, Storage storage) {
         try {
-            return ejb.claim(ctx.getSeriesMetadataUpdate().seriesPk) > 0;
+            return ejb.incrementVersion(ctx.getSeriesMetadataUpdate());
         } catch (Exception e) {
             LOG.info("Failed to claim create/update Metadata for Series[pk={}] on {}]:\n",
                     ctx.getSeriesMetadataUpdate().seriesPk,

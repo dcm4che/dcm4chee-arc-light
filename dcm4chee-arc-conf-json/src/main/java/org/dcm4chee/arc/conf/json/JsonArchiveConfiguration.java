@@ -87,6 +87,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval(), null);
         writer.writeNotDef("dcmSeriesMetadataFetchSize", arcDev.getSeriesMetadataFetchSize(), 100);
         writer.writeNotDef("dcmSeriesMetadataThreads", arcDev.getSeriesMetadataThreads(), 1);
+        writer.writeNotNullOrDef("dcmSeriesMetadataRetryInterval", arcDev.getSeriesMetadataRetryInterval(), null);
         writer.writeNotDef("dcmPurgeInstanceRecords", arcDev.isPurgeInstanceRecords(), false);
         writer.writeNotNullOrDef("dcmPurgeInstanceRecordsDelay", arcDev.getPurgeInstanceRecordsDelay(), null);
         writer.writeNotNullOrDef("dcmPurgeInstanceRecordsPollingInterval",
@@ -846,6 +847,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmSeriesMetadataThreads":
                     arcDev.setSeriesMetadataThreads(reader.intValue());
+                    break;
+                case "dcmSeriesMetadataRetryInterval":
+                    arcDev.setSeriesMetadataRetryInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmPurgeInstanceRecords":
                     arcDev.setPurgeInstanceRecords(reader.booleanValue());

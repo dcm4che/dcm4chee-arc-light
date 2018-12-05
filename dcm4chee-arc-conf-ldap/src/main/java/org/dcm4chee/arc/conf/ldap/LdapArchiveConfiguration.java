@@ -90,6 +90,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataPollingInterval", ext.getSeriesMetadataPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmSeriesMetadataFetchSize", ext.getSeriesMetadataFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmSeriesMetadataThreads", ext.getSeriesMetadataThreads(), 1);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataRetryInterval",
+                ext.getSeriesMetadataRetryInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPurgeInstanceRecords", ext.isPurgeInstanceRecords(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsDelay", ext.getPurgeInstanceRecordsDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsPollingInterval", ext.getPurgeInstanceRecordsPollingInterval(), null);
@@ -289,6 +291,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setSeriesMetadataPollingInterval(toDuration(attrs.get("dcmSeriesMetadataPollingInterval"), null));
         ext.setSeriesMetadataFetchSize(LdapUtils.intValue(attrs.get("dcmSeriesMetadataFetchSize"), 100));
         ext.setSeriesMetadataThreads(LdapUtils.intValue(attrs.get("dcmSeriesMetadataThreads"), 1));
+        ext.setSeriesMetadataRetryInterval(toDuration(attrs.get("dcmSeriesMetadataRetryInterval"), null));
         ext.setPurgeInstanceRecords(LdapUtils.booleanValue(attrs.get("dcmPurgeInstanceRecords"), false));
         ext.setPurgeInstanceRecordsDelay(toDuration(attrs.get("dcmPurgeInstanceRecordsDelay"), null));
         ext.setPurgeInstanceRecordsPollingInterval(toDuration(attrs.get("dcmPurgeInstanceRecordsPollingInterval"), null));
@@ -513,6 +516,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getSeriesMetadataThreads(),
                 bb.getSeriesMetadataThreads(),
                 1);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataRetryInterval",
+                aa.getSeriesMetadataRetryInterval(),
+                bb.getSeriesMetadataRetryInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmPurgeInstanceRecords",
                 aa.isPurgeInstanceRecords(),
                 bb.isPurgeInstanceRecords(),

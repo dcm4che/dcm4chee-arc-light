@@ -76,6 +76,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration seriesMetadataPollingInterval;
     private volatile int seriesMetadataFetchSize = 100;
     private volatile int seriesMetadataThreads = 1;
+    private volatile Duration seriesMetadataRetryInterval;
     private volatile boolean purgeInstanceRecords;
     private volatile Duration purgeInstanceRecordsDelay;
     private volatile Duration purgeInstanceRecordsPollingInterval;
@@ -375,6 +376,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSeriesMetadataThreads(int seriesMetadataThreads) {
         this.seriesMetadataThreads = seriesMetadataThreads;
+    }
+
+    public Duration getSeriesMetadataRetryInterval() {
+        return seriesMetadataRetryInterval;
+    }
+
+    public void setSeriesMetadataRetryInterval(Duration seriesMetadataRetryInterval) {
+        this.seriesMetadataRetryInterval = seriesMetadataRetryInterval;
     }
 
     public boolean isPurgeInstanceRecords() {
@@ -2120,6 +2129,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
         seriesMetadataThreads = arcdev.seriesMetadataThreads;
+        seriesMetadataRetryInterval = arcdev.seriesMetadataRetryInterval;
         purgeInstanceRecords = arcdev.purgeInstanceRecords;
         purgeInstanceRecordsDelay = arcdev.purgeInstanceRecordsDelay;
         purgeInstanceRecordsPollingInterval = arcdev.purgeInstanceRecordsPollingInterval;

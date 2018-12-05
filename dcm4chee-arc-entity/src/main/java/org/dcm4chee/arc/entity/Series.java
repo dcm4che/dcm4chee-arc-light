@@ -50,7 +50,6 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Duration;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -169,13 +168,13 @@ import java.util.stream.Stream;
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.version, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
                 "left join se.metadata metadata " +
                 "where se.metadataScheduledUpdateTime < current_timestamp " +
                 "order by se.metadataScheduledUpdateTime"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.version, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
                 "join se.metadata metadata " +
                 "where se.instancePurgeTime < current_timestamp " +
                 "and se.metadataScheduledUpdateTime is null " +
@@ -231,9 +230,9 @@ import java.util.stream.Stream;
                 "where se.compressionTime < current_timestamp " +
                 "order by se.compressionTime"),
 @NamedQuery(
-        name=Series.CLAIM_METADATA_UPDATE,
-        query = "update Series se set se.metadataScheduledUpdateTime = null " +
-                "where se.pk = ?1 and se.metadataScheduledUpdateTime is not null"),
+        name=Series.SET_METADATA_SCHEDULED_UPDATE_TIME,
+        query = "update Series se set se.metadataScheduledUpdateTime = ?2 " +
+                "where se.pk = ?1"),
 @NamedQuery(
         name=Series.CLAIM_STORAGE_VERIFICATION,
         query = "update Series se set se.storageVerificationTime = ?3 " +
@@ -241,7 +240,11 @@ import java.util.stream.Stream;
 @NamedQuery(
         name=Series.CLAIM_COMPRESSION,
         query = "update Series se set se.compressionTime = null " +
-                "where se.pk = ?1 and se.compressionTime is not null")
+                "where se.pk = ?1 and se.compressionTime is not null"),
+@NamedQuery(
+        name=Series.INCREMENT_VERSION,
+        query="update Series se set se.version = se.version + 1 " +
+                "where se.pk = ?1 and se.version = ?2")
 })
 @Entity
 @Table(name = "series",
@@ -304,12 +307,13 @@ public class Series {
     public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
     public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";
     public static final String SCHEDULED_COMPRESSION = "Series.scheduledCompression";
-    public static final String CLAIM_METADATA_UPDATE = "Series.claimMetadataUpdate";
+    public static final String SET_METADATA_SCHEDULED_UPDATE_TIME = "Series.setMetadataScheduledUpdateTime";
     public static final String CLAIM_STORAGE_VERIFICATION = "Series.claimStorageVerification";
     public static final String CLAIM_COMPRESSION = "Series.claimCompression";
     public static final String UPDATE_COMPRESSION_FAILURES = "Series.updateCompressionFailures";
     public static final String UPDATE_COMPRESSION_FAILURES_AND_TSUID = "Series.updateCompressionFailuresAndTSUID";
     public static final String UPDATE_COMPRESSION_COMPLETED = "Series.updateCompressionCompleted";
+    public static final String INCREMENT_VERSION = "Series.IncrementVersion";
 
     private static final long MILLIS_PER_DAY = 24 * 3600_000;
 
@@ -317,12 +321,15 @@ public class Series {
 
     public static class MetadataUpdate {
         public final Long seriesPk;
+        public final Long version;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long seriesPk, InstancePurgeState instancePurgeState, String storageID, String storagePath) {
+        public MetadataUpdate(Long seriesPk, Long version, InstancePurgeState instancePurgeState,
+                              String storageID, String storagePath) {
             this.seriesPk = seriesPk;
+            this.version = version;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;
             this.storagePath = storagePath;
