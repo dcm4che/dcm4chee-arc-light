@@ -14,6 +14,7 @@ import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {DevicesService} from "../configuration/devices/devices.service";
 import {Router} from "@angular/router";
+import {J4careDateTime, J4careDateTimeMode, RangeObject} from "./j4care";
 
 
 @Injectable()
@@ -40,6 +41,17 @@ export class j4care {
         }
         return object;
     }
+    static downloadFile(url, filename?){
+        if(filename){
+            let link = document.createElement('a');
+            link.href = url;
+            link.download=filename;
+            link.click();
+            document.body.removeChild(link);
+        }else{
+            WindowRefService.nativeWindow.open(url);
+        }
+    }
     static firstLetterToUpperCase(str){
         return str && str[0].toUpperCase() + str.slice(1);
     }
@@ -51,6 +63,11 @@ export class j4care {
             return false;
         }
         return true;
+    }
+    static hasSet(obj, path){
+        if(_.hasIn(obj,path) && j4care.isSet(_.get(obj,path)))
+            return true;
+        return false;
     }
     static isSetInObject(object:any, key:string){
         return _.hasIn(object,key) && this.isSet(object[key]);
@@ -224,15 +241,15 @@ export class j4care {
         else
             return '00';
     }
-    static extractDateTimeFromString(str):{mode:string|"range" | "leftOpen" | "rightOpen" | "single",firstDateTime:any,secondDateTime:any}{
+    static extractDateTimeFromString(str):{mode:J4careDateTimeMode,firstDateTime:J4careDateTime,secondDateTime:J4careDateTime}{
         const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$/m;
         const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)/g;
         let matchString = checkRegex.exec(str);
         let match;
         let resultArray = [];
-        let mode;
-        let firstDateTime;
-        let secondDateTime;
+        let mode:J4careDateTimeMode;
+        let firstDateTime:J4careDateTime;
+        let secondDateTime:J4careDateTime;
         if (matchString !== null && matchString[0]) {
             while ((match = regex.exec(matchString[0])) !== null) {
                 if (match.index === regex.lastIndex) {
@@ -323,6 +340,71 @@ export class j4care {
             }
         }
         return null;
+    }
+    static splitRange(range:string):any{
+        let rangeObject:RangeObject = j4care.extractDateTimeFromString(range);
+        let diff:number = rangeObject && rangeObject.mode === "range" ? rangeObject.secondDateTime.dateObject.getTime() - rangeObject.firstDateTime.dateObject.getTime() : 0;
+        let block = diff/30;
+        const DAY_IN_MSC = 86400000;
+        if(diff > 0){
+            if(DAY_IN_MSC > block){
+                return  (j4care.splitRangeInBlocks(rangeObject,DAY_IN_MSC, undefined, false));
+            }else{
+                return  (j4care.splitRangeInBlocks(rangeObject,block, undefined, true));
+            }
+        }
+    }
+
+    static rangeObjectToString(range:RangeObject):string{
+        let firstDateTime = '';
+        let secondDateTime = '';
+        let minus = range.mode != "single" ? '-': '';
+        if(range.mode === "range" || range.mode === "rightOpen" || range.mode === "single"){
+            firstDateTime = this.formatDate(range.firstDateTime.dateObject,"yyyyMMdd");
+        }
+        if(range.mode === "range" || range.mode === "leftOpen"){
+            secondDateTime = this.formatDate(range.secondDateTime.dateObject,"yyyyMMdd");
+        }
+        return `${firstDateTime}${minus}${secondDateTime}`;
+    }
+    static splitRangeInBlocks(range:RangeObject, block:number, diff?:number, pare:boolean = false):string[]{
+        let endDate = [];
+        let endDatePare = [];
+        if(!diff){
+            diff = range && range.mode === "range" ? range.secondDateTime.dateObject.getTime() - range.firstDateTime.dateObject.getTime() : 0;
+        }
+        if(diff > block){
+            endDate.push(this.formatDate(range.firstDateTime.dateObject,"yyyyMMdd"));
+            let daysInDiff = diff/block;
+            let dateStep = range.firstDateTime.dateObject.getTime();
+            while(daysInDiff > 0){
+                if(daysInDiff != diff/block){
+                    let increasedDateStep = new Date(dateStep);
+                    increasedDateStep.setDate(increasedDateStep.getDate() + 1);
+                    endDatePare.push(this.convertToDatePareString(increasedDateStep,dateStep+block));
+                }else {
+                    endDatePare.push(this.convertToDatePareString(dateStep,dateStep+block));
+                }
+                dateStep = dateStep+block;
+                endDate.push(this.convertToDateString(new Date(dateStep)));
+                daysInDiff--;
+            }
+            if(pare){
+                return endDatePare;
+            }else{
+                return endDate;
+            }
+        }else{
+            return [this.rangeObjectToString(range)];
+        }
+    }
+    static splitDate(object){
+        let range;
+        if(_.hasIn(object,'StudyDate'))
+            range = object.StudyDate;
+        else
+            range = object;
+            return j4care.splitRangeInBlocks(j4care.extractDateTimeFromString(range), 86400000);
     }
     static getMainAet(aets){
         try{
@@ -550,40 +632,6 @@ export class j4care {
             };
         });
     }
-    static splitDate(object){
-        let endDate = [];
-        let endDatePare = [];
-        let m;
-        let range;
-        if(_.hasIn(object,'StudyDate'))
-            range = object.StudyDate;
-        else
-            range = object;
-        const regex = /((\d{4})(\d{2})(\d{2}))(?:\d{6})?-((\d{4})(\d{2})(\d{2}))(?:\d{6})?/;
-        if ((m = regex.exec(range)) !== null) {
-            let fromString = `${m[2]}-${m[3]}-${m[4]}`;
-            let toString = `${m[6]}-${m[7]}-${m[8]}`;
-            let from = new Date(fromString).getTime();
-            let to = new Date(toString).getTime();
-            let diff = to-from;
-            let block = 86400000;
-            if(diff > block){
-                endDate.push(this.convertToDateString(fromString));
-                let daysInDiff = diff/block;
-                let dateStep = from;
-                while(daysInDiff > 0){
-                    endDatePare.push(this.convertToDatePareString(dateStep,dateStep+block));
-                    dateStep = dateStep+block;
-                    endDate.push(this.convertToDateString(new Date(dateStep)));
-                    daysInDiff--;
-                }
-                return endDate;
-            }else{
-                return range;
-            }
-        }
-        return null;
-    }
     static addZero(nr){
         if(nr < 10){
             return `0${nr}`;
@@ -606,33 +654,27 @@ export class j4care {
         firstDate.setMonth(firstDate.getMonth()-1)
         return this.convertToDatePareString(firstDate,new Date());
     }
-    static convertToDatePareString(firstDate,secondDate){
-        if(firstDate === undefined && secondDate === undefined){
-            return undefined;
+    static convertToDatePareString(firstDate,secondDate):string{
+        if(j4care.isSet(firstDate) && firstDate != "" && j4care.isSet(secondDate) && secondDate != ""){
+            let firstDateConverted = new Date(firstDate);
+            let secondDateConverted = new Date(secondDate);
+
+            let firstDateString = `${firstDateConverted.getFullYear()}${(this.addZero(firstDateConverted.getMonth()+1))}${this.addZero(firstDateConverted.getDate())}`;
+            if(new Date(firstDate).getTime() == new Date(secondDate).getTime()){
+                return firstDateString;
+            }else{
+                if(new Date(firstDate).getTime() > new Date(secondDate).getTime()){
+                    return firstDateString;
+                }else{
+                    let secondDateString = `${secondDateConverted.getFullYear()}${this.addZero(secondDateConverted.getMonth()+1)}${this.addZero(secondDateConverted.getDate())}`;
+                    return firstDateString === secondDateString ? firstDateString : `${firstDateString}-${secondDateString}`;
+                }
+            }
         }
-        let firstDateConverted = new Date(firstDate);
-        let secondDateConverted = new Date(secondDate);
-        let firstDateObject =  {
-            yyyy:firstDateConverted.getFullYear(),
-            mm:this.addZero(firstDateConverted.getMonth()+1),
-            dd:this.addZero(firstDateConverted.getDate())
-        };
-        let firstDateString = `${firstDateObject.yyyy}${(firstDateObject.mm)}${firstDateObject.dd}`;
-        if(new Date(firstDate).getTime() == new Date(secondDate).getTime()){
-            return firstDateString;
-        }else{
-            let secondDateObject =  {
-                yyyy:secondDateConverted.getFullYear(),
-                mm:this.addZero(secondDateConverted.getMonth()+1),
-                dd:this.addZero(secondDateConverted.getDate())
-            };
-            let secondDateString = `${secondDateObject.yyyy}${(secondDateObject.mm)}${secondDateObject.dd}`;
-            return `${firstDateString}-${secondDateString}`;
-        }
+        return undefined;
     }
     static flatten(data) {
         var result = {};
-
         function recurse(cur, prop) {
             if (Object(cur) !== cur) {
                 result[prop] = cur;
@@ -707,6 +749,7 @@ export class j4care {
     * SSS - milliseconds
     * */
     static formatDate(date:Date, format:string):string{
+        format = format || 'yyyyMMdd';
         return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
             if(g2)
                 return `${date.getFullYear()}`;

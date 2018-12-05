@@ -1668,7 +1668,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         }, 50);
     }
-
     getHl7ApplicationNameFormAETtitle(aet){
         for(let i = 0; i < this.allAes.length; i++){
             if(aet === this.allAes[i].dicomAETitle){
@@ -2264,20 +2263,24 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 delete filterClone['offset'];
                 delete filterClone['limit'];
                 filterClone["accept"] = `text/csv${(semicolon?';delimiter=semicolon':'')}`;
+                let fileName = "dcm4chee.csv";
                 if(attr && mode){
                     filterClone["PatientID"] =  this.valueOf(attr['00100020']);
                     filterClone["IssuerOfPatientID"] = this.valueOf(attr['00100021']);
                     if(mode === "series" && _.hasIn(attr,'0020000D')){
                         url =`${url}/${this.valueOf(attr['0020000D'])}/series`;
+                        fileName = `${this.valueOf(attr['0020000D'])}.csv`;
                     }
                     if(mode === "instance"){
                         url =`${url}/${this.valueOf(attr['0020000D'])}/series/${this.valueOf(attr['0020000E'])}/instances`;
+                        fileName = `${this.valueOf(attr['0020000D'])}_${this.valueOf(attr['0020000E'])}.csv`;
                     }
                 }
                 if(!this.mainservice.global.notSecure){
                     filterClone["access_token"] = token;
                 }
-                WindowRefService.nativeWindow.open(`${url}?${this.mainservice.param(filterClone)}`);
+                j4care.downloadFile(`${url}?${this.mainservice.param(filterClone)}`,fileName);
+                // WindowRefService.nativeWindow.open(`${url}?${this.mainservice.param(filterClone)}`);
             });
         })
     }
@@ -2957,6 +2960,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
     // };
     downloadURL(inst, transferSyntax) {
         let token;
+        let url = "";
+        let fileName = "dcm4che.dcm";
         this.$http.refreshToken().subscribe((response)=>{
             if(!this.mainservice.global.notSecure){
                 if(response && response.length != 0){
@@ -2972,10 +2977,16 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 exQueryParams["transferSyntax"] = transferSyntax;
             }
             if(!this.mainservice.global.notSecure){
-                WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+                // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+                url = this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`;
             }else{
-                WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams));
+                // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams));
+                url = this.wadoURL(inst.wadoQueryParams, exQueryParams);
             }
+            if(j4care.hasSet(inst, "attrs[00080018].Value[0]")){
+                fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
+            }
+            j4care.downloadFile(url,fileName);
         });
     };
     downloadZip(object, level, mode){
