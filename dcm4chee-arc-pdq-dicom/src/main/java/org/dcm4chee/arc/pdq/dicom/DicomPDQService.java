@@ -57,6 +57,7 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -78,32 +79,29 @@ public class DicomPDQService extends AbstractPDQService {
 
     @Override
     public Attributes query(IDWithIssuer pid) throws PDQServiceException {
-        if (descriptor.getEntity() == Entity.Study)
-            return queryStudiesOfPatient(pid);
+        Attributes attrs = descriptor.getEntity() == Entity.Patient
+                ? queryPatient(pid)
+                : queryStudiesOfPatient(pid);
+        return attrs != null ? ensureCharSet(attrs) : null;
+    }
 
+    private Attributes queryPatient(IDWithIssuer pid) throws PDQServiceException {
         List<Attributes> attrs = findPatient(localAE(), calledAET(), pid, returnKeys());
         switch (attrs.size()) {
             case 0:
                 return null;
             case 1:
-                return ensureCharSet(attrs.get(0));
+                return attrs.get(0);
             default:
                 throw new PDQServiceException("Patient ID '" + pid + "' not unique at " + descriptor);
         }
     }
 
     private Attributes queryStudiesOfPatient(IDWithIssuer pid) throws PDQServiceException {
-        List<Attributes> attrs = findStudiesOfPatient(localAE(), calledAET(), pid, studyReturnKeys());
-        if (attrs.isEmpty())
-            return null;
-
-        Attributes attr = attrs.stream()
-                .filter(s -> s.getDate(Tag.StudyDate) != null)
-                .max(Comparator.comparing(s -> s.getDate(Tag.StudyDate)))
-                .orElseGet(() -> attrs.get(0));
-        ensureCharSet(attr);
-        LOG.info("{} : ", attr);
-        return attr;
+        List<Attributes> attrs = findStudiesOfPatient(localAE(), calledAET(), pid, addStudyDate(returnKeys()));
+        return attrs.stream()
+                .max(Comparator.comparing(s -> s.getString(Tag.StudyDate, "")))
+                .orElse(null);
     }
 
     private Attributes ensureCharSet(Attributes attrs) {
@@ -140,12 +138,10 @@ public class DicomPDQService extends AbstractPDQService {
                     .getAttributeFilter(Entity.Patient).getSelection();
     }
 
-    private int[] studyReturnKeys() {
-        int[] returnKeys = returnKeys();
-        int[] studyReturnKeys = new int[returnKeys.length + 1];
-        studyReturnKeys[0] = Tag.StudyDate;
-        System.arraycopy(returnKeys, 0, studyReturnKeys, 1, returnKeys.length);
-        return studyReturnKeys;
+    private static int[] addStudyDate(int[] original) {
+        int[] result = Arrays.copyOf(original, original.length + 1);
+        result[original.length] = Tag.StudyDate;
+        return result;
     }
 
     private List<Attributes> findPatient(ApplicationEntity localAE, String calledAET, IDWithIssuer pid,
