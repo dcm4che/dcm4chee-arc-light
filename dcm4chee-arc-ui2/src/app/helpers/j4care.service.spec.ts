@@ -59,6 +59,7 @@ describe('j4care', () => {
         expect(j4care.formatDate(new Date("2018-11-01T13:32:40.582+01:00"), 'HH:mm:ss.SSS')).toBe("13:32:40.582");
         expect(j4care.formatDate(new Date("2018-11-03T02:04:05.582+01:00"), 'HH:mm')).toBe("02:04");
         expect(j4care.formatDate(new Date("2018-02-03T02:04:05.582+01:00"), 'yyyyMMdd')).toBe("20180203");
+        expect(j4care.formatDate(new Date("2018-02-03T02:04:05.582+01:00"), undefined)).toBe("20180203");
     });
 
     it("Should get the main aet", () => {
@@ -147,4 +148,74 @@ describe('j4care', () => {
         expect(j4care.extractDateTimeFromString('test')).toEqual(null);
         expect(isNaN(j4care.extractDateTimeFromString('12345678').firstDateTime.dateObject.getTime())).toBe(true);
     });
+
+    it("Check if value is set",()=>{
+        expect(j4care.isSet("2018.01.01")).toBeTruthy();
+        expect(j4care.isSet("")).toBeTruthy();
+        expect(j4care.isSet(undefined)).toBeFalsy();
+    });
+
+    it("Converts two dates in to range",()=>{
+        expect(j4care.convertToDatePareString("2018.01.01","2018.01.04")).toEqual("20180101-20180104");
+        expect(j4care.convertToDatePareString("2018.01.01","2018.01.01")).toEqual("20180101");
+        expect(j4care.convertToDatePareString(new Date("2018.01.01"), "2018.01.01")).toEqual("20180101");
+        expect(j4care.convertToDatePareString(undefined , undefined)).toEqual(undefined);
+        expect(j4care.convertToDatePareString("" , "")).toEqual(undefined);
+    });
+
+    it("Should split the range to smaller blocks",()=>{
+        expect(j4care.splitRange("20180101-20180108")).toEqual([
+            "20180101",
+            "20180102",
+            "20180103",
+            "20180104",
+            "20180105",
+            "20180106",
+            "20180107",
+            "20180108"
+        ]);
+
+        expect(j4care.splitRange("20181128-20181203")).toEqual([
+            "20181128",
+            "20181129",
+            "20181130",
+            "20181201",
+            "20181202",
+            "20181203"
+        ]);
+
+        expect(j4care.splitRange("20180910-20181029")).toEqual([
+            "20180910-20180911",
+            "20180912-20180913",
+            "20180914",
+            "20180915-20180916",
+            "20180917-20180918",
+            "20180919",
+            "20180920-20180921",
+            "20180922-20180923",
+            "20180924",
+            "20180925-20180926",
+            "20180927",
+            "20180928-20180929",
+            "20180930-20181001",
+            "20181002",
+            "20181003-20181004",
+            "20181005-20181006",
+            "20181007",
+            "20181008-20181009",
+            "20181010-20181011",
+            "20181012",
+            "20181013-20181014",
+            "20181015",
+            "20181016-20181017",
+            "20181018-20181019",
+            "20181020",
+            "20181021-20181022",
+            "20181023-20181024",
+            "20181025",
+            "20181026-20181027",
+            "20181028-20181029"
+        ])
+    });
+
 });
