@@ -47,7 +47,6 @@ export class j4care {
             link.href = url;
             link.download=filename;
             link.click();
-            document.body.removeChild(link);
         }else{
             WindowRefService.nativeWindow.open(url);
         }
