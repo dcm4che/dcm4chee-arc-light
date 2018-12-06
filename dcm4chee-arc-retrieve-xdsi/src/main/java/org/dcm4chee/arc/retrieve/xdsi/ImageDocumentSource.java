@@ -45,6 +45,7 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Location;
@@ -55,6 +56,8 @@ import org.dcm4che3.xdsi.RetrieveDocumentSetRequestType.DocumentRequest;
 import org.dcm4che3.xdsi.RetrieveDocumentSetResponseType.DocumentResponse;
 import org.dcm4che3.xdsi.RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest.RenderedDocumentRequest;
 import org.dcm4che3.xdsi.RetrieveRenderedImagingDocumentSetResponseType.RenderedDocumentResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
 import javax.enterprise.event.Event;
@@ -89,6 +92,8 @@ import static org.dcm4che3.xdsi.XDSConstants.*;
         targetNamespace="urn:ihe:rad:xdsi-b:2009",
         wsdlLocation = "/wsdl/XDS-I.b_ImagingDocumentSource.wsdl")
 public class ImageDocumentSource implements ImagingDocumentSourcePortType {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ImageDocumentSource.class);
 
     public static final String UNSUPPORTED_ANON_ERR_CODE = "urn:dicom:wado:0002";
     public static final String NO_ACCEPTABLE_ERR_CODE = "urn:dicom:wado:0006";
@@ -133,6 +138,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     @Override
     public RetrieveDocumentSetResponseType imagingDocumentSourceRetrieveImagingDocumentSet(
             RetrieveImagingDocumentSetRequestType req) {
+        log(req);
         RetrieveDocumentSetResponseType rsp = new RetrieveDocumentSetResponseType();
         RegistryResponseType regRsp = new RegistryResponseType();
         rsp.setRegistryResponse(regRsp);
@@ -165,12 +171,14 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         regRsp.setStatus(regRsp.getRegistryErrorList() == null ? XDS_STATUS_SUCCESS
                 : rsp.getDocumentResponse().isEmpty() ? XDS_STATUS_FAILURE
                 : XDS_STATUS_PARTIAL_SUCCESS);
+        log(rsp);
         return rsp;
     }
 
     @Override
     public RetrieveRenderedImagingDocumentSetResponseType imagingDocumentSourceRetrieveRenderedImagingDocumentSet(
             RetrieveRenderedImagingDocumentSetRequestType req) {
+        log(req);
         RetrieveRenderedImagingDocumentSetResponseType rsp = new RetrieveRenderedImagingDocumentSetResponseType();
         RegistryResponseType regRsp = new RegistryResponseType();
         rsp.setRegistryResponse(regRsp);
@@ -203,7 +211,129 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         regRsp.setStatus(regRsp.getRegistryErrorList() == null ? XDS_STATUS_SUCCESS
                 : rsp.getRenderedDocumentResponse().isEmpty() ? XDS_STATUS_FAILURE
                 : XDS_STATUS_PARTIAL_SUCCESS);
+        log(rsp);
         return rsp;
+    }
+
+    private void log(RetrieveImagingDocumentSetRequestType req) {
+        logRequest(new Object(){
+            @Override
+            public String toString() {
+                StringBuilder sb = new StringBuilder(256).append("RetrieveImagingDocumentSetRequest:");
+                for (RetrieveImagingDocumentSetRequestType.StudyRequest study : req.getStudyRequest()) {
+                    sb.append(StringUtils.LINE_SEPARATOR).append("   Study[uid=")
+                            .append(study.getStudyInstanceUID())
+                            .append("]:");
+                    for (RetrieveImagingDocumentSetRequestType.StudyRequest.SeriesRequest series :
+                            study.getSeriesRequest()) {
+                        sb.append(StringUtils.LINE_SEPARATOR).append("      Series[uid=")
+                                .append(series.getSeriesInstanceUID())
+                                .append("]:");
+                        for (DocumentRequest doc : series.getDocumentRequest()) {
+                            sb.append(StringUtils.LINE_SEPARATOR).append("         Document[uid=")
+                                    .append(doc.getDocumentUniqueId())
+                                    .append("]");
+                        }
+                    }
+                }
+                for (String s : req.getTransferSyntaxUIDList().getTransferSyntaxUID()) {
+                    sb.append(StringUtils.LINE_SEPARATOR).append("   TransferSyntax[");
+                    UIDUtils.promptTo(s, sb).append(']');
+                }
+                return sb.toString();
+            }
+        });
+    }
+
+    private void log(RetrieveDocumentSetResponseType rsp) {
+        logResponse(new Object(){
+            @Override
+            public String toString() {
+                StringBuilder sb = new StringBuilder(256).append("RetrieveDocumentSetResponse");
+                appendTo(rsp.getRegistryResponse(), sb);
+                for (DocumentResponse doc : rsp.getDocumentResponse()) {
+                    sb.append(StringUtils.LINE_SEPARATOR)
+                            .append("   Document[uid=").append(doc.getDocumentUniqueId())
+                            .append(", type=").append(doc.getMimeType())
+                            .append(']');
+                }
+                return sb.toString();
+            }
+        });
+    }
+
+    private void log(RetrieveRenderedImagingDocumentSetRequestType req) {
+        logRequest(new Object(){
+            @Override
+            public String toString() {
+                StringBuilder sb = new StringBuilder(256).append("RetrieveRenderedImagingDocumentSetRequest:");
+                for (RetrieveRenderedImagingDocumentSetRequestType.StudyRequest study : req.getStudyRequest()) {
+                    sb.append(StringUtils.LINE_SEPARATOR)
+                            .append("   Study[uid=").append(study.getStudyInstanceUID()).append("]:");
+                    for (RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest series :
+                            study.getSeriesRequest()) {
+                        sb.append(StringUtils.LINE_SEPARATOR)
+                                .append("      Series[uid=").append(series.getSeriesInstanceUID()).append("]:");
+                        for (RenderedDocumentRequest doc : series.getRenderedDocumentRequest()) {
+                            sb.append(StringUtils.LINE_SEPARATOR)
+                                    .append("         Document[uid=").append(doc.getDocumentUniqueId())
+                                    .append(", type=").append(doc.getContentTypeList().getContentType());
+                            appendNotNullTo(", rows=", doc.getRows(), sb);
+                            appendNotNullTo(", cols=", doc.getColumns(), sb);
+                            appendNotNullTo(", center=", doc.getWindowCenter(), sb);
+                            appendNotNullTo(", width=", doc.getWindowWidth(), sb);
+                            sb.append("]");
+                        }
+                    }
+                }
+                return sb.toString();
+            }
+        });
+    }
+
+    private void log(RetrieveRenderedImagingDocumentSetResponseType rsp) {
+        logResponse(new Object(){
+            @Override
+            public String toString() {
+                StringBuilder sb = new StringBuilder(256).append("RetrieveRenderedImagingDocumentSetResponse");
+                appendTo(rsp.getRegistryResponse(), sb);
+                for (RenderedDocumentResponse doc : rsp.getRenderedDocumentResponse()) {
+                    sb.append(StringUtils.LINE_SEPARATOR)
+                            .append("   Document[uid=").append(doc.getSourceDocumentUniqueId())
+                            .append(", type=").append(doc.getMimeType())
+                            .append(']');
+                }
+                return sb.append(']').toString();
+            }
+        });
+    }
+
+    private void logRequest(Object rq) {
+        LOG.info("{}@{}->{} >> {}", request.getRemoteUser(), request.getRemoteHost(), request.getRequestURI(), rq);
+    }
+
+    private void logResponse(Object rsp) {
+        LOG.info("{}@{}->{} << {}", request.getRemoteUser(), request.getRemoteHost(), request.getRequestURI(), rsp);
+    }
+
+
+    private static void appendNotNullTo(String prompt, String val, StringBuilder sb) {
+        if (val != null)
+            sb.append(prompt).append(val);
+    }
+
+    private static void appendTo(RegistryResponseType regRsp, StringBuilder sb) {
+        sb.append("[status=").append(regRsp.getStatus()).append("]:");
+        RegistryErrorList registryErrorList = regRsp.getRegistryErrorList();
+        if (registryErrorList != null) {
+            for (RegistryError error : registryErrorList.getRegistryError()) {
+                sb.append(StringUtils.LINE_SEPARATOR).append("   Error[code=").append(error.getErrorCode())
+                        .append(", context=").append(error.getCodeContext())
+                        .append(", severity=").append(error.getSeverity())
+                        .append(", location=").append(error.getLocation())
+                        .append(']');
+            }
+        }
     }
 
     private static ImageReader getDicomImageReader() {
