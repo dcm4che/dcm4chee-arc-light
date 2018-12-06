@@ -323,7 +323,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     }
 
     private static void appendTo(RegistryResponseType regRsp, StringBuilder sb) {
-        sb.append("[status=").append(regRsp.getStatus()).append("]:");
+        sb.append("[").append(regRsp.getStatus()).append("]:");
         RegistryErrorList registryErrorList = regRsp.getRegistryErrorList();
         if (registryErrorList != null) {
             for (RegistryError error : registryErrorList.getRegistryError()) {
