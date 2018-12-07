@@ -54,7 +54,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 import java.util.EnumSet;
 
 import static org.dcm4chee.arc.conf.Assert.assertDeviceEquals;
@@ -118,10 +117,6 @@ public class ArchiveDeviceConfigurationTest {
                 otherDevices[ArchiveDeviceFactory.STORESCU_INDEX],
                 otherDevices[ArchiveDeviceFactory.MPPSSCU_INDEX]
         );
-
-        X509Certificate cacert = (X509Certificate) keyStore.getCertificate("cacert");
-        String deviceRef = config.deviceRef("dcm4chee-arc");
-        arc.setAuthorizedNodeCertificates(deviceRef, cacert);
         config.persist(arc, register);
 
         Device keycloak = ArchiveDeviceFactory.createKeycloakDevice("keycloak", arrDevice, configType);
