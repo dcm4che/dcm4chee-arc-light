@@ -282,6 +282,8 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
                             appendNotNullTo(", cols=", doc.getColumns(), sb);
                             appendNotNullTo(", center=", doc.getWindowCenter(), sb);
                             appendNotNullTo(", width=", doc.getWindowWidth(), sb);
+                            appendNotNullTo(", quality=", doc.getImageQuality(), sb);
+                            appendNotNullTo(", frame=", doc.getFrameNumber(), sb);
                             sb.append("]");
                         }
                     }
