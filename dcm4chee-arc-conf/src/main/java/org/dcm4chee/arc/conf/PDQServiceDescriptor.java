@@ -58,7 +58,7 @@ public class PDQServiceDescriptor {
     private int[] selection = {};
     private final Map<String, String> properties = new HashMap<>();
     private String defaultCharacterSet;
-    private Entity entity;
+    private Entity entity = Entity.Patient;
 
     public PDQServiceDescriptor() {
     }
