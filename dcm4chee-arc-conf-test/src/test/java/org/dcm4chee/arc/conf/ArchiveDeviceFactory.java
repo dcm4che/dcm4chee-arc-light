@@ -1007,7 +1007,16 @@ class ArchiveDeviceFactory {
 
     static final String AE_TITLE = "DCM4CHEE";
     static final String DCM4CHEE_ARC_VERSION = "5.15.1";
-    static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
+    static final String DCM4CHEE_ARC_KEY_JKS = "${jboss.server.config.url}/dcm4chee-arc/key.jks";
+    static final String DCM4CHEE_ARC_TRUSTSTORE_URL = "${jboss.server.config.url}/dcm4chee-arc/cacerts.jks";
+    static final String DCM4CHEE_ARC_KEY_TYPE = "JKS";
+    static final String DCM4CHEE_ARC_KEY_PIN = "secret";
+    static final String DOCKER_TRUSTSTORE_URL = "file://${env.TRUSTSTORE}";
+    static final String DOCKER_TRUSTSTORE_PIN = "${env.TRUSTSTORE_PASSWORD}";
+    static final String DOCKER_KEY_JKS = "file://${env.KEYSTORE}";
+    static final String DOCKER_KEYSTORE_TYPE = "${env.KEYSTORE_TYPE}";
+    static final String DOCKER_KEYSTORE_PIN = "${env.KEYSTORE_PASSWORD}";
+    static final String DOCKER_KEY_PIN = "${env.KEY_PASSWORD}";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String HL7_DCM2ADT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -1226,11 +1235,12 @@ class ArchiveDeviceFactory {
         device.setInstalled(true);
         device.setPrimaryDeviceTypes("AUTH");
         addAuditLoggerDeviceExtension(device, arrDevice, keycloakHost);
+        configureTrustStore(device, configType);
         return device;
     }
 
-    public static Device createArchiveDevice(String name, ConfigType configType, Device arrDevice, Device scheduledStation, Device storescu,
-                                             Device mppsscu)  {
+    public static Device createArchiveDevice(String name, ConfigType configType, Device arrDevice, 
+                                             Device scheduledStation, Device storescu, Device mppsscu)  {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
         Connection dicom = new Connection("dicom", archiveHost, 11112);
@@ -1274,10 +1284,8 @@ class ArchiveDeviceFactory {
         device.setManufacturer("dcm4che.org");
         device.setManufacturerModelName("dcm4chee-arc");
         device.setSoftwareVersions(DCM4CHEE_ARC_VERSION);
-        device.setKeyStoreURL(DCM4CHEE_ARC_KEY_JKS);
-        device.setKeyStoreType("JKS");
-        device.setKeyStorePin("secret");
         device.setPrimaryDeviceTypes("ARCHIVE");
+        configureTrustStore(device, configType);
 
         device.addApplicationEntity(createAE(AE_TITLE, "Hide instances rejected for Quality Reasons",
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType, USER_AND_ADMIN));
@@ -1309,6 +1317,30 @@ class ArchiveDeviceFactory {
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.WADO_URI));
         return device;
+    }
+
+    private static void configureTrustStore(Device device, ConfigType configType) {
+        device.setTrustStoreType(DCM4CHEE_ARC_KEY_TYPE);
+        if (configType == ConfigType.DOCKER) {
+            configureTrustStoreDocker(device);
+            return;
+        }
+
+        device.setTrustStoreURL(DCM4CHEE_ARC_TRUSTSTORE_URL);
+        device.setTrustStorePin(DCM4CHEE_ARC_KEY_PIN);
+        device.setKeyStoreURL(DCM4CHEE_ARC_KEY_JKS);
+        device.setKeyStoreType(DCM4CHEE_ARC_KEY_TYPE);
+        device.setKeyStorePin(DCM4CHEE_ARC_KEY_PIN);
+        device.setKeyStoreKeyPin(DCM4CHEE_ARC_KEY_PIN);
+    }
+
+    private static void configureTrustStoreDocker(Device device) {
+        device.setTrustStoreURL(DOCKER_TRUSTSTORE_URL);
+        device.setTrustStorePin(DOCKER_TRUSTSTORE_PIN);
+        device.setKeyStoreURL(DOCKER_KEY_JKS);
+        device.setKeyStoreType(DOCKER_KEYSTORE_TYPE);
+        device.setKeyStorePin(DOCKER_KEYSTORE_PIN);
+        device.setKeyStoreKeyPin(DOCKER_KEY_PIN);
     }
 
     private static WebApplication createWebApp(
