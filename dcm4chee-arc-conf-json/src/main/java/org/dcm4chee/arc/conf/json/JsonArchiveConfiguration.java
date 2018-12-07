@@ -424,7 +424,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(desc.getSelection()));
             writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
             writer.writeNotNullOrDef("dcmDefaultCharacterSet", desc.getDefaultCharacterSet(), null);
-            writer.writeNotNullOrDef("dcmEntity", desc.getEntity(), null);
+            writer.writeNotNullOrDef("dcmEntity", desc.getEntity(), Entity.Patient);
             writer.writeEnd();
         }
         writer.writeEnd();
