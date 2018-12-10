@@ -25,3 +25,41 @@ dcmTag: 00201208
 dcmAttributeSetType: QIDO_RS
 dcmAttributeSetID: study
 objectClass: dcmAttributeSet
+
+dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTrustStoreURL
+dcmTrustStoreURL: ${jboss.server.config.url}/dcm4chee-arc/cacerts.jks
+-
+add: dcmTrustStoreType
+dcmTrustStoreType: JKS
+-
+add: dcmTrustStorePin
+dcmTrustStorePin: secret
+-
+add: dcmKeyStoreURL
+dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
+-
+add: dcmKeyStoreType
+dcmKeyStoreType: JKS
+-
+add: dcmKeyStorePin
+dcmKeyStorePin: secret
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dcm4che,dc=org
+changetype: modify
+add: dcmTrustStoreURL
+dcmTrustStoreURL: ${jboss.server.config.url}/dcm4chee-arc/cacerts.jks
+-
+add: dcmTrustStoreType
+dcmTrustStoreType: JKS
+-
+add: dcmTrustStorePin
+dcmTrustStorePin: secret
+-
+remove: dicomAuthorizedNodeCertificateReference
+-
+remove: userCertificate;binary
+-
+remove: objectClass
+objectClass: pkiUser

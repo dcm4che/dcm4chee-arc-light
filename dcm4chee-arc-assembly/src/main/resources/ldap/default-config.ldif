@@ -3,9 +3,15 @@ version: 1
 dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomDeviceName: keycloak
+dcmTrustStoreType: JKS
+dcmKeyStorePin: secret
+dcmKeyStoreType: JKS
+dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: AUTH
+dcmTrustStorePin: secret
+dcmTrustStoreURL: ${jboss.server.config.url}/dcm4chee-arc/cacerts.jks
 
 dn: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -18,12 +24,14 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 dcmSendPendingCMoveInterval: PT5S
 dcmQidoMaxNumberOfResults: 1000
 dcmIanTaskPollingInterval: PT1M
+dcmTrustStoreType: JKS
 dcmAECacheStaleTimeout: PT5M
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
 dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
 dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
+dcmTrustStoreURL: ${jboss.server.config.url}/dcm4chee-arc/cacerts.jks
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.74
@@ -50,7 +58,6 @@ dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
-objectClass: pkiUser
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
@@ -66,11 +73,11 @@ dcmPurgeStgCmtPollingInterval: PT1H
 dcmRejectExpiredStudiesFetchSize: 10
 dicomPrimaryDeviceType: ARCHIVE
 hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl
-dicomAuthorizedNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 dcmExternalRetrieveAEDestination: DCM4CHEE
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
+dcmTrustStorePin: secret
 dcmAuditRecordRepositoryURL: http://kibana:5601
 dcmXDSiImagingDocumentSourceAETitle: DCM4CHEE
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
@@ -94,7 +101,6 @@ dcmHideSPSWithStatusFromMWL: CANCELLED
 dcmHideSPSWithStatusFromMWL: DISCONTINUED
 dcmHideSPSWithStatusFromMWL: COMPLETED
 dcmAuditAggregateDuration: PT1M
-userCertificate;binary:: MIIDHTCCAoagAwIBAgIBATANBgkqhkiG9w0BAQ0FADA6MQswCQYDVQQGEwJGUjETMBEGA1UECgwKSUhFIEV1cm9wZTEWMBQGA1UEAwwNSUhFIEV1cm9wZSBDQTAeFw0xMjA5MjgxMTE5MjlaFw0yMjA5MjgxMTE5MjlaMDoxCzAJBgNVBAYTAkZSMRMwEQYDVQQKDApJSEUgRXVyb3BlMRYwFAYDVQQDDA1JSEUgRXVyb3BlIENBMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuLWUWgF2L5igJIQ1pWFw/Yk5ZcMG4JPw13GLxn+7nufHHq/xgzxJxFLoY/kL8WUgg+QiCBv6yecXy3qJeb6DjuQJ+k2KHSKQxyN4fpfZdeNVc6w5qNOmMFKixS0ntax/4RXNBgP7IbKq2+fr1QscFZo0X6qWdO9OvL9RgSmGMNQIDAQABo4IBMTCCAS0wPQYDVR0fBDYwNDAyoDCgLoYsaHR0cDovL2dhemVsbGUuaWhlLm5ldC9wa2kvY3JsLzY0My9jYWNybC5jcmwwOwYJYIZIAYb4QgEEBC4WLGh0dHA6Ly9nYXplbGxlLmloZS5uZXQvcGtpL2NybC82NDMvY2FjcmwuY3JsMDsGCWCGSAGG+EIBAwQuFixodHRwOi8vZ2F6ZWxsZS5paGUubmV0L3BraS9jcmwvNjQzL2NhY3JsLmNybDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU7DMOE8giXqLha69De3pd0ndzHX4wHwYDVR0jBBgwFoAU7DMOE8giXqLha69De3pd0ndzHX4wEQYJYIZIAYb4QgEBBAQDAgAHMA0GCSqGSIb3DQEBDQUAA4GBAFfPfr/Cjk/ZBsDI9SdHGYqlHAJaJaJX/fpXIu3akEZxCPzMJkTeDDHvUOGaaP7bAHGnTBsS8rR9CD6gyUVJmrC/fk6/QoYFVaPNOGG2M1KnA14bwhriYLXV1INsUwj/jUTdSSvrPgV8XddgM8VgBLAX59VH94jufDPOPqwV1++P
 
 dn: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
