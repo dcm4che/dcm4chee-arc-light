@@ -60,7 +60,8 @@ import java.util.*;
 class S3Uploader extends CacheInputStream implements Uploader {
 
     @Override
-    public void upload(S3Client s3, InputStream in, String container, String storagePath) throws IOException {
+    public void upload(S3Client s3, InputStream in, long length, String container, String storagePath)
+            throws IOException {
         if (fillBuffers(in))
             uploadMultipleParts(s3, in, container, storagePath);
         else

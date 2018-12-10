@@ -50,8 +50,8 @@ import java.util.ArrayList;
  */
 public class CacheInputStream extends InputStream {
 
-    private static int BUFFER_SIZE  = 5120;
-    private static int MAX_BUFFERS  = 1024;
+    private static int BUFFER_SIZE  = 8192;
+    private static int MAX_BUFFERS  = 640;
 
     private final ArrayList<byte[]> buffers = new ArrayList<>();
     private int pos;

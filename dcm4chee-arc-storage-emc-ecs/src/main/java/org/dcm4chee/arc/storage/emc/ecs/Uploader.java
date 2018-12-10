@@ -50,5 +50,5 @@ import java.io.InputStream;
  * @since Oct 2016
  */
 public interface Uploader {
-    void upload(S3Client s3, InputStream in, String container, String storagePath) throws IOException;
+    void upload(S3Client s3, InputStream in, long length, String container, String storagePath) throws IOException;
 }

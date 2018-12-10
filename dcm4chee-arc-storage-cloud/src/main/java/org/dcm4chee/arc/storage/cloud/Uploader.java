@@ -51,6 +51,7 @@ import java.io.InputStream;
  * @since Oct 2015
  */
 interface Uploader {
-    void upload(BlobStoreContext context, InputStream in, BlobStore blobStore, String container, String storagePath)
+    void upload(BlobStoreContext context, InputStream in, long length,
+                BlobStore blobStore, String container, String storagePath)
             throws IOException;
 }

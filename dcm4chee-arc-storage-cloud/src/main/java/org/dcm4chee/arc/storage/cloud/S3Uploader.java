@@ -61,7 +61,7 @@ import java.util.Map;
 class S3Uploader extends CacheInputStream implements Uploader {
 
     @Override
-    public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore,
+    public void upload(BlobStoreContext context, InputStream in, long length, BlobStore blobStore,
                        String container, String storagePath) throws IOException {
         if (fillBuffers(in))
             uploadMultipleParts(context, in, container, storagePath);

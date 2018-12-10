@@ -46,10 +46,12 @@ import com.emc.object.s3.S3Exception;
 import com.emc.object.s3.S3ObjectMetadata;
 import com.emc.object.s3.bean.GetObjectResult;
 import com.emc.object.s3.jersey.S3JerseyClient;
+import com.emc.object.s3.request.PutObjectRequest;
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -73,8 +75,11 @@ public class EMCECSStorage extends AbstractStorage {
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
     private static final Uploader STREAMING_UPLOADER = new Uploader() {
         @Override
-        public void upload(S3Client s3, InputStream in, String container,  String storagePath) throws IOException {
-            s3.putObject(container, storagePath, in, null);
+        public void upload(S3Client s3, InputStream in, long length, String container, String storagePath) {
+            PutObjectRequest payload = new PutObjectRequest(container, storagePath, this);
+            if (length > 0)
+                payload.withObjectMetadata(new S3ObjectMetadata().withContentLength(length));
+            s3.putObject(payload);
         }
     };
 
@@ -83,6 +88,7 @@ public class EMCECSStorage extends AbstractStorage {
     private final String container;
     private final S3Client s3;
     private final boolean streamingUpload;
+    private final long maxPartSize;
     private int count;
 
     public EMCECSStorage(StorageDescriptor descriptor, Device device) {
@@ -97,6 +103,7 @@ public class EMCECSStorage extends AbstractStorage {
         if (identity != null)
             config.withIdentity(identity).withSecretKey(descriptor.getProperty("credential", null));
         this.streamingUpload = Boolean.parseBoolean(descriptor.getProperty("streamingUpload", null));
+        this.maxPartSize = BinaryPrefix.parse(descriptor.getProperty("maxPartSize", "5G"));
         s3 = new S3JerseyClient(config,
                 Boolean.parseBoolean(descriptor.getProperty(PROPERTY_URL_CONNECTION_CLIENT_HANDLER, null))
                         ? new URLConnectionClientHandler()
@@ -159,8 +166,10 @@ public class EMCECSStorage extends AbstractStorage {
             storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                     .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
-        Uploader uploader = streamingUpload ? STREAMING_UPLOADER : new S3Uploader();
-        uploader.upload(s3, in, container, storagePath);
+        long length = ctx.getSize();
+        Uploader uploader = streamingUpload || length > 0 && length <= maxPartSize
+                ? STREAMING_UPLOADER : new S3Uploader();
+        uploader.upload(s3, in, length, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
 

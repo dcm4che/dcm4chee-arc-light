@@ -43,6 +43,7 @@ package org.dcm4chee.arc.storage.cloud;
 import com.google.common.hash.HashCode;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
+import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -76,9 +77,11 @@ public class CloudStorage extends AbstractStorage {
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
     private static final Uploader STREAMING_UPLOADER = new Uploader() {
         @Override
-        public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore, String container,
-                           String storagePath) throws IOException {
+        public void upload(BlobStoreContext context, InputStream in, long length,
+                           BlobStore blobStore, String container, String storagePath) {
             Payload payload = new InputStreamPayload(in);
+            if (length > 0)
+                payload.getContentMetadata().setContentLength(length);
             Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
             blobStore.putBlob(container, blob);
         }
@@ -88,6 +91,7 @@ public class CloudStorage extends AbstractStorage {
     private final String container;
     private final BlobStoreContext context;
     private final boolean streamingUpload;
+    private final long maxPartSize;
     private int count;
 
     @Override
@@ -109,6 +113,7 @@ public class CloudStorage extends AbstractStorage {
             api = api.substring(0, endApi);
         }
         this.streamingUpload = Boolean.parseBoolean(descriptor.getProperty("streamingUpload", null));
+        this.maxPartSize = BinaryPrefix.parse(descriptor.getProperty("maxPartSize", "5G"));
         ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
@@ -185,8 +190,10 @@ public class CloudStorage extends AbstractStorage {
                 storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                         .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
-        Uploader uploader = streamingUpload ? STREAMING_UPLOADER : new S3Uploader();
-        uploader.upload(context, in, blobStore, container, storagePath);
+        long length = ctx.getSize();
+        Uploader uploader = streamingUpload || length > 0 && length <= maxPartSize
+                ? STREAMING_UPLOADER : new S3Uploader();
+        uploader.upload(context, in, length, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
 
