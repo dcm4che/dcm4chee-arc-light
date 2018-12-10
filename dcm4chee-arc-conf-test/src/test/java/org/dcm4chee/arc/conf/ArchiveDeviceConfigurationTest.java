@@ -53,7 +53,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.security.KeyStore;
 import java.util.EnumSet;
 
 import static org.dcm4chee.arc.conf.Assert.assertDeviceEquals;
@@ -65,13 +64,11 @@ import static org.junit.Assert.assertNotNull;
  * @since Jul 2015
  */
 public class ArchiveDeviceConfigurationTest {
-    private KeyStore keyStore;
     private DicomConfiguration config;
     private HL7Configuration hl7Config;
 
     @Before
     public void setUp() throws Exception {
-        keyStore = SSLManagerFactory.loadKeyStore("JKS", ResourceLocator.resourceURL("cacerts.jks"), "secret");
         config = LdapArchiveConfigurationFactory.newLdapDicomConfiguration(
                 ArchiveDeviceConfigurationTest.class.getResource("/ldap.properties"));
         hl7Config = config.getDicomConfigurationExtension(HL7Configuration.class);
