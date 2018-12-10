@@ -97,6 +97,7 @@ class ArchiveDeviceFactory {
             device.setKeyStoreURL("${jboss.server.config.url}/dcm4chee-arc/key.jks");
             device.setKeyStoreType("JKS");
             device.setKeyStorePin("secret");
+            device.setKeyStoreKeyPin("secret");
         }
     }
     static final String[] OTHER_DEVICES = {
