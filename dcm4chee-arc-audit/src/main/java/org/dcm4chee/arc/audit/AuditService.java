@@ -415,10 +415,10 @@ public class AuditService {
 
     void spoolQuery(QueryContext ctx) {
         try {
-            boolean auditAggregate = getArchiveDevice().isAuditAggregate();
             AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
             AuditUtils.EventType eventType = AuditUtils.EventType.QUERY__EVT;
             AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
+            FileTime eventTime = null;
             for (AuditLogger auditLogger : ext.getAuditLoggers()) {
                 if (!isSpoolingSuppressed(eventType, ctx.getCallingAET(), auditLogger)) {
                     Path directory = toDirPath(auditLogger);
@@ -436,7 +436,11 @@ public class AuditService {
                                 }
                             }
                         }
-                        if (!auditAggregate)
+                        if (eventTime == null)
+                            eventTime = Files.getLastModifiedTime(file);
+                        else
+                            Files.setLastModifiedTime(file, eventTime);
+                        if (!getArchiveDevice().isAuditAggregate())
                             auditAndProcessFile(auditLogger, file);
                     } catch (Exception e) {
                         LOG.warn("Failed to write to Query Audit Spool File {} : {}", auditLogger.getCommonName(), e);
@@ -472,8 +476,7 @@ public class AuditService {
 
     private boolean isSpoolingSuppressed(AuditUtils.EventType eventType, String userID, AuditLogger auditLogger) {
         return !auditLogger.isInstalled()
-                || (!auditLogger.getAuditSuppressCriteriaList().isEmpty()
-                    && auditLogger.isAuditMessageSuppressed(createMinimalAuditMsg(eventType, userID)));
+                || auditLogger.isAuditMessageSuppressed(createMinimalAuditMsg(eventType, userID));
     }
 
     private AuditMessage createMinimalAuditMsg(AuditUtils.EventType eventType, String userID) {
