@@ -1144,8 +1144,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
         LdapUtils.storeDiff(ldapObj, mods, "dcmObjectStorageID",
                 aa.getObjectStorageIDs(), bb.getObjectStorageIDs());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmObjectStorageCount",
-                aa.getObjectStorageCount(), bb.getObjectStorageCount(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmObjectStorageCount",
+                aa.getObjectStorageCount(),
+                bb.getObjectStorageCount(),
+                1);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMetadataStorageID",
                 aa.getMetadataStorageIDs(), bb.getMetadataStorageIDs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay",

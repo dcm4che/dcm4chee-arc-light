@@ -1133,6 +1133,7 @@ public class ArchiveAEExtension extends AEExtension {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
         objectStorageIDs = aeExt.objectStorageIDs;
+        objectStorageCount = aeExt.objectStorageCount;
         metadataStorageIDs = aeExt.metadataStorageIDs;
         seriesMetadataDelay = aeExt.seriesMetadataDelay;
         purgeInstanceRecordsDelay = aeExt.purgeInstanceRecordsDelay;
