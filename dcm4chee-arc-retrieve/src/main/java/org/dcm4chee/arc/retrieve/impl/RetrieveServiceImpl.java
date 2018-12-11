@@ -1035,7 +1035,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     private SAXTransformer.SetupTransformer setupTransformer(RetrieveContext ctx) {
         return t -> {
             t.setParameter("LocalAET", ctx.getLocalAETitle());
-            t.setParameter("RemoteAET", ctx.getDestinationAETitle());
+            if (ctx.getDestinationAETitle() != null)
+                t.setParameter("RemoteAET", ctx.getDestinationAETitle());
             t.setParameter("RemoteHostname", ctx.getDestinationHostName());
         };
     }
