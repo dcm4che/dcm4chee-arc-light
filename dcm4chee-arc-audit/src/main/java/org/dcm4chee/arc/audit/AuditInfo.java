@@ -82,6 +82,7 @@ class AuditInfo {
     static final int CONN_TYPE = 31;
     static final int PAT_VERIFICATION_STATUS = 32;
     static final int PDQ_SERVICE_URI = 33;
+    static final int IMPAX_ENDPOINT = 34;
 
     private final String[] fields;
 
@@ -120,7 +121,8 @@ class AuditInfo {
                 i.patMismatchCode,
                 i.connType != null ? i.connType.name() : null,
                 i.patVerificationStatus != null ? i.patVerificationStatus.name() : null,
-                i.pdqServiceURI
+                i.pdqServiceURI,
+                i.impaxEndpoint
         };
     }
 

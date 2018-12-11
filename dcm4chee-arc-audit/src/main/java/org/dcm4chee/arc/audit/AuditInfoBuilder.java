@@ -88,6 +88,7 @@ class AuditInfoBuilder {
     final ConnectionEvent.Type connType;
     final Patient.VerificationStatus patVerificationStatus;
     final String pdqServiceURI;
+    final String impaxEndpoint;
 
     static class Builder {
         private String callingHost;
@@ -124,6 +125,7 @@ class AuditInfoBuilder {
         private ConnectionEvent.Type connType;
         private Patient.VerificationStatus patVerificationStatus;
         private String pdqServiceURI;
+        private String impaxEndpoint;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -276,6 +278,10 @@ class AuditInfoBuilder {
             pdqServiceURI = val;
             return this;
         }
+        Builder impaxEndpoint(String val) {
+            impaxEndpoint = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -316,6 +322,7 @@ class AuditInfoBuilder {
         connType = builder.connType;
         patVerificationStatus = builder.patVerificationStatus;
         pdqServiceURI = builder.pdqServiceURI;
+        impaxEndpoint = builder.impaxEndpoint;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

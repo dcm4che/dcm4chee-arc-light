@@ -210,7 +210,7 @@ public class AuditService {
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                                 archiveUserID,
                                 getLocalHostName(auditLogger))
-                                .userIDTypeCode(archiveUserIDTypeCode(archiveUserID))
+                                .userIDTypeCode(userIDTypeCode(archiveUserID))
                                 .altUserID(AuditLogger.processID())
                                 .roleIDCode(eventType.destination)
                                 .build();
@@ -515,7 +515,7 @@ public class AuditService {
             qrI = new AuditInfo(new DataInputStream(in).readUTF());
             String archiveUserID = qrI.getField(AuditInfo.CALLED_USERID);
             String callingUserID = qrI.getField(AuditInfo.CALLING_USERID);
-            AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
+            AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
             activeParticipants[0] = new ActiveParticipantBuilder.Builder(
                                     callingUserID,
                                     qrI.getField(AuditInfo.CALLING_HOST))
@@ -594,14 +594,13 @@ public class AuditService {
 
     private void spoolInstancesStored(StoreContext ctx) {
         try {
-            AuditUtils.EventType eventType = AuditUtils.EventType.forInstanceStored(ctx);
-
             StoreSession ss = ctx.getStoreSession();
             HttpServletRequest req = ss.getHttpRequest();
-            String impaxReportEndpoint = ss.getImpaxReportEndpoint();
             String callingUserID = req != null
                     ? KeycloakContext.valueOf(req).getUserName()
-                    : ss.getCallingAET();
+                    : ss.getCallingAET() != null
+                        ? ss.getCallingAET() : device.getDeviceName();
+            String calledUserID = req != null ? req.getRequestURI() : ss.getCalledAET();
 
             String outcome = ctx.getException() != null
                     ? ctx.getRejectionNote() != null
@@ -613,16 +612,20 @@ public class AuditService {
                     .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
                     .mppsUID(ctx.getMppsInstanceUID())
                     .outcome(outcome)
-                    .errorCode(ctx.getException() instanceof DicomServiceException ? ((DicomServiceException) ctx.getException()).getStatus() : 0)
+                    .errorCode(ctx.getException() instanceof DicomServiceException
+                            ? ((DicomServiceException) ctx.getException()).getStatus() : 0)
                     .build();
 
             ArchiveDeviceExtension arcDev = getArchiveDevice();
             Attributes attr = ctx.getAttributes();
-            AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(ss.getRemoteHostName())
-                    .callingUserID(impaxReportEndpoint != null ? impaxReportEndpoint : callingUserID)
-                    .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
+            AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
+                    .callingHost(ss.getRemoteHostName())
+                    .callingUserID(callingUserID)
+                    .calledUserID(calledUserID)
+                    .impaxEndpoint(ss.getImpaxReportEndpoint())
                     .studyUIDAccNumDate(attr, arcDev)
-                    .pIDAndName(attr, arcDev)
+                    .pIDAndName(attr, arcDev);
+            AuditInfoBuilder info = infoBuilder
                     .warning(ctx.getRejectionNote() != null
                             ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null)
                     .build();
@@ -631,13 +634,9 @@ public class AuditService {
                                 + '-' + ctx.getStoreSession().getCalledAET()
                                 + '-' + ctx.getStudyInstanceUID();
             suffix = outcome != null ? suffix.concat("_ERROR") : suffix;
-            writeSpoolFile(eventType, suffix, info, instanceInfo);
+            writeSpoolFile(AuditUtils.EventType.forInstanceStored(ctx), suffix, info, instanceInfo);
             if (ctx.getImpaxReportPatientMismatch() != null) {
-                AuditInfoBuilder patMismatchInfo = new AuditInfoBuilder.Builder().callingHost(ss.getRemoteHostName())
-                        .callingUserID(impaxReportEndpoint != null ? impaxReportEndpoint : callingUserID)
-                        .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
-                        .studyUIDAccNumDate(attr, arcDev)
-                        .pIDAndName(attr, arcDev)
+                AuditInfoBuilder patMismatchInfo = infoBuilder
                         .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
                         .build();
                 writeSpoolFile(AuditUtils.EventType.IMPAX_MISM, null, patMismatchInfo, instanceInfo);
@@ -673,16 +672,28 @@ public class AuditService {
 
 
     private ActiveParticipantBuilder[] patientMismatchActiveParticipants(AuditLogger logger, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
+        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[3];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         activeParticipants[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(logger))
-                .userIDTypeCode(archiveUserIDTypeCode(calledUserID)).build();
+                .userIDTypeCode(userIDTypeCode(calledUserID)).build();
         activeParticipants[1] = new ActiveParticipantBuilder.Builder(
-                callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                callingUserID, callingHost != null ? callingHost : getLocalHostName(logger))
+                .userIDTypeCode(callingHost != null
+                        ? AuditMessages.userIDTypeCode(callingUserID) : AuditMessages.UserIDTypeCode.DeviceName)
                 .isRequester().build();
+        String impaxEndpoint = auditInfo.getField(AuditInfo.IMPAX_ENDPOINT);
+        activeParticipants[2] = new ActiveParticipantBuilder.Builder(
+                impaxEndpoint, impaxEndpointHost(impaxEndpoint))
+                .userIDTypeCode(userIDTypeCode(impaxEndpoint))
+                .build();
         return activeParticipants;
+    }
+
+    private String impaxEndpointHost(String impaxEndpoint) {
+        String impaxEndpointRelative = impaxEndpoint.substring(impaxEndpoint.indexOf("//") + 2);
+        return impaxEndpointRelative.substring(0, impaxEndpointRelative.indexOf('/'));
     }
 
     private AuditMessages.EventTypeCode patMismatchEventTypeCode(AuditInfo auditInfo) {
@@ -852,24 +863,34 @@ public class AuditService {
 
     private ActiveParticipantBuilder[] storeWadoURIActiveParticipants(
             AuditLogger auditLogger, AuditInfo auditInfo, AuditUtils.EventType eventType) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
+        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                callingUserID,
-                auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester()
-                .roleIDCode(eventType.source)
-                .build();
-        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                 archiveUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(archiveUserIDTypeCode)
                 .altUserID(AuditLogger.processID())
                 .roleIDCode(eventType.destination)
                 .build();
+        String impaxEndpoint = auditInfo.getField(AuditInfo.IMPAX_ENDPOINT);
+        String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        ActiveParticipantBuilder.Builder requester = new ActiveParticipantBuilder.Builder(
+                callingUserID, callingHost != null ? callingHost : getLocalHostName(auditLogger))
+                .userIDTypeCode(callingHost != null
+                        ? remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID)
+                        : AuditMessages.UserIDTypeCode.DeviceName)
+                .isRequester();
+        if (impaxEndpoint != null) {
+            activeParticipantBuilder[1] = requester.build();
+            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+                    impaxEndpoint, impaxEndpointHost(impaxEndpoint))
+                    .userIDTypeCode(userIDTypeCode(impaxEndpoint))
+                    .roleIDCode(eventType.source)
+                    .build();
+        } else
+            activeParticipantBuilder[1] = requester.roleIDCode(eventType.source).build();
         return activeParticipantBuilder;
     }
 
@@ -1143,7 +1164,7 @@ public class AuditService {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
+        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
 
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
                                 archiveUserID,
@@ -1280,7 +1301,7 @@ public class AuditService {
     private ActiveParticipantBuilder[] buildProcedureRecordActiveParticipants(AuditLogger auditLogger, AuditInfo prI) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
         String archiveUserID = prI.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
+        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
         String callingUserID = prI.getField(AuditInfo.CALLING_USERID);
         boolean isHL7Forward = prI.getField(AuditInfo.IS_OUTGOING_HL7) != null;
         activeParticipantBuilder[0] = isHL7Forward
@@ -1561,7 +1582,7 @@ public class AuditService {
                 .build();
     }
 
-    private AuditMessages.UserIDTypeCode archiveUserIDTypeCode(String userID) {
+    private AuditMessages.UserIDTypeCode userIDTypeCode(String userID) {
         return  userID.indexOf('/') != -1
                 ? AuditMessages.UserIDTypeCode.URI
                 : userID.indexOf('|') != -1

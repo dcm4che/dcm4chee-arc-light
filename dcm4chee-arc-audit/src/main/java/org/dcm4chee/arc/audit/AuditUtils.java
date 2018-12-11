@@ -51,7 +51,6 @@ import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
