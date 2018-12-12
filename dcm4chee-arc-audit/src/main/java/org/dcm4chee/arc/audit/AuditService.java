@@ -1572,7 +1572,7 @@ public class AuditService {
                 .outcomeDesc(desc).eventTypeCode(et.eventTypeCode).build();
     }
     
-    private ParticipantObjectIdentificationBuilder patientPOI(AuditInfo auditInfo) {
+    static ParticipantObjectIdentificationBuilder patientPOI(AuditInfo auditInfo) {
         return new ParticipantObjectIdentificationBuilder.Builder(
                 auditInfo.getField(AuditInfo.P_ID),
                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,

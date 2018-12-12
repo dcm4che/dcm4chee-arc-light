@@ -120,65 +120,55 @@ class RetrieveAuditService {
     }
 
     private AuditInfoBuilder toBuildAuditInfo(boolean checkForFailures) {
-        boolean failedIUIDShow = isFailedIUIDShow(checkForFailures);
-        String outcome = checkForFailures ? buildOutcome() : null;
+        AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
+                .warning(warning())
+                .outcome(checkForFailures ? outcome() : null)
+                .failedIUIDShow(isFailedIUIDShow(checkForFailures));
 
         return isExportTriggered(ctx)
                 ? httpServletRequestInfo != null
-                    ? restfulTriggeredExport(failedIUIDShow, outcome)
-                    : schedulerTriggeredExport(failedIUIDShow, outcome)
+                    ? restfulTriggeredExport(infoBuilder)
+                    : schedulerTriggeredExport(infoBuilder)
                 : httpServletRequestInfo != null
-                    ? rad69OrWadoRS(failedIUIDShow, outcome)
-                    : cMoveCGet(failedIUIDShow, outcome);
+                    ? rad69OrWadoRS(infoBuilder)
+                    : cMoveCGet(infoBuilder);
     }
 
-    private AuditInfoBuilder cMoveCGet(boolean failedIUIDShow, String outcome) {
-        return new AuditInfoBuilder.Builder()
+    private AuditInfoBuilder cMoveCGet(AuditInfoBuilder.Builder infoBuilder) {
+        return infoBuilder
             .calledUserID(ctx.getLocalAETitle())
             .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
-            .warning(buildWarning())
             .callingHost(ctx.getRequestorHostName())
             .moveUserID(ctx.getMoveOriginatorAETitle())
-            .outcome(outcome)
-            .failedIUIDShow(failedIUIDShow)
             .build();
     }
 
-    private AuditInfoBuilder rad69OrWadoRS(boolean failedIUIDShow, String outcome) {
-        return new AuditInfoBuilder.Builder()
+    private AuditInfoBuilder rad69OrWadoRS(AuditInfoBuilder.Builder infoBuilder) {
+        return infoBuilder
             .calledUserID(httpServletRequestInfo.requestURI)
             .destUserID(httpServletRequestInfo.requesterUserID)
             .destNapID(ctx.getDestinationHostName())
-            .warning(buildWarning())
-            .outcome(outcome)
-            .failedIUIDShow(failedIUIDShow)
             .build();
     }
 
-    private AuditInfoBuilder schedulerTriggeredExport(boolean failedIUIDShow, String outcome) {
-        return new AuditInfoBuilder.Builder()
+    private AuditInfoBuilder schedulerTriggeredExport(AuditInfoBuilder.Builder infoBuilder) {
+        return infoBuilder
             .calledUserID(ctx.getLocalAETitle())
             .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
-            .warning(buildWarning())
             .callingHost(ctx.getRequestorHostName())
-            .outcome(outcome)
-            .failedIUIDShow(failedIUIDShow)
             .isExport()
             .build();
     }
 
-    private AuditInfoBuilder restfulTriggeredExport(boolean failedIUIDShow, String outcome) {
-        return new AuditInfoBuilder.Builder()
+    private AuditInfoBuilder restfulTriggeredExport(AuditInfoBuilder.Builder infoBuilder) {
+        return infoBuilder
             .callingUserID(httpServletRequestInfo.requesterUserID)
             .callingHost(ctx.getRequestorHostName())
             .calledUserID(httpServletRequestInfo.requestURI)
             .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
-            .warning(buildWarning())
-            .outcome(outcome)
-            .failedIUIDShow(failedIUIDShow)
             .isExport()
             .build();
     }
@@ -205,7 +195,7 @@ class RetrieveAuditService {
         return ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty();
     }
 
-    private String buildWarning() {
+    private String warning() {
         return allInstancesRetrieveCompleted() && ctx.warning() != 0
                 ? ctx.warning() == ctx.getMatches().size()
                     ? "Warnings on retrieve of all instances"
@@ -213,7 +203,7 @@ class RetrieveAuditService {
                 : null;
     }
 
-    private String buildOutcome() {
+    private String outcome() {
         return ctx.getException() != null
                 ? ctx.getException().getMessage() != null
                     ? ctx.getException().getMessage()

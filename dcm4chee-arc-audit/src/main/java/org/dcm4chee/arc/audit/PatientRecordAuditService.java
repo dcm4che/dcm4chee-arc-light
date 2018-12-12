@@ -39,19 +39,15 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.audit.EventIdentificationBuilder;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
-import java.util.Calendar;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -62,104 +58,86 @@ class PatientRecordAuditService {
     private final ArchiveDeviceExtension arcDev;
     private PatientMgtContext ctx;
     private HL7ConnectionEvent hl7ConnEvent;
+    private AuditInfoBuilder.Builder infoBuilder;
 
-    private String callingHost;
-    private String callingUserID;
-    private String calledUserID;
-    
     PatientRecordAuditService(PatientMgtContext ctx, ArchiveDeviceExtension arcDev) {
         this.ctx = ctx;
         this.arcDev = arcDev;
         HttpServletRequestInfo httpRequest = ctx.getHttpServletRequestInfo();
         Association association = ctx.getAssociation();
-        this.callingHost = ctx.getRemoteHostName();
-        this.callingUserID = httpRequest != null
+        String callingUserID = httpRequest != null
                 ? httpRequest.requesterUserID
                 : association != null
                     ? association.getCallingAET() : arcDev.getDevice().getDeviceName();
-        this.calledUserID = httpRequest != null
+        String calledUserID = httpRequest != null
                 ? httpRequest.requestURI
                 : association != null
                     ? association.getCalledAET() : null;
+        infoBuilder = new AuditInfoBuilder.Builder()
+                .callingHost(ctx.getRemoteHostName())
+                .callingUserID(callingUserID)
+                .calledUserID(calledUserID)
+                .outcome(outcome(ctx.getException()))
+                .patVerificationStatus(ctx.getPatientVerificationStatus())
+                .pdqServiceURI(ctx.getPDQServiceURI());
     }
 
     PatientRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
         this.arcDev = arcDev;
         this.hl7ConnEvent = hl7ConnEvent;
         HL7Segment msh = hl7ConnEvent.getHL7Message().msh();
-        this.callingUserID = msh.getSendingApplicationWithFacility();
-        this.calledUserID = msh.getReceivingApplicationWithFacility();
-        this.callingHost = hl7ConnEvent.getConnection() != null
+        String callingUserID = msh.getSendingApplicationWithFacility();
+        String calledUserID = msh.getReceivingApplicationWithFacility();
+        String callingHost = hl7ConnEvent.getConnection() != null
                 ? hl7ConnEvent.getConnection().getHostname()
                 : ReverseDNS.hostNameOf(hl7ConnEvent.getSocket().getInetAddress());
+
         if (isArchiveHL7MsgAndNotOrder()) { // will occur only for outgoing
             ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ConnEvent.getHL7Message();
             HttpServletRequestInfo httpServletRequestInfo = archiveHL7Message.getHttpServletRequestInfo();
             if (httpServletRequestInfo != null) {
-                this.callingHost = httpServletRequestInfo.requesterHost;
-                this.callingUserID = httpServletRequestInfo.requesterUserID;
-                this.calledUserID = httpServletRequestInfo.requestURI;
+                callingHost = httpServletRequestInfo.requesterHost;
+                callingUserID = httpServletRequestInfo.requesterUserID;
+                calledUserID = httpServletRequestInfo.requestURI;
             }
         }
+
+        infoBuilder = new AuditInfoBuilder.Builder()
+                .callingHost(callingHost)
+                .callingUserID(callingUserID)
+                .calledUserID(calledUserID)
+                .outcome(outcome(hl7ConnEvent.getException()));
     }
 
     AuditInfoBuilder getPatAuditInfo() {
-        return new AuditInfoBuilder.Builder()
-                .callingHost(callingHost)
-                .callingUserID(callingUserID)
-                .calledUserID(calledUserID)
-                .pIDAndName(ctx.getAttributes(), arcDev)
-                .outcome(outcome(ctx.getException()))
-                .patVerificationStatus(ctx.getPatientVerificationStatus())
-                .pdqServiceURI(ctx.getPDQServiceURI())
-                .build();
+        return infoBuilder.pIDAndName(ctx.getAttributes(), arcDev).build();
     }
     
     AuditInfoBuilder getPrevPatAuditInfo() {
-        return new AuditInfoBuilder.Builder()
-                .callingHost(callingHost)
-                .callingUserID(callingUserID)
-                .calledUserID(calledUserID)
-                .pIDAndName(ctx.getPreviousAttributes(), arcDev)
-                .outcome(outcome(ctx.getException()))
-                .patVerificationStatus(ctx.getPatientVerificationStatus())
-                .pdqServiceURI(ctx.getPDQServiceURI())
-                .build();
+        return infoBuilder.pIDAndName(ctx.getPreviousAttributes(), arcDev).build();
     }
 
     AuditInfoBuilder getHL7IncomingPatInfo() {
         HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
-        return new AuditInfoBuilder.Builder()
-                .callingHost(callingHost)
-                .callingUserID(callingUserID)
-                .calledUserID(calledUserID)
+        return infoBuilder
                 .patID(pid.getField(3, null), arcDev)
                 .patName(pid.getField(5, null), arcDev)
-                .outcome(outcome(hl7ConnEvent.getException()))
                 .build();
     }
 
     AuditInfoBuilder getHL7IncomingPrevPatInfo(HL7Segment mrg) {
-        return new AuditInfoBuilder.Builder()
-                .callingHost(callingHost)
-                .callingUserID(callingUserID)
-                .calledUserID(calledUserID)
+        return infoBuilder
                 .patID(mrg.getField(1, null), arcDev)
                 .patName(mrg.getField(7, null), arcDev)
-                .outcome(outcome(hl7ConnEvent.getException()))
                 .build();
     }
 
     AuditInfoBuilder getHL7OutgoingPatInfo() {
         HL7Segment msh = hl7ConnEvent.getHL7Message().msh();
         HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
-        return new AuditInfoBuilder.Builder()
-                .callingHost(callingHost)
-                .callingUserID(callingUserID)
-                .calledUserID(calledUserID)
+        return infoBuilder
                 .patID(pid.getField(3, null), arcDev)
                 .patName(pid.getField(5, null), arcDev)
-                .outcome(outcome(hl7ConnEvent.getException()))
                 .isOutgoingHL7()
                 .outgoingHL7Sender(msh.getSendingApplicationWithFacility())
                 .outgoingHL7Receiver(msh.getReceivingApplicationWithFacility())
@@ -168,13 +146,9 @@ class PatientRecordAuditService {
 
     AuditInfoBuilder getHL7OutgoingPrevPatInfo(HL7Segment mrg) {
         HL7Segment msh = hl7ConnEvent.getHL7Message().msh();
-        return new AuditInfoBuilder.Builder()
-                .callingHost(callingHost)
-                .callingUserID(callingUserID)
-                .calledUserID(calledUserID)
+        return infoBuilder
                 .patID(mrg.getField(1, null), arcDev)
                 .patName(mrg.getField(7, null), arcDev)
-                .outcome(outcome(hl7ConnEvent.getException()))
                 .isOutgoingHL7()
                 .outgoingHL7Sender(msh.getSendingApplicationWithFacility())
                 .outgoingHL7Receiver(msh.getReceivingApplicationWithFacility())

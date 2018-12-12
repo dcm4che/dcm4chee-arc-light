@@ -70,40 +70,35 @@ class DeletionAuditService {
         boolean isSchedulerDeletedExpiredStudies = storeSession.getAssociation() == null
                                                     && storeSession.getHttpRequest() == null;
 
+        AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
+                .studyUIDAccNumDate(attr, arcDev)
+                .pIDAndName(attr, arcDev)
+                .outcome(outcome(ctx))
+                .warning(warning(ctx));
+
         List<AuditInfoBuilder> auditInfoBuilders = new ArrayList<>();
         auditInfoBuilders.add(isSchedulerDeletedExpiredStudies
-                ? schedulerRejectedAuditInfo(attr, ctx, arcDev)
-                : userRejectedAuditInfo(ctx, arcDev));
+                ? schedulerRejectedAuditInfo(infoBuilder, arcDev.getDevice().getDeviceName())
+                : userRejectedAuditInfo(ctx, infoBuilder));
         buildRejectionSOPAuditInfo(auditInfoBuilders, attr);
         return auditInfoBuilders.toArray(new AuditInfoBuilder[0]);
     }
 
-    private static AuditInfoBuilder schedulerRejectedAuditInfo(Attributes attr, StoreContext ctx,
-                                                               ArchiveDeviceExtension arcDev) {
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(arcDev.getDevice().getDeviceName())
-                .studyUIDAccNumDate(attr, arcDev)
-                .pIDAndName(attr, arcDev)
-                .outcome(outcome(ctx))
-                .warning(warning(ctx))
-                .build();
+    private static AuditInfoBuilder schedulerRejectedAuditInfo(AuditInfoBuilder.Builder infoBuilder, String devName) {
+        return infoBuilder.callingUserID(devName).build();
     }
 
-    private static AuditInfoBuilder userRejectedAuditInfo(StoreContext ctx, ArchiveDeviceExtension arcDev) {
+    private static AuditInfoBuilder userRejectedAuditInfo(StoreContext ctx, AuditInfoBuilder.Builder infoBuilder) {
         StoreSession storeSession = ctx.getStoreSession();
-        Attributes attr = ctx.getAttributes();
         HttpServletRequest req = storeSession.getHttpRequest();
         String callingAET = storeSession.getCallingAET();
-        return new AuditInfoBuilder.Builder().callingHost(storeSession.getRemoteHostName())
+        return infoBuilder
+                .callingHost(storeSession.getRemoteHostName())
                 .callingUserID(req != null
                         ? KeycloakContext.valueOf(req).getUserName()
                         : callingAET != null
                         ? callingAET : storeSession.getLocalApplicationEntity().getAETitle())
                 .calledUserID(req != null ? req.getRequestURI() : storeSession.getCalledAET())
-                .studyUIDAccNumDate(attr, arcDev)
-                .pIDAndName(attr, arcDev)
-                .outcome(outcome(ctx))
-                .warning(warning(ctx))
                 .build();
     }
 
@@ -147,10 +142,15 @@ class DeletionAuditService {
 
     static AuditInfoBuilder[] studyDeletedAuditInfo(StudyDeleteContext ctx, ArchiveDeviceExtension arcDev) {
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
+                .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
+                .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
+                .outcome(outcome(ctx.getException()));
+
         AuditInfoBuilder[] auditInfoBuilders = new AuditInfoBuilder[ctx.getInstances().size() + 1];
         auditInfoBuilders[0] = httpServletRequestInfo != null
-                ? userTriggeredPermDeletionAuditInfo(httpServletRequestInfo, ctx, arcDev)
-                : schedulerTriggeredPermDeletionAuditInfo(ctx, arcDev);
+                ? userTriggeredPermDeletionAuditInfo(infoBuilder, httpServletRequestInfo)
+                : schedulerTriggeredPermDeletionAuditInfo(infoBuilder, arcDev);
         buildSOPInstanceAuditInfo(auditInfoBuilders, ctx.getInstances());
         return auditInfoBuilders;
     }
@@ -166,24 +166,17 @@ class DeletionAuditService {
     }
 
     private static AuditInfoBuilder userTriggeredPermDeletionAuditInfo(
-            HttpServletRequestInfo httpServletRequestInfo, StudyDeleteContext ctx, ArchiveDeviceExtension arcDev) {
-        return new AuditInfoBuilder.Builder()
+            AuditInfoBuilder.Builder infoBuilder, HttpServletRequestInfo httpServletRequestInfo) {
+        return infoBuilder
                 .callingUserID(httpServletRequestInfo.requesterUserID)
                 .callingHost(httpServletRequestInfo.requesterHost)
                 .calledUserID(httpServletRequestInfo.requestURI)
-                .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
-                .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
-                .outcome(outcome(ctx.getException()))
                 .build();
     }
 
-    private static AuditInfoBuilder schedulerTriggeredPermDeletionAuditInfo(StudyDeleteContext ctx, ArchiveDeviceExtension arcDev) {
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(arcDev.getDevice().getDeviceName())
-                .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
-                .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
-                .outcome(outcome(ctx.getException()))
-                .build();
+    private static AuditInfoBuilder schedulerTriggeredPermDeletionAuditInfo(
+            AuditInfoBuilder.Builder infoBuilder, ArchiveDeviceExtension arcDev) {
+        return infoBuilder.callingUserID(arcDev.getDevice().getDeviceName()).build();
     }
 
     private static String outcome(StoreContext ctx) {
@@ -209,7 +202,8 @@ class DeletionAuditService {
         return AuditMessages.createMessage(
                 eventIdentification,
                 activeParticipants(auditLogger, eventType, auditInfo),
-                poiStudy(reader, auditInfo));
+                poiStudy(reader, auditInfo),
+                AuditService.patientPOI(auditInfo));
     }
 
     private static ParticipantObjectIdentificationBuilder poiStudy(SpoolFileReader reader, AuditInfo auditInfo) {

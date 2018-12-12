@@ -57,20 +57,29 @@ import javax.servlet.http.HttpServletRequest;
  * @since Oct 2018
  */
 class ProcedureRecordAuditService {
-    
-    private final ArchiveDeviceExtension arcDev;
+
+    private ArchiveDeviceExtension arcDev;
     private StudyMgtContext studyMgtCtx;
     private ProcedureContext procCtx;
     private HL7ConnectionEvent hl7ConnEvent;
+    private AuditInfoBuilder.Builder infoBuilder;
 
     ProcedureRecordAuditService(StudyMgtContext ctx, ArchiveDeviceExtension arcDev) {
-        this.arcDev = arcDev;
-        this.studyMgtCtx = ctx;
+        studyMgtCtx = ctx;
+        infoBuilder = new AuditInfoBuilder.Builder()
+                .callingHost(studyMgtCtx.getRemoteHostName())
+                .studyUIDAccNumDate(studyMgtCtx.getAttributes(), arcDev)
+                .pIDAndName(studyMgtCtx.getStudy().getPatient().getAttributes(), arcDev)
+                .outcome(outcome(studyMgtCtx.getException()));
     }
 
     ProcedureRecordAuditService(ProcedureContext ctx, ArchiveDeviceExtension arcDev) {
-        this.arcDev = arcDev;
-        this.procCtx = ctx;
+        procCtx = ctx;
+        infoBuilder = new AuditInfoBuilder.Builder()
+                .callingHost(procCtx.getRemoteHostName())
+                .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
+                .pIDAndName(procCtx.getPatient().getAttributes(), arcDev)
+                .outcome(outcome(procCtx.getException()));
     }
 
     ProcedureRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
@@ -87,128 +96,85 @@ class ProcedureRecordAuditService {
     }
 
     AuditInfoBuilder getHL7IncomingOrderInfo() {
+        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment msh = hl7Message.msh();
+        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7Message, "PID");
+        infoBuilder = new AuditInfoBuilder.Builder()
+                .callingHost(hl7ConnEvent.getConnection().getHostname())
+                .callingUserID(msh.getSendingApplicationWithFacility())
+                .calledUserID(msh.getReceivingApplicationWithFacility())
+                .patID(pid.getField(3, null), arcDev)
+                .patName(pid.getField(5, null), arcDev)
+                .outcome(outcome(hl7ConnEvent.getException()));
         return HL7AuditUtils.isOrderProcessed(hl7ConnEvent) ? orderProcessed() : orderAcknowledged();
     }
 
     AuditInfoBuilder getHL7OutgoingOrderInfo() {
         HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
-        return pid != null ? procRecForward(pid) : procRecUpdate();
+        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment msh = hl7Message.msh();
+        String sendingApplicationWithFacility = msh.getSendingApplicationWithFacility();
+        String receivingApplicationWithFacility = msh.getReceivingApplicationWithFacility();
+        infoBuilder = new AuditInfoBuilder.Builder()
+                .callingHost(ReverseDNS.hostNameOf(hl7ConnEvent.getSocket().getInetAddress()))
+                .callingUserID(sendingApplicationWithFacility)
+                .calledUserID(receivingApplicationWithFacility)
+                .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
+                .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
+                .outcome(outcome(hl7ConnEvent.getException()))
+                .isOutgoingHL7()
+                .outgoingHL7Sender(sendingApplicationWithFacility)
+                .outgoingHL7Receiver(receivingApplicationWithFacility);
+        return pid != null ? procRecForward(pid) : infoBuilder.build();
     }
 
     private AuditInfoBuilder studyExpiredByHL7() {
         HL7Segment msh = studyMgtCtx.getUnparsedHL7Message().msh();
-        return new AuditInfoBuilder.Builder()
-                .callingHost(studyMgtCtx.getRemoteHostName())
+        return infoBuilder
                 .callingUserID(msh.getSendingApplicationWithFacility())
                 .calledUserID(msh.getReceivingApplicationWithFacility())
-                .studyUIDAccNumDate(studyMgtCtx.getAttributes(), arcDev)
-                .pIDAndName(studyMgtCtx.getStudy().getPatient().getAttributes(), arcDev)
-                .outcome(outcome(studyMgtCtx.getException()))
                 .build();
     }
 
     private AuditInfoBuilder studyExpiredByWeb() {
         HttpServletRequest request = studyMgtCtx.getHttpRequest();
-        return new AuditInfoBuilder.Builder()
-                .callingHost(studyMgtCtx.getRemoteHostName())
+        return infoBuilder
                 .callingUserID(KeycloakContext.valueOf(request).getUserName())
                 .calledUserID(studyMgtCtx.getHttpRequest().getRequestURI())
-                .studyUIDAccNumDate(studyMgtCtx.getAttributes(), arcDev)
-                .pIDAndName(studyMgtCtx.getStudy().getPatient().getAttributes(), arcDev)
-                .outcome(outcome(studyMgtCtx.getException()))
                 .build();
     }
 
     private AuditInfoBuilder procUpdatedByMPPS() {
         Association as = procCtx.getAssociation();
-        return new AuditInfoBuilder.Builder()
-                .callingHost(procCtx.getRemoteHostName())
+        return infoBuilder
                 .callingUserID(as.getCallingAET())
                 .calledUserID(as.getCalledAET())
-                .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
-                .pIDAndName(procCtx.getPatient().getAttributes(), arcDev)
-                .outcome(outcome(procCtx.getException()))
                 .build();
     }
 
     private AuditInfoBuilder procUpdatedByWeb() {
         HttpServletRequest req  = procCtx.getHttpRequest();
-        return new AuditInfoBuilder.Builder()
-                .callingHost(procCtx.getRemoteHostName())
+        return infoBuilder
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .calledUserID(req.getRequestURI())
-                .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
-                .pIDAndName(procCtx.getPatient().getAttributes(), arcDev)
-                .outcome(outcome(procCtx.getException()))
                 .build();
     }
 
     private AuditInfoBuilder orderProcessed() {
         ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ConnEvent.getHL7ResponseMessage();
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7Message, "PID");
-        return new AuditInfoBuilder.Builder()
-                .callingHost(hl7ConnEvent.getConnection().getHostname())
-                .callingUserID(msh.getSendingApplicationWithFacility())
-                .calledUserID(msh.getReceivingApplicationWithFacility())
+        return infoBuilder
                 .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs(), arcDev)
-                .patID(pid.getField(3, null), arcDev)
-                .patName(pid.getField(5, null), arcDev)
-                .outcome(outcome(hl7ConnEvent.getException()))
                 .build();
     }
 
     private AuditInfoBuilder orderAcknowledged() {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7Message, "PID");
-        return new AuditInfoBuilder.Builder()
-                .callingHost(hl7ConnEvent.getConnection().getHostname())
-                .callingUserID(msh.getSendingApplicationWithFacility())
-                .calledUserID(msh.getReceivingApplicationWithFacility())
-                .studyIUID(arcDev.auditUnknownStudyInstanceUID())
-                .patID(pid.getField(3, null), arcDev)
-                .patName(pid.getField(5, null), arcDev)
-                .outcome(outcome(hl7ConnEvent.getException()))
-                .build();
+        return infoBuilder.studyIUID(arcDev.auditUnknownStudyInstanceUID()).build();
     }
 
     private AuditInfoBuilder procRecForward(HL7Segment pid) {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        String sendingApplicationWithFacility = msh.getSendingApplicationWithFacility();
-        String receivingApplicationWithFacility = msh.getReceivingApplicationWithFacility();
-        return new AuditInfoBuilder.Builder()
-                .callingHost(ReverseDNS.hostNameOf(hl7ConnEvent.getSocket().getInetAddress()))
-                .callingUserID(sendingApplicationWithFacility)
-                .calledUserID(receivingApplicationWithFacility)
-                .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
-                .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
+        return infoBuilder
                 .patID(pid.getField(3, null), arcDev)
                 .patName(pid.getField(5, null), arcDev)
-                .outcome(outcome(hl7ConnEvent.getException()))
-                .isOutgoingHL7()
-                .outgoingHL7Sender(sendingApplicationWithFacility)
-                .outgoingHL7Receiver(receivingApplicationWithFacility)
-                .build();
-    }
-
-    private AuditInfoBuilder procRecUpdate() {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        String sendingApplicationWithFacility = msh.getSendingApplicationWithFacility();
-        String receivingApplicationWithFacility = msh.getReceivingApplicationWithFacility();
-        return new AuditInfoBuilder.Builder()
-                .callingHost(ReverseDNS.hostNameOf(hl7ConnEvent.getSocket().getInetAddress()))
-                .callingUserID(sendingApplicationWithFacility)
-                .calledUserID(receivingApplicationWithFacility)
-                .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
-                .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
-                .outcome(outcome(hl7ConnEvent.getException()))
-                .isOutgoingHL7()
-                .outgoingHL7Sender(sendingApplicationWithFacility)
-                .outgoingHL7Receiver(receivingApplicationWithFacility)
                 .build();
     }
     
