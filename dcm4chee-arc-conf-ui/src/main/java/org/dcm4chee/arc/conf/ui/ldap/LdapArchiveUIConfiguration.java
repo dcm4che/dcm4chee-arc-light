@@ -617,32 +617,11 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private void merge(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String deviceDN) throws NamingException {
         String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         ConfigurationChanges.ModifiedObject ldapObj =
-                ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U);
-        /**/
-        String[] prevModalities = prevUIConfig.getModalities();
-        if(prevModalities == null){
-            config.destroySubcontext(uiConfigDN);
-            ConfigurationChanges.addModifiedObject(diffs,uiConfigDN,ConfigurationChanges.ChangeType.C);
-            Attributes attrs = new BasicAttributes(true);
-            LdapUtils.storeNotEmpty(ldapObj,  attrs, "dcmuiModalities", uiConfig.getModalities());
-            config.createSubcontext(uiConfigDN, attrs);
-        }else{
-            ldapObj = ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U);
-            ArrayList<ModificationItem> mods = new ArrayList<ModificationItem>();
-            if(uiConfig.getModalities() == null){
-                LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiModalities",
-                        prevUIConfig.getModalities(),
-                        uiConfig.getModalities(), null);
-            }else{
-                LdapUtils.storeDiff(ldapObj, mods, "dcmuiModalities",
-                        prevUIConfig.getModalities(),
-                        uiConfig.getModalities());
-            }
-            config.modifyAttributes(uiConfigDN, mods);
-            ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
-        }
+                ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U); //Add logstash entry title
+        config.modifyAttributes(uiConfigDN, storeDiff(ldapObj, prevUIConfig, uiConfig,
+                new ArrayList<ModificationItem>()));
+        ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj); //remove logstash entry title if empty/no changes
 
-        /**/
         mergeDiffConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDashboardConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeElasticsearchConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
@@ -651,6 +630,11 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeFilterTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeAetLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
+    }
+
+    private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods) throws NamingException {
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
+        return mods;
     }
 
     private void mergePermissions(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
@@ -903,9 +887,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
-          //TODO
-
                 config.modifyAttributes(dn, storeDiffs(diffs, dn, ldapObj,prevUIDashboardConfig,uiDashboardConfig,new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -976,9 +959,13 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 );
                 storeElasticsearchURLs(diffs, uiElasticsearchConfigDN, uiElasticsearchConfig);
             }
-            else
+            else{
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, uiElasticsearchConfigDN, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(uiElasticsearchConfigDN, storeUIElasticsearchConfig(diffs, uiElasticsearchConfigDN, prevUIElasticsearchConfig, uiElasticsearchConfig,
                         new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
         }
     }
 
@@ -1086,7 +1073,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dicomuiIgnoreParams",
                 prev.getIgnoreParams(),
                 uiDashboardConfig.getIgnoreParams());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiShowStarBlock",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiShowStarBlock",
                 prev.isShowStarBlock(),
                 uiDashboardConfig.isShowStarBlock(),true);
         LdapUtils.storeDiff(ldapObj, mods, "dicomuiDockerContainer",
@@ -1121,9 +1108,13 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 config.createSubcontext(uiDiffConfigDN, storeTo(diffs, uiDiffConfigDN, uiDiffConfig, new BasicAttributes(true)));
                 storeDiffCriterias(diffs, uiDiffConfigDN, uiDiffConfig);
             }
-            else
+            else{
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, uiDiffConfigDN, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(uiDiffConfigDN, storeDiffs(diffs, uiDiffConfigDN, prevUIDiffConfig, uiDiffConfig,
                         new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
         }
     }
 
