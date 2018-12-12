@@ -82,6 +82,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
     private void writeTo(UIConfig uiConfig, JsonWriter writer) {
         writer.writeStartObject();
         writer.writeNotNullOrDef("dcmuiConfigName", uiConfig.getName(), null);
+        writer.writeNotEmpty("dcmuiModalities", uiConfig.getModalities());
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
@@ -299,6 +300,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             switch (reader.getString()) {
                 case "dcmuiConfigName":
                     uiConfig.setName(reader.stringValue());
+                    break;
+                case "dcmuiModalities":
+                    uiConfig.setModalities(reader.stringArray());
                     break;
                 case "dcmuiPermission":
                     loadUIPermissions(uiConfig, reader);

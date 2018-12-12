@@ -11,6 +11,14 @@
       "description": "UI Configuration Name",
       "type": "string"
     },
+    "dcmuiModalities": {
+      "title": "Statistic Modalities",
+      "description": "Preselected Modalities that should show in the Statistic page",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
     "dcmuiAetConfig": {
       "title": "AET drop-down list",
       "description": "Define which AETs should be visible in the drop-down lists in the UI",

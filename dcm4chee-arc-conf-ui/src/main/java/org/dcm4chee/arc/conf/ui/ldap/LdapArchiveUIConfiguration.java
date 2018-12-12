@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf.ui.ldap;
 import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.LdapUtils;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ui.*;
 
@@ -72,6 +73,12 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             store(diffs, deviceDN, ui);
     }
 
+    @Override
+    protected void storeTo(ConfigurationChanges.ModifiedObject ldapObj, Device device, Attributes attrs) {
+//        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiModalities", uiConfig.getModalities());
+        super.storeTo(ldapObj, device, attrs);
+    }
+
     private String uiConfigDN(UIConfig uiConfig, String deviceDN) {
         return LdapUtils.dnOf("dcmuiConfigName" , uiConfig.getName(), deviceDN);
     }
@@ -84,7 +91,6 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         config.createSubcontext(uiConfigDN,
                 storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                         uiConfig, new BasicAttributes(true)));
-
         storePermissions(diffs, uiConfig, uiConfigDN);
         storeDiffConfigs(diffs, uiConfig, uiConfigDN);
         storeDashboardConfigs(diffs, uiConfig, uiConfigDN);
@@ -99,6 +105,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIConfig uiConfig, Attributes attrs) {
         attrs.put("objectclass", "dcmuiConfig");
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiConfigName", uiConfig.getName(), null);
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiModalities", uiConfig.getModalities());
         return attrs;
     }
 
@@ -355,6 +362,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         Attributes attrs = sr.getAttributes();
         UIConfig uiConfig = new UIConfig(LdapUtils.stringValue(attrs.get("dcmuiConfigName"), null));
         String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
+        uiConfig.setModalities(LdapUtils.stringArray(attrs.get("dcmuiModalities")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
@@ -610,6 +618,31 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         ConfigurationChanges.ModifiedObject ldapObj =
                 ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U);
+        /**/
+        String[] prevModalities = prevUIConfig.getModalities();
+        if(prevModalities == null){
+            config.destroySubcontext(uiConfigDN);
+            ConfigurationChanges.addModifiedObject(diffs,uiConfigDN,ConfigurationChanges.ChangeType.C);
+            Attributes attrs = new BasicAttributes(true);
+            LdapUtils.storeNotEmpty(ldapObj,  attrs, "dcmuiModalities", uiConfig.getModalities());
+            config.createSubcontext(uiConfigDN, attrs);
+        }else{
+            ldapObj = ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U);
+            ArrayList<ModificationItem> mods = new ArrayList<ModificationItem>();
+            if(uiConfig.getModalities() == null){
+                LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiModalities",
+                        prevUIConfig.getModalities(),
+                        uiConfig.getModalities(), null);
+            }else{
+                LdapUtils.storeDiff(ldapObj, mods, "dcmuiModalities",
+                        prevUIConfig.getModalities(),
+                        uiConfig.getModalities());
+            }
+            config.modifyAttributes(uiConfigDN, mods);
+            ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+        }
+
+        /**/
         mergeDiffConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDashboardConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeElasticsearchConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
