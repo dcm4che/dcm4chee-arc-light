@@ -4386,25 +4386,49 @@ export class StudiesComponent implements OnDestroy,OnInit{
         );
     };
     openViewer(model, mode){
-        let url,
-            configuredUrl;
-        console.log('aetmodel', this.aetmodel);
-        switch (mode) {
-            case 'patient':
-                configuredUrl = this.aetmodel.dcmInvokeImageDisplayPatientURL;
-                console.log('configuredUrl', configuredUrl);
-                url = configuredUrl.substr(0, configuredUrl.length - 2) + model['00100020'].Value[0];
-                break;
-            case 'study':
-                configuredUrl = this.aetmodel.dcmInvokeImageDisplayStudyURL;
-                console.log('configuredUrl', configuredUrl);
-                url = configuredUrl.substr(0, configuredUrl.length - 2) + model['0020000D'].Value[0];
-                break;
-
+        try {
+            let token;
+            let target;
+            let url;
+            let configuredUrlString = mode === "study" ? this.aetmodel.dcmInvokeImageDisplayStudyURL : this.aetmodel.dcmInvokeImageDisplayPatientURL;
+            this.$http.refreshToken().subscribe((response) => {
+                if (!this.mainservice.global.notSecure) {
+                    if (response && response.length != 0) {
+                        this.$http.resetAuthenticationInfo(response);
+                        token = response['token'];
+                    } else {
+                        token = this.mainservice.global.authentication.token;
+                    }
+                }
+                console.groupCollapsed("OpenViewer");
+                console.log("Configure URL:",configuredUrlString);
+                console.log("aetmodel     :",this.aetmodel);
+                console.log("model:        ",model);
+                console.log("mode:         ",mode);
+                url = configuredUrlString.replace(/(&)(\w*)=(\{\}|_self|_blank)/g, (match, p1, p2, p3, offset, string) => {
+                    switch (p2) {
+                        case "studyUID":
+                            return `${p1}${p2}=${model['0020000D'].Value[0]}`;
+                        case "patientID":
+                            return `${p1}${p2}=${this.service.getPatientId(model)}`;
+                        case "access_token":
+                            return `${p1}${p2}=${token}`;
+                        case "target":
+                            target = `${p3}`;
+                            return "";
+                    }
+                }).trim();
+                console.log("Prepared URL: ", url);
+                console.groupEnd();
+                if (target) {
+                    this.service.getWindow().open(url, target);
+                } else {
+                    this.service.getWindow().open(url);
+                }
+            });
+        }catch(e){
+            j4care.log("Something went wrong while opening the Viewer",e);
         }
-        console.log('url', url);
-        // $window.open(url);
-        this.service.getWindow().open(url);
     };
     showMoreFunction(e, elementLimit){
         let duration = 300;
