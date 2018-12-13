@@ -4428,6 +4428,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             });
         }catch(e){
             j4care.log("Something went wrong while opening the Viewer",e);
+            this.mainservice.showError("Something went wrong while opening the Viewer open the inspect to see more details");
         }
     };
     showMoreFunction(e, elementLimit){
