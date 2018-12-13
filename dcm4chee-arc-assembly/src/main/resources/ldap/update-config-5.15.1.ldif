@@ -57,11 +57,11 @@ dcmTrustStoreType: JKS
 add: dcmTrustStorePin
 dcmTrustStorePin: secret
 -
-remove: dicomAuthorizedNodeCertificateReference
+delete: dicomAuthorizedNodeCertificateReference
 -
-remove: userCertificate;binary
+delete: userCertificate;binary
 -
-remove: objectClass
+delete: objectClass
 objectClass: pkiUser
 
 dn: dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
