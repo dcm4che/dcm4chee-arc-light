@@ -44,7 +44,6 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
@@ -64,7 +63,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -555,38 +553,9 @@ public class DeletionServiceEJB {
             : Collections.singletonList(desc.getStorageID());
     }
 
-    private List<String> getOtherStorageIDs(StorageDescriptor desc) {
-        return desc.getStorageClusterID() != null
-            ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                .getStorageIDsOfCluster(desc.getStorageClusterID())
-                .filter(storageID -> !storageID.equals(desc.getStorageID()))
-                .collect(Collectors.toList())
-             : Collections.emptyList();
-
-    }
-
     private List<String> getStudyStorageIDs(StorageDescriptor desc) {
-        return desc.getExportStorageID() != null
-                ? addPowerSet(getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID())
-                : addPowerSet(getOtherStorageIDs(desc), desc.getStorageID());
-    }
-
-    private static List<String> addPowerSet(List<String> storageIDs, String... common) {
-        if (storageIDs.isEmpty()) {
-            Arrays.sort(common);
-            return Collections.singletonList(StringUtils.concat(common, '\\'));
-        }
-        return IntStream.range(0, 1 << storageIDs.size()).mapToObj(i -> {
-            String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
-            int j = common.length;
-            int mask = 1;
-            for (String storageID : storageIDs) {
-                if ((i & mask) != 0) a[j++] = storageID;
-                mask <<= 1;
-            }
-            Arrays.sort(a);
-            return StringUtils.concat(a, '\\');
-        }).collect(Collectors.toList());
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getStudyStorageIDs(desc);
     }
 
 }

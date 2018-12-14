@@ -54,6 +54,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -1371,6 +1373,39 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storageDescriptorMap.values().stream()
                 .filter(desc -> clusterID.equals(desc.getStorageClusterID()))
                 .map(StorageDescriptor::getStorageID);
+    }
+
+    private List<String> getOtherStorageIDs(StorageDescriptor desc) {
+        return desc.getStorageClusterID() != null
+                ? getStorageIDsOfCluster(desc.getStorageClusterID())
+                    .filter(storageID -> !storageID.equals(desc.getStorageID()))
+                    .collect(Collectors.toList())
+                : Collections.emptyList();
+
+    }
+
+    public List<String> getStudyStorageIDs(StorageDescriptor desc) {
+        return desc.getExportStorageID() != null
+                ? addPowerSet(getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID())
+                : addPowerSet(getOtherStorageIDs(desc), desc.getStorageID());
+    }
+
+    private static List<String> addPowerSet(List<String> storageIDs, String... common) {
+        if (storageIDs.isEmpty()) {
+            Arrays.sort(common);
+            return Collections.singletonList(StringUtils.concat(common, '\\'));
+        }
+        return IntStream.range(0, 1 << storageIDs.size()).mapToObj(i -> {
+            String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
+            int j = common.length;
+            int mask = 1;
+            for (String storageID : storageIDs) {
+                if ((i & mask) != 0) a[j++] = storageID;
+                mask <<= 1;
+            }
+            Arrays.sort(a);
+            return StringUtils.concat(a, '\\');
+        }).collect(Collectors.toList());
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {
