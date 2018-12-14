@@ -267,24 +267,60 @@ export class CreateAeComponent implements OnInit{
         }
         console.log('this.selctedDeviceObject=', this.selctedDeviceObject);
     }
+    getDicomConnections(){
+        if(_.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference") && _.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference")){
+            return this.selctedDeviceObject.dicomNetworkConnection.filter((connection,i)=>{
+                return this.newAetModel.dicomNetworkAE["0"].dicomNetworkConnectionReference.indexOf(`/dicomNetworkConnection/${i}`) > -1 &&
+                        (
+                            !_.hasIn(connection, "dcmNetworkConnection.dcmProtocol") ||
+                            !connection.dcmNetworkConnection.dcmProtocol ||
+                            connection.dcmNetworkConnection.dcmProtocol === ""
+                        )
+            });
+        }
+        return [];
+    }
     testConnection(){
         if(this.selectedCallingAet && this.newAetModel.dicomNetworkAE[0].dicomAETitle && this.newAetModel.dicomNetworkConnection[0].dicomHostname && this.newAetModel.dicomNetworkConnection[0].dicomPort){
             this.cfpLoadingBar.start();
-            this.aeListService.echoAe(this.selectedCallingAet, this.newAetModel.dicomNetworkAE[0].dicomAETitle,{
-                host:this.newAetModel.dicomNetworkConnection[0].dicomHostname,
-                port:this.newAetModel.dicomNetworkConnection[0].dicomPort
-            }).subscribe((response) => {
-                this.cfpLoadingBar.complete();
-                let msg = this.aeListService.generateEchoResponseText(response);
-                this.mainservice.setMessage({
-                    'title': msg.title,
-                    'text': msg.text,
-                    'status': msg.status
+            let data;
+            if(this.activetab === "selectdevice"){
+                let dicomConnectionn = this.getDicomConnections();
+                if(dicomConnectionn.length > 1){
+                    this.mainservice.showError("Multiple dicom connection selected!");
+                    return;
+                }else{
+                    if(dicomConnectionn.length === 0){
+                        this.mainservice.showError("No dicom connection found!");
+                    }else{
+                        data = {
+                            host:dicomConnectionn[0].dicomHostname,
+                            port:dicomConnectionn[0].dicomPort
+                        };
+                    }
+                }
+            }else{
+                data = {
+                    host: this.newAetModel.dicomNetworkConnection[0].dicomHostname,
+                    port: this.newAetModel.dicomNetworkConnection[0].dicomPort
+                }
+            }
+            if(data && data.host && data.port){
+                this.aeListService.echoAe(this.selectedCallingAet, this.newAetModel.dicomNetworkAE[0].dicomAETitle,data).subscribe((response) => {
+                    this.cfpLoadingBar.complete();
+                    let msg = this.aeListService.generateEchoResponseText(response);
+                    this.mainservice.setMessage({
+                        'title': msg.title,
+                        'text': msg.text,
+                        'status': msg.status
+                    });
+                }, err => {
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
                 });
-            }, err => {
-                this.cfpLoadingBar.complete();
-                this.httpErrorHandler.handleError(err);
-            });
+            }else{
+                this.mainservice.showError("No connection found");
+            }
         }else{
             this.mainservice.setMessage({
                 title:"Error",
