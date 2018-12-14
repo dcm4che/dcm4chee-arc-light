@@ -1,5 +1,21 @@
 version: 1
 
+dn: dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiConfig
+dcmuiConfigName: default
+dcmuiModalities: CR
+dcmuiModalities: CT
+dcmuiModalities: DX
+dcmuiModalities: KO
+dcmuiModalities: MR
+dcmuiModalities: MG
+dcmuiModalities: NM
+dcmuiModalities: OT
+dcmuiModalities: PT
+dcmuiModalities: PR
+dcmuiModalities: US
+dcmuiModalities: XA
+
 dn: dcmuiPermissionName=Menu - Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Menu - Studies
 dcmuiActionParam: accessible
