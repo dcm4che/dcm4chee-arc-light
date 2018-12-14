@@ -11615,6 +11615,53 @@
         }
       }
     },
+    "/storage/{storageID}/studies/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Count Studies on Storage System",
+        "operationId": "countStudiesOnStorageSystem",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "storageID",
+            "in": "path",
+            "description": "Storage ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exported",
+            "in": "query",
+            "description": "include/exclude Studies with objects on referred Export Storage System",
+            "type": "boolean"
+          },
+          {
+            "name": "clustered",
+            "in": "query",
+            "description": "include/exclude Studies with objects on other Storage System(s) of the same Storage Cluster",
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of Studies on Storage System",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Storage ID"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/impax/reports/studies/{StudyInstanceUID}": {
       "get": {
         "tags": [
