@@ -356,6 +356,8 @@ public class QueryBuilder {
             if (queryParam.isRetrieveFailed())
                 builder.and(QStudy.study.failedRetrieves.gt(0));
         }
+        if (!queryParam.getStorageIDs().isEmpty())
+            builder.and(QStudy.study.storageIDs.in(queryParam.getStorageIDs()));
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {

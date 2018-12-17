@@ -1390,6 +1390,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 : addPowerSet(getOtherStorageIDs(desc), desc.getStorageID());
     }
 
+    public List<String> getStudyStorageIDs(String storageID) {
+        return getStudyStorageIDs(getStorageDescriptorNotNull(storageID));
+    }
+
     private static List<String> addPowerSet(List<String> storageIDs, String... common) {
         if (storageIDs.isEmpty()) {
             Arrays.sort(common);

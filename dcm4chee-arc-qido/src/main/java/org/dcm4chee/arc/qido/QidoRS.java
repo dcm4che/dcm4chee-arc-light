@@ -169,6 +169,9 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String includedefaults;
 
+    @QueryParam("storageID")
+    private String storageID;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -365,58 +368,60 @@ public class QidoRS {
         logRequest();
         Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
-        ctx.setReturnKeys(queryAttrs.isIncludeAll()
-                ? null
-                : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
-                ? queryAttrs.getReturnKeys(qido.includetags)
-                : queryAttrs.getQueryKeys());
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        if (output == Output.CSV) {
-            model.setIncludeAll(queryAttrs.isIncludeAll());
-            model.setReturnKeys(ctx.getReturnKeys());
-        }
-        try (Query query = model.createQuery(service, ctx)) {
-            query.initQuery();
-            int maxResults = arcAE.qidoMaxNumberOfResults();
-            int offsetInt = parseInt(offset);
-            int limitInt = parseInt(limit);
-            int remaining = 0;
-            if (maxResults > 0 && (limitInt == 0 || limitInt > maxResults) && !ctx.isConsiderPurgedInstances()) {
-                int numResults = (int) (query.fetchCount() - offsetInt);
-                if (numResults <= 0)
-                    return Response.noContent().build();
-
-                remaining = numResults - maxResults;
+        try {
+            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+            ctx.setReturnKeys(queryAttrs.isIncludeAll()
+                    ? null
+                    : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
+                    ? queryAttrs.getReturnKeys(qido.includetags)
+                    : queryAttrs.getQueryKeys());
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            if (output == Output.CSV) {
+                model.setIncludeAll(queryAttrs.isIncludeAll());
+                model.setReturnKeys(ctx.getReturnKeys());
             }
-            if (offsetInt > 0)
-                query.offset(offsetInt);
+            try (Query query = model.createQuery(service, ctx)) {
+                query.initQuery();
+                int maxResults = arcAE.qidoMaxNumberOfResults();
+                int offsetInt = parseInt(offset);
+                int limitInt = parseInt(limit);
+                int remaining = 0;
+                if (maxResults > 0 && (limitInt == 0 || limitInt > maxResults) && !ctx.isConsiderPurgedInstances()) {
+                    int numResults = (int) (query.fetchCount() - offsetInt);
+                    if (numResults <= 0)
+                        return Response.noContent().build();
 
-            if (remaining > 0)
-                query.limit(maxResults);
-            else if (limitInt > 0)
-                query.limit(limitInt);
+                    remaining = numResults - maxResults;
+                }
+                if (offsetInt > 0)
+                    query.offset(offsetInt);
 
-            Transaction transaction = query.beginTransaction();
-            try {
-                query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
-                query.executeQuery();
-                if (!query.hasMoreMatches())
-                    return Response.noContent().build();
-
-                Response.ResponseBuilder builder = Response.ok();
                 if (remaining > 0)
-                    builder.header("Warning", warning(remaining));
+                    query.limit(maxResults);
+                else if (limitInt > 0)
+                    query.limit(limitInt);
 
-                return builder.entity(
-                        output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
-                        .type(output.type())
-                        .build();
-            } finally {
+                Transaction transaction = query.beginTransaction();
                 try {
-                    transaction.commit();
-                } catch (Exception e) {
-                    LOG.warn("Failed to commit transaction:\n{}", e);
+                    query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
+                    query.executeQuery();
+                    if (!query.hasMoreMatches())
+                        return Response.noContent().build();
+
+                    Response.ResponseBuilder builder = Response.ok();
+                    if (remaining > 0)
+                        builder.header("Warning", warning(remaining));
+
+                    return builder.entity(
+                            output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
+                            .type(output.type())
+                            .build();
+                } finally {
+                    try {
+                        transaction.commit();
+                    } catch (Exception e) {
+                        LOG.warn("Failed to commit transaction:\n{}", e);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -482,6 +487,9 @@ public class QidoRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        if (storageID != null)
+            queryParam.setStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStudyStorageIDs(storageID));
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
@@ -499,7 +507,6 @@ public class QidoRS {
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
     }
-
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;

@@ -46,6 +46,9 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -68,6 +71,7 @@ public class QueryParam {
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private Patient.VerificationStatus patientVerificationStatus;
+    private List<String> storageIDs = new ArrayList<>();
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -209,5 +213,13 @@ public class QueryParam {
 
     public void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus) {
         this.patientVerificationStatus = patientVerificationStatus;
+    }
+
+    public List<String> getStorageIDs() {
+        return storageIDs;
+    }
+
+    public void setStorageIDs(List<String> storageIDs) {
+        this.storageIDs = storageIDs;
     }
 }
