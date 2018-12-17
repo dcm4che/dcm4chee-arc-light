@@ -110,6 +110,7 @@ public class QueryAttributes {
                 case "SplitStudyDateRange":
                 case "ForceQueryByStudyUID":
                 case "includedefaults":
+                case "ExpirationDate":
                 case "storageID":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":

@@ -10817,6 +10817,12 @@
             "in": "query",
             "description": "count Studies which are not retrieveable from external <AE Title>",
             "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "count Studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -10907,6 +10913,12 @@
             "in": "query",
             "description": "count Series received from this <AE Title>",
             "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "count series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -10989,6 +11001,12 @@
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
             "description": "count Series received from this <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "count series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           }
         ],
@@ -11279,6 +11297,12 @@
             "name": "ExternalRetrieveAET!",
             "in": "query",
             "description": "match only Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only Studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           }
         ],

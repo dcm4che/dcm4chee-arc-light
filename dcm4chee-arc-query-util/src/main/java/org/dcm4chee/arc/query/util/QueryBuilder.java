@@ -356,6 +356,9 @@ public class QueryBuilder {
             if (queryParam.isRetrieveFailed())
                 builder.and(QStudy.study.failedRetrieves.gt(0));
         }
+        if (queryParam.getExpirationDate() != null)
+            builder.and(MatchDateTimeRange.range(
+                    QStudy.study.expirationDate, queryParam.getExpirationDate(), MatchDateTimeRange.FormatDate.DA));
         if (!queryParam.getStorageIDs().isEmpty())
             builder.and(QStudy.study.storageIDs.in(queryParam.getStorageIDs()));
     }
@@ -435,6 +438,9 @@ public class QueryBuilder {
                     keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
                     false));
         }
+        if (queryParam.getExpirationDate() != null)
+            builder.and(MatchDateTimeRange.range(
+                    QSeries.series.expirationDate, queryParam.getExpirationDate(), MatchDateTimeRange.FormatDate.DA));
     }
 
     public static <T> HibernateQuery<T> applyInstanceLevelJoins(

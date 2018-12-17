@@ -125,6 +125,10 @@ public class MatchDateTimeRange {
         return rangeInterval(field, startDate, endDate, dt, range);
     }
 
+    public static Predicate range(StringPath field, String range, FormatDate dt) {
+        return range(field, parseDateRange(range), dt);
+    }
+
     public static Predicate range(DateTimePath field, String range, FormatDate dt) {
         return range(field, parseDateRange(range), dt);
     }
