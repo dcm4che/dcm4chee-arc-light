@@ -144,7 +144,6 @@ export class CreateAeComponent implements OnInit{
         }
     }
     toggleReference(model, ref){
-
         if (this.inArray(ref, model)){
           _.remove(model, (i) => {
               return i === ref;
@@ -152,6 +151,7 @@ export class CreateAeComponent implements OnInit{
         }else{
             model.push(ref);
         }
+        this.dicomConnectionns = this.getDicomConnections();
 
     }
     inArray(element, array){
@@ -280,22 +280,34 @@ export class CreateAeComponent implements OnInit{
         }
         return [];
     }
+    dicomConnectionns = [];
+    selectedDicomConnection:any =  {};
     testConnection(){
         if(this.selectedCallingAet && this.newAetModel.dicomNetworkAE[0].dicomAETitle && this.newAetModel.dicomNetworkConnection[0].dicomHostname && this.newAetModel.dicomNetworkConnection[0].dicomPort){
             this.cfpLoadingBar.start();
             let data;
             if(this.activetab === "selectdevice"){
-                let dicomConnectionn = this.getDicomConnections();
-                if(dicomConnectionn.length > 1){
-                    this.mainservice.showError("Multiple dicom connection selected!");
-                    return;
+                if(this.dicomConnectionns.length > 1){
+                    console.log("this.selectedDicomConnection",this.selectedDicomConnection);
+                    if(this.selectedDicomConnection){
+                        data = {
+                            host:this.selectedDicomConnection.dicomHostname,
+                            port:this.selectedDicomConnection.dicomPort
+                        };
+                    }else{
+                        this.mainservice.showError("Multiple DICOM connection selected!");
+                        this.cfpLoadingBar.complete();
+                        return;
+                    }
                 }else{
-                    if(dicomConnectionn.length === 0){
-                        this.mainservice.showError("No dicom connection found!");
+                    if(this.dicomConnectionns.length === 0){
+                        this.mainservice.showError("No DICOM connection found!");
+                        this.cfpLoadingBar.complete();
+                        return;
                     }else{
                         data = {
-                            host:dicomConnectionn[0].dicomHostname,
-                            port:dicomConnectionn[0].dicomPort
+                            host:this.dicomConnectionns[0].dicomHostname,
+                            port:this.dicomConnectionns[0].dicomPort
                         };
                     }
                 }
@@ -314,6 +326,7 @@ export class CreateAeComponent implements OnInit{
                         'text': msg.text,
                         'status': msg.status
                     });
+                    this.dicomConnectionns = [];
                 }, err => {
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);

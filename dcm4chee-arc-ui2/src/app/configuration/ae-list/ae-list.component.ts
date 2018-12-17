@@ -4,7 +4,6 @@ import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
 import {CreateAeComponent} from '../../widgets/dialogs/create-ae/create-ae.component';
-import {DevicesService} from '../devices/devices.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
@@ -458,7 +457,7 @@ export class AeListComponent implements OnInit{
         if (this.mainservice.global && this.mainservice.global.devices){
             this.devices = this.mainservice.global.devices;
         }else{
-            this.service.getDevices().map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            this.service.getDevices()
                 .subscribe((response) => {
                     $this.devices = response;
                 }, (err) => {
