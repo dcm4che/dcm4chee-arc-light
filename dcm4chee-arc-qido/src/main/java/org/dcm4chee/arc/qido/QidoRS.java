@@ -169,6 +169,9 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String includedefaults;
 
+    @QueryParam("ExpirationDate")
+    private String expirationDate;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -482,6 +485,7 @@ public class QidoRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        queryParam.setExpirationDate(expirationDate);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);

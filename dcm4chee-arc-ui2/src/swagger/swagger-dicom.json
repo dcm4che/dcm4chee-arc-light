@@ -307,6 +307,12 @@
             "in": "query",
             "description": "return Studies which are not retrieveable from external <AE Title>",
             "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "list Studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -505,6 +511,12 @@
             "in": "query",
             "description": "return Series received from this <AE Title>",
             "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "list series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -656,6 +668,12 @@
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
             "description": "return Series received from this <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "list series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           }
         ],

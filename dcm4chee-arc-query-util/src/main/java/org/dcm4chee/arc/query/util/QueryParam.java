@@ -68,6 +68,7 @@ public class QueryParam {
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private Patient.VerificationStatus patientVerificationStatus;
+    private String expirationDate;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -209,5 +210,13 @@ public class QueryParam {
 
     public void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus) {
         this.patientVerificationStatus = patientVerificationStatus;
+    }
+
+    public String getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }
