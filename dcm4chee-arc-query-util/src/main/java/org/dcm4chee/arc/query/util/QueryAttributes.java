@@ -112,6 +112,8 @@ public class QueryAttributes {
                 case "includedefaults":
                 case "ExpirationDate":
                 case "storageID":
+                case "storageClustered":
+                case "storageExported":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
