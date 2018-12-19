@@ -55,8 +55,6 @@ public interface ReadContext {
 
     long getSize();
 
-    void setSize(long size);
-
     void incrementSize(long size);
 
     MessageDigest getMessageDigest();

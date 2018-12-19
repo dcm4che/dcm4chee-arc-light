@@ -80,7 +80,7 @@ public class CloudStorage extends AbstractStorage {
         public void upload(BlobStoreContext context, InputStream in, long length,
                            BlobStore blobStore, String container, String storagePath) {
             Payload payload = new InputStreamPayload(in);
-            if (length > 0)
+            if (length >= 0)
                 payload.getContentMetadata().setContentLength(length);
             Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
             blobStore.putBlob(container, blob);
@@ -190,8 +190,8 @@ public class CloudStorage extends AbstractStorage {
                 storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                         .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
-        long length = ctx.getSize();
-        Uploader uploader = streamingUpload || length > 0 && length <= maxPartSize
+        long length = ctx.getContentLength();
+        Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
                 ? STREAMING_UPLOADER : new S3Uploader();
         uploader.upload(context, in, length, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);

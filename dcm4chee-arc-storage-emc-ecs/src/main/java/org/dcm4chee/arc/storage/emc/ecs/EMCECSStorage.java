@@ -77,7 +77,7 @@ public class EMCECSStorage extends AbstractStorage {
         @Override
         public void upload(S3Client s3, InputStream in, long length, String container, String storagePath) {
             PutObjectRequest payload = new PutObjectRequest(container, storagePath, this);
-            if (length > 0)
+            if (length >= 0)
                 payload.withObjectMetadata(new S3ObjectMetadata().withContentLength(length));
             s3.putObject(payload);
         }
@@ -166,8 +166,8 @@ public class EMCECSStorage extends AbstractStorage {
             storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                     .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
-        long length = ctx.getSize();
-        Uploader uploader = streamingUpload || length > 0 && length <= maxPartSize
+        long length = ctx.getContentLength();
+        Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
                 ? STREAMING_UPLOADER : new S3Uploader();
         uploader.upload(s3, in, length, container, storagePath);
         ctx.setStoragePath(storagePath);
