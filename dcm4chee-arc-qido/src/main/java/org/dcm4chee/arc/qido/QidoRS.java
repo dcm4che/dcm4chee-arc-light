@@ -500,7 +500,8 @@ public class QidoRS {
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);
         if (storageID != null)
-            setStorageIDs(queryParam);
+            queryParam.setStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStudyStorageIDs(storageID, storageClustered, storageExported));
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
@@ -517,16 +518,6 @@ public class QidoRS {
         ctx.setQueryKeys(keys);
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
-    }
-
-    private void setStorageIDs(org.dcm4chee.arc.query.util.QueryParam queryParam) {
-        List<String> studyStorageIDs = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                .getStudyStorageIDs(storageID);
-        queryParam.setStorageIDs(storageClustered == null
-                ? studyStorageIDs
-                : studyStorageIDs.stream()
-                    .filter(s -> storageClustered.equals("true") == s.contains("\\"))
-                    .collect(Collectors.toList()));
     }
 
     private static int parseInt(String s) {

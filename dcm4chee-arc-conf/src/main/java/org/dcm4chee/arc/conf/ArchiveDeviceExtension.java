@@ -1381,7 +1381,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                     .filter(storageID -> !storageID.equals(desc.getStorageID()))
                     .collect(Collectors.toList())
                 : Collections.emptyList();
-
     }
 
     public List<String> getStudyStorageIDs(StorageDescriptor desc) {
@@ -1390,7 +1389,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 : addPowerSet(getOtherStorageIDs(desc), desc.getStorageID());
     }
 
-    public List<String> getStudyStorageIDs(String storageID) {
+    public List<String> getStudyStorageIDs(String storageID, String storageClustered, String storageExported) {
         return getStudyStorageIDs(getStorageDescriptorNotNull(storageID));
     }
 
