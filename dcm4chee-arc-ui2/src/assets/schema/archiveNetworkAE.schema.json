@@ -32,6 +32,12 @@
       },
       "format": "dcmStorageID"
     },
+    "dcmBulkDataDescriptorID": {
+      "title": "Bulk Data Descriptor ID",
+      "description": "ID of Bulk Data Descriptor applied by all services of this Archive Network AE providing Metadata of archived instances. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmBulkDataDescriptorID"
+    },
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage of objects received by this AE. Overwrites value specified on Device level.",

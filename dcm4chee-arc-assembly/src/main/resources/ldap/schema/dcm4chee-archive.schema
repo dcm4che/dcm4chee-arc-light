@@ -1562,6 +1562,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   MUST (
     dcmFuzzyAlgorithmClass )
   MAY (
+    dcmBulkDataDescriptorID $
     dcmQueryRetrieveViewID $
     dcmRetrieveAET $
     dcmDefaultCharacterSet $
@@ -1732,6 +1733,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
   MAY (
+    dcmBulkDataDescriptorID $
     dcmRetrieveAET $
     dcmDefaultCharacterSet $
     dcmStorageID $

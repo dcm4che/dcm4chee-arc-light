@@ -85,6 +85,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         attrs.get("objectclass").add("dcmArchiveDevice");
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFuzzyAlgorithmClass", ext.getFuzzyAlgorithmClass(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataDescriptorID", ext.getBulkDataDescriptorID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSeriesMetadataStorageID", ext.getSeriesMetadataStorageIDs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataPollingInterval", ext.getSeriesMetadataPollingInterval(), null);
@@ -286,6 +287,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass(LdapUtils.stringValue(attrs.get("dcmFuzzyAlgorithmClass"), null));
+        ext.setBulkDataDescriptorID(LdapUtils.stringValue(attrs.get("dcmBulkDataDescriptorID"), null));
         ext.setSeriesMetadataStorageIDs(LdapUtils.stringArray(attrs.get("dcmSeriesMetadataStorageID")));
         ext.setSeriesMetadataDelay(toDuration(attrs.get("dcmSeriesMetadataDelay"), null));
         ext.setSeriesMetadataPollingInterval(toDuration(attrs.get("dcmSeriesMetadataPollingInterval"), null));
@@ -500,7 +502,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
         }
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFuzzyAlgorithmClass",
+                aa.getFuzzyAlgorithmClass(),
+                bb.getFuzzyAlgorithmClass(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataDescriptorID",
+                aa.getBulkDataDescriptorID(),
+                bb.getBulkDataDescriptorID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSeriesMetadataStorageID",
                 aa.getSeriesMetadataStorageIDs(),
                 bb.getSeriesMetadataStorageIDs());
@@ -885,6 +892,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeScheduledStations(diffs, arcDev.getHL7OrderScheduledStations(), deviceDN, config);
         storeHL7OrderSPSStatus(diffs, arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
         storeKeycloakServers(diffs, arcDev.getKeycloakServers(), deviceDN);
+        config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
     }
 
     @Override
@@ -917,6 +925,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config, device);
         loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
         loadKeycloakServers(arcdev, deviceDN);
+        config.load(arcdev.getBulkDataDescriptors(), deviceDN);
     }
 
     @Override
@@ -959,6 +968,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeScheduledStations(diffs, aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
         mergeHL7OrderSPSStatus(diffs, aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
         mergeKeycloakServers(diffs, aa.getKeycloakServers(), bb.getKeycloakServers(), deviceDN);
+        config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
     }
 
     @Override
@@ -971,6 +981,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmObjectStorageID", ext.getObjectStorageIDs());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmObjectStorageCount", ext.getObjectStorageCount(), 1);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMetadataStorageID", ext.getMetadataStorageIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataDescriptorID", ext.getBulkDataDescriptorID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsDelay", ext.getPurgeInstanceRecordsDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlID(), null);
@@ -1054,6 +1065,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setObjectStorageIDs(LdapUtils.stringArray(attrs.get("dcmObjectStorageID")));
         ext.setObjectStorageCount(LdapUtils.intValue(attrs.get("dcmObjectStorageCount"), 1));
         ext.setMetadataStorageIDs(LdapUtils.stringArray(attrs.get("dcmMetadataStorageID")));
+        ext.setBulkDataDescriptorID(LdapUtils.stringValue(attrs.get("dcmBulkDataDescriptorID"), null));
         ext.setSeriesMetadataDelay(toDuration(attrs.get("dcmSeriesMetadataDelay"), null));
         ext.setPurgeInstanceRecordsDelay(toDuration(attrs.get("dcmPurgeInstanceRecordsDelay"), null));
         ext.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
@@ -1150,6 +1162,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 1);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMetadataStorageID",
                 aa.getMetadataStorageIDs(), bb.getMetadataStorageIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataDescriptorID",
+                aa.getBulkDataDescriptorID(),
+                bb.getBulkDataDescriptorID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay",
                 aa.getSeriesMetadataDelay(),
                 bb.getSeriesMetadataDelay(), null);

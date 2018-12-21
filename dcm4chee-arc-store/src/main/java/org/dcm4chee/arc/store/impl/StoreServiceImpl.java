@@ -191,15 +191,16 @@ class StoreServiceImpl implements StoreService {
     private void writeToStorage(StoreContext ctx, InputStream data) throws DicomServiceException {
         List<File> bulkDataFiles = Collections.emptyList();
         String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
+        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
         try (Transcoder transcoder = receiveTranferSyntax != null
                 ? new Transcoder(data, receiveTranferSyntax)
                 : new Transcoder(data)) {
             ctx.setReceiveTransferSyntax(transcoder.getSourceTransferSyntax());
             transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            transcoder.setBulkDataDescriptor(arcAE.getBulkDataDescriptor());
             transcoder.setPixelDataBulkDataURI("");
             transcoder.setConcatenateBulkDataFiles(true);
-            transcoder.setBulkDataDirectory(
-                    ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
+            transcoder.setBulkDataDirectory(arcAE.getBulkDataSpoolDirectoryFile());
             transcoder.setIncludeFileMetaInformation(true);
             transcoder.setDeleteBulkDataFiles(false);
             transcoder.transcode(new TranscoderHandler(ctx));

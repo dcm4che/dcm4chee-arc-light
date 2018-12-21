@@ -82,6 +82,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
         writer.writeStartObject("dcmArchiveDevice");
         writer.writeNotNullOrDef("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass(), null);
+        writer.writeNotNullOrDef("dcmBulkDataDescriptorID", arcDev.getBulkDataDescriptorID(), null);
         writer.writeNotEmpty("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageIDs());
         writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcDev.getSeriesMetadataDelay(), null);
         writer.writeNotNullOrDef("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval(), null);
@@ -297,6 +298,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
         writeHL7OrderSPSStatus(writer, arcDev.getHL7OrderSPSStatuses());
         writeKeycloakServers(writer, arcDev.getKeycloakServers());
+        config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
     }
 
@@ -735,6 +737,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmObjectStorageID", arcAE.getObjectStorageIDs());
         writer.writeNotDef("dcmObjectStorageCount", arcAE.getObjectStorageCount(), 1);
         writer.writeNotEmpty("dcmMetadataStorageID", arcAE.getMetadataStorageIDs());
+        writer.writeNotNullOrDef("dcmBulkDataDescriptorID", arcAE.getBulkDataDescriptorID(), null);
         writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcAE.getSeriesMetadataDelay(), null);
         writer.writeNotNullOrDef("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay(), null);
         writer.writeNotNullOrDef("dcmStoreAccessControlID", arcAE.getStoreAccessControlID(), null);
@@ -832,6 +835,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             switch (reader.getString()) {
                 case "dcmFuzzyAlgorithmClass":
                     arcDev.setFuzzyAlgorithmClass(reader.stringValue());
+                    break;
+                case "dcmBulkDataDescriptorID":
+                    arcDev.setBulkDataDescriptorID(reader.stringValue());
                     break;
                 case "dcmSeriesMetadataStorageID":
                     arcDev.setSeriesMetadataStorageIDs(reader.stringArray());
@@ -1355,6 +1361,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAttributeSet":
                     loadAttributeSetFrom(arcDev, reader);
+                    break;
+                case "dcmBulkDataDescriptor":
+                    this.config.loadBulkdataDescriptors(arcDev.getBulkDataDescriptors(), reader);
                     break;
                 case "hl7OrderScheduledStation":
                     loadScheduledStations(arcDev.getHL7OrderScheduledStations(), reader, config);
@@ -2374,6 +2383,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMetadataStorageID":
                     arcAE.setMetadataStorageIDs(reader.stringArray());
+                    break;
+                case "dcmBulkDataDescriptorID":
+                    arcAE.setBulkDataDescriptorID(reader.stringValue());
                     break;
                 case "dcmSeriesMetadataDelay":
                     arcAE.setSeriesMetadataDelay(Duration.valueOf(reader.stringValue()));

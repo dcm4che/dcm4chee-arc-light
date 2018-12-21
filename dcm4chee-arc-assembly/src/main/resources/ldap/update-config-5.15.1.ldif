@@ -4,6 +4,15 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 changetype: modify
 replace: dicomSoftwareVersion
 dicomSoftwareVersion: 5.15.1
+-
+replace: dcmBulkDataDescriptorID
+dcmBulkDataDescriptorID: default
+
+dn: dcmBulkDataDescriptorID=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmBulkDataVRLengthThreshold: DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024
+dcmBulkDataDescriptorID: default
+objectClass: dcmBulkDataDescriptor
 
 dn: dcmAttributeSetID=study+dcmAttributeSetType=QIDO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -79,3 +88,4 @@ dcmuiModalities: PT
 dcmuiModalities: PR
 dcmuiModalities: US
 dcmuiModalities: XA
+
