@@ -47,10 +47,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.BinaryPrefix;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Metadata;
@@ -138,21 +135,32 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private void process(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
-        long minUsableSpace = desc.hasDeleterThresholds() ?
-                desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
-        long deleteSize;
-        int n = 0;
-        do {
-            deleteObjectsFromStorage(arcDev, desc);
-            if (arcDev.getPurgeStoragePollingInterval() == null) return;
-            deleteSize = sizeToDelete(desc, minUsableSpace);
-            if (deleteSize == 0L) break;
-            if (n++ == 0) {
-                LOG.info("Usable Space on {} below {} - start deleting {}", desc,
-                        BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
-            }
-        } while (deleteStudies(arcDev, desc) > 0);
         deleteSeriesMetadata(arcDev, desc);
+        deleteObjectsFromStorage(arcDev, desc);
+        if (desc.getStorageDuration() == StorageDuration.PERMANENT)
+            return;
+
+        if (desc.hasDeleterThresholds()) {
+            long minUsableSpace = desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance());
+            long deleteSize = sizeToDelete(desc, minUsableSpace);
+            if (deleteSize == 0L)
+                return;
+
+            LOG.info("Usable Space on {} {} below {} - start deleting {}", desc.getStorageDuration(), desc,
+                    BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+            while (arcDev.getPurgeStoragePollingInterval() != null
+                    && deleteSize > 0L
+                    && deleteStudies(arcDev, desc) > 0) {
+                deleteObjectsFromStorage(arcDev, desc);
+                deleteSize = sizeToDelete(desc, minUsableSpace);
+            }
+        } else {
+            LOG.info("Start deleting all objects from {} {}", desc.getStorageDuration(), desc);
+            while (arcDev.getPurgeStoragePollingInterval() != null
+                    && deleteStudies(arcDev, desc) > 0) {
+                deleteObjectsFromStorage(arcDev, desc);
+            }
+        }
     }
 
     private long sizeToDelete(StorageDescriptor desc, long minUsableSpace) {
@@ -179,7 +187,7 @@ public class PurgeStorageScheduler extends Scheduler {
             LOG.warn("No studies for deletion found on {}", desc);
             return 0;
         }
-        return desc.getExternalRetrieveAETitle() != null || desc.getExportStorageID() != null
+        return desc.getStorageDuration() == StorageDuration.CACHE
                 ? deleteObjectsOfStudies(arcDev, desc, studyPks)
                 : deleteStudiesFromDB(arcDev, desc, studyPks);
     }

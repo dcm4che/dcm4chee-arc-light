@@ -45,10 +45,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.DeleterThreshold;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -124,9 +121,9 @@ public class StorageRS {
                     gen.write("dcmStorageID", desc.getStorageID());
                     gen.write("dcmURI", desc.getStorageURIStr());
                     writer.writeNotNullOrDef("dcmDigestAlgorithm", desc.getDigestAlgorithm(), null);
-                    writer.writeNotNullOrDef("dcmInstanceAvailability", desc.getInstanceAvailability(), null);
+                    writer.writeNotNullOrDef("dcmInstanceAvailability", desc.getInstanceAvailability(), Availability.ONLINE);
+                    writer.writeNotNullOrDef("dcmStorageDuration", desc.getStorageDuration(), StorageDuration.PERMANENT);
                     writer.writeNotDef("dcmReadOnly", desc.isReadOnly(), false);
-                    writer.writeNotDef("dcmNoDeletionConstraint", desc.isNoDeletionConstraint(), false);
                     writer.writeNotDef("dcmDeleterThreads", desc.getDeleterThreads(), 1);
                     if (desc.getStorageThreshold() != null)
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());

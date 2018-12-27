@@ -353,9 +353,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmURI", st.getStorageURIStr(), null);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);
             writer.writeNotNullOrDef("dcmInstanceAvailability", st.getInstanceAvailability(), Availability.ONLINE);
+            writer.writeNotNullOrDef("dcmStorageDuration", st.getStorageDuration(), StorageDuration.PERMANENT);
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
             writer.writeNotDef("dcmDeleterThreads", st.getDeleterThreads(), 1);
-            writer.writeNotDef("dcmNoDeletionConstraint", st.isNoDeletionConstraint(), false);
             writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
@@ -1479,14 +1479,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmInstanceAvailability":
                         st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));
                         break;
+                    case "dcmStorageDuration":
+                        st.setStorageDuration(StorageDuration.valueOf(reader.stringValue()));
+                        break;
                     case "dcmReadOnly":
                         st.setReadOnly(reader.booleanValue());
                         break;
                     case "dcmDeleterThreads":
                         st.setDeleterThreads(reader.intValue());
-                        break;
-                    case "dcmNoDeletionConstraint":
-                        st.setNoDeletionConstraint(reader.booleanValue());
                         break;
                     case "dcmStorageClusterID":
                         st.setStorageClusterID(reader.stringValue());

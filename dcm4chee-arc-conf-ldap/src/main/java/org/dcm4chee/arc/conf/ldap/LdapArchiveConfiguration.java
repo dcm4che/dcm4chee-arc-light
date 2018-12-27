@@ -1654,8 +1654,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInstanceAvailability",
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageDuration",
+                descriptor.getStorageDuration(), StorageDuration.PERMANENT);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmReadOnly", descriptor.isReadOnly(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoDeletionConstraint", descriptor.isNoDeletionConstraint(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleterThreads", descriptor.getDeleterThreads(), 1);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageClusterID", descriptor.getStorageClusterID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThreshold", descriptor.getStorageThreshold(), null);
@@ -1689,9 +1690,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setDigestAlgorithm(LdapUtils.stringValue(attrs.get("dcmDigestAlgorithm"), null));
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
+                desc.setStorageDuration(
+                        LdapUtils.enumValue(StorageDuration.class, attrs.get("dcmStorageDuration"), StorageDuration.PERMANENT));
                 desc.setReadOnly(LdapUtils.booleanValue(attrs.get("dcmReadOnly"), false));
                 desc.setDeleterThreads(LdapUtils.intValue(attrs.get("dcmDeleterThreads"), 1));
-                desc.setNoDeletionConstraint(LdapUtils.booleanValue(attrs.get("dcmNoDeletionConstraint"), false));
                 desc.setStorageClusterID(LdapUtils.stringValue(attrs.get("dcmStorageClusterID"), null));
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
                 desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
@@ -1751,11 +1753,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getDigestAlgorithm(), desc.getDigestAlgorithm(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageDuration",
+                prev.getStorageDuration(), desc.getStorageDuration(), StorageDuration.PERMANENT);
         LdapUtils.storeDiff(ldapObj, mods, "dcmReadOnly", prev.isReadOnly(), desc.isReadOnly(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreads",
                 prev.getDeleterThreads(), desc.getDeleterThreads(), 1);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmNoDeletionConstraint",
-                prev.isNoDeletionConstraint(), desc.isNoDeletionConstraint(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageClusterID",
                 prev.getStorageClusterID(), desc.getStorageClusterID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThreshold",
