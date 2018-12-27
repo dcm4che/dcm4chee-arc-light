@@ -179,6 +179,7 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(e);
             throw e;
         } catch (Exception e) {
+            LOG.info("{}: Unexpected Exception: ", ctx.getStoreSession(), e);
             DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
             ctx.setException(dse);
             throw dse;
@@ -246,6 +247,8 @@ class StoreServiceImpl implements StoreService {
     }
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
+        StoreSession storeSession = ctx.getStoreSession();
+        LOG.trace("{}: Enter postUpdateDB", storeSession);
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
             if (result.getCreatedPatient() != null) {
@@ -254,13 +257,13 @@ class StoreServiceImpl implements StoreService {
                         ejb.checkDuplicatePatientCreated(ctx, result);
                     } catch (Exception e) {
                         LOG.warn("{}: Failed to remove duplicate created {}:\n",
-                                ctx.getStoreSession(), result.getCreatedPatient(), e);
+                                storeSession, result.getCreatedPatient(), e);
                     }
                 }
             }
             Series series = instance.getSeries();
             updateAttributes(ctx, series);
-            ctx.getStoreSession().cacheSeries(series);
+            storeSession.cacheSeries(series);
         }
         commitStorage(result);
         ctx.getLocations().clear();
@@ -268,6 +271,7 @@ class StoreServiceImpl implements StoreService {
         ctx.setRejectionNote(result.getRejectionNote());
         ctx.setPreviousInstance(result.getPreviousInstance());
         ctx.setStoredInstance(result.getStoredInstance());
+        LOG.trace("{}: Leave postUpdateDB", storeSession);
     }
 
     private void commitStorage(UpdateDBResult result) throws IOException {
@@ -326,6 +330,7 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(e);
             throw e;
         } catch (Exception e) {
+            LOG.info("{}: Unexpected Exception: ", ctx.getStoreSession(), e);
             DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
             ctx.setException(dse);
             throw dse;
