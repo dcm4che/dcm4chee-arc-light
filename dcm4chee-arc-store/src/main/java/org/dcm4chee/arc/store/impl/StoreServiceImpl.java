@@ -248,7 +248,7 @@ class StoreServiceImpl implements StoreService {
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
         StoreSession storeSession = ctx.getStoreSession();
-        LOG.trace("{}: Enter postUpdateDB", storeSession);
+        LOG.debug("{}: Enter postUpdateDB", storeSession);
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
             if (result.getCreatedPatient() != null) {
@@ -271,7 +271,7 @@ class StoreServiceImpl implements StoreService {
         ctx.setRejectionNote(result.getRejectionNote());
         ctx.setPreviousInstance(result.getPreviousInstance());
         ctx.setStoredInstance(result.getStoredInstance());
-        LOG.trace("{}: Leave postUpdateDB", storeSession);
+        LOG.debug("{}: Leave postUpdateDB", storeSession);
     }
 
     private void commitStorage(UpdateDBResult result) throws IOException {
