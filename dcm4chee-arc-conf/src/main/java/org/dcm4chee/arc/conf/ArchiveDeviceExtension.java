@@ -1432,8 +1432,34 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 : addPowerSet(false, getOtherStorageIDs(desc), desc.getStorageID());
     }
     
-    public List<String> getStudyStorageIDs(String storageID, String storageClustered, String storageExported) {
-        return getStudyStorageIDs(getStorageDescriptorNotNull(storageID));
+    public List<String> getStudyStorageIDs(
+            String storageID, String storageClustered, String storageExported) {
+        StorageDescriptor desc = getStorageDescriptorNotNull(storageID);
+        if ("false".equals(storageClustered)) {
+            return desc.getExportStorageID() == null || "false".equals(storageExported)
+                    ? Collections.singletonList(desc.getStorageID())
+                    : storageExported == null
+                        ? Arrays.asList(desc.getStorageID(), concat(desc.getStorageID(), desc.getExportStorageID()))
+                        : Collections.singletonList(concat(desc.getStorageID(), desc.getExportStorageID()));
+        }
+
+        if (storageExported == null) {
+            List<String> studyStorageIDs = addPowerSet(
+                    storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID());
+            if (desc.getExportStorageID() != null)
+                studyStorageIDs.addAll(addPowerSet(
+                        storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID()));
+            return studyStorageIDs;
+        }
+
+        return desc.getExportStorageID() == null || "false".equals(storageExported)
+                ? addPowerSet(storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID())
+                : addPowerSet(
+                        storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID());
+    }
+
+    private static String concat(String... common) {
+        return StringUtils.concat(common, '\\');
     }
 
     private static List<String> addPowerSet(boolean excludeEmptySet, List<String> storageIDs, String... common) {
