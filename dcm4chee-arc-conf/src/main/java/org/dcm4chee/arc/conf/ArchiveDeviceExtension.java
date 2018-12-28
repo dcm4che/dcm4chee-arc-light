@@ -1443,19 +1443,18 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                         : Collections.singletonList(concat(desc.getStorageID(), desc.getExportStorageID()));
         }
 
-        if (storageExported == null) {
-            List<String> studyStorageIDs = addPowerSet(
-                    storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID());
-            if (desc.getExportStorageID() != null)
-                studyStorageIDs.addAll(addPowerSet(
-                        storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID()));
-            return studyStorageIDs;
-        }
+        List<String> studyStorageIDs = addPowerSet(storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID());
+        List<String> exportedStudyStorageIDs = new ArrayList<>();
 
-        return desc.getExportStorageID() == null || "false".equals(storageExported)
-                ? addPowerSet(storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID())
-                : addPowerSet(
-                        storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID());
+        if (desc.getExportStorageID() != null)
+            exportedStudyStorageIDs = addPowerSet(storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID(),
+                    desc.getExportStorageID());
+
+        if (storageExported == null && desc.getExportStorageID() != null)
+            studyStorageIDs.addAll(exportedStudyStorageIDs);
+
+        return desc.getExportStorageID() != null && "true".equals(storageExported)
+                ? exportedStudyStorageIDs : studyStorageIDs;
     }
 
     private static String concat(String... common) {
