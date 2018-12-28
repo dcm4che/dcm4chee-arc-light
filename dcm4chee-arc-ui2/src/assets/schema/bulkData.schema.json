@@ -1,0 +1,40 @@
+{
+  "title": "Bulk Data Descriptor",
+  "description": "Bulk Data Descriptor",
+  "type": "object",
+  "required": [
+    "dcmBulkDataDescriptorID",
+    "dcmBulkDataExcludeDefaults"
+  ],
+  "properties": {
+    "dcmBulkDataDescriptorID": {
+      "title": "Bulk Data Descriptor ID",
+      "description": "Bulk Data Descriptor ID",
+      "type": "string"
+    },
+    "dcmBulkDataExcludeDefaults": {
+      "title": "Exclude Defaults",
+      "description": "Indicates if Attributes specified by the 'Composite Instance Retrieve Without Bulk Data Service Class' shall be implicitly treated as Bulk Data (=false) or not (=true).",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAttributeSelector": {
+      "title": "Attribute Selector",
+      "description": "Specifies individual Attributes treated as Bulk Data by XPath (e.g. 'DicomAttribute[@tag=\"54000100\"]/Item/DicomAttribute[@tag=\"54001010\"]' ).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAttributeSelector"
+    },
+    "dcmBulkDataVRLengthThreshold": {
+      "title": "VR Length Threshold",
+      "description": "Specifies to treat all Attributes with a particular Value Representation (VR) which value length exceeds the specified threshold as Bulk Date. Format: <VR>=<length-threshold>.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmBulkDataVRLengthThreshold"
+    }
+  }
+}

@@ -157,7 +157,7 @@ public class StorageExporter extends AbstractExporter {
                             Storage storage, WriteContext writeCtx) throws IOException {
         try (LocationInputStream locationInputStream = retrieveService.openLocationInputStream(
                 retrieveContext, instanceLocations)) {
-            writeCtx.setSize(locationInputStream.location.getSize());
+            writeCtx.setContentLength(locationInputStream.location.getSize());
             storage.copy(locationInputStream.stream, writeCtx);
             return new Location.Builder()
                     .storageID(storage.getStorageDescriptor().getStorageID())

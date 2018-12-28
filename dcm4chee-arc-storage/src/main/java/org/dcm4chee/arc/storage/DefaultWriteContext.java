@@ -48,7 +48,7 @@ import org.dcm4che3.data.Attributes;
  */
 public class DefaultWriteContext extends DefaultReadContext implements WriteContext{
     private Attributes attrs;
-
+    private long contentLength = -1;
 
     public DefaultWriteContext(Storage storage) {
         super(storage);
@@ -62,6 +62,16 @@ public class DefaultWriteContext extends DefaultReadContext implements WriteCont
     @Override
     public void setAttributes(Attributes attrs) {
         this.attrs = attrs;
+    }
+
+    @Override
+    public long getContentLength() {
+        return contentLength;
+    }
+
+    @Override
+    public void setContentLength(long contentLength) {
+        this.contentLength = contentLength;
     }
 
 }

@@ -45,6 +45,8 @@ import org.dcm4che3.data.Code;
 
 import java.time.LocalTime;
 
+import org.dcm4che3.io.BasicBulkDataDescriptor;
+import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.ByteUtils;
@@ -73,6 +75,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private volatile String defaultCharacterSet;
     private volatile String fuzzyAlgorithmClass;
+    private volatile String bulkDataDescriptorID;
     private volatile String[] seriesMetadataStorageIDs = {};
     private volatile Duration seriesMetadataDelay;
     private volatile Duration seriesMetadataPollingInterval;
@@ -229,6 +232,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
     private final Map<AttributeSet.Type,Map<String,AttributeSet>> attributeSet = new EnumMap<>(AttributeSet.Type.class);
+    private final Map<String, BasicBulkDataDescriptor> bulkDataDescriptorMap = new HashMap<>();
     private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
@@ -338,6 +342,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setBulkDataSpoolDirectory(String bulkDataSpoolDirectory) {
         this.bulkDataSpoolDirectory = Objects.requireNonNull(bulkDataSpoolDirectory, "BulkDataSpoolDirectory");
+    }
+
+    public String getBulkDataDescriptorID() {
+        return bulkDataDescriptorID;
+    }
+
+    public void setBulkDataDescriptorID(String bulkDataDescriptorID) {
+        this.bulkDataDescriptorID = bulkDataDescriptorID;
     }
 
     public String[] getSeriesMetadataStorageIDs() {
@@ -1288,12 +1300,43 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return StringUtils.maskNull(attributeSet.get(type), Collections.emptyMap());
     }
 
+    public BulkDataDescriptor getBulkDataDescriptor(String bulkDataDescriptorID) {
+        if (bulkDataDescriptorID == null)
+            return BulkDataDescriptor.DEFAULT;
+
+        BasicBulkDataDescriptor descriptor = bulkDataDescriptorMap.get(bulkDataDescriptorID);
+        if (descriptor == null)
+            throw new IllegalArgumentException("No Bulk Data Descriptor with ID " + bulkDataDescriptorID + " configured");
+
+        return descriptor;
+    }
+
+    public BulkDataDescriptor getBulkDataDescriptor() {
+        return getBulkDataDescriptor(bulkDataDescriptorID);
+    }
+
+    public void addBulkDataDescriptor(BasicBulkDataDescriptor descriptor) {
+        bulkDataDescriptorMap.put(descriptor.getBulkDataDescriptorID(), descriptor);
+    }
+
+    public BasicBulkDataDescriptor removeBulkDataDescriptor(String bulkDataDescriptorID) {
+        return bulkDataDescriptorMap.remove(bulkDataDescriptorID);
+    }
+
+    public void clearBulkDataDescriptors() {
+        bulkDataDescriptorMap.clear();
+    }
+
+    public Map<String, BasicBulkDataDescriptor> getBulkDataDescriptors() {
+        return bulkDataDescriptorMap;
+    }
+
     public IDGenerator getIDGenerator(IDGenerator.Name name) {
-        IDGenerator filter = idGenerators.get(name);
-        if (filter == null)
+        IDGenerator generator = idGenerators.get(name);
+        if (generator == null)
             throw new IllegalArgumentException("No ID Generator for " + name + " configured");
 
-        return filter;
+        return generator;
     }
 
     public void addIDGenerator(IDGenerator generator) {
@@ -1385,20 +1428,23 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public List<String> getStudyStorageIDs(StorageDescriptor desc) {
         return desc.getExportStorageID() != null
-                ? addPowerSet(getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID())
-                : addPowerSet(getOtherStorageIDs(desc), desc.getStorageID());
+                ? addPowerSet(false, getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID())
+                : addPowerSet(false, getOtherStorageIDs(desc), desc.getStorageID());
     }
-
+    
     public List<String> getStudyStorageIDs(String storageID, String storageClustered, String storageExported) {
         return getStudyStorageIDs(getStorageDescriptorNotNull(storageID));
     }
 
-    private static List<String> addPowerSet(List<String> storageIDs, String... common) {
+    private static List<String> addPowerSet(boolean excludeEmptySet, List<String> storageIDs, String... common) {
         if (storageIDs.isEmpty()) {
+            if (excludeEmptySet)
+                return Collections.emptyList();
+
             Arrays.sort(common);
             return Collections.singletonList(StringUtils.concat(common, '\\'));
         }
-        return IntStream.range(0, 1 << storageIDs.size()).mapToObj(i -> {
+        return IntStream.range(excludeEmptySet ? 1 : 0, 1 << storageIDs.size()).mapToObj(i -> {
             String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
             int j = common.length;
             int mask = 1;
@@ -2162,6 +2208,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         defaultCharacterSet = arcdev.defaultCharacterSet;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
+        bulkDataDescriptorID = arcdev.bulkDataDescriptorID;
         seriesMetadataStorageIDs = arcdev.seriesMetadataStorageIDs;
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
@@ -2319,6 +2366,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
         attributeSet.putAll(arcdev.attributeSet);
+        bulkDataDescriptorMap.clear();
+        bulkDataDescriptorMap.putAll(arcdev.bulkDataDescriptorMap);
         idGenerators.clear();
         idGenerators.putAll(arcdev.idGenerators);
         storageDescriptorMap.clear();

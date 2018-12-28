@@ -51,4 +51,8 @@ public interface WriteContext extends ReadContext {
     Attributes getAttributes();
 
     void setAttributes(Attributes attrs);
+
+    long getContentLength();
+
+    void setContentLength(long contentLength);
 }

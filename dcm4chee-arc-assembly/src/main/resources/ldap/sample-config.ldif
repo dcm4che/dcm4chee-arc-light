@@ -195,6 +195,7 @@ dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
+dcmBulkDataDescriptorID: default
 dcmCompressionAETitle: DCM4CHEE
 dicomSoftwareVersion: 5.15.1
 dcmPurgeStoragePollingInterval: PT5M
@@ -1546,6 +1547,11 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_REGULAR_USE
 dicomAssociationAcceptor: TRUE
+
+dn: dcmBulkDataDescriptorID=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmBulkDataVRLengthThreshold: DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024
+dcmBulkDataDescriptorID: default
+objectClass: dcmBulkDataDescriptor
 
 dn: dcmExporterID=CalculateStudySize,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: CalculateStudySize

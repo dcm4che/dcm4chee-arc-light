@@ -50,7 +50,7 @@ public class DefaultReadContext implements ReadContext {
 
     private final Storage storage;
     private String storagePath;
-    private long size = -1L;
+    private long size;
     private String studyInstanceUID;
     private MessageDigest messageDigest;
     private byte[] digest;
@@ -77,11 +77,6 @@ public class DefaultReadContext implements ReadContext {
     @Override
     public long getSize() {
         return size;
-    }
-
-    @Override
-    public void setSize(long size) {
-        this.size = size;
     }
 
     @Override

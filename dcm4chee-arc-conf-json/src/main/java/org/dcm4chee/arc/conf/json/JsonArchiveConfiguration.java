@@ -82,6 +82,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
         writer.writeStartObject("dcmArchiveDevice");
         writer.writeNotNullOrDef("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass(), null);
+        writer.writeNotNullOrDef("dcmBulkDataDescriptorID", arcDev.getBulkDataDescriptorID(), null);
         writer.writeNotEmpty("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageIDs());
         writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcDev.getSeriesMetadataDelay(), null);
         writer.writeNotNullOrDef("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval(), null);
@@ -297,6 +298,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
         writeHL7OrderSPSStatus(writer, arcDev.getHL7OrderSPSStatuses());
         writeKeycloakServers(writer, arcDev.getKeycloakServers());
+        config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
     }
 
@@ -351,9 +353,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmURI", st.getStorageURIStr(), null);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);
             writer.writeNotNullOrDef("dcmInstanceAvailability", st.getInstanceAvailability(), Availability.ONLINE);
+            writer.writeNotNullOrDef("dcmStorageDuration", st.getStorageDuration(), StorageDuration.PERMANENT);
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
             writer.writeNotDef("dcmDeleterThreads", st.getDeleterThreads(), 1);
-            writer.writeNotDef("dcmNoDeletionConstraint", st.isNoDeletionConstraint(), false);
             writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
@@ -440,6 +442,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dicomDescription", ed.getDescription(), null);
             writer.writeNotNullOrDef("dicomAETitle", ed.getAETitle(), null);
             writer.writeNotNullOrDef("dcmStgCmtSCP", ed.getStgCmtSCPAETitle(), null);
+            writer.writeNotNullOrDef("dcmDeleteStudyFromStorageID", ed.getDeleteStudyFromStorageID(), null);
             writer.writeNotEmpty("dcmIanDestination", ed.getIanDestinations());
             writer.writeNotEmpty("dcmRetrieveAET", ed.getRetrieveAETitles());
             writer.writeNotNullOrDef("dcmRetrieveLocationUID", ed.getRetrieveLocationUID(), null);
@@ -735,6 +738,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmObjectStorageID", arcAE.getObjectStorageIDs());
         writer.writeNotDef("dcmObjectStorageCount", arcAE.getObjectStorageCount(), 1);
         writer.writeNotEmpty("dcmMetadataStorageID", arcAE.getMetadataStorageIDs());
+        writer.writeNotNullOrDef("dcmBulkDataDescriptorID", arcAE.getBulkDataDescriptorID(), null);
         writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcAE.getSeriesMetadataDelay(), null);
         writer.writeNotNullOrDef("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay(), null);
         writer.writeNotNullOrDef("dcmStoreAccessControlID", arcAE.getStoreAccessControlID(), null);
@@ -832,6 +836,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             switch (reader.getString()) {
                 case "dcmFuzzyAlgorithmClass":
                     arcDev.setFuzzyAlgorithmClass(reader.stringValue());
+                    break;
+                case "dcmBulkDataDescriptorID":
+                    arcDev.setBulkDataDescriptorID(reader.stringValue());
                     break;
                 case "dcmSeriesMetadataStorageID":
                     arcDev.setSeriesMetadataStorageIDs(reader.stringArray());
@@ -1356,6 +1363,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmAttributeSet":
                     loadAttributeSetFrom(arcDev, reader);
                     break;
+                case "dcmBulkDataDescriptor":
+                    this.config.loadBulkdataDescriptors(arcDev.getBulkDataDescriptors(), reader);
+                    break;
                 case "hl7OrderScheduledStation":
                     loadScheduledStations(arcDev.getHL7OrderScheduledStations(), reader, config);
                     break;
@@ -1470,14 +1480,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmInstanceAvailability":
                         st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));
                         break;
+                    case "dcmStorageDuration":
+                        st.setStorageDuration(StorageDuration.valueOf(reader.stringValue()));
+                        break;
                     case "dcmReadOnly":
                         st.setReadOnly(reader.booleanValue());
                         break;
                     case "dcmDeleterThreads":
                         st.setDeleterThreads(reader.intValue());
-                        break;
-                    case "dcmNoDeletionConstraint":
-                        st.setNoDeletionConstraint(reader.booleanValue());
                         break;
                     case "dcmStorageClusterID":
                         st.setStorageClusterID(reader.stringValue());
@@ -1664,6 +1674,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmStgCmtSCP":
                         ed.setStgCmtSCPAETitle(reader.stringValue());
+                        break;
+                    case "dcmDeleteStudyFromStorageID":
+                        ed.setDeleteStudyFromStorageID(reader.stringValue());
                         break;
                     case "dcmIanDestination":
                         ed.setIanDestinations(reader.stringArray());
@@ -2374,6 +2387,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMetadataStorageID":
                     arcAE.setMetadataStorageIDs(reader.stringArray());
+                    break;
+                case "dcmBulkDataDescriptorID":
+                    arcAE.setBulkDataDescriptorID(reader.stringValue());
                     break;
                 case "dcmSeriesMetadataDelay":
                     arcAE.setSeriesMetadataDelay(Duration.valueOf(reader.stringValue()));

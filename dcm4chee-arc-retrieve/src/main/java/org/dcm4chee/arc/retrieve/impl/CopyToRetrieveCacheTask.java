@@ -194,6 +194,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
     private Location copyTo(InstanceLocations match, Storage storage, WriteContext writeCtx) throws IOException {
         try (LocationInputStream locationInputStream = ctx.getRetrieveService().openLocationInputStream(
                 ctx, match)) {
+            writeCtx.setContentLength(locationInputStream.location.getSize());
             storage.copy(locationInputStream.stream, writeCtx);
             return new Location.Builder()
                     .storageID(storage.getStorageDescriptor().getStorageID())

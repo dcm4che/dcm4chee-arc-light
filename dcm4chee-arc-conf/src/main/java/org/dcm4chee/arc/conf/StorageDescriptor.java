@@ -25,7 +25,7 @@ public final class StorageDescriptor {
     private int deleterThreads = 1;
     private String externalRetrieveAETitle;
     private boolean readOnly;
-    private boolean noDeletionConstraint;
+    private StorageDuration storageDuration = StorageDuration.PERMANENT;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
@@ -144,8 +144,7 @@ public final class StorageDescriptor {
     }
 
     public boolean hasDeleterThresholds() {
-        return !deleterThresholds.isEmpty()
-                && (noDeletionConstraint || exportStorageID != null || externalRetrieveAETitle != null);
+        return !deleterThresholds.isEmpty();
     }
 
     public String[] getDeleterThresholdsAsStrings() {
@@ -200,12 +199,12 @@ public final class StorageDescriptor {
         }
     }
 
-    public boolean isNoDeletionConstraint() {
-        return noDeletionConstraint;
+    public StorageDuration getStorageDuration() {
+        return storageDuration;
     }
 
-    public void setNoDeletionConstraint(boolean noDeletionConstraint) {
-        this.noDeletionConstraint = noDeletionConstraint;
+    public void setStorageDuration(StorageDuration storageDuration) {
+        this.storageDuration = storageDuration;
     }
 
     @Override

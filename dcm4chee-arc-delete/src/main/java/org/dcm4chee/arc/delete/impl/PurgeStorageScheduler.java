@@ -47,15 +47,11 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.BinaryPrefix;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Metadata;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.exporter.ExportContext;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -66,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.Json;
 import java.io.IOException;
@@ -137,22 +134,63 @@ public class PurgeStorageScheduler extends Scheduler {
         }
     }
 
-    private void process(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
-        long minUsableSpace = desc.hasDeleterThresholds() ?
-                desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
-        long deleteSize;
-        int n = 0;
-        do {
-            deleteObjectsFromStorage(arcDev, desc);
-            if (arcDev.getPurgeStoragePollingInterval() == null) return;
-            deleteSize = sizeToDelete(desc, minUsableSpace);
-            if (deleteSize == 0L) break;
-            if (n++ == 0) {
-                LOG.info("Usable Space on {} below {} - start deleting {}", desc,
-                        BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+    public void onExport(@Observes ExportContext ctx) {
+        ExporterDescriptor desc = ctx.getExporter().getExporterDescriptor();
+        String storageID = desc.getDeleteStudyFromStorageID();
+        if (storageID == null || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
+            return;
+
+        String suid = ctx.getStudyInstanceUID();
+        if (ctx.getSeriesInstanceUID() != null) {
+            if (ctx.getSopInstanceUID() != null)
+                LOG.info("Suppress deletion of objects from {} on export of Instance[uid={}] of Series[uid={}] of " +
+                                "Study[uid={}] by Exporter[id={}]",
+                        storageID, ctx.getSopInstanceUID(), ctx.getSeriesInstanceUID(), suid, desc.getExporterID());
+            else
+                LOG.info("Suppress deletion of objects from {} on export of Series[uid={}] of " +
+                                "Study[uid={}] by Exporter[id={}]",
+                        storageID, ctx.getSeriesInstanceUID(), suid, desc.getExporterID());
+            return;
+        }
+
+        try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            StorageDescriptor storageDesc = arcDev.getStorageDescriptorNotNull(storageID);
+            if (ejb.deleteObjectsOfStudy(suid, storageDesc)) {
+                LOG.info("Successfully marked objects of Study[uid={}] at {} for deletion", suid, storageDesc);
             }
-        } while (deleteStudies(arcDev, desc) > 0);
+        } catch (Exception e) {
+            LOG.warn("Failed to mark objects of Study[uid={}] at Storage[id={}] for deletion", suid, storageID, e);
+        }
+    }
+
+    private void process(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
         deleteSeriesMetadata(arcDev, desc);
+        deleteObjectsFromStorage(arcDev, desc);
+        if (desc.getStorageDuration() == StorageDuration.PERMANENT)
+            return;
+
+        if (desc.hasDeleterThresholds()) {
+            long minUsableSpace = desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance());
+            long deleteSize = sizeToDelete(desc, minUsableSpace);
+            if (deleteSize == 0L)
+                return;
+
+            LOG.info("Usable Space on {} {} below {} - start deleting {}", desc.getStorageDuration(), desc,
+                    BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+            while (arcDev.getPurgeStoragePollingInterval() != null
+                    && deleteSize > 0L
+                    && deleteStudies(arcDev, desc) > 0) {
+                deleteObjectsFromStorage(arcDev, desc);
+                deleteSize = sizeToDelete(desc, minUsableSpace);
+            }
+        } else {
+            LOG.info("Start deleting all objects from {} {}", desc.getStorageDuration(), desc);
+            while (arcDev.getPurgeStoragePollingInterval() != null
+                    && deleteStudies(arcDev, desc) > 0) {
+                deleteObjectsFromStorage(arcDev, desc);
+            }
+        }
     }
 
     private long sizeToDelete(StorageDescriptor desc, long minUsableSpace) {
@@ -179,7 +217,7 @@ public class PurgeStorageScheduler extends Scheduler {
             LOG.warn("No studies for deletion found on {}", desc);
             return 0;
         }
-        return desc.getExternalRetrieveAETitle() != null || desc.getExportStorageID() != null
+        return desc.getStorageDuration() == StorageDuration.CACHE
                 ? deleteObjectsOfStudies(arcDev, desc, studyPks)
                 : deleteStudiesFromDB(arcDev, desc, studyPks);
     }

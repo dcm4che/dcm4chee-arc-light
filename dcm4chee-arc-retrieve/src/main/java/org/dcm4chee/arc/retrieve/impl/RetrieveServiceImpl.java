@@ -787,6 +787,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         LocationInputStream locationInputStream = openLocationInputStream(ctx, inst);
         Transcoder transcoder = new Transcoder(toDicomInputStream(locationInputStream));
         transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+        transcoder.setBulkDataDescriptor(ctx.getArchiveAEExtension().getBulkDataDescriptor());
         transcoder.setConcatenateBulkDataFiles(true);
         transcoder.setBulkDataDirectory(ctx.getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
         transcoder.setDestinationTransferSyntax(selectTransferSyntax(locationInputStream, tsuids));
@@ -1143,6 +1144,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         Attributes attrs;
         try (DicomInputStream dis = openDicomInputStream(ctx, inst)) {
             dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            dis.setBulkDataDescriptor(ctx.getArchiveAEExtension().getBulkDataDescriptor());
             dis.setBulkDataCreator(new BulkDataCreator() {
                 @Override
                 public BulkData createBulkData(DicomInputStream dis) throws IOException {

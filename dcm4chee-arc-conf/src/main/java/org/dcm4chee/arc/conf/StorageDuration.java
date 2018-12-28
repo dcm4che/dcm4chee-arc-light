@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,35 +35,16 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.storage;
-
-import java.security.MessageDigest;
+package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2015
+ * @since Dec 2018
  */
-public interface ReadContext {
-    Storage getStorage();
-
-    String getStoragePath();
-
-    void setStoragePath(String storagePath);
-
-    long getSize();
-
-    void incrementSize(long size);
-
-    MessageDigest getMessageDigest();
-
-    void setMessageDigest(MessageDigest messageDigest);
-
-    byte[] getDigest();
-
-    String getStudyInstanceUID();
-
-    void setStudyInstanceUID(String studyInstanceUID);
+public enum StorageDuration {
+    PERMANENT, CACHE, TEMPORARY
 }

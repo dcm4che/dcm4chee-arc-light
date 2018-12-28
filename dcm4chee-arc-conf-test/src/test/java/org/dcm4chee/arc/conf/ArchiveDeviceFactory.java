@@ -44,6 +44,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
+import org.dcm4che3.io.BasicBulkDataDescriptor;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
@@ -97,7 +98,6 @@ class ArchiveDeviceFactory {
             device.setKeyStoreURL("${jboss.server.config.url}/dcm4chee-arc/key.jks");
             device.setKeyStoreType("JKS");
             device.setKeyStorePin("secret");
-            device.setKeyStoreKeyPin("secret");
         }
     }
     static final String[] OTHER_DEVICES = {
@@ -908,17 +908,6 @@ class ArchiveDeviceFactory {
                     new Code[0],
                     true);
 
-    static final String[] MPPS_FORWARD_DESTINATIONS = {
-            "MPPSCP",
-            "OTHER_MPPSCP",
-            "MPPSCP2"
-    };
-
-    static final String[] ACCESS_CONTROL_IDS = {
-            "*",
-            "*"
-    };
-
     static final String[] USER_AND_ADMIN = { "user", "admin" };
     static final String[] ONLY_ADMIN = { "admin" };
 
@@ -1151,7 +1140,8 @@ class ArchiveDeviceFactory {
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.valueOf("PT1H");
     static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
-
+    static final String BULK_DATA_DESCRIPTOR_ID = "default";
+    static final String BULK_DATA_LENGTH_THRESHOLD = "DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024";
 
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
@@ -1449,6 +1439,11 @@ class ArchiveDeviceFactory {
         ext.addQueryRetrieveView(IOCM_QUALITY_VIEW);
         ext.addQueryRetrieveView(IOCM_WRONG_MWL_VIEW);
         ext.setLinkMWLEntryUpdatePolicy(LINK_MWL_ENTRY_UPDATE_POLICY);
+
+        BasicBulkDataDescriptor bulkDataDescriptor = new BasicBulkDataDescriptor(BULK_DATA_DESCRIPTOR_ID);
+        bulkDataDescriptor.setLengthsThresholdsFromStrings(BULK_DATA_LENGTH_THRESHOLD);
+        ext.addBulkDataDescriptor(bulkDataDescriptor);
+        ext.setBulkDataDescriptorID(BULK_DATA_DESCRIPTOR_ID);
 
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
         ext.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);

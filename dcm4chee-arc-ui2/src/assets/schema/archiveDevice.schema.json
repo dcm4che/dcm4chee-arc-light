@@ -76,6 +76,12 @@
       "org.dcm4che3.soundex.Phonem"
       ]
     },
+    "dcmBulkDataDescriptorID": {
+      "title": "Bulk Data Descriptor ID",
+      "description": "ID of Bulk Data Descriptor applied by all services providing Metadata of archived instances. If absent, only Attributes specified by the Composite Instance Retrieve Without Bulk Data Service Class are treated as Bulk Data. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "format": "dcmBulkDataDescriptorID"
+    },
     "dcmSeriesMetadataStorageID": {
       "title": "Series Metadata Storage ID",
       "description": "ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. Multiple Storage Systems may be configured. If absent, no aggregated Series Metadata will be stored.",
@@ -87,7 +93,7 @@
     },
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMnS for storing aggregated Series Metadata on storage. If absent, no aggregated Series Metadata will be stored.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMnS for storing aggregated Series Metadata on storage. If absent, no aggregated Series Metadata will be stored. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -1133,6 +1139,15 @@
       "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetID}",
       "items" : {
         "$ref": "attributeSet.schema.json"
+      }
+    },
+    "dcmBulkDataDescriptor": {
+      "title": "Bulk Data Descriptor",
+      "description": "Specifies Bulk Data Descriptors applied by services providing Metadata of archived instances.",
+      "type": "array",
+      "titleKey":"{dcmBulkDataDescriptorID}",
+      "items" : {
+        "$ref": "bulkData.schema.json"
       }
     },
     "dcmStorage": {

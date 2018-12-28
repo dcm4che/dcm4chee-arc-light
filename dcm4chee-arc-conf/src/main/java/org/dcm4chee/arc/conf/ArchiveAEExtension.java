@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
@@ -63,6 +64,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
     private String[] metadataStorageIDs = {};
+    private String bulkDataDescriptorID;
     private Duration seriesMetadataDelay;
     private Duration purgeInstanceRecordsDelay;
     private String storeAccessControlID;
@@ -167,6 +169,21 @@ public class ArchiveAEExtension extends AEExtension {
 
     public void setMetadataStorageIDs(String... metadataStorageIDs) {
         Arrays.sort(this.metadataStorageIDs = metadataStorageIDs);
+    }
+
+    public String getBulkDataDescriptorID() {
+        return bulkDataDescriptorID;
+    }
+
+    public void setBulkDataDescriptorID(String bulkDataDescriptorID) {
+        this.bulkDataDescriptorID = bulkDataDescriptorID;
+    }
+
+    public BulkDataDescriptor getBulkDataDescriptor() {
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        return arcdev.getBulkDataDescriptor(bulkDataDescriptorID != null
+                ? bulkDataDescriptorID
+                : arcdev.getBulkDataDescriptorID());
     }
 
     public Duration getSeriesMetadataDelay() {
@@ -1135,6 +1152,7 @@ public class ArchiveAEExtension extends AEExtension {
         objectStorageIDs = aeExt.objectStorageIDs;
         objectStorageCount = aeExt.objectStorageCount;
         metadataStorageIDs = aeExt.metadataStorageIDs;
+        bulkDataDescriptorID = aeExt.bulkDataDescriptorID;
         seriesMetadataDelay = aeExt.seriesMetadataDelay;
         purgeInstanceRecordsDelay = aeExt.purgeInstanceRecordsDelay;
         storeAccessControlID = aeExt.storeAccessControlID;
