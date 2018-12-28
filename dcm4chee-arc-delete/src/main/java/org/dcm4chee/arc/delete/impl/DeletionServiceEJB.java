@@ -244,15 +244,26 @@ public class DeletionServiceEJB {
     }
 
     public boolean deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
-        Study study = em.find(Study.class, studyPk);
+        return deleteObjectsOfStudy(em.find(Study.class, studyPk), desc);
+    }
+
+    public boolean deleteObjectsOfStudy(String suid, StorageDescriptor desc) {
+        return deleteObjectsOfStudy(
+                em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                        .setParameter(1, suid)
+                        .getSingleResult(),
+                desc);
+    }
+
+    private boolean deleteObjectsOfStudy(Study study, StorageDescriptor desc) {
         List<String> storageIDs = getStorageIDsOfCluster(desc);
-        if (!Stream.of(study.getStorageIDs()).anyMatch(storageID -> storageIDs.contains(storageID))) {
+        if (!Stream.of(study.getStorageIDs()).anyMatch(storageIDs::contains)) {
             LOG.info("{} does not contain objects at Storage{}", study, storageIDs);
             return false;
         }
         LOG.debug("Query for objects of {} at Storage{}", study, storageIDs);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
-                .setParameter(1, studyPk)
+                .setParameter(1, study.getPk())
                 .setParameter(2, storageIDs)
                 .getResultList();
         if (locations.isEmpty()) {

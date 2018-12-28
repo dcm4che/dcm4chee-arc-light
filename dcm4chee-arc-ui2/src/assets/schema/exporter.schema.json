@@ -57,6 +57,12 @@
       "type": "string",
       "format": "dcmArchiveAETitle"
     },
+    "dcmDeleteStudyFromStorageID": {
+      "title": "Delete Study From Storage ID",
+      "description": "ID of Storage System from which the objects of the exported Study shall be deleted. Only effective for Export Tasks on Study level.",
+      "type": "string",
+      "format": "dcmStorageID"
+    },
     "dcmStgCmtSCP": {
       "title": "Storage Commitment SCP AE Title",
       "description": "AE Title of external Storage Commitment SCP used to verify export to another archive.",

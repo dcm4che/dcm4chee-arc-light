@@ -2039,6 +2039,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueueName", descriptor.getQueueName(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", descriptor.getAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStgCmtSCP", descriptor.getStgCmtSCPAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteStudyFromStorageID",
+                descriptor.getDeleteStudyFromStorageID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", descriptor.getIanDestinations());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveLocationUID", descriptor.getRetrieveLocationUID(), null);
@@ -2062,6 +2064,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setQueueName(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 desc.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 desc.setStgCmtSCPAETitle(LdapUtils.stringValue(attrs.get("dcmStgCmtSCP"), null));
+                desc.setDeleteStudyFromStorageID(
+                        LdapUtils.stringValue(attrs.get("dcmDeleteStudyFromStorageID"), null));
                 desc.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
                 desc.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
                 desc.setRetrieveLocationUID(LdapUtils.stringValue(attrs.get("dcmRetrieveLocationUID"), null));
@@ -2114,6 +2118,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueueName", prev.getQueueName(), desc.getQueueName(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", prev.getAETitle(), desc.getAETitle(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStgCmtSCP", prev.getStgCmtSCPAETitle(), desc.getStgCmtSCPAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteStudyFromStorageID",
+                prev.getDeleteStudyFromStorageID(), desc.getDeleteStudyFromStorageID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination", prev.getIanDestinations(), desc.getIanDestinations());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveLocationUID",

@@ -49,10 +49,9 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Metadata;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.exporter.ExportContext;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -63,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.Json;
 import java.io.IOException;
@@ -131,6 +131,36 @@ public class PurgeStorageScheduler extends Scheduler {
                         LOG.info("Finished deletion on {}", desc);
                     }
                 });
+        }
+    }
+
+    public void onExport(@Observes ExportContext ctx) {
+        ExporterDescriptor desc = ctx.getExporter().getExporterDescriptor();
+        String storageID = desc.getDeleteStudyFromStorageID();
+        if (storageID == null || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
+            return;
+
+        String suid = ctx.getStudyInstanceUID();
+        if (ctx.getSeriesInstanceUID() != null) {
+            if (ctx.getSopInstanceUID() != null)
+                LOG.info("Suppress deletion of objects from {} on export of Instance[uid={}] of Series[uid={}] of " +
+                                "Study[uid={}] by Exporter[id={}]",
+                        storageID, ctx.getSopInstanceUID(), ctx.getSeriesInstanceUID(), suid, desc.getExporterID());
+            else
+                LOG.info("Suppress deletion of objects from {} on export of Series[uid={}] of " +
+                                "Study[uid={}] by Exporter[id={}]",
+                        storageID, ctx.getSeriesInstanceUID(), suid, desc.getExporterID());
+            return;
+        }
+
+        try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            StorageDescriptor storageDesc = arcDev.getStorageDescriptorNotNull(storageID);
+            if (ejb.deleteObjectsOfStudy(suid, storageDesc)) {
+                LOG.info("Successfully marked objects of Study[uid={}] at {} for deletion", suid, storageDesc);
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to mark objects of Study[uid={}] at Storage[id={}] for deletion", suid, storageID, e);
         }
     }
 

@@ -67,6 +67,7 @@ public class ExporterDescriptor {
     private String retrieveLocationUID;
     private Availability instanceAvailability = Availability.ONLINE;
     private String stgCmtSCPAETitle;
+    private String deleteStudyFromStorageID;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
@@ -133,6 +134,22 @@ public class ExporterDescriptor {
         this.aeTitle = aeTitle;
     }
 
+    public String getStgCmtSCPAETitle() {
+        return stgCmtSCPAETitle;
+    }
+
+    public void setStgCmtSCPAETitle(String stgCmtSCPAETitle) {
+        this.stgCmtSCPAETitle = stgCmtSCPAETitle;
+    }
+
+    public String getDeleteStudyFromStorageID() {
+        return deleteStudyFromStorageID;
+    }
+
+    public void setDeleteStudyFromStorageID(String deleteStudyFromStorageID) {
+        this.deleteStudyFromStorageID = deleteStudyFromStorageID;
+    }
+
     public String[] getIanDestinations() {
         return ianDestinations;
     }
@@ -196,14 +213,6 @@ public class ExporterDescriptor {
         }
     }
 
-    public String getStgCmtSCPAETitle() {
-        return stgCmtSCPAETitle;
-    }
-
-    public void setStgCmtSCPAETitle(String stgCmtSCPAETitle) {
-        this.stgCmtSCPAETitle = stgCmtSCPAETitle;
-    }
-
     @Override
     public String toString() {
         return "ExporterDescriptor{" +
@@ -212,13 +221,14 @@ public class ExporterDescriptor {
                 ", priority=" + priority +
                 ", queueName=" + queueName +
                 ", aeTitle=" + aeTitle +
+                ", stgCmtSCPAETitle=" + stgCmtSCPAETitle +
+                ", deleteStudyFromStorageID=" + deleteStudyFromStorageID +
                 ", ianDests=" + Arrays.toString(ianDestinations) +
                 ", retrieveAETs=" + Arrays.toString(retrieveAETitles) +
                 ", retrieveLocationUID=" + retrieveLocationUID +
                 ", availability=" + instanceAvailability +
                 ", schedules=" + Arrays.toString(schedules) +
                 ", properties=" + properties +
-                ", stgCmtSCPAETitle=" + stgCmtSCPAETitle +
                 '}';
     }
 }
