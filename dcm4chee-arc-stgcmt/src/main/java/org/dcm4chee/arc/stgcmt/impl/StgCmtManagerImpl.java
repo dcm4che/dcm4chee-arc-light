@@ -52,7 +52,6 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.*;
@@ -63,14 +62,12 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.stgcmt.StgVerBatch;
-import org.dcm4chee.arc.stgcmt.StgCmtContext;
-import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
+import org.dcm4chee.arc.stgcmt.*;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.UpdateLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,8 +79,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -260,10 +255,10 @@ public class StgCmtManagerImpl implements StgCmtManager {
         if (storageVerificationTask.getStorageVerificationPolicy() != null)
             ctx.setStorageVerificationPolicy(storageVerificationTask.getStorageVerificationPolicy());
         if (storageVerificationTask.getUpdateLocationStatus() != null)
-            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(storageVerificationTask.getUpdateLocationStatus()));
+            ctx.setUpdateLocationStatus(Boolean.valueOf(storageVerificationTask.getUpdateLocationStatus()));
         String[] storageIDs = storageVerificationTask.getStorageIDs();
         if (storageIDs.length > 0)
-            ctx.setStgCmtStorageIDs(storageIDs);
+            ctx.setStorageIDs(storageIDs);
         try {
             calculateResult(ctx,
                     storageVerificationTask.getStudyInstanceUID(),
@@ -291,7 +286,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     private String toOutcomeMessage(StorageVerificationTask storageVerificationTask, StgCmtContext ctx) {
-        return (ctx.getStgCmtStorageIDs().length == 0)
+        return (ctx.getStorageIDs().length == 0)
             ? (storageVerificationTask.getSeriesInstanceUID() == null)
                 ? String.format("Commit Storage of Study[uid=%s] for %s: - completed: %d, failed: %d",
                     storageVerificationTask.getStudyInstanceUID(),
@@ -309,19 +304,19 @@ public class StgCmtManagerImpl implements StgCmtManager {
             : (storageVerificationTask.getSeriesInstanceUID() == null)
                 ? String.format("Commit Storage of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
                     storageVerificationTask.getStudyInstanceUID(),
-                    Arrays.toString(ctx.getStgCmtStorageIDs()),
+                    Arrays.toString(ctx.getStorageIDs()),
                     ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                 : (storageVerificationTask.getSOPInstanceUID() == null)
                     ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
-                        Arrays.toString(ctx.getStgCmtStorageIDs()),
+                        Arrays.toString(ctx.getStorageIDs()),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                     :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] on Storage%s of Study[uid=%s] for %s: - completed: %d, failed: %d",
                         storageVerificationTask.getSOPInstanceUID(),
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
-                        Arrays.toString(ctx.getStgCmtStorageIDs()),
+                        Arrays.toString(ctx.getStorageIDs()),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed());
     }
 
@@ -354,7 +349,6 @@ public class StgCmtManagerImpl implements StgCmtManager {
             eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAET);
 
         Set<String> studyInstanceUIDs = new HashSet<>();
-        List<UpdateLocation> updateLocations = new ArrayList<>();
         for (InstanceLocations inst : matches) {
             String cuid = inst.getSopClassUID();
             String iuid = inst.getSopInstanceUID();
@@ -365,7 +359,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                     key -> new int[1])
                     : null;
             if (ctx.getStorageVerificationPolicy() == StorageVerificationPolicy.DB_RECORD_EXISTS
-                    || checkLocations(ctx, retrCtx, inst, updateLocations)) {
+                    || checkLocationsOfInstance(ctx, retrCtx, inst)) {
                 eventInfo.ensureSequence(Tag.ReferencedSOPSequence, retrCtx.getNumberOfMatches())
                         .add(refSOP(cuid, iuid, commonRetrieveAET == null ? inst.getRetrieveAETs() : null));
             } else {
@@ -385,8 +379,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
         if (!studyInstanceUIDs.isEmpty()) {
             eventInfo.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUIDs.toArray(StringUtils.EMPTY_STRING));
         }
-        if (!updateLocations.isEmpty()) {
-            updateLocations(ctx, updateLocations);
+        if (!retrCtx.getUpdateLocations().isEmpty()) {
+            storeService.updateLocations(ctx.getArchiveAEExtension(), retrCtx.getUpdateLocations());
         }
     }
 
@@ -401,74 +395,6 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 return null;
 
         return aets;
-    }
-
-    private void updateLocations(StgCmtContext ctx, List<UpdateLocation> updateLocations) {
-        Map<String, Map<String, List<UpdateLocation>>> updateLocationsByStudyAndSeriesIUID = updateLocations.stream()
-                .collect(Collectors.groupingBy(
-                        x -> x.instanceLocation.getAttributes().getString(Tag.StudyInstanceUID),
-                        Collectors.groupingBy(
-                                x -> x.instanceLocation.getAttributes().getString(Tag.SeriesInstanceUID))));
-        updateLocationsByStudyAndSeriesIUID.forEach(
-                (studyIUID, seriesMap) -> seriesMap.forEach(
-                        (seriesIUID, updateLocationsOfSeries) -> {
-            boolean instancesPurged = updateLocationsOfSeries.get(0).location.getPk() == 0;
-            if (instancesPurged) {
-                try {
-                    restoreInstances(ctx.getArchiveAEExtension(), studyIUID, seriesIUID, updateLocationsOfSeries);
-                    instancesPurged = false;
-                } catch (Exception e) {
-                    LOG.warn("Failed to restore Instance records of Series[uid={}] of Study[uid={}]" +
-                                    " - cannot update Location records\n",
-                            seriesIUID, studyIUID, e);
-                }
-            }
-            if (!instancesPurged) {
-                for (UpdateLocation updateLocation : updateLocationsOfSeries) {
-                    if (updateLocation.newStatus != null) {
-                        LOG.debug("Update status of {} of Instance[uid={}] of Study[uid={}] to {}",
-                                updateLocation.location,
-                                updateLocation.instanceLocation.getSopInstanceUID(),
-                                studyIUID,
-                                updateLocation.newStatus);
-                        ejb.setStatus(updateLocation.location.getPk(), updateLocation.newStatus);
-                    } else {
-                        LOG.debug("Set missing digest of {} of Instance[uid={}] of Study[uid={}]",
-                                updateLocation.location,
-                                updateLocation.instanceLocation.getSopInstanceUID(),
-                                studyIUID);
-                        ejb.setDigest(updateLocation.location.getPk(), updateLocation.newDigest);
-                    }
-                }
-                storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
-            }
-        }));
-    }
-
-    private void restoreInstances(ArchiveAEExtension arcAE, String studyIUID, String seriesIUID,
-                                  List<UpdateLocation> updateLocations) throws IOException {
-        List<Instance> instances = storeService.restoreInstances(storeService.newStoreSession(
-                arcAE.getApplicationEntity()),
-                studyIUID,
-                seriesIUID,
-                arcAE.getPurgeInstanceRecordsDelay());
-        Map<String, Map<String, Location>> restoredLocations = instances.stream()
-                .flatMap(inst -> inst.getLocations().stream())
-                .collect(Collectors.groupingBy(l -> l.getStorageID(),
-                        Collectors.toMap(l -> l.getStoragePath(), Function.identity())));
-        for (Iterator<UpdateLocation> iter = updateLocations.iterator(); iter.hasNext(); ) {
-            UpdateLocation updateLocation = iter.next();
-            Location l = updateLocation.location;
-            updateLocation.location = restoredLocations.get(l.getStorageID()).get(l
-                    .getStoragePath());
-            if (updateLocation.location == null) {
-                LOG.warn("Failed to find {} record of Instance[uid={}] of Series[uid={}] of Study[uid={}]" +
-                                " - cannot update Location record",
-                        l, updateLocation.instanceLocation.getSopInstanceUID(), seriesIUID,
-                        studyIUID);
-                iter.remove();
-            }
-        }
     }
 
     private static Attributes refSOP(String cuid, String iuid, String retrieveAET) {
@@ -489,17 +415,17 @@ public class StgCmtManagerImpl implements StgCmtManager {
         return attrs;
     }
 
-    private boolean checkLocations(StgCmtContext ctx, RetrieveContext retrCtx, InstanceLocations inst,
-                                   List<UpdateLocation> updateLocations) {
+    private boolean checkLocationsOfInstance(StgCmtContext ctx, RetrieveContext retrCtx, InstanceLocations inst) {
+        List<UpdateLocation> updateLocations = retrCtx.getUpdateLocations();
         int locationsOnStgCmtStorage = 0;
         Attributes attrs = inst.getAttributes();
         String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         for (Location l : inst.getLocations()) {
-            if (ctx.isStgCmtStorageID(l.getStorageID())) {
+            if (ctx.checkStorageID(l.getStorageID())) {
                 locationsOnStgCmtStorage++;
                 Storage storage = retrieveService.getStorage(l.getStorageID(), retrCtx);
                 CheckResult result = checkLocation(ctx, inst, l, storage, updateLocations);
-                if (ctx.isStgCmtUpdateLocationStatus() && l.getStatus() != result.status) {
+                if (ctx.isUpdateLocationStatus() && l.getStatus() != result.status) {
                     updateLocations.add(new UpdateLocation(inst, l, result.status, null));
                 }
                 if (result.ok()) {
@@ -525,7 +451,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
             LOG.info("Instance[uid={}] of Study[uid={}] not stored on Storage{}",
                     inst.getSopInstanceUID(),
                     studyInstanceUID,
-                    Arrays.toString(ctx.getStgCmtStorageIDs()));
+                    Arrays.toString(ctx.getStorageIDs()));
         }
         return false;
     }
@@ -653,18 +579,4 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 : new CheckResult(Location.Status.DIFFERING_S3_MD5SUM);
     }
 
-    private static class UpdateLocation {
-        final InstanceLocations instanceLocation;
-        Location location;
-        final Location.Status newStatus;
-        final String newDigest;
-
-        UpdateLocation(InstanceLocations instanceLocation, Location location,
-                               Location.Status newStatus, String newDigest) {
-            this.instanceLocation = instanceLocation;
-            this.location = location;
-            this.newStatus = newStatus;
-            this.newDigest = newDigest;
-        }
-    }
 }

@@ -140,6 +140,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             waitForPendingCMoveForward();
             waitForPendingCStoreForward();
             updateCompleteness();
+            updateLocations();
             ctx.stopWritePendingRSP();
             if (rqas != null) {
                 writeFinalRSP();
@@ -282,6 +283,11 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private void updateCompleteness() {
         if (ctx.getFallbackAssociation() != null)
             ctx.getRetrieveService().updateCompleteness(ctx);
+    }
+
+    private void updateLocations() {
+        if (ctx.isUpdateLocationStatusOnRetrieve())
+            ctx.getRetrieveService().updateLocations(ctx);
     }
 
     private void removeOutstandingRSP(InstanceLocations inst) {

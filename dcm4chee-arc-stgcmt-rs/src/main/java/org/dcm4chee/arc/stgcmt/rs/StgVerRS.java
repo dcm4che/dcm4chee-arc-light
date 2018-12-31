@@ -140,9 +140,9 @@ public class StgVerRS {
         if (storageVerificationPolicy != null)
             ctx.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(storageVerificationPolicy));
         if (storageVerificationUpdateLocationStatus != null)
-            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(storageVerificationUpdateLocationStatus));
+            ctx.setUpdateLocationStatus(Boolean.valueOf(storageVerificationUpdateLocationStatus));
         if (!storageVerificationStorageIDs.isEmpty())
-            ctx.setStgCmtStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
+            ctx.setStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
         try {
             if (!stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID))
                 return errResponse("No matching instances", Response.Status.NOT_FOUND);

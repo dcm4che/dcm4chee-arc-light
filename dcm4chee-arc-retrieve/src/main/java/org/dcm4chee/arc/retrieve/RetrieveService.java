@@ -139,6 +139,8 @@ public interface RetrieveService {
 
     void updateCompleteness(RetrieveContext ctx);
 
+    void updateLocations(RetrieveContext ctx);
+
     Date getLastModifiedFromMatches(RetrieveContext ctx);
 
     Date getLastModified(RetrieveContext ctx);

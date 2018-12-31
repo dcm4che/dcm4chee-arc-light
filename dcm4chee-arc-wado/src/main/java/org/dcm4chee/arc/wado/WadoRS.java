@@ -432,6 +432,7 @@ public class WadoRS {
                 SafeClose.close(compressedFramesOutput);
                 SafeClose.close(decompressFramesOutput);
                 purgeSpoolDirectory();
+                updateLocations(ctx);
                 ctx.setException(throwable);
                 retrieveEnd.fire(ctx);
         });
@@ -439,6 +440,11 @@ public class WadoRS {
         Object entity = output.entity(this, ctx, frameList, attributePath);
         ar.resume(output.adjustType(Response.status(responseStatus).lastModified(lastModified)
                 .tag(String.valueOf(lastModified.hashCode())).entity(entity)).build());
+    }
+
+    private static void updateLocations(RetrieveContext ctx) {
+        if (ctx.isUpdateLocationStatusOnRetrieve())
+            ctx.getRetrieveService().updateLocations(ctx);
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {

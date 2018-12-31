@@ -420,6 +420,12 @@
       "type": "string",
       "format": "dcmPeriod"
     },
+    "dcmUpdateLocationStatusOnRetrieve": {
+      "title": "Update Location Status on Retrieve",
+      "description": "Indicates if the Status of the Location DB record shall be updated for objects failed to get fetched from storage on retrieve to MISSING_OBJECT or FAILED_TO_FETCH_OBJECT. Overwrites value specified on Device level.",
+      "type": "boolean",
+      "default": false
+    },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. Overwrites value specified on Device level.",

@@ -1460,4 +1460,19 @@ public class StoreServiceEJB {
         return em.createNamedQuery(Study.STUDY_IUIDS_BY_ACCESSION_NUMBER, String.class)
                 .setParameter(1, accNo).getResultList();
     }
+
+    public int setDigest(Long pk, String digest) {
+        return em.createNamedQuery(Location.SET_DIGEST)
+                .setParameter(1, pk)
+                .setParameter(2, digest)
+                .executeUpdate();
+    }
+
+    public int setStatus(Long pk, Location.Status status) {
+        return em.createNamedQuery(Location.SET_STATUS)
+                .setParameter(1, pk)
+                .setParameter(2, status)
+                .executeUpdate();
+    }
+
 }

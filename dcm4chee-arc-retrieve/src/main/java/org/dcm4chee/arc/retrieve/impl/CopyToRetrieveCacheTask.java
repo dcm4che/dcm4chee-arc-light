@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.storage.Storage;
@@ -188,7 +189,14 @@ public class CopyToRetrieveCacheTask implements Runnable {
                     LOG.warn("Failed to revoke storage", e1);
                 }
             return false;
+        } finally {
+            updateLocations(ctx);
         }
+    }
+
+    private void updateLocations(RetrieveContext ctx) {
+        if (ctx.isUpdateLocationStatusOnRetrieve())
+            ctx.getRetrieveService().updateLocations(ctx);
     }
 
     private Location copyTo(InstanceLocations match, Storage storage, WriteContext writeCtx) throws IOException {

@@ -56,6 +56,7 @@ import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.store.UpdateLocation;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -114,6 +115,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private AttributeSet metadataFilter;
     private HttpServletRequestInfo httpServletRequestInfo;
     private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
+    private final List<UpdateLocation> updateLocations = new ArrayList<>();
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -656,5 +658,15 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public InstanceLocations copiedToRetrieveCache() {
         return copyToRetrieveCacheTask != null ? copyToRetrieveCacheTask.copiedToRetrieveCache() : null;
+    }
+
+    @Override
+    public List<UpdateLocation> getUpdateLocations() {
+        return updateLocations;
+    }
+
+    @Override
+    public boolean isUpdateLocationStatusOnRetrieve() {
+        return arcAE.updateLocationStatusOnRetrieve();
     }
 }

@@ -106,51 +106,60 @@ public class StorageExporter extends AbstractExporter {
             if (!retrieveService.calculateMatches(retrieveContext))
                 return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
 
-            Set<String> seriesIUIDs = new HashSet<>();
-            Storage storage = retrieveService.getStorage(storageID, retrieveContext);
-            retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
-            for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
-                if (instanceLocations.getLocations().stream()
-                        .filter(l -> l.getStorageID().equals(storageID))
-                        .findAny().isPresent()) {
-                    retrieveContext.setNumberOfMatches(retrieveContext.getNumberOfMatches()-1);
-                    continue;
-                }
+            try {
+                Set<String> seriesIUIDs = new HashSet<>();
+                Storage storage = retrieveService.getStorage(storageID, retrieveContext);
+                retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
+                for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
+                    if (instanceLocations.getLocations().stream()
+                            .filter(l -> l.getStorageID().equals(storageID))
+                            .findAny().isPresent()) {
+                        retrieveContext.setNumberOfMatches(retrieveContext.getNumberOfMatches()-1);
+                        continue;
+                    }
 
-                WriteContext writeCtx = storage.createWriteContext();
-                writeCtx.setAttributes(instanceLocations.getAttributes());
-                writeCtx.setStudyInstanceUID(studyIUID);
-                Location location = null;
-                try {
-                    LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
-                    location = copyTo(retrieveContext, instanceLocations, storage, writeCtx);
-                    storeService.addLocation(storeSession, instanceLocations.getInstancePk(), location);
-                    storage.commitStorage(writeCtx);
-                    retrieveContext.incrementCompleted();
-                    LOG.debug("Finished copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
-                    seriesIUIDs.add(instanceLocations.getAttributes().getString(Tag.SeriesInstanceUID));
-                } catch (Exception e) {
-                    LOG.warn("Failed to copy {} to {}:\n", instanceLocations, storage.getStorageDescriptor(), e);
-                    retrieveContext.addFailedSOPInstanceUID(instanceLocations.getSopInstanceUID());
-                    if (location != null)
-                        try {
-                            storage.revokeStorage(writeCtx);
-                        } catch (IOException e2) {
-                            LOG.warn("Failed to revoke storage", e2);
-                        }
+                    WriteContext writeCtx = storage.createWriteContext();
+                    writeCtx.setAttributes(instanceLocations.getAttributes());
+                    writeCtx.setStudyInstanceUID(studyIUID);
+                    Location location = null;
+                    try {
+                        LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
+                        location = copyTo(retrieveContext, instanceLocations, storage, writeCtx);
+                        storeService.addLocation(storeSession, instanceLocations.getInstancePk(), location);
+                        storage.commitStorage(writeCtx);
+                        retrieveContext.incrementCompleted();
+                        LOG.debug("Finished copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
+                        seriesIUIDs.add(instanceLocations.getAttributes().getString(Tag.SeriesInstanceUID));
+                    } catch (Exception e) {
+                        LOG.warn("Failed to copy {} to {}:\n", instanceLocations, storage.getStorageDescriptor(), e);
+                        retrieveContext.addFailedSOPInstanceUID(instanceLocations.getSopInstanceUID());
+                        if (location != null)
+                            try {
+                                storage.revokeStorage(writeCtx);
+                            } catch (IOException e2) {
+                                LOG.warn("Failed to revoke storage", e2);
+                            }
+                    }
                 }
-            }
-            if (!seriesIUIDs.isEmpty()) {
-                storeService.addStorageID(studyIUID, storageID);
-                for (String seriesIUID : seriesIUIDs) {
-                    storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
+                if (!seriesIUIDs.isEmpty()) {
+                    storeService.addStorageID(studyIUID, storageID);
+                    for (String seriesIUID : seriesIUIDs) {
+                        storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
+                    }
                 }
+                return new Outcome(retrieveContext.failed() > 0
+                        ? QueueMessage.Status.FAILED
+                        : QueueMessage.Status.COMPLETED,
+                        outcomeMessage(exportContext, retrieveContext));
+            } finally {
+                updateLocations(retrieveContext);
             }
-            return new Outcome(retrieveContext.failed() > 0
-                    ? QueueMessage.Status.FAILED
-                    : QueueMessage.Status.COMPLETED,
-                    outcomeMessage(exportContext, retrieveContext));
         }
+    }
+
+    private void updateLocations(RetrieveContext ctx) {
+        if (ctx.isUpdateLocationStatusOnRetrieve())
+            ctx.getRetrieveService().updateLocations(ctx);
     }
 
     private Location copyTo(RetrieveContext retrieveContext, InstanceLocations instanceLocations,

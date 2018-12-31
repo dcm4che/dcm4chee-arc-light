@@ -61,16 +61,16 @@ public class StgCmtContext {
     private ApplicationEntity remoteAE;
     private HttpServletRequestInfo request;
     private StorageVerificationPolicy storageVerificationPolicy;
-    private boolean stgCmtUpdateLocationStatus;
-    private String[] stgCmtStorageIDs;
+    private boolean updateLocationStatus;
+    private String[] storageIDs;
     private Throwable exception;
 
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
         this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
         this.localAET = localAET;
         this.storageVerificationPolicy = arcAE.storageVerificationPolicy();
-        this.stgCmtUpdateLocationStatus = arcAE.stgCmtUpdateLocationStatus();
-        this.stgCmtStorageIDs = arcAE.stgCmtStorageIDs();
+        this.updateLocationStatus = arcAE.storageVerificationUpdateLocationStatus();
+        this.storageIDs = arcAE.storageVerificationStorageIDs();
     }
 
     public String getLocalAET() {
@@ -124,24 +124,24 @@ public class StgCmtContext {
         this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
-    public boolean isStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus;
+    public boolean isUpdateLocationStatus() {
+        return updateLocationStatus;
     }
 
-    public void setStgCmtUpdateLocationStatus(boolean stgCmtUpdateLocationStatus) {
-        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    public void setUpdateLocationStatus(boolean updateLocationStatus) {
+        this.updateLocationStatus = updateLocationStatus;
     }
 
-    public String[] getStgCmtStorageIDs() {
-        return stgCmtStorageIDs;
+    public String[] getStorageIDs() {
+        return storageIDs;
     }
 
-    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
-        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    public void setStorageIDs(String... storageIDs) {
+        this.storageIDs = storageIDs;
     }
 
-    public boolean isStgCmtStorageID(String storageID) {
-        return stgCmtStorageIDs.length == 0 || StringUtils.contains(stgCmtStorageIDs, storageID);
+    public boolean checkStorageID(String storageID) {
+        return storageIDs.length == 0 || StringUtils.contains(storageIDs, storageID);
     }
 
 }
