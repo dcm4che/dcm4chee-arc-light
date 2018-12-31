@@ -565,8 +565,9 @@ public class DeletionServiceEJB {
     }
 
     private List<String> getStudyStorageIDs(StorageDescriptor desc) {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                .getStudyStorageIDs(desc);
+        return desc.getStudyStorageIDs(
+                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                        .getOtherStorageIDs(desc));
     }
 
 }

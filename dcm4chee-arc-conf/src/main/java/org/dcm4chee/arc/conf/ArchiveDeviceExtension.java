@@ -1419,68 +1419,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 .map(StorageDescriptor::getStorageID);
     }
 
-    private List<String> getOtherStorageIDs(StorageDescriptor desc) {
+    public List<String> getOtherStorageIDs(StorageDescriptor desc) {
         return desc.getStorageClusterID() != null
                 ? getStorageIDsOfCluster(desc.getStorageClusterID())
                     .filter(storageID -> !storageID.equals(desc.getStorageID()))
                     .collect(Collectors.toList())
                 : Collections.emptyList();
-    }
-
-    public List<String> getStudyStorageIDs(StorageDescriptor desc) {
-        return desc.getExportStorageID() != null
-                ? addPowerSet(false, getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID())
-                : addPowerSet(false, getOtherStorageIDs(desc), desc.getStorageID());
-    }
-    
-    public List<String> getStudyStorageIDs(
-            String storageID, String storageClustered, String storageExported) {
-        StorageDescriptor desc = getStorageDescriptorNotNull(storageID);
-        if ("false".equals(storageClustered)) {
-            return desc.getExportStorageID() == null || "false".equals(storageExported)
-                    ? Collections.singletonList(desc.getStorageID())
-                    : storageExported == null
-                        ? Arrays.asList(desc.getStorageID(), concat(desc.getStorageID(), desc.getExportStorageID()))
-                        : Collections.singletonList(concat(desc.getStorageID(), desc.getExportStorageID()));
-        }
-
-        List<String> studyStorageIDs = addPowerSet(storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID());
-        List<String> exportedStudyStorageIDs = new ArrayList<>();
-
-        if (desc.getExportStorageID() != null)
-            exportedStudyStorageIDs = addPowerSet(storageClustered != null, getOtherStorageIDs(desc), desc.getStorageID(),
-                    desc.getExportStorageID());
-
-        if (storageExported == null && desc.getExportStorageID() != null)
-            studyStorageIDs.addAll(exportedStudyStorageIDs);
-
-        return desc.getExportStorageID() != null && "true".equals(storageExported)
-                ? exportedStudyStorageIDs : studyStorageIDs;
-    }
-
-    private static String concat(String... common) {
-        return StringUtils.concat(common, '\\');
-    }
-
-    private static List<String> addPowerSet(boolean excludeEmptySet, List<String> storageIDs, String... common) {
-        if (storageIDs.isEmpty()) {
-            if (excludeEmptySet)
-                return Collections.emptyList();
-
-            Arrays.sort(common);
-            return Collections.singletonList(StringUtils.concat(common, '\\'));
-        }
-        return IntStream.range(excludeEmptySet ? 1 : 0, 1 << storageIDs.size()).mapToObj(i -> {
-            String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
-            int j = common.length;
-            int mask = 1;
-            for (String storageID : storageIDs) {
-                if ((i & mask) != 0) a[j++] = storageID;
-                mask <<= 1;
-            }
-            Arrays.sort(a);
-            return StringUtils.concat(a, '\\');
-        }).collect(Collectors.toList());
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {

@@ -50,10 +50,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -499,9 +496,13 @@ public class QidoRS {
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);
-        if (storageID != null)
-            queryParam.setStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getStudyStorageIDs(storageID, storageClustered, storageExported));
+        if (storageID != null) {
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            StorageDescriptor storageDesc = arcdev.getStorageDescriptorNotNull(storageID);
+            List<String> otherStorageIDs = arcdev.getOtherStorageIDs(storageDesc);
+            queryParam.setStorageIDs(storageDesc.getStudyStorageIDs(otherStorageIDs,
+                    parseBoolean(storageClustered), parseBoolean(storageExported)));
+        }
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
@@ -518,6 +519,10 @@ public class QidoRS {
         ctx.setQueryKeys(keys);
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
+    }
+
+    private static Boolean parseBoolean(String s) {
+        return s != null ? Boolean.valueOf(s) : null;
     }
 
     private static int parseInt(String s) {

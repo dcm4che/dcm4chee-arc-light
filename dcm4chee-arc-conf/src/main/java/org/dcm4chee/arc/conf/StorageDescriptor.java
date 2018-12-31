@@ -6,6 +6,8 @@ import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -228,4 +230,56 @@ public final class StorageDescriptor {
         this.storageClusterID = storageClusterID;
     }
 
+    public List<String> getStudyStorageIDs(List<String> otherStorageIDs) {
+        return exportStorageID != null
+                ? addPowerSet(false, otherStorageIDs, exportStorageID, storageID)
+                : addPowerSet(false, otherStorageIDs, storageID);
+    }
+
+    public List<String> getStudyStorageIDs(List<String> otherStorageIDs,
+                                           Boolean storageClustered, Boolean storageExported) {
+        if (storageClustered != null && storageClustered && storageClusterID == null
+                || storageExported != null && storageExported && exportStorageID == null)
+            return Collections.emptyList();
+
+        if (storageClusterID == null || storageClustered != null && !storageClustered) {
+            return exportStorageID == null || storageExported != null && !storageExported
+                    ? Collections.singletonList(storageID)
+                    : storageExported == null
+                    ? addPowerSet(false, Collections.singletonList(exportStorageID), storageID)
+                    : addPowerSet(false, Collections.emptyList(), exportStorageID, storageID);
+        }
+
+        if (exportStorageID == null || storageExported != null && !storageExported) {
+            return addPowerSet(storageClustered != null, otherStorageIDs, storageID);
+        }
+
+        List<String> studyStorageIDs = addPowerSet(
+                storageClustered != null, otherStorageIDs, exportStorageID, storageID);
+        if (storageExported == null) {
+            studyStorageIDs.addAll(addPowerSet(storageClustered != null, otherStorageIDs, storageID));
+        }
+        return studyStorageIDs;
+    }
+
+    private static List<String> addPowerSet(boolean excludeEmptySet, List<String> storageIDs, String... common) {
+        if (storageIDs.isEmpty()) {
+            if (excludeEmptySet)
+                return Collections.emptyList();
+
+            Arrays.sort(common);
+            return Collections.singletonList(StringUtils.concat(common, '\\'));
+        }
+        return IntStream.range(excludeEmptySet ? 1 : 0, 1 << storageIDs.size()).mapToObj(i -> {
+            String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
+            int j = common.length;
+            int mask = 1;
+            for (String storageID : storageIDs) {
+                if ((i & mask) != 0) a[j++] = storageID;
+                mask <<= 1;
+            }
+            Arrays.sort(a);
+            return StringUtils.concat(a, '\\');
+        }).collect(Collectors.toList());
+    }
 }
