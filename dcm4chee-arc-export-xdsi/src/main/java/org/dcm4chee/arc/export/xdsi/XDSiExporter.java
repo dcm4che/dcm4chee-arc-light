@@ -245,10 +245,6 @@ public class XDSiExporter extends AbstractExporter {
         }
     }
 
-    private static String toString(IDWithIssuer pid) {
-        return pid.getIssuer() != null ? pid.toString() : pid.getID() + "^^^";
-    }
-
     private Code typeCodeOf(Attributes manifest) {
         if (useProcedureCodeAsTypeCode) {
             Attributes codeItem = manifest.getNestedDataset(Tag.ProcedureCodeSequence);
