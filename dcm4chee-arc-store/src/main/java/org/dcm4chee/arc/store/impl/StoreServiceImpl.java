@@ -63,11 +63,8 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
-import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.store.*;
 import org.dcm4chee.arc.storage.*;
-import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreService;
-import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -88,6 +85,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 
@@ -669,4 +668,75 @@ class StoreServiceImpl implements StoreService {
         }
         return rule;
     }
+
+    @Override
+    public void updateLocations(ArchiveAEExtension arcAE, List<UpdateLocation> updateLocations) {
+        Map<String, Map<String, List<UpdateLocation>>> updateLocationsByStudyAndSeriesIUID = updateLocations.stream()
+                .collect(Collectors.groupingBy(
+                        x -> x.instanceLocation.getAttributes().getString(Tag.StudyInstanceUID),
+                        Collectors.groupingBy(
+                                x -> x.instanceLocation.getAttributes().getString(Tag.SeriesInstanceUID))));
+        updateLocationsByStudyAndSeriesIUID.forEach(
+                (studyIUID, seriesMap) -> seriesMap.forEach(
+                        (seriesIUID, updateLocationsOfSeries) ->
+                            updateLocationsOfSeries(arcAE, studyIUID, seriesIUID, updateLocationsOfSeries)));
+    }
+
+    private void updateLocationsOfSeries(ArchiveAEExtension arcAE, String studyIUID, String seriesIUID,
+                                         List<UpdateLocation> updateLocationsOfSeries) {
+        boolean instancesPurged = updateLocationsOfSeries.get(0).location.getPk() == 0;
+        if (instancesPurged) {
+            try {
+                restoreInstances(arcAE, studyIUID, seriesIUID, updateLocationsOfSeries);
+                instancesPurged = false;
+            } catch (Exception e) {
+                LOG.warn("Failed to restore Instance records of Series[uid={}] of Study[uid={}]" +
+                                " - cannot update Location records\n",
+                        seriesIUID, studyIUID, e);
+            }
+        }
+        if (!instancesPurged) {
+            for (UpdateLocation updateLocation : updateLocationsOfSeries) {
+                if (updateLocation.newStatus != null) {
+                    LOG.debug("Update status of {} of Instance[uid={}] of Study[uid={}] to {}",
+                            updateLocation.location,
+                            updateLocation.instanceLocation.getSopInstanceUID(),
+                            studyIUID,
+                            updateLocation.newStatus);
+                    ejb.setStatus(updateLocation.location.getPk(), updateLocation.newStatus);
+                } else {
+                    LOG.debug("Set missing digest of {} of Instance[uid={}] of Study[uid={}]",
+                            updateLocation.location,
+                            updateLocation.instanceLocation.getSopInstanceUID(),
+                            studyIUID);
+                    ejb.setDigest(updateLocation.location.getPk(), updateLocation.newDigest);
+                }
+            }
+            scheduleMetadataUpdate(studyIUID, seriesIUID);
+        }
+    }
+
+    private void restoreInstances(ArchiveAEExtension arcAE, String studyIUID, String seriesIUID,
+                                  List<UpdateLocation> updateLocations) throws IOException {
+        List<Instance> instances = ejb.restoreInstances(newStoreSession(arcAE.getApplicationEntity()),
+                studyIUID, seriesIUID, arcAE.getPurgeInstanceRecordsDelay());
+        Map<String, Map<String, Location>> restoredLocations = instances.stream()
+                .flatMap(inst -> inst.getLocations().stream())
+                .collect(Collectors.groupingBy(l -> l.getStorageID(),
+                        Collectors.toMap(l -> l.getStoragePath(), Function.identity())));
+        for (Iterator<UpdateLocation> iter = updateLocations.iterator(); iter.hasNext(); ) {
+            UpdateLocation updateLocation = iter.next();
+            Location l = updateLocation.location;
+            updateLocation.location = restoredLocations.get(l.getStorageID()).get(l
+                    .getStoragePath());
+            if (updateLocation.location == null) {
+                LOG.warn("Failed to find {} record of Instance[uid={}] of Series[uid={}] of Study[uid={}]" +
+                                " - cannot update Location record",
+                        l, updateLocation.instanceLocation.getSopInstanceUID(), seriesIUID,
+                        studyIUID);
+                iter.remove();
+            }
+        }
+    }
+
 }

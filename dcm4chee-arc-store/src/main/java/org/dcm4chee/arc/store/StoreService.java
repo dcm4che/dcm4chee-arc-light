@@ -5,6 +5,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
@@ -81,4 +82,6 @@ public interface StoreService {
 
     void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
             throws IOException;
+
+    void updateLocations(ArchiveAEExtension arcAE, List<UpdateLocation> updateLocations);
 }

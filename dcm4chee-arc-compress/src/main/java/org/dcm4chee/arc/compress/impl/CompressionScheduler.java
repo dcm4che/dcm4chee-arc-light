@@ -205,6 +205,8 @@ public class CompressionScheduler extends Scheduler {
             ejb.updateDB(compr, completed, failures);
             LOG.info("Finished compression of {} Instances of Series[iuid={}] of Study[iuid={}] - {} failures, {} skipped",
                     completed, compr.seriesInstanceUID, compr.studyInstanceUID, failures, skipped);
+            if (arcAE.updateLocationStatusOnRetrieve())
+                storeService.updateLocations(arcAE, retrCtx.getUpdateLocations());
         } catch (IOException e) {
             LOG.warn("Failed to calculate Instances for compression of Series[iuid={}] of Study[iuid={}]:\n",
                     compr.seriesInstanceUID, compr.studyInstanceUID, e);

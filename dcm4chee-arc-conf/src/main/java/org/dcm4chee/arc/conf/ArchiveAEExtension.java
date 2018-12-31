@@ -123,6 +123,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean storageVerificationUpdateLocationStatus;
     private String[] storageVerificationStorageIDs = {};
     private Period storageVerificationInitialDelay;
+    private Boolean updateLocationStatusOnRetrieve;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1112,7 +1113,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.storageVerificationUpdateLocationStatus = storageVerificationUpdateLocationStatus;
     }
 
-    public boolean stgCmtUpdateLocationStatus() {
+    public boolean storageVerificationUpdateLocationStatus() {
         return storageVerificationUpdateLocationStatus != null
                 ? storageVerificationUpdateLocationStatus
                 : getArchiveDeviceExtension().isStorageVerificationUpdateLocationStatus();
@@ -1126,7 +1127,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.storageVerificationStorageIDs = storageVerificationStorageIDs;
     }
 
-    public String[] stgCmtStorageIDs() {
+    public String[] storageVerificationStorageIDs() {
         return storageVerificationStorageIDs != null ? storageVerificationStorageIDs : getArchiveDeviceExtension().getStorageVerificationStorageIDs();
     }
 
@@ -1143,6 +1144,20 @@ public class ArchiveAEExtension extends AEExtension {
         return storageVerificationInitialDelay != null
                 ? storageVerificationInitialDelay
                 : arcdev.getStorageVerificationInitialDelay();
+    }
+
+    public Boolean getUpdateLocationStatusOnRetrieve() {
+        return updateLocationStatusOnRetrieve;
+    }
+
+    public void setUpdateLocationStatusOnRetrieve(Boolean updateLocationStatusOnRetrieve) {
+        this.updateLocationStatusOnRetrieve = updateLocationStatusOnRetrieve;
+    }
+
+    public boolean updateLocationStatusOnRetrieve() {
+        return updateLocationStatusOnRetrieve != null
+                ? updateLocationStatusOnRetrieve.booleanValue()
+                : getArchiveDeviceExtension().isUpdateLocationStatusOnRetrieve();
     }
 
     @Override
@@ -1209,6 +1224,7 @@ public class ArchiveAEExtension extends AEExtension {
         storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;
         storageVerificationInitialDelay = aeExt.storageVerificationInitialDelay;
+        updateLocationStatusOnRetrieve = aeExt.updateLocationStatusOnRetrieve;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

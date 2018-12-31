@@ -230,6 +230,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStorageVerificationPollingInterval(), null);
         writer.writeNotEmpty("dcmStorageVerificationSchedule", arcDev.getStorageVerificationSchedules());
         writer.writeNotDef("dcmStorageVerificationFetchSize", arcDev.getStorageVerificationFetchSize(), 100);
+        writer.writeNotDef("dcmUpdateLocationStatusOnRetrieve",
+                arcDev.isUpdateLocationStatusOnRetrieve(), false);
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHL7TrackChangedPatientID(), true);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(), null);
@@ -807,6 +809,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorageVerificationInitialDelay", arcAE.getStorageVerificationInitialDelay(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
+        writer.writeNotNullOrDef("dcmUpdateLocationStatusOnRetrieve",
+                arcAE.getUpdateLocationStatusOnRetrieve(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1206,6 +1210,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorageVerificationFetchSize":
                     arcDev.setStorageVerificationFetchSize(reader.intValue());
+                    break;
+                case "dcmUpdateLocationStatusOnRetrieve":
+                    arcDev.setUpdateLocationStatusOnRetrieve(reader.booleanValue());
                     break;
                 case "hl7TrackChangedPatientID":
                     arcDev.setHL7TrackChangedPatientID(reader.booleanValue());
@@ -2568,6 +2575,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorageVerificationInitialDelay":
                     arcAE.setStorageVerificationInitialDelay(Period.parse(reader.stringValue()));
+                    break;
+                case "dcmUpdateLocationStatusOnRetrieve":
+                    arcAE.setUpdateLocationStatusOnRetrieve(reader.booleanValue());
                     break;
                 case "dcmInvokeImageDisplayPatientURL":
                     arcAE.setInvokeImageDisplayPatientURL(reader.stringValue());

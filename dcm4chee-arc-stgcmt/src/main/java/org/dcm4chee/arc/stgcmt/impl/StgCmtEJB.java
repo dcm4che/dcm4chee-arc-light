@@ -138,20 +138,6 @@ public class StgCmtEJB {
         return result;
     }
 
-    public int setDigest(Long pk, String digest) {
-        return em.createNamedQuery(Location.SET_DIGEST)
-                .setParameter(1, pk)
-                .setParameter(2, digest)
-                .executeUpdate();
-    }
-
-    public int setStatus(Long pk, Location.Status status) {
-        return em.createNamedQuery(Location.SET_STATUS)
-                .setParameter(1, pk)
-                .setParameter(2, status)
-                .executeUpdate();
-    }
-
     private void updateExternalRetrieveAETs(Attributes eventInfo, String suid, ExporterDescriptor ed) {
         String configRetrieveAET = ed.getRetrieveAETitles().length > 0 ? ed.getRetrieveAETitles()[0] : null;
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());

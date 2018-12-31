@@ -75,6 +75,7 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.store.UpdateLocation;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -89,9 +90,11 @@ import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.NoSuchFileException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -1077,9 +1080,21 @@ public class RetrieveServiceImpl implements RetrieveService {
             } catch (IOException e) {
                 LOG.warn("Failed to read {} from {}", inst, location);
                 ex = e;
+                if (ctx.isUpdateLocationStatusOnRetrieve())
+                    ctx.getUpdateLocations().add(new UpdateLocation(inst, location, toStatus(e), null));
             }
         }
         throw ex;
+    }
+
+    private static Location.Status toStatus(IOException e) {
+        return e instanceof NoSuchFileException ? Location.Status.MISSING_OBJECT : Location.Status.FAILED_TO_FETCH_OBJECT;
+    }
+
+    @Override
+    public void updateLocations(RetrieveContext ctx) {
+        if (ctx.isUpdateLocationStatusOnRetrieve())
+            storeService.updateLocations(ctx.getArchiveAEExtension(), ctx.getUpdateLocations());
     }
 
     private LocationInputStream openLocationInputStream(

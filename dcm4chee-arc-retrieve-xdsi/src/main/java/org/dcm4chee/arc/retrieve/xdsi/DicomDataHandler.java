@@ -82,8 +82,15 @@ public class DicomDataHandler extends DataHandler {
                 }
             });
         }
-        if (retrieveEnd != null)
+        if (retrieveEnd != null) {
+            updateLocations();
             retrieveEnd.fire(ctx);
+        }
+    }
+
+    private void updateLocations() {
+        if (ctx.isUpdateLocationStatusOnRetrieve())
+            ctx.getRetrieveService().updateLocations(ctx);
     }
 
 }

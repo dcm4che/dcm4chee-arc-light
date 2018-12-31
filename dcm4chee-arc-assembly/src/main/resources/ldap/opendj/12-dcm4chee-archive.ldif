@@ -1307,6 +1307,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.264 NAME 'dcmDeleteStudyFromStorageID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.265 NAME 'dcmUpdateLocationStatusOnRetrieve'
+  DESC 'Indicates if the Status of the Location DB record shall be updated for objects failed to get fetched from storage on retrieve to MISSING_OBJECT or FAILED_TO_FETCH_OBJECT. False if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1436,6 +1441,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStgCmtPolicy $
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $
+    dcmUpdateLocationStatusOnRetrieve $
     dcmStorageVerificationPolicy $
     dcmStorageVerificationUpdateLocationStatus $
     dcmStorageVerificationStorageID $
@@ -1542,6 +1548,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
+    dcmUpdateLocationStatusOnRetrieve $
     dcmStgCmtPolicy $
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $
