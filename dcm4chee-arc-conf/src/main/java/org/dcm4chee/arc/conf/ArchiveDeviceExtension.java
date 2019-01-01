@@ -1427,6 +1427,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 : Collections.emptyList();
     }
 
+    public List<String> getStudyStorageIDs(String storageID, Boolean storageClustered, Boolean storageExported) {
+        StorageDescriptor desc = getStorageDescriptor(storageID);
+        return desc != null
+                ? desc.getStudyStorageIDs(getOtherStorageIDs(desc), storageClustered, storageExported)
+                : Collections.emptyList();
+    }
+
     public QueueDescriptor getQueueDescriptor(String queueName) {
         return queueDescriptorMap.get(queueName);
     }

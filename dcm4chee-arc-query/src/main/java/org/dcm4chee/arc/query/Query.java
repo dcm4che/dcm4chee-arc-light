@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.query;
 
-import com.querydsl.core.types.OrderSpecifier;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.hibernate.Transaction;

@@ -335,6 +335,9 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         QueryContext ctx = newQueryContext(
                 "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
+        if (ctx.getQueryParam().noMatches()) {
+            return Response.ok("{\"size\":0}").build();
+        }
         try (Query query = service.createStudyQuery(ctx)) {
             Transaction transaction = query.beginTransaction();
             try {
@@ -361,6 +364,9 @@ public class QidoRS {
         logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        if (ctx.getQueryParam().noMatches()) {
+            return Response.ok("{\"count\":0}").build();
+        }
         try (Query query = model.createQuery(service, ctx)) {
             return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
         } catch (Exception e) {
@@ -387,6 +393,12 @@ public class QidoRS {
             if (output == Output.CSV) {
                 model.setIncludeAll(queryAttrs.isIncludeAll());
                 model.setReturnKeys(ctx.getReturnKeys());
+            }
+            if (ctx.getQueryParam().noMatches()) {
+                return Response.ok(
+                        output.entity(this, method, null, model, null))
+                        .type(output.type())
+                        .build();
             }
             try (Query query = model.createQuery(service, ctx)) {
                 query.initQuery();
@@ -496,13 +508,9 @@ public class QidoRS {
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);
-        if (storageID != null) {
-            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            StorageDescriptor storageDesc = arcdev.getStorageDescriptorNotNull(storageID);
-            List<String> otherStorageIDs = arcdev.getOtherStorageIDs(storageDesc);
-            queryParam.setStorageIDs(storageDesc.getStudyStorageIDs(otherStorageIDs,
-                    parseBoolean(storageClustered), parseBoolean(storageExported)));
-        }
+        if (storageID != null)
+            queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
@@ -686,7 +694,7 @@ public class QidoRS {
             throws DicomServiceException {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         int count = 0;
-        while (query.hasMoreMatches()) {
+        while (query != null && query.hasMoreMatches()) {
             Attributes tmp = query.nextMatch();
             if (tmp == null)
                 continue;
@@ -708,7 +716,7 @@ public class QidoRS {
 
     private Object writeJSON(String method, Query query, Model model, AttributesCoercion coercion)
             throws DicomServiceException {
-        final ArrayList<Attributes> matches = matches(method, query, model, coercion);
+        final List<Attributes> matches = matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JSONWriter writer = new JSONWriter(gen);
@@ -722,7 +730,7 @@ public class QidoRS {
 
     private Object writeCSV(String method, Query query, Model model, AttributesCoercion coercion)
             throws DicomServiceException {
-        final ArrayList<Attributes> matches = matches(method, query, model, coercion);
+        final List<Attributes> matches =  matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
             int[] tags = tagsFrom(model);
@@ -735,8 +743,11 @@ public class QidoRS {
         };
     }
 
-    private ArrayList<Attributes> matches(String method, Query query, Model model, AttributesCoercion coercion)
+    private List<Attributes> matches(String method, Query query, Model model, AttributesCoercion coercion)
             throws DicomServiceException {
+        if (query == null)
+            return Collections.emptyList();
+
         final ArrayList<Attributes> matches = new ArrayList<>();
         int count = 0;
         while (query.hasMoreMatches()) {

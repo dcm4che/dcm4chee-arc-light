@@ -72,7 +72,7 @@ public class QueryParam {
     private String externalRetrieveAETNot;
     private Patient.VerificationStatus patientVerificationStatus;
     private String expirationDate;
-    private List<String> storageIDs = new ArrayList<>();
+    private List<String> studyStorageIDs;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -224,11 +224,15 @@ public class QueryParam {
         this.expirationDate = expirationDate;
     }
 
-    public List<String> getStorageIDs() {
-        return storageIDs;
+    public List<String> getStudyStorageIDs() {
+        return studyStorageIDs;
     }
 
-    public void setStorageIDs(List<String> storageIDs) {
-        this.storageIDs = storageIDs;
+    public void setStudyStorageIDs(List<String> studyStorageIDs) {
+        this.studyStorageIDs = studyStorageIDs;
+    }
+
+    public boolean noMatches() {
+        return studyStorageIDs != null && studyStorageIDs.isEmpty();
     }
 }

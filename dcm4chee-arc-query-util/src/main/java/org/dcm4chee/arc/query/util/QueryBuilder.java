@@ -359,8 +359,8 @@ public class QueryBuilder {
         if (queryParam.getExpirationDate() != null)
             builder.and(MatchDateTimeRange.range(
                     QStudy.study.expirationDate, queryParam.getExpirationDate(), MatchDateTimeRange.FormatDate.DA));
-        if (!queryParam.getStorageIDs().isEmpty())
-            builder.and(QStudy.study.storageIDs.in(queryParam.getStorageIDs()));
+        if (queryParam.getStudyStorageIDs() != null)
+            builder.and(QStudy.study.storageIDs.in(queryParam.getStudyStorageIDs()));
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {

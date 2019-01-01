@@ -159,6 +159,10 @@ class QueryServiceImpl implements QueryService {
         }
     }
 
+    public void fireQueryEvent(QueryContext ctx) {
+        queryEvent.fire(ctx);
+    }
+
     @Override
     public Query createPatientQuery(QueryContext ctx) {
         return new PatientQuery(ctx, openStatelessSession());
