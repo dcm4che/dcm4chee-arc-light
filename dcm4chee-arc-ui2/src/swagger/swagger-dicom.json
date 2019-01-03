@@ -90,6 +90,13 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
+          },
+          {
             "name": "orderby",
             "in": "query",
             "description": "orderby=[-]{attributeID}",
@@ -199,6 +206,13 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          },
+          {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
           },
           {
             "name": "orderby",
@@ -443,6 +457,13 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
+          },
+          {
             "name": "orderby",
             "in": "query",
             "description": "orderby=[-]{attributeID}",
@@ -619,6 +640,13 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          },
+          {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
           },
           {
             "name": "orderby",
@@ -813,6 +841,13 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
+          },
+          {
             "name": "orderby",
             "in": "query",
             "description": "orderby=[-]{attributeID}",
@@ -932,6 +967,13 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
+          },
+          {
             "name": "orderby",
             "in": "query",
             "description": "orderby=[-]{attributeID}",
@@ -1042,6 +1084,13 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          },
+          {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
           },
           {
             "name": "orderby",
