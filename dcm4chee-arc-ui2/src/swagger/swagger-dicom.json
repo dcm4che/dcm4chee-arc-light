@@ -313,6 +313,26 @@
             "in": "query",
             "description": "list Studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "return Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "return only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "return only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -517,6 +537,26 @@
             "in": "query",
             "description": "list series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "return series of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "return only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "return only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -675,6 +715,26 @@
             "in": "query",
             "description": "list series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "return series of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "return only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "return only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -781,6 +841,26 @@
             "in": "query",
             "description": "limit={maximumResults}",
             "type": "integer"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "return instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "return only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "return only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -880,6 +960,26 @@
             "in": "query",
             "description": "limit={maximumResults}",
             "type": "integer"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "return instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "return only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "return only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -972,6 +1072,26 @@
             "in": "query",
             "description": "limit={maximumResults}",
             "type": "integer"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "return instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "return only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "return only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {

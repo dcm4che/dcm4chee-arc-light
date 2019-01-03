@@ -10823,6 +10823,26 @@
             "in": "query",
             "description": "count Studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "count Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "count only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "count only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -10919,6 +10939,26 @@
             "in": "query",
             "description": "count series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "count series of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -11008,6 +11048,26 @@
             "in": "query",
             "description": "count series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "count series of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -11071,6 +11131,26 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "count instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -11134,6 +11214,26 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "count instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -11197,6 +11297,26 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "count instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -11304,6 +11424,26 @@
             "in": "query",
             "description": "match only Studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "size of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "size of only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "size of only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
