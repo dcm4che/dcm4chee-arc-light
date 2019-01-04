@@ -733,11 +733,11 @@ public class QidoRS {
         final List<Attributes> matches =  matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-            int[] tags = tagsFrom(model);
+            int[] tags = tagsFrom(model, matches.get(0));
             if (tags.length != 0) {
-                writeCSVHeader(writer, tags, csvDelimiter);
+                writeCSVHeader(writer, tags, matches.get(0));
                 for (Attributes match : matches)
-                    write(writer, match, tags, csvDelimiter);
+                    write(writer, match, tags);
             }
             writer.flush();
         };
@@ -762,51 +762,48 @@ public class QidoRS {
         return matches;
     }
 
-    private int[] tagsFrom(Model model) {
+    private int[] tagsFrom(Model model, Attributes match) {
         return model.includeAll
-                ? allFieldsOf(model)
+                ? allFieldsOf(model, match)
                 : nonSeqTagsFrom(model.returnKeys);
     }
 
-    private int[] allFieldsOf(Model model) {
+    private int[] allFieldsOf(Model model, Attributes match) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int[] tags = arcDev.getAttributeFilter(Entity.Patient).getSelection();
         switch (model) {
             case STUDY:
-                return allNonSeqTags(tags, arcDev.getAttributeFilter(Entity.Study).getSelection());
+                return allNonSeqTags(match, tags, arcDev.getAttributeFilter(Entity.Study).getSelection());
             case SERIES:
-                return allNonSeqTags(tags,
+                return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.Study).getSelection(),
                         arcDev.getAttributeFilter(Entity.Series).getSelection());
             case INSTANCE:
-                return allNonSeqTags(tags,
+                return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.Study).getSelection(),
                         arcDev.getAttributeFilter(Entity.Series).getSelection(),
                         arcDev.getAttributeFilter(Entity.Instance).getSelection());
             case MWL:
-                return allNonSeqTags(tags,
+                return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.MWL).getSelection());
         }
-        return allNonSeqTags(tags);
+        return allNonSeqTags(match, tags);
     }
 
-    private int[] allNonSeqTags(int[]... tags) {
+    private int[] allNonSeqTags(Attributes match, int[]... tags) {
         Set<Integer> allNonSeqTags = new HashSet<>();
-        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
         for (int entityTags[] : tags)
             for (int tag : entityTags)
-                if (dict.vrOf(tag) != VR.SQ)
+                if (ElementDictionary.vrOf(tag, match.getPrivateCreator(tag)) != VR.SQ)
                     allNonSeqTags.add(tag);
-
         return allNonSeqTags.stream().mapToInt(Integer::intValue).toArray();
     }
 
     private int[] nonSeqTagsFrom(Attributes attrs) {
         Set<Integer> tags = new HashSet<>();
-        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
         try {
             attrs.accept((attrs1, tag, vr, value) -> {
-                if (dict.vrOf(tag) != VR.SQ)
+                if (ElementDictionary.vrOf(tag, attrs.getPrivateCreator(tag)) != VR.SQ)
                     tags.add(tag);
                 return true;
             }, false);
@@ -816,22 +813,20 @@ public class QidoRS {
         return tags.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    private void writeCSVHeader(Writer writer, int[] tags, char delimiter) throws IOException {
-        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
-        writer.write(dict.keywordOf(tags[0]));
+    private void writeCSVHeader(Writer writer, int[] tags, Attributes match) throws IOException {
+        writer.write(ElementDictionary.keywordOf(tags[0], match.getPrivateCreator(tags[0])));
         for (int i = 1; i < tags.length; i++) {
-            writer.write(delimiter);
-            writer.write(dict.keywordOf(tags[i]));
+            writer.write(csvDelimiter);
+            writer.write(ElementDictionary.keywordOf(tags[i], match.getPrivateCreator(tags[i])));
         }
-
         writer.write('\r');
         writer.write('\n');
     }
 
-    private void write(Writer writer, Attributes attrs, int[] tags, char delimiter) throws IOException {
+    private void write(Writer writer, Attributes attrs, int[] tags) throws IOException {
         writeNotNull(writer, attrs.getString(tags[0]));
         for (int i = 1; i < tags.length; i++) {
-            writer.write(delimiter);
+            writer.write(csvDelimiter);
             writeNotNull(writer, attrs.getString(tags[i]));
         }
         writer.write('\r');
