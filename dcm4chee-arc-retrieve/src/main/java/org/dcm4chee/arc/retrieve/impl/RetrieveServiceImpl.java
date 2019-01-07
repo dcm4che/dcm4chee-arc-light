@@ -790,9 +790,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         LocationInputStream locationInputStream = openLocationInputStream(ctx, inst);
         Transcoder transcoder = new Transcoder(toDicomInputStream(locationInputStream));
         transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
-        transcoder.setBulkDataDescriptor(ctx.getArchiveAEExtension().getBulkDataDescriptor());
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        transcoder.setBulkDataDescriptor(arcAE.getBulkDataDescriptor());
+        transcoder.setBulkDataDirectory(arcAE.getBulkDataSpoolDirectoryFile());
         transcoder.setConcatenateBulkDataFiles(true);
-        transcoder.setBulkDataDirectory(ctx.getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
         transcoder.setDestinationTransferSyntax(selectTransferSyntax(locationInputStream, tsuids));
         transcoder.setCloseOutputStream(false);
         transcoder.setIncludeFileMetaInformation(fmi);
@@ -1159,7 +1160,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         Attributes attrs;
         try (DicomInputStream dis = openDicomInputStream(ctx, inst)) {
             dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
-            dis.setBulkDataDescriptor(ctx.getArchiveAEExtension().getBulkDataDescriptor());
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            dis.setBulkDataDescriptor(arcAE != null
+                    ? arcAE.getBulkDataDescriptor()
+                    : getArchiveDeviceExtension().getBulkDataDescriptor());
             dis.setBulkDataCreator(new BulkDataCreator() {
                 @Override
                 public BulkData createBulkData(DicomInputStream dis) throws IOException {
