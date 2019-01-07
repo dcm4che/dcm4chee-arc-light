@@ -167,6 +167,7 @@ public class UpdateMetadataScheduler extends Scheduler {
                 if (semaphore != null) {
                     LOG.debug("Waiting for finishing Creating/Updating Metadata of {} Series", metadataUpdates.size());
                     semaphore.acquire(threads);
+                    semaphore.release(threads);
                 }
             } catch (Exception e) {
                 LOG.error("Failed to access Storage:\n", e);
