@@ -809,8 +809,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorageVerificationInitialDelay", arcAE.getStorageVerificationInitialDelay(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
-        writer.writeNotNullOrDef("dcmUpdateLocationStatusOnRetrieve",
-                arcAE.getUpdateLocationStatusOnRetrieve(), null);
+        writer.writeNotNull("dcmUpdateLocationStatusOnRetrieve",
+                arcAE.getUpdateLocationStatusOnRetrieve());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
