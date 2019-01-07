@@ -416,6 +416,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 if (semaphore != null) {
                     LOG.debug("Waiting for finishing deleting {} Metadata from {}", metadataList.size(), desc);
                     semaphore.acquire(deleteThreads);
+                    semaphore.release(deleteThreads);
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to access {}", desc, e);
@@ -477,6 +478,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 if (semaphore != null) {
                     LOG.debug("Waiting for finishing deleting {} objects from {}", locations.size(), desc);
                     semaphore.acquire(deleteThreads);
+                    semaphore.release(deleteThreads);
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to access {}", desc, e);
