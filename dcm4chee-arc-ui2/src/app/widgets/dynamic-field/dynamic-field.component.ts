@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {DynamicFieldService} from "./dynamic-field.service";
-
+import * as _ from "lodash";
 @Component({
   selector: 'dynamic-field',
   templateUrl: './dynamic-field.component.html',
@@ -73,7 +73,7 @@ export class DynamicFieldComponent implements OnInit {
         console.log("element",this.elements);
         console.log("element",this.model);
         console.log("checked",this.checked);
-        if(this.checked && this.checked.length > 1){
+        if(this.checked && _.isArray(this.checked) && this.checked.length > 1){
             this.checked.forEach(c=>{
                 let found = false;
                 this.elements.forEach(e =>{
