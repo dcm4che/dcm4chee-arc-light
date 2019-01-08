@@ -40,14 +40,12 @@ package org.dcm4chee.arc.export.xdsi;
 
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4che3.xdsi.DocumentRepositoryService;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -67,11 +65,8 @@ public class XDSiExporterProvider implements ExporterProvider {
     @Inject
     private Device device;
 
-    @Inject
-    private Event<ExportContext> exportEvent;
-
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new XDSiExporter(descriptor, service, queryService, device, exportEvent);
+        return new XDSiExporter(descriptor, service, queryService, device);
     }
 }

@@ -121,7 +121,6 @@ public class XDSiExporter extends AbstractExporter {
     private final DocumentRepositoryService service;
     private final QueryService queryService;
     private final Device device;
-    private final Event<ExportContext> exportEvent;
     private final String tlsProtocol;
     private final String[] cipherSuites;
     private final boolean disableCNCheck;
@@ -158,12 +157,11 @@ public class XDSiExporter extends AbstractExporter {
     private int id;
 
     public XDSiExporter(ExporterDescriptor descriptor, DocumentRepositoryService service, QueryService queryService,
-                        Device device, Event<ExportContext> exportEvent) {
+                        Device device) {
         super(descriptor);
         this.service = service;
         this.queryService = queryService;
         this.device = device;
-        this.exportEvent = exportEvent;
         this.repositoryURL = descriptor.getExportURI().getSchemeSpecificPart();
         this.disableCNCheck = Boolean.parseBoolean(descriptor.getProperty("TLS.disableCNCheck", null));
         this.tlsProtocol = descriptor.getProperty("TLS.protocol", null);
@@ -240,8 +238,6 @@ public class XDSiExporter extends AbstractExporter {
         } catch (Exception e) {
             ctx.setException(e);
             throw e;
-        } finally {
-            exportEvent.fire(ctx);
         }
     }
 

@@ -95,10 +95,12 @@ public class ExportManagerMDB implements MessageListener {
             return;
 
         Outcome outcome;
+        ExportContext exportContext = null;
         try {
-            ExporterDescriptor exporterDesc = getExporterDescriptor(msg.getStringProperty("ExporterID"));
+            ExporterDescriptor exporterDesc = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getExporterDescriptorNotNull(msg.getStringProperty("ExporterID"));
             Exporter exporter = exporterFactory.getExporter(exporterDesc);
-            ExportContext exportContext = exporter.createExportContext();
+            exportContext = exporter.createExportContext();
             exportContext.setMessageID(msgID);
             exportContext.setBatchID(queueMessage.getBatchID());
             exportContext.setStudyInstanceUID(msg.getStringProperty("StudyInstanceUID"));
@@ -108,17 +110,20 @@ public class ExportManagerMDB implements MessageListener {
             exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
             outcome = exporter.export(exportContext);
             exportContext.setOutcome(outcome);
-            exportEvent.fire(exportContext);
         } catch (Throwable e) {
+            if (exportContext != null)
+                exportContext.setException(e);
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
             return;
+        } finally {
+            if (exportContext != null)
+                try {
+                    exportEvent.fire(exportContext);
+                } catch (Exception e) {
+                    LOG.warn("Failed on firing export context {}", msg, e);
+                }
         }
         queueManager.onProcessingSuccessful(msgID, outcome);
-    }
-
-    private ExporterDescriptor getExporterDescriptor(String exporterID) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev != null ? arcDev.getExporterDescriptorNotNull(exporterID) : null;
     }
 }
