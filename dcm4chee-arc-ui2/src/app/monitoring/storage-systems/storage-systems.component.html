@@ -19,7 +19,7 @@
                     <th>AE Title</th>
                     <th>Space ( Usable / Total )</th>
                     <th>Used</th>
-                    <th>No Deleter</th>
+                    <th>Storage Duration</th>
                     <th>Export Storage ID / External Retrieve AET</th>
                     <th>Deleter / Storage Threshold</th>
                 </tr>
@@ -44,7 +44,7 @@
                             <div class="bar" [ngStyle]="{'width.%': match.properties.usedSpace}"></div>
                             <div *ngIf="match.properties.deleterThresholdProcent" class="marker" [ngStyle]="{'left.%': ( 100 - match.properties.deleterThresholdProcent )}"></div>
                         </td>
-                        <td>{{match.properties.noDeleter || 'false'}}</td>
+                        <td>{{match.properties.dcmStorageDuration || 'PERMANENT'}}</td>
                         <td>
                             <ng-container *ngIf="match.properties.dcmExportStorageID || match.properties.dcmExternalRetrieveAET">
                                 <span>{{match.properties.dcmExportStorageID || '-'}}</span> /
