@@ -77,6 +77,7 @@ import java.io.StringWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Dec 2017
  */
 @RequestScoped
@@ -159,6 +160,17 @@ public class ExportMatchingRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("storageID")
+    private String storageID;
+
+    @QueryParam("storageClustered")
+    @Pattern(regexp = "true|false")
+    private String storageClustered;
+
+    @QueryParam("storageExported")
+    @Pattern(regexp = "true|false")
+    private String storageExported;
 
     @Override
     public String toString() {
@@ -351,7 +363,14 @@ public class ExportMatchingRS {
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
+        if (storageID != null)
+            queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
         return queryParam;
+    }
+
+    private static Boolean parseBoolean(String s) {
+        return s != null ? Boolean.valueOf(s) : null;
     }
 
     private ExportContext createExportContext(

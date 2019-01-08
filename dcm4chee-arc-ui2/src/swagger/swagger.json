@@ -8223,6 +8223,26 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Export Matching Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Export Matching only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Export Matching only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -8374,6 +8394,26 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Export Matching Series which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Export Matching only Series with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Export Matching only Series with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -8532,6 +8572,26 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Export Matching Series of Study which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Export Matching only Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Export Matching only Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -8683,6 +8743,26 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Export Matching Instances which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Export Matching only Instances with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Export Matching only Instances with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -8841,6 +8921,26 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Export Matching Instances of Study which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Export Matching only Instances of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Export Matching only Instances of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
@@ -9006,6 +9106,26 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Export Matching Instances of Series of Study which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Export Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "Boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Export Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {
