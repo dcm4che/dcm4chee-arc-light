@@ -599,6 +599,9 @@ public class StoreServiceEJB {
             return false;
 
         for (Location location : locations) {
+            if (location.getStatus() != Location.Status.OK)
+                continue;
+
             byte[] digest2 = location.getDigest();
             if (digest2 != null && Arrays.equals(digest, digest2))
                 return true;
