@@ -112,8 +112,7 @@ public class StorageExporter extends AbstractExporter {
                 retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
                 for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
                     if (instanceLocations.getLocations().stream()
-                            .filter(l -> l.getStorageID().equals(storageID))
-                            .findAny().isPresent()) {
+                            .anyMatch(l -> l.getStatus() == Location.Status.OK && l.getStorageID().equals(storageID))) {
                         retrieveContext.setNumberOfMatches(retrieveContext.getNumberOfMatches()-1);
                         continue;
                     }
