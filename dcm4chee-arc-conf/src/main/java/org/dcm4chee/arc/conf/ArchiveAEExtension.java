@@ -109,6 +109,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private AcceptConflictingPatientID acceptConflictingPatientID;
     private String[] retrieveAETitles = {};
+    private String[] returnRetrieveAETitles = {};
     private String hl7PSUSendingApplication;
     private String[] hl7PSUReceivingApplications = {};
     private Duration hl7PSUDelay;
@@ -928,6 +929,20 @@ public class ArchiveAEExtension extends AEExtension {
         return retrieveAETitles.length > 0 ? retrieveAETitles : getArchiveDeviceExtension().getRetrieveAETitles();
     }
 
+    public String[] getReturnRetrieveAETitles() {
+        return returnRetrieveAETitles;
+    }
+
+    public void setReturnRetrieveAETitles(String[] returnRetrieveAETitles) {
+        this.returnRetrieveAETitles = returnRetrieveAETitles;
+    }
+
+    public String[] returnRetrieveAETitles() {
+        return returnRetrieveAETitles.length > 0
+                ? returnRetrieveAETitles
+                : getArchiveDeviceExtension().getReturnRetrieveAETitles();
+    }
+
     public String getHL7PSUSendingApplication() {
         return hl7PSUSendingApplication;
     }
@@ -1213,6 +1228,7 @@ public class ArchiveAEExtension extends AEExtension {
         copyMoveUpdatePolicy = aeExt.copyMoveUpdatePolicy;
         linkMWLEntryUpdatePolicy = aeExt.linkMWLEntryUpdatePolicy;
         retrieveAETitles = aeExt.retrieveAETitles;
+        returnRetrieveAETitles = aeExt.returnRetrieveAETitles;
         hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
         hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;
         hl7PSUDelay = aeExt.hl7PSUDelay;

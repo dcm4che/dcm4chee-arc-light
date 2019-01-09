@@ -199,6 +199,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
                 arcDev.getStorePermissionServiceErrorCodePattern(), null);
         writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
+        writer.writeNotEmpty("dcmReturnRetrieveAET", arcDev.getReturnRetrieveAETitles());
         writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination(), null);
         writer.writeNotNullOrDef("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle(), null);
         writer.writeNotNullOrDef("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL(), null);
@@ -790,6 +791,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
                 arcAE.getStorePermissionServiceErrorCodePattern(), null);
         writer.writeNotEmpty("dcmRetrieveAET", arcAE.getRetrieveAETitles());
+        writer.writeNotEmpty("dcmReturnRetrieveAET", arcAE.getReturnRetrieveAETitles());
         writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination",
                 arcAE.getExternalRetrieveAEDestination(), null);
         writer.writeNotEmpty("dcmAcceptedMoveDestination", arcAE.getAcceptedMoveDestinations());
@@ -1123,6 +1125,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRetrieveAET":
                     arcDev.setRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmReturnRetrieveAET":
+                    arcDev.setReturnRetrieveAETitles(reader.stringArray());
                     break;
                 case "dcmExternalRetrieveAEDestination":
                     arcDev.setExternalRetrieveAEDestination(reader.stringValue());
@@ -2527,6 +2532,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRetrieveAET":
                     arcAE.setRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmReturnRetrieveAET":
+                    arcAE.setReturnRetrieveAETitles(reader.stringArray());
                     break;
                 case "dcmExternalRetrieveAEDestination":
                     arcAE.setExternalRetrieveAEDestination(reader.stringValue());

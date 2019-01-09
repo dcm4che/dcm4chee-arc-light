@@ -779,6 +779,15 @@
       },
       "format": "dcmArchiveAETitle"
     },
+    "dcmReturnRetrieveAET": {
+      "title": "Return Retrieve AE Title",
+      "description": "Retrieve AE Title returned in C-FIND and QIDO responses. If absent, the Retrieve AET associated with the archived entity will be returned. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmArchiveAETitle"
+    },
     "dcmExternalRetrieveAEDestination": {
       "title": "External Retrieve AE Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE. May be overwritten by configured values for particular Archive Network AEs.",

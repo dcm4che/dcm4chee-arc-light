@@ -206,4 +206,9 @@ abstract class AbstractQuery implements Query {
         }
         return ss;
     }
+
+    protected String[] retrieveAETs(String retrieveAETs, String externalRetrieveAET) {
+        String[] aets = context.getArchiveAEExtension().returnRetrieveAETitles();
+        return aets.length > 0 ? aets : splitAndAppend(retrieveAETs, externalRetrieveAET);
+    }
 }

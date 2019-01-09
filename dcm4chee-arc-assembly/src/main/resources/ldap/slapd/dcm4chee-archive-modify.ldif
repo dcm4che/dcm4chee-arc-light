@@ -1314,6 +1314,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.265 NAME 'dcmUpdateLocationStatusOnR
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.266 NAME 'dcmReturnRetrieveAET'
+  DESC 'Retrieve AE Title returned in C-FIND and QIDO responses. If absent, the Retrieve AET associated with the archived entity will be returned.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 delete: olcObjectClasses
 -
@@ -1327,6 +1331,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmBulkDataDescriptorID $
     dcmQueryRetrieveViewID $
     dcmRetrieveAET $
+    dcmReturnRetrieveAET $
     dcmDefaultCharacterSet $
     dcmStorageID $
     dcmMetadataStorageID $
@@ -1497,6 +1502,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   MAY (
     dcmBulkDataDescriptorID $
     dcmRetrieveAET $
+    dcmReturnRetrieveAET $
     dcmDefaultCharacterSet $
     dcmStorageID $
     dcmObjectStorageID $

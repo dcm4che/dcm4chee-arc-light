@@ -174,7 +174,6 @@ class InstanceQuery extends AbstractQuery {
     @Override
     protected Attributes toAttributes(Tuple results) {
         Long seriesPk = results.get(QSeries.series.pk);
-        String retrieveAETs = results.get(QInstance.instance.retrieveAETs);
         Availability availability = results.get(QInstance.instance.availability);
         if (!seriesPk.equals(this.seriesPk)) {
             this.seriesAttrs = context.getQueryService().getSeriesAttributes(context, seriesPk);
@@ -186,8 +185,10 @@ class InstanceQuery extends AbstractQuery {
         Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size() + 10);
         attrs.addAll(seriesAttrs);
         attrs.addAll(instAtts);
-        String externalRetrieveAET = results.get(QInstance.instance.externalRetrieveAET);
-        attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
+        attrs.setString(Tag.RetrieveAETitle, VR.AE,
+                retrieveAETs(
+                        results.get(QInstance.instance.retrieveAETs),
+                        results.get(QInstance.instance.externalRetrieveAET)));
         attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
         if (context.getReturnKeys() != null)
             return attrs;

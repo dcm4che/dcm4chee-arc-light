@@ -215,7 +215,7 @@ class StudyQuery extends AbstractQuery {
         attrs.addAll(studyAttrs);
         PatientQuery.addPatientQRAttrs(context, results, attrs);
         String externalRetrieveAET = results.get(QStudy.study.externalRetrieveAET);
-        attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
+        attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS,
                 StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         StudyQuery.addStudyQRAddrs(context, results, studySize, numberOfStudyRelatedInstances, numberOfStudyRelatedSeries,

@@ -172,6 +172,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
     private volatile AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
     private volatile String[] retrieveAETitles = {};
+    private volatile String[] returnRetrieveAETitles = {};
     private volatile String remapRetrieveURL;
     private volatile String remapRetrieveURLClientHost;
     private volatile String hl7PSUSendingApplication;
@@ -1788,6 +1789,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.retrieveAETitles = retrieveAETitles;
     }
 
+    public String[] getReturnRetrieveAETitles() {
+        return returnRetrieveAETitles;
+    }
+
+    public void setReturnRetrieveAETitles(String... returnRetrieveAETitles) {
+        this.returnRetrieveAETitles = returnRetrieveAETitles;
+    }
+
     public String getAuditRecordRepositoryURL() {
         return auditRecordRepositoryURL;
     }
@@ -2291,6 +2300,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
         allowDeletePatient = arcdev.allowDeletePatient;
         retrieveAETitles = arcdev.retrieveAETitles;
+        returnRetrieveAETitles = arcdev.returnRetrieveAETitles;
         remapRetrieveURL = arcdev.remapRetrieveURL;
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
         hl7PSUSendingApplication = arcdev.hl7PSUSendingApplication;
