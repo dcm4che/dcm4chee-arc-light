@@ -243,8 +243,7 @@ public class QueryBuilder {
             BooleanBuilder builder, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         builder.and(patientIDPredicate(pids));
         builder.and(MatchPersonName.match(QueryBuilder.patientName, keys.getString(Tag.PatientName, "*"), queryParam));
-        builder.and(wildCard(QPatient.patient.patientSex, keys.getString(Tag.PatientSex, "*").toUpperCase(),
-                false));
+        builder.and(anyOf(QPatient.patient.patientSex, toUpperCase(keys.getStrings(Tag.PatientSex)), false));
         builder.and(MatchDateTimeRange.rangeMatch(QPatient.patient.patientBirthDate, keys, Tag.PatientBirthDate,
                 MatchDateTimeRange.FormatDate.DA));
         builder.and(MatchPersonName.match(
@@ -312,15 +311,14 @@ public class QueryBuilder {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         builder.and(accessControl(queryParam.getAccessControlIDs()));
         builder.and(uidsPredicate(QStudy.study.studyInstanceUID, keys.getStrings(Tag.StudyInstanceUID)));
-        builder.and(wildCard(QStudy.study.studyID, keys.getString(Tag.StudyID, "*"), false));
+        builder.and(anyOf(QStudy.study.studyID, keys.getStrings(Tag.StudyID), false));
         builder.and(MatchDateTimeRange.rangeMatch(
                 QStudy.study.studyDate, QStudy.study.studyTime,
                 Tag.StudyDate, Tag.StudyTime, Tag.StudyDateAndTime,
                 keys, combinedDatetimeMatching));
         builder.and(MatchPersonName.match(QueryBuilder.referringPhysicianName,
                 keys.getString(Tag.ReferringPhysicianName, "*"), queryParam));
-        builder.and(wildCard(QStudy.study.studyDescription,
-                keys.getString(Tag.StudyDescription, "*"), true));
+        builder.and(anyOf(QStudy.study.studyDescription, keys.getStrings(Tag.StudyDescription), true));
         String accNo = keys.getString(Tag.AccessionNumber, "*");
         if (!accNo.equals("*")) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
@@ -392,11 +390,10 @@ public class QueryBuilder {
                                                 QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         builder.and(uidsPredicate(QSeries.series.seriesInstanceUID, keys.getStrings(Tag.SeriesInstanceUID)));
         builder.and(numberPredicate(QSeries.series.seriesNumber, keys.getString(Tag.SeriesNumber, "0")));
-        builder.and(wildCard(QSeries.series.modality, keys.getString(Tag.Modality, "*").toUpperCase(),
+        builder.and(anyOf(QSeries.series.modality, toUpperCase(keys.getStrings(Tag.Modality)), false));
+        builder.and(anyOf(QSeries.series.bodyPartExamined, toUpperCase(keys.getStrings(Tag.BodyPartExamined)),
                 false));
-        builder.and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(),
-                false));
-        builder.and(wildCard(QSeries.series.laterality, keys.getString(Tag.Laterality, "*").toUpperCase(),
+        builder.and(anyOf(QSeries.series.laterality, toUpperCase(keys.getStrings(Tag.Laterality)),
                 false));
         builder.and(MatchDateTimeRange.rangeMatch(
                 QSeries.series.performedProcedureStepStartDate, QSeries.series.performedProcedureStepStartTime,
@@ -405,13 +402,11 @@ public class QueryBuilder {
                 keys, queryParam.isCombinedDatetimeMatching()));
         builder.and(MatchPersonName.match(QueryBuilder.performingPhysicianName,
                 keys.getString(Tag.PerformingPhysicianName, "*"), queryParam));
-        builder.and(wildCard(QSeries.series.seriesDescription, keys.getString(Tag.SeriesDescription, "*"),
+        builder.and(anyOf(QSeries.series.seriesDescription, keys.getStrings(Tag.SeriesDescription),true));
+        builder.and(anyOf(QSeries.series.stationName, keys.getStrings(Tag.StationName),true));
+        builder.and(anyOf(QSeries.series.institutionalDepartmentName, keys.getStrings(Tag.InstitutionalDepartmentName),
                 true));
-        builder.and(wildCard(QSeries.series.stationName, keys.getString(Tag.StationName, "*"), true));
-        builder.and(wildCard(QSeries.series.institutionalDepartmentName, keys.getString(Tag.InstitutionalDepartmentName, "*"),
-                true));
-        builder.and(wildCard(QSeries.series.institutionName, keys.getString(Tag.InstitutionName, "*"),
-                true));
+        builder.and(anyOf(QSeries.series.institutionName, keys.getStrings(Tag.InstitutionName),true));
         builder.and(requestAttributes(keys.getNestedDataset(Tag.RequestAttributesSequence), queryParam));
         builder.and(code(QSeries.series.institutionCode, keys.getNestedDataset(Tag.InstitutionCodeSequence)));
         if (queryParam.isHideNotRejectedInstances())
@@ -434,8 +429,8 @@ public class QueryBuilder {
                 builder.and(QSeries.series.failuresOfLastStorageVerification.gt(0));
             if (queryParam.isCompressionFailed())
                 builder.and(QSeries.series.compressionFailures.gt(0));
-            builder.and(wildCard(QSeries.series.sourceAET,
-                    keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
+            builder.and(anyOf(QSeries.series.sourceAET,
+                    keys.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE),
                     false));
         }
         if (queryParam.getExpirationDate() != null)
@@ -459,10 +454,10 @@ public class QueryBuilder {
         builder.and(uidsPredicate(QInstance.instance.sopInstanceUID, keys.getStrings(Tag.SOPInstanceUID)));
         builder.and(uidsPredicate(QInstance.instance.sopClassUID, keys.getStrings(Tag.SOPClassUID)));
         builder.and(numberPredicate(QInstance.instance.instanceNumber, keys.getString(Tag.InstanceNumber, "0")));
-        builder.and(wildCard(QInstance.instance.verificationFlag,
-                keys.getString(Tag.VerificationFlag, "*").toUpperCase(), false));
-        builder.and(wildCard(QInstance.instance.completionFlag,
-                keys.getString(Tag.CompletionFlag, "*").toUpperCase(), false));
+        builder.and(anyOf(QInstance.instance.verificationFlag,
+                toUpperCase(keys.getStrings(Tag.VerificationFlag)), false));
+        builder.and(anyOf(QInstance.instance.completionFlag,
+                toUpperCase(keys.getStrings(Tag.CompletionFlag)), false));
         builder.and(MatchDateTimeRange.rangeMatch(
                 QInstance.instance.contentDate, QInstance.instance.contentTime,
                 Tag.ContentDate, Tag.ContentTime, Tag.ContentDateAndTime,
@@ -515,7 +510,7 @@ public class QueryBuilder {
 
     public static void addMWLPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
         builder.and(uidsPredicate(QMWLItem.mWLItem.studyInstanceUID, keys.getStrings(Tag.StudyInstanceUID)));
-        builder.and(wildCard(QMWLItem.mWLItem.requestedProcedureID, keys.getString(Tag.RequestedProcedureID, "*"),
+        builder.and(anyOf(QMWLItem.mWLItem.requestedProcedureID, keys.getStrings(Tag.RequestedProcedureID),
                 false));
         String accNo = keys.getString(Tag.AccessionNumber, "*");
         if (!accNo.equals("*")) {
@@ -528,8 +523,8 @@ public class QueryBuilder {
         }
         Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (sps != null) {
-            builder.and(wildCard(QMWLItem.mWLItem.scheduledProcedureStepID,
-                    sps.getString(Tag.ScheduledProcedureStepID, "*"), false));
+            builder.and(anyOf(QMWLItem.mWLItem.scheduledProcedureStepID,
+                    sps.getStrings(Tag.ScheduledProcedureStepID), false));
             builder.and(MatchDateTimeRange.rangeMatch(
                     QMWLItem.mWLItem.scheduledStartDate, QMWLItem.mWLItem.scheduledStartTime,
                     Tag.ScheduledProcedureStepStartDate, Tag.ScheduledProcedureStepStartDate,
@@ -537,7 +532,7 @@ public class QueryBuilder {
                     sps, true));
             builder.and(MatchPersonName.match(QueryBuilder.performingPhysicianName,
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam));
-            builder.and(wildCard(QMWLItem.mWLItem.modality, sps.getString(Tag.Modality, "*").toUpperCase(),
+            builder.and(anyOf(QMWLItem.mWLItem.modality, toUpperCase(sps.getStrings(Tag.Modality)),
                     false));
             if (sps.getString(Tag.ScheduledProcedureStepStatus) != null)
                 builder.and(showSPSWithStatus(sps));
@@ -594,7 +589,7 @@ public class QueryBuilder {
     }
 
     static Predicate idWithIssuer(StringPath idPath, QIssuerEntity issuerPath, String id, Issuer issuer) {
-        Predicate predicate = wildCard(idPath, id);
+        Predicate predicate = wildCard(idPath, id, false);
         if (predicate == null)
             return null;
 
@@ -629,6 +624,32 @@ public class QueryBuilder {
 
     private static boolean isUniversalMatching(Integer value) {
         return value == null || value.equals(0);
+    }
+
+    static Predicate anyOf(StringPath path, String[] values, boolean ignoreCase) {
+        if (values == null || values.length == 0)
+            return null;
+
+        Predicate predicate = null;
+        for (String value : values) {
+            Predicate predicate1 = wildCard(path, value, ignoreCase);
+            if (predicate1 == null)
+                return null;
+
+            predicate = ExpressionUtils.or(predicate, predicate1);
+        }
+        return predicate;
+    }
+
+    static Predicate allOf(StringPath path, String[] values, boolean ignoreCase) {
+        if (values == null || values.length == 0)
+            return null;
+        
+        Predicate predicate = null;
+        for (String value : values) {
+            predicate = ExpressionUtils.and(predicate, wildCard(path, value, ignoreCase));
+        }
+        return predicate;
     }
 
     static Predicate wildCard(StringPath path, String value) {
@@ -694,17 +715,26 @@ public class QueryBuilder {
         return like.toString();
     }
 
+    static String[] toUpperCase(String[] ss) {
+        if (ss != null)
+            for (int i = 0; i < ss.length; i++)
+                ss[i] = ss[i].toUpperCase();
+        return ss;
+    }
+
     static Predicate seriesAttributesInStudy(Attributes keys, QueryParam queryParam) {
         BooleanBuilder result = new BooleanBuilder();
-        result.and(wildCard(QSeries.series.institutionName, keys.getString(Tag.InstitutionName), true))
-            .and(wildCard(QSeries.series.institutionalDepartmentName, keys.getString(Tag.InstitutionalDepartmentName), true))
-            .and(wildCard(QSeries.series.stationName, keys.getString(Tag.StationName), true))
-            .and(wildCard(QSeries.series.seriesDescription, keys.getString(Tag.SeriesDescription), true))
-            .and(wildCard(QSeries.series.modality, keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase(), false))
-            .and(wildCard(QSeries.series.sopClassUID, keys.getString(Tag.SOPClassesInStudy, "*"), false))
-            .and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(), false))
-            .and(wildCard(QSeries.series.sourceAET,
-                keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
+        result.and(anyOf(QSeries.series.institutionName, keys.getStrings(Tag.InstitutionName), true))
+            .and(anyOf(QSeries.series.institutionalDepartmentName, keys.getStrings(Tag.InstitutionalDepartmentName),
+                    true))
+            .and(anyOf(QSeries.series.stationName, keys.getStrings(Tag.StationName), true))
+            .and(anyOf(QSeries.series.seriesDescription, keys.getStrings(Tag.SeriesDescription), true))
+            .and(anyOf(QSeries.series.modality, toUpperCase(keys.getStrings(Tag.ModalitiesInStudy)), false))
+            .and(uidsPredicate(QSeries.series.sopClassUID, keys.getStrings(Tag.SOPClassesInStudy)))
+            .and(anyOf(QSeries.series.bodyPartExamined, toUpperCase(keys.getStrings(Tag.BodyPartExamined)), false))
+            .and(anyOf(QSeries.series.laterality, toUpperCase(keys.getStrings(Tag.Laterality)), false))
+            .and(anyOf(QSeries.series.sourceAET,
+                keys.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE),
                     false));
         if (queryParam.isStorageVerificationFailed())
             result.and(QSeries.series.failuresOfLastStorageVerification.gt(0));
@@ -765,22 +795,21 @@ public class QueryBuilder {
                             QSeriesRequestAttributes.seriesRequestAttributes.issuerOfAccessionNumber,
                             accNo, issuerOfAccessionNumber));
         }
-        builder.and(wildCard(
+        builder.and(anyOf(
                 QSeriesRequestAttributes.seriesRequestAttributes.requestingService,
-                item.getString(Tag.RequestingService, "*"), true));
+                item.getStrings(Tag.RequestingService), true));
         Predicate matchRequestingPhysician = MatchPersonName.match(
                 QueryBuilder.requestingPhysician,
                 item.getString(Tag.RequestingPhysician, "*"), queryParam);
         builder.and(matchRequestingPhysician);
-        builder.and(wildCard(
+        builder.and(anyOf(
                 QSeriesRequestAttributes.seriesRequestAttributes.requestedProcedureID,
-                item.getString(Tag.RequestedProcedureID, "*"), false));
+                item.getStrings(Tag.RequestedProcedureID), false));
         builder.and(uidsPredicate(QSeriesRequestAttributes.seriesRequestAttributes.studyInstanceUID,
                 item.getStrings(Tag.StudyInstanceUID)));
-        builder.and(wildCard(
+        builder.and(anyOf(
                 QSeriesRequestAttributes.seriesRequestAttributes.scheduledProcedureStepID,
-                item.getString(Tag.ScheduledProcedureStepID, "*"),
-                false));
+                item.getStrings(Tag.ScheduledProcedureStepID), false));
 
         if (!builder.hasValue())
             return null;

@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.query.util;
 
+import com.mysema.commons.lang.Assert;
 import com.querydsl.core.types.Order;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
@@ -49,9 +50,15 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.AttributesBuilder;
 
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -67,7 +74,27 @@ public class QueryAttributes {
     private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
 
     public QueryAttributes(UriInfo info, Map<String, AttributeSet> attributeSetMap) {
-        this(info.getQueryParameters(), attributeSetMap);
+        this(splitAndDecode(info.getQueryParameters(false)), attributeSetMap);
+    }
+
+    private static MultivaluedMap<String, String> splitAndDecode(MultivaluedMap<String, String> queryParameters) {
+        MultivaluedHashMap<String, String> map = new MultivaluedHashMap<>();
+        queryParameters.forEach((key, list) -> {
+            list.forEach((values) -> {
+                Stream.of(StringUtils.split(values, ','))
+                        .map(QueryAttributes::decodeURL)
+                        .forEach(value -> map.add(key, value));
+            });
+        });
+        return map;
+    }
+
+    private static String decodeURL(String s) {
+        try {
+            return URLDecoder.decode(s, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public QueryAttributes(MultivaluedMap<String, String> map, Map<String, AttributeSet> attributeSetMap) {
