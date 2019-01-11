@@ -912,7 +912,7 @@ public class AuditService {
             for (AuditInfoBuilder[] auditInfoBuilder : retrieveAuditService.getAuditInfoBuilder())
                 writeSpoolFile(eventType, null, auditInfoBuilder);
         } catch (Exception e) {
-            LOG.warn("Failed to spool Retrieve of [StudyIUID={}}.\n", ctx.getStudyInstanceUID(), e);
+            LOG.warn("Failed to spool Retrieve of [StudyIUID={}]\n", ctx.getStudyInstanceUID(), e);
         }
     }
 
@@ -1434,7 +1434,7 @@ public class AuditService {
                     null,
                     AssociationEventsAuditService.associationFailureAuditInfo(associationEvent));
         } catch (Exception e) {
-            LOG.warn("Failed to spool association event failure for association type {}\n",
+            LOG.warn("Failed to spool association event failure for [AssociationEventType={}]\n",
                     associationEvent.getType(), e);
         }
     }
@@ -1456,7 +1456,7 @@ public class AuditService {
         try {
             eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
         } catch (Exception e) {
-            LOG.warn("Failed to get Last Modified Time of Audit Spool File {} in Audit Logger {}\n",
+            LOG.warn("Failed to get Last Modified Time of [AuditSpoolFile={}] of [AuditLogger={}]\n",
                     path, auditLogger.getCommonName(), e);
         }
         return eventTime;
@@ -1503,8 +1503,8 @@ public class AuditService {
                     if (!getArchiveDevice().isAuditAggregate())
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
-                    LOG.warn("Failed to write audit spool file for {} at {}\n",
-                            eventType.name(), auditLogger.getCommonName(), e);
+                    LOG.warn("Failed to write audit spool file for [AuditEventType={}] at [AuditLogger={}]\n",
+                            eventType, auditLogger.getCommonName(), e);
                 }
             }
         }
@@ -1533,7 +1533,7 @@ public class AuditService {
                     if (!getArchiveDevice().isAuditAggregate())
                         auditAndProcessFile(auditLogger, filePath);
                 } catch (Exception e) {
-                    LOG.warn("Failed to write audit spool file for {} at {}\n",
+                    LOG.warn("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
                             file, auditLogger.getCommonName(), e);
                 }
             }
@@ -1569,7 +1569,7 @@ public class AuditService {
         try {
             logger.write(logger.timeStamp(), msg);
         } catch (Exception e) {
-            LOG.warn("Failed to emit audit message [AuditLogger={}]\n", logger.getCommonName(), e);
+            LOG.warn("Failed to emit audit message for [AuditLogger={}]\n", logger.getCommonName(), e);
         }
     }
 
