@@ -74,10 +74,10 @@ class QueueMessageAuditService {
                 .build();
     }
 
-    static AuditInfoBuilder bulkQueueMsgAuditInfo(BulkQueueMessageEvent bulkQueueMsgEvent) {
+    static AuditInfoBuilder bulkQueueMsgAuditInfo(BulkQueueMessageEvent bulkQueueMsgEvent, String callingUser) {
         HttpServletRequest req = bulkQueueMsgEvent.getRequest();
         return new AuditInfoBuilder.Builder()
-                .callingUserID(KeycloakContext.valueOf(req).getUserName())
+                .callingUserID(callingUser)
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .outcome(outcome(bulkQueueMsgEvent.getException()))

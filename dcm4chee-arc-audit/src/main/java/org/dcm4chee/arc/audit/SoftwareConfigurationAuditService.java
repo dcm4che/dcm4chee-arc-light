@@ -54,16 +54,16 @@ import java.util.stream.Collectors;
  */
 class SoftwareConfigurationAuditService {
 
-    static AuditInfoBuilder auditInfo(SoftwareConfiguration softwareConfiguration) {
+    static AuditInfoBuilder auditInfo(SoftwareConfiguration softwareConfiguration, String callingUser) {
         HttpServletRequest request = softwareConfiguration.getRequest();
         return request != null
-                ? buildSoftwareConfAuditForWeb(request)
-                : new AuditInfoBuilder.Builder().calledUserID(softwareConfiguration.getDeviceName()).build();
+                ? buildSoftwareConfAuditForWeb(request, callingUser)
+                : new AuditInfoBuilder.Builder().calledUserID(callingUser).build();
     }
 
-    private static AuditInfoBuilder buildSoftwareConfAuditForWeb(HttpServletRequest request) {
+    private static AuditInfoBuilder buildSoftwareConfAuditForWeb(HttpServletRequest request, String callingUser) {
         return new AuditInfoBuilder.Builder()
-                .callingUserID(KeycloakContext.valueOf(request).getUserName())
+                .callingUserID(callingUser)
                 .callingHost(request.getRemoteAddr())
                 .calledUserID(request.getRequestURI())
                 .build();
