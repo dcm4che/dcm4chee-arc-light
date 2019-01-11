@@ -326,7 +326,14 @@ public class QueryBuilder {
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
             builder.and(idWithIssuer(QStudy.study.accessionNumber, QStudy.study.issuerOfAccessionNumber, accNo, issuer));
         }
-        builder.and(seriesAttributesInStudy(keys, queryParam));
+        String[] modalitiesInStudy = keys.getStrings(Tag.ModalitiesInStudy);
+        if (queryParam.isAllOfModalitiesInStudy() && modalitiesInStudy != null && modalitiesInStudy.length > 1) {
+            for (String modality : modalitiesInStudy) {
+                builder.and(seriesAttributesInStudy(keys, queryParam, modality));
+            }
+        } else {
+            builder.and(seriesAttributesInStudy(keys, queryParam, modalitiesInStudy));
+        }
         builder.and(code(QStudy.study.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence)));
         if (queryParam.isHideNotRejectedInstances())
             builder.and(QStudy.study.rejectionState.ne(RejectionState.NONE));
@@ -641,17 +648,6 @@ public class QueryBuilder {
         return predicate;
     }
 
-    static Predicate allOf(StringPath path, String[] values, boolean ignoreCase) {
-        if (values == null || values.length == 0)
-            return null;
-        
-        Predicate predicate = null;
-        for (String value : values) {
-            predicate = ExpressionUtils.and(predicate, wildCard(path, value, ignoreCase));
-        }
-        return predicate;
-    }
-
     static Predicate wildCard(StringPath path, String value) {
         return wildCard(path, value, false);
     }
@@ -722,14 +718,14 @@ public class QueryBuilder {
         return ss;
     }
 
-    static Predicate seriesAttributesInStudy(Attributes keys, QueryParam queryParam) {
+    static Predicate seriesAttributesInStudy(Attributes keys, QueryParam queryParam, String... modalitiesInStudy) {
         BooleanBuilder result = new BooleanBuilder();
         result.and(anyOf(QSeries.series.institutionName, keys.getStrings(Tag.InstitutionName), true))
             .and(anyOf(QSeries.series.institutionalDepartmentName, keys.getStrings(Tag.InstitutionalDepartmentName),
                     true))
             .and(anyOf(QSeries.series.stationName, keys.getStrings(Tag.StationName), true))
             .and(anyOf(QSeries.series.seriesDescription, keys.getStrings(Tag.SeriesDescription), true))
-            .and(anyOf(QSeries.series.modality, toUpperCase(keys.getStrings(Tag.ModalitiesInStudy)), false))
+            .and(anyOf(QSeries.series.modality, toUpperCase(modalitiesInStudy), false))
             .and(uidsPredicate(QSeries.series.sopClassUID, keys.getStrings(Tag.SOPClassesInStudy)))
             .and(anyOf(QSeries.series.bodyPartExamined, toUpperCase(keys.getStrings(Tag.BodyPartExamined)), false))
             .and(anyOf(QSeries.series.laterality, toUpperCase(keys.getStrings(Tag.Laterality)), false))

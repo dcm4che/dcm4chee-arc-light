@@ -46,7 +46,6 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -61,6 +60,7 @@ public class QueryParam {
     private final QueryRetrieveView qrView;
     private boolean combinedDatetimeMatching;
     private boolean fuzzySemanticMatching;
+    private boolean allOfModalitiesInStudy;
     private boolean returnEmpty;
     private boolean expired;
     private boolean withoutStudies = true;
@@ -134,6 +134,14 @@ public class QueryParam {
 
     public void setFuzzySemanticMatching(boolean fuzzySemanticMatching) {
         this.fuzzySemanticMatching = fuzzySemanticMatching;
+    }
+
+    public boolean isAllOfModalitiesInStudy() {
+        return allOfModalitiesInStudy;
+    }
+
+    public void setAllOfModalitiesInStudy(boolean allOfModalitiesInStudy) {
+        this.allOfModalitiesInStudy = allOfModalitiesInStudy;
     }
 
     public boolean isReturnEmpty() {

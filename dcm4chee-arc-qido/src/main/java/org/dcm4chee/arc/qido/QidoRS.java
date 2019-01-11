@@ -180,6 +180,10 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String storageExported;
 
+    @QueryParam("allOfModalitiesInStudy")
+    @Pattern(regexp = "true|false")
+    private String allOfModalitiesInStudy;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -498,6 +502,7 @@ public class QidoRS {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
         queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
         queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));

@@ -8225,23 +8225,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Export Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "Export Matching Studies which have objects on a particular Storage System",
+            "description": "Export Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "Export Matching only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "Export Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "Export Matching only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "Export Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -8396,23 +8403,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Export Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "Export Matching Series which have objects on a particular Storage System",
+            "description": "Export Series of Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "Export Matching only Series with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "Export Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "Export Matching only Series with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "Export Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -8574,23 +8588,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Export Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "Export Matching Series of Study which have objects on a particular Storage System",
+            "description": "Export Series of Study which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "Export Matching only Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "Export only Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "Export Matching only Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "Export Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -8641,13 +8662,13 @@
           {
             "name": "only-stgcmt",
             "in": "query",
-            "description": "Only enable storage commitment without export",
+            "description": "Perform Storage Commitment without export",
             "type": "boolean"
           },
           {
             "name": "only-ian",
             "in": "query",
-            "description": "Only enable IAN without export",
+            "description": "Perform IAN without export",
             "type": "boolean"
           },
           {
@@ -8694,14 +8715,14 @@
           {
             "name": "expired",
             "in": "query",
-            "description": "export only Instances of expired Series",
+            "description": "export Instances of expired Series",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "export only Instances of Series which are marked as incomplete",
+            "description": "export Instances of Series which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
@@ -8745,23 +8766,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Export Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "Export Matching Instances which have objects on a particular Storage System",
+            "description": "Export Instances of Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "Export Matching only Instances with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "Export Matching only Instances with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -8789,7 +8817,7 @@
         "tags": [
           "EXPORT-RS"
         ],
-        "summary": "Export Matching Instances of Study",
+        "summary": "Export Matching Instances of Studies",
         "operationId": "exportMatchingInstancesOfStudy",
         "produces": [
           "application/json"
@@ -8923,23 +8951,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Export Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "Export Matching Instances of Study which have objects on a particular Storage System",
+            "description": "Export Instances of Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "Export Matching only Instances of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "Export Matching only Instances of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -9108,23 +9143,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Export Instances of Series of Study have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "Export Matching Instances of Series of Study which have objects on a particular Storage System",
+            "description": "Export Instances of Series of Study which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
             "description": "Export Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "Export Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -10077,7 +10119,7 @@
         "tags": [
           "STGVER-RS"
         ],
-        "summary": "Schedule Storage Verification of Instances of Study",
+        "summary": "Schedule Storage Verification of Instances of Studies",
         "operationId": "ScheduleStorageVerificationOfInstancesOfStudy",
         "produces": [
           "application/json"
@@ -10945,6 +10987,13 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "count Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
             "description": "count Studies which have objects on a particular Storage System",
@@ -10953,15 +11002,15 @@
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "count only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "count Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "count only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "count Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -11061,23 +11110,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "count Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "count series of Studies which have objects on a particular Storage System",
+            "description": "count Series of Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "count Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "count Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -11170,23 +11226,30 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "count Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "count series of Studies which have objects on a particular Storage System",
+            "description": "count Series of Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "count Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "count only series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "count Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -11253,23 +11316,30 @@
             "default": false
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "count Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "count instances of Studies which have objects on a particular Storage System",
+            "description": "count Instances of Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "count Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "count Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -11336,23 +11406,30 @@
             "default": false
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "count Instances of Study which have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "count instances of Studies which have objects on a particular Storage System",
+            "description": "count Instances of Study which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "count Instances of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "count Instances of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -11419,23 +11496,30 @@
             "default": false
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "count Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
-            "description": "count instances of Studies which have objects on a particular Storage System",
+            "description": "count Instances of Studies which have objects on a particular Storage System",
             "type": "string"
           },
           {
             "name": "storageClustered",
             "in": "query",
-            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "description": "count Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
-            "description": "count only instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "description": "count Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
             "default": null
           }
         ],
@@ -11546,6 +11630,13 @@
             "type": "string"
           },
           {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "size of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "storageID",
             "in": "query",
             "description": "size of Studies which have objects on a particular Storage System",
@@ -11555,14 +11646,14 @@
             "name": "storageClustered",
             "in": "query",
             "description": "size of only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "size of only Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           }
         ],

@@ -172,6 +172,10 @@ public class ExportMatchingRS {
     @Pattern(regexp = "true|false")
     private String storageExported;
 
+    @QueryParam("allOfModalitiesInStudy")
+    @Pattern(regexp = "true|false")
+    private String allOfModalitiesInStudy;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -354,6 +358,7 @@ public class ExportMatchingRS {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
         queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));

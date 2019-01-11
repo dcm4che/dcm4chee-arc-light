@@ -141,6 +141,7 @@ public class QueryAttributes {
                 case "storageID":
                 case "storageClustered":
                 case "storageExported":
+                case "allOfModalitiesInStudy":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
