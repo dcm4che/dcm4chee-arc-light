@@ -226,7 +226,8 @@ class RetrieveAuditService {
             String studyInstanceUID = rInfo.getField(AuditInfo.STUDY_UID);
             InstanceInfo instanceInfo = study_instanceInfo.get(studyInstanceUID);
             if (instanceInfo == null) {
-                instanceInfo = new InstanceInfo(rInfo.getField(AuditInfo.ACC_NUM));
+                instanceInfo = new InstanceInfo();
+                instanceInfo.addAcc(rInfo);
                 study_instanceInfo.put(studyInstanceUID, instanceInfo);
             }
             instanceInfo.addSOPInstance(rInfo);
@@ -240,7 +241,7 @@ class RetrieveAuditService {
             ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                     .sopC(AuditService.toSOPClasses(entry.getValue().getSopClassMap(),
                             auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null))
-                    .acc(entry.getValue().getAccNum())
+                    .acc(entry.getValue().getAcc())
                     .build();
             ParticipantObjectIdentificationBuilder poi = new ParticipantObjectIdentificationBuilder.Builder(
                     entry.getKey(),

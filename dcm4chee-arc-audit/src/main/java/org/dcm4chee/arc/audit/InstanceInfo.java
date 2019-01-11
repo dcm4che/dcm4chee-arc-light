@@ -48,17 +48,11 @@ import java.util.HashSet;
  * @since March 2016
  */
 class InstanceInfo {
-    private final String accNum;
     private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
     private HashSet<String> mpps = new HashSet<>();
+    private HashSet<String> acc = new HashSet<>();
 
-    InstanceInfo(String accNum) {
-        this.accNum = accNum;
-    }
-
-    String getAccNum() {
-        return accNum;
-    }
+    InstanceInfo() {}
 
     HashMap<String, HashSet<String>> getSopClassMap() {
         return sopClassMap;
@@ -78,5 +72,15 @@ class InstanceInfo {
         String mppsUID = info.getField(AuditInfo.MPPS_UID);
         if (mppsUID != null)
             mpps.add(mppsUID);
+    }
+
+    String[] getAcc() {
+        return acc.toArray(new String[0]);
+    }
+
+    void addAcc(AuditInfo info) {
+        String accNum = info.getField(AuditInfo.ACC_NUM);
+        if (accNum != null)
+            acc.add(accNum);
     }
 }

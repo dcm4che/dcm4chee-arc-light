@@ -750,11 +750,11 @@ public class AuditService {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
-        InstanceInfo instanceInfo = new InstanceInfo(auditInfo.getField(AuditInfo.ACC_NUM));
-
+        InstanceInfo instanceInfo = new InstanceInfo();
         HashSet<String> outcome = new HashSet<>();
         HashSet<AuditMessages.EventTypeCode> errorCode = new HashSet<>();
 
+        instanceInfo.addAcc(auditInfo);
         for (String line : reader.getInstanceLines()) {
             AuditInfo info = new AuditInfo(line);
             outcome.add(info.getField(AuditInfo.OUTCOME));
@@ -777,7 +777,7 @@ public class AuditService {
 
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                 .sopC(toSOPClasses(instanceInfo.getSopClassMap(), true))
-                .acc(instanceInfo.getAccNum())
+                .acc(instanceInfo.getAcc())
                 .mpps(instanceInfo.getMpps())
                 .build();
 
@@ -817,7 +817,8 @@ public class AuditService {
     }
 
     private ParticipantObjectDescriptionBuilder studyParticipantObjDesc(SpoolFileReader reader, AuditInfo auditInfo) {
-        InstanceInfo instanceInfo = new InstanceInfo(auditInfo.getField(AuditInfo.ACC_NUM));
+        InstanceInfo instanceInfo = new InstanceInfo();
+        instanceInfo.addAcc(auditInfo);
         for (String line : reader.getInstanceLines()) {
             AuditInfo info = new AuditInfo(line);
             instanceInfo.addMpps(info);
@@ -826,7 +827,7 @@ public class AuditService {
 
         return new ParticipantObjectDescriptionBuilder.Builder()
                 .sopC(toSOPClasses(instanceInfo.getSopClassMap(), false))
-                .acc(instanceInfo.getAccNum())
+                .acc(instanceInfo.getAcc())
                 .mpps(instanceInfo.getMpps())
                 .build();
     }
