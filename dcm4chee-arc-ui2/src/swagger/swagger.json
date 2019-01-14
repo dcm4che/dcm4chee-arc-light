@@ -8160,6 +8160,12 @@
             "type": "string"
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "export Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "export Studies which are retrieveable from external <AE Title>",
@@ -8335,6 +8341,12 @@
             "name": "StudyReceiveDateTime",
             "in": "query",
             "description": "export Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "export Series of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -8523,6 +8535,12 @@
             "type": "string"
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "export Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "export Series of Studies which are retrieveable from external <AE Title>",
@@ -8698,6 +8716,12 @@
             "name": "StudyReceiveDateTime",
             "in": "query",
             "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "export Instances of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -8883,6 +8907,12 @@
             "name": "StudyReceiveDateTime",
             "in": "query",
             "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "export Instances of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -9074,7 +9104,13 @@
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "export Instances of Studies which were created between <datetime1>-<datetime2>",
+            "description": "export Instances of Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "export Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -9507,6 +9543,12 @@
             "type": "string"
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "match Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "match Studies which are retrieveable from external <AE Title>",
@@ -9666,6 +9708,12 @@
             "name": "StudyReceiveDateTime",
             "in": "query",
             "description": "match Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "match Series of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -9838,6 +9886,12 @@
             "type": "string"
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "match Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "match Series of Studies which are retrieveable from external <AE Title>",
@@ -9997,6 +10051,12 @@
             "name": "StudyReceiveDateTime",
             "in": "query",
             "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "match Instances of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10166,6 +10226,12 @@
             "name": "StudyReceiveDateTime",
             "in": "query",
             "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "match Instances of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10341,7 +10407,13 @@
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "match Instances of Studies which were created between <datetime1>-<datetime2>",
+            "description": "match Instances of Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "match Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10769,6 +10841,12 @@
             "in": "query",
             "description": "apply Retention Policy to Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "apply Retention Policy to Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -10966,6 +11044,12 @@
             "name": "StudyReceiveDateTime",
             "in": "query",
             "description": "count Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -11567,28 +11651,28 @@
           {
             "name": "returnempty",
             "in": "query",
-            "description": "match also rejected Studies",
+            "description": "size of rejected Studies",
             "type": "boolean",
             "default": false
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "match only expired Studies",
+            "description": "size of expired Studies",
             "type": "boolean",
             "default": false
           },
           {
             "name": "incomplete",
             "in": "query",
-            "description": "match only of Studies which are marked as incomplete",
+            "description": "size of Studies which are marked as incomplete",
             "type": "boolean",
             "default": false
           },
           {
             "name": "retrievefailed",
             "in": "query",
-            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "description": "size of Studies which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
           },
@@ -11602,31 +11686,37 @@
           {
             "name": "SendingApplicationEntityTitleOfSeries",
             "in": "query",
-            "description": "match only Studies which includes at least one Series received from <AE Title>",
+            "description": "size of Studies which includes at least one Series received from <AE Title>",
             "type": "string"
           },
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "match only Studies which were created between <datetime1>-<datetime2>",
+            "description": "size of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "size of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET",
             "in": "query",
-            "description": "match only Studies which are retrieveable from external <AE Title>",
+            "description": "size of Studies which are retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExternalRetrieveAET!",
             "in": "query",
-            "description": "match only Studies which are not retrieveable from external <AE Title>",
+            "description": "size of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           },
           {
             "name": "ExpirationDate",
             "in": "query",
-            "description": "match only Studies which have expiration date between <datetime1>-<datetime2>",
+            "description": "size of Studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {

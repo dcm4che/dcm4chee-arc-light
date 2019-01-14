@@ -311,6 +311,12 @@
             "type": "string"
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "return Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "return Studies which are retrieveable from external <AE Title>",
@@ -561,6 +567,18 @@
             "type": "string"
           },
           {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "return Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "return Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationDate",
             "in": "query",
             "description": "list series which have expiration date between <datetime1>-<datetime2>",
@@ -753,6 +771,18 @@
             "type": "string"
           },
           {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "return Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "return Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationDate",
             "in": "query",
             "description": "list Series which have expiration date between <datetime1>-<datetime2>",
@@ -899,6 +929,30 @@
             "type": "integer"
           },
           {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "return Instances of Series of Studies received from this <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "return Instances of Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "return Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "list Instances of Series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "allOfModalitiesInStudy",
             "in": "query",
             "description": "return Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
@@ -1032,6 +1086,30 @@
             "type": "integer"
           },
           {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "return Instances of Series of Studies received from this <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "return Instances of Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "return Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "list Instances of Series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "allOfModalitiesInStudy",
             "in": "query",
             "description": "return Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
@@ -1156,6 +1234,30 @@
             "in": "query",
             "description": "limit={maximumResults}",
             "type": "integer"
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "return Instances of Series of Studies received from this <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "return Instances of Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "return Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "list Instances of Series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "allOfModalitiesInStudy",
