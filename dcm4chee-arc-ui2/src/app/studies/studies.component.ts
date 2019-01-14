@@ -4221,6 +4221,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,mode))
                 .subscribe((res)=> {
                         $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.mainservice.user, res));
+
                         try{
                             $this.aet = $this.aes[0].dicomAETitle.toString();
                             if (!$this.aetmodel){

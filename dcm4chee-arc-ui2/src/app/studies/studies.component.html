@@ -698,7 +698,7 @@
                                     <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0)) && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" (click)="$event.preventDefault();;downloadZip(study._VALUE, 'study','compressed')" href="" title="Retrieve Study as stored at the archive">
                                         <span class="glyphicon glyphicon-download-alt"></span>
                                     </a>
-                                    <a class="hiddenbuttons" *ngIf="trashaktive && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-study',param:'delete'}" (click)="$event.preventDefault();deleteStudy(study._VALUE)" href="" title="Delete study permanently">
+                                    <a class="hiddenbuttons" *ngIf="(trashaktive || aetmodel.dcmAllowDeleteStudyPermanently === 'ALWAYS') && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-study',param:'delete'}" (click)="$event.preventDefault();deleteStudy(study._VALUE)" href="" title="Delete study permanently">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
                                     <a class="hiddenbuttons"  *ngIf="trashaktive && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-study',param:'restore'}" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Restore study">
