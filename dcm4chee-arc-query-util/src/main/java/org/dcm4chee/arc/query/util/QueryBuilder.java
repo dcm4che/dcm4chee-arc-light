@@ -349,6 +349,11 @@ public class QueryBuilder {
         if (studyReceiveDateTime != null)
             builder.and(MatchDateTimeRange.range(
                     QStudy.study.createdTime, studyReceiveDateTime, MatchDateTimeRange.FormatDate.DT));
+        DateRange studyAccessDateTime =
+                keys.getDateRange(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT);
+        if (studyAccessDateTime != null)
+            builder.and(MatchDateTimeRange.range(
+                    QStudy.study.accessTime, studyAccessDateTime, MatchDateTimeRange.FormatDate.DT));
         if (queryParam.getExternalRetrieveAET() != null)
             builder.and(QStudy.study.externalRetrieveAET.eq(queryParam.getExternalRetrieveAET()));
         if (queryParam.getExternalRetrieveAETNot() != null)

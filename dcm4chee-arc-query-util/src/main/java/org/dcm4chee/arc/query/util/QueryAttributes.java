@@ -147,6 +147,10 @@ public class QueryAttributes {
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
+                case "StudyAccessDateTime":
+                    keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
                 default:
                     addQueryKey(key, entry.getValue());
                     break;
