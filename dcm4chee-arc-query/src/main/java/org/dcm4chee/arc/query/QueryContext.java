@@ -86,6 +86,10 @@ public interface QueryContext {
 
     void setQueryKeys(Attributes keys);
 
+    boolean isReturnPrivate();
+
+    void setReturnPrivate(boolean returnPrivate);
+
     QueryParam getQueryParam();
 
     IDWithIssuer[] getPatientIDs();

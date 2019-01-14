@@ -393,6 +393,7 @@ public class QidoRS {
                     : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
                     ? queryAttrs.getReturnKeys(qido.includetags)
                     : queryAttrs.getQueryKeys());
+            ctx.setReturnPrivate(queryAttrs.isIncludePrivate());
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             if (output == Output.CSV) {
                 model.setIncludeAll(queryAttrs.isIncludeAll());

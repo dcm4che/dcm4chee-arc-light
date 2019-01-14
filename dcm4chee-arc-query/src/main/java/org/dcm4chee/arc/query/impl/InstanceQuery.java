@@ -190,7 +190,7 @@ class InstanceQuery extends AbstractQuery {
                         results.get(QInstance.instance.retrieveAETs),
                         results.get(QInstance.instance.externalRetrieveAET)));
         attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
-        if (context.getReturnKeys() != null)
+        if (!context.isReturnPrivate())
             return attrs;
 
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,

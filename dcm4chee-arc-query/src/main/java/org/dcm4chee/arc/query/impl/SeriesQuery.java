@@ -212,7 +212,7 @@ class SeriesQuery extends AbstractQuery {
     static void addSeriesQRAttrs(QueryContext context, Tuple results, int numberOfSeriesRelatedInstances,
                                  Attributes attrs) {
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
-        if (context.getReturnKeys() != null)
+        if (!context.isReturnPrivate())
             return;
 
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,

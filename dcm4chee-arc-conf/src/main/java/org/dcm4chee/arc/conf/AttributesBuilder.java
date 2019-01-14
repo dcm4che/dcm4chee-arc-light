@@ -45,6 +45,8 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.util.TagUtils;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -69,8 +71,13 @@ public class AttributesBuilder {
     public void setNullIfAbsent(int... tagPath) {
         int tag = tagPath[tagPath.length-1];
         Attributes item = nestedKeys(tagPath);
-        if (!item.contains(tag))
-            item.setNull(tag, DICT.vrOf(tag));
+        if (TagUtils.groupNumber(tag) == 0x7777) {
+            if (!item.contains(ArchiveTag.PrivateCreator, tag))
+                item.setNull(ArchiveTag.PrivateCreator, tag, ElementDictionary.vrOf(tag, ArchiveTag.PrivateCreator));
+        } else {
+            if (!item.contains(tag))
+                item.setNull(tag, DICT.vrOf(tag));
+        }
     }
 
     private Attributes nestedKeys(int[] tags) {

@@ -119,7 +119,7 @@ class PatientQuery extends AbstractQuery {
     static void addPatientQRAttrs(QueryContext context, Tuple results, Attributes attrs) {
         attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS,
                 results.get(QPatient.patient.numberOfStudies));
-        if (context.getReturnKeys() != null)
+        if (!context.isReturnPrivate())
             return;
 
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientCreateDateTime, VR.DT,

@@ -206,6 +206,10 @@ public class QueryAttributes {
         return includeAll;
     }
 
+    public boolean isIncludePrivate() {
+        return includeAll || keys.contains(0x77770010);
+    }
+
     public Attributes getQueryKeys() {
         return keys;
     }

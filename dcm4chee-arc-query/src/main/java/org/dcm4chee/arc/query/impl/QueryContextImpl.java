@@ -74,6 +74,7 @@ class QueryContextImpl implements QueryContext {
     private IDWithIssuer[] patientIDs = {};
     private Attributes queryKeys;
     private Attributes returnKeys;
+    private boolean returnPrivate;
     private String sopClassUID;
     private String searchMethod;
     private final HashMap<String, Storage> storageMap = new HashMap<>();
@@ -190,6 +191,16 @@ class QueryContextImpl implements QueryContext {
     @Override
     public void setQueryKeys(Attributes keys) {
         this.queryKeys = keys;
+    }
+
+    @Override
+    public boolean isReturnPrivate() {
+        return returnPrivate;
+    }
+
+    @Override
+    public void setReturnPrivate(boolean returnPrivate) {
+        this.returnPrivate = returnPrivate;
     }
 
     @Override
