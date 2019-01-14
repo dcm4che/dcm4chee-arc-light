@@ -51,6 +51,7 @@ export class j4care {
                 link.download=filename;
                 document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
             }catch (e) {
                 this.log("On DownloadFile",e);
                 WindowRefService.nativeWindow.open(url);
