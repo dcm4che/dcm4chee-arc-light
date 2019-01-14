@@ -43,10 +43,18 @@ export class j4care {
     }
     static downloadFile(url, filename?){
         if(filename){
-            let link = document.createElement('a');
-            link.href = url;
-            link.download=filename;
-            link.click();
+            try{
+                let link = document.createElement('a');
+                let linkText = document.createTextNode("&nbsp;");
+                link.appendChild(linkText);
+                link.href = url;
+                link.download=filename;
+                document.body.appendChild(link);
+                link.click();
+            }catch (e) {
+                this.log("On DownloadFile",e);
+                WindowRefService.nativeWindow.open(url);
+            }
         }else{
             WindowRefService.nativeWindow.open(url);
         }
