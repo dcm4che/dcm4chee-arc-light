@@ -257,14 +257,6 @@ export class DynamicFormElementComponent implements OnDestroy{
         if(!this.readOnlyMode) {
             let $this = this;
             let globalForm = this.formcomp.getForm();
-            let value = globalForm.value;
-/*            this.dialogRef = this.dialog.open(RemovePartSelectorComponent, {
-                height: 'auto',
-                width: '500px'
-            });
-            this.dialogRef.componentInstance.toRemoveElement = formelement;
-            this.dialogRef.afterClosed().subscribe((selected) => {
-                if (selected) {*/
             this.confirm({
                 content: 'Are you sure you want remove this part from device?'
             }).subscribe(ok => {
@@ -277,8 +269,6 @@ export class DynamicFormElementComponent implements OnDestroy{
                     });
                     //If removed element is referenced prevent removing it
                     if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, toRemoveIndex)) {
-                        // $this.deviceConfiguratorService.device['dicomNetworkAE'][0]['dicomAETitle'] = "AETITLECHANGED";
-                        console.log("$this.deviceConfiguratorService.device", $this.deviceConfiguratorService.device);
                         $this.mainservice.setMessage({
                             'title': 'Warning',
                             'text': `This element is referenced, remove references first then you can delete this element!`,
