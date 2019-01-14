@@ -269,51 +269,52 @@ export class DynamicFormElementComponent implements OnDestroy{
                 content: 'Are you sure you want remove this part from device?'
             }).subscribe(ok => {
                 if(ok){
-                    let elementFound = false;
+                    let toRemoveIndex;
                     _.forEach(formelement.options, (m, i) => {
                         if (m.title === selected.title) {
-                            //If removed element is referenced prevent removing it
-                            if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, i)) {
-                                // $this.deviceConfiguratorService.device['dicomNetworkAE'][0]['dicomAETitle'] = "AETITLECHANGED";
-                                console.log("$this.deviceConfiguratorService.device", $this.deviceConfiguratorService.device);
-                                $this.mainservice.setMessage({
-                                    'title': 'Warning',
-                                    'text': `This element is referenced, remove references first then you can delete this element!`,
-                                    'status': 'warning'
-                                });
-                            } else {
-                                let newAddUrl = formelement.options[formelement.options.length - 1].url;
-                                formelement.options.splice(i, 1);
-                                let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
-                                if (check) {
-                                    elementFound = true;
-                                    $this.partRemoved = true;
-                                    $this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': `Element removed from object successfully!`,
-                                        'status': 'info'
-                                    });
-                                    $this.mainservice.setMessage({
-                                        'title': 'Click to save',
-                                        'text': `Click save if you want to remove "${selected.title}" permanently!`,
-                                        'status': 'warning'
-                                    });
-                                    formelement.addUrl = newAddUrl;
-                                    //If removed element was dicomNetworkConnection than update references in the object
-                                    if (formelement.key === "dicomNetworkConnection") {
-                                        $this.updateReferences($this.deviceConfiguratorService.device, i);
-                                    }
-                                }
+                            toRemoveIndex = i;
+                        }
+                    });
+                    //If removed element is referenced prevent removing it
+                    if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, toRemoveIndex)) {
+                        // $this.deviceConfiguratorService.device['dicomNetworkAE'][0]['dicomAETitle'] = "AETITLECHANGED";
+                        console.log("$this.deviceConfiguratorService.device", $this.deviceConfiguratorService.device);
+                        $this.mainservice.setMessage({
+                            'title': 'Warning',
+                            'text': `This element is referenced, remove references first then you can delete this element!`,
+                            'status': 'warning'
+                        });
+                    } else {
+                        let newAddUrl = formelement.options[formelement.options.length - 1].url;
+                        formelement.options.splice(toRemoveIndex, 1);
+                        let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
+                        if (check) {
+                            $this.partRemoved = true;
+                            $this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': `Element removed from object successfully!`,
+                                'status': 'info'
+                            });
+                            $this.mainservice.setMessage({
+                                'title': 'Click to save',
+                                'text': `Click save if you want to remove "${selected.title}" permanently!`,
+                                'status': 'warning'
+                            });
+                            formelement.addUrl = newAddUrl;
+                            //If removed element was dicomNetworkConnection than update references in the object
+                            if (formelement.key === "dicomNetworkConnection") {
+                                $this.updateReferences($this.deviceConfiguratorService.device, toRemoveIndex);
                             }
-                        } else {
-                            if (elementFound) {
+                        }
+                        formelement.options.forEach((m, i) => {
+                            if (toRemoveIndex < i) {
                                 let pathObject = $this.extractIndexFromPath(formelement.options[_.toInteger(i) - 1].currentElementUrl);
                                 let oldCurrentElementUrl = formelement.options[_.toInteger(i) - 1].currentElementUrl;
                                 formelement.options[_.toInteger(i) - 1].currentElementUrl = `${pathObject.path}[${(pathObject.index - 1)}]`;
                                 formelement.options[_.toInteger(i) - 1].url = _.replace(formelement.options[_.toInteger(i) - 1].url, oldCurrentElementUrl, formelement.options[_.toInteger(i) - 1].currentElementUrl);
                             }
-                        }
-                    });
+                        });
+                    }
                     $this.ref.detectChanges();
                 }
             });
