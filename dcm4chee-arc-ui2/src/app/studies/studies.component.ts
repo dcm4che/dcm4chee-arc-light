@@ -2471,7 +2471,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     }else{
                         if($this.externalInternalAetMode === 'external'){
                             let param = result.queue ? `?${batchID}queue=true` : '';
-                            urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
+                            urlRest = `${url}/export/dicom:${result.selectedAet}${param}`;
+                            // urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
     /*                        switch (dicomMode){
                                 case 'study':
                                     console.log("newUrl",this.studyURL(objectAttr));
