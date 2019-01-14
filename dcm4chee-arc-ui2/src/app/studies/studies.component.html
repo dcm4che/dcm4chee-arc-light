@@ -612,7 +612,7 @@
                           <a class="table_btn hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-mwl',param:'create'}" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
                               <span class="glyphicon glyphicon-plus" ></span>
                           </a>
-                          <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient" [permission]="{id:'action-studies-patient',param:'delete'}">
+                          <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && ((_.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0) && aetmodel.dcmAllowDeletePatient != 'NEVER') || aetmodel.dcmAllowDeletePatient === 'ALWAYS')" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient" [permission]="{id:'action-studies-patient',param:'delete'}">
                               <span class="glyphicon glyphicon-remove"></span>
                           </a>
                           <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer" [permission]="{id:'action-studies-viewer',param:'visible'}">
