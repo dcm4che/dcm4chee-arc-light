@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.query.util;
 
-import com.mysema.commons.lang.Assert;
 import com.querydsl.core.types.Order;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
@@ -55,10 +54,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
