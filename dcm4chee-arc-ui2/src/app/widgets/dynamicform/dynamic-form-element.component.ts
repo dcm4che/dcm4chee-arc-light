@@ -271,7 +271,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                 if(ok){
                     let elementFound = false;
                     _.forEach(formelement.options, (m, i) => {
-                        if (m === selected) {
+                        if (m.title === selected.title) {
                             //If removed element is referenced prevent removing it
                             if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, i)) {
                                 // $this.deviceConfiguratorService.device['dicomNetworkAE'][0]['dicomAETitle'] = "AETITLECHANGED";
