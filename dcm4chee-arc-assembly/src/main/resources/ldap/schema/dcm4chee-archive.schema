@@ -1924,6 +1924,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dicomDescription $
     dicomAETitle $
     dcmDeleteStudyFromStorageID $
+    dcmRejectionNoteCode $
     dcmStgCmtSCP $
     dcmIanDestination $
     dcmRetrieveAET $
