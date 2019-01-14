@@ -1579,6 +1579,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.266 NAME 'dcmReturnRetrieveAET'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.267 NAME 'dcmRejectForDataRetentionExpiry'
+  DESC 'Reject entity for Data Retention Expiry after export on completion of Export Task; false if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1924,7 +1930,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dicomDescription $
     dicomAETitle $
     dcmDeleteStudyFromStorageID $
-    dcmRejectionNoteCode $
+    dcmRejectForDataRetentionExpiry $
     dcmStgCmtSCP $
     dcmIanDestination $
     dcmRetrieveAET $

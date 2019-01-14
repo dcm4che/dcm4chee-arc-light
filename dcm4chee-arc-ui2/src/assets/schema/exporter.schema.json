@@ -8,7 +8,8 @@
     "dcmQueueName",
     "dcmExportPriority",
     "dcmInstanceAvailability",
-    "dicomAETitle"
+    "dicomAETitle",
+    "dcmRejectForDataRetentionExpiry"
   ],
   "properties": {
     "dcmExporterID": {
@@ -63,11 +64,11 @@
       "type": "string",
       "format": "dcmStorageID"
     },
-    "dcmRejectionNoteCode": {
-      "title": "Reject Entity after export by Code",
-      "description": "Reject entity after export for specified reason on completion of Export Task.",
-      "type": "string",
-      "format": "dcmRejectionNoteCode"
+    "dcmRejectForDataRetentionExpiry": {
+      "title": "Reject Entity for Data Retention Expiry",
+      "description": "Reject entity for Data Retention Expiry after export on completion of Export Task.",
+      "type": "boolean",
+      "default": "false"
     },
     "dcmStgCmtSCP": {
       "title": "Storage Commitment SCP AE Title",
