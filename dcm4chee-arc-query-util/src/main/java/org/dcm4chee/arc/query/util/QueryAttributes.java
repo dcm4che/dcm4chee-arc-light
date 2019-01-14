@@ -79,13 +79,10 @@ public class QueryAttributes {
 
     private static MultivaluedMap<String, String> splitAndDecode(MultivaluedMap<String, String> queryParameters) {
         MultivaluedHashMap<String, String> map = new MultivaluedHashMap<>();
-        queryParameters.forEach((key, list) -> {
-            list.forEach((values) -> {
-                Stream.of(StringUtils.split(values, ','))
-                        .map(QueryAttributes::decodeURL)
-                        .forEach(value -> map.add(key, value));
-            });
-        });
+        for (Map.Entry<String, List<String>> entry : queryParameters.entrySet())
+            for (String values : entry.getValue())
+                for (String value : StringUtils.split(values, ','))
+                    map.add(entry.getKey(), decodeURL(value));
         return map;
     }
 
