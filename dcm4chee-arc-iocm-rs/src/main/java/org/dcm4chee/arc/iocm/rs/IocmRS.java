@@ -1009,8 +1009,7 @@ public class IocmRS {
     }
 
     private String rejectionNoteObjectStorageID() {
-        String rjNoteStorageAET = arcDev()
-                .getRejectionNoteStorageAET();
+        String rjNoteStorageAET = arcDev().getRejectionNoteStorageAET();
         if (rjNoteStorageAET == null)
             return null;
 

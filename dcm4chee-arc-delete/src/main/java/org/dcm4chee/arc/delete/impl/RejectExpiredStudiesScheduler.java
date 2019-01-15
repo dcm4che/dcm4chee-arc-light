@@ -117,7 +117,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ApplicationEntity ae = getApplicationEntity(arcDev.getRejectExpiredStudiesAETitle());
         if (ae == null || !ae.isInstalled()) {
-            LOG.warn("No such Application Entity: " + arcDev.getRejectExpiredStudiesAETitle());
+            LOG.warn("No such Application Entity: {}", arcDev.getRejectExpiredStudiesAETitle());
             return;
         }
         Optional<RejectionNote> rn = arcDev.getRejectionNotes().stream()
@@ -127,35 +127,39 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             LOG.warn("Data Retention Policy Expired Rejection Note not configured.");
             return;
         }
+
+        String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(arcDev.getRejectionNoteStorageAET());
+        if (arcDev.getRejectionNoteStorageAET() == null || rejectionNoteObjectStorageID != null)
+            reject(arcDev, ae, rn.get(), rejectionNoteObjectStorageID);
+    }
+
+    private void reject(ArchiveDeviceExtension arcDev, ApplicationEntity ae,
+                        RejectionNote rjNote, String rejectionNoteObjectStorageID) {
         int studyFetchSize = arcDev.getRejectExpiredStudiesFetchSize();
         if (studyFetchSize == 0) {
             LOG.warn("DeleteExpiredStudies operation ABORT : Study fetch size is 0");
             return;
         }
-        String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(arcDev.getRejectionNoteStorageAET());
-        rejectExpiredStudies(ae, rn.get(), studyFetchSize, rejectionNoteObjectStorageID);
+        rejectExpiredStudies(ae, rjNote, studyFetchSize, rejectionNoteObjectStorageID);
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
         if (seriesFetchSize == 0) {
             LOG.warn("DeleteExpiredStudies operation ABORT : Series fetch size is == 0");
             return;
         }
-        rejectExpiredSeries(ae, rn.get(), seriesFetchSize, rejectionNoteObjectStorageID);
+        rejectExpiredSeries(ae, rjNote, seriesFetchSize, rejectionNoteObjectStorageID);
     }
 
     private String rejectionNoteObjectStorageID(String rejectionNoteStorageAET) {
-        if (rejectionNoteStorageAET == null)
-            return null;
-
         ApplicationEntity rjAE = getApplicationEntity(rejectionNoteStorageAET);
         ArchiveAEExtension rjArcAE;
         if (rjAE == null || !rjAE.isInstalled() || (rjArcAE = rjAE.getAEExtension(ArchiveAEExtension.class)) == null) {
-            LOG.warn("Rejection Note Storage Application Entity with an Archive AE Extension not configured: "
-                    + rejectionNoteStorageAET);
+            LOG.warn("Rejection Note Storage Application Entity with an Archive AE Extension not configured: {}",
+                    rejectionNoteStorageAET);
             return null;
         }
         String[] objectStorageIDs;
         if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length == 0) {
-            LOG.warn("Object storage not configured for Rejection Note Storage AE: " + rejectionNoteStorageAET);
+            LOG.warn("Object storage not configured for Rejection Note Storage AE: {}", rejectionNoteStorageAET);
             return null;
         }
         return objectStorageIDs[0];
