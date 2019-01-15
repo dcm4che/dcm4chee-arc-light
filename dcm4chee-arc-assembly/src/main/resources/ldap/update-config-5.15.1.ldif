@@ -55,7 +55,7 @@ dcmKeyStoreType: JKS
 add: dcmKeyStorePin
 dcmKeyStorePin: secret
 
-dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dcm4che,dc=org
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 add: dcmTrustStoreURL
 dcmTrustStoreURL: ${jboss.server.config.url}/dcm4chee-arc/cacerts.jks
