@@ -342,6 +342,7 @@ public class Series {
 
         public String toString() {
             return "MetadataUpdate[seriesPk=" + seriesPk +
+                    ", version=" + version +
                     ", storageID=" + storageID +
                     ", storagePath=" + storagePath +
                     "]";

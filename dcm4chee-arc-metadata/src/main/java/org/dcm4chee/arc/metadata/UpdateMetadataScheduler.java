@@ -201,7 +201,7 @@ public class UpdateMetadataScheduler extends Scheduler {
     private void updateMetadata(ArchiveDeviceExtension arcDev, Storage storage, Series.MetadataUpdate metadataUpdate,
                                 AtomicInteger success, AtomicInteger skipped) {
         try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
-            if (claim(ctx, storage) && retrieveService.calculateMatches(ctx)) {
+            if (claim(metadataUpdate, storage) && retrieveService.calculateMatches(ctx)) {
                 LOG.debug("Creating/Updating Metadata for Series[pk={}] on {}",
                         ctx.getSeriesMetadataUpdate().seriesPk,
                         storage.getStorageDescriptor());
@@ -256,12 +256,17 @@ public class UpdateMetadataScheduler extends Scheduler {
                 : null;
     }
 
-    private boolean claim(RetrieveContext ctx, Storage storage) {
+    private boolean claim(Series.MetadataUpdate seriesMetadataUpdate, Storage storage) {
         try {
-            return ejb.incrementVersion(ctx.getSeriesMetadataUpdate());
+            if (ejb.incrementVersion(seriesMetadataUpdate)) {
+                LOG.debug("{} claimed by this node", seriesMetadataUpdate);
+                return true;
+            }
+            LOG.debug("{} already claimed by other node", seriesMetadataUpdate);
+            return false;
         } catch (Exception e) {
             LOG.info("Failed to claim create/update Metadata for Series[pk={}] on {}]:\n",
-                    ctx.getSeriesMetadataUpdate().seriesPk,
+                    seriesMetadataUpdate.seriesPk,
                     storage.getStorageDescriptor(),
                     e);
             return false;
