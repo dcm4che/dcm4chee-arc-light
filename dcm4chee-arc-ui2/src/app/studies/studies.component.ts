@@ -2134,7 +2134,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 'status': 'error'
             });
             this.cfpLoadingBar.complete();
-        }else if (_.hasIn(patient, 'attrs["00201200"].Value[0]') && patient.attrs['00201200'].Value[0] === 0){
+        }else{
             let $this = this;
             this.confirm({
                 content: 'Are you sure you want to delete this patient?'
@@ -2162,15 +2162,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     );
                 }
             });
-        }else{
-            this.mainservice.setMessage({
-                'title': 'Error',
-                'text': 'Patient not empty!',
-                'status': 'error'
-            });
-            this.cfpLoadingBar.complete();
         }
-        // angular.element("#querypatients").trigger('click');
     };
     deleteMWL(mwl){
 
