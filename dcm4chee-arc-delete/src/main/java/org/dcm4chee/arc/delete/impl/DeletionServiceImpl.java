@@ -166,7 +166,7 @@ public class DeletionServiceImpl implements DeletionService {
             }
 
         if (ctx.getException() == null) {
-            patientService.deletePatientFromUI(ctx);
+            patientService.deletePatient(ctx);
             LOG.info("Successfully delete {} from database", ctx.getPatient());
         }
 
