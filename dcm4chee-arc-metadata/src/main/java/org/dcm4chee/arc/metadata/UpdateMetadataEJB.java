@@ -66,10 +66,9 @@ public class UpdateMetadataEJB {
                 .getResultList();
     }
 
-    public boolean incrementVersion(Series.MetadataUpdate series) {
-        return em.createNamedQuery(Series.INCREMENT_VERSION)
-                .setParameter(1, series.seriesPk)
-                .setParameter(2, series.version)
+    public boolean claim(Long seriesPk) {
+        return em.createNamedQuery(Series.CLAIM_UPDATE_METADATA)
+                .setParameter(1, seriesPk)
                 .executeUpdate() > 0;
     }
 

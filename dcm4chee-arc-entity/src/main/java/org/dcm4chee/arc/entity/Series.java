@@ -168,13 +168,13 @@ import java.util.stream.Stream;
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.version, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
                 "left join se.metadata metadata " +
                 "where se.metadataScheduledUpdateTime < current_timestamp " +
                 "order by se.metadataScheduledUpdateTime"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.version, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
                 "join se.metadata metadata " +
                 "where se.instancePurgeTime < current_timestamp " +
                 "and se.metadataScheduledUpdateTime is null " +
@@ -242,13 +242,13 @@ import java.util.stream.Stream;
         query = "update Series se set se.compressionTime = null " +
                 "where se.pk = ?1 and se.compressionTime is not null"),
 @NamedQuery(
+        name=Series.CLAIM_UPDATE_METADATA,
+        query = "update Series se set se.metadataScheduledUpdateTime = null " +
+                "where se.pk = ?1 and se.metadataScheduledUpdateTime is not null"),
+@NamedQuery(
         name=Series.CLAIM_PURGE_INSTANCE_RECORDS,
         query = "update Series se set se.instancePurgeTime = null " +
-                "where se.pk = ?1 and se.instancePurgeTime is not null"),
-@NamedQuery(
-        name=Series.INCREMENT_VERSION,
-        query="update Series se set se.version = se.version + 1 " +
-                "where se.pk = ?1 and se.version = ?2")
+                "where se.pk = ?1 and se.instancePurgeTime is not null")
 })
 @Entity
 @Table(name = "series",
@@ -314,11 +314,11 @@ public class Series {
     public static final String SET_METADATA_SCHEDULED_UPDATE_TIME = "Series.setMetadataScheduledUpdateTime";
     public static final String CLAIM_STORAGE_VERIFICATION = "Series.claimStorageVerification";
     public static final String CLAIM_COMPRESSION = "Series.claimCompression";
+    public static final String CLAIM_UPDATE_METADATA = "Series.claimUpdateMetadata";
     public static final String CLAIM_PURGE_INSTANCE_RECORDS = "Series.claimPurgeInstanceRecords";
     public static final String UPDATE_COMPRESSION_FAILURES = "Series.updateCompressionFailures";
     public static final String UPDATE_COMPRESSION_FAILURES_AND_TSUID = "Series.updateCompressionFailuresAndTSUID";
     public static final String UPDATE_COMPRESSION_COMPLETED = "Series.updateCompressionCompleted";
-    public static final String INCREMENT_VERSION = "Series.IncrementVersion";
 
     private static final long MILLIS_PER_DAY = 24 * 3600_000;
 
@@ -326,15 +326,13 @@ public class Series {
 
     public static class MetadataUpdate {
         public final Long seriesPk;
-        public final Long version;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long seriesPk, Long version, InstancePurgeState instancePurgeState,
+        public MetadataUpdate(Long seriesPk, InstancePurgeState instancePurgeState,
                               String storageID, String storagePath) {
             this.seriesPk = seriesPk;
-            this.version = version;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;
             this.storagePath = storagePath;
@@ -342,7 +340,6 @@ public class Series {
 
         public String toString() {
             return "MetadataUpdate[seriesPk=" + seriesPk +
-                    ", version=" + version +
                     ", storageID=" + storageID +
                     ", storagePath=" + storagePath +
                     "]";
