@@ -340,7 +340,9 @@ public class PatientServiceEJB {
     }
 
     public void deletePatientFromUI(Patient patient) {
-        List<Patient> patients = em.createNamedQuery(Patient.FIND_BY_MERGED_WITH, Patient.class).setParameter(1, patient).getResultList();
+        List<Patient> patients = em.createNamedQuery(Patient.FIND_BY_MERGED_WITH, Patient.class)
+                .setParameter(1, patient)
+                .getResultList();
         for (Patient p : patients)
             deletePatientFromUI(p);
         removeMPPSMWLAndPatient(patient);
@@ -353,12 +355,7 @@ public class PatientServiceEJB {
         em.createNamedQuery(MWLItem.DELETE_BY_PATIENT)
                 .setParameter(1, patient)
                 .executeUpdate();
-        if (em.contains(patient))
-            em.remove(patient);
-        else {
-            Patient p = em.merge(patient);
-            em.remove(p);
-        }
+        em.remove(em.contains(patient) ? patient : em.merge(patient));
         LOG.info("Successfully removed {} from database along with any of its MPPS and MWLs", patient);
     }
 
