@@ -453,6 +453,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmSchedule", ed.getSchedules());
             writer.writeNotEmpty("dcmProperty", descriptorProperties(ed.getProperties()));
             writer.writeNotDef("dcmExportPriority", ed.getPriority(), 4);
+            writer.writeNotDef("dcmRejectForDataRetentionExpiry", ed.isRejectForDataRetentionExpiry(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1710,6 +1711,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmExportPriority":
                         ed.setPriority(reader.intValue());
+                        break;
+                    case "dcmRejectForDataRetentionExpiry":
+                        ed.setRejectForDataRetentionExpiry(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

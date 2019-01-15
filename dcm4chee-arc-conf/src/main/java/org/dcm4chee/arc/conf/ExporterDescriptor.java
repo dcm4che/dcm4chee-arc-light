@@ -68,6 +68,7 @@ public class ExporterDescriptor {
     private Availability instanceAvailability = Availability.ONLINE;
     private String stgCmtSCPAETitle;
     private String deleteStudyFromStorageID;
+    private boolean rejectForDataRetentionExpiry;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
@@ -180,6 +181,14 @@ public class ExporterDescriptor {
 
     public void setInstanceAvailability(Availability instanceAvailability) {
         this.instanceAvailability = instanceAvailability;
+    }
+
+    public boolean isRejectForDataRetentionExpiry() {
+        return rejectForDataRetentionExpiry;
+    }
+
+    public void setRejectForDataRetentionExpiry(boolean rejectForDataRetentionExpiry) {
+        this.rejectForDataRetentionExpiry = rejectForDataRetentionExpiry;
     }
 
     public ScheduleExpression[] getSchedules() {

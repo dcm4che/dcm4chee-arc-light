@@ -2068,6 +2068,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", descriptor.getSchedules());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPriority", descriptor.getPriority(), 4);
+        LdapUtils.storeNotDef(ldapObj, attrs,
+                "dcmRejectForDataRetentionExpiry", descriptor.isRejectForDataRetentionExpiry(), false);
         return attrs;
     }
 
@@ -2090,6 +2092,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setRetrieveLocationUID(LdapUtils.stringValue(attrs.get("dcmRetrieveLocationUID"), null));
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
+                desc.setRejectForDataRetentionExpiry(
+                        LdapUtils.booleanValue(attrs.get("dcmRejectForDataRetentionExpiry"), false));
                 desc.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setPriority(LdapUtils.intValue(attrs.get("dcmExportPriority"), 4));
@@ -2148,6 +2152,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportPriority", prev.getPriority(), desc.getPriority(), 4);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRejectForDataRetentionExpiry",
+                prev.isRejectForDataRetentionExpiry(), desc.isRejectForDataRetentionExpiry(), false);
         return mods;
     }
 
