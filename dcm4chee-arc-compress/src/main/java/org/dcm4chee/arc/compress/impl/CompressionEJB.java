@@ -76,10 +76,11 @@ public class CompressionEJB {
                 .getResultList();
     }
 
-    public int claimForCompression(Long seriesPk) {
+    public boolean claimForCompression(Series.Compression compression) {
         return em.createNamedQuery(Series.CLAIM_COMPRESSION)
-                .setParameter(1, seriesPk)
-                .executeUpdate();
+                .setParameter(1, compression.seriesPk)
+                .setParameter(2, compression.compressionTime)
+                .executeUpdate() > 0;
     }
 
     public void updateDB(Series.Compression compr, int completed, int failures) {

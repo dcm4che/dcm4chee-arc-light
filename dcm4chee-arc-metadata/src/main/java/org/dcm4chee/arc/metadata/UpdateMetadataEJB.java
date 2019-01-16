@@ -66,9 +66,10 @@ public class UpdateMetadataEJB {
                 .getResultList();
     }
 
-    public boolean claim(Long seriesPk) {
+    public boolean claim(Series.MetadataUpdate metadataUpdate) {
         return em.createNamedQuery(Series.CLAIM_UPDATE_METADATA)
-                .setParameter(1, seriesPk)
+                .setParameter(1, metadataUpdate.seriesPk)
+                .setParameter(2, metadataUpdate.scheduledUpdateTime)
                 .executeUpdate() > 0;
     }
 

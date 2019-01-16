@@ -122,7 +122,7 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
                         return;
 
                     Long seriesPk = metadataUpdate.seriesPk;
-                    if (!claim(seriesPk))
+                    if (!claim(metadataUpdate))
                         continue;
 
                     LOG.info("Purging Instance records of Series[pk={}]", seriesPk);
@@ -164,11 +164,11 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
         }
     }
 
-    private boolean claim(Long seriesPk) {
+    private boolean claim(Series.MetadataUpdate metadataUpdate) {
         try {
-            return ejb.claimPurgeInstanceRecordsOfSeries(seriesPk);
+            return ejb.claimPurgeInstanceRecordsOfSeries(metadataUpdate);
         } catch (Exception e) {
-            LOG.info("Failed to claim purge of Instance records of Series[pk={}]:\n", seriesPk, e);
+            LOG.info("Failed to claim purge of Instance records of Series[pk={}]:\n", metadataUpdate.seriesPk, e);
             return false;
         }
     }

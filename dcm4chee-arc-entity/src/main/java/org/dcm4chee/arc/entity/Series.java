@@ -168,13 +168,19 @@ import java.util.stream.Stream;
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
+                "se.pk, se.metadataScheduledUpdateTime, se.instancePurgeTime, " +
+                "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
+                "from Series se " +
                 "left join se.metadata metadata " +
                 "where se.metadataScheduledUpdateTime < current_timestamp " +
                 "order by se.metadataScheduledUpdateTime"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
+                "se.pk, se.metadataScheduledUpdateTime, se.instancePurgeTime, " +
+                "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
+                "from Series se " +
                 "join se.metadata metadata " +
                 "where se.instancePurgeTime < current_timestamp " +
                 "and se.metadataScheduledUpdateTime is null " +
@@ -224,7 +230,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_COMPRESSION,
         query = "select new org.dcm4chee.arc.entity.Series$Compression(" +
-                "se.study.pk, se.pk, se.instancePurgeState, se.compressionTransferSyntaxUID, " +
+                "se.study.pk, se.pk, se.compressionTime, se.instancePurgeState, se.compressionTransferSyntaxUID, " +
                 "se.compressionImageWriteParams, se.seriesInstanceUID, se.study.studyInstanceUID) " +
                 "from Series se " +
                 "where se.compressionTime < current_timestamp " +
@@ -240,15 +246,15 @@ import java.util.stream.Stream;
 @NamedQuery(
         name=Series.CLAIM_COMPRESSION,
         query = "update Series se set se.compressionTime = null " +
-                "where se.pk = ?1 and se.compressionTime is not null"),
+                "where se.pk = ?1 and se.compressionTime =?2"),
 @NamedQuery(
         name=Series.CLAIM_UPDATE_METADATA,
         query = "update Series se set se.metadataScheduledUpdateTime = null " +
-                "where se.pk = ?1 and se.metadataScheduledUpdateTime is not null"),
+                "where se.pk = ?1 and se.metadataScheduledUpdateTime = ?2"),
 @NamedQuery(
         name=Series.CLAIM_PURGE_INSTANCE_RECORDS,
         query = "update Series se set se.instancePurgeTime = null " +
-                "where se.pk = ?1 and se.instancePurgeTime is not null")
+                "where se.pk = ?1 and se.instancePurgeTime = ?2")
 })
 @Entity
 @Table(name = "series",
@@ -326,13 +332,17 @@ public class Series {
 
     public static class MetadataUpdate {
         public final Long seriesPk;
+        public final Date scheduledUpdateTime;
+        public final Date instancePurgeTime;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long seriesPk, InstancePurgeState instancePurgeState,
-                              String storageID, String storagePath) {
+        public MetadataUpdate(Long seriesPk, Date scheduledUpdateTime, Date instancePurgeTime,
+                              InstancePurgeState instancePurgeState, String storageID, String storagePath) {
             this.seriesPk = seriesPk;
+            this.scheduledUpdateTime = scheduledUpdateTime;
+            this.instancePurgeTime = instancePurgeTime;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;
             this.storagePath = storagePath;
@@ -372,17 +382,20 @@ public class Series {
     public static class Compression {
         public final Long studyPk;
         public final Long seriesPk;
+        public final Date compressionTime;
         public final InstancePurgeState instancePurgeState;
         public final String transferSyntaxUID;
         public final String imageWriteParams;
         public final String seriesInstanceUID;
         public final String studyInstanceUID;
 
-        public Compression(Long studyPk, Long seriesPk, InstancePurgeState instancePurgeState,
+        public Compression(Long studyPk, Long seriesPk, Date compressionTime,
+                           InstancePurgeState instancePurgeState,
                            String transferSyntaxUID, String imageWriteParams,
                            String seriesInstanceUID, String studyInstanceUID) {
             this.studyPk = studyPk;
             this.seriesPk = seriesPk;
+            this.compressionTime = compressionTime;
             this.instancePurgeState = instancePurgeState;
             this.transferSyntaxUID = transferSyntaxUID;
             this.imageWriteParams = imageWriteParams;

@@ -126,7 +126,7 @@ public class CompressionScheduler extends Scheduler {
         List<Series.Compression> compressions;
         do {
             for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {
-                if (ejb.claimForCompression(compression.seriesPk) > 0) {
+                if (ejb.claimForCompression(compression)) {
                     acquire(semaphore, 1);
                     device.execute(() -> {
                         process(ae, compression);
