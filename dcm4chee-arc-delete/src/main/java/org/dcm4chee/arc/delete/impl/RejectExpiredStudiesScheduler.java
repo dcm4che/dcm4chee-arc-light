@@ -213,13 +213,14 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     private void reject(ApplicationEntity ae, String studyUID, String seriesUID,
                         RejectionNote rn, String rejectionNoteObjectStorageID) throws IOException {
+        StoreSession session = storeService.newStoreSession(ae).withObjectStorageID(rejectionNoteObjectStorageID);
+        storeService.restoreInstances(session, studyUID, seriesUID, null);
         Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, null, rn);
         if (attrs == null) {
             LOG.warn("No Study with UID: " + studyUID);
             return;
         }
 
-        StoreSession session = storeService.newStoreSession(ae).withObjectStorageID(rejectionNoteObjectStorageID);
         StoreContext ctx = storeService.newStoreContext(session);
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
