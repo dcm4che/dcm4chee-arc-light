@@ -128,9 +128,8 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(arcDev.getRejectionNoteStorageAET());
-        if (arcDev.getRejectionNoteStorageAET() == null || rejectionNoteObjectStorageID != null)
-            reject(arcDev, ae, rn.get(), rejectionNoteObjectStorageID);
+        String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(arcDev);
+        reject(arcDev, ae, rn.get(), rejectionNoteObjectStorageID);
     }
 
     private void reject(ArchiveDeviceExtension arcDev, ApplicationEntity ae,
@@ -149,7 +148,11 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         rejectExpiredSeries(ae, rjNote, seriesFetchSize, rejectionNoteObjectStorageID);
     }
 
-    private String rejectionNoteObjectStorageID(String rejectionNoteStorageAET) {
+    private String rejectionNoteObjectStorageID(ArchiveDeviceExtension arcDev) {
+        String rejectionNoteStorageAET = arcDev.getRejectionNoteStorageAET();
+        if (rejectionNoteStorageAET == null)
+            return null;
+
         ApplicationEntity rjAE = getApplicationEntity(rejectionNoteStorageAET);
         ArchiveAEExtension rjArcAE;
         if (rjAE == null || !rjAE.isInstalled() || (rjArcAE = rjAE.getAEExtension(ArchiveAEExtension.class)) == null) {
@@ -157,12 +160,15 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     rejectionNoteStorageAET);
             return null;
         }
+
         String[] objectStorageIDs;
-        if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length == 0) {
-            LOG.warn("Object storage not configured for Rejection Note Storage AE: {}", rejectionNoteStorageAET);
-            return null;
-        }
-        return objectStorageIDs[0];
+        if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length > 0)
+            return objectStorageIDs[0];
+
+        LOG.warn("Object storage for rejection notes shall fall back on those configured for AE: {} since none are " +
+                "configured for RejectionNoteStorageAE: {}",
+                arcDev.getRejectExpiredStudiesAETitle(), rejectionNoteStorageAET);
+        return null;
     }
 
     private void rejectExpiredSeries(

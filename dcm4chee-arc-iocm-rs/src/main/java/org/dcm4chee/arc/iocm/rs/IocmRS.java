@@ -637,10 +637,6 @@ public class IocmRS {
     }
 
     private ArchiveAEExtension getArchiveAE() {
-        return toArchiveAE(aet);
-    }
-
-    private ArchiveAEExtension toArchiveAE(String aet) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(errResponse(
@@ -1013,14 +1009,21 @@ public class IocmRS {
         if (rjNoteStorageAET == null)
             return null;
 
-        ArchiveAEExtension arcAE = toArchiveAE(rjNoteStorageAET);
-        String[] objectStorageIDs = arcAE.getObjectStorageIDs();
-        if (objectStorageIDs.length == 0)
-            throw new WebApplicationException(
-                    errResponse("Object storage not configured for Rejection Note Storage AE."
-                                    + rjNoteStorageAET,
-                            Response.Status.NOT_FOUND));
-        return objectStorageIDs[0];
+        ApplicationEntity rjAE = device.getApplicationEntity(rjNoteStorageAET, true);
+        ArchiveAEExtension rjArcAE;
+        if (rjAE == null || !rjAE.isInstalled() || (rjArcAE = rjAE.getAEExtension(ArchiveAEExtension.class)) == null) {
+            LOG.warn("Rejection Note Storage Application Entity with an Archive AE Extension not configured: {}",
+                    rjNoteStorageAET);
+            return null;
+        }
+
+        String[] objectStorageIDs;
+        if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length > 0)
+            return objectStorageIDs[0];
+
+        LOG.warn("Object storage for rejection notes shall fall back on those configured for AE: {} since none are " +
+                "configured for RejectionNoteStorageAE: {}", aet, rjNoteStorageAET);
+        return null;
     }
 
     private ArchiveDeviceExtension arcDev() {
