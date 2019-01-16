@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**
@@ -103,22 +102,21 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         }
 
         LOG.info("Export completed, invoke rejection of objects.");
-        String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(arcDev.getRejectionNoteStorageAET());
-        if (arcDev.getRejectionNoteStorageAET() == null || rejectionNoteObjectStorageID != null) {
-            StoreSession session = storeService.newStoreSession(ae).withObjectStorageID(rejectionNoteObjectStorageID);
-            try {
-                reject(session, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn.get());
-            } catch (Exception e) {
-                LOG.warn("Rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
-                        ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), e.getMessage());
-            }
+        StoreSession storeSession = storeService.newStoreSession(ae);
+        try {
+            reject(storeSession, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn.get());
+        } catch (Exception e) {
+            LOG.warn("Rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
+                    ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), e.getMessage());
         }
     }
 
     @Override
-    public void reject(StoreSession session, ApplicationEntity ae, String studyIUID, String seriesIUID,
+    public void reject(StoreSession storeSession, ApplicationEntity ae, String studyIUID, String seriesIUID,
                        String sopIUID, RejectionNote rjNote) throws Exception {
-        storeService.restoreInstances(session, studyIUID, seriesIUID, null);
+        String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(storeSession);
+        storeSession.withObjectStorageID(rejectionNoteObjectStorageID);
+        storeService.restoreInstances(storeSession, studyIUID, seriesIUID, null);
         Attributes attrs = queryService.createRejectionNote(ae, studyIUID, seriesIUID, sopIUID, rjNote);
         if (attrs == null) {
             String errMsg = "No Study [UID={}] found for rejection." + studyIUID;
@@ -128,7 +126,7 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
 
         LOG.info("Start rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] completed.",
                 studyIUID, seriesIUID, sopIUID);
-        StoreContext storeCtx = storeService.newStoreContext(session);
+        StoreContext storeCtx = storeService.newStoreContext(storeSession);
         storeCtx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         storeCtx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
@@ -137,7 +135,9 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
                 studyIUID, seriesIUID, sopIUID);
     }
 
-    private String rejectionNoteObjectStorageID(String rejectionNoteStorageAET) {
+    private String rejectionNoteObjectStorageID(StoreSession storeSession) {
+        String rejectionNoteStorageAET = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getRejectionNoteStorageAET();
         if (rejectionNoteStorageAET == null)
             return null;
 
@@ -148,12 +148,15 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
                     rejectionNoteStorageAET);
             return null;
         }
+
         String[] objectStorageIDs;
-        if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length == 0) {
-            LOG.warn("Object storage not configured for Rejection Note Storage AE: {}", rejectionNoteStorageAET);
-            return null;
-        }
-        return objectStorageIDs[0];
+        if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length > 0)
+            return objectStorageIDs[0];
+
+        LOG.warn("Object storage for rejection notes shall fall back on those configured for AE: {} since none are " +
+                "configured for RejectionNoteStorageAE: {}",
+                storeSession.getLocalApplicationEntity().getAETitle(), rejectionNoteStorageAET);
+        return null;
     }
 
     private ApplicationEntity getApplicationEntity(String aet) {

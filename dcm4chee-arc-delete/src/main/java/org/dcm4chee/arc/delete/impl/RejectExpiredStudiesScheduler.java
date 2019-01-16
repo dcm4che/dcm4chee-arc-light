@@ -43,14 +43,12 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
-import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -80,9 +78,6 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     @Inject
     private Device device;
-
-    @Inject
-    private QueryService queryService;
 
     @Inject
     private StoreService storeService;
@@ -127,45 +122,25 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(arcDev.getRejectionNoteStorageAET());
-        if (arcDev.getRejectionNoteStorageAET() == null || rejectionNoteObjectStorageID != null)
-            reject(arcDev, ae, rn.get(), rejectionNoteObjectStorageID);
+        reject(arcDev, ae, rn.get());
     }
 
-    private void reject(ArchiveDeviceExtension arcDev, ApplicationEntity ae,
-                        RejectionNote rjNote, String rejectionNoteObjectStorageID) {
+    private void reject(ArchiveDeviceExtension arcDev, ApplicationEntity ae, RejectionNote rjNote) {
         int studyFetchSize = arcDev.getRejectExpiredStudiesFetchSize();
         if (studyFetchSize == 0) {
             LOG.warn("DeleteExpiredStudies operation ABORT : Study fetch size is 0");
             return;
         }
-        rejectExpiredStudies(ae, rjNote, studyFetchSize, rejectionNoteObjectStorageID);
+        rejectExpiredStudies(ae, rjNote, studyFetchSize);
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
         if (seriesFetchSize == 0) {
             LOG.warn("DeleteExpiredStudies operation ABORT : Series fetch size is == 0");
             return;
         }
-        rejectExpiredSeries(ae, rjNote, seriesFetchSize, rejectionNoteObjectStorageID);
+        rejectExpiredSeries(ae, rjNote, seriesFetchSize);
     }
 
-    private String rejectionNoteObjectStorageID(String rejectionNoteStorageAET) {
-        ApplicationEntity rjAE = getApplicationEntity(rejectionNoteStorageAET);
-        ArchiveAEExtension rjArcAE;
-        if (rjAE == null || !rjAE.isInstalled() || (rjArcAE = rjAE.getAEExtension(ArchiveAEExtension.class)) == null) {
-            LOG.warn("Rejection Note Storage Application Entity with an Archive AE Extension not configured: {}",
-                    rejectionNoteStorageAET);
-            return null;
-        }
-        String[] objectStorageIDs;
-        if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length == 0) {
-            LOG.warn("Object storage not configured for Rejection Note Storage AE: {}", rejectionNoteStorageAET);
-            return null;
-        }
-        return objectStorageIDs[0];
-    }
-
-    private void rejectExpiredSeries(
-            ApplicationEntity ae, RejectionNote rn, int seriesFetchSize, String rejectionNoteObjectStorageID) {
+    private void rejectExpiredSeries(ApplicationEntity ae, RejectionNote rn, int seriesFetchSize) {
         List<Series> seriesList;
         do {
             seriesList = em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
@@ -177,8 +152,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     return;
 
                 try {
-                    StoreSession session = storeService.newStoreSession(ae)
-                            .withObjectStorageID(rejectionNoteObjectStorageID);
+                    StoreSession session = storeService.newStoreSession(ae);
                     rejectionService.reject(
                             session, ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
                             null, rn);
@@ -190,8 +164,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         } while (seriesFetchSize == seriesList.size());
     }
 
-    private void rejectExpiredStudies(
-            ApplicationEntity ae, RejectionNote rn, int studyFetchSize, String rejectionNoteObjectStorageID) {
+    private void rejectExpiredStudies(ApplicationEntity ae, RejectionNote rn, int studyFetchSize) {
         List<Study> studies;
         do {
             studies = em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
@@ -203,8 +176,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     return;
 
                 try {
-                    StoreSession session = storeService.newStoreSession(ae)
-                            .withObjectStorageID(rejectionNoteObjectStorageID);
+                    StoreSession session = storeService.newStoreSession(ae);
                     rejectionService.reject(
                             session, ae, study.getStudyInstanceUID(), null, null, rn);
                 } catch (Exception e) {

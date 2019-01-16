@@ -658,9 +658,7 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null)
-                .withObjectStorageID(rejectionNoteObjectStorageID());
-
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null);
         try {
             rejectionService.reject(session, arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
             rsForward.forward(rsOp, arcAE, null, request);
@@ -1003,14 +1001,21 @@ public class IocmRS {
         if (rjNoteStorageAET == null)
             return null;
 
-        ArchiveAEExtension arcAE = toArchiveAE(rjNoteStorageAET);
-        String[] objectStorageIDs = arcAE.getObjectStorageIDs();
-        if (objectStorageIDs.length == 0)
-            throw new WebApplicationException(
-                    errResponse("Object storage not configured for Rejection Note Storage AE."
-                                    + rjNoteStorageAET,
-                            Response.Status.NOT_FOUND));
-        return objectStorageIDs[0];
+        ApplicationEntity rjAE = device.getApplicationEntity(rjNoteStorageAET, true);
+        ArchiveAEExtension rjArcAE;
+        if (rjAE == null || !rjAE.isInstalled() || (rjArcAE = rjAE.getAEExtension(ArchiveAEExtension.class)) == null) {
+            LOG.warn("Rejection Note Storage Application Entity with an Archive AE Extension not configured: {}",
+                    rjNoteStorageAET);
+            return null;
+        }
+
+        String[] objectStorageIDs;
+        if ((objectStorageIDs = rjArcAE.getObjectStorageIDs()).length > 0)
+            return objectStorageIDs[0];
+
+        LOG.warn("Object storage for rejection notes shall fall back on those configured for AE: {} since none are " +
+                "configured for RejectionNoteStorageAE: {}", aet, rjNoteStorageAET);
+        return null;
     }
 
     private ArchiveDeviceExtension arcDev() {
