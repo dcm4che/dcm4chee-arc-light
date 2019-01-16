@@ -47,6 +47,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.RejectionService;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.store.StoreService;
@@ -59,8 +60,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,7 +87,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     private RejectionService rejectionService;
 
     protected RejectExpiredStudiesScheduler() {
-        super(Mode.scheduleAtFixedRate);
+        super(Mode.scheduleWithFixedDelay);
     }
 
     @Override
@@ -101,14 +102,11 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     }
 
     @Override
-    protected LocalTime getStartTime() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getRejectExpiredStudiesPollingStartTime();
-    }
-
-    @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        if (!ScheduleExpression.emptyOrAnyContains(Calendar.getInstance(), arcDev.getRejectExpiredStudiesSchedules()))
+            return;
+
         ApplicationEntity ae = getApplicationEntity(arcDev.getRejectExpiredStudiesAETitle());
         if (ae == null || !ae.isInstalled()) {
             LOG.warn("No such Application Entity: {}", arcDev.getRejectExpiredStudiesAETitle());

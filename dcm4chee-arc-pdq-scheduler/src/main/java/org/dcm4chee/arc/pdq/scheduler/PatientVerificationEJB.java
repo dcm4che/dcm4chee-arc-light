@@ -59,30 +59,30 @@ public class PatientVerificationEJB {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    public List<Patient.IDWithPkAndVersion> findByVerificationStatus(
+    public List<Patient.IDWithPkAndVerificationStatus> findByVerificationStatus(
             Patient.VerificationStatus status, int limit) {
         return em.createNamedQuery(
-                Patient.FIND_BY_VERIFICATION_STATUS, Patient.IDWithPkAndVersion.class)
+                Patient.FIND_BY_VERIFICATION_STATUS, Patient.IDWithPkAndVerificationStatus.class)
                 .setParameter(1, status)
                 .setMaxResults(limit)
                 .getResultList();
     }
 
-    public List<Patient.IDWithPkAndVersion> findByVerificationStatusAndTime(
+    public List<Patient.IDWithPkAndVerificationStatus> findByVerificationStatusAndTime(
             Patient.VerificationStatus status, Date verifiedBefore, int limit) {
         return em.createNamedQuery(
-                Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME, Patient.IDWithPkAndVersion.class)
+                Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME, Patient.IDWithPkAndVerificationStatus.class)
                 .setParameter(1, status)
                 .setParameter(2, verifiedBefore)
                 .setMaxResults(limit)
                 .getResultList();
     }
 
-    public List<Patient.IDWithPkAndVersion> findByVerificationStatusAndTimeAndRetries(
+    public List<Patient.IDWithPkAndVerificationStatus> findByVerificationStatusAndTimeAndRetries(
             Patient.VerificationStatus status, Date verifiedBefore, int maxRetries, int limit) {
         return maxRetries < 0 ? findByVerificationStatusAndTime(status, verifiedBefore, limit)
                 : em.createNamedQuery(
-                Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES, Patient.IDWithPkAndVersion.class)
+                Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES, Patient.IDWithPkAndVerificationStatus.class)
                 .setParameter(1, status)
                 .setParameter(2, verifiedBefore)
                 .setParameter(3, maxRetries)
@@ -90,10 +90,11 @@ public class PatientVerificationEJB {
                 .getResultList();
     }
 
-    public boolean incrementVersion(Patient.IDWithPkAndVersion patient) {
-        return em.createNamedQuery(Patient.INCREMENT_VERSION)
+    public boolean claimPatientVerification(Patient.IDWithPkAndVerificationStatus patient) {
+        return em.createNamedQuery(Patient.CLAIM_PATIENT_VERIFICATION)
                 .setParameter(1, patient.pk)
-                .setParameter(2, patient.version)
+                .setParameter(2, patient.verificationStatus)
+                .setParameter(3, Patient.VerificationStatus.IN_PROCESS)
                 .executeUpdate() > 0;
     }
 }

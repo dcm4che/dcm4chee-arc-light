@@ -42,9 +42,6 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
-
-import java.time.LocalTime;
-
 import org.dcm4che3.io.BasicBulkDataDescriptor;
 import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.net.DeviceExtension;
@@ -57,7 +54,6 @@ import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -149,7 +145,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
     private volatile Duration rejectExpiredStudiesPollingInterval;
-    private volatile LocalTime rejectExpiredStudiesPollingStartTime;
+    private volatile ScheduleExpression[] rejectExpiredStudiesSchedules = {};
     private volatile int rejectExpiredStudiesFetchSize = 0;
     private volatile int rejectExpiredSeriesFetchSize = 0;
     private volatile String rejectExpiredStudiesAETitle;
@@ -922,12 +918,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.rejectExpiredStudiesPollingInterval = rejectExpiredStudiesPollingInterval;
     }
 
-    public LocalTime getRejectExpiredStudiesPollingStartTime() {
-        return rejectExpiredStudiesPollingStartTime;
+    public ScheduleExpression[] getRejectExpiredStudiesSchedules() {
+        return rejectExpiredStudiesSchedules;
     }
 
-    public void setRejectExpiredStudiesPollingStartTime(LocalTime rejectExpiredStudiesPollingStartTime) {
-        this.rejectExpiredStudiesPollingStartTime = rejectExpiredStudiesPollingStartTime;
+    public void setRejectExpiredStudiesSchedules(ScheduleExpression[] rejectExpiredStudiesSchedules) {
+        this.rejectExpiredStudiesSchedules = rejectExpiredStudiesSchedules;
     }
 
     public String getRejectExpiredStudiesAETitle() {
@@ -2279,7 +2275,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
-        rejectExpiredStudiesPollingStartTime = arcdev.rejectExpiredStudiesPollingStartTime;
+        rejectExpiredStudiesSchedules = arcdev.rejectExpiredStudiesSchedules;
         rejectExpiredStudiesFetchSize = arcdev.rejectExpiredStudiesFetchSize;
         rejectExpiredSeriesFetchSize = arcdev.rejectExpiredSeriesFetchSize;
         rejectExpiredStudiesAETitle = arcdev.rejectExpiredStudiesAETitle;

@@ -58,7 +58,6 @@ import org.dcm4che3.util.Property;
 import org.dcm4chee.arc.conf.ui.*;
 
 import java.net.URI;
-import java.time.LocalTime;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -1135,7 +1134,6 @@ class ArchiveDeviceFactory {
     static final Duration AE_CACHE_STALE_TIMEOUT = Duration.valueOf("PT5M");
     static final Duration LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT = Duration.valueOf("PT5M");
     static final Duration REJECT_EXPIRED_STUDIES_POLLING_INTERVAL = Duration.valueOf("P1D");
-    static final LocalTime REJECT_EXPIRED_STUDIES_START_TIME = LocalTime.parse("00:00:00");
     static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.valueOf("PT1H");
@@ -1475,7 +1473,6 @@ class ArchiveDeviceFactory {
         ext.setCompressionAETitle(AE_TITLE);
 
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
-        ext.setRejectExpiredStudiesPollingStartTime(REJECT_EXPIRED_STUDIES_START_TIME);
         ext.setRejectExpiredStudiesAETitle(AE_TITLE);
         ext.setRejectExpiredStudiesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
         ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);

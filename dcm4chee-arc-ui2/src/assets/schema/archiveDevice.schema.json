@@ -626,11 +626,14 @@
       "type": "string",
       "format": "dcmDuration"
     },
-    "dcmRejectExpiredStudiesPollingStartTime": {
-      "title": "Reject Expired Studies Polling Start Time",
-      "description": "Time when the polling interval for rejecting expired Studies and Series starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.",
-      "type": "string",
-      "format": "dcmTime"
+    "dcmRejectExpiredStudiesSchedule": {
+      "title": "Reject Expired Studies Schedule",
+      "description": "Limits Rejection of Expired Studies to specified times in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
     },
     "dcmRejectExpiredStudiesFetchSize": {
       "title": "Reject Expired Studies Fetch Size",

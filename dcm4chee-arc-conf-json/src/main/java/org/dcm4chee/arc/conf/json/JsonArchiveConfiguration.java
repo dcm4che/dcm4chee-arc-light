@@ -59,7 +59,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.json.stream.JsonParser;
 import java.net.URI;
-import java.time.LocalTime;
 import java.time.Period;
 import java.util.Collection;
 import java.util.Map;
@@ -162,8 +161,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotNullOrDef("dcmRejectExpiredStudiesPollingInterval",
                 arcDev.getRejectExpiredStudiesPollingInterval(), null);
-        writer.writeNotNullOrDef("dcmRejectExpiredStudiesPollingStartTime",
-                arcDev.getRejectExpiredStudiesPollingStartTime(), null);
+        writer.writeNotEmpty("dcmRejectExpiredStudiesSchedule", arcDev.getRejectExpiredStudiesSchedules());
         writer.writeNotDef("dcmRejectExpiredStudiesFetchSize", arcDev.getRejectExpiredStudiesFetchSize(), 0);
         writer.writeNotDef("dcmRejectExpiredSeriesFetchSize", arcDev.getRejectExpiredSeriesFetchSize(), 0);
         writer.writeNotNullOrDef("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle(), null);
@@ -1048,8 +1046,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmRejectExpiredStudiesPollingInterval":
                     arcDev.setRejectExpiredStudiesPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
-                case "dcmRejectExpiredStudiesPollingStartTime":
-                    arcDev.setRejectExpiredStudiesPollingStartTime(LocalTime.parse(reader.stringValue()));
+                case "dcmRejectExpiredStudiesSchedule":
+                    arcDev.setRejectExpiredStudiesSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
                     break;
                 case "dcmRejectExpiredStudiesFetchSize":
                     arcDev.setRejectExpiredStudiesFetchSize(reader.intValue());

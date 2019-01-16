@@ -85,29 +85,29 @@ import java.util.*;
             "where p.mergedWith = ?1"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS,
-    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVersion(p.patientID, p.pk, p.version) " +
+    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVerificationStatus(p.patientID, p.pk, p.verificationStatus) " +
             "from Patient p " +
             "where p.verificationStatus = ?1 " +
             "order by p.pk"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME,
-    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVersion(p.patientID, p.pk, p.version) " +
+    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVerificationStatus(p.patientID, p.pk, p.verificationStatus) " +
             "from Patient p " +
             "where p.verificationStatus = ?1 " +
             "and p.verificationTime < ?2 " +
             "order by p.verificationTime"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES,
-    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVersion(p.patientID, p.pk, p.version) " +
+    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVerificationStatus(p.patientID, p.pk, p.verificationStatus) " +
             "from Patient p " +
             "where p.verificationStatus = ?1 " +
             "and p.verificationTime < ?2 " +
             "and p.failedVerifications <= ?3 " +
             "order by p.verificationTime"),
 @NamedQuery(
-    name=Patient.INCREMENT_VERSION,
-    query="update Patient p set p.version = p.version + 1 " +
-            "where p.pk = ?1 and p.version = ?2")
+    name=Patient.CLAIM_PATIENT_VERIFICATION,
+    query="update Patient p set p.verificationStatus = ?3 " +
+            "where p.pk = ?1 and p.verificationStatus = ?2")
 })
 @Entity
 @Table(name = "patient",
@@ -134,24 +134,25 @@ public class Patient {
     public static final String FIND_BY_VERIFICATION_STATUS_AND_TIME = "Patient.findByVerificationStatusAndTime";
     public static final String FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES =
             "Patient.findByVerificationStatusAndTimeAndMaxRetries";
-    public static final String INCREMENT_VERSION = "Patient.IncrementVersion";
+    public static final String CLAIM_PATIENT_VERIFICATION = "Patient.ClaimPatientVerification";
 
     public enum VerificationStatus {
         UNVERIFIED,
         VERIFIED,
         NOT_FOUND,
-        VERIFICATION_FAILED
+        VERIFICATION_FAILED,
+        IN_PROCESS
     }
 
-    public static class IDWithPkAndVersion {
+    public static class IDWithPkAndVerificationStatus {
         public final IDWithIssuer idWithIssuer;
         public final Long pk;
-        public final Long version;
+        public final VerificationStatus verificationStatus;
 
-        public IDWithPkAndVersion(PatientID patientID, Long pk, Long version) {
+        public IDWithPkAndVerificationStatus(PatientID patientID, Long pk, VerificationStatus verificationStatus) {
             this.idWithIssuer = patientID.getIDWithIssuer();
             this.pk = pk;
-            this.version = version;
+            this.verificationStatus = verificationStatus;
         }
 
         @Override

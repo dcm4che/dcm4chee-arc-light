@@ -156,11 +156,11 @@ public class PatientVerificationScheduler extends Scheduler {
                 fetchSize, adjustIssuerOfPatientID));
     }
 
-    private boolean verifyPatients(PDQService pdqService, List<Patient.IDWithPkAndVersion> patients, int fetchSize,
+    private boolean verifyPatients(PDQService pdqService, List<Patient.IDWithPkAndVerificationStatus> patients, int fetchSize,
                                    boolean adjustIssuerOfPatientID) {
-        for (Patient.IDWithPkAndVersion patient : patients) {
+        for (Patient.IDWithPkAndVerificationStatus patient : patients) {
             try {
-                if (ejb.incrementVersion(patient))
+                if (ejb.claimPatientVerification(patient))
                     verifyPatient(pdqService, patient, adjustIssuerOfPatientID);
             } catch (Exception e) {
                 LOG.warn("Verification of {} failed:\n", patient, e);
@@ -169,7 +169,7 @@ public class PatientVerificationScheduler extends Scheduler {
         return patients.size() == fetchSize;
     }
 
-    private void verifyPatient(PDQService pdqService, Patient.IDWithPkAndVersion patient,
+    private void verifyPatient(PDQService pdqService, Patient.IDWithPkAndVerificationStatus patient,
                                boolean adjustIssuerOfPatientID) {
         PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
         ctx.setPatientID(patient.idWithIssuer);

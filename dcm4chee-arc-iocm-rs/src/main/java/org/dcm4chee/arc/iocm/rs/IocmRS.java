@@ -641,10 +641,6 @@ public class IocmRS {
     }
 
     private ArchiveAEExtension getArchiveAE() {
-        return toArchiveAE(aet);
-    }
-
-    private ArchiveAEExtension toArchiveAE(String aet) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(errResponse(
