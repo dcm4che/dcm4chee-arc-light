@@ -40,9 +40,6 @@
 
 package org.dcm4chee.arc.delete.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
@@ -50,10 +47,10 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -63,7 +60,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -90,6 +86,9 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     @Inject
     private StoreService storeService;
+
+    @Inject
+    private RejectionService rejectionService;
 
     protected RejectExpiredStudiesScheduler() {
         super(Mode.scheduleAtFixedRate);
@@ -178,9 +177,14 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     return;
 
                 try {
-                    reject(ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(), rn, rejectionNoteObjectStorageID);
-                } catch (IOException e) {
-                    LOG.warn("IOException caught is : ", e);
+                    StoreSession session = storeService.newStoreSession(ae)
+                            .withObjectStorageID(rejectionNoteObjectStorageID);
+                    rejectionService.reject(
+                            session, ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
+                            null, rn);
+                } catch (Exception e) {
+                    LOG.warn("Failed to reject Expired Series[UID={}] of Study[UID={}].\n",
+                            series.getSeriesInstanceUID(), series.getStudy().getStudyInstanceUID(), e);
                 }
             }
         } while (seriesFetchSize == seriesList.size());
@@ -199,9 +203,12 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     return;
 
                 try {
-                    reject(ae, study.getStudyInstanceUID(), null, rn, rejectionNoteObjectStorageID);
-                } catch (IOException e) {
-                    LOG.warn("IOException caught is : ", e);
+                    StoreSession session = storeService.newStoreSession(ae)
+                            .withObjectStorageID(rejectionNoteObjectStorageID);
+                    rejectionService.reject(
+                            session, ae, study.getStudyInstanceUID(), null, null, rn);
+                } catch (Exception e) {
+                    LOG.warn("Failed to reject Expired Study[UID={}].\n", study.getStudyInstanceUID(), e);
                 }
             }
         } while (studyFetchSize == studies.size());
@@ -209,23 +216,6 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     private ApplicationEntity getApplicationEntity(String aet) {
         return device.getApplicationEntity(aet, true);
-    }
-
-    private void reject(ApplicationEntity ae, String studyUID, String seriesUID,
-                        RejectionNote rn, String rejectionNoteObjectStorageID) throws IOException {
-        StoreSession session = storeService.newStoreSession(ae).withObjectStorageID(rejectionNoteObjectStorageID);
-        storeService.restoreInstances(session, studyUID, seriesUID, null);
-        Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, null, rn);
-        if (attrs == null) {
-            LOG.warn("No Study with UID: " + studyUID);
-            return;
-        }
-
-        StoreContext ctx = storeService.newStoreContext(session);
-        ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
-        ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
-        ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-        storeService.store(ctx, attrs);
     }
 
 }
