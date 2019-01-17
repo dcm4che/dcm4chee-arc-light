@@ -73,7 +73,7 @@ public class QueryParam {
     private Patient.VerificationStatus patientVerificationStatus;
     private String expirationDate;
     private List<String> studyStorageIDs;
-    private String studySizeInKB;
+    private int[] studySizeRange = {};
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -245,11 +245,28 @@ public class QueryParam {
         return studyStorageIDs != null && studyStorageIDs.isEmpty();
     }
 
-    public String getStudySizeInKB() {
-        return studySizeInKB;
+    public int[] getStudySizeRange() {
+        return studySizeRange;
     }
 
-    public void setStudySizeInKB(String studySizeInKB) {
-        this.studySizeInKB = studySizeInKB;
+    public void setStudySizeRange(String studySizeInKB) {
+        this.studySizeRange = splitRange(studySizeInKB);
+    }
+
+    private static int[] splitRange(String s) {
+        int[] range = new int[2];
+        int delim = s.indexOf('-');
+        if (delim == -1) {
+            int size = Integer.parseInt(s) * 1000;
+            range[0] = size;
+            range[1] = size + 999;
+        }
+        else {
+            if (delim > 0)
+                range[0] =  Integer.parseInt(s.substring(0, delim)) * 1000;
+            if (delim < s.length() - 1)
+                range[1] =  (Integer.parseInt(s.substring(delim+1)) * 1000) + 999;
+        }
+        return range;
     }
 }
