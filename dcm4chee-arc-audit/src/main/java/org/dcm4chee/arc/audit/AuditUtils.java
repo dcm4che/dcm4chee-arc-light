@@ -268,9 +268,12 @@ class AuditUtils {
         static EventType forHL7IncomingOrderMsg(UnparsedHL7Message hl7ResponseMessage) {
             if (hl7ResponseMessage instanceof ArchiveHL7Message) {
                 ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
-                return archiveHL7Message.getProcRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
-                        ? PROC_STD_C
-                        : PROC_STD_U;
+                String procRecEventActionCode = archiveHL7Message.getProcRecEventActionCode();
+                return procRecEventActionCode == null
+                        ? PROC_STD_R
+                        : procRecEventActionCode.equals(AuditMessages.EventActionCode.Create)
+                            ? PROC_STD_C
+                            : PROC_STD_U;
             }
             return PROC_STD_R;
         }
