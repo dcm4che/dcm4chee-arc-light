@@ -46,8 +46,8 @@ import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.ScheduleExpression;
 import org.dcm4chee.arc.delete.RejectionService;
-import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.store.StoreService;
@@ -63,7 +63,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -112,15 +111,13 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             LOG.warn("No such Application Entity: {}", arcDev.getRejectExpiredStudiesAETitle());
             return;
         }
-        Optional<RejectionNote> rn = arcDev.getRejectionNotes().stream()
-                            .filter(RejectionNote::isDataRetentionPolicyExpired)
-                            .findFirst();
-        if (!rn.isPresent()) {
+        RejectionNote rn = arcDev.getRejectionNote(RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED);
+        if (rn == null) {
             LOG.warn("Data Retention Policy Expired Rejection Note not configured.");
             return;
         }
 
-        reject(arcDev, ae, rn.get());
+        reject(arcDev, ae, rn);
     }
 
     private void reject(ArchiveDeviceExtension arcDev, ApplicationEntity ae, RejectionNote rjNote) {

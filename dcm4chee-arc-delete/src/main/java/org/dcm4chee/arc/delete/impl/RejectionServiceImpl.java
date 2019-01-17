@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.Optional;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -93,10 +92,8 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         }
 
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        Optional<RejectionNote> rn = arcDev.getRejectionNotes().stream()
-                .filter(RejectionNote::isDataRetentionPolicyExpired)
-                .findFirst();
-        if (!rn.isPresent()) {
+        RejectionNote rn = arcDev.getRejectionNote(RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED);
+        if (rn == null) {
             LOG.warn("Data Retention Policy Expired Rejection Note not configured.");
             return;
         }
@@ -104,7 +101,7 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         LOG.info("Export completed, invoke rejection of objects.");
         StoreSession storeSession = storeService.newStoreSession(ae);
         try {
-            reject(storeSession, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn.get());
+            reject(storeSession, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn);
         } catch (Exception e) {
             LOG.warn("Rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
                     ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), e.getMessage());
