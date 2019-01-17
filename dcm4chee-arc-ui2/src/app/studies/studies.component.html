@@ -154,10 +154,10 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <label for="limit" class="block_seid pull-right">Page Size:</label>
+                            <input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />
                         </div>
                         <div class="col-md-6">
-                            <input  id="limit" type="number" min="1" [(ngModel)]="limit" class="col-md-12" required/>
+                            <input  id="limit" type="number" min="1" [(ngModel)]="limit" class="col-md-12" title="Page Size" required/>
                         </div>
                     </div>
 
@@ -217,7 +217,9 @@
                             <div class="col-md-12">
                                 <!--<p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date to"></p-calendar>-->
                                 <!--<input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />-->
-                                    <input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />
+
+                                <range-picker [model]="filter.StudyAccessDateTime" (modelChange)="filter.StudyAccessDateTime = $event" mode="range" placeholder="Study Access" title="Study Access Date Time" dateFormat="yymmdd"></range-picker>
+
                             </div>
                             <div class="col-md-12" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                                 <!--<p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>-->
