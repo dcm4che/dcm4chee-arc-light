@@ -118,6 +118,7 @@ create index UK_e2lo4ep4t4k07njc09anf6xkm on retrieve_task (updated_time);
 create index UK_gafcma0d5wwdjlq8jueqknlq0 on retrieve_task (study_iuid(64));
 alter table series add constraint UK_bdj2kuutidekc2en6dckev7l6  unique (dicomattrs_fk);
 alter table series add constraint UK_83y2fx8cou17h3xggxspgikna  unique (study_fk, series_iuid);
+create index UK_9fi64g5jjycg9dp24jjk5txg1 on series (series_iuid(64));
 create index UK_jlgy9ifvqak4g2bxkchismw8x on series (rejection_state);
 create index UK_75oc6w5ootkuwyvmrhe3tbown on series (series_no);
 create index UK_b126hub0dc1o9dqp6awoispx2 on series (modality(64));

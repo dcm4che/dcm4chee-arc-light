@@ -24,7 +24,7 @@ create table series_query_attrs (pk bigint identity not null, availability int, 
 create table series_req (pk bigint identity not null, accession_no varchar(255) not null, req_proc_id varchar(255) not null, req_service varchar(255) not null, sps_id varchar(255) not null, study_iuid varchar(255) not null, accno_issuer_fk bigint, req_phys_name_fk bigint, series_fk bigint, primary key (pk));
 create table soundex_code (pk bigint identity not null, sx_code_value varchar(255) not null, sx_pn_comp_part int not null, sx_pn_comp int not null, person_name_fk bigint not null, primary key (pk));
 create table sps_station_aet (mwl_item_fk bigint not null, station_aet varchar(255));
-create table stgcmt_result (pk bigint identity not null, batch_id varchar(255), created_time datetime2 not null, device_name varchar(255) not null, exporter_id varchar(255) not null, num_failures int, num_instances int, series_iuid varchar(255), sop_iuid varchar(255), stgcmt_status int not null, study_iuid varchar(255) not null, transaction_uid varchar(255) not null, updated_time datetime2 not null, primary key (pk));
+create table stgcmt_result (pk bigint identity not null, batch_id varchar(255), created_time datetime2 not null, device_name varchar(255) not null, exporter_id varchar(255) not null, msg_id varchar(255), num_failures int, num_instances int, series_iuid varchar(255), sop_iuid varchar(255), stgcmt_status int not null, study_iuid varchar(255) not null, transaction_uid varchar(255) not null, updated_time datetime2 not null, primary key (pk));
 create table stgver_task (pk bigint identity not null, completed int not null, created_time datetime2 not null, failed int not null, local_aet varchar(255) not null, series_iuid varchar(255), sop_iuid varchar(255), storage_ids varchar(255), stgcmt_policy int, study_iuid varchar(255) not null, update_location_status bit, updated_time datetime2 not null, queue_msg_fk bigint not null, primary key (pk));
 create table study (pk bigint identity not null, access_control_id varchar(255) not null, access_time datetime2 not null, accession_no varchar(255) not null, completeness int not null, created_time datetime2 not null, expiration_date varchar(255), ext_retrieve_aet varchar(255) not null, failed_retrieves int not null, modified_time datetime2 not null, rejection_state int not null, study_size bigint not null, storage_ids varchar(255), study_custom1 varchar(255) not null, study_custom2 varchar(255) not null, study_custom3 varchar(255) not null, study_date varchar(255) not null, study_desc varchar(255) not null, study_id varchar(255) not null, study_iuid varchar(255) not null, study_time varchar(255) not null, updated_time datetime2 not null, version bigint, dicomattrs_fk bigint not null, accno_issuer_fk bigint, patient_fk bigint not null, ref_phys_name_fk bigint, primary key (pk));
 create table study_query_attrs (pk bigint identity not null, availability int, mods_in_study varchar(255), num_instances int, num_series int, retrieve_aets varchar(255), cuids_in_study varchar(255), view_id varchar(255), study_fk bigint not null, primary key (pk));
@@ -118,6 +118,7 @@ create index UK_e2lo4ep4t4k07njc09anf6xkm on retrieve_task (updated_time);
 create index UK_gafcma0d5wwdjlq8jueqknlq0 on retrieve_task (study_iuid);
 alter table series add constraint UK_bdj2kuutidekc2en6dckev7l6  unique (dicomattrs_fk);
 alter table series add constraint UK_83y2fx8cou17h3xggxspgikna  unique (study_fk, series_iuid);
+create index UK_9fi64g5jjycg9dp24jjk5txg1 on series (series_iuid);
 create index UK_jlgy9ifvqak4g2bxkchismw8x on series (rejection_state);
 create index UK_75oc6w5ootkuwyvmrhe3tbown on series (series_no);
 create index UK_b126hub0dc1o9dqp6awoispx2 on series (modality);
@@ -158,6 +159,7 @@ alter table stgcmt_result add constraint UK_ey6qpep2qtiwayou7pd0vj22w  unique (t
 create index UK_qko59fn9pb87j1eu070ilfkhm on stgcmt_result (updated_time);
 create index UK_7ltjgxoijy15rrwihl8euv7vh on stgcmt_result (device_name);
 create index UK_gu96kxnbf2p84d1katepo0btq on stgcmt_result (exporter_id);
+create index UK_4iih0m0ueyvaim3033di45ems on stgcmt_result (msg_id);
 create index UK_f718gnu5js0mdg39q6j7fklia on stgcmt_result (batch_id);
 create index UK_p65blcj4h0uh2itb0bp49mc07 on stgcmt_result (study_iuid);
 create index UK_nyoefler7agcmxc8t8yfngq7e on stgcmt_result (stgcmt_status);
