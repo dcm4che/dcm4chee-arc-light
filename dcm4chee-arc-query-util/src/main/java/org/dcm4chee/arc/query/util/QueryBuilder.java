@@ -371,6 +371,31 @@ public class QueryBuilder {
                     QStudy.study.expirationDate, queryParam.getExpirationDate(), MatchDateTimeRange.FormatDate.DA));
         if (queryParam.getStudyStorageIDs() != null)
             builder.and(QStudy.study.storageIDs.in(queryParam.getStudyStorageIDs()));
+        if (queryParam.getStudySizeInKB() != null)
+            builder.and(studySize(QStudy.study.size, queryParam.getStudySizeInKB()));
+    }
+
+    private static Predicate studySize(NumberPath field, String studySizeInKB) {
+        int[] range = splitRange(studySizeInKB);
+        if (range[0] == 0)
+            return field.loe(range[1]);
+        if (range[1] == 0)
+            return field.goe(range[0]);
+        return range[0] == range[1] ? field.eq(range[0]) : field.between(range[0], range[1]);
+    }
+
+    private static int[] splitRange(String s) {
+        int[] range = new int[2];
+        int delim = s.indexOf('-');
+        if (delim == -1)
+            range[0] = range[1] = Integer.parseInt(s) * 1000;
+        else {
+            if (delim > 0)
+                range[0] =  Integer.parseInt(s.substring(0, delim)) * 1000;
+            if (delim < s.length() - 1)
+                range[1] =  Integer.parseInt(s.substring(delim+1)) * 1000;
+        }
+        return range;
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {

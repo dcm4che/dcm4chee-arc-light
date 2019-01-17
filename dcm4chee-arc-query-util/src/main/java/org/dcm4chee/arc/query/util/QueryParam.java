@@ -73,6 +73,7 @@ public class QueryParam {
     private Patient.VerificationStatus patientVerificationStatus;
     private String expirationDate;
     private List<String> studyStorageIDs;
+    private String studySizeInKB;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -242,5 +243,13 @@ public class QueryParam {
 
     public boolean noMatches() {
         return studyStorageIDs != null && studyStorageIDs.isEmpty();
+    }
+
+    public String getStudySizeInKB() {
+        return studySizeInKB;
+    }
+
+    public void setStudySizeInKB(String studySizeInKB) {
+        this.studySizeInKB = studySizeInKB;
     }
 }

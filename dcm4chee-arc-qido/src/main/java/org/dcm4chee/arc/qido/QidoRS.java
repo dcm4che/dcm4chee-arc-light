@@ -184,6 +184,9 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String allOfModalitiesInStudy;
 
+    @QueryParam("StudySizeInKB")
+    private String studySizeInKB;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -514,6 +517,7 @@ public class QidoRS {
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);
+        queryParam.setStudySizeInKB(studySizeInKB);
         if (storageID != null)
             queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
