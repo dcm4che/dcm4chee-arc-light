@@ -232,8 +232,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
         cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US, ctx.failed());
         cmd.setInt(Tag.NumberOfWarningSuboperations, VR.US, ctx.warning());
         try {
-            if (rqas.isReadyForDataTransfer())
-                rqas.writeDimseRSP(pc, cmd, data);
+            rqas.writeDimseRSP(pc, cmd, data);
         } catch (IOException e) {
             LOG.warn("{}: Unable to send C-GET or C-MOVE RSP on association to {}",
                     rqas, rqas.getRemoteAET(), e);
