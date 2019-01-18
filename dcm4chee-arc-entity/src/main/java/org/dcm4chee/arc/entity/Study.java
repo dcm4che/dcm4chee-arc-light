@@ -149,6 +149,7 @@ import java.util.*;
                 @Index(columnList = "study_custom1"),
                 @Index(columnList = "study_custom2"),
                 @Index(columnList = "study_custom3"),
+                @Index(columnList = "expiration_state"),
                 @Index(columnList = "expiration_date"),
                 @Index(columnList = "failed_retrieves"),
                 @Index(columnList = "completeness"),
@@ -276,9 +277,17 @@ public class Study {
     @Column(name = "rejection_state")
     private RejectionState rejectionState;
 
+    @Basic(optional = false)
+    @Column(name = "expiration_state")
+    private ExpirationState expirationState;
+
     @Basic
     @Column(name = "expiration_date")
     private String expirationDate;
+
+    @Basic
+    @Column(name = "expiration_exporter_id")
+    private String expirationExporterID;
 
     @Basic(optional = false)
     @Column(name = "ext_retrieve_aet")
@@ -508,6 +517,14 @@ public class Study {
         this.rejectionState = rejectionState;
     }
 
+    public ExpirationState getExpirationState() {
+        return expirationState;
+    }
+
+    public void setExpirationState(ExpirationState expirationState) {
+        this.expirationState = expirationState;
+    }
+
     public LocalDate getExpirationDate() {
         return expirationDate != null ? LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE) : null;
     }
@@ -521,6 +538,14 @@ public class Study {
             }
         } else
             this.expirationDate = null;
+    }
+
+    public String getExpirationExporterID() {
+        return expirationExporterID;
+    }
+
+    public void setExpirationExporterID(String expirationExporterID) {
+        this.expirationExporterID = expirationExporterID;
     }
 
     public Completeness getCompleteness() {
