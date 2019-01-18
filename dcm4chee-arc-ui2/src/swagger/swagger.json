@@ -11266,6 +11266,12 @@
             "type": "string"
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "StudySizeInKB",
             "in": "query",
             "description": "count Series of Studies whose size is <min>-|-<max>|<min>-<max>",
@@ -11401,6 +11407,12 @@
             "default": false
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "StudySizeInKB",
             "in": "query",
             "description": "count Series of Studies whose size is <min>-|-<max>|<min>-<max>",
@@ -11495,6 +11507,12 @@
             "description": "count Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "StudySizeInKB",
@@ -11593,6 +11611,12 @@
             "default": false
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "StudySizeInKB",
             "in": "query",
             "description": "count Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
@@ -11687,6 +11711,12 @@
             "description": "count Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "StudySizeInKB",
