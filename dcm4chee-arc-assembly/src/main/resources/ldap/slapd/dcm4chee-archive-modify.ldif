@@ -1327,6 +1327,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.268 NAME 'dcmRejectExpiredStudiesSch
   DESC 'Limits Rejection of Expired Studies to specified times in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.269 NAME 'dcmFreezeExpirationDate'
+  DESC 'Indicate to disable changes of the Expiration Date by following event; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1748,6 +1753,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
     dcmRulePriority $
     dcmProperty $
     dcmStartRetentionPeriodOnStudyDate $
+    dcmFreezeExpirationDate $
     dcmExpireSeriesIndividually $
     dcmExporterID ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
@@ -1871,6 +1877,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
     dcmRulePriority $
     dcmProperty $
     dcmStartRetentionPeriodOnStudyDate $
+    dcmFreezeExpirationDate $
     dcmExporterID ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.34 NAME 'dcmPDQService'
   DESC 'PDQ Service Descriptor'
