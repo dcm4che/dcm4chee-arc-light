@@ -333,7 +333,6 @@ public class StgVerMatchingRS {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));

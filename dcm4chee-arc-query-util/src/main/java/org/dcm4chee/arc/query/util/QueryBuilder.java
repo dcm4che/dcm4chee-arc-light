@@ -55,8 +55,6 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -359,8 +357,6 @@ public class QueryBuilder {
         if (queryParam.getExternalRetrieveAETNot() != null)
             builder.and(QStudy.study.externalRetrieveAET.ne(queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
-            if (queryParam.isExpired())
-                builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
             if (queryParam.isIncomplete())
                 builder.and(QStudy.study.completeness.ne(Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
@@ -435,8 +431,6 @@ public class QueryBuilder {
         builder.and(wildCard(QSeries.series.seriesCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
         if (queryRetrieveLevel == QueryRetrieveLevel2.SERIES) {
-            if (queryParam.isExpired())
-                builder.and(QSeries.series.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
             if (queryParam.isIncomplete())
                 builder.and(QSeries.series.completeness.ne(Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())

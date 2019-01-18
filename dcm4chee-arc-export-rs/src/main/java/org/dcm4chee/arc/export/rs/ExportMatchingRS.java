@@ -363,7 +363,6 @@ public class ExportMatchingRS {
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
         queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
-        queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));

@@ -62,7 +62,6 @@ public class QueryParam {
     private boolean fuzzySemanticMatching;
     private boolean allOfModalitiesInStudy;
     private boolean returnEmpty;
-    private boolean expired;
     private boolean withoutStudies = true;
     private boolean incomplete;
     private boolean retrieveFailed;
@@ -152,14 +151,6 @@ public class QueryParam {
 
     public void setReturnEmpty(boolean returnEmpty) {
         this.returnEmpty = returnEmpty;
-    }
-
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public void setExpired(boolean expired) {
-        this.expired = expired;
     }
 
     public boolean isWithoutStudies() {

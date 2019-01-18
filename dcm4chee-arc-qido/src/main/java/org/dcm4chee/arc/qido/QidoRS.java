@@ -509,7 +509,6 @@ public class QidoRS {
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
         queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
         queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
-        queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
