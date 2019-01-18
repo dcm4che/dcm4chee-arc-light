@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2019
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -1183,12 +1183,6 @@ public class StoreServiceEJB {
 
         if (retentionPolicy.isExpireSeriesIndividually())
             series.setExpirationDate(expirationDate);
-
-        String expirationExporterID = retentionPolicy.getExporterID();
-        if (expirationExporterID != null) {
-            study.setExpirationExporterID(expirationExporterID);
-            series.setExpirationExporterID(expirationExporterID);
-        }
     }
 
     private LocalDate retentionStartDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {

@@ -474,10 +474,8 @@ public class IocmRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate,
-            @QueryParam("expirationExporterID") String expirationExporterID) {
-        return updateExpirationDate(
-                RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate, expirationExporterID);
+            String expirationDate) {
+        return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
     }
 
     @PUT
@@ -486,14 +484,11 @@ public class IocmRS {
             @PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate,
-            @QueryParam("expirationExporterID") String expirationExporterID) {
-        return updateExpirationDate(
-                RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate, expirationExporterID);
+            String expirationDate) {
+        return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
     }
 
-    private Response updateExpirationDate(
-            RSOperation op, String studyUID, String seriesUID, String expirationDate, String expirationExporterID) {
+    private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate) {
         logRequest();
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -501,7 +496,6 @@ public class IocmRS {
             StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
             if (seriesUID != null)
                 ctx.setSeriesInstanceUID(seriesUID);
-            ctx.setExpirationExporterID(expirationExporterID);
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
             return Response.noContent().build();

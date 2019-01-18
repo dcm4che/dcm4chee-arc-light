@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2019
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -46,7 +46,6 @@ import java.time.Period;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2018
  */
 public class HL7StudyRetentionPolicy {
@@ -57,7 +56,6 @@ public class HL7StudyRetentionPolicy {
     private Period minRetentionPeriod;
     private Period maxRetentionPeriod;
     private boolean startRetentionPeriodOnStudyDate;
-    private String exporterID;
 
     public HL7StudyRetentionPolicy() {
     }
@@ -126,14 +124,6 @@ public class HL7StudyRetentionPolicy {
         this.startRetentionPeriodOnStudyDate = startRetentionPeriodOnStudyDate;
     }
 
-    public String getExporterID() {
-        return exporterID;
-    }
-
-    public void setExporterID(String exporterID) {
-        this.exporterID = exporterID;
-    }
-
     @Override
     public String toString() {
         return "HL7StudyRetentionPolicy{" +
@@ -143,7 +133,6 @@ public class HL7StudyRetentionPolicy {
                 ", minRetentionPeriod=" + minRetentionPeriod +
                 ", maxRetentionPeriod=" + maxRetentionPeriod +
                 ", startRetentionPeriodOnStudyDate=" + startRetentionPeriodOnStudyDate +
-                ", exporterID=" + exporterID +
                 '}';
     }
 }

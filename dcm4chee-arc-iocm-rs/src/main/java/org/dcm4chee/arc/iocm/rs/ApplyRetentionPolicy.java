@@ -50,7 +50,9 @@ import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.RSOperation;
+import org.dcm4chee.arc.conf.StudyRetentionPolicy;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -164,20 +166,16 @@ public class ApplyRetentionPolicy {
                         if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                             prevStudyInstanceUID = studyInstanceUID;
                             prevStudyExpirationDate = expirationDate;
-                            updateExpirationDate(
-                                    studyInstanceUID, null, expirationDate, ae, retentionPolicy.getExporterID());
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
                             count++;
                         } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                             prevStudyExpirationDate = expirationDate;
                             if (!retentionPolicy.isExpireSeriesIndividually())
-                                updateExpirationDate(
-                                        studyInstanceUID, null, expirationDate, ae, retentionPolicy.getExporterID());
+                                updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
                         }
 
                         if (retentionPolicy.isExpireSeriesIndividually())
-                            updateExpirationDate(
-                                    studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, ae,
-                                    retentionPolicy.getExporterID());
+                            updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, ae);
                     }
                 } catch (Exception e) {
                     LOG.warn("Unexpected exception:", e);
@@ -247,14 +245,13 @@ public class ApplyRetentionPolicy {
         return queryParam;
     }
 
-    private void updateExpirationDate(String studyIUID, String seriesIUID, LocalDate expirationDate,
-                                      ApplicationEntity ae, String expirationExporterID) throws Exception {
+    private void updateExpirationDate(
+            String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae) throws Exception {
         StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSeriesInstanceUID(seriesIUID);
         ctx.setExpirationDate(expirationDate);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        ctx.setExpirationExporterID(expirationExporterID);
         studyService.updateExpirationDate(ctx);
     }
 }

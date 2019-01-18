@@ -53,12 +53,6 @@
       "description": "Indicates if retention period should be started on individual Study Dates instead on receive of the HL7 message triggering this rule.",
       "type": "boolean",
       "default": false
-    },
-    "dcmExporterID": {
-      "title": "Export expired Study",
-      "description": "Export expired Study/Series using the specified Exporter",
-      "type": "string",
-      "format": "dcmExporterID"
     }
   }
 }

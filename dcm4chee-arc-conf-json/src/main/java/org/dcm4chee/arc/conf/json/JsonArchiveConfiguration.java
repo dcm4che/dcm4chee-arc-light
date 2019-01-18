@@ -621,7 +621,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotDef("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually(), false);
             writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
-            writer.writeNotNullOrDef("dcmExporterID", srp.getExporterID(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -636,7 +635,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dicomAETitle", srp.getAETitle(), null);
             writer.writeNotNullOrDef("dcmRetentionPeriod", srp.getMinRetentionPeriod(), null);
             writer.writeNotNullOrDef("dcmMaxRetentionPeriod", srp.getMaxRetentionPeriod(), null);
-            writer.writeNotNullOrDef("dcmExporterID", srp.getExporterID(), null);
             writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
@@ -2132,9 +2130,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmStartRetentionPeriodOnStudyDate":
                         srp.setStartRetentionPeriodOnStudyDate(reader.booleanValue());
                         break;
-                    case "dcmExporterID":
-                        srp.setExporterID(reader.stringValue());
-                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
@@ -2173,9 +2168,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmStartRetentionPeriodOnStudyDate":
                         srp.setStartRetentionPeriodOnStudyDate(reader.booleanValue());
-                        break;
-                    case "dcmExporterID":
-                        srp.setExporterID(reader.stringValue());
                         break;
                     default:
                         reader.skipUnknownProperty();
