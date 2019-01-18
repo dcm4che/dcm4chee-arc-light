@@ -996,6 +996,7 @@ public class StoreServiceEJB {
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setRejectionState(RejectionState.NONE);
+        study.setExpirationState(ExpirationState.UPDATEABLE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
         patient.incrementNumberOfStudies();
@@ -1133,6 +1134,7 @@ public class StoreServiceEJB {
         series.setTransferSyntaxUID(ctx.getStoreTranferSyntax());
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
+        series.setExpirationState(ExpirationState.UPDATEABLE);
         ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
         if (compressionRule != null && compressionRule.getDelay() != null) {
             series.setCompressionTime(
