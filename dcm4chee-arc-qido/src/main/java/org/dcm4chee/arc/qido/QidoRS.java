@@ -185,6 +185,7 @@ public class QidoRS {
     private String allOfModalitiesInStudy;
 
     @QueryParam("StudySizeInKB")
+    @Pattern(regexp = "\\d{1,9}(-\\d{0,9})?|-\\d{1,9}")
     private String studySizeInKB;
 
     private char csvDelimiter = ',';
@@ -503,45 +504,40 @@ public class QidoRS {
                                          String seriesInstanceUID, Model model) {
         ApplicationEntity ae = getApplicationEntity();
 
-        try {
-            org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
-            queryParam.setCombinedDatetimeMatching(true);
-            queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-            queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
-            queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
-            queryParam.setExpired(Boolean.parseBoolean(expired));
-            queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
-            queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
-            queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-            queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
-            queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
-            queryParam.setExternalRetrieveAET(externalRetrieveAET);
-            queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
-            queryParam.setExpirationDate(expirationDate);
-            if (studySizeInKB != null)
-                queryParam.setStudySizeRange(studySizeInKB);
-            if (storageID != null)
-                queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                        .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
-            if (patientVerificationStatus != null)
-                queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
-            QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
-            ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
-            ctx.setSOPClassUID(model.getSOPClassUID());
-            Attributes keys = queryAttrs.getQueryKeys();
-            IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-            if (idWithIssuer != null)
-                ctx.setPatientIDs(idWithIssuer);
-            if (studyInstanceUID != null)
-                keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
-            if (seriesInstanceUID != null)
-                keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-            ctx.setQueryKeys(keys);
-            ctx.setOrderByTags(queryAttrs.getOrderByTags());
-            return ctx;
-        } catch (NumberFormatException e) {
-            throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
-        }
+        org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
+        queryParam.setCombinedDatetimeMatching(true);
+        queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
+        queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
+        queryParam.setExpired(Boolean.parseBoolean(expired));
+        queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
+        queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
+        queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
+        queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
+        queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
+        queryParam.setExternalRetrieveAET(externalRetrieveAET);
+        queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        queryParam.setExpirationDate(expirationDate);
+        queryParam.setStudySizeRange(studySizeInKB);
+        if (storageID != null)
+            queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
+        if (patientVerificationStatus != null)
+            queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
+        QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
+        ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
+        ctx.setSOPClassUID(model.getSOPClassUID());
+        Attributes keys = queryAttrs.getQueryKeys();
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
+        if (idWithIssuer != null)
+            ctx.setPatientIDs(idWithIssuer);
+        if (studyInstanceUID != null)
+            keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
+        if (seriesInstanceUID != null)
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+        ctx.setQueryKeys(keys);
+        ctx.setOrderByTags(queryAttrs.getOrderByTags());
+        return ctx;
     }
 
     private static Boolean parseBoolean(String s) {

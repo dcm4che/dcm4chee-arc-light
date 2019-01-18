@@ -371,16 +371,10 @@ public class QueryBuilder {
                     QStudy.study.expirationDate, queryParam.getExpirationDate(), MatchDateTimeRange.FormatDate.DA));
         if (queryParam.getStudyStorageIDs() != null)
             builder.and(QStudy.study.storageIDs.in(queryParam.getStudyStorageIDs()));
-        if (queryParam.getStudySizeRange().length > 0)
-            builder.and(studySize(QStudy.study.size, queryParam.getStudySizeRange()));
-    }
-
-    private static Predicate studySize(NumberPath field, int[] studySizeRange) {
-        return studySizeRange[0] == 0
-                ? field.loe(studySizeRange[1])
-                : studySizeRange[1] == 0
-                    ? field.goe(studySizeRange[0])
-                    : field.between(studySizeRange[0], studySizeRange[1]);
+        if (queryParam.getMinStudySize() != null)
+            builder.and(QStudy.study.size.goe(queryParam.getMinStudySize()));
+        if (queryParam.getMaxStudySize() != null)
+            builder.and(QStudy.study.size.loe(queryParam.getMaxStudySize()));
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {
