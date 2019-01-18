@@ -2712,7 +2712,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetentionPeriod", policy.getRetentionPeriod(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", policy.getPriority(), 0);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExpireSeriesIndividually", policy.isExpireSeriesIndividually(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate", policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate",
+                policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExporterID", policy.getExporterID(), null);
         return attrs;
     }
 
@@ -2721,11 +2723,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "hl7StudyRetentionPolicy");
         attrs.put("cn", policy.getCommonName());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", policy.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExporterID", policy.getExporterID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(policy.getConditions().getMap()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetentionPeriod", policy.getMinRetentionPeriod(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxRetentionPeriod", policy.getMaxRetentionPeriod(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", policy.getPriority(), 0);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate", policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate",
+                policy.isStartRetentionPeriodOnStudyDate(), false);
         return attrs;
     }
 
@@ -2823,8 +2827,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 policy.setRetentionPeriod(toPeriod(attrs.get("dcmRetentionPeriod")));
                 policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
-                policy.setExpireSeriesIndividually(LdapUtils.booleanValue(attrs.get("dcmExpireSeriesIndividually"), false));
-                policy.setStartRetentionPeriodOnStudyDate(LdapUtils.booleanValue(attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
+                policy.setExpireSeriesIndividually(
+                        LdapUtils.booleanValue(attrs.get("dcmExpireSeriesIndividually"), false));
+                policy.setStartRetentionPeriodOnStudyDate(
+                        LdapUtils.booleanValue(attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
+                policy.setExporterID(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 policies.add(policy);
             }
         } finally {
@@ -2842,6 +2849,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 HL7StudyRetentionPolicy policy = new HL7StudyRetentionPolicy(LdapUtils.stringValue(attrs.get("cn"), null));
                 policy.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+                policy.setExporterID(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 policy.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 policy.setMinRetentionPeriod(toPeriod(attrs.get("dcmRetentionPeriod")));
                 policy.setMaxRetentionPeriod(toPeriod(attrs.get("dcmMaxRetentionPeriod")));
@@ -3261,6 +3269,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.isExpireSeriesIndividually(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStartRetentionPeriodOnStudyDate", prev.isStartRetentionPeriodOnStudyDate(),
                 policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExporterID", prev.getExporterID(), policy.getExporterID(), null);
         return mods;
     }
 
@@ -3268,6 +3277,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             ConfigurationChanges.ModifiedObject ldapObj, HL7StudyRetentionPolicy prev, HL7StudyRetentionPolicy policy,
             ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", prev.getAETitle(), policy.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExporterID", prev.getExporterID(), policy.getExporterID(), null);
         storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), policy.getConditions().getMap());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetentionPeriod",

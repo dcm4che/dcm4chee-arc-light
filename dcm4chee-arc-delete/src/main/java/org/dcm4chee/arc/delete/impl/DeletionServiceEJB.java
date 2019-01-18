@@ -250,11 +250,13 @@ public class DeletionServiceEJB {
     }
 
     public boolean deleteObjectsOfStudy(String suid, StorageDescriptor desc) {
-        return deleteObjectsOfStudy(
-                em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                        .setParameter(1, suid)
-                        .getSingleResult(),
-                desc);
+        return deleteObjectsOfStudy(findStudyByUID(suid), desc);
+    }
+
+    private Study findStudyByUID(String suid) {
+        return em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                .setParameter(1, suid)
+                .getSingleResult();
     }
 
     private boolean deleteObjectsOfStudy(Study study, StorageDescriptor desc) {
@@ -603,5 +605,18 @@ public class DeletionServiceEJB {
                 .setParameter(2, series.getExpirationState())
                 .setParameter(3, expirationState)
                 .executeUpdate() > 0;
+    }
+
+    public boolean claimExpired(String studyIUID, String seriesIUID, ExpirationState expirationState) {
+        if (seriesIUID != null)
+            return claimExpiredSeriesFor(findSeriesByUID(seriesIUID), expirationState);
+        else
+            return claimExpiredStudyFor(findStudyByUID(studyIUID), expirationState);
+    }
+
+    private Series findSeriesByUID(String seriesIUID) {
+        return em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
+                .setParameter(1, seriesIUID)
+                .getSingleResult();
     }
 }

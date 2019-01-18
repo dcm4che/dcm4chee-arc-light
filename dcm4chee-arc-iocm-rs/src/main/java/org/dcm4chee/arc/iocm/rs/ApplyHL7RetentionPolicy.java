@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -161,6 +161,7 @@ public class ApplyHL7RetentionPolicy {
             ctx.setStudyInstanceUID(suid);
             ctx.setExpirationDate(expirationDate);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+            ctx.setExpirationExporterID(policy.getExporterID());
             try {
                 studyService.updateExpirationDate(ctx);
                 LOG.info("{}: Update expiration date of Study[uid={}]", event.getSocket(), suid);

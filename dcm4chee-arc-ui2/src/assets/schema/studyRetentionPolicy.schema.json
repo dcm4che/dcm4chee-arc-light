@@ -47,6 +47,12 @@
       "description": "Indicates if retention period should be started on Study Date instead on receive of an object of the Study",
       "type": "boolean",
       "default": false
+    },
+    "dcmExporterID": {
+      "title": "Export expired Study",
+      "description": "Export expired Study/Series using the specified Exporter",
+      "type": "string",
+      "format": "dcmExporterID"
     }
   }
 }
