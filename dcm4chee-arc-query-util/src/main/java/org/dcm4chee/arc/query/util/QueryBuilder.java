@@ -371,9 +371,9 @@ public class QueryBuilder {
                     QStudy.study.expirationDate, queryParam.getExpirationDate(), MatchDateTimeRange.FormatDate.DA));
         if (queryParam.getStudyStorageIDs() != null)
             builder.and(QStudy.study.storageIDs.in(queryParam.getStudyStorageIDs()));
-        if (queryParam.getMinStudySize() != null)
+        if (queryParam.getMinStudySize() != 0)
             builder.and(QStudy.study.size.goe(queryParam.getMinStudySize()));
-        if (queryParam.getMaxStudySize() != null)
+        if (queryParam.getMaxStudySize() != 0)
             builder.and(QStudy.study.size.loe(queryParam.getMaxStudySize()));
     }
 

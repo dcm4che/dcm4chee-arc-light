@@ -10919,12 +10919,6 @@
             "in": "query",
             "description": "apply Retention Policy to Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
-          },
-          {
-            "name": "StudySizeInKB",
-            "in": "query",
-            "description": "apply Retention Policy to Studies whose size is <min>-|-<max>|<min>-<max>",
-            "type": "string"
           }
         ],
         "responses": {

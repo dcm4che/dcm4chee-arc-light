@@ -152,6 +152,10 @@ public class StgVerMatchingRS {
     @QueryParam("storageVerificationStorageID")
     private List<String> storageVerificationStorageIDs;
 
+    @QueryParam("StudySizeInKB")
+    @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
+    private String studySizeInKB;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -338,6 +342,7 @@ public class StgVerMatchingRS {
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
+        queryParam.setStudySizeRange(studySizeInKB);
         return queryParam;
     }
 

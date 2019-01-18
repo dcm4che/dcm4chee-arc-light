@@ -73,8 +73,8 @@ public class QueryParam {
     private Patient.VerificationStatus patientVerificationStatus;
     private String expirationDate;
     private List<String> studyStorageIDs;
-    private Integer minStudySize;
-    private Integer maxStudySize;
+    private long minStudySize;
+    private long maxStudySize;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -246,26 +246,26 @@ public class QueryParam {
         return studyStorageIDs != null && studyStorageIDs.isEmpty();
     }
 
-    public Integer getMinStudySize() {
+    public long getMinStudySize() {
         return minStudySize;
     }
 
-    public Integer getMaxStudySize() {
+    public long getMaxStudySize() {
         return maxStudySize;
     }
 
     public void setStudySizeRange(String studySizeInKB) {
         int delim = studySizeInKB.indexOf('-');
         if (delim == -1) {
-            int size = Integer.parseInt(studySizeInKB) * 1000;
+            long size = Long.parseLong(studySizeInKB) * 1000;
             minStudySize = size;
             maxStudySize = size + 999;
         }
         else {
             if (delim > 0)
-                minStudySize =  Integer.parseInt(studySizeInKB.substring(0, delim)) * 1000;
+                minStudySize =  Long.parseLong(studySizeInKB.substring(0, delim)) * 1000;
             if (delim < studySizeInKB.length() - 1)
-                maxStudySize =  (Integer.parseInt(studySizeInKB.substring(delim+1)) * 1000) + 999;
+                maxStudySize =  (Long.parseLong(studySizeInKB.substring(delim+1)) * 1000) + 999;
         }
     }
 }
