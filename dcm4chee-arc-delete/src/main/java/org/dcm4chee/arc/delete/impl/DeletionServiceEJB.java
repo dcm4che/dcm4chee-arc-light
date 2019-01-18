@@ -61,6 +61,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -571,4 +573,35 @@ public class DeletionServiceEJB {
                         .getOtherStorageIDs(desc));
     }
 
+    public List<Study> findExpiredStudies(int studyFetchSize) {
+        return em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
+                .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
+                .setMaxResults(studyFetchSize)
+                .getResultList();
+    }
+
+    public List<Series> findExpiredSeries(int seriesFetchSize) {
+        return em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
+                .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
+                .setMaxResults(seriesFetchSize)
+                .getResultList();
+    }
+
+    public boolean claimExpiredStudyFor(Study study, ExpirationState expirationState) {
+        return em.createNamedQuery(Study.CLAIM_EXPIRED_STUDY)
+                .setParameter(1, study.getPk())
+                .setParameter(2, study.getExpirationState())
+                .setParameter(3, expirationState)
+                .executeUpdate() > 0;
+    }
+
+    public boolean claimExpiredSeriesFor(Series series, ExpirationState expirationState) {
+        return em.createNamedQuery(Series.CLAIM_EXPIRED_SERIES)
+                .setParameter(1, series.getPk())
+                .setParameter(2, series.getExpirationState())
+                .setParameter(3, expirationState)
+                .executeUpdate() > 0;
+    }
 }

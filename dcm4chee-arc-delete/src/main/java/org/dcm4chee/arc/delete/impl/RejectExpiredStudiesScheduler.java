@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.conf.ScheduleExpression;
 import org.dcm4chee.arc.delete.RejectionService;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.store.StoreService;
@@ -73,11 +74,11 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RejectExpiredStudiesScheduler.class);
 
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
-
     @Inject
     private Device device;
+
+    @Inject
+    private DeletionServiceEJB ejb;
 
     @Inject
     private StoreService storeService;
@@ -138,19 +139,17 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     private void rejectExpiredSeries(ApplicationEntity ae, RejectionNote rn, int seriesFetchSize) {
         List<Series> seriesList;
         do {
-            seriesList = em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
-                    .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
-                    .setMaxResults(seriesFetchSize)
-                    .getResultList();
+            seriesList = ejb.findExpiredSeries(seriesFetchSize);
             for (Series series : seriesList) {
                 if (getPollingInterval() == null)
                     return;
 
                 try {
-                    StoreSession session = storeService.newStoreSession(ae);
-                    rejectionService.reject(
-                            session, ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
-                            null, rn);
+                    if (ejb.claimExpiredSeriesFor(series, ExpirationState.REJECTED))
+                        rejectionService.reject(
+                                storeService.newStoreSession(ae), ae,
+                                series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
+                                null, rn);
                 } catch (Exception e) {
                     LOG.warn("Failed to reject Expired Series[UID={}] of Study[UID={}].\n",
                             series.getSeriesInstanceUID(), series.getStudy().getStudyInstanceUID(), e);
@@ -162,18 +161,16 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     private void rejectExpiredStudies(ApplicationEntity ae, RejectionNote rn, int studyFetchSize) {
         List<Study> studies;
         do {
-            studies = em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
-                    .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
-                    .setMaxResults(studyFetchSize)
-                    .getResultList();
+            studies = ejb.findExpiredStudies(studyFetchSize);
             for (Study study : studies) {
                 if (getPollingInterval() == null)
                     return;
 
                 try {
-                    StoreSession session = storeService.newStoreSession(ae);
-                    rejectionService.reject(
-                            session, ae, study.getStudyInstanceUID(), null, null, rn);
+                    if (ejb.claimExpiredStudyFor(study, ExpirationState.REJECTED))
+                        rejectionService.reject(
+                                storeService.newStoreSession(ae), ae,
+                                study.getStudyInstanceUID(), null, null, rn);
                 } catch (Exception e) {
                     LOG.warn("Failed to reject Expired Study[UID={}].\n", study.getStudyInstanceUID(), e);
                 }

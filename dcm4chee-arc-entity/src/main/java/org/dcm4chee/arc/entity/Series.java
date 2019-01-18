@@ -140,7 +140,11 @@ import java.util.stream.Stream;
 @NamedQuery(
         name=Series.GET_EXPIRED_SERIES,
         query="select se from Series se " +
-             "where se.expirationDate <= ?1"),
+             "where se.expirationDate <= ?1 and se.expirationState in ?2"),
+@NamedQuery(
+        name=Series.CLAIM_EXPIRED_SERIES,
+        query="update Series se set se.expirationState = ?3 " +
+                "where se.pk = ?1 and se.expirationState = ?2"),
 @NamedQuery(
         name=Series.FIND_SERIES_OF_STUDY,
         query = "select se from Series se " +
@@ -302,6 +306,7 @@ public class Series {
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
     public static final String GET_EXPIRED_SERIES = "Series.GetExpiredSeries";
+    public static final String CLAIM_EXPIRED_SERIES = "Series.ClaimExpiredSeries";
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
     public static final String FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE = "Series.FindSeriesOfStudyByInstancePurgeState";
     public static final String FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE = "Series.FindBySeriesIUIDAndInstancePurgeState";
