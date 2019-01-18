@@ -2019,7 +2019,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
     dcmRulePriority $
     dcmProperty $
     dcmStartRetentionPeriodOnStudyDate $
-    dcmExpireSeriesIndividually ) )
+    dcmExpireSeriesIndividually $
+    dcmExporterID ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
   DESC 'ID Generator'
@@ -2152,7 +2153,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
     dcmMaxRetentionPeriod $
     dcmRulePriority $
     dcmProperty $
-    dcmStartRetentionPeriodOnStudyDate ) )
+    dcmStartRetentionPeriodOnStudyDate $
+    dcmExporterID ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.34 NAME 'dcmPDQService'
   DESC 'PDQ Service Descriptor'

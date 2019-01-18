@@ -1741,7 +1741,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
     dcmRulePriority $
     dcmProperty $
     dcmStartRetentionPeriodOnStudyDate $
-    dcmExpireSeriesIndividually ) )
+    dcmExpireSeriesIndividually $
+    dcmExporterID ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
   DESC 'ID Generator'
   SUP top STRUCTURAL
@@ -1862,7 +1863,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
     dcmMaxRetentionPeriod $
     dcmRulePriority $
     dcmProperty $
-    dcmStartRetentionPeriodOnStudyDate ) )
+    dcmStartRetentionPeriodOnStudyDate $
+    dcmExporterID ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.34 NAME 'dcmPDQService'
   DESC 'PDQ Service Descriptor'
   SUP top STRUCTURAL
