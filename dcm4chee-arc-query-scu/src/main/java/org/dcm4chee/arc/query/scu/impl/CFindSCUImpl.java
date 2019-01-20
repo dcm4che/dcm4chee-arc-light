@@ -47,8 +47,11 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -63,6 +66,7 @@ import java.util.List;
 @ApplicationScoped
 public class CFindSCUImpl implements CFindSCU {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CFindSCUImpl.class);
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
     private static final int PCID = 1;
 
@@ -214,7 +218,14 @@ public class CFindSCUImpl implements CFindSCU {
         DimseRSP rsp = query(as, priority, keys, 0, 1, null);
         rsp.next();
         Attributes match = rsp.getDataset();
+        String defaultCharacterSet = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class)
+                .defaultCharacterSet();
         while (rsp.next()) {
+            if (defaultCharacterSet != null && !match.containsValue(Tag.SpecificCharacterSet)) {
+                LOG.info("{}: No Specific Character Set (0008,0005) in received C-FIND RSP - " +
+                        "supplement configured Default Character Set: {}", as, defaultCharacterSet);
+                match.setString(Tag.SpecificCharacterSet, VR.CS, defaultCharacterSet);
+            }
             list.add(match);
             match = rsp.getDataset();
         }
