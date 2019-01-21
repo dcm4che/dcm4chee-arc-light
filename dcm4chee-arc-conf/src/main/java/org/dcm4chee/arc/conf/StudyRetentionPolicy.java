@@ -41,8 +41,13 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -50,6 +55,8 @@ import java.time.Period;
  * @since June 2016
  */
 public class StudyRetentionPolicy {
+    private static final Logger LOG = LoggerFactory.getLogger(StudyRetentionPolicy.class);
+
     private String commonName;
     private int priority;
     private Conditions conditions = new Conditions();
@@ -132,6 +139,19 @@ public class StudyRetentionPolicy {
 
     public void setFreezeExpirationDate(boolean freezeExpirationDate) {
         this.freezeExpirationDate = freezeExpirationDate;
+    }
+
+    public LocalDate expirationDate(Attributes attrs) {
+        LocalDate date = LocalDate.now();
+        String s;
+        if (startRetentionPeriodOnStudyDate && (s = attrs.getString(Tag.StudyDate)) != null) {
+            try {
+                date = LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+            } catch (Exception e) {
+                LOG.warn("Failed parsing study date to get retention start date." + e.getMessage());
+            }
+        }
+        return date.plus(retentionPeriod);
     }
 
     @Override

@@ -76,7 +76,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 
 /**
@@ -158,27 +157,25 @@ public class ApplyRetentionPolicy {
                             continue;
                         }
 
-                        LocalDate expirationDate =
-                                retentionStartDate(attrs, retentionPolicy.isStartRetentionPeriodOnStudyDate())
-                                        .plus(retentionPolicy.getRetentionPeriod());
+                        LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
 
                         String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
                         if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                             prevStudyInstanceUID = studyInstanceUID;
                             prevStudyExpirationDate = expirationDate;
                             updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
-                                    retentionPolicy.getExporterID());
+                                    retentionPolicy);
                             count++;
                         } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                             prevStudyExpirationDate = expirationDate;
                             if (!retentionPolicy.isExpireSeriesIndividually())
                                 updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
-                                        retentionPolicy.getExporterID());
+                                        retentionPolicy);
                         }
 
                         if (retentionPolicy.isExpireSeriesIndividually())
                             updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID),
-                                    expirationDate, ae, retentionPolicy.getExporterID());
+                                    expirationDate, ae, retentionPolicy);
                     }
                 } catch (Exception e) {
                     LOG.warn("Unexpected exception:", e);
@@ -196,16 +193,6 @@ public class ApplyRetentionPolicy {
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
-    }
-
-    static LocalDate retentionStartDate(Attributes attrs, boolean startRetentionPeriodOnStudyDate) {
-        String s;
-        if (startRetentionPeriodOnStudyDate && (s = attrs.getString(Tag.StudyDate)) != null) {
-            try {
-                return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
-            } catch (Exception e) {}
-        }
-        return LocalDate.now();
     }
 
     private static Response errResponse(Response.Status status, String message) {
@@ -250,13 +237,14 @@ public class ApplyRetentionPolicy {
 
     private void updateExpirationDate(
             String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae,
-            String expirationExporterID) throws Exception {
+            StudyRetentionPolicy policy) throws Exception {
         StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSeriesInstanceUID(seriesIUID);
         ctx.setExpirationDate(expirationDate);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        ctx.setExpirationExporterID(expirationExporterID);
+        ctx.setExpirationExporterID(policy.getExporterID());
+        ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
         studyService.updateExpirationDate(ctx);
     }
 }

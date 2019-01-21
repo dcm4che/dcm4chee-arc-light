@@ -141,8 +141,7 @@ public class ApplyHL7RetentionPolicy {
     private void updateExpirationDate(HL7ConnectionEvent event, HL7StudyRetentionPolicy policy, Attributes match) {
         LocalDate prevExpirationDate = studyExpirationDateOf(match);
         LocalDate expirationDate = prevExpirationDate;
-        LocalDate retentionStartDate = ApplyRetentionPolicy.retentionStartDate(match,
-                policy.isStartRetentionPeriodOnStudyDate());
+        LocalDate retentionStartDate = policy.retentionStartDate(match);
         if (policy.getMinRetentionPeriod() != null) {
             LocalDate minExpirationDate = retentionStartDate.plus(policy.getMinRetentionPeriod());
             if (expirationDate == null || expirationDate.isBefore(minExpirationDate)) {
