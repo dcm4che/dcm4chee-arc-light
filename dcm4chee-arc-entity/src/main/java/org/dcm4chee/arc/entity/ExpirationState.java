@@ -46,5 +46,10 @@ package org.dcm4chee.arc.entity;
  * @since Jan 2019
  */
 public enum ExpirationState {
-    UPDATEABLE, FROZEN, REJECTED, EXPORT_SCHEDULED, FAILED_EXPORT, FAILED_REJECT
+    UPDATEABLE,         // 0
+    FROZEN,             // 1
+    REJECTED,           // 2
+    EXPORT_SCHEDULED,   // 3
+    FAILED_TO_EXPORT,   // 4
+    FAILED_TO_REJECT    // 5
 }
