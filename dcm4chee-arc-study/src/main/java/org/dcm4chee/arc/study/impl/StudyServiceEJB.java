@@ -155,6 +155,7 @@ public class StudyServiceEJB {
                 .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
         LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
         series.setExpirationDate(ctx.getExpirationDate());
+        series.setExpirationExporterID(ctx.getExpirationExporterID());
         ctx.setAttributes(series.getAttributes());
         if (studyExpirationDate == null || studyExpirationDate.isBefore(ctx.getExpirationDate())) {
             Study study = series.getStudy();
