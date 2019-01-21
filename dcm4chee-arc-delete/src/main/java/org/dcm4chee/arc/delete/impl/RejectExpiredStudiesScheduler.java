@@ -169,7 +169,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         if (exporter == null) {
             LOG.warn("No configuration found for [ExpirationExporterID={}] of Series[UID={}]",
                     expirationExporterID, series.getSeriesInstanceUID());
-            ejb.claimExpiredSeriesFor(series, ExpirationState.FAILED);
+            ejb.claimExpiredSeriesFor(series, ExpirationState.FAILED_EXPORT);
             return;
         }
 
@@ -221,7 +221,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         if (exporter == null) {
             LOG.warn("No configuration found for [ExpirationExporterID={}] of Study[UID={}]",
                     expirationExporterID, study.getStudyInstanceUID());
-            ejb.claimExpiredStudyFor(study, ExpirationState.FAILED);
+            ejb.claimExpiredStudyFor(study, ExpirationState.FAILED_EXPORT);
             return;
         }
 

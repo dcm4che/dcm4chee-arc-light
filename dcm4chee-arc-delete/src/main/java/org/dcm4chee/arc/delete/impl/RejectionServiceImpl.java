@@ -108,8 +108,9 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
             if (ejb.claimExpired(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ExpirationState.REJECTED))
                 reject(storeSession, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn);
         } catch (Exception e) {
-            LOG.warn("Rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
+            LOG.warn("Rejection of Expired Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
                     ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), e.getMessage());
+            ejb.claimExpired(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ExpirationState.FAILED_REJECT);
         }
     }
 
