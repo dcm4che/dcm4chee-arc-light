@@ -46,6 +46,7 @@ import java.time.Period;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2018
  */
 public class HL7StudyRetentionPolicy {
@@ -57,6 +58,7 @@ public class HL7StudyRetentionPolicy {
     private Period maxRetentionPeriod;
     private boolean startRetentionPeriodOnStudyDate;
     private String exporterID;
+    private boolean freezeExpirationDate;
 
     public HL7StudyRetentionPolicy() {
     }
@@ -133,6 +135,14 @@ public class HL7StudyRetentionPolicy {
         this.exporterID = exporterID;
     }
 
+    public boolean isFreezeExpirationDate() {
+        return freezeExpirationDate;
+    }
+
+    public void setFreezeExpirationDate(boolean freezeExpirationDate) {
+        this.freezeExpirationDate = freezeExpirationDate;
+    }
+
     @Override
     public String toString() {
         return "HL7StudyRetentionPolicy{" +
@@ -143,6 +153,7 @@ public class HL7StudyRetentionPolicy {
                 ", maxRetentionPeriod=" + maxRetentionPeriod +
                 ", startRetentionPeriodOnStudyDate=" + startRetentionPeriodOnStudyDate +
                 ", exporterID=" + exporterID +
+                ", freezeExpirationDate=" + freezeExpirationDate +
                 '}';
     }
 }

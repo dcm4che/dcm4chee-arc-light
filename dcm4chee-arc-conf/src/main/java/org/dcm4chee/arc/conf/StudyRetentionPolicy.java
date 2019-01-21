@@ -57,6 +57,7 @@ public class StudyRetentionPolicy {
     private boolean expireSeriesIndividually;
     private boolean startRetentionPeriodOnStudyDate;
     private String exporterID;
+    private boolean freezeExpirationDate;
 
     public StudyRetentionPolicy() {
     }
@@ -125,6 +126,14 @@ public class StudyRetentionPolicy {
         this.exporterID = exporterID;
     }
 
+    public boolean isFreezeExpirationDate() {
+        return freezeExpirationDate;
+    }
+
+    public void setFreezeExpirationDate(boolean freezeExpirationDate) {
+        this.freezeExpirationDate = freezeExpirationDate;
+    }
+
     @Override
     public String toString() {
         return "StudyRetentionPolicy{" +
@@ -135,6 +144,7 @@ public class StudyRetentionPolicy {
                 ", expireSeriesIndividually=" + expireSeriesIndividually +
                 ", startRetentionPeriodOnStudyDate=" + startRetentionPeriodOnStudyDate +
                 ", exporterID=" + exporterID +
+                ", freezeExpirationDate=" + freezeExpirationDate +
                 '}';
     }
 }
