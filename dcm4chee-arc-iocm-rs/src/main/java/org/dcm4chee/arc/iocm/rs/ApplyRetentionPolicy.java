@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -166,16 +166,19 @@ public class ApplyRetentionPolicy {
                         if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                             prevStudyInstanceUID = studyInstanceUID;
                             prevStudyExpirationDate = expirationDate;
-                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
+                                    retentionPolicy.getExporterID());
                             count++;
                         } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                             prevStudyExpirationDate = expirationDate;
                             if (!retentionPolicy.isExpireSeriesIndividually())
-                                updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
+                                updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
+                                        retentionPolicy.getExporterID());
                         }
 
                         if (retentionPolicy.isExpireSeriesIndividually())
-                            updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, ae);
+                            updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID),
+                                    expirationDate, ae, retentionPolicy.getExporterID());
                     }
                 } catch (Exception e) {
                     LOG.warn("Unexpected exception:", e);
@@ -246,12 +249,14 @@ public class ApplyRetentionPolicy {
     }
 
     private void updateExpirationDate(
-            String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae) throws Exception {
+            String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae,
+            String expirationExporterID) throws Exception {
         StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSeriesInstanceUID(seriesIUID);
         ctx.setExpirationDate(expirationDate);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        ctx.setExpirationExporterID(expirationExporterID);
         studyService.updateExpirationDate(ctx);
     }
 }

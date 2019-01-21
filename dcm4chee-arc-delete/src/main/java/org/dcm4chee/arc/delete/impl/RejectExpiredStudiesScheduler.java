@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -43,14 +43,13 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.conf.ScheduleExpression;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +79,9 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     @Inject
     private RejectionService rejectionService;
+
+    @Inject
+    private ExportManager exportManager;
 
     protected RejectExpiredStudiesScheduler() {
         super(Mode.scheduleWithFixedDelay);
@@ -122,16 +124,16 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             LOG.warn("DeleteExpiredStudies operation ABORT : Study fetch size is 0");
             return;
         }
-        rejectExpiredStudies(ae, rjNote, studyFetchSize);
+        processExpiredStudies(ae, rjNote, studyFetchSize);
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
         if (seriesFetchSize == 0) {
-            LOG.warn("DeleteExpiredStudies operation ABORT : Series fetch size is == 0");
+            LOG.warn("DeleteExpiredSeries operation ABORT : Series fetch size is 0");
             return;
         }
-        rejectExpiredSeries(ae, rjNote, seriesFetchSize);
+        processExpiredSeries(ae, rjNote, seriesFetchSize);
     }
 
-    private void rejectExpiredSeries(ApplicationEntity ae, RejectionNote rn, int seriesFetchSize) {
+    private void processExpiredSeries(ApplicationEntity ae, RejectionNote rn, int seriesFetchSize) {
         List<Series> seriesList;
         do {
             seriesList = ejb.findExpiredSeries(seriesFetchSize);
@@ -139,21 +141,53 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                 if (getPollingInterval() == null)
                     return;
 
-                try {
-                    if (ejb.claimExpiredSeriesFor(series, ExpirationState.REJECTED))
-                        rejectionService.reject(
-                                storeService.newStoreSession(ae), ae,
-                                series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
-                                null, rn);
-                } catch (Exception e) {
-                    LOG.warn("Failed to reject Expired Series[UID={}] of Study[UID={}].\n",
-                            series.getSeriesInstanceUID(), series.getStudy().getStudyInstanceUID(), e);
-                }
+                if (series.getExpirationExporterID() == null)
+                    rejectExpiredSeries(series, ae, rn);
+                else
+                    exportExpiredSeries(series);
             }
         } while (seriesFetchSize == seriesList.size());
     }
 
-    private void rejectExpiredStudies(ApplicationEntity ae, RejectionNote rn, int studyFetchSize) {
+    private void rejectExpiredSeries(Series series, ApplicationEntity ae, RejectionNote rn) {
+        try {
+            if (ejb.claimExpiredSeriesFor(series, ExpirationState.REJECTED))
+                rejectionService.reject(
+                        storeService.newStoreSession(ae), ae,
+                        series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
+                        null, rn);
+        } catch (Exception e) {
+            LOG.warn("Failed to reject Expired Series[UID={}] of Study[UID={}].\n",
+                    series.getSeriesInstanceUID(), series.getStudy().getStudyInstanceUID(), e);
+        }
+    }
+
+    private void exportExpiredSeries(Series series) {
+        String expirationExporterID = series.getExpirationExporterID();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(expirationExporterID);
+        if (exporter == null) {
+            LOG.warn("No configuration found for [ExpirationExporterID={}] of Series[UID={}]",
+                    expirationExporterID, series.getSeriesInstanceUID());
+            ejb.claimExpiredSeriesFor(series, ExpirationState.FAILED);
+            return;
+        }
+
+        try {
+            if (ejb.claimExpiredSeriesFor(series, ExpirationState.EXPORT_SCHEDULED))
+                exportManager.scheduleExportTask(
+                        series.getStudy().getStudyInstanceUID(),
+                        series.getSeriesInstanceUID(),
+                        null,
+                        exporter,
+                        null,
+                        null);
+        } catch (QueueSizeLimitExceededException e) {
+            LOG.warn(e.getMessage());
+        }
+    }
+
+    private void processExpiredStudies(ApplicationEntity ae, RejectionNote rn, int studyFetchSize) {
         List<Study> studies;
         do {
             studies = ejb.findExpiredStudies(studyFetchSize);
@@ -161,16 +195,48 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                 if (getPollingInterval() == null)
                     return;
 
-                try {
-                    if (ejb.claimExpiredStudyFor(study, ExpirationState.REJECTED))
-                        rejectionService.reject(
-                                storeService.newStoreSession(ae), ae,
-                                study.getStudyInstanceUID(), null, null, rn);
-                } catch (Exception e) {
-                    LOG.warn("Failed to reject Expired Study[UID={}].\n", study.getStudyInstanceUID(), e);
-                }
+                if (study.getExpirationExporterID() == null)
+                    rejectExpiredStudy(study, ae, rn);
+                else
+                    exportExpiredStudy(study);
             }
         } while (studyFetchSize == studies.size());
+    }
+
+    private void rejectExpiredStudy(Study study, ApplicationEntity ae, RejectionNote rn) {
+        try {
+            if (ejb.claimExpiredStudyFor(study, ExpirationState.REJECTED))
+                rejectionService.reject(
+                        storeService.newStoreSession(ae), ae,
+                        study.getStudyInstanceUID(), null, null, rn);
+        } catch (Exception e) {
+            LOG.warn("Failed to reject Expired Study[UID={}].\n", study.getStudyInstanceUID(), e);
+        }
+    }
+
+    private void exportExpiredStudy(Study study) {
+        String expirationExporterID = study.getExpirationExporterID();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(expirationExporterID);
+        if (exporter == null) {
+            LOG.warn("No configuration found for [ExpirationExporterID={}] of Study[UID={}]",
+                    expirationExporterID, study.getStudyInstanceUID());
+            ejb.claimExpiredStudyFor(study, ExpirationState.FAILED);
+            return;
+        }
+
+        try {
+            if (ejb.claimExpiredStudyFor(study, ExpirationState.EXPORT_SCHEDULED))
+                exportManager.scheduleExportTask(
+                        study.getStudyInstanceUID(),
+                        null,
+                        null,
+                        exporter,
+                        null,
+                        null);
+        } catch (QueueSizeLimitExceededException e) {
+            LOG.warn(e.getMessage());
+        }
     }
 
     private ApplicationEntity getApplicationEntity(String aet) {

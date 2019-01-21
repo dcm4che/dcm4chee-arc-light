@@ -1183,6 +1183,9 @@ public class StoreServiceEJB {
 
         if (retentionPolicy.isExpireSeriesIndividually())
             series.setExpirationDate(expirationDate);
+
+        study.setExpirationExporterID(retentionPolicy.getExporterID());
+        series.setExpirationExporterID(retentionPolicy.getExporterID());
     }
 
     private LocalDate retentionStartDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {

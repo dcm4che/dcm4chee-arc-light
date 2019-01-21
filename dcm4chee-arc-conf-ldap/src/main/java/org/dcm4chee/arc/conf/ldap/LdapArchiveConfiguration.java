@@ -2708,7 +2708,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetentionPeriod", policy.getRetentionPeriod(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", policy.getPriority(), 0);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExpireSeriesIndividually", policy.isExpireSeriesIndividually(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate", policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate",
+                policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExporterID", policy.getExporterID(), null);
         return attrs;
     }
 
@@ -2721,7 +2723,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetentionPeriod", policy.getMinRetentionPeriod(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxRetentionPeriod", policy.getMaxRetentionPeriod(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", policy.getPriority(), 0);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate", policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStartRetentionPeriodOnStudyDate",
+                policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExporterID", policy.getExporterID(), null);
         return attrs;
     }
 
@@ -2820,7 +2824,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.setRetentionPeriod(toPeriod(attrs.get("dcmRetentionPeriod")));
                 policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 policy.setExpireSeriesIndividually(LdapUtils.booleanValue(attrs.get("dcmExpireSeriesIndividually"), false));
-                policy.setStartRetentionPeriodOnStudyDate(LdapUtils.booleanValue(attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
+                policy.setStartRetentionPeriodOnStudyDate(LdapUtils.booleanValue(
+                        attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
+                policy.setExporterID(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 policies.add(policy);
             }
         } finally {
@@ -2844,6 +2850,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 policy.setStartRetentionPeriodOnStudyDate(
                         LdapUtils.booleanValue(attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
+                policy.setExporterID(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 policies.add(policy);
             }
         } finally {
@@ -3011,7 +3018,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private void mergeStudyRetentionPolicies(
-            ConfigurationChanges diffs, Collection<StudyRetentionPolicy> prevPolicies, Collection<StudyRetentionPolicy> policies, String parentDN)
+            ConfigurationChanges diffs, Collection<StudyRetentionPolicy> prevPolicies,
+            Collection<StudyRetentionPolicy> policies, String parentDN)
             throws NamingException {
         for (StudyRetentionPolicy prevRule : prevPolicies) {
             String cn = prevRule.getCommonName();
@@ -3249,14 +3257,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private List<ModificationItem> storeDiffs(
-            ConfigurationChanges.ModifiedObject ldapObj, StudyRetentionPolicy prev, StudyRetentionPolicy policy, ArrayList<ModificationItem> mods) {
+            ConfigurationChanges.ModifiedObject ldapObj, StudyRetentionPolicy prev, StudyRetentionPolicy policy,
+            ArrayList<ModificationItem> mods) {
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), policy.getConditions().getMap());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetentionPeriod", prev.getRetentionPeriod(), policy.getRetentionPeriod(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetentionPeriod", prev.getRetentionPeriod(),
+                policy.getRetentionPeriod(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
         LdapUtils.storeDiff(ldapObj, mods, "dcmExpireSeriesIndividually", prev.isExpireSeriesIndividually(),
                 policy.isExpireSeriesIndividually(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStartRetentionPeriodOnStudyDate", prev.isStartRetentionPeriodOnStudyDate(),
                 policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExporterID", prev.getExporterID(), policy.getExporterID(), null);
         return mods;
     }
 
@@ -3273,6 +3284,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStartRetentionPeriodOnStudyDate",
                 prev.isStartRetentionPeriodOnStudyDate(), policy.isStartRetentionPeriodOnStudyDate(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExporterID", prev.getExporterID(), policy.getExporterID(), null);
         return mods;
     }
 
@@ -3283,7 +3295,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, HL7OrderScheduledStation prev, HL7OrderScheduledStation station,
+    private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
+                                                     HL7OrderScheduledStation prev, HL7OrderScheduledStation station,
                                                      ArrayList<ModificationItem> mods, LdapDicomConfiguration config) {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderScheduledStationDeviceReference",
                 scheduledStationDeviceRef(prev, config),
@@ -3294,17 +3307,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static List<ModificationItem> storeDiffs(
-            ConfigurationChanges.ModifiedObject ldapObj, HL7OrderSPSStatus prev, HL7OrderSPSStatus hl7OrderSPSStatus, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(ldapObj, mods, "hl7OrderControlStatus", prev.getOrderControlStatusCodes(), hl7OrderSPSStatus.getOrderControlStatusCodes());
+            ConfigurationChanges.ModifiedObject ldapObj, HL7OrderSPSStatus prev,
+            HL7OrderSPSStatus hl7OrderSPSStatus, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(ldapObj, mods, "hl7OrderControlStatus", prev.getOrderControlStatusCodes(),
+                hl7OrderSPSStatus.getOrderControlStatusCodes());
         return mods;
     }
 
     private List<ModificationItem> storeDiffs(
-            ConfigurationChanges.ModifiedObject ldapObj, RSForwardRule prev, RSForwardRule rule, ArrayList<ModificationItem> mods) {
+            ConfigurationChanges.ModifiedObject ldapObj, RSForwardRule prev, RSForwardRule rule,
+            ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakServerID", prev.getKeycloakServerID(), rule.getKeycloakServerID(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURIPattern", prev.getRequestURLPattern(), rule.getRequestURLPattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakServerID", prev.getKeycloakServerID(),
+                rule.getKeycloakServerID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURIPattern", prev.getRequestURLPattern(),
+                rule.getRequestURLPattern(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSAllowAnyHostname",
                 prev.isTlsAllowAnyHostname(), rule.isTlsAllowAnyHostname(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSDisableTrustManager",
@@ -3313,19 +3331,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private List<ModificationItem> storeDiffs(
-            ConfigurationChanges.ModifiedObject ldapObj, KeycloakServer prev, KeycloakServer keycloakServer, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getServerURL(), keycloakServer.getServerURL(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakRealm", prev.getRealm(), keycloakServer.getRealm(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakClientID", prev.getClientID(), keycloakServer.getClientID(), null);
+            ConfigurationChanges.ModifiedObject ldapObj, KeycloakServer prev, KeycloakServer keycloakServer,
+            ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getServerURL(),
+                keycloakServer.getServerURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakRealm", prev.getRealm(),
+                keycloakServer.getRealm(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakClientID", prev.getClientID(),
+                keycloakServer.getClientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakGrantType",
                 prev.getGrantType(), keycloakServer.getGrantType(), KeycloakServer.GrantType.client_credentials);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakClientSecret", prev.getClientSecret(), keycloakServer.getClientSecret(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakClientSecret", prev.getClientSecret(),
+                keycloakServer.getClientSecret(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSAllowAnyHostname",
                 prev.isTlsAllowAnyHostname(), keycloakServer.isTlsAllowAnyHostname(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSDisableTrustManager",
                 prev.isTlsDisableTrustManager(), keycloakServer.isTlsDisableTrustManager(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "uid", prev.getUserID(), keycloakServer.getUserID(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "userPassword", prev.getPassword(), keycloakServer.getPassword(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "userPassword", prev.getPassword(),
+                keycloakServer.getPassword(), null);
         return mods;
     }
 

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -126,29 +126,30 @@ public class StudyServiceEJB {
         return study;
     }
 
-    public void updateStudyExpirationDate(StudyMgtContext ctx) {
+    private void updateStudyExpirationDate(StudyMgtContext ctx) {
         List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         LocalDate studyExpireDate = ctx.getExpirationDate();
         Study study;
         if (!seriesOfStudy.isEmpty()) {
             study = seriesOfStudy.get(0).getStudy();
-            study.setExpirationDate(studyExpireDate);
             for (Series series : seriesOfStudy) {
                 LocalDate seriesExpirationDate = series.getExpirationDate();
-                if (seriesExpirationDate != null && seriesExpirationDate.isAfter(studyExpireDate))
+                if (seriesExpirationDate != null && seriesExpirationDate.isAfter(studyExpireDate)) {
                     series.setExpirationDate(studyExpireDate);
+                    series.setExpirationExporterID(ctx.getExpirationExporterID());
+                }
             }
-        } else {
+        } else
             study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
-            study.setExpirationDate(studyExpireDate);
-        }
+        study.setExpirationDate(studyExpireDate);
+        study.setExpirationExporterID(ctx.getExpirationExporterID());
         ctx.setStudy(study);
         ctx.setAttributes(study.getAttributes());
     }
 
-    public void updateSeriesExpirationDate(StudyMgtContext ctx) {
+    private void updateSeriesExpirationDate(StudyMgtContext ctx) {
         Series series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID())
                 .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
@@ -158,9 +159,18 @@ public class StudyServiceEJB {
         if (studyExpirationDate == null || studyExpirationDate.isBefore(ctx.getExpirationDate())) {
             Study study = series.getStudy();
             study.setExpirationDate(ctx.getExpirationDate());
+            study.setExpirationExporterID(ctx.getExpirationExporterID());
             ctx.setStudy(study);
             ctx.setAttributes(study.getAttributes());
         }
+    }
+
+    public void updateExpirationDate(StudyMgtContext ctx) {
+        if (ctx.getSeriesInstanceUID() != null) {
+            updateSeriesExpirationDate(ctx);
+            return;
+        }
+        updateStudyExpirationDate(ctx);
     }
 
     private void setCodes(Collection<CodeEntity> codes, Sequence seq) {
