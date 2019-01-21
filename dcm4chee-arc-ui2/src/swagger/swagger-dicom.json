@@ -317,6 +317,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "return Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "return Studies which are retrieveable from external <AE Title>",
@@ -579,6 +585,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "return Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationDate",
             "in": "query",
             "description": "list series which have expiration date between <datetime1>-<datetime2>",
@@ -783,6 +795,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "return Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationDate",
             "in": "query",
             "description": "list Series which have expiration date between <datetime1>-<datetime2>",
@@ -947,6 +965,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "return Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationDate",
             "in": "query",
             "description": "list Instances of Series which have expiration date between <datetime1>-<datetime2>",
@@ -1104,6 +1128,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "return Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationDate",
             "in": "query",
             "description": "list Instances of Series which have expiration date between <datetime1>-<datetime2>",
@@ -1251,6 +1281,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "return Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "return Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {

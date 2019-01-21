@@ -712,7 +712,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.119 NAME 'dcmPurgeStgCmtPollingInterval'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.120 NAME 'dcmDefaultCharacterSet'
-  DESC 'Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.'
+  DESC 'Value of Specific Character Set (0008,0005) added to Data Sets of C-STORE RQs and pending C-FIND RSPs without Specific Character Set (0008,0005) attribute received by the Network AE.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

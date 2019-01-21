@@ -152,6 +152,10 @@ public class StgVerMatchingRS {
     @QueryParam("storageVerificationStorageID")
     private List<String> storageVerificationStorageIDs;
 
+    @QueryParam("StudySizeInKB")
+    @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
+    private String studySizeInKB;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -329,7 +333,6 @@ public class StgVerMatchingRS {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
@@ -338,6 +341,7 @@ public class StgVerMatchingRS {
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
+        queryParam.setStudySizeRange(studySizeInKB);
         return queryParam;
     }
 

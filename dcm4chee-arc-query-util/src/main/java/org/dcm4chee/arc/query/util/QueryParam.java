@@ -62,7 +62,6 @@ public class QueryParam {
     private boolean fuzzySemanticMatching;
     private boolean allOfModalitiesInStudy;
     private boolean returnEmpty;
-    private boolean expired;
     private boolean withoutStudies = true;
     private boolean incomplete;
     private boolean retrieveFailed;
@@ -73,6 +72,8 @@ public class QueryParam {
     private Patient.VerificationStatus patientVerificationStatus;
     private String expirationDate;
     private List<String> studyStorageIDs;
+    private long minStudySize;
+    private long maxStudySize;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -150,14 +151,6 @@ public class QueryParam {
 
     public void setReturnEmpty(boolean returnEmpty) {
         this.returnEmpty = returnEmpty;
-    }
-
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public void setExpired(boolean expired) {
-        this.expired = expired;
     }
 
     public boolean isWithoutStudies() {
@@ -242,5 +235,30 @@ public class QueryParam {
 
     public boolean noMatches() {
         return studyStorageIDs != null && studyStorageIDs.isEmpty();
+    }
+
+    public long getMinStudySize() {
+        return minStudySize;
+    }
+
+    public long getMaxStudySize() {
+        return maxStudySize;
+    }
+
+    public void setStudySizeRange(String studySizeInKB) {
+        if (studySizeInKB == null || studyStorageIDs.isEmpty())
+            return;
+
+        int delim = studySizeInKB.indexOf('-');
+        if (delim == -1) {
+            long size = Long.parseLong(studySizeInKB) * 1000;
+            minStudySize = size;
+            maxStudySize = size + 999;
+        } else {
+            if (delim > 0)
+                minStudySize =  Long.parseLong(studySizeInKB.substring(0, delim)) * 1000;
+            if (delim < studySizeInKB.length() - 1)
+                maxStudySize =  (Long.parseLong(studySizeInKB.substring(delim+1)) * 1000) + 999;
+        }
     }
 }

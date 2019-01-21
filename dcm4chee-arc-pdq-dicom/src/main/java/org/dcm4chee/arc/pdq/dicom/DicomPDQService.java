@@ -44,7 +44,6 @@ package org.dcm4chee.arc.pdq.dicom;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
@@ -54,8 +53,6 @@ import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -66,8 +63,6 @@ import java.util.List;
  * @since Oct 2018
  */
 public class DicomPDQService extends AbstractPDQService {
-    private static final Logger LOG = LoggerFactory.getLogger(DicomPDQService.class);
-
     private final Device device;
     private final CFindSCU cFindSCU;
 
@@ -79,10 +74,9 @@ public class DicomPDQService extends AbstractPDQService {
 
     @Override
     public Attributes query(IDWithIssuer pid) throws PDQServiceException {
-        Attributes attrs = descriptor.getEntity() == Entity.Patient
+        return descriptor.getEntity() == Entity.Patient
                 ? queryPatient(pid)
                 : queryStudiesOfPatient(pid);
-        return attrs != null ? ensureCharSet(attrs) : null;
     }
 
     private Attributes queryPatient(IDWithIssuer pid) throws PDQServiceException {
@@ -102,16 +96,6 @@ public class DicomPDQService extends AbstractPDQService {
                 .stream()
                 .max(Comparator.comparing(s -> s.getString(Tag.StudyDate, "")))
                 .orElse(null);
-    }
-
-    private Attributes ensureCharSet(Attributes attrs) {
-        String characterSet = descriptor.getDefaultCharacterSet();
-        if (!attrs.containsValue(Tag.SpecificCharacterSet) && characterSet != null) {
-                LOG.debug("{}: No Specific Character Set (0008,0005) in received data set - " +
-                        "supplement configured Default Character Set: {}", attrs, characterSet);
-                attrs.setString(Tag.SpecificCharacterSet, VR.CS, characterSet);
-        }
-        return attrs;
     }
 
     private ApplicationEntity localAE() throws PDQServiceException {

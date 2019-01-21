@@ -8166,6 +8166,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "export Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "export Studies which are retrieveable from external <AE Title>",
@@ -8347,6 +8353,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "export Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "export Series of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -8541,6 +8553,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "export Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "export Series of Studies which are retrieveable from external <AE Title>",
@@ -8722,6 +8740,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "export Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "export Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -8913,6 +8937,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "export Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "export Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -9111,6 +9141,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "export Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "export Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -9549,6 +9585,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Schedule Storage Verification of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "match Studies which are retrieveable from external <AE Title>",
@@ -9714,6 +9756,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "match Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Schedule Storage Verification of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -9892,6 +9940,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Schedule Storage Verification of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "match Series of Studies which are retrieveable from external <AE Title>",
@@ -10057,6 +10111,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "match Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Schedule Storage Verification of Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -10232,6 +10292,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "match Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Schedule Storage Verification of Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -10414,6 +10480,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "match Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Schedule Storage Verification of Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {
@@ -11053,6 +11125,12 @@
             "type": "string"
           },
           {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "count Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExternalRetrieveAET",
             "in": "query",
             "description": "count Studies which are retrieveable from external <AE Title>",
@@ -11188,6 +11266,18 @@
             "type": "string"
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "count Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationDate",
             "in": "query",
             "description": "count series which have expiration date between <datetime1>-<datetime2>",
@@ -11317,6 +11407,18 @@
             "default": false
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "count Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "storageID",
             "in": "query",
             "description": "count Series of Studies which have objects on a particular Storage System",
@@ -11405,6 +11507,18 @@
             "description": "count Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "count Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
           },
           {
             "name": "storageID",
@@ -11497,6 +11611,18 @@
             "default": false
           },
           {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "count Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
             "name": "storageID",
             "in": "query",
             "description": "count Instances of Study which have objects on a particular Storage System",
@@ -11585,6 +11711,18 @@
             "description": "count Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "count Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "count Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
           },
           {
             "name": "storageID",
@@ -11699,6 +11837,12 @@
             "name": "StudyAccessDateTime",
             "in": "query",
             "description": "size of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "size of Studies whose size is <min>-|-<max>|<min>-<max>",
             "type": "string"
           },
           {

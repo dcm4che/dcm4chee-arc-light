@@ -169,7 +169,7 @@ class StoreServiceImpl implements StoreService {
                         ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ctx.getAcceptedStudyInstanceUID());
                 throw new DicomServiceException(DIFF_STUDY_INSTANCE_UID);
             }
-            checkCharacterSet(ctx);
+            supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
             result = updateDB(ctx);
@@ -319,7 +319,7 @@ class StoreServiceImpl implements StoreService {
                     dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
                 }
                 adjustPixelDataBulkData(attrs);
-                checkCharacterSet(ctx);
+                supplementDefaultCharacterSet(ctx);
                 storeMetadata(ctx);
                 coerceAttributes(ctx);
             }
@@ -383,17 +383,17 @@ class StoreServiceImpl implements StoreService {
         refSOPSeq.add(refSOP);
     }
 
-    private void checkCharacterSet(StoreContext ctx) {
+    private void supplementDefaultCharacterSet(StoreContext ctx) {
         Attributes attrs = ctx.getAttributes();
-        if (attrs.contains(Tag.SpecificCharacterSet))
+        if (attrs.containsValue(Tag.SpecificCharacterSet))
             return;
 
         StoreSession session = ctx.getStoreSession();
-        String characterSet = session.getArchiveAEExtension().defaultCharacterSet();
-        if (characterSet != null) {
-            LOG.debug("{}: No Specific Character Set (0008,0005) in received data set - " +
-                    "supplement configured Default Character Set: {}", session, characterSet);
-            attrs.setString(Tag.SpecificCharacterSet, VR.CS, characterSet);
+        String defaultCharacterSet = session.getArchiveAEExtension().defaultCharacterSet();
+        if (defaultCharacterSet != null) {
+            LOG.info("{}: No Specific Character Set (0008,0005) in received data set - " +
+                    "supplement configured Default Character Set: {}", session, defaultCharacterSet);
+            attrs.setString(Tag.SpecificCharacterSet, VR.CS, defaultCharacterSet);
         }
     }
 

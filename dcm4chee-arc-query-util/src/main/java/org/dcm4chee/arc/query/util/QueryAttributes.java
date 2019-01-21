@@ -61,6 +61,7 @@ import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2017
  */
 public class QueryAttributes {
@@ -138,6 +139,7 @@ public class QueryAttributes {
                 case "storageClustered":
                 case "storageExported":
                 case "allOfModalitiesInStudy":
+                case "StudySizeInKB":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,

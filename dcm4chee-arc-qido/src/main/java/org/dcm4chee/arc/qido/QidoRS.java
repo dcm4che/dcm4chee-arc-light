@@ -184,6 +184,10 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String allOfModalitiesInStudy;
 
+    @QueryParam("StudySizeInKB")
+    @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
+    private String studySizeInKB;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -505,7 +509,6 @@ public class QidoRS {
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
         queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
         queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
-        queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
@@ -514,6 +517,7 @@ public class QidoRS {
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);
+        queryParam.setStudySizeRange(studySizeInKB);
         if (storageID != null)
             queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));

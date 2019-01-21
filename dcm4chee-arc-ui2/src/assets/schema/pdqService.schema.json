@@ -39,12 +39,6 @@
       "enum": [ "Patient", "Study" ],
       "default": "Patient"
     },
-    "dcmDefaultCharacterSet": {
-      "title": "Default Character Set",
-      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received from the C-FIND SCP. Only effective for DICOM PDQ Services (URI: pdq-dicom:{AETitle}).",
-      "type": "string",
-      "format": "dcmCharset"
-    },
     "dcmProperty": {
       "title": "PDQ Service Property",
       "description": "Property in format <name>=<value>, e.g. 'LocalAET=DCM4CHEE'",
