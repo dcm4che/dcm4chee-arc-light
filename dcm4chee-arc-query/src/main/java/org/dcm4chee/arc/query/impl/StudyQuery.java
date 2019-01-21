@@ -79,7 +79,9 @@ class StudyQuery extends AbstractQuery {
             QStudy.study.createdTime,
             QStudy.study.updatedTime,
             QStudy.study.accessTime,
+            QStudy.study.expirationState,
             QStudy.study.expirationDate,
+            QStudy.study.expirationExporterID,
             QStudy.study.rejectionState,
             QStudy.study.completeness,
             QStudy.study.failedRetrieves,
@@ -239,9 +241,14 @@ class StudyQuery extends AbstractQuery {
                 results.get(QStudy.study.updatedTime));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT,
                 results.get(QStudy.study.accessTime));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState, VR.CS,
+                results.get(QStudy.study.expirationState).toString());
         if (results.get(QStudy.study.expirationDate) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
                     results.get(QStudy.study.expirationDate));
+        if (results.get(QStudy.study.expirationExporterID) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationExporterID, VR.LO,
+                    results.get(QStudy.study.expirationExporterID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyRejectionState, VR.CS,
                 results.get(QStudy.study.rejectionState).toString());
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyCompleteness, VR.CS,

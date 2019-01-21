@@ -16,6 +16,8 @@ DCM4CHE.elementName.addDictionary({
 "7777xx28":"Storage IDs of Study",
 "7777xx29":"Study Size in KB",
 "7777xx2A":"Study Size Bytes",
+"7777xx2B":"Study Expiration State",
+"7777xx2C":"Study Expiration Exporter ID",
 "7777xx30":"Series Receive Date Time",
 "7777xx31":"Series Update Date Time",
 "7777xx33":"Series Expiration Date",
@@ -46,6 +48,8 @@ DCM4CHE.elementName.addDictionary({
 "7777xx61":"Failures of Last Storage Verification of Series",
 "7777xx62":"Scheduled Compression Date Time of Series",
 "7777xx63":"Failures of Last Compression of Series",
+"7777xx64":"Series Expiration State",
+"7777xx65":"Series Expiration Exporter ID",
 "7777xxE0":"X-Road Person Status",
 "7777xxE1":"X-Road Data Status"
 });
