@@ -81,6 +81,7 @@ import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -475,9 +476,10 @@ public class IocmRS {
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
             String expirationDate,
-            @QueryParam("ExporterID") String expirationExporterID) {
+            @QueryParam("ExporterID") String expirationExporterID,
+            @QueryParam("FreezeExpirationDate") @Pattern(regexp = "true|false") String freezeExpirationDate) {
         return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate,
-                expirationExporterID);
+                expirationExporterID, freezeExpirationDate);
     }
 
     @PUT
@@ -487,13 +489,14 @@ public class IocmRS {
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
             String expirationDate,
-            @QueryParam("ExporterID") String expirationExporterID) {
+            @QueryParam("ExporterID") String expirationExporterID,
+            @QueryParam("FreezeExpirationDate") @Pattern(regexp = "true|false") String freezeExpirationDate) {
         return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate,
-                expirationExporterID);
+                expirationExporterID, freezeExpirationDate);
     }
 
     private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate,
-                                          String expirationExporterID) {
+                                          String expirationExporterID, String freezeExpirationDate) {
         logRequest();
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -501,6 +504,8 @@ public class IocmRS {
             StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
             if (seriesUID != null)
                 ctx.setSeriesInstanceUID(seriesUID);
+            if (freezeExpirationDate != null)
+                ctx.setFreezeExpirationDate(Boolean.parseBoolean(freezeExpirationDate));
             ctx.setExpirationExporterID(expirationExporterID);
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);

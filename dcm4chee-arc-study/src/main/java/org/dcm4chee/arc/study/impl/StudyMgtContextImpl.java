@@ -80,6 +80,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private LocalDate expirationDate;
     private String seriesInstanceUID;
     private String expirationExporterID;
+    private Boolean freezeExpirationDate;
 
     StudyMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -233,5 +234,15 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public void setExpirationExporterID(String expirationExporterID) {
         this.expirationExporterID = expirationExporterID;
+    }
+
+    @Override
+    public Boolean getFreezeExpirationDate() {
+        return freezeExpirationDate;
+    }
+
+    @Override
+    public void setFreezeExpirationDate(boolean freezeExpirationDate) {
+        this.freezeExpirationDate = freezeExpirationDate;
     }
 }
