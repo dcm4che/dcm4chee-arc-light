@@ -246,13 +246,15 @@ public class QueryParam {
     }
 
     public void setStudySizeRange(String studySizeInKB) {
+        if (studySizeInKB == null || studyStorageIDs.isEmpty())
+            return;
+
         int delim = studySizeInKB.indexOf('-');
         if (delim == -1) {
             long size = Long.parseLong(studySizeInKB) * 1000;
             minStudySize = size;
             maxStudySize = size + 999;
-        }
-        else {
+        } else {
             if (delim > 0)
                 minStudySize =  Long.parseLong(studySizeInKB.substring(0, delim)) * 1000;
             if (delim < studySizeInKB.length() - 1)
