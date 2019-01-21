@@ -475,7 +475,7 @@ public class IocmRS {
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
             String expirationDate,
-            @QueryParam("expirationExporterID") String expirationExporterID) {
+            @QueryParam("ExporterID") String expirationExporterID) {
         return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate,
                 expirationExporterID);
     }
@@ -487,7 +487,7 @@ public class IocmRS {
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
             String expirationDate,
-            @QueryParam("expirationExporterID") String expirationExporterID) {
+            @QueryParam("ExporterID") String expirationExporterID) {
         return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate,
                 expirationExporterID);
     }

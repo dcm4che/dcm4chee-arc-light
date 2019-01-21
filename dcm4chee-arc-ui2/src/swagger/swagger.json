@@ -10802,6 +10802,12 @@
             "description": "ExpirationDate",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "ExporterID",
+            "in": "query",
+            "description": "activate the export of the Study on expiration",
+            "type": "string"
           }
         ],
         "responses": {
@@ -10851,6 +10857,12 @@
             "in": "path",
             "description": "ExpirationDate",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "ExporterID",
+            "in": "query",
+            "description": "activate the export of the Series on expiration",
             "type": "string"
           }
         ],
