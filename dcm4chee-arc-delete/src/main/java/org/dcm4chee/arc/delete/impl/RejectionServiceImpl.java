@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -80,6 +81,9 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
     @Inject
     private StoreService storeService;
 
+    @Inject
+    private DeletionServiceEJB ejb;
+
     public void onExport(@Observes ExportContext ctx) {
         ExporterDescriptor desc = ctx.getExporter().getExporterDescriptor();
         if (!desc.isRejectForDataRetentionExpiry() || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
@@ -101,7 +105,8 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         LOG.info("Export completed, invoke rejection of objects.");
         StoreSession storeSession = storeService.newStoreSession(ae);
         try {
-            reject(storeSession, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn);
+            if (ejb.claimExpired(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ExpirationState.REJECTED))
+                reject(storeSession, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn);
         } catch (Exception e) {
             LOG.warn("Rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
                     ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), e.getMessage());

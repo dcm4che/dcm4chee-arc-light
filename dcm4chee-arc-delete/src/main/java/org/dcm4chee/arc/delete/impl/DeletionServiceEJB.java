@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -250,11 +250,20 @@ public class DeletionServiceEJB {
     }
 
     public boolean deleteObjectsOfStudy(String suid, StorageDescriptor desc) {
-        return deleteObjectsOfStudy(
-                em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                        .setParameter(1, suid)
-                        .getSingleResult(),
-                desc);
+        return deleteObjectsOfStudy(findByStudyIUID(suid), desc);
+    }
+
+    private Study findByStudyIUID(String suid) {
+        return em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                .setParameter(1, suid)
+                .getSingleResult();
+    }
+
+    private Series findBySeriesIUID(String studyUID, String seriesUID) {
+        return em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
+                .setParameter(1, studyUID)
+                .setParameter(2, seriesUID)
+                .getSingleResult();
     }
 
     private boolean deleteObjectsOfStudy(Study study, StorageDescriptor desc) {
@@ -603,5 +612,11 @@ public class DeletionServiceEJB {
                 .setParameter(2, series.getExpirationState())
                 .setParameter(3, expirationState)
                 .executeUpdate() > 0;
+    }
+
+    public boolean claimExpired(String studyIUID, String seriesIUID, ExpirationState expirationState) {
+        return seriesIUID != null
+                ? claimExpiredSeriesFor(findBySeriesIUID(studyIUID, seriesIUID), expirationState)
+                : claimExpiredStudyFor(findByStudyIUID(studyIUID), expirationState);
     }
 }
