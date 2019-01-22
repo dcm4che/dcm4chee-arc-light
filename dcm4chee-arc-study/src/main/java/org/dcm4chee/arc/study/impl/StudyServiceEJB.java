@@ -114,6 +114,7 @@ public class StudyServiceEJB {
         Study study = new Study();
         study.setCompleteness(Completeness.COMPLETE);
         study.setRejectionState(RejectionState.EMPTY);
+        study.setExpirationState(ExpirationState.UPDATEABLE);
         study.setAccessControlID(ctx.getArchiveAEExtension().storeAccessControlID(
                 ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));
         study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
