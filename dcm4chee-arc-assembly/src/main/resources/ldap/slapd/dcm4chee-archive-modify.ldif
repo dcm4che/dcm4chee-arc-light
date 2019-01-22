@@ -1337,6 +1337,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.270 NAME 'dcmRevokeExpiration'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.271 NAME 'dcmRetrieveAsReceived'
+  DESC 'Disables merge of DB information into the retrieved Composite Object, returning the objects as received. Only effective with dcmDIMSE=C_STORE_RQ and dicomTransferRole=SCP; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1723,6 +1728,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmAETitle $
     dcmHostname $
     dcmSOPClass $
+    dcmRetrieveAsReceived $
     dcmDeIdentification $
     dcmURI $
     dcmNoKeywords $

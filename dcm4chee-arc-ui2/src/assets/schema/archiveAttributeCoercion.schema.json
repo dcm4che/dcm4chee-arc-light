@@ -7,6 +7,7 @@
     "dcmDIMSE",
     "dicomTransferRole",
     "dcmRulePriority",
+    "dcmRetrieveAsReceived",
     "dcmNoKeywords",
     "dcmAttributeUpdatePolicy"
   ],
@@ -67,6 +68,12 @@
         "type": "string"
       },
       "format": "dcmSOPClass"
+    },
+    "dcmRetrieveAsReceived": {
+      "title": "Retrieve as Received",
+      "description": "Disables merge of DB information into the retrieved Composite Object, returning the objects as received. Only effective with DIMSE = C_STORE_RQ and DICOM Transfer Role = SCP.",
+      "type": "boolean",
+      "default": false
     },
     "dcmDeIdentification": {
       "title": "De-identification",

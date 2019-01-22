@@ -572,6 +572,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
             writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
+            writer.writeNotDef("dcmRetrieveAsReceived", aac.isRetrieveAsReceived(), false);
             writer.writeNotEmpty("dcmDeIdentification", aac.getDeIdentification());
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
             writer.writeNotNullOrDef("dcmURI", aac.getXSLTStylesheetURI(), null);
@@ -1983,6 +1984,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmSOPClass":
                         aac.setSOPClasses(reader.stringArray());
+                        break;
+                    case "dcmRetrieveAsReceived":
+                        aac.setRetrieveAsReceived(reader.booleanValue());
                         break;
                     case "dcmDeIdentification":
                         aac.setDeIdentification(reader.enumArray(DeIdentifier.Option.class));

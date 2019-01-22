@@ -3523,6 +3523,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHostname", coercion.getHostNames());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAETitle", coercion.getAETitles());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSOPClass", coercion.getSOPClasses());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveAsReceived", coercion.isRetrieveAsReceived(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", coercion.getXSLTStylesheetURI(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP(), null);
@@ -3556,6 +3557,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setHostNames(LdapUtils.stringArray(attrs.get("dcmHostname")));
                 coercion.setAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
                 coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
+                coercion.setRetrieveAsReceived(LdapUtils.booleanValue(attrs.get("dcmRetrieveAsReceived"), false));
                 coercion.setDeIdentification(LdapUtils.enumArray(DeIdentifier.Option.class, attrs.get("dcmDeIdentification")));
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 coercion.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
@@ -3608,6 +3610,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmHostname", prev.getHostNames(), coercion.getHostNames());
         LdapUtils.storeDiff(ldapObj, mods, "dcmAETitle", prev.getAETitles(), coercion.getAETitles());
         LdapUtils.storeDiff(ldapObj, mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveAsReceived",
+                prev.isRetrieveAsReceived(), coercion.isRetrieveAsReceived(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeIdentification", prev.getDeIdentification(), coercion.getDeIdentification());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);

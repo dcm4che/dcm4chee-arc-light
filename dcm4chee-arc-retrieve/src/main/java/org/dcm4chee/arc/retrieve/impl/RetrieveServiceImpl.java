@@ -875,7 +875,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst) {
-        return uidRemap(inst, new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst)));
+        return uidRemap(inst, coercion(ctx, inst));
     }
 
     @Override
@@ -1007,17 +1007,19 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
+        Attributes instAttributes = inst.getAttributes();
         if (ctx.isUpdateSeriesMetadata())
-            return new SeriesMetadataAttributeCoercion(ctx, inst);
+            return new MergeAttributesCoercion(instAttributes, new SeriesMetadataAttributeCoercion(ctx, inst));
 
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
                 ctx.getRequestorHostName(), ctx.getDestinationAETitle(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ,
                 inst.getSopClassUID());
         if (rule == null)
-            return null;
+            return new MergeAttributesCoercion(instAttributes, AttributesCoercion.NONE);
 
-        AttributesCoercion coercion = DeIdentificationAttributesCoercion.valueOf(rule.getDeIdentification(), null);
+        AttributesCoercion coercion = DeIdentificationAttributesCoercion.valueOf(
+                rule.getDeIdentification(), AttributesCoercion.NONE);
         String xsltStylesheetURI = rule.getXSLTStylesheetURI();
         if (xsltStylesheetURI != null)
         try {
@@ -1032,6 +1034,9 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (leadingCFindSCP != null) {
             coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+        }
+        if (!rule.isRetrieveAsReceived()) {
+            coercion = new MergeAttributesCoercion(instAttributes, coercion);
         }
         LOG.info("Coerce Attributes from rule: {}", rule);
         return coercion;

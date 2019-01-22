@@ -61,6 +61,7 @@ public class ArchiveAttributeCoercion {
     private String[] sopClasses = {};
     private String[] aeTitles = {};
     private String[] hostNames = {};
+    private boolean retrieveAsReceived;
     private DeIdentifier.Option[] deIdentification = {};
     private String xsltStylesheetURI;
     private boolean noKeywords;
@@ -141,6 +142,14 @@ public class ArchiveAttributeCoercion {
     public ArchiveAttributeCoercion setHostNames(String... hostNames) {
         this.hostNames = hostNames;
         return this;
+    }
+
+    public boolean isRetrieveAsReceived() {
+        return retrieveAsReceived;
+    }
+
+    public void setRetrieveAsReceived(boolean retrieveAsReceived) {
+        this.retrieveAsReceived = retrieveAsReceived;
     }
 
     public DeIdentifier.Option[] getDeIdentification() {
@@ -306,6 +315,7 @@ public class ArchiveAttributeCoercion {
                 + ", aets=" + Arrays.toString(aeTitles)
                 + ", hostNames=" + Arrays.toString(hostNames)
                 + ", cuids=" + Arrays.toString(sopClasses)
+                + ", retrieveAsReceived=" + retrieveAsReceived
                 + ", deIdentification=" + Arrays.toString(deIdentification)
                 + ", xslturi=" + xsltStylesheetURI
                 + ", noKeywords=" + noKeywords
