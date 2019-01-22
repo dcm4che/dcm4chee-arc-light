@@ -184,7 +184,7 @@ class StoreServiceImpl implements StoreService {
             throw dse;
         } finally {
             revokeStorage(ctx, result);
-            storeEvent.fire(ctx);
+            fireStoreEvent(ctx);
         }
     }
 
@@ -329,13 +329,23 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(e);
             throw e;
         } catch (Exception e) {
-            LOG.info("{}: Unexpected Exception: ", ctx.getStoreSession(), e);
+            LOG.info("{}: Unexpected Exception:\n", ctx.getStoreSession(), e);
             DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
             ctx.setException(dse);
             throw dse;
         } finally {
             revokeStorage(ctx, result);
+            fireStoreEvent(ctx);
+        }
+    }
+
+    public void fireStoreEvent(StoreContext ctx) {
+        try {
+            LOG.debug("{}: Firing Store Event", ctx.getStoreSession());
             storeEvent.fire(ctx);
+            LOG.debug("{}: Fired Store Event", ctx.getStoreSession());
+        } catch (Exception e) {
+            LOG.warn("{}: Firing Store Event throws Exception:\n", ctx.getStoreSession(), e);
         }
     }
 
