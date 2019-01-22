@@ -47,6 +47,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
@@ -179,6 +180,10 @@ public class ExportMatchingRS {
     @QueryParam("StudySizeInKB")
     @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
     private String studySizeInKB;
+
+    @QueryParam("ExpirationState")
+    @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
+    private String expirationState;
 
     @Override
     public String toString() {
@@ -375,6 +380,8 @@ public class ExportMatchingRS {
             queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
         queryParam.setStudySizeRange(studySizeInKB);
+        if (expirationState != null)
+            queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
         return queryParam;
     }
 

@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StudyRetentionPolicy;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -112,6 +113,10 @@ public class ApplyRetentionPolicy {
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
+
+    @QueryParam("ExpirationState")
+    @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
+    private String expirationState;
 
     @Override
     public String toString() {
@@ -232,6 +237,8 @@ public class ApplyRetentionPolicy {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        if (expirationState != null)
+            queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
         return queryParam;
     }
 

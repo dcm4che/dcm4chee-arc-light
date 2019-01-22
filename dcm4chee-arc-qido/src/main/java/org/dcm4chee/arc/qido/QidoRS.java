@@ -188,6 +188,10 @@ public class QidoRS {
     @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
     private String studySizeInKB;
 
+    @QueryParam("ExpirationState")
+    @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
+    private String expirationState;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -523,6 +527,8 @@ public class QidoRS {
                     .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
+        if (expirationState != null)
+            queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
         ctx.setSOPClassUID(model.getSOPClassUID());
