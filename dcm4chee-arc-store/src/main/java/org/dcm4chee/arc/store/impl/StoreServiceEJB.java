@@ -1175,16 +1175,39 @@ public class StoreServiceEJB {
             return;
 
         Study study = series.getStudy();
-        LocalDate expirationDate = retentionPolicy.expirationDate(ctx.getAttributes());
-        LocalDate studyExpirationDate = study.getExpirationDate();
-        if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
-            study.setExpirationDate(expirationDate);
-
-        if (retentionPolicy.isExpireSeriesIndividually())
-            series.setExpirationDate(expirationDate);
-
         study.setExpirationExporterID(retentionPolicy.getExporterID());
         series.setExpirationExporterID(retentionPolicy.getExporterID());
+
+        if (study.getExpirationState() == ExpirationState.FROZEN) {
+            LOG.info("Freeze Series[UID={}] of frozen Study[UID={}, ExpirationDate={}]",
+                    series.getSeriesInstanceUID(), study.getStudyInstanceUID(), study.getExpirationDate());
+            series.setExpirationDate(study.getExpirationDate());
+            series.setExpirationState(ExpirationState.FROZEN);
+        } else {
+            LocalDate expirationDate = retentionPolicy.expirationDate(ctx.getAttributes());
+            LocalDate studyExpirationDate = study.getExpirationDate();
+            if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
+                study.setExpirationDate(expirationDate);
+
+            if (retentionPolicy.isExpireSeriesIndividually())
+                series.setExpirationDate(expirationDate);
+
+            if (retentionPolicy.isFreezeExpirationDate()) {
+                LOG.info("Study[UID={}] frozen by RetentionPolicy[Name={}]",
+                        study.getStudyInstanceUID(), retentionPolicy.getCommonName());
+                study.setExpirationState(ExpirationState.FROZEN);
+                series.setExpirationState(ExpirationState.FROZEN);
+                series.setExpirationDate(study.getExpirationDate());
+                LOG.info("Frozen {} Series of Study[UID={}, ExpirationDate={}]",
+                        em.createNamedQuery(Series.EXPIRE_SERIES)
+                        .setParameter(1, study.getPk())
+                        .setParameter(2, ExpirationState.FROZEN)
+                        .setParameter(3, study.getExpirationDateAsStr())
+                        .executeUpdate() + 1,
+                        study.getStudyInstanceUID(),
+                        study.getExpirationDate());
+            }
+        }
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
