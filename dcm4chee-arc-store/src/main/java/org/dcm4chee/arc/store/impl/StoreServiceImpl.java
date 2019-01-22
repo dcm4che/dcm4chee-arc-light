@@ -339,13 +339,16 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    public void fireStoreEvent(StoreContext ctx) {
+    public void fireStoreEvent(StoreContext ctx) throws DicomServiceException {
         try {
             LOG.debug("{}: Firing Store Event", ctx.getStoreSession());
             storeEvent.fire(ctx);
             LOG.debug("{}: Fired Store Event", ctx.getStoreSession());
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOG.warn("{}: Firing Store Event throws Exception:\n", ctx.getStoreSession(), e);
+            DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
+            ctx.setException(dse);
+            throw dse;
         }
     }
 
