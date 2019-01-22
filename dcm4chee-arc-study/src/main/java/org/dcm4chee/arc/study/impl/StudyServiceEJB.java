@@ -153,16 +153,15 @@ public class StudyServiceEJB {
         Series series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID())
                 .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
-        LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
+        Study study = series.getStudy();
+        LocalDate studyExpirationDate = study.getExpirationDate();
         series.setExpirationDate(ctx.getExpirationDate());
         series.setExpirationExporterID(ctx.getExpirationExporterID());
-        ctx.setAttributes(series.getAttributes());
+        ctx.setStudy(study);
+        ctx.setAttributes(study.getAttributes());
         if (studyExpirationDate == null || studyExpirationDate.isBefore(ctx.getExpirationDate())) {
-            Study study = series.getStudy();
             study.setExpirationDate(ctx.getExpirationDate());
             study.setExpirationExporterID(ctx.getExpirationExporterID());
-            ctx.setStudy(study);
-            ctx.setAttributes(study.getAttributes());
         }
     }
 
