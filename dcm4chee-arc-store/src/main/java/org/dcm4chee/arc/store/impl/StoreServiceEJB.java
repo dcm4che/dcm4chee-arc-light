@@ -1167,6 +1167,13 @@ public class StoreServiceEJB {
     }
 
     private void applyStudyRetentionPolicy(StoreContext ctx, Series series) {
+        Study study = series.getStudy();
+        LocalDate studyExpirationDate = study.getExpirationDate();
+        if (study.getExpirationState() == ExpirationState.FROZEN) {
+            freezeSeries(series, study, studyExpirationDate);
+            return;
+        }
+
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         StudyRetentionPolicy retentionPolicy = arcAE.findStudyRetentionPolicy(session.getRemoteHostName(),
@@ -1174,26 +1181,18 @@ public class StoreServiceEJB {
         if (retentionPolicy == null)
             return;
 
-        Study study = series.getStudy();
         study.setExpirationExporterID(retentionPolicy.getExporterID());
-        series.setExpirationExporterID(retentionPolicy.getExporterID());
-        LocalDate studyExpirationDate = study.getExpirationDate();
-
-        if (study.getExpirationState() == ExpirationState.FROZEN)
-            freezeSeries(series, study, studyExpirationDate);
+        LocalDate expirationDate = retentionPolicy.expirationDate(ctx.getAttributes());
+        if (retentionPolicy.isFreezeExpirationDate()) {
+            LOG.info("Study[UID={}] frozen by {}", study.getStudyInstanceUID(), retentionPolicy);
+            freezeStudyAndItsSeries(series, study, expirationDate);
+        }
         else {
-            LocalDate expirationDate = retentionPolicy.expirationDate(ctx.getAttributes());
-            if (retentionPolicy.isFreezeExpirationDate()) {
-                LOG.info("Study[UID={}] frozen by {}", study.getStudyInstanceUID(), retentionPolicy);
-                freezeStudyAndItsSeries(series, study, expirationDate);
-            }
-            else {
-                if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
-                    study.setExpirationDate(expirationDate);
+            if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
+                study.setExpirationDate(expirationDate);
 
-                if (retentionPolicy.isExpireSeriesIndividually())
-                    series.setExpirationDate(expirationDate);
-            }
+            if (retentionPolicy.isExpireSeriesIndividually())
+                series.setExpirationDate(expirationDate);
         }
     }
 
@@ -1216,6 +1215,7 @@ public class StoreServiceEJB {
                 series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
         series.setExpirationDate(expirationDate);
         series.setExpirationState(ExpirationState.FROZEN);
+        series.setExpirationExporterID(study.getExpirationExporterID());
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {

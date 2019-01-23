@@ -222,8 +222,8 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
-    public void setSeriesInstanceUID(String studyUID) {
-        this.seriesInstanceUID = studyUID;
+    public void setSeriesInstanceUID(String seriesUID) {
+        this.seriesInstanceUID = seriesUID;
     }
 
     @Override

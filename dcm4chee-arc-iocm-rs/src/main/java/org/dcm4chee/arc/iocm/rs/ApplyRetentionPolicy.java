@@ -158,22 +158,12 @@ public class ApplyRetentionPolicy {
                                         aet,
                                         attrs);
 
-                        String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-                        boolean identicalStudy = studyInstanceUID.equals(prevStudyInstanceUID);
-                        String studyExpirationState = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState);
-                        if (retentionPolicy == null ||
-                                (identicalStudy && studyExpirationState != null
-                                        && ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN)) {
-                            LOG.info("Frozen Study[UID={}, ExpirationDate={}]. Skip applying {} to Series[UID={}].",
-                                    attrs.getString(Tag.StudyInstanceUID),
-                                    attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate),
-                                    retentionPolicy,
-                                    attrs.getString(Tag.SeriesInstanceUID));
+                        if (retentionPolicy == null)
                             continue;
-                        }
 
                         LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
-                        if (!identicalStudy) {
+                        String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+                        if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                             prevStudyInstanceUID = studyInstanceUID;
                             prevStudyExpirationDate = expirationDate;
                             updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
@@ -246,8 +236,7 @@ public class ApplyRetentionPolicy {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        if (expirationState != null)
-            queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
+        queryParam.setExpirationState(ExpirationState.UPDATEABLE);
         return queryParam;
     }
 

@@ -100,7 +100,8 @@ public class StudyServiceImpl implements StudyService {
             ctx.setException(e);
             throw e;
         } finally {
-            updateStudyEvent.fire(ctx);
+            if (ctx.getEventActionCode() != null)
+                updateStudyEvent.fire(ctx);
         }
     }
 

@@ -500,10 +500,13 @@ public class IocmRS {
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
-            if (seriesUID != null)
-                ctx.setSeriesInstanceUID(seriesUID);
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
+            ctx.setExpirationDate(expireDate);
             ctx.setExpirationExporterID(expirationExporterID);
+            ctx.setFreezeExpirationDate(Boolean.parseBoolean(freezeExpirationDate));
+            ctx.setSeriesInstanceUID(seriesUID);
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
             return Response.noContent().build();
@@ -514,15 +517,6 @@ public class IocmRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
-    }
-
-    private StudyMgtContext createStudyMgtCtx(String studyUID, String expirationDate, ArchiveAEExtension arcAE) {
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
-        ctx.setStudyInstanceUID(studyUID);
-        LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
-        ctx.setExpirationDate(expireDate);
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        return ctx;
     }
 
     public static final class ExpireDate {

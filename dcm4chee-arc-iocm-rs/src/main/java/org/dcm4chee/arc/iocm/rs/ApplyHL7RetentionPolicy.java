@@ -121,7 +121,9 @@ public class ApplyHL7RetentionPolicy {
         LOG.info("{}: Apply {}:", event.getSocket(), policy);
         IDWithIssuer pid = new IDWithIssuer(hl7Fields.get("PID-3", null));
         ApplicationEntity ae = device.getApplicationEntity(policy.getAETitle(), true);
-        QueryContext queryCtx = queryService.newQueryContext(ae, new QueryParam(ae));
+        QueryParam queryParam = new QueryParam(ae);
+        queryParam.setExpirationState(ExpirationState.UPDATEABLE);
+        QueryContext queryCtx = queryService.newQueryContext(ae, queryParam);
         queryCtx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         queryCtx.setPatientIDs(pid);
         queryCtx.setQueryKeys(new Attributes(0));
@@ -131,18 +133,8 @@ public class ApplyHL7RetentionPolicy {
             query.executeQuery();
             while (query.hasMoreMatches()) {
                 Attributes match = query.nextMatch();
-                if (match != null) {
-                    String studyExpirationState = match.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState);
-                    if (studyExpirationState != null
-                            && ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN) {
-                        LOG.info("Frozen Study[UID={}, ExpirationDate={}]. Skip applying policy.",
-                                match.getString(Tag.StudyInstanceUID),
-                                match.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate));
-                        continue;
-                    }
-
+                if (match != null)
                     updateExpirationDate(event, policy, match);
-                }
             }
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", event.getSocket(), policy, e);
