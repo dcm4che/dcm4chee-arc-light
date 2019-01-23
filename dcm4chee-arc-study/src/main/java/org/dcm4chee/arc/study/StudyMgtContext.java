@@ -108,7 +108,7 @@ public interface StudyMgtContext {
 
     void setExpirationExporterID(String expirationExporterID);
 
-    Boolean getFreezeExpirationDate();
+    boolean isFreezeExpirationDate();
 
     void setFreezeExpirationDate(boolean freezeExpirationDate);
 }

@@ -503,8 +503,6 @@ public class IocmRS {
             StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
             if (seriesUID != null)
                 ctx.setSeriesInstanceUID(seriesUID);
-            if (freezeExpirationDate != null)
-                ctx.setFreezeExpirationDate(Boolean.parseBoolean(freezeExpirationDate));
             ctx.setExpirationExporterID(expirationExporterID);
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);

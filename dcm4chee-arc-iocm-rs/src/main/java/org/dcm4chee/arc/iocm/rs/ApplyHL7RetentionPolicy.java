@@ -57,6 +57,7 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7StudyRetentionPolicy;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -124,12 +125,22 @@ public class ApplyHL7RetentionPolicy {
         queryCtx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         queryCtx.setPatientIDs(pid);
         queryCtx.setQueryKeys(new Attributes(0));
+        queryCtx.setReturnPrivate(true);
         try (Query query = queryService.createStudyQuery(queryCtx)) {
             query.initQuery();
             query.executeQuery();
             while (query.hasMoreMatches()) {
                 Attributes match = query.nextMatch();
                 if (match != null) {
+                    String studyExpirationState = match.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState);
+                    if (studyExpirationState != null
+                            && ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN) {
+                        LOG.info("Frozen Study[UID={}, ExpirationDate={}]. Skip applying policy.",
+                                match.getString(Tag.StudyInstanceUID),
+                                match.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate));
+                        continue;
+                    }
+
                     updateExpirationDate(event, policy, match);
                 }
             }
@@ -161,6 +172,7 @@ public class ApplyHL7RetentionPolicy {
             ctx.setExpirationDate(expirationDate);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             ctx.setExpirationExporterID(policy.getExporterID());
+            ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
             try {
                 studyService.updateExpirationDate(ctx);
                 LOG.info("{}: Update expiration date of Study[uid={}]", event.getSocket(), suid);

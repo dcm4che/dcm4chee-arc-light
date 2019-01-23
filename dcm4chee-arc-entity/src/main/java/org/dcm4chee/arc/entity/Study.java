@@ -530,10 +530,6 @@ public class Study {
         this.expirationState = expirationState;
     }
 
-    public String getExpirationDateAsStr() {
-        return expirationDate;
-    }
-
     public LocalDate getExpirationDate() {
         return expirationDate != null ? LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE) : null;
     }

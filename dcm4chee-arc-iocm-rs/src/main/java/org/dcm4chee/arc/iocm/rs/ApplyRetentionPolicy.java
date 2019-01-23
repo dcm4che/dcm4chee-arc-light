@@ -158,27 +158,35 @@ public class ApplyRetentionPolicy {
                                         aet,
                                         attrs);
 
-                        if (retentionPolicy == null) {
+                        String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+                        boolean identicalStudy = studyInstanceUID.equals(prevStudyInstanceUID);
+                        String studyExpirationState = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState);
+                        if (retentionPolicy == null ||
+                                (identicalStudy && studyExpirationState != null
+                                        && ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN)) {
+                            LOG.info("Frozen Study[UID={}, ExpirationDate={}]. Skip applying {} to Series[UID={}].",
+                                    attrs.getString(Tag.StudyInstanceUID),
+                                    attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate),
+                                    retentionPolicy,
+                                    attrs.getString(Tag.SeriesInstanceUID));
                             continue;
                         }
 
                         LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
-
-                        String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-                        if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
+                        if (!identicalStudy) {
                             prevStudyInstanceUID = studyInstanceUID;
                             prevStudyExpirationDate = expirationDate;
                             updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
                                     retentionPolicy);
                             count++;
-                        } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
+                        } else if (retentionPolicy.isFreezeExpirationDate()
+                                || prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                             prevStudyExpirationDate = expirationDate;
-                            if (!retentionPolicy.isExpireSeriesIndividually())
-                                updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
                                         retentionPolicy);
                         }
 
-                        if (retentionPolicy.isExpireSeriesIndividually())
+                        if (retentionPolicy.isExpireSeriesIndividually() && !retentionPolicy.isFreezeExpirationDate())
                             updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID),
                                     expirationDate, ae, retentionPolicy);
                     }
@@ -230,6 +238,7 @@ public class ApplyRetentionPolicy {
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setOrderByTags(Collections.singletonList(new OrderByTag(Tag.StudyInstanceUID, Order.ASC)));
+        ctx.setReturnPrivate(true);
         return ctx;
     }
 
@@ -245,6 +254,8 @@ public class ApplyRetentionPolicy {
     private void updateExpirationDate(
             String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae,
             StudyRetentionPolicy policy) throws Exception {
+        LOG.info("Applying {} with ExpirationDate[={}] to Study[UID={}], Series[UID={}]",
+                policy, expirationDate, studyIUID, seriesIUID);
         StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSeriesInstanceUID(seriesIUID);

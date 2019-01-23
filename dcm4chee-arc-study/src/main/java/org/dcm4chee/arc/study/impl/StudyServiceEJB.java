@@ -48,6 +48,8 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -65,6 +67,8 @@ import java.util.List;
  */
 @Stateless
 public class StudyServiceEJB {
+    private static final Logger LOG = LoggerFactory.getLogger(StudyServiceEJB.class);
+
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -130,21 +134,37 @@ public class StudyServiceEJB {
     private void updateStudyExpirationDate(StudyMgtContext ctx) {
         List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
-        LocalDate studyExpireDate = ctx.getExpirationDate();
+        LocalDate expirationDate = ctx.getExpirationDate();
+        boolean freezeExpirationDate = ctx.isFreezeExpirationDate();
         Study study;
         if (!seriesOfStudy.isEmpty()) {
             study = seriesOfStudy.get(0).getStudy();
-            for (Series series : seriesOfStudy) {
-                LocalDate seriesExpirationDate = series.getExpirationDate();
-                if (seriesExpirationDate != null && seriesExpirationDate.isAfter(studyExpireDate)) {
-                    series.setExpirationDate(studyExpireDate);
-                    series.setExpirationExporterID(ctx.getExpirationExporterID());
-                }
+            if (freezeExpirationDate) {
+                seriesOfStudy.forEach(series -> {
+                            LOG.info("Freeze Series[UID={}] of frozen Study[UID={}] with ExpirationDate[={}]",
+                                    series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
+                            series.setExpirationDate(expirationDate);
+                            series.setExpirationState(ExpirationState.FROZEN);
+                        });
+            } else {
+                seriesOfStudy.forEach(series -> {
+                    LocalDate seriesExpirationDate = series.getExpirationDate();
+                    if (seriesExpirationDate != null && seriesExpirationDate.isAfter(expirationDate)) {
+                        series.setExpirationDate(expirationDate);
+                        series.setExpirationExporterID(ctx.getExpirationExporterID());
+                    }
+                });
             }
         } else
             study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
-        study.setExpirationDate(studyExpireDate);
+
+        if (freezeExpirationDate) {
+            LOG.info("Freeze Study[UID={}] with ExpirationDate[={}]", study.getStudyInstanceUID(), expirationDate);
+            study.setExpirationState(ExpirationState.FROZEN);
+        }
+
+        study.setExpirationDate(expirationDate);
         study.setExpirationExporterID(ctx.getExpirationExporterID());
         ctx.setStudy(study);
         ctx.setAttributes(study.getAttributes());
