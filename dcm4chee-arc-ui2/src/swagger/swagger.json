@@ -11099,20 +11099,6 @@
             "in": "query",
             "description": "apply Retention Policy to Series of Studies which were accessed between <datetime1>-<datetime2>",
             "type": "string"
-          },
-          {
-            "name": "ExpirationState",
-            "in": "query",
-            "description": "apply Retention Policy to Series of Studies with given Expiration State",
-            "type": "string",
-            "enum": [
-              "UPDATEABLE",
-              "FROZEN",
-              "REJECTED",
-              "EXPORT_SCHEDULED",
-              "FAILED_TO_EXPORT",
-              "FAILED_TO_REJECT"
-            ]
           }
         ],
         "responses": {

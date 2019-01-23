@@ -114,10 +114,6 @@ public class ApplyRetentionPolicy {
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
 
-    @QueryParam("ExpirationState")
-    @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
-    private String expirationState;
-
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
