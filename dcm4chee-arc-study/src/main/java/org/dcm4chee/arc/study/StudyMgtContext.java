@@ -111,4 +111,8 @@ public interface StudyMgtContext {
     boolean isFreezeExpirationDate();
 
     void setFreezeExpirationDate(boolean freezeExpirationDate);
+
+    boolean isUnfreezeExpirationDate();
+
+    void setUnfreezeExpirationDate(boolean UnfreezeExpirationDate);
 }

@@ -135,43 +135,68 @@ public class StudyServiceEJB {
         List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         LocalDate expirationDate = ctx.getExpirationDate();
+        Study study = !seriesOfStudy.isEmpty()
+                ? seriesOfStudy.get(0).getStudy()
+                : em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                    .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
+
+        if (study.getExpirationState() == ExpirationState.FROZEN) {
+            if (ctx.isUnfreezeExpirationDate()) {
+                LOG.info("Unfreeze the frozen Study[UID={}] with ExpirationDate[={}]",
+                        study.getStudyInstanceUID(), ctx.getExpirationDate());
+                updateStudyExpiration(ctx, study, ExpirationState.UPDATEABLE);
+                if (!seriesOfStudy.isEmpty())
+                    seriesOfStudy.forEach(series -> {
+                        LOG.info("Unfreeze frozen Series[UID={}] of Study[UID={}] with ExpirationDate[={}]",
+                                series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
+                        updateSeriesExpiration(ctx, series, ExpirationState.UPDATEABLE);
+                    });
+            } else
+                LOG.info("Skip updating frozen Study[UID={}] with ExpirationDate[={}]",
+                        study.getStudyInstanceUID(), ctx.getExpirationDate());
+
+            return;
+        }
+
         boolean freezeExpirationDate = ctx.isFreezeExpirationDate();
-        Study study;
         if (!seriesOfStudy.isEmpty()) {
-            study = seriesOfStudy.get(0).getStudy();
             if (freezeExpirationDate) {
                 seriesOfStudy.forEach(series -> {
                     LOG.info("Freeze Series[UID={}] of Study[UID={}] with ExpirationDate[={}]",
                             series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
-                    series.setExpirationDate(expirationDate);
-                    series.setExpirationState(ExpirationState.FROZEN);
-                    series.setExpirationExporterID(ctx.getExpirationExporterID());
+                    updateSeriesExpiration(ctx, series, ExpirationState.FROZEN);
                 });
             } else {
                 seriesOfStudy.forEach(series -> {
                     LocalDate seriesExpirationDate = series.getExpirationDate();
-                    if (seriesExpirationDate != null && seriesExpirationDate.isAfter(expirationDate)) {
-                        series.setExpirationDate(expirationDate);
-                        series.setExpirationExporterID(ctx.getExpirationExporterID());
-                        series.setExpirationState(ExpirationState.UPDATEABLE);
-                    }
+                    if (seriesExpirationDate != null && seriesExpirationDate.isAfter(expirationDate))
+                        updateSeriesExpiration(ctx, series, ExpirationState.UPDATEABLE);
                 });
             }
-        } else
-            study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                    .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
+        }
 
         if (freezeExpirationDate) {
             LOG.info("Freeze Study[UID={}] with ExpirationDate[={}]", study.getStudyInstanceUID(), expirationDate);
             study.setExpirationState(ExpirationState.FROZEN);
+            updateStudyExpiration(ctx, study, ExpirationState.FROZEN);
         } else
-            study.setExpirationState(ExpirationState.UPDATEABLE);
+            updateStudyExpiration(ctx, study, ExpirationState.UPDATEABLE);
 
-        study.setExpirationDate(expirationDate);
-        study.setExpirationExporterID(ctx.getExpirationExporterID());
         ctx.setStudy(study);
         ctx.setAttributes(study.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+    }
+
+    private void updateStudyExpiration(StudyMgtContext ctx, Study study, ExpirationState expirationState) {
+        study.setExpirationDate(ctx.getExpirationDate());
+        study.setExpirationExporterID(ctx.getExpirationExporterID());
+        study.setExpirationState(expirationState);
+    }
+
+    private void updateSeriesExpiration(StudyMgtContext ctx, Series series, ExpirationState expirationState) {
+        series.setExpirationDate(ctx.getExpirationDate());
+        series.setExpirationExporterID(ctx.getExpirationExporterID());
+        series.setExpirationState(expirationState);
     }
 
     private void updateSeriesExpirationDate(StudyMgtContext ctx) {
@@ -181,21 +206,18 @@ public class StudyServiceEJB {
         Study study = series.getStudy();
         LocalDate expirationDate = ctx.getExpirationDate();
         if (series.getExpirationState() == ExpirationState.FROZEN) {
-            LOG.info("Frozen Series[UID={}, ExpirationDate={}] of Study[UID={}]. Skip updating with new ExpirationDate[={}]",
+            LOG.info("Skip updating frozen Series[UID={}, ExpirationDate={}] of Study[UID={}] with ExpirationDate[={}]",
                     series.getSeriesInstanceUID(), series.getExpirationDate(),
                     study.getStudyInstanceUID(), expirationDate);
             return;
         }
 
         LocalDate studyExpirationDate = study.getExpirationDate();
-        series.setExpirationDate(expirationDate);
-        series.setExpirationExporterID(ctx.getExpirationExporterID());
+        updateSeriesExpiration(ctx, series, ExpirationState.UPDATEABLE);
         ctx.setStudy(study);
         ctx.setAttributes(study.getAttributes());
-        if (studyExpirationDate == null || studyExpirationDate.isBefore(expirationDate)) {
-            study.setExpirationDate(expirationDate);
-            study.setExpirationExporterID(ctx.getExpirationExporterID());
-        }
+        if (studyExpirationDate == null || studyExpirationDate.isBefore(expirationDate))
+            updateStudyExpiration(ctx, study, ExpirationState.UPDATEABLE);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
 

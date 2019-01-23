@@ -10976,6 +10976,13 @@
             "in": "query",
             "description": "activate the export of the Study on expiration",
             "type": "string"
+          },
+          {
+            "name": "FreezeExpirationDate",
+            "in": "query",
+            "description": "Shall be set to true to freeze(=FROZEN) or false to unfreeze(=UPDATEABLE) Expiration Date of the Study. If the query param is absent, keep the ExpirationDate unchanged for FROZEN studies.",
+            "type": "Boolean",
+            "default": null
           }
         ],
         "responses": {

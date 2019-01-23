@@ -506,6 +506,8 @@ public class IocmRS {
             ctx.setExpirationDate(expireDate);
             ctx.setExpirationExporterID(expirationExporterID);
             ctx.setFreezeExpirationDate(Boolean.parseBoolean(freezeExpirationDate));
+            if ("false".equals(freezeExpirationDate))
+                ctx.setUnfreezeExpirationDate(true);
             ctx.setSeriesInstanceUID(seriesUID);
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
