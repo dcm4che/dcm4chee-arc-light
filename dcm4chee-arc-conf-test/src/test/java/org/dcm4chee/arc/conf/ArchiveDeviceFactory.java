@@ -1288,18 +1288,31 @@ class ArchiveDeviceFactory {
         configType.configureKeyAndTrustStore(device);
 
         device.addApplicationEntity(createAE(AE_TITLE, "Hide instances rejected for Quality Reasons",
-                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType, USER_AND_ADMIN));
+                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, null,
+                configType, USER_AND_ADMIN));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", "Show instances rejected for Quality Reasons",
-                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType, ONLY_ADMIN));
+                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, null,
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_EXPIRED", "Only show instances rejected for Data Retention Expired",
-                dicom, dicomTLS, IOCM_EXPIRED_VIEW, false, false, false, configType, USER_AND_ADMIN));
+                dicom, dicomTLS, IOCM_EXPIRED_VIEW, false, false, false, null,
+                configType, USER_AND_ADMIN));
         device.addApplicationEntity(createAE("IOCM_QUALITY", "Only show instances rejected for Quality Reasons",
-                dicom, dicomTLS, IOCM_QUALITY_VIEW, false, false, false, configType, ONLY_ADMIN));
+                dicom, dicomTLS, IOCM_QUALITY_VIEW, false, false, false, null,
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", "Only show instances rejected for Patient Safety Reasons",
-                dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW, false, false, false, configType, ONLY_ADMIN));
+                dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW, false, false, false, null,
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_WRONG_MWL", "Only show instances rejected for Incorrect Modality Worklist Entry",
-                dicom, dicomTLS, IOCM_WRONG_MWL_VIEW, false, false, false, configType, ONLY_ADMIN));
-
+                dicom, dicomTLS, IOCM_WRONG_MWL_VIEW, false, false, false, null,
+                configType, ONLY_ADMIN));
+        device.addApplicationEntity(createAE("AS_RECEIVED", "Retrieve instances as received",
+                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false,
+                new ArchiveAttributeCoercion()
+                        .setCommonName("RetrieveAsReceived")
+                        .setDIMSE(Dimse.C_STORE_RQ)
+                        .setRole(SCP)
+                        .setRetrieveAsReceived(true),
+                configType, ONLY_ADMIN));
 
         device.addWebApplication(createWebApp("DCM4CHEE-RS", "Hide instances rejected for Quality Reasons",
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, http, https,
@@ -1912,7 +1925,8 @@ class ArchiveDeviceFactory {
     private static ApplicationEntity createAE(String aet, String description,
                                               Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
                                               boolean storeSCP, boolean storeSCU, boolean mwlSCP,
-                                              ConfigType configType, String... acceptedUserRoles) {
+                                              ArchiveAttributeCoercion coercion, ConfigType configType,
+                                              String... acceptedUserRoles) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -1950,6 +1964,8 @@ class ArchiveDeviceFactory {
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
+        if (coercion != null)
+            aeExt.addAttributeCoercion(coercion);
         return ae;
     }
 
