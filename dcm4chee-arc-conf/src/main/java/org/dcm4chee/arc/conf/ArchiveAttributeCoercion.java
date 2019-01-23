@@ -148,8 +148,9 @@ public class ArchiveAttributeCoercion {
         return retrieveAsReceived;
     }
 
-    public void setRetrieveAsReceived(boolean retrieveAsReceived) {
+    public ArchiveAttributeCoercion setRetrieveAsReceived(boolean retrieveAsReceived) {
         this.retrieveAsReceived = retrieveAsReceived;
+        return this;
     }
 
     public DeIdentifier.Option[] getDeIdentification() {
