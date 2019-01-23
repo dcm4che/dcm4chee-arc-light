@@ -7414,6 +7414,23 @@
             "in": "query",
             "description": "limit={maximumResults}",
             "type": "integer"
+          },
+          {
+            "name": "includefield",
+            "in": "query",
+            "description": "includefield={attributeID} | all",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "includedefaults",
+            "in": "query",
+            "description": "include the default set of attributes specified by DICOM Part 18",
+            "type": "boolean",
+            "default": true
           }
         ],
         "responses": {
