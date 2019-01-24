@@ -161,10 +161,14 @@ class ProcedureRecordAuditService {
     }
 
     private AuditInfoBuilder orderProcessed() {
-        ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ConnEvent.getHL7ResponseMessage();
-        return infoBuilder
-                .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs(), arcDev)
-                .build();
+        UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
+        if (hl7ResponseMessage instanceof ArchiveHL7Message) {
+            ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
+            return infoBuilder
+                    .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs(), arcDev)
+                    .build();
+        }
+        return infoBuilder.build();
     }
 
     private AuditInfoBuilder orderAcknowledged() {

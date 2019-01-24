@@ -1286,30 +1286,39 @@ public class AuditService {
                 getEventTime(path, auditLogger));
 
         ActiveParticipantBuilder[] activeParticipantBuilder = buildProcedureRecordActiveParticipants(auditLogger, prI);
-        
-        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                .acc(prI.getField(AuditInfo.ACC_NUM)).build();
 
-        ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
-                                                        prI.getField(AuditInfo.STUDY_UID),
-                                                        AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                                                        AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                                        AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                                                        .desc(desc)
-                                                        .detail(getPod(studyDate, prI.getField(AuditInfo.STUDY_DATE)))
-                                                        .detail(getHL7ParticipantObjectDetail(reader))
-                                                        .build();
+        ParticipantObjectIdentificationBuilder.Builder poiStudy = null;
+        if (prI.getField(AuditInfo.STUDY_UID) != null) {
+            poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
+                    prI.getField(AuditInfo.STUDY_UID),
+                    AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                    AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                    AuditMessages.ParticipantObjectTypeCodeRole.Report)
+                    .detail(getPod(studyDate, prI.getField(AuditInfo.STUDY_DATE)))
+                    .detail(getHL7ParticipantObjectDetail(reader));
+
+            if (prI.getField(AuditInfo.ACC_NUM) != null)
+                poiStudy.desc(
+                        new ParticipantObjectDescriptionBuilder.Builder().acc(prI.getField(AuditInfo.ACC_NUM)).build());
+        }
+
         AuditMessage auditMsg;
-        if (prI.getField(AuditInfo.P_ID) != null)
+        if (poiStudy != null) {
+            if (prI.getField(AuditInfo.P_ID) != null)
+                auditMsg = AuditMessages.createMessage(
+                        eventIdentification,
+                        activeParticipantBuilder,
+                        poiStudy.build(), patientPOI(prI));
+            else
+                auditMsg = AuditMessages.createMessage(
+                        eventIdentification,
+                        activeParticipantBuilder,
+                        poiStudy.build());
+        } else
             auditMsg = AuditMessages.createMessage(
                     eventIdentification,
                     activeParticipantBuilder,
-                    poiStudy, patientPOI(prI));
-        else
-            auditMsg = AuditMessages.createMessage(
-                    eventIdentification,
-                    activeParticipantBuilder,
-                    poiStudy);
+                    patientPOI(prI));
 
         emitAuditMessage(auditMsg, auditLogger);
     }
