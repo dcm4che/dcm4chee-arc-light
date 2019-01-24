@@ -2712,6 +2712,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.isStartRetentionPeriodOnStudyDate(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExporterID", policy.getExporterID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFreezeExpirationDate", policy.isFreezeExpirationDate(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRevokeExpiration", policy.isRevokeExpiration(), false);
         return attrs;
     }
 
@@ -2728,6 +2729,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.isStartRetentionPeriodOnStudyDate(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExporterID", policy.getExporterID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFreezeExpirationDate", policy.isFreezeExpirationDate(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRevokeExpiration", policy.isRevokeExpiration(), false);
         return attrs;
     }
 
@@ -2830,6 +2832,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
                 policy.setExporterID(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 policy.setFreezeExpirationDate(LdapUtils.booleanValue(attrs.get("dcmFreezeExpirationDate"), false));
+                policy.setRevokeExpiration(LdapUtils.booleanValue(attrs.get("dcmRevokeExpiration"), false));
                 policies.add(policy);
             }
         } finally {
@@ -2855,6 +2858,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.booleanValue(attrs.get("dcmStartRetentionPeriodOnStudyDate"), false));
                 policy.setExporterID(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 policy.setFreezeExpirationDate(LdapUtils.booleanValue(attrs.get("dcmFreezeExpirationDate"), false));
+                policy.setRevokeExpiration(LdapUtils.booleanValue(attrs.get("dcmRevokeExpiration"), false));
                 policies.add(policy);
             }
         } finally {
@@ -3274,6 +3278,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExporterID", prev.getExporterID(), policy.getExporterID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFreezeExpirationDate", prev.isFreezeExpirationDate(),
                 policy.isFreezeExpirationDate(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRevokeExpiration", prev.isRevokeExpiration(),
+                policy.isRevokeExpiration(), false);
         return mods;
     }
 
@@ -3293,6 +3299,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExporterID", prev.getExporterID(), policy.getExporterID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFreezeExpirationDate", prev.isFreezeExpirationDate(),
                 policy.isFreezeExpirationDate(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRevokeExpiration", prev.isRevokeExpiration(),
+                policy.isRevokeExpiration(), false);
         return mods;
     }
 

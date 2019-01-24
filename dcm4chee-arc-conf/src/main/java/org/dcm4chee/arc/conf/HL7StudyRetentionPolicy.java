@@ -68,6 +68,7 @@ public class HL7StudyRetentionPolicy {
     private boolean startRetentionPeriodOnStudyDate;
     private String exporterID;
     private boolean freezeExpirationDate;
+    private boolean revokeExpiration;
 
     public HL7StudyRetentionPolicy() {
     }
@@ -152,6 +153,14 @@ public class HL7StudyRetentionPolicy {
         this.freezeExpirationDate = freezeExpirationDate;
     }
 
+    public boolean isRevokeExpiration() {
+        return revokeExpiration;
+    }
+
+    public void setRevokeExpiration(boolean revokeExpiration) {
+        this.revokeExpiration = revokeExpiration;
+    }
+
     public LocalDate retentionStartDate(Attributes attrs) {
         String s;
         if (startRetentionPeriodOnStudyDate && (s = attrs.getString(Tag.StudyDate)) != null) {
@@ -175,6 +184,7 @@ public class HL7StudyRetentionPolicy {
                 ", startRetentionPeriodOnStudyDate=" + startRetentionPeriodOnStudyDate +
                 ", exporterID=" + exporterID +
                 ", freezeExpirationDate=" + freezeExpirationDate +
+                ", revokeExpiration=" + revokeExpiration +
                 '}';
     }
 }

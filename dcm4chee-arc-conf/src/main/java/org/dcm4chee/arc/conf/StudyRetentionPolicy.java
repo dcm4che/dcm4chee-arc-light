@@ -65,6 +65,7 @@ public class StudyRetentionPolicy {
     private boolean startRetentionPeriodOnStudyDate;
     private String exporterID;
     private boolean freezeExpirationDate;
+    private boolean revokeExpiration;
 
     public StudyRetentionPolicy() {
     }
@@ -141,6 +142,14 @@ public class StudyRetentionPolicy {
         this.freezeExpirationDate = freezeExpirationDate;
     }
 
+    public boolean isRevokeExpiration() {
+        return revokeExpiration;
+    }
+
+    public void setRevokeExpiration(boolean revokeExpiration) {
+        this.revokeExpiration = revokeExpiration;
+    }
+
     public LocalDate expirationDate(Attributes attrs) {
         LocalDate date = LocalDate.now();
         String s;
@@ -165,6 +174,7 @@ public class StudyRetentionPolicy {
                 ", startRetentionPeriodOnStudyDate=" + startRetentionPeriodOnStudyDate +
                 ", exporterID=" + exporterID +
                 ", freezeExpirationDate=" + freezeExpirationDate +
+                ", revokeExpiration=" + revokeExpiration +
                 '}';
     }
 }

@@ -623,6 +623,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
             writer.writeNotNullOrDef("dcmExporterID", srp.getExporterID(), null);
             writer.writeNotDef("dcmFreezeExpirationDate", srp.isFreezeExpirationDate(), false);
+            writer.writeNotDef("dcmRevokeExpiration", srp.isRevokeExpiration(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -642,6 +643,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
             writer.writeNotNullOrDef("dcmExporterID", srp.getExporterID(), null);
             writer.writeNotDef("dcmFreezeExpirationDate", srp.isFreezeExpirationDate(), false);
+            writer.writeNotDef("dcmRevokeExpiration", srp.isRevokeExpiration(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2140,6 +2142,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmFreezeExpirationDate":
                         srp.setFreezeExpirationDate(reader.booleanValue());
                         break;
+                    case "dcmRevokeExpiration":
+                        srp.setRevokeExpiration(reader.booleanValue());
+                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
@@ -2184,6 +2189,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmFreezeExpirationDate":
                         srp.setFreezeExpirationDate(reader.booleanValue());
+                        break;
+                    case "dcmRevokeExpiration":
+                        srp.setRevokeExpiration(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();
