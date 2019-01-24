@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -60,6 +60,7 @@ import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -90,6 +91,9 @@ public class ProcedureUpdateService extends DefaultHL7Service {
     @Inject
     private ProcedureService procedureService;
 
+    @Inject
+    private IDService idService;
+
     public ProcedureUpdateService() {
         super("ORM^O01", "OMG^O19", "OMI^O23");
     }
@@ -117,14 +121,19 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         HL7Segment msh = msg.msh();
+        LOG.info("Update procedure for message type {}", msh.getMessageType());
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
                 msg.data(), hl7cs, arcHL7App.scheduleProcedureTemplateURI(), tr -> {
-                    tr.setParameter("hl7ScheduledProtocolCodeInOrder", arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
+                    tr.setParameter("hl7ScheduledProtocolCodeInOrder",
+                            arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
                     if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
-                        tr.setParameter("hl7ScheduledStationAETInOrder", arcHL7App.hl7ScheduledStationAETInOrder().toString());
+                        tr.setParameter("hl7ScheduledStationAETInOrder",
+                                arcHL7App.hl7ScheduledStationAETInOrder().toString());
                 });
-        boolean result = adjust(attrs, arcHL7App, new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()), s);
+
+
+        boolean result = adjust(attrs, arcHL7App, hl7OrderScheduledStations(hl7App, s, msg));
         if (!result) {
             LOG.warn("MWL item not created/updated for HL7 message : " + msh.getMessageType()
                     + " as no mapping to a Scheduled Procedure Step Status is configured with ORC-1_ORC-5 : "
@@ -139,23 +148,37 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         archiveHL7Message.setStudyAttrs(ctx.getAttributes());
     }
 
-    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Fields hl7Fields,
-                           Socket socket) {
-        if (!attrs.containsValue(Tag.StudyInstanceUID))
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App,
+                           Collection<Device> hl7OrderScheduledStations) {
+        if (!attrs.containsValue(Tag.StudyInstanceUID)) {
+            String studyUID = UIDUtils.createUID();
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+            LOG.info("Missing StudyInstanceUID in HL7 message, adjusted with {}", studyUID);
+        }
+        if (!attrs.containsValue(Tag.RequestedProcedureID)) {
+            idService.newRequestedProcedureID(attrs);
+            LOG.info("Missing RequestedProcedureID in HL7 message, adjusted with {}",
+                    attrs.getString(Tag.RequestedProcedureID));
+        }
+
         Sequence spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
         for (Attributes sps : spsItems) {
+            if (!sps.containsValue(Tag.ScheduledProcedureStepID)) {
+                idService.newScheduledProcedureStepID(sps);
+                LOG.info("Missing ScheduledProcedureStepID in HL7 message, adjusted with {}",
+                        sps.getString(Tag.ScheduledProcedureStepID));
+            }
+
             if (sps.getString(Tag.ScheduledStationAETitle) == null) {
                 List<String> ssAETs = new ArrayList<>();
-                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(
-                        ReverseDNS.hostNameOf(socket.getLocalAddress()), hl7Fields);
-                for (Device device : devices)
+                for (Device device : hl7OrderScheduledStations)
                     ssAETs.addAll(device.getApplicationAETitles());
 
                 if (!ssAETs.isEmpty())
                     sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
 
-                String[] ssNames = devices.stream().filter(x -> x.getStationName() != null).map(Device::getStationName).toArray(String[]::new);
+                String[] ssNames = hl7OrderScheduledStations.stream().filter(x -> x.getStationName() != null)
+                        .map(Device::getStationName).toArray(String[]::new);
                 if (ssNames.length > 0)
                     sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
             }
@@ -169,5 +192,12 @@ public class ProcedureUpdateService extends DefaultHL7Service {
             }
         }
         return false;
+    }
+
+    private Collection<Device> hl7OrderScheduledStations(HL7Application hl7App, Socket s, UnparsedHL7Message msg) {
+        return hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
+                .hl7OrderScheduledStation(
+                        ReverseDNS.hostNameOf(s.getLocalAddress()),
+                        new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()));
     }
 }
