@@ -572,6 +572,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
             writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
+            writer.writeNotDef("dcmRetrieveAsReceived", aac.isRetrieveAsReceived(), false);
             writer.writeNotEmpty("dcmDeIdentification", aac.getDeIdentification());
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
             writer.writeNotNullOrDef("dcmURI", aac.getXSLTStylesheetURI(), null);
@@ -620,6 +621,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotDef("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually(), false);
             writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
+            writer.writeNotNullOrDef("dcmExporterID", srp.getExporterID(), null);
+            writer.writeNotDef("dcmFreezeExpirationDate", srp.isFreezeExpirationDate(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -637,6 +640,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotDef("dcmStartRetentionPeriodOnStudyDate", srp.isStartRetentionPeriodOnStudyDate(), false);
+            writer.writeNotNullOrDef("dcmExporterID", srp.getExporterID(), null);
+            writer.writeNotDef("dcmFreezeExpirationDate", srp.isFreezeExpirationDate(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1980,6 +1985,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmSOPClass":
                         aac.setSOPClasses(reader.stringArray());
                         break;
+                    case "dcmRetrieveAsReceived":
+                        aac.setRetrieveAsReceived(reader.booleanValue());
+                        break;
                     case "dcmDeIdentification":
                         aac.setDeIdentification(reader.enumArray(DeIdentifier.Option.class));
                         break;
@@ -2126,6 +2134,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmStartRetentionPeriodOnStudyDate":
                         srp.setStartRetentionPeriodOnStudyDate(reader.booleanValue());
                         break;
+                    case "dcmExporterID":
+                        srp.setExporterID(reader.stringValue());
+                        break;
+                    case "dcmFreezeExpirationDate":
+                        srp.setFreezeExpirationDate(reader.booleanValue());
+                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
@@ -2164,6 +2178,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmStartRetentionPeriodOnStudyDate":
                         srp.setStartRetentionPeriodOnStudyDate(reader.booleanValue());
+                        break;
+                    case "dcmExporterID":
+                        srp.setExporterID(reader.stringValue());
+                        break;
+                    case "dcmFreezeExpirationDate":
+                        srp.setFreezeExpirationDate(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

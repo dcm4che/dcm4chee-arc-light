@@ -76,7 +76,9 @@ class SeriesQuery extends AbstractQuery {
             QStudy.study.createdTime,
             QStudy.study.updatedTime,
             QStudy.study.accessTime,
+            QStudy.study.expirationState,
             QStudy.study.expirationDate,
+            QStudy.study.expirationExporterID,
             QStudy.study.rejectionState,
             QStudy.study.completeness,
             QStudy.study.failedRetrieves,
@@ -85,7 +87,9 @@ class SeriesQuery extends AbstractQuery {
             QStudy.study.size,
             QSeries.series.createdTime,
             QSeries.series.updatedTime,
+            QSeries.series.expirationState,
             QSeries.series.expirationDate,
+            QSeries.series.expirationExporterID,
             QSeries.series.rejectionState,
             QSeries.series.completeness,
             QSeries.series.failedRetrieves,
@@ -219,9 +223,14 @@ class SeriesQuery extends AbstractQuery {
                 results.get(QSeries.series.createdTime));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
                 results.get(QSeries.series.updatedTime));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationState, VR.CS,
+                results.get(QSeries.series.expirationState).toString());
         if (results.get(QSeries.series.expirationDate) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
                     results.get(QSeries.series.expirationDate));
+        if (results.get(QSeries.series.expirationExporterID) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationExporterID, VR.LO,
+                    results.get(QSeries.series.expirationExporterID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesRejectionState, VR.CS,
                 results.get(QSeries.series.rejectionState).toString());
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesCompleteness, VR.CS,

@@ -130,6 +130,7 @@ public class ArchiveDeviceConfigurationTest {
         config.unregisterAETitle("IOCM_QUALITY");
         config.unregisterAETitle("IOCM_PAT_SAFETY");
         config.unregisterAETitle("IOCM_WRONG_MWL");
+        config.unregisterAETitle("AS_RECEIVED");
         config.unregisterAETitle("SCHEDULEDSTATION");
         hl7Config.unregisterHL7Application("HL7RCV|DCM4CHEE");
         for (String aet : ArchiveDeviceFactory.OTHER_AES)

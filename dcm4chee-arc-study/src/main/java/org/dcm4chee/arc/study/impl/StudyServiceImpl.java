@@ -95,15 +95,13 @@ public class StudyServiceImpl implements StudyService {
     @Override
     public void updateExpirationDate(StudyMgtContext ctx) {
         try {
-            if (ctx.getSeriesInstanceUID() != null)
-                ejb.updateSeriesExpirationDate(ctx);
-            else
-                ejb.updateStudyExpirationDate(ctx);
+            ejb.updateExpirationDate(ctx);
         } catch (Exception e) {
             ctx.setException(e);
             throw e;
         } finally {
-            updateStudyEvent.fire(ctx);
+            if (ctx.getEventActionCode() != null)
+                updateStudyEvent.fire(ctx);
         }
     }
 

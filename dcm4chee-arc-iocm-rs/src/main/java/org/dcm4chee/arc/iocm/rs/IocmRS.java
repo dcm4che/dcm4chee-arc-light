@@ -81,6 +81,7 @@ import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -474,8 +475,11 @@ public class IocmRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate) {
-        return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
+            String expirationDate,
+            @QueryParam("ExporterID") String expirationExporterID,
+            @QueryParam("FreezeExpirationDate") @Pattern(regexp = "true|false") String freezeExpirationDate) {
+        return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate,
+                expirationExporterID, freezeExpirationDate);
     }
 
     @PUT
@@ -484,18 +488,27 @@ public class IocmRS {
             @PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate) {
-        return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
+            String expirationDate,
+            @QueryParam("ExporterID") String expirationExporterID) {
+        return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate,
+                expirationExporterID, null);
     }
 
-    private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate) {
+    private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate,
+                                          String expirationExporterID, String freezeExpirationDate) {
         logRequest();
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
-            if (seriesUID != null)
-                ctx.setSeriesInstanceUID(seriesUID);
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
+            ctx.setExpirationDate(expireDate);
+            ctx.setExpirationExporterID(expirationExporterID);
+            ctx.setFreezeExpirationDate(Boolean.parseBoolean(freezeExpirationDate));
+            if ("false".equals(freezeExpirationDate))
+                ctx.setUnfreezeExpirationDate(true);
+            ctx.setSeriesInstanceUID(seriesUID);
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
             return Response.noContent().build();
@@ -506,15 +519,6 @@ public class IocmRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
-    }
-
-    private StudyMgtContext createStudyMgtCtx(String studyUID, String expirationDate, ArchiveAEExtension arcAE) {
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
-        ctx.setStudyInstanceUID(studyUID);
-        LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
-        ctx.setExpirationDate(expireDate);
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        return ctx;
     }
 
     public static final class ExpireDate {

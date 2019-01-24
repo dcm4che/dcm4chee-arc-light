@@ -1325,6 +1325,21 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.268 NAME 'dcmRejectExpiredStudiesSchedu
   DESC 'Limits Rejection of Expired Studies to specified times in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday).'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.269 NAME 'dcmFreezeExpirationDate'
+  DESC 'Indicate to disable changes of the Expiration Date by following event; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.270 NAME 'dcmRevokeExpiration'
+  DESC 'Indicate to revoke a previous set Expiration Date; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.271 NAME 'dcmRetrieveAsReceived'
+  DESC 'Disables merge of DB information into the retrieved Composite Object, returning the objects as received. Only effective with dcmDIMSE=C_STORE_RQ and dicomTransferRole=SCP; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1707,6 +1722,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmAETitle $
     dcmHostname $
     dcmSOPClass $
+    dcmRetrieveAsReceived $
     dcmDeIdentification $
     dcmURI $
     dcmNoKeywords $
@@ -1742,7 +1758,10 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
     dcmRulePriority $
     dcmProperty $
     dcmStartRetentionPeriodOnStudyDate $
-    dcmExpireSeriesIndividually ) )
+    dcmFreezeExpirationDate $
+    dcmRevokeExpiration $
+    dcmExpireSeriesIndividually $
+    dcmExporterID ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
   DESC 'ID Generator'
   SUP top STRUCTURAL
@@ -1863,7 +1882,10 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
     dcmMaxRetentionPeriod $
     dcmRulePriority $
     dcmProperty $
-    dcmStartRetentionPeriodOnStudyDate ) )
+    dcmStartRetentionPeriodOnStudyDate $
+    dcmFreezeExpirationDate $
+    dcmRevokeExpiration $
+    dcmExporterID ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.34 NAME 'dcmPDQService'
   DESC 'PDQ Service Descriptor'
   SUP top STRUCTURAL

@@ -140,7 +140,15 @@ import java.util.stream.Stream;
 @NamedQuery(
         name=Series.GET_EXPIRED_SERIES,
         query="select se from Series se " +
-             "where se.expirationDate <= ?1"),
+             "where se.expirationDate <= ?1 and se.expirationState in ?2"),
+@NamedQuery(
+        name=Series.CLAIM_EXPIRED_SERIES,
+        query="update Series se set se.expirationState = ?3 " +
+                "where se.pk = ?1 and se.expirationState = ?2"),
+@NamedQuery(
+        name=Series.EXPIRE_SERIES,
+        query="update Series se set se.expirationState = ?2 , se.expirationDate = ?3 " +
+                "where se.study.pk = ?1"),
 @NamedQuery(
         name=Series.FIND_SERIES_OF_STUDY,
         query = "select se from Series se " +
@@ -260,6 +268,7 @@ import java.util.stream.Stream;
 @Table(name = "series",
     uniqueConstraints = @UniqueConstraint(columnNames = { "study_fk", "series_iuid" }),
     indexes = {
+        @Index(columnList = "series_iuid"),
         @Index(columnList = "rejection_state"),
         @Index(columnList = "series_no"),
         @Index(columnList = "modality"),
@@ -276,6 +285,7 @@ import java.util.stream.Stream;
         @Index(columnList = "series_custom1"),
         @Index(columnList = "series_custom2"),
         @Index(columnList = "series_custom3"),
+        @Index(columnList = "expiration_state"),
         @Index(columnList = "expiration_date"),
         @Index(columnList = "failed_retrieves"),
         @Index(columnList = "completeness"),
@@ -300,6 +310,8 @@ public class Series {
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
     public static final String GET_EXPIRED_SERIES = "Series.GetExpiredSeries";
+    public static final String CLAIM_EXPIRED_SERIES = "Series.ClaimExpiredSeries";
+    public static final String EXPIRE_SERIES = "Series.ExpireSeries";
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
     public static final String FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE = "Series.FindSeriesOfStudyByInstancePurgeState";
     public static final String FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE = "Series.FindBySeriesIUIDAndInstancePurgeState";
@@ -520,9 +532,17 @@ public class Series {
     @Column(name = "rejection_state")
     private RejectionState rejectionState;
 
+    @Basic(optional = false)
+    @Column(name = "expiration_state")
+    private ExpirationState expirationState;
+
     @Basic
     @Column(name = "expiration_date")
     private String expirationDate;
+
+    @Basic
+    @Column(name = "expiration_exporter_id")
+    private String expirationExporterID;
 
     @Basic
     @Column(name = "metadata_update_time")
@@ -739,6 +759,14 @@ public class Series {
         this.rejectionState = rejectionState;
     }
 
+    public ExpirationState getExpirationState() {
+        return expirationState;
+    }
+
+    public void setExpirationState(ExpirationState expirationState) {
+        this.expirationState = expirationState;
+    }
+
     public LocalDate getExpirationDate() {
         return expirationDate != null ? LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE) : null;
     }
@@ -752,6 +780,14 @@ public class Series {
             }
         } else
             this.expirationDate = null;
+    }
+
+    public String getExpirationExporterID() {
+        return expirationExporterID;
+    }
+
+    public void setExpirationExporterID(String expirationExporterID) {
+        this.expirationExporterID = expirationExporterID;
     }
 
     public Date getMetadataScheduledUpdateTime() {

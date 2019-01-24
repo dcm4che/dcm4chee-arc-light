@@ -371,6 +371,8 @@ public class QueryBuilder {
             builder.and(QStudy.study.size.goe(queryParam.getMinStudySize()));
         if (queryParam.getMaxStudySize() != 0)
             builder.and(QStudy.study.size.loe(queryParam.getMaxStudySize()));
+        if (queryParam.getExpirationState() != null)
+            builder.and(QStudy.study.expirationState.eq(queryParam.getExpirationState()));
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {
@@ -446,6 +448,8 @@ public class QueryBuilder {
         if (queryParam.getExpirationDate() != null)
             builder.and(MatchDateTimeRange.range(
                     QSeries.series.expirationDate, queryParam.getExpirationDate(), MatchDateTimeRange.FormatDate.DA));
+        if (queryParam.getExpirationState() != null)
+            builder.and(QSeries.series.expirationState.eq(queryParam.getExpirationState()));
     }
 
     public static <T> HibernateQuery<T> applyInstanceLevelJoins(

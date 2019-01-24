@@ -7,7 +7,8 @@
     "dcmRetentionPeriod",
     "dcmRulePriority",
     "dcmExpireSeriesIndividually",
-    "dcmStartRetentionPeriodOnStudyDate"
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate"
   ],
   "properties": {
     "cn": {
@@ -45,6 +46,18 @@
     "dcmStartRetentionPeriodOnStudyDate": {
       "title": "Start Retention Period on Study Date",
       "description": "Indicates if retention period should be started on Study Date instead on receive of an object of the Study",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "Export expired Study",
+      "description": "Export expired Study/Series using the specified Exporter",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "Freeze Expiration Date",
+      "description": "Indicate to disable changes of the Expiration Date by following events.",
       "type": "boolean",
       "default": false
     }

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -61,6 +61,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -248,11 +250,20 @@ public class DeletionServiceEJB {
     }
 
     public boolean deleteObjectsOfStudy(String suid, StorageDescriptor desc) {
-        return deleteObjectsOfStudy(
-                em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                        .setParameter(1, suid)
-                        .getSingleResult(),
-                desc);
+        return deleteObjectsOfStudy(findByStudyIUID(suid), desc);
+    }
+
+    private Study findByStudyIUID(String suid) {
+        return em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                .setParameter(1, suid)
+                .getSingleResult();
+    }
+
+    private Series findBySeriesIUID(String studyUID, String seriesUID) {
+        return em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
+                .setParameter(1, studyUID)
+                .setParameter(2, seriesUID)
+                .getSingleResult();
     }
 
     private boolean deleteObjectsOfStudy(Study study, StorageDescriptor desc) {
@@ -571,4 +582,41 @@ public class DeletionServiceEJB {
                         .getOtherStorageIDs(desc));
     }
 
+    public List<Study> findExpiredStudies(int studyFetchSize) {
+        return em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
+                .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
+                .setMaxResults(studyFetchSize)
+                .getResultList();
+    }
+
+    public List<Series> findExpiredSeries(int seriesFetchSize) {
+        return em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
+                .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
+                .setMaxResults(seriesFetchSize)
+                .getResultList();
+    }
+
+    public boolean claimExpiredStudyFor(Study study, ExpirationState expirationState) {
+        return em.createNamedQuery(Study.CLAIM_EXPIRED_STUDY)
+                .setParameter(1, study.getPk())
+                .setParameter(2, study.getExpirationState())
+                .setParameter(3, expirationState)
+                .executeUpdate() > 0;
+    }
+
+    public boolean claimExpiredSeriesFor(Series series, ExpirationState expirationState) {
+        return em.createNamedQuery(Series.CLAIM_EXPIRED_SERIES)
+                .setParameter(1, series.getPk())
+                .setParameter(2, series.getExpirationState())
+                .setParameter(3, expirationState)
+                .executeUpdate() > 0;
+    }
+
+    public boolean claimExpired(String studyIUID, String seriesIUID, ExpirationState expirationState) {
+        return seriesIUID != null
+                ? claimExpiredSeriesFor(findBySeriesIUID(studyIUID, seriesIUID), expirationState)
+                : claimExpiredStudyFor(findByStudyIUID(studyIUID), expirationState);
+    }
 }

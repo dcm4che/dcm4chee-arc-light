@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -44,7 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.ReverseDNS;
@@ -80,6 +79,9 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private Exception exception;
     private LocalDate expirationDate;
     private String seriesInstanceUID;
+    private String expirationExporterID;
+    private boolean freezeExpirationDate;
+    private boolean unfreezeExpirationDate;
 
     StudyMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -221,7 +223,37 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
-    public void setSeriesInstanceUID(String studyUID) {
-        this.seriesInstanceUID = studyUID;
+    public void setSeriesInstanceUID(String seriesUID) {
+        this.seriesInstanceUID = seriesUID;
+    }
+
+    @Override
+    public String getExpirationExporterID() {
+        return expirationExporterID;
+    }
+
+    @Override
+    public void setExpirationExporterID(String expirationExporterID) {
+        this.expirationExporterID = expirationExporterID;
+    }
+
+    @Override
+    public boolean isFreezeExpirationDate() {
+        return freezeExpirationDate;
+    }
+
+    @Override
+    public void setFreezeExpirationDate(boolean freezeExpirationDate) {
+        this.freezeExpirationDate = freezeExpirationDate;
+    }
+
+    @Override
+    public boolean isUnfreezeExpirationDate() {
+        return unfreezeExpirationDate;
+    }
+
+    @Override
+    public void setUnfreezeExpirationDate(boolean unfreezeExpirationDate) {
+        this.unfreezeExpirationDate = unfreezeExpirationDate;
     }
 }

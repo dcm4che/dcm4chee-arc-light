@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StudyRetentionPolicy;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -76,7 +77,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 
 /**
@@ -154,28 +154,27 @@ public class ApplyRetentionPolicy {
                                         aet,
                                         attrs);
 
-                        if (retentionPolicy == null) {
+                        if (retentionPolicy == null)
                             continue;
-                        }
 
-                        LocalDate expirationDate =
-                                retentionStartDate(attrs, retentionPolicy.isStartRetentionPeriodOnStudyDate())
-                                        .plus(retentionPolicy.getRetentionPeriod());
-
+                        LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
                         String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
                         if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                             prevStudyInstanceUID = studyInstanceUID;
                             prevStudyExpirationDate = expirationDate;
-                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
+                                    retentionPolicy);
                             count++;
-                        } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
+                        } else if (retentionPolicy.isFreezeExpirationDate()
+                                || prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                             prevStudyExpirationDate = expirationDate;
-                            if (!retentionPolicy.isExpireSeriesIndividually())
-                                updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
+                                        retentionPolicy);
                         }
 
-                        if (retentionPolicy.isExpireSeriesIndividually())
-                            updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, ae);
+                        if (retentionPolicy.isExpireSeriesIndividually() && !retentionPolicy.isFreezeExpirationDate())
+                            updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID),
+                                    expirationDate, ae, retentionPolicy);
                     }
                 } catch (Exception e) {
                     LOG.warn("Unexpected exception:", e);
@@ -193,16 +192,6 @@ public class ApplyRetentionPolicy {
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
-    }
-
-    static LocalDate retentionStartDate(Attributes attrs, boolean startRetentionPeriodOnStudyDate) {
-        String s;
-        if (startRetentionPeriodOnStudyDate && (s = attrs.getString(Tag.StudyDate)) != null) {
-            try {
-                return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
-            } catch (Exception e) {}
-        }
-        return LocalDate.now();
     }
 
     private static Response errResponse(Response.Status status, String message) {
@@ -235,6 +224,7 @@ public class ApplyRetentionPolicy {
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setOrderByTags(Collections.singletonList(new OrderByTag(Tag.StudyInstanceUID, Order.ASC)));
+        ctx.setReturnPrivate(true);
         return ctx;
     }
 
@@ -242,16 +232,22 @@ public class ApplyRetentionPolicy {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        queryParam.setExpirationState(ExpirationState.UPDATEABLE);
         return queryParam;
     }
 
     private void updateExpirationDate(
-            String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae) throws Exception {
+            String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae,
+            StudyRetentionPolicy policy) throws Exception {
+        LOG.info("Applying {} with ExpirationDate[={}] to Study[UID={}], Series[UID={}]",
+                policy, expirationDate, studyIUID, seriesIUID);
         StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSeriesInstanceUID(seriesIUID);
         ctx.setExpirationDate(expirationDate);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        ctx.setExpirationExporterID(policy.getExporterID());
+        ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
         studyService.updateExpirationDate(ctx);
     }
 }

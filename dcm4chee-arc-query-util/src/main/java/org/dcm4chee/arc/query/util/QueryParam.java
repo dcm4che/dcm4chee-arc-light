@@ -44,6 +44,7 @@ import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 
 import java.util.List;
@@ -70,6 +71,7 @@ public class QueryParam {
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private Patient.VerificationStatus patientVerificationStatus;
+    private ExpirationState expirationState;
     private String expirationDate;
     private List<String> studyStorageIDs;
     private long minStudySize;
@@ -260,5 +262,13 @@ public class QueryParam {
             if (delim < studySizeInKB.length() - 1)
                 maxStudySize =  (Long.parseLong(studySizeInKB.substring(delim+1)) * 1000) + 999;
         }
+    }
+
+    public ExpirationState getExpirationState() {
+        return expirationState;
+    }
+
+    public void setExpirationState(ExpirationState expirationState) {
+        this.expirationState = expirationState;
     }
 }

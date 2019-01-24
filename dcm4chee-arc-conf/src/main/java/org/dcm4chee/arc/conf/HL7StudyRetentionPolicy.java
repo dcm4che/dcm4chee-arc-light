@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,14 +41,24 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2018
  */
 public class HL7StudyRetentionPolicy {
+    private static final Logger LOG = LoggerFactory.getLogger(HL7StudyRetentionPolicy.class);
+
     private String commonName;
     private String aeTitle;
     private int priority;
@@ -56,6 +66,8 @@ public class HL7StudyRetentionPolicy {
     private Period minRetentionPeriod;
     private Period maxRetentionPeriod;
     private boolean startRetentionPeriodOnStudyDate;
+    private String exporterID;
+    private boolean freezeExpirationDate;
 
     public HL7StudyRetentionPolicy() {
     }
@@ -124,6 +136,34 @@ public class HL7StudyRetentionPolicy {
         this.startRetentionPeriodOnStudyDate = startRetentionPeriodOnStudyDate;
     }
 
+    public String getExporterID() {
+        return exporterID;
+    }
+
+    public void setExporterID(String exporterID) {
+        this.exporterID = exporterID;
+    }
+
+    public boolean isFreezeExpirationDate() {
+        return freezeExpirationDate;
+    }
+
+    public void setFreezeExpirationDate(boolean freezeExpirationDate) {
+        this.freezeExpirationDate = freezeExpirationDate;
+    }
+
+    public LocalDate retentionStartDate(Attributes attrs) {
+        String s;
+        if (startRetentionPeriodOnStudyDate && (s = attrs.getString(Tag.StudyDate)) != null) {
+            try {
+                return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+            } catch (Exception e) {
+                LOG.warn("Failed parsing study date to get retention start date." + e.getMessage());
+            }
+        }
+        return LocalDate.now();
+    }
+
     @Override
     public String toString() {
         return "HL7StudyRetentionPolicy{" +
@@ -133,6 +173,8 @@ public class HL7StudyRetentionPolicy {
                 ", minRetentionPeriod=" + minRetentionPeriod +
                 ", maxRetentionPeriod=" + maxRetentionPeriod +
                 ", startRetentionPeriodOnStudyDate=" + startRetentionPeriodOnStudyDate +
+                ", exporterID=" + exporterID +
+                ", freezeExpirationDate=" + freezeExpirationDate +
                 '}';
     }
 }

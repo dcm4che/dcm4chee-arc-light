@@ -140,6 +140,7 @@ public class QueryAttributes {
                 case "storageExported":
                 case "allOfModalitiesInStudy":
                 case "StudySizeInKB":
+                case "ExpirationState":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -57,6 +57,7 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7StudyRetentionPolicy;
+import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -120,18 +121,20 @@ public class ApplyHL7RetentionPolicy {
         LOG.info("{}: Apply {}:", event.getSocket(), policy);
         IDWithIssuer pid = new IDWithIssuer(hl7Fields.get("PID-3", null));
         ApplicationEntity ae = device.getApplicationEntity(policy.getAETitle(), true);
-        QueryContext queryCtx = queryService.newQueryContext(ae, new QueryParam(ae));
+        QueryParam queryParam = new QueryParam(ae);
+        queryParam.setExpirationState(ExpirationState.UPDATEABLE);
+        QueryContext queryCtx = queryService.newQueryContext(ae, queryParam);
         queryCtx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         queryCtx.setPatientIDs(pid);
         queryCtx.setQueryKeys(new Attributes(0));
+        queryCtx.setReturnPrivate(true);
         try (Query query = queryService.createStudyQuery(queryCtx)) {
             query.initQuery();
             query.executeQuery();
             while (query.hasMoreMatches()) {
                 Attributes match = query.nextMatch();
-                if (match != null) {
+                if (match != null)
                     updateExpirationDate(event, policy, match);
-                }
             }
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", event.getSocket(), policy, e);
@@ -141,8 +144,7 @@ public class ApplyHL7RetentionPolicy {
     private void updateExpirationDate(HL7ConnectionEvent event, HL7StudyRetentionPolicy policy, Attributes match) {
         LocalDate prevExpirationDate = studyExpirationDateOf(match);
         LocalDate expirationDate = prevExpirationDate;
-        LocalDate retentionStartDate = ApplyRetentionPolicy.retentionStartDate(match,
-                policy.isStartRetentionPeriodOnStudyDate());
+        LocalDate retentionStartDate = policy.retentionStartDate(match);
         if (policy.getMinRetentionPeriod() != null) {
             LocalDate minExpirationDate = retentionStartDate.plus(policy.getMinRetentionPeriod());
             if (expirationDate == null || expirationDate.isBefore(minExpirationDate)) {
@@ -161,6 +163,8 @@ public class ApplyHL7RetentionPolicy {
             ctx.setStudyInstanceUID(suid);
             ctx.setExpirationDate(expirationDate);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+            ctx.setExpirationExporterID(policy.getExporterID());
+            ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
             try {
                 studyService.updateExpirationDate(ctx);
                 LOG.info("{}: Update expiration date of Study[uid={}]", event.getSocket(), suid);

@@ -865,7 +865,7 @@ public class ArchiveAEExtension extends AEExtension {
         attributeCoercions.clear();
     }
 
-    public void addCompressionRule(ArchiveAttributeCoercion coercion) {
+    public void addAttributeCoercion(ArchiveAttributeCoercion coercion) {
         attributeCoercions.add(coercion);
     }
 

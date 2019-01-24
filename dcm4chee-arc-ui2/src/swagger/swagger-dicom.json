@@ -366,6 +366,20 @@
             "description": "return Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "Boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "return Studies with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
           }
         ],
         "responses": {
@@ -622,6 +636,20 @@
             "description": "return Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "Boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "return Series of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
           }
         ],
         "responses": {
@@ -832,6 +860,20 @@
             "description": "return Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "Boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "return Series with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
           }
         ],
         "responses": {
@@ -1002,6 +1044,20 @@
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "Boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "return Instances of Series of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
           }
         ],
         "responses": {
@@ -1165,6 +1221,20 @@
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "Boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "return Instances of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
           }
         ],
         "responses": {
@@ -1321,6 +1391,20 @@
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "Boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "return Instances of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
           }
         ],
         "responses": {
