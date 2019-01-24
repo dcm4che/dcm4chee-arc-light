@@ -16,12 +16,12 @@ export class AeListService {
     getAes(){
       return this.$http.get(
           '../aes'
-      ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+      ).map(res => j4care.redirectOnAuthResponse(res));
     }
     getAets(){
        return this.$http.get(
             '../aets'
-        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+        ).map(res => j4care.redirectOnAuthResponse(res));
 
     }
     getDevices(){

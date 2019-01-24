@@ -1,3 +1,5 @@
+import {FilterSchema} from "../interfaces";
+
 export class Globalvar {
     public static get MODALITIES(): any {
         return {
@@ -648,7 +650,7 @@ export class Globalvar {
             return actionObject;
         }
     }
-    static STUDY_FILTER_SCHEMA(aets,hidden?){
+    static STUDY_FILTER_SCHEMA(aets,hidden?):FilterSchema{
         if(hidden){
             return [
                 {

@@ -96,6 +96,9 @@ import { StorageVerificationComponent } from './monitoring/storage-verification/
 import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
 import { ConfigTabComponent } from './configuration/config-tab.component';
 import {DevicesService} from './configuration/devices/devices.service';
+import {StudyTabComponent} from "./study/study-tab.component";
+import { StudyComponent } from './study/study/study.component';
+import {StudyService} from "./study/study/study.service";
 
 @NgModule({
     declarations: [
@@ -149,6 +152,8 @@ import {DevicesService} from './configuration/devices/devices.service';
         TableGeneratorComponent,
         StorageVerificationComponent,
         ConfigTabComponent,
+        StudyTabComponent,
+        StudyComponent,
     ],
     imports: [
         BrowserModule,
@@ -184,6 +189,7 @@ import {DevicesService} from './configuration/devices/devices.service';
                 canActivate: [AuthGuard]
             },
             { path: 'studies', component: StudiesComponent , canActivate: [AuthGuard]},
+            { path: 'study/:tab', component: StudyComponent , canActivate: [AuthGuard]},
             { path: 'permission-denied', component: PermissionDeniedComponent},
             { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
@@ -237,6 +243,7 @@ import {DevicesService} from './configuration/devices/devices.service';
         DiffMonitorService,
         RangePickerService,
         StorageVerificationService,
+        StudyService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]
