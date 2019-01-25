@@ -256,7 +256,7 @@ class AuditUtils {
         }
 
         static EventType forProcedure(String eventActionCode) {
-            return eventActionCode == null || eventActionCode.equals(AuditMessages.EventActionCode.Read)
+            return eventActionCode == null
                     ? PROC_STD_R
                     : eventActionCode.equals(AuditMessages.EventActionCode.Create)
                         ? PROC_STD_C

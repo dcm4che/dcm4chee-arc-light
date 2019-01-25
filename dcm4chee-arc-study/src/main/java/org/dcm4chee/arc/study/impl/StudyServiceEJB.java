@@ -134,7 +134,6 @@ public class StudyServiceEJB {
     private void updateStudyExpirationDate(StudyMgtContext ctx) {
         List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
-        LocalDate expirationDate = ctx.getExpirationDate();
         Study study = !seriesOfStudy.isEmpty()
                 ? seriesOfStudy.get(0).getStudy()
                 : em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
@@ -144,48 +143,63 @@ public class StudyServiceEJB {
         ctx.setAttributes(study.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
 
-        if (study.getExpirationState() == ExpirationState.FROZEN) {
-            if (ctx.isUnfreezeExpirationDate()) {
-                studyExpirationTo("Unfreeze", ctx, study, ExpirationState.UPDATEABLE);
-                seriesOfStudy.forEach(series ->
-                        seriesExpirationTo("Unfreeze", ctx, series, ExpirationState.UPDATEABLE));
-            }
-            else {
-                LOG.info("Skip updating frozen Study[UID={}, ExpirationDate[={}]] with ExpirationDate[={}]",
-                        study.getStudyInstanceUID(), study.getExpirationDate(), ctx.getExpirationDate());
-                ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
-            }
+        ExpirationOperation expirationOp = ExpirationOperation.compute(ctx, study);
+        if (expirationOp == ExpirationOperation.Skip) {
+            LOG.info("{} updating {} Study[UID={}, ExpirationDate[={}]] with ExpirationDate[={}]",
+                    expirationOp.name(), expirationOp.expirationState,
+                    study.getStudyInstanceUID(), study.getExpirationDate(), ctx.getExpirationDate());
+            ctx.setEventActionCode(null);
             return;
         }
 
-        if (ctx.isFreezeExpirationDate()) {
-            studyExpirationTo("Freeze", ctx, study, ExpirationState.FROZEN);
-            seriesOfStudy.forEach(series -> seriesExpirationTo("Freeze", ctx, series, ExpirationState.FROZEN));
-            return;
-        }
-
-        studyExpirationTo("Update", ctx, study, ExpirationState.UPDATEABLE);
-        seriesOfStudy.forEach(series -> {
-            LocalDate seriesExpirationDate = series.getExpirationDate();
-            if (seriesExpirationDate != null && seriesExpirationDate.isAfter(expirationDate))
-                seriesExpirationTo("Update", ctx, series, ExpirationState.UPDATEABLE);
-        });
+        studyExpirationTo(expirationOp, ctx, study);
+        if (expirationOp == ExpirationOperation.Update) {
+            seriesOfStudy.forEach(series -> {
+                LocalDate seriesExpirationDate = series.getExpirationDate();
+                if (seriesExpirationDate != null && seriesExpirationDate.isAfter(ctx.getExpirationDate()))
+                    seriesExpirationTo(expirationOp, ctx, series);
+            });
+        } else
+            seriesOfStudy.forEach(series -> seriesExpirationTo(expirationOp, ctx, series));
     }
 
-    private void studyExpirationTo(String opName, StudyMgtContext ctx, Study study, ExpirationState expirationState) {
-        LOG.info(opName + " Study[UID={}] with ExpirationDate[={}] and ExpirationState[={}]",
-                study.getStudyInstanceUID(), ctx.getExpirationDate(), expirationState);
+    enum ExpirationOperation {
+        Freeze(ExpirationState.FROZEN),
+        Unfreeze(ExpirationState.UPDATEABLE),
+        Update(ExpirationState.UPDATEABLE),
+        Skip(ExpirationState.FROZEN);
+
+        final ExpirationState expirationState;
+
+        ExpirationOperation(ExpirationState expirationState) {
+            this.expirationState = expirationState;
+        }
+
+        static ExpirationOperation compute(StudyMgtContext ctx, Study study) {
+            return study.getExpirationState() == ExpirationState.FROZEN
+                    ? ctx.isUnfreezeExpirationDate()
+                        ? ExpirationOperation.Unfreeze
+                        : ExpirationOperation.Skip
+                    : ctx.isFreezeExpirationDate()
+                        ? ExpirationOperation.Freeze
+                        : ExpirationOperation.Update;
+        }
+    }
+
+    private void studyExpirationTo(ExpirationOperation expirationOp, StudyMgtContext ctx, Study study) {
+        LOG.info("{} Study[UID={}] with ExpirationDate[={}] and ExpirationState[={}]",
+                expirationOp.name(), study.getStudyInstanceUID(), ctx.getExpirationDate(), expirationOp.expirationState);
         study.setExpirationDate(ctx.getExpirationDate());
         study.setExpirationExporterID(ctx.getExpirationExporterID());
-        study.setExpirationState(expirationState);
+        study.setExpirationState(expirationOp.expirationState);
     }
 
-    private void seriesExpirationTo(String opName, StudyMgtContext ctx, Series series, ExpirationState expirationState) {
-        LOG.info(opName + " Series[UID={}] with ExpirationDate[={}] and ExpirationState[={}]",
-                series.getSeriesInstanceUID(), ctx.getExpirationDate(), expirationState);
+    private void seriesExpirationTo(ExpirationOperation expirationOp, StudyMgtContext ctx, Series series) {
+        LOG.info("{} Series[UID={}] with ExpirationDate[={}] and ExpirationState[={}]",
+                expirationOp.name(), series.getSeriesInstanceUID(), ctx.getExpirationDate(), expirationOp.expirationState);
         series.setExpirationDate(ctx.getExpirationDate());
         series.setExpirationExporterID(ctx.getExpirationExporterID());
-        series.setExpirationState(expirationState);
+        series.setExpirationState(expirationOp.expirationState);
     }
 
     private void updateSeriesExpirationDate(StudyMgtContext ctx) {
@@ -202,11 +216,11 @@ public class StudyServiceEJB {
         }
 
         LocalDate studyExpirationDate = study.getExpirationDate();
-        seriesExpirationTo("Update", ctx, series, ExpirationState.UPDATEABLE);
+        seriesExpirationTo(ExpirationOperation.Update, ctx, series);
         ctx.setStudy(study);
         ctx.setAttributes(study.getAttributes());
         if (studyExpirationDate == null || studyExpirationDate.isBefore(expirationDate))
-            studyExpirationTo("Update", ctx, study, ExpirationState.UPDATEABLE);
+            studyExpirationTo(ExpirationOperation.Update, ctx, study);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
 
