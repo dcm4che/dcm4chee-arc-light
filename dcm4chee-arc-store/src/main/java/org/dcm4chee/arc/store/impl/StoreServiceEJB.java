@@ -1197,10 +1197,12 @@ public class StoreServiceEJB {
     }
 
     private void freezeStudyAndItsSeries(Series series, Study study, LocalDate expirationDate) {
+        LOG.info("Freeze Study[UID={}] with ExpirationDate[={}] and ExpirationState[=FROZEN]",
+                study.getStudyInstanceUID(), expirationDate);
         study.setExpirationState(ExpirationState.FROZEN);
         study.setExpirationDate(expirationDate);
         freezeSeries(series, study, expirationDate);
-        LOG.info("Frozen {} remaining Series of Study[UID={}] with ExpirationDate[{}]",
+        LOG.info("Frozen {} remaining Series of Study[UID={}] with ExpirationDate[{}] and ExpirationState[=FROZEN]",
                 em.createNamedQuery(Series.EXPIRE_SERIES)
                 .setParameter(1, study.getPk())
                 .setParameter(2, ExpirationState.FROZEN)
@@ -1211,7 +1213,7 @@ public class StoreServiceEJB {
     }
 
     private void freezeSeries(Series series, Study study, LocalDate expirationDate) {
-        LOG.info("Freeze Series[UID={}] of frozen Study[UID={}, ExpirationDate={}]",
+        LOG.info("Freeze Series[UID={}] of frozen Study[UID={}] with ExpirationDate[={}] and ExpirationState[=FROZEN]",
                 series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
         series.setExpirationDate(expirationDate);
         series.setExpirationState(ExpirationState.FROZEN);
