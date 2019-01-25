@@ -89,6 +89,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -473,9 +474,7 @@ public class IocmRS {
     @Path("/studies/{studyUID}/expire/{expirationDate}")
     public Response updateStudyExpirationDate(
             @PathParam("studyUID") String studyUID,
-            @PathParam("expirationDate")
-            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate,
+            @PathParam("expirationDate") String expirationDate,
             @QueryParam("ExporterID") String expirationExporterID,
             @QueryParam("FreezeExpirationDate") @Pattern(regexp = "true|false") String freezeExpirationDate) {
         return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate,
@@ -486,9 +485,7 @@ public class IocmRS {
     @Path("/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}")
     public Response updateSeriesExpirationDate(
             @PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
-            @PathParam("expirationDate")
-            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate,
+            @PathParam("expirationDate") String expirationDate,
             @QueryParam("ExporterID") String expirationExporterID) {
         return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate,
                 expirationExporterID, null);
@@ -502,8 +499,12 @@ public class IocmRS {
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
-            LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
-            ctx.setExpirationDate(expireDate);
+            boolean revokeExpiration = expirationDate.equals("never");
+            if (revokeExpiration && seriesUID != null)
+                return errResponse("Revoke expiration on Series not allowed.", Response.Status.BAD_REQUEST);
+
+            ctx.setExpirationDate(
+                    revokeExpiration ? null : LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE));
             ctx.setExpirationExporterID(expirationExporterID);
             ctx.setFreezeExpirationDate(Boolean.parseBoolean(freezeExpirationDate));
             if ("false".equals(freezeExpirationDate))
@@ -512,18 +513,14 @@ public class IocmRS {
             studyService.updateExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
             return Response.noContent().build();
+        } catch (DateTimeParseException e) {
+            return errResponse("Expiration date cannot be parsed.", Response.Status.BAD_REQUEST);
         } catch (NoResultException e) {
             return errResponse(
                     updateSeriesExpirationDate ? "Series not found. " + seriesUID : "Study not found. " + studyUID,
                     Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
-        }
-    }
-
-    public static final class ExpireDate {
-        public ExpireDate(String date) {
-            LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE);
         }
     }
 

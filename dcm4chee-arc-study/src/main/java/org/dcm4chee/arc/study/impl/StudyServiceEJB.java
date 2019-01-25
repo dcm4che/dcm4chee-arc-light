@@ -144,6 +144,12 @@ public class StudyServiceEJB {
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
 
         ExpirationOperation expirationOp = ExpirationOperation.compute(ctx, study);
+        if (expirationOp == ExpirationOperation.Protect) {
+            studyExpirationTo(expirationOp, ctx, study);
+            seriesOfStudy.forEach(series ->
+                    seriesExpirationTo(expirationOp, ctx, series));
+            return;
+        }
         if (expirationOp == ExpirationOperation.Skip) {
             LOG.info("{} updating {} Study[UID={}, ExpirationDate[={}]] with ExpirationDate[={}]",
                     expirationOp.name(), expirationOp.expirationState,
@@ -166,6 +172,7 @@ public class StudyServiceEJB {
     enum ExpirationOperation {
         Freeze(ExpirationState.FROZEN),
         Unfreeze(ExpirationState.UPDATEABLE),
+        Protect(ExpirationState.FROZEN),
         Update(ExpirationState.UPDATEABLE),
         Skip(ExpirationState.FROZEN);
 
@@ -176,13 +183,15 @@ public class StudyServiceEJB {
         }
 
         static ExpirationOperation compute(StudyMgtContext ctx, Study study) {
-            return study.getExpirationState() == ExpirationState.FROZEN
-                    ? ctx.isUnfreezeExpirationDate()
-                        ? ExpirationOperation.Unfreeze
-                        : ExpirationOperation.Skip
-                    : ctx.isFreezeExpirationDate()
-                        ? ExpirationOperation.Freeze
-                        : ExpirationOperation.Update;
+            return ctx.getExpirationDate() == null
+                    ? ExpirationOperation.Protect
+                    : study.getExpirationState() == ExpirationState.FROZEN
+                        ? ctx.isUnfreezeExpirationDate()
+                            ? ExpirationOperation.Unfreeze
+                            : ExpirationOperation.Skip
+                        : ctx.isFreezeExpirationDate()
+                            ? ExpirationOperation.Freeze
+                            : ExpirationOperation.Update;
         }
     }
 
