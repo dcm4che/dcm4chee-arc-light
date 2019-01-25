@@ -163,6 +163,10 @@ public class StudyRetentionPolicy {
         return date.plus(retentionPeriod);
     }
 
+    public boolean protectStudy() {
+        return revokeExpiration && freezeExpirationDate;
+    }
+
     @Override
     public String toString() {
         return "StudyRetentionPolicy{" +

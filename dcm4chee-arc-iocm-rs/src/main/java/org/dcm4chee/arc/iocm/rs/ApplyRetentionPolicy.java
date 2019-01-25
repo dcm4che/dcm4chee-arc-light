@@ -81,6 +81,7 @@ import java.util.Collections;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2018
  */
 @Path("aets/{AETitle}/expire")
@@ -154,11 +155,14 @@ public class ApplyRetentionPolicy {
                                         aet,
                                         attrs);
 
-                        if (retentionPolicy == null)
+                        boolean frozenStudy = ExpirationState.valueOf(
+                                attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState)) == ExpirationState.FROZEN;
+
+                        if (retentionPolicy == null || (!retentionPolicy.protectStudy() && frozenStudy))
                             continue;
 
-                        LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
                         String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+                        LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
                         if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                             prevStudyInstanceUID = studyInstanceUID;
                             prevStudyExpirationDate = expirationDate;
@@ -232,7 +236,7 @@ public class ApplyRetentionPolicy {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        queryParam.setExpirationState(ExpirationState.UPDATEABLE);
+        queryParam.setExpirationState(ExpirationState.UPDATEABLE, ExpirationState.FROZEN);
         return queryParam;
     }
 
@@ -244,7 +248,7 @@ public class ApplyRetentionPolicy {
         StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSeriesInstanceUID(seriesIUID);
-        ctx.setExpirationDate(expirationDate);
+        ctx.setExpirationDate(policy.protectStudy() ? null : expirationDate);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         ctx.setExpirationExporterID(policy.getExporterID());
         ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
