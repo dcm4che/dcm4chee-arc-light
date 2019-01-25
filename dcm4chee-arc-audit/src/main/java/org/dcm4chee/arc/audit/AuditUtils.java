@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -256,7 +256,7 @@ class AuditUtils {
         }
 
         static EventType forProcedure(String eventActionCode) {
-            return eventActionCode == null
+            return eventActionCode == null || eventActionCode.equals(AuditMessages.EventActionCode.Read)
                     ? PROC_STD_R
                     : eventActionCode.equals(AuditMessages.EventActionCode.Create)
                         ? PROC_STD_C

@@ -140,51 +140,55 @@ public class StudyServiceEJB {
                 : em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
 
-        if (study.getExpirationState() == ExpirationState.FROZEN) {
-            if (ctx.isUnfreezeExpirationDate()) {
-                LOG.info("Unfreeze the frozen Study[UID={}] with ExpirationDate[={}]",
-                        study.getStudyInstanceUID(), ctx.getExpirationDate());
-                updateStudyExpiration(ctx, study, ExpirationState.UPDATEABLE);
-                if (!seriesOfStudy.isEmpty())
-                    seriesOfStudy.forEach(series -> {
-                        LOG.info("Unfreeze frozen Series[UID={}] of Study[UID={}] with ExpirationDate[={}]",
-                                series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
-                        updateSeriesExpiration(ctx, series, ExpirationState.UPDATEABLE);
-                    });
-            } else
-                LOG.info("Skip updating frozen Study[UID={}] with ExpirationDate[={}]",
-                        study.getStudyInstanceUID(), ctx.getExpirationDate());
-
-            return;
-        }
-
-        boolean freezeExpirationDate = ctx.isFreezeExpirationDate();
-        if (!seriesOfStudy.isEmpty()) {
-            if (freezeExpirationDate) {
-                seriesOfStudy.forEach(series -> {
-                    LOG.info("Freeze Series[UID={}] of Study[UID={}] with ExpirationDate[={}]",
-                            series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
-                    updateSeriesExpiration(ctx, series, ExpirationState.FROZEN);
-                });
-            } else {
-                seriesOfStudy.forEach(series -> {
-                    LocalDate seriesExpirationDate = series.getExpirationDate();
-                    if (seriesExpirationDate != null && seriesExpirationDate.isAfter(expirationDate))
-                        updateSeriesExpiration(ctx, series, ExpirationState.UPDATEABLE);
-                });
-            }
-        }
-
-        if (freezeExpirationDate) {
-            LOG.info("Freeze Study[UID={}] with ExpirationDate[={}]", study.getStudyInstanceUID(), expirationDate);
-            study.setExpirationState(ExpirationState.FROZEN);
-            updateStudyExpiration(ctx, study, ExpirationState.FROZEN);
-        } else
-            updateStudyExpiration(ctx, study, ExpirationState.UPDATEABLE);
-
         ctx.setStudy(study);
         ctx.setAttributes(study.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+
+        if (study.getExpirationState() == ExpirationState.FROZEN) {
+            if (ctx.isUnfreezeExpirationDate())
+                unfreezeStudyAndItsSeries(ctx, seriesOfStudy, study);
+            else {
+                LOG.info("Skip updating frozen Study[UID={}] with ExpirationDate[={}]",
+                        study.getStudyInstanceUID(), ctx.getExpirationDate());
+                ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
+            }
+            return;
+        }
+
+        if (ctx.isFreezeExpirationDate()) {
+            freezeStudyAndItsSeries(ctx, seriesOfStudy, study);
+            return;
+        }
+
+        seriesOfStudy.forEach(series -> {
+            LocalDate seriesExpirationDate = series.getExpirationDate();
+            if (seriesExpirationDate != null && seriesExpirationDate.isAfter(expirationDate))
+                updateSeriesExpiration(ctx, series, ExpirationState.UPDATEABLE);
+        });
+        updateStudyExpiration(ctx, study, ExpirationState.UPDATEABLE);
+    }
+
+    private void freezeStudyAndItsSeries(StudyMgtContext ctx, List<Series> seriesOfStudy, Study study) {
+        LOG.info("Freeze Study[UID={}] with ExpirationDate[={}]", study.getStudyInstanceUID(), ctx.getExpirationDate());
+        study.setExpirationState(ExpirationState.FROZEN);
+        updateStudyExpiration(ctx, study, ExpirationState.FROZEN);
+        seriesOfStudy.forEach(series -> {
+            LOG.info("Freeze Series[UID={}] of Study[UID={}] with ExpirationDate[={}]",
+                    series.getSeriesInstanceUID(), study.getStudyInstanceUID(), ctx.getExpirationDate());
+            updateSeriesExpiration(ctx, series, ExpirationState.FROZEN);
+        });
+    }
+
+    private void unfreezeStudyAndItsSeries(StudyMgtContext ctx, List<Series> seriesOfStudy, Study study) {
+        LOG.info("Unfreeze the frozen Study[UID={}] with ExpirationDate[={}]",
+                study.getStudyInstanceUID(), ctx.getExpirationDate());
+        updateStudyExpiration(ctx, study, ExpirationState.UPDATEABLE);
+        if (!seriesOfStudy.isEmpty())
+            seriesOfStudy.forEach(series -> {
+                LOG.info("Unfreeze frozen Series[UID={}] of Study[UID={}] with ExpirationDate[={}]",
+                        series.getSeriesInstanceUID(), study.getStudyInstanceUID(), ctx.getExpirationDate());
+                updateSeriesExpiration(ctx, series, ExpirationState.UPDATEABLE);
+            });
     }
 
     private void updateStudyExpiration(StudyMgtContext ctx, Study study, ExpirationState expirationState) {
