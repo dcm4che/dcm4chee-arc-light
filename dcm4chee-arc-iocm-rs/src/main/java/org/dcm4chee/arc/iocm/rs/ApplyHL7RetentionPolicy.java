@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
-import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
@@ -76,6 +75,7 @@ import java.util.Comparator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2018
  */
 @ApplicationScoped
@@ -121,8 +121,7 @@ public class ApplyHL7RetentionPolicy {
         LOG.info("{}: Apply {}:", event.getSocket(), policy);
         IDWithIssuer pid = new IDWithIssuer(hl7Fields.get("PID-3", null));
         ApplicationEntity ae = device.getApplicationEntity(policy.getAETitle(), true);
-        QueryParam queryParam = new QueryParam(ae);
-        queryParam.setExpirationState(ExpirationState.UPDATEABLE);
+        QueryParam queryParam = queryParam(policy, ae);
         QueryContext queryCtx = queryService.newQueryContext(ae, queryParam);
         queryCtx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         queryCtx.setPatientIDs(pid);
@@ -141,36 +140,56 @@ public class ApplyHL7RetentionPolicy {
         }
     }
 
+    private QueryParam queryParam(HL7StudyRetentionPolicy policy, ApplicationEntity ae) {
+        QueryParam queryParam = new QueryParam(ae);
+        if (policy.protectStudy())
+            queryParam.setExpirationState(ExpirationState.UPDATEABLE, ExpirationState.FROZEN);
+        else
+            queryParam.setExpirationState(ExpirationState.UPDATEABLE);
+        return queryParam;
+    }
+
     private void updateExpirationDate(HL7ConnectionEvent event, HL7StudyRetentionPolicy policy, Attributes match) {
-        LocalDate prevExpirationDate = studyExpirationDateOf(match);
-        LocalDate expirationDate = prevExpirationDate;
-        LocalDate retentionStartDate = policy.retentionStartDate(match);
-        if (policy.getMinRetentionPeriod() != null) {
-            LocalDate minExpirationDate = retentionStartDate.plus(policy.getMinRetentionPeriod());
-            if (expirationDate == null || expirationDate.isBefore(minExpirationDate)) {
-                expirationDate = minExpirationDate;
+        StudyMgtContext ctx = studyService.createStudyMgtContextHL7(event.getSocket(), event.getHL7Message());
+        String suid = match.getString(Tag.StudyInstanceUID);
+        ctx.setStudyInstanceUID(suid);
+        ctx.setExpirationExporterID(policy.getExporterID());
+        ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
+
+        if (policy.protectStudy()) {
+            ctx.setExpirationDate(null);
+            updateExpirationDate(ctx, event);
+        }
+        else {
+            LocalDate prevExpirationDate = studyExpirationDateOf(match);
+            LocalDate expirationDate = prevExpirationDate;
+            LocalDate retentionStartDate = policy.retentionStartDate(match);
+            if (policy.getMinRetentionPeriod() != null) {
+                LocalDate minExpirationDate = retentionStartDate.plus(policy.getMinRetentionPeriod());
+                if (expirationDate == null || expirationDate.isBefore(minExpirationDate)) {
+                    expirationDate = minExpirationDate;
+                }
+            }
+            if (policy.getMaxRetentionPeriod() != null) {
+                LocalDate maxExpirationDate = retentionStartDate.plus(policy.getMaxRetentionPeriod());
+                if (expirationDate == null || expirationDate.isAfter(maxExpirationDate)) {
+                    expirationDate = maxExpirationDate;
+                }
+            }
+            if (expirationDate != prevExpirationDate) {
+                ctx.setExpirationDate(expirationDate);
+                updateExpirationDate(ctx, event);
             }
         }
-        if (policy.getMaxRetentionPeriod() != null) {
-            LocalDate maxExpirationDate = retentionStartDate.plus(policy.getMaxRetentionPeriod());
-            if (expirationDate == null || expirationDate.isAfter(maxExpirationDate)) {
-                expirationDate = maxExpirationDate;
-            }
-        }
-        if (expirationDate != prevExpirationDate) {
-            StudyMgtContext ctx = studyService.createStudyMgtContextHL7(event.getSocket(), event.getHL7Message());
-            String suid = match.getString(Tag.StudyInstanceUID);
-            ctx.setStudyInstanceUID(suid);
-            ctx.setExpirationDate(expirationDate);
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-            ctx.setExpirationExporterID(policy.getExporterID());
-            ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
-            try {
-                studyService.updateExpirationDate(ctx);
-                LOG.info("{}: Update expiration date of Study[uid={}]", event.getSocket(), suid);
-            } catch (Exception e) {
-                LOG.warn("{}: Failed to update expiration date of Study[uid={}]:\n", event.getSocket(), suid, e);
-            }
+    }
+
+    private void updateExpirationDate(StudyMgtContext ctx, HL7ConnectionEvent event) {
+        try {
+            studyService.updateExpirationDate(ctx);
+            LOG.info("{}: Update expiration date of Study[uid={}]", event.getSocket(), ctx.getStudyInstanceUID());
+        } catch (Exception e) {
+            LOG.warn("{}: Failed to update expiration date of Study[uid={}]:\n",
+                    event.getSocket(), ctx.getStudyInstanceUID(), e);
         }
     }
 

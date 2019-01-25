@@ -71,7 +71,7 @@ public class QueryParam {
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private Patient.VerificationStatus patientVerificationStatus;
-    private ExpirationState expirationState;
+    private ExpirationState[] expirationState;
     private String expirationDate;
     private List<String> studyStorageIDs;
     private long minStudySize;
@@ -264,11 +264,11 @@ public class QueryParam {
         }
     }
 
-    public ExpirationState getExpirationState() {
+    public ExpirationState[] getExpirationState() {
         return expirationState;
     }
 
-    public void setExpirationState(ExpirationState expirationState) {
+    public void setExpirationState(ExpirationState... expirationState) {
         this.expirationState = expirationState;
     }
 }

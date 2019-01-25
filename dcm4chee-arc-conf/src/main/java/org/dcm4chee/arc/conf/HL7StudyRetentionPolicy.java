@@ -173,6 +173,10 @@ public class HL7StudyRetentionPolicy {
         return LocalDate.now();
     }
 
+    public boolean protectStudy() {
+        return revokeExpiration && freezeExpirationDate;
+    }
+
     @Override
     public String toString() {
         return "HL7StudyRetentionPolicy{" +
