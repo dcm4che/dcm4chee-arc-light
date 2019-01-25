@@ -1169,23 +1169,33 @@ public class StoreServiceEJB {
     private void applyStudyRetentionPolicy(StoreContext ctx, Series series) {
         Study study = series.getStudy();
         LocalDate studyExpirationDate = study.getExpirationDate();
-        if (study.getExpirationState() == ExpirationState.FROZEN) {
-            freezeSeries(series, study, studyExpirationDate);
-            return;
-        }
-
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         StudyRetentionPolicy retentionPolicy = arcAE.findStudyRetentionPolicy(session.getRemoteHostName(),
                 session.getCallingAET(), session.getCalledAET(), ctx.getAttributes());
+
+        if (retentionPolicy != null && retentionPolicy.isFreezeExpirationDate() && retentionPolicy.isRevokeExpiration()) {
+            LOG.info("Protect Study[UID={}] from being expired, triggered by {}. Set ExpirationDate[=null] and " +
+                            "ExpirationState[={FROZEN}].",
+                    study.getStudyInstanceUID(), retentionPolicy);
+            freezeStudyAndItsSeries(series, study, null, "Protect");
+            return;
+        }
+
+        if (study.getExpirationState() == ExpirationState.FROZEN) {
+            freezeSeries(series, study, studyExpirationDate, "Freeze");
+            return;
+        }
+
         if (retentionPolicy == null)
             return;
 
         study.setExpirationExporterID(retentionPolicy.getExporterID());
         LocalDate expirationDate = retentionPolicy.expirationDate(ctx.getAttributes());
         if (retentionPolicy.isFreezeExpirationDate()) {
-            LOG.info("Study[UID={}] frozen by {}", study.getStudyInstanceUID(), retentionPolicy);
-            freezeStudyAndItsSeries(series, study, expirationDate);
+            LOG.info("Freeze Study[UID={}] with ExpirationDate[={}] and ExpirationState[=FROZEN], triggered by {}",
+                    study.getStudyInstanceUID(), expirationDate, retentionPolicy);
+            freezeStudyAndItsSeries(series, study, expirationDate, "Freeze");
         }
         else {
             if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
@@ -1196,24 +1206,23 @@ public class StoreServiceEJB {
         }
     }
 
-    private void freezeStudyAndItsSeries(Series series, Study study, LocalDate expirationDate) {
-        LOG.info("Freeze Study[UID={}] with ExpirationDate[={}] and ExpirationState[=FROZEN]",
-                study.getStudyInstanceUID(), expirationDate);
+    private void freezeStudyAndItsSeries(Series series, Study study, LocalDate expirationDate, String logPrefix) {
         study.setExpirationState(ExpirationState.FROZEN);
         study.setExpirationDate(expirationDate);
-        freezeSeries(series, study, expirationDate);
-        LOG.info("Frozen {} remaining Series of Study[UID={}] with ExpirationDate[{}] and ExpirationState[=FROZEN]",
+        freezeSeries(series, study, expirationDate, logPrefix);
+        LOG.info(logPrefix + " {} remaining Series of Study[UID={}] with ExpirationDate[{}] and ExpirationState[=FROZEN]",
                 em.createNamedQuery(Series.EXPIRE_SERIES)
                 .setParameter(1, study.getPk())
                 .setParameter(2, ExpirationState.FROZEN)
-                .setParameter(3, DateTimeFormatter.BASIC_ISO_DATE.format(expirationDate))
+                .setParameter(3,
+                        expirationDate != null ? DateTimeFormatter.BASIC_ISO_DATE.format(expirationDate) : null)
                 .executeUpdate(),
                 study.getStudyInstanceUID(),
                 expirationDate);
     }
 
-    private void freezeSeries(Series series, Study study, LocalDate expirationDate) {
-        LOG.info("Freeze Series[UID={}] of frozen Study[UID={}] with ExpirationDate[={}] and ExpirationState[=FROZEN]",
+    private void freezeSeries(Series series, Study study, LocalDate expirationDate, String logPrefix) {
+        LOG.info(logPrefix + " Series[UID={}] of Study[UID={}] with ExpirationDate[={}] and ExpirationState[=FROZEN]",
                 series.getSeriesInstanceUID(), study.getStudyInstanceUID(), expirationDate);
         series.setExpirationDate(expirationDate);
         series.setExpirationState(ExpirationState.FROZEN);
