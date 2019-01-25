@@ -2615,7 +2615,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     margin-bottom: 1px;
     .mat-select-value{
       .mat-select-placeholder{
-        color:white;
+        color:#777;
       }
     }
   }
@@ -2627,6 +2627,23 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
+  }
+  .timepicker{
+    color: black;
+  }
+  time-picker{
+    input{
+      color: black;
+    }
+  }
+  .bluecontent.no_data{
+    & > h3{
+      margin: 0;
+      a{
+        color: white;
+        font-weight: bold;
+      }
+    }
   }
   ul.nav-tabs{
     li.active{
@@ -2651,7 +2668,9 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       height:40px;
     }
   }
-
+  .mat-select-trigger{
+    height:28px;
+  }
   .tab-content{
     //background: rgba(28, 36, 43, 0.92);
     //background: linear-gradient(to bottom, rgba(83, 103, 119, 0.92) 0%, rgba(28, 36, 43, 0.92) 100%);
@@ -3042,6 +3061,25 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       }
     }
   }
+  .controll_header{
+    float: left;
+    width: 100%;
+    margin: 3px 0;
+    height: 30px;
+    line-height: 27px;
+    vertical-align: middle;
+    .mat-radio-button{
+      height: 28px;
+      padding: 0 13px;
+      .mat-radio-label{
+        margin-bottom: 0;
+        font-weight: normal;
+        &:hover{
+          font-weight: bold;
+        }
+      }
+    }
+  }
   .maximize{
     display: block;
     height: 30px;
@@ -3052,6 +3090,37 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     &:hover{
       cursor: pointer;
       font-weight: bold;
+    }
+  }
+  .multi_select{
+    background: transparent;
+    border-radius: 0;
+    width: 100%;
+    border: none;
+    height: 28px;
+    &.ui-multiselect:not(.ui-state-disabled):hover{
+      background: transparent;
+    }
+    .ui-multiselect-label-container{
+      background: transparent;
+      .ui-multiselect-label{
+        background: transparent;
+      }
+    }
+    .ui-multiselect{
+      .ui-multiselect-label{
+        background:transparent !important;
+      }
+    }
+    .ui-multiselect-trigger{
+      background: transparent;
+      border: none;
+    }
+    .ui-chkbox-box.ui-state-active{
+      border-radius: 0;
+    }
+    .ui-state-highlight{
+      border-radius: 0;
     }
   }
 }
@@ -3095,6 +3164,11 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   }
   .mat-checkbox-frame{
     border-color: white;
+  }
+  .template_list{
+    .mat-checkbox-frame{
+      border-color:rgba(0,0,0,.54);
+    }
   }
   .tab-content{
     color: black;
@@ -3152,6 +3226,9 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
             border-right: 1px solid rgba(0, 0, 0, 0.18);
           }
         }
+        .mat-select-value .mat-select-placeholder{
+          color: black;
+        }
       }
     }
     .clearform_button{
@@ -3192,6 +3269,9 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         &.csv_icon{
           background-image: url("assets/img/csv_icon.png");
         }
+        &.pdf_icon{
+          background-image: url("assets/img/pdf_icon.png");
+        }
       }
       &:hover{
         background: rgb(22, 29, 35);
@@ -3199,6 +3279,9 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         .custom_icon{
           &.csv_icon{
             background-image: url("assets/img/csv_icon.png");
+          }
+          &.pdf_icon{
+            background-image: url("assets/img/pdf_icon.png");
           }
         }
       }
@@ -3254,7 +3337,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     }
   }
   duration-picker{
-    color: white;
+    color: black;
   }
   .table.table-bordered.table-condensed, table.table-inverse{
     tr{
@@ -3333,6 +3416,31 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
        color: rgb(22, 29, 35);
      }
    }
+  .controll_header{
+    -webkit-box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+    -moz-box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+    box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+    background: $backgroundColorWhite;
+    .mat-radio-button{
+      border-right: 1px solid rgba(28, 36, 43, 0.92);
+      .mat-radio-label{
+        color: rgba(28, 36, 43, 0.92);
+        .mat-radio-container{
+          color: rgba(28, 36, 43, 0.92);
+          .mat-radio-outer-circle{
+            color: rgba(28, 36, 43, 0.92);
+            border-color:rgba(28, 36, 43, 0.92);
+          }
+          .mat-radio-inner-circle{
+            background-color: rgba(28, 36, 43, 0.92);
+          }
+        }
+      }
+    }
+  }
+  .mat-select-trigger{
+    color: rgb(22, 29, 35);
+  }
   .maximize{
     color: rgb(22, 29, 35);
     border-left: 1px solid rgba(0, 0, 0, 0.18);
@@ -3361,5 +3469,36 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       position: absolute;
     }
 
+  }
+  .multi_select{
+    border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+    &.ui-multiselect:not(.ui-state-disabled):hover{
+      color: black;
+    }
+    .ui-multiselect-label-container{
+      color: black;
+      .ui-multiselect-label{
+        color: black;
+      }
+    }
+    .ui-multiselect-trigger{
+      color: black;
+    }
+    .ui-chkbox-box.ui-state-active{
+      border: 1px solid rgba(28, 36, 43, 0.92);
+      background: rgba(28, 36, 43, 0.92);
+      color: #FFFFFF;
+    }
+    .ui-state-highlight{
+      border-color: rgba(6, 29, 47, 0.84);
+      background: rgba(6, 29, 47, 0.84);
+      color: #FFFFFF;
+    }
+  }
+  .ui-chkbox-box.ui-state-default{
+    border: 1px solid rgba(6, 29, 47, 0.51);
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
   }
 }

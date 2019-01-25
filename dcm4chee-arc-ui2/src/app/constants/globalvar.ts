@@ -1,4 +1,4 @@
-import {FilterSchema} from "../interfaces";
+import {FilterSchema, SelectDropdown} from "../interfaces";
 
 export class Globalvar {
     public static get MODALITIES(): any {
@@ -797,22 +797,6 @@ export class Globalvar {
                 description:"Limit",
                 placeholder:"Limit of studies"
             },{
-                tag:"range-picker-limit",
-                type:"text",
-                filterKey:"StudyDate",
-                description:"Study date"
-            },{
-                tag:"range-picker-time",
-                type:"text",
-                filterKey:"StudyTime",
-                description:"Study time"
-            },{
-                tag:"range-picker",
-                type:"text",
-                filterKey:"StudyReceiveDateTime",
-                description:"Study created"
-            },
-            {
                 tag:"input",
                 type:"text",
                 filterKey:"InstitutionalDepartmentName",
@@ -831,7 +815,112 @@ export class Globalvar {
                 filterKey:"StudyID",
                 description:"Study ID",
                 placeholder:"Study ID"
+            },{
+                tag:"range-picker-limit",
+                type:"text",
+                filterKey:"StudyDate",
+                description:"Study date"
+            },{
+                tag:"range-picker-time",
+                type:"text",
+                filterKey:"StudyTime",
+                description:"Study time"
+            },{
+                tag:"range-picker",
+                type:"text",
+                filterKey:"StudyReceiveDateTime",
+                description:"Study created"
+            },{
+                tag:"range-picker",
+                type:"text",
+                filterKey:"StudyAccessDateTime",
+                description:"Study Access"
+            },{
+                tag:"select",
+                options:[
+                    new SelectDropdown("PatientName","Patient Name")
+                ]
             }
         ];
+    }
+
+    static PATIENT_FILTER_SCHEMA(aets,hidden?):FilterSchema{
+        if(hidden){
+            return [
+                {
+                    tag:"select",
+                    options:[
+                        new SelectDropdown("F","Female"),
+                        new SelectDropdown("M","Male"),
+                        new SelectDropdown("O","Other")
+                    ],
+                    showStar:true,
+                    filterKey:"PatientSex",
+                    description:"Patient's Sex",
+                    placeholder:"Patient's Sex"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"withoutstudies",
+                    text:"only with studies"
+                },{
+                    tag:"p-calendar",
+                    filterKey:"PatientBirthDate",
+                    description:"Birth Date"
+                },{
+                    tag:"dummy"
+                }
+            ]
+        }
+        return [
+            {
+                tag:"select",
+                options:aets,
+                showStar:true,
+                filterKey:"aet",
+                description:"AET",
+                placeholder:"AET"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientName",
+                description:"Patient name",
+                placeholder:"Patient name"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"fuzzymatching",
+                text:"Fuzzy Matching"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientID",
+                description:"Patient ID",
+                placeholder:"Patient ID"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"IssuerOfPatientID",
+                description:"Issuer of patient",
+                placeholder:"Issuer of patient"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"StudyInstanceUID",
+                description:"Study Instance UID",
+                placeholder:"Study Instance UID"
+            },
+            {
+                tag:"input",
+                type:"number",
+                filterKey:"limit",
+                description:"Limit",
+                placeholder:"Limit of studies"
+            }
+        ]
     }
 }
