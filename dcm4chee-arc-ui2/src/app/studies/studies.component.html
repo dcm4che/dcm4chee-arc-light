@@ -236,7 +236,6 @@
                             <div class="col-md-12" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                                 <!--<p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>-->
                                 <!--<range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" dateFormat="yymmdd"></range-picker>-->
-
                             </div>
                         </div>
                     </div>
@@ -446,7 +445,8 @@
                     <div class="col-md-6" *ngIf="filterMode === 'diff'">
                         <input  type="checkbox" [(ngModel)]="filter.ForceQueryByStudyUID"> Force query by Study UID
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode != 'diff'">
+                    <div class="col-md-6" *ngIf="externalInternalAetMode === 'internal' && filterMode != 'diff'">
+                        <range-picker *ngIf="externalInternalAetMode === 'internal' && filterMode != 'diff'" [model]="filter.ExpirationDate" (modelChange)="filter.ExpirationDate = $event" mode="range" placeholder="Expiration Date" dateFormat="yymmdd" onlyDate="true" title="Expiration Date"></range-picker>
                     </div>
 
                 </div>
