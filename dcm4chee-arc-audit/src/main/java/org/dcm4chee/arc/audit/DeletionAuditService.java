@@ -90,15 +90,15 @@ class DeletionAuditService {
 
     private static AuditInfoBuilder userRejectedAuditInfo(StoreContext ctx, AuditInfoBuilder.Builder infoBuilder) {
         StoreSession storeSession = ctx.getStoreSession();
-        HttpServletRequest req = storeSession.getHttpRequest();
+        HttpServletRequestInfo req = storeSession.getHttpRequest();
         String callingAET = storeSession.getCallingAET();
         return infoBuilder
                 .callingHost(storeSession.getRemoteHostName())
                 .callingUserID(req != null
-                        ? KeycloakContext.valueOf(req).getUserName()
+                        ? req.requesterUserID
                         : callingAET != null
                         ? callingAET : storeSession.getLocalApplicationEntity().getAETitle())
-                .calledUserID(req != null ? req.getRequestURI() : storeSession.getCalledAET())
+                .calledUserID(req != null ? req.requestURI : storeSession.getCalledAET())
                 .build();
     }
 

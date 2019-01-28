@@ -212,7 +212,8 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("HL7Send", "HL7 Forward Tasks"),
         newQueueDescriptor("RSClient", "RESTful Forward Tasks"),
         newQueueDescriptor("CMoveSCU", "Dicom Retrieve Tasks"),
-        newQueueDescriptor("DiffTasks", "Diff Tasks")
+        newQueueDescriptor("DiffTasks", "Diff Tasks"),
+        newQueueDescriptor("Reject", "Rejection Tasks")
     };
 
     static final HL7OrderSPSStatus[] HL7_ORDER_SPS_STATUSES = {

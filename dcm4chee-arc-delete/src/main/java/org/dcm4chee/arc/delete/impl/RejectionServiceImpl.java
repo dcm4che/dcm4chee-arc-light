@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
@@ -49,10 +50,11 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.ExportContext;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -63,6 +65,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -103,10 +106,10 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         }
 
         LOG.info("Export completed, invoke rejection of objects.");
-        StoreSession storeSession = storeService.newStoreSession(ae);
         try {
             if (ejb.claimExpired(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ExpirationState.REJECTED))
-                reject(storeSession, ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn);
+                reject(ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn,
+                        ctx.getHttpServletRequestInfo());
         } catch (Exception e) {
             LOG.warn("Rejection of Expired Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
                     ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), e.getMessage());
@@ -115,27 +118,46 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
     }
 
     @Override
-    public void reject(StoreSession storeSession, ApplicationEntity ae, String studyIUID, String seriesIUID,
-                       String sopIUID, RejectionNote rjNote) throws Exception {
+    public int reject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
+                      HttpServletRequestInfo httpRequest) throws Exception {
+        return reject(getApplicationEntity(aet), studyIUID, seriesIUID, sopIUID, getRejectionNote(code), httpRequest);
+    }
+
+    @Override
+    public int reject(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID, RejectionNote rjNote,
+                      HttpServletRequestInfo httpRequest) throws Exception {
+        StoreSession storeSession = storeService.newStoreSession(httpRequest, ae, null);
         String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(storeSession);
         storeSession.withObjectStorageID(rejectionNoteObjectStorageID);
         storeService.restoreInstances(storeSession, studyIUID, seriesIUID, null);
         Attributes attrs = queryService.createRejectionNote(ae, studyIUID, seriesIUID, sopIUID, rjNote);
-        if (attrs == null) {
-            String errMsg = "No Study [UID={}] found for rejection." + studyIUID;
-            LOG.warn(errMsg);
-            throw new StudyNotFoundException(errMsg);
-        }
+        if (attrs == null)
+            return 0;
 
-        LOG.info("Start rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] completed.",
-                studyIUID, seriesIUID, sopIUID);
+        int count = countInstances(attrs);
+        LOG.info("Start rejection of {} instances of Study[UID={}], Series[UID={}], SOPInstance[UID={}].",
+                count, studyIUID, seriesIUID, sopIUID);
         StoreContext storeCtx = storeService.newStoreContext(storeSession);
         storeCtx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         storeCtx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
         storeService.store(storeCtx, attrs);
-        LOG.info("Rejection of Study[UID={}], Series[UID={}], SOPInstance[UID={}] completed.",
-                studyIUID, seriesIUID, sopIUID);
+        LOG.info("Rejection of {} instances of Study[UID={}], Series[UID={}], SOPInstance[UID={}] completed.",
+                count, studyIUID, seriesIUID, sopIUID);
+        return count;
+    }
+
+    @Override
+    public void scheduleReject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
+                               HttpServletRequestInfo httpRequest, String batchID)
+            throws QueueSizeLimitExceededException {
+        ejb.scheduleRejection(aet, studyIUID, seriesIUID, sopIUID, code, httpRequest, batchID);
+    }
+
+    private static int countInstances(Attributes attrs) {
+        return attrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence)
+                .getSequence(Tag.ReferencedSeriesSequence).stream()
+                .collect(Collectors.summingInt(x -> x.getSequence(Tag.ReferencedSOPSequence).size()));
     }
 
     private String rejectionNoteObjectStorageID(StoreSession storeSession) {
@@ -164,5 +186,9 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
 
     private ApplicationEntity getApplicationEntity(String aet) {
         return device.getApplicationEntity(aet, true);
+    }
+
+    private RejectionNote getRejectionNote(Code code) {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNote(code);
     }
 }

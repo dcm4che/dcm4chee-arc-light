@@ -63,6 +63,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.*;
 import org.dcm4chee.arc.storage.*;
 import org.slf4j.Logger;
@@ -75,7 +76,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.File;
@@ -127,7 +127,7 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String sourceAET) {
+    public StoreSession newStoreSession(HttpServletRequestInfo httpRequest, ApplicationEntity ae, String sourceAET) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setHttpRequest(httpRequest);
         session.setApplicationEntity(ae);

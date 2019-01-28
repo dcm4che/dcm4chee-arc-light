@@ -58,6 +58,7 @@ import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -86,6 +87,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -141,38 +143,47 @@ public class IocmRS {
     @PathParam("AETitle")
     private String aet;
 
+    @QueryParam("queue")
+    private boolean queue;
+
+    @QueryParam("batchID")
+    private String batchID;
+
     @Context
     private HttpServletRequest request;
 
 
     @POST
     @Path("/studies/{StudyUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
-    public void rejectStudy(
+    @Produces("application/json")
+    public Response rejectStudy(
             @PathParam("StudyUID") String studyUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
-        reject(RSOperation.RejectStudy, studyUID, null, null, codeValue, designator);
+        return reject(RSOperation.RejectStudy, studyUID, null, null, codeValue, designator);
     }
 
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
-    public void rejectSeries(
+    @Produces("application/json")
+    public Response rejectSeries(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
-        reject(RSOperation.RejectSeries, studyUID, seriesUID, null, codeValue, designator);
+        return reject(RSOperation.RejectSeries, studyUID, seriesUID, null, codeValue, designator);
     }
 
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
-    public void rejectInstance(
+    @Produces("application/json")
+    public Response rejectInstance(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ObjectUID") String objectUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
-        reject(RSOperation.RejectInstance, studyUID, seriesUID, objectUID, codeValue, designator);
+        return reject(RSOperation.RejectInstance, studyUID, seriesUID, objectUID, codeValue, designator);
     }
 
     @POST
@@ -214,7 +225,7 @@ public class IocmRS {
             throw new WebApplicationException(errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN));
 
         try {
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setPatientID(patientID);
             ctx.setAttributes(patient.getAttributes());
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
@@ -261,7 +272,7 @@ public class IocmRS {
 
         try {
             idService.newPatientID(attrs);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
@@ -279,7 +290,7 @@ public class IocmRS {
     public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         Attributes attrs = toAttributes(in);
         ctx.setAttributes(attrs);
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
@@ -360,7 +371,7 @@ public class IocmRS {
     }
 
     private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr) throws Exception {
-        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request);
+        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         patMgtCtx.setPatientID(patientID);
         Attributes patAttr = new Attributes(3);
         patAttr.setString(Tag.PatientID, VR.LO, patientID.getID());
@@ -381,7 +392,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             Patient prevPatient = patientService.findPatient(priorPatientID);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             ctx.setAttributes(patientID.exportPatientIDWithIssuer(prevPatient.getAttributes()));
@@ -550,7 +561,8 @@ public class IocmRS {
         ctx.setPatient(mwl.getPatient());
         ctx.setSourceInstanceRefs(instanceRefs);
 
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null)
+        StoreSession session = storeService.newStoreSession(
+                HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null)
                 .withObjectStorageID(rejectionNoteObjectStorageID());
 
         restoreInstances(session, instanceRefs);
@@ -629,7 +641,7 @@ public class IocmRS {
 
     private Attributes toAttributes(InputStream in) {
         try {
-            return new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")))
+            return new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
                     .readDataset(null);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
@@ -649,20 +661,39 @@ public class IocmRS {
         return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 
-    private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
+    private Response reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null);
+
         try {
-            rejectionService.reject(session, arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
+            if (queue)
+                return queueReject(rsOp, arcAE, studyUID, seriesUID, objectUID, rjNote);
+
+            int count = rejectionService.reject(arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote,
+                    HttpServletRequestInfo.valueOf(request));
+            if (count == 0) {
+                return errResponse("No instances of Study[UID=" + studyUID + "] found for rejection.",
+                        Response.Status.NOT_FOUND);
+            }
             rsForward.forward(rsOp, arcAE, null, request);
-        } catch (StudyNotFoundException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+            return Response.ok("{\"count\":" + count + '}').build();
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(e));
         }
+    }
+
+    private Response queueReject(RSOperation rsOp, ArchiveAEExtension arcAE, String studyUID, String seriesUID,
+                                 String objectUID, RejectionNote rjNote) {
+        try {
+            rejectionService.scheduleReject(aet, studyUID, seriesUID, objectUID, rjNote.getRejectionNoteCode(),
+                    HttpServletRequestInfo.valueOf(request), batchID);
+        } catch (QueueSizeLimitExceededException e) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
+        rsForward.forward(rsOp, arcAE, null, request);
+        return Response.accepted().build();
     }
 
     private Response copyOrMoveInstances(String studyUID, InputStream in, String codeValue, String designator) {
@@ -670,7 +701,8 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), null);
+        StoreSession session = storeService.newStoreSession(
+                HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null);
         if (rjNote != null)
             session.withObjectStorageID(rejectionNoteObjectStorageID());
 
@@ -829,7 +861,7 @@ public class IocmRS {
     }
 
     private Attributes parseOtherPatientIDs(InputStream in) throws IOException {
-        JsonParser parser = Json.createParser(new InputStreamReader(in, "UTF-8"));
+        JsonParser parser = Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8));
         Attributes attrs = new Attributes(10);
         expect(parser, JsonParser.Event.START_ARRAY);
         Sequence otherPIDseq = attrs.newSequence(Tag.OtherPatientIDsSequence, 10);
@@ -886,7 +918,7 @@ public class IocmRS {
     private Attributes parseSOPInstanceReferences(InputStream in) {
         Attributes attrs = new Attributes(2);
         try {
-            JsonParser parser = Json.createParser(new InputStreamReader(in, "UTF-8"));
+            JsonParser parser = Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8));
             expect(parser, JsonParser.Event.START_OBJECT);
             while (parser.next() == JsonParser.Event.KEY_NAME) {
                 switch (parser.getString()) {
@@ -907,7 +939,7 @@ public class IocmRS {
             throw new WebApplicationException(
                     errResponse(e.getMessage() + " at location : " + e.getLocation(),
                             Response.Status.BAD_REQUEST));
-        } catch (IOException | NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             throw new WebApplicationException(errResponseAsTextPlain(e));
         }
 

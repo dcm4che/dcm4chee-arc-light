@@ -53,7 +53,6 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 import java.util.List;
 
@@ -82,9 +81,9 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest) {
+    public PatientMgtContext createPatientMgtContextWEB(HttpServletRequestInfo httpRequest) {
         PatientMgtContextImpl ctx = new PatientMgtContextImpl(device);
-        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(httpRequest));
+        ctx.setHttpServletRequestInfo(httpRequest);
         return ctx;
     }
 

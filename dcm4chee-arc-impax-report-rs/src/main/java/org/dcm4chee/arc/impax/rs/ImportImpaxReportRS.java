@@ -51,6 +51,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.impax.report.ImpaxReportConverter;
 import org.dcm4chee.arc.impax.report.ReportServiceProvider;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -122,7 +123,8 @@ public class ImportImpaxReportRS {
 
             Attributes response = new Attributes();
             response.setString(Tag.RetrieveURL, VR.UR, studyRetrieveURL().toString());
-            try (StoreSession session = storeService.newStoreSession(request, ae, props.get("SourceAET"))) {
+            try (StoreSession session = storeService.newStoreSession(
+                    HttpServletRequestInfo.valueOf(request), ae, props.get("SourceAET"))) {
                 session.setImpaxReportEndpoint(converter.getEndpoint());
                 for (Attributes sr : srReports) {
                     StoreContext storeCtx = storeService.newStoreContext(session);

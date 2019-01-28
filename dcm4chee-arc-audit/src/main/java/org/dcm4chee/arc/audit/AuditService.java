@@ -605,12 +605,12 @@ public class AuditService {
 
     private void spoolInstancesStored(StoreContext ctx) {
         StoreSession ss = ctx.getStoreSession();
-        HttpServletRequest req = ss.getHttpRequest();
+        HttpServletRequestInfo req = ss.getHttpRequest();
         String callingUserID = req != null
-                ? KeycloakContext.valueOf(req).getUserName()
+                ? req.requesterUserID
                 : ss.getCallingAET() != null
                 ? ss.getCallingAET() : device.getDeviceName();
-        String calledUserID = req != null ? req.getRequestURI() : ss.getCalledAET();
+        String calledUserID = req != null ? req.requestURI : ss.getCalledAET();
         try {
             String outcome = ctx.getException() != null
                     ? ctx.getRejectionNote() != null

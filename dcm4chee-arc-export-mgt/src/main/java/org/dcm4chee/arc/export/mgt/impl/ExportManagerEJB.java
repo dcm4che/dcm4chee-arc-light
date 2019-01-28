@@ -332,7 +332,7 @@ public class ExportManagerEJB implements ExportManager {
             if (!exportTask.getSeriesInstanceUID().equals("*")) {
                 msg.setStringProperty("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
                 if (!exportTask.getSopInstanceUID().equals("*")) {
-                    msg.setStringProperty("SopInstanceUID", exportTask.getSopInstanceUID());
+                    msg.setStringProperty("SOPInstanceUID", exportTask.getSopInstanceUID());
                 }
             }
             msg.setStringProperty("ExporterID", exportTask.getExporterID());

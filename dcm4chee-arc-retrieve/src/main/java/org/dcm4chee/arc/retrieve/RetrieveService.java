@@ -95,7 +95,7 @@ public interface RetrieveService {
             throws ConfigurationException;
 
     RetrieveContext newRetrieveContextIOCM(
-            HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
+            HttpServletRequestInfo request, String localAET, String studyUID, String... seriesUIDs);
 
     RetrieveContext newRetrieveContextXDSI(
             HttpServletRequest request, String localAET, String[] studyUIDs,

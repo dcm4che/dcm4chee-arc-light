@@ -51,12 +51,12 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
@@ -76,7 +76,7 @@ class StoreSessionImpl implements StoreSession {
     private final int serialNo;
     private ApplicationEntity ae;
     private Association as;
-    private HttpServletRequest httpRequest;
+    private HttpServletRequestInfo httpRequest;
     private HL7Application hl7App;
     private String calledAET;
     private String callingAET;
@@ -105,7 +105,9 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public String toString() {
         return httpRequest != null
-                ? httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle()
+                ? httpRequest.requesterUserID +
+                    '@' + httpRequest.requesterHost +
+                    "->" + ae.getAETitle()
                 : as != null ? as.toString()
                 : msg != null ? msg.msh().toString()
                 : ae.getAETitle();
@@ -122,7 +124,7 @@ class StoreSessionImpl implements StoreSession {
         this.studyUpdatePolicy = arcDev.getAttributeFilter(Entity.Study).getAttributeUpdatePolicy();
     }
 
-    void setHttpRequest(HttpServletRequest httpRequest) {
+    void setHttpRequest(HttpServletRequestInfo httpRequest) {
         this.httpRequest = httpRequest;
     }
 
@@ -166,7 +168,7 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public HttpServletRequest getHttpRequest() {
+    public HttpServletRequestInfo getHttpRequest() {
         return httpRequest;
     }
 
@@ -224,7 +226,7 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost()
+        return httpRequest != null ? httpRequest.requesterHost
                 : socket != null ? ReverseDNS.hostNameOf(socket.getInetAddress())
                 : null;
     }

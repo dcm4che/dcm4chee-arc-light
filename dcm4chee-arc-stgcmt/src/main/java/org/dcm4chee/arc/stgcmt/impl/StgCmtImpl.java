@@ -195,7 +195,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             msg.setStringProperty("RemoteAET", remoteAET);
             msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
             msg.setStringProperty("SeriesInstanceUID", ctx.getSeriesInstanceUID());
-            msg.setStringProperty("SopInstanceUID", ctx.getSopInstanceUID());
+            msg.setStringProperty("SOPInstanceUID", ctx.getSopInstanceUID());
             msg.setStringProperty("ExporterID", exporterID);
             msg.setStringProperty("MessageID", ctx.getMessageID());
             queueManager.scheduleMessage(StgCmtSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, ctx.getBatchID(), 0L);

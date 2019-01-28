@@ -120,7 +120,8 @@ public class HL7RS {
     }
 
     private PatientMgtContext toPatientMgtContext(Attributes attrs) {
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(
+                HttpServletRequestInfo.valueOf(request));
         ctx.setAttributes(attrs);
         return ctx;
     }

@@ -52,6 +52,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,7 @@ public class UpdatePatientDemographics {
         try {
             PDQServiceDescriptor descriptor = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                                 .getPDQServiceDescriptorNotNull(pdqServiceID);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setPatientID(patientID);
             ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
             Attributes attrs;

@@ -61,6 +61,7 @@ import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -74,7 +75,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.persistence.*;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -634,7 +634,7 @@ public class StoreServiceEJB {
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         Series series = session.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
-        HttpServletRequest httpRequest = session.getHttpRequest();
+        HttpServletRequestInfo httpRequest = session.getHttpRequest();
         Association as = session.getAssociation();
         PatientMgtContext patMgtCtx = as != null
                 ? patientService.createPatientMgtContextDIMSE(as)

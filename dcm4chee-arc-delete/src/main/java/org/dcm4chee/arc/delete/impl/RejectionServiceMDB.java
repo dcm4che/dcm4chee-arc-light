@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,27 +35,23 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.export.mgt.impl;
+package org.dcm4chee.arc.delete.impl;
 
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4che3.data.Code;
+import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.exporter.ExportContext;
-import org.dcm4chee.arc.exporter.Exporter;
-import org.dcm4chee.arc.exporter.ExporterFactory;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -63,67 +59,45 @@ import javax.jms.MessageListener;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @since Jan 2019
  */
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class ExportManagerMDB implements MessageListener {
-    private static final Logger LOG = LoggerFactory.getLogger(ExportManagerMDB.class);
+public class RejectionServiceMDB implements MessageListener {
+    private static final Logger LOG = LoggerFactory.getLogger(RejectionServiceMDB.class);
 
     @Inject
     private QueueManager queueManager;
 
     @Inject
-    private ExporterFactory exporterFactory;
-
-    @Inject
-    private Device device;
-
-    @Inject
-    private Event<ExportContext> exportEvent;
+    private RejectionService service;
 
     @Override
     public void onMessage(Message msg) {
-        String msgID;
+        String msgID = null;
         try {
             msgID = msg.getJMSMessageID();
         } catch (JMSException e) {
             LOG.error("Failed to process {}", msg, e);
-            return;
         }
         QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
         if (queueMessage == null)
             return;
 
-        Outcome outcome;
-        ExportContext exportContext = null;
         try {
-            ExporterDescriptor exporterDesc = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getExporterDescriptorNotNull(msg.getStringProperty("ExporterID"));
-            Exporter exporter = exporterFactory.getExporter(exporterDesc);
-            exportContext = exporter.createExportContext();
-            exportContext.setMessageID(msgID);
-            exportContext.setBatchID(queueMessage.getBatchID());
-            exportContext.setStudyInstanceUID(msg.getStringProperty("StudyInstanceUID"));
-            exportContext.setSeriesInstanceUID(msg.getStringProperty("SeriesInstanceUID"));
-            exportContext.setSopInstanceUID(msg.getStringProperty("SOPInstanceUID"));
-            exportContext.setAETitle(exporterDesc.getAETitle());
-            exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
-            outcome = exporter.export(exportContext);
-            exportContext.setOutcome(outcome);
+            String aet = msg.getStringProperty("LocalAET");
+            String studyIUID = msg.getStringProperty("StudyInstanceUID");
+            String seriesIUID = msg.getStringProperty("SeriesInstanceUID");
+            String sopIUID = msg.getStringProperty("SOPInstanceUID");
+            String code = msg.getStringProperty("Code");
+            int count = service.reject(aet, studyIUID, seriesIUID, sopIUID, new Code(code),
+                    HttpServletRequestInfo.valueOf(msg));
+            queueManager.onProcessingSuccessful(msgID, count > 0
+                    ? new Outcome(QueueMessage.Status.COMPLETED, count + " instances rejected.")
+                    : new Outcome(QueueMessage.Status.WARNING,
+                    "No instances of Study[UID=" + studyIUID + "] found for rejection."));
         } catch (Throwable e) {
-            if (exportContext != null)
-                exportContext.setException(e);
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
-            return;
-        } finally {
-            if (exportContext != null)
-                try {
-                    exportEvent.fire(exportContext);
-                } catch (Exception e) {
-                    LOG.warn("Failed on firing export context {}", msg, e);
-                }
         }
-        queueManager.onProcessingSuccessful(msgID, outcome);
     }
 }

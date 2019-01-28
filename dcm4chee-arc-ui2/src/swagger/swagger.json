@@ -5466,7 +5466,7 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -5566,7 +5566,7 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -5673,7 +5673,7 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -6484,10 +6484,10 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
-            "description": "no matching study found at primary C-FIND SCP"
+            "description": "No matching Study found at primary C-FIND SCP"
           },
           "404": {
             "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
@@ -6791,7 +6791,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
@@ -6863,7 +6863,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
@@ -6944,7 +6944,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Receiving HL7 Application not configured"
@@ -7025,7 +7025,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
@@ -10823,14 +10823,36 @@
             "description": "Coding Scheme Designator of Rejection Note",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Study successfully rejected",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
           },
           "404": {
-            "description": "study not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+            "description": "Study not found or no Rejection Note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "default": {
             "description": "unexpected error"
@@ -10880,14 +10902,36 @@
             "description": "Coding Scheme Designator of Rejection Note",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Series successfully rejected",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
           },
           "404": {
-            "description": "series not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+            "description": "Series not found or no Rejection Note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "default": {
             "description": "unexpected error"
@@ -10944,14 +10988,36 @@
             "description": "Coding Scheme Designator of Rejection Note",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Instance successfully rejected",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
           },
           "404": {
-            "description": "instance not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+            "description": "Instance not found or no Rejection Note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "default": {
             "description": "unexpected error"
