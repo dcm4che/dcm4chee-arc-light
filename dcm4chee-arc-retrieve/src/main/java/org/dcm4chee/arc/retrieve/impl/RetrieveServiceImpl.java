@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -90,7 +90,6 @@ import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -254,7 +253,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, null);
-        ctx.setHttpRequest(request);
+        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
         ctx.setStudyInstanceUIDs(studyUID);
         ctx.setSeriesInstanceUIDs(seriesUIDs);
         return ctx;

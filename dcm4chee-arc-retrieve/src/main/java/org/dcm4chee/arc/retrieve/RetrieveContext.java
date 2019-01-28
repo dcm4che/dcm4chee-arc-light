@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -87,10 +87,6 @@ public interface RetrieveContext extends Closeable {
     Association getFallbackAssociation();
 
     void setFallbackAssociation(Association fallbackAssociation);
-
-    HttpServletRequest getHttpRequest();
-
-    void setHttpRequest(HttpServletRequest httpRequest);
 
     RetrieveService getRetrieveService();
 

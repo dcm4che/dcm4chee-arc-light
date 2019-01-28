@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -58,8 +58,6 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.UpdateLocation;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,7 +72,6 @@ class RetrieveContextImpl implements RetrieveContext {
     private Association storeAssociation;
     private Association forwardAssociation;
     private Association fallbackAssociation;
-    private HttpServletRequest httpRequest;
     private final RetrieveService retrieveService;
     private final ArchiveAEExtension arcAE;
     private final String localAETitle;
@@ -173,16 +170,6 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setFallbackAssociation(Association fallbackAssociation) {
         this.fallbackAssociation = fallbackAssociation;
-    }
-
-    @Override
-    public HttpServletRequest getHttpRequest() {
-        return httpRequest;
-    }
-
-    @Override
-    public void setHttpRequest(HttpServletRequest httpRequest) {
-        this.httpRequest = httpRequest;
     }
 
     @Override
