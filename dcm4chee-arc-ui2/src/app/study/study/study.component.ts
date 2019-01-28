@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {AccessLocation, FilterSchema, StudyFilterConfig, StudyPageConfig, StudyTab} from "../../interfaces";
 import {StudyService} from "./study.service";
@@ -10,15 +10,42 @@ import {AppService} from "../../app.service";
 import { retry } from 'rxjs/operators';
 import {Globalvar} from "../../constants/globalvar";
 import {unescape} from "querystring";
+import {animate, state, style, transition, trigger} from "@angular/animations";
 
 @Component({
     selector: 'app-study',
     templateUrl: './study.component.html',
-    styleUrls: ['./study.component.scss']
+    styleUrls: ['./study.component.scss'],
+    animations:[
+        trigger("showHide",[
+            state("show",style({
+                padding:"*",
+                height:'*',
+                opacity:1
+            })),
+            state("hide",style({
+                padding:"0",
+                opacity:0,
+                height:'0px',
+                margin:"0"
+            })),
+            transition("show => hide",[
+                animate('0.4s')
+            ]),
+            transition("hide => show",[
+                animate('0.3s')
+            ])
+        ])
+    ]
 })
 export class StudyComponent implements OnInit {
 
     test = Globalvar.ORDERBY;
+
+    isOpen = true;
+    testToggle(){
+        this.isOpen = !this.isOpen;
+    }
     studyConfig:StudyPageConfig = {
         tab:"study",
         accessLocation:"internal"
@@ -63,13 +90,26 @@ export class StudyComponent implements OnInit {
         private appService:AppService
     ) { }
 
-
     ngOnInit() {
         console.log("aet",this.applicationEntities);
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
           this.getApplicationEntities();
         });
+    }
+    testShow = true;
+    fixedHeader = false;
+    @HostListener("window:scroll", [])
+    onWindowScroll(e) {
+        let html = document.documentElement;
+        if(html.scrollTop > 73){
+            this.fixedHeader = true;
+            this.testShow = false;
+        }else{
+            this.fixedHeader = false;
+            this.testShow = true;
+        }
+
     }
 
     search(e){
@@ -83,10 +123,10 @@ export class StudyComponent implements OnInit {
     setSchema(){
         this.filter.filterSchemaMain.lineLength = undefined;
         this.filter.filterSchemaExpand.lineLength = undefined;
-        setTimeout(()=>{
+        // setTimeout(()=>{
             this.filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this.filter.quantityText,false);
             this.filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this.filter.quantityText,true);
-        },0);
+        // },0);
     }
 
     accessLocationChange(e){

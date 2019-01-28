@@ -1,10 +1,12 @@
-<div class="main_content white_design">
+<div class="main_content white_design" >
+
   <study-tab></study-tab>
-  <div class="tab-content">
+  <div class="tab-content" [ngClass]="{'tab_content_with_fixed_header':fixedHeader}">
+    <div [ngClass]="{'fixed_header':fixedHeader}">
     <h2>Studies {{studyConfig.tab}}</h2>
     <ng-container *ngIf="studyConfig.tab === 'study' || studyConfig.tab === 'patient'">
-      <h4>Select the Location Mode</h4>
-      <div class="controll_header">
+      <h4 [@showHide]="fixedHeader ? 'hide':'show'">Select the Location Mode</h4>
+      <div [@showHide]="fixedHeader ? 'hide':'show'" class="controll_header">
         <mat-radio-group class="example-radio-group" [(ngModel)]="studyConfig.accessLocation" (change)="accessLocationChange($event)">
           <mat-radio-button value="internal" >
             Internal
@@ -30,7 +32,7 @@
         <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaExpand.schema" [filterID]="'study-filter'" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()"></filter-generator>
       </div>
     </div>
-    <div class="filter_line">
+    <div class="filter_line" [@showHide]="fixedHeader ? 'hide':'show'">
       <div class="filter single_block" [permission]="{id:'action-monitoring->diff_monitor-all_action',param:'visible'}">
         <div class="filter_block">
           <div class="line">
@@ -48,6 +50,130 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+    <div class="open-close-container">
+      <p>The box is now!
+        The box is now
+        The box is nowThe box is nowThe box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+
+      </p>
+      <p>The box is now {{ isOpen ? 'Open' : 'Closed' }}!
+        The box is now
+        The box is nowThe box is nowThe box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+
+      </p>
+      <p>The box is now {{ isOpen ? 'Open' : 'Closed' }}!
+        The box is now
+        The box is nowThe box is nowThe box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+        The box is now
+
+      </p>
     </div>
   </div>
 </div>
