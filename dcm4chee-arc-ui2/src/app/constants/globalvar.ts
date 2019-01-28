@@ -680,11 +680,6 @@ export class Globalvar {
                 },
                 {
                     tag:"checkbox",
-                    filterKey:"expired",
-                    text:"Only expired studies"
-                },
-                {
-                    tag:"checkbox",
                     filterKey:"incomplete",
                     text:"Only incomplete",
                     description:"Only incomplete studies"
