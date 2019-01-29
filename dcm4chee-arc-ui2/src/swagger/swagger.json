@@ -8278,6 +8278,12 @@
             "default": null
           },
           {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationState",
             "in": "query",
             "description": "Export Studies with given Expiration State",
@@ -8473,6 +8479,12 @@
             "description": "Export Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -8679,6 +8691,12 @@
             "default": null
           },
           {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export series of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationState",
             "in": "query",
             "description": "Export Series of Study with given Expiration State",
@@ -8874,6 +8892,12 @@
             "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export instances which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -9078,6 +9102,12 @@
             "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export instances of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -9289,6 +9319,12 @@
             "description": "Export Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export instances of series of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -9742,6 +9778,12 @@
             "type": "string"
           },
           {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationState",
             "in": "query",
             "description": "match only Studies with given Expiration State",
@@ -9920,6 +9962,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10111,6 +10159,12 @@
             "type": "string"
           },
           {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only series of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationState",
             "in": "query",
             "description": "match only Series of Study with given Expiration State",
@@ -10289,6 +10343,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only instances of studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10477,6 +10537,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only instances of study which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10672,6 +10738,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only Instances of Series of Study which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {

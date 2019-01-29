@@ -125,6 +125,9 @@ public class StgVerMatchingRS {
     @Pattern(regexp = "true|false")
     private String compressionfailed;
 
+    @QueryParam("ExpirationDate")
+    private String expirationDate;
+
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
 
@@ -340,6 +343,7 @@ public class StgVerMatchingRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        queryParam.setExpirationDate(expirationDate);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         queryParam.setStudySizeRange(studySizeInKB);

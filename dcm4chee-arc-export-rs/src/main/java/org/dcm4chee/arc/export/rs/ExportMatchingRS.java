@@ -145,6 +145,9 @@ public class ExportMatchingRS {
     @Pattern(regexp = "true|false")
     private String compressionfailed;
 
+    @QueryParam("ExpirationDate")
+    private String expirationDate;
+
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
 
@@ -370,6 +373,7 @@ public class ExportMatchingRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        queryParam.setExpirationDate(expirationDate);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         if (storageID != null)
