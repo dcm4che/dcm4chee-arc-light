@@ -53,8 +53,8 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
  */
 public interface RejectionService {
 
-    String QUEUE_NAME = "Reject";
-    String JNDI_NAME = "jms/queue/Reject";
+    String QUEUE_NAME = "Rejection";
+    String JNDI_NAME = "jms/queue/Rejection";
 
     int reject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
                HttpServletRequestInfo httpRequest) throws Exception;

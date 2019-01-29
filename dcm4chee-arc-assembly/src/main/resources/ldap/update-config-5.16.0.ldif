@@ -7,17 +7,17 @@ dicomSoftwareVersion: 5.16.0
 -
 delete: dcmRejectExpiredStudiesPollingStartTime
 
-dn: dcmQueueName=Reject,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmQueueName=Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dicomDescription: Rejection Tasks
-dcmQueueName: Reject
+dcmQueueName: Rejection
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200
 dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Reject
+dcmJndiName: jms/queue/Rejection
 
 dn: dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
