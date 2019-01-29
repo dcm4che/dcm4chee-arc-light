@@ -50,6 +50,7 @@
     "dcmStorageVerificationAETitle",
     "dcmStorageVerificationFetchSize",
     "dcmUpdateLocationStatusOnRetrieve",
+    "dcmStorageVerificationOnRetrieve",
     "dcmCompressionThreads",
     "dcmCompressionFetchSize",
     "dcmPatientVerificationFetchSize",
@@ -945,6 +946,12 @@
     "dcmUpdateLocationStatusOnRetrieve": {
       "title": "Update Location Status on Retrieve",
       "description": "Indicates if the Status of the Location DB record shall be updated for objects failed to get fetched from storage on retrieve to MISSING_OBJECT or FAILED_TO_FETCH_OBJECT. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageVerificationOnRetrieve": {
+      "title": "Storage Verification on Retrieve",
+      "description": "Indicates if failures to fetch an object from Storage on retrieve shall trigger a Storage Verification of the whole Series. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },

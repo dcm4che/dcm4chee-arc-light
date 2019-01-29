@@ -211,6 +211,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile ScheduleExpression[] storageVerificationSchedules = {};
     private volatile int storageVerificationFetchSize = 100;
     private volatile boolean updateLocationStatusOnRetrieve;
+    private volatile boolean storageVerificationOnRetrieve;
     private volatile String compressionAETitle;
     private volatile Duration compressionPollingInterval;
     private volatile int compressionFetchSize = 100;
@@ -2049,6 +2050,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.updateLocationStatusOnRetrieve = updateLocationStatusOnRetrieve;
     }
 
+    public boolean isStorageVerificationOnRetrieve() {
+        return storageVerificationOnRetrieve;
+    }
+
+    public void setStorageVerificationOnRetrieve(boolean storageVerificationOnRetrieve) {
+        this.storageVerificationOnRetrieve = storageVerificationOnRetrieve;
+    }
+
     public String getCompressionAETitle() {
         return compressionAETitle;
     }
@@ -2339,6 +2348,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
         storageVerificationFetchSize = arcdev.storageVerificationFetchSize;
         updateLocationStatusOnRetrieve = arcdev.updateLocationStatusOnRetrieve;
+        storageVerificationOnRetrieve = arcdev.storageVerificationOnRetrieve;
         compressionAETitle = arcdev.compressionAETitle;
         compressionPollingInterval = arcdev.compressionPollingInterval;
         compressionFetchSize = arcdev.compressionFetchSize;

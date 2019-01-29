@@ -125,6 +125,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String[] storageVerificationStorageIDs = {};
     private Period storageVerificationInitialDelay;
     private Boolean updateLocationStatusOnRetrieve;
+    private Boolean storageVerificationOnRetrieve;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1175,6 +1176,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isUpdateLocationStatusOnRetrieve();
     }
 
+    public Boolean getStorageVerificationOnRetrieve() {
+        return storageVerificationOnRetrieve;
+    }
+
+    public void setStorageVerificationOnRetrieve(Boolean storageVerificationOnRetrieve) {
+        this.storageVerificationOnRetrieve = storageVerificationOnRetrieve;
+    }
+
+    public boolean storageVerificationOnRetrieve() {
+        return storageVerificationOnRetrieve != null
+                ? storageVerificationOnRetrieve.booleanValue()
+                : getArchiveDeviceExtension().isStorageVerificationOnRetrieve();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1241,6 +1256,7 @@ public class ArchiveAEExtension extends AEExtension {
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;
         storageVerificationInitialDelay = aeExt.storageVerificationInitialDelay;
         updateLocationStatusOnRetrieve = aeExt.updateLocationStatusOnRetrieve;
+        storageVerificationOnRetrieve = aeExt.storageVerificationOnRetrieve;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

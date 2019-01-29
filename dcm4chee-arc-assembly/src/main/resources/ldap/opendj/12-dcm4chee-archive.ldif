@@ -1340,6 +1340,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.271 NAME 'dcmRetrieveAsReceived'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.272 NAME 'dcmStorageVerificationOnRetrieve'
+  DESC 'Indicates if failures to fetch an object from Storage on retrieve shall trigger a Storage Verification of the whole Series. False if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1472,6 +1477,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $
     dcmUpdateLocationStatusOnRetrieve $
+    dcmStorageVerificationOnRetrieve $
     dcmStorageVerificationPolicy $
     dcmStorageVerificationUpdateLocationStatus $
     dcmStorageVerificationStorageID $
@@ -1580,6 +1586,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
     dcmUpdateLocationStatusOnRetrieve $
+    dcmStorageVerificationOnRetrieve $
     dcmStgCmtPolicy $
     dcmStgCmtUpdateLocationStatus $
     dcmStgCmtStorageID $

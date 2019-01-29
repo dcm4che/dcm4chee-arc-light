@@ -232,6 +232,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs,"dcmStorageVerificationFetchSize", ext.getStorageVerificationFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUpdateLocationStatusOnRetrieve",
                 ext.isUpdateLocationStatusOnRetrieve(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStorageVerificationOnRetrieve",
+                ext.isStorageVerificationOnRetrieve(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7TrackChangedPatientID", ext.isHL7TrackChangedPatientID(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
@@ -442,6 +444,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorageVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmStorageVerificationFetchSize"), 100));
         ext.setUpdateLocationStatusOnRetrieve(
                 LdapUtils.booleanValue(attrs.get("dcmUpdateLocationStatusOnRetrieve"), false));
+        ext.setStorageVerificationOnRetrieve(
+                LdapUtils.booleanValue(attrs.get("dcmStorageVerificationOnRetrieve"), false));
         ext.setHL7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
@@ -773,6 +777,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorageVerificationFetchSize(), bb.getStorageVerificationFetchSize(), 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUpdateLocationStatusOnRetrieve",
                 aa.isUpdateLocationStatusOnRetrieve(), bb.isUpdateLocationStatusOnRetrieve(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageVerificationOnRetrieve",
+                aa.isStorageVerificationOnRetrieve(), bb.isStorageVerificationOnRetrieve(), false);
         LdapUtils.storeDiff(ldapObj, mods, "hl7TrackChangedPatientID",
                 aa.isHL7TrackChangedPatientID(), bb.isHL7TrackChangedPatientID(), true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL",
@@ -1061,6 +1067,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStorageVerificationInitialDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUpdateLocationStatusOnRetrieve",
                 ext.getUpdateLocationStatusOnRetrieve(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageVerificationOnRetrieve",
+                ext.getStorageVerificationOnRetrieve(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL",
                 ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL",
@@ -1150,6 +1158,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorageVerificationInitialDelay(toPeriod(attrs.get("dcmStorageVerificationInitialDelay")));
         ext.setUpdateLocationStatusOnRetrieve(
                 LdapUtils.booleanValue(attrs.get("dcmUpdateLocationStatusOnRetrieve"), null));
+        ext.setStorageVerificationOnRetrieve(
+                LdapUtils.booleanValue(attrs.get("dcmStorageVerificationOnRetrieve"), null));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
     }
@@ -1311,6 +1321,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorageVerificationInitialDelay(), bb.getStorageVerificationInitialDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUpdateLocationStatusOnRetrieve",
                 aa.getUpdateLocationStatusOnRetrieve(), bb.getUpdateLocationStatusOnRetrieve(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageVerificationOnRetrieve",
+                aa.getStorageVerificationOnRetrieve(), bb.getStorageVerificationOnRetrieve(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL",
                 aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayStudyURL",
