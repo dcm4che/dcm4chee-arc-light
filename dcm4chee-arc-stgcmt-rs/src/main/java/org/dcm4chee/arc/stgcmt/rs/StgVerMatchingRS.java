@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -104,10 +104,6 @@ public class StgVerMatchingRS {
 
     @PathParam("AETitle")
     private String aet;
-
-    @QueryParam("expired")
-    @Pattern(regexp = "true|false")
-    private String expired;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")

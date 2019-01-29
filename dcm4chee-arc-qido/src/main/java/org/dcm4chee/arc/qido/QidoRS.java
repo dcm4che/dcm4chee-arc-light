@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -112,10 +112,6 @@ public class QidoRS {
     @QueryParam("returnempty")
     @Pattern(regexp = "true|false")
     private String returnempty;
-
-    @QueryParam("expired")
-    @Pattern(regexp = "true|false")
-    private String expired;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")

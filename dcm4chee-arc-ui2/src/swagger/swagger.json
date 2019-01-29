@@ -8201,13 +8201,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export only expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export only Studies which are marked as incomplete",
@@ -8403,13 +8396,6 @@
             "in": "query",
             "description": "export Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "export only expired Series",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -8616,13 +8602,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export only Series which are marked as incomplete",
@@ -8818,13 +8797,6 @@
             "in": "query",
             "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "export Instances of expired Series",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -9029,13 +9001,6 @@
             "in": "query",
             "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "export only Instances of expired Studies",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -9247,13 +9212,6 @@
             "in": "query",
             "description": "export Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "export only Instances of expired Series",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -9704,13 +9662,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Studies which are marked as incomplete",
@@ -9890,13 +9841,6 @@
             "in": "query",
             "description": "match Series of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "match only expired Series",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -10087,13 +10031,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Series which are marked as incomplete",
@@ -10273,13 +10210,6 @@
             "in": "query",
             "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "match only Instances of expired Series",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -10468,13 +10398,6 @@
             "in": "query",
             "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "match only Instances of expired Series",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -10670,13 +10593,6 @@
             "in": "query",
             "description": "match Instances of Studies which are not retrieveable from external <AE Title>",
             "type": "string"
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "match only Instances of expired Studies",
-            "type": "boolean",
-            "default": false
           },
           {
             "name": "incomplete",
@@ -11349,13 +11265,6 @@
             "default": false
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "count only expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "count only Studies which are marked as incomplete",
@@ -11516,13 +11425,6 @@
             "default": false
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "count only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "count only Series which are marked as incomplete",
@@ -11654,13 +11556,6 @@
             "name": "returnempty",
             "in": "query",
             "description": "count also empty Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "count only expired Series",
             "type": "boolean",
             "default": false
           },
@@ -12144,13 +12039,6 @@
             "name": "returnempty",
             "in": "query",
             "description": "size of rejected Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "size of expired Studies",
             "type": "boolean",
             "default": false
           },
