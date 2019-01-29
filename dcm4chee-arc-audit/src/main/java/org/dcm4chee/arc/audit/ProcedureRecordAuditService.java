@@ -39,6 +39,8 @@
  */
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -103,6 +105,8 @@ class ProcedureRecordAuditService {
                 .callingHost(hl7ConnEvent.getConnection().getHostname())
                 .callingUserID(msh.getSendingApplicationWithFacility())
                 .calledUserID(msh.getReceivingApplicationWithFacility())
+                .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
+                .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
                 .patID(pid.getField(3, null), arcDev)
                 .patName(pid.getField(5, null), arcDev)
                 .outcome(outcome(hl7ConnEvent.getException()));
@@ -164,9 +168,11 @@ class ProcedureRecordAuditService {
         UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
         if (hl7ResponseMessage instanceof ArchiveHL7Message) {
             ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
-            return infoBuilder
-                    .studyUIDAccNumDate(archiveHL7Message.getStudyAttrs(), arcDev)
-                    .build();
+            Attributes attrs = archiveHL7Message.getStudyAttrs();
+            if (attrs != null)
+                infoBuilder
+                    .studyIUID(attrs.getString(Tag.StudyInstanceUID))
+                    .accNum(attrs.getString(Tag.AccessionNumber));
         }
         return infoBuilder.build();
     }

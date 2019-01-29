@@ -1287,9 +1287,7 @@ public class AuditService {
 
         ActiveParticipantBuilder[] activeParticipantBuilder = buildProcedureRecordActiveParticipants(auditLogger, prI);
 
-        ParticipantObjectIdentificationBuilder.Builder poiStudy = null;
-        if (prI.getField(AuditInfo.STUDY_UID) != null) {
-            poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
+        ParticipantObjectIdentificationBuilder.Builder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
                     prI.getField(AuditInfo.STUDY_UID),
                     AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                     AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -1297,28 +1295,19 @@ public class AuditService {
                     .detail(getPod(studyDate, prI.getField(AuditInfo.STUDY_DATE)))
                     .detail(getHL7ParticipantObjectDetail(reader));
 
-            if (prI.getField(AuditInfo.ACC_NUM) != null)
-                poiStudy.desc(
-                        new ParticipantObjectDescriptionBuilder.Builder().acc(prI.getField(AuditInfo.ACC_NUM)).build());
-        }
+        if (prI.getField(AuditInfo.ACC_NUM) != null)
+            poiStudy.desc(
+                    new ParticipantObjectDescriptionBuilder.Builder().acc(prI.getField(AuditInfo.ACC_NUM)).build());
 
-        AuditMessage auditMsg;
-        if (poiStudy != null) {
-            if (prI.getField(AuditInfo.P_ID) != null)
-                auditMsg = AuditMessages.createMessage(
-                        eventIdentification,
-                        activeParticipantBuilder,
-                        poiStudy.build(), patientPOI(prI));
-            else
-                auditMsg = AuditMessages.createMessage(
-                        eventIdentification,
-                        activeParticipantBuilder,
-                        poiStudy.build());
-        } else
-            auditMsg = AuditMessages.createMessage(
+        AuditMessage auditMsg = prI.getField(AuditInfo.P_ID) != null
+                ? AuditMessages.createMessage(
                     eventIdentification,
                     activeParticipantBuilder,
-                    patientPOI(prI));
+                    poiStudy.build(), patientPOI(prI))
+                : AuditMessages.createMessage(
+                    eventIdentification,
+                    activeParticipantBuilder,
+                    poiStudy.build());
 
         emitAuditMessage(auditMsg, auditLogger);
     }
