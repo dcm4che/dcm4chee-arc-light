@@ -151,14 +151,9 @@ public class StorageExporter extends AbstractExporter {
                         : QueueMessage.Status.COMPLETED,
                         outcomeMessage(exportContext, retrieveContext));
             } finally {
-                updateLocations(retrieveContext);
+                retrieveContext.getRetrieveService().updateLocations(retrieveContext);
             }
         }
-    }
-
-    private void updateLocations(RetrieveContext ctx) {
-        if (ctx.isUpdateLocationStatusOnRetrieve())
-            ctx.getRetrieveService().updateLocations(ctx);
     }
 
     private Location copyTo(RetrieveContext retrieveContext, InstanceLocations instanceLocations,

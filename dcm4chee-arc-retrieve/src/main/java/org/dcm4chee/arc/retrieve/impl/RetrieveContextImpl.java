@@ -656,4 +656,9 @@ class RetrieveContextImpl implements RetrieveContext {
     public boolean isUpdateLocationStatusOnRetrieve() {
         return arcAE.updateLocationStatusOnRetrieve();
     }
+
+    @Override
+    public boolean isStorageVerificationOnRetrieve() {
+        return arcAE.storageVerificationOnRetrieve();
+    }
 }

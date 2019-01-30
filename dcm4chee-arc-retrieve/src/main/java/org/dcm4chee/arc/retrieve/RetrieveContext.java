@@ -259,4 +259,6 @@ public interface RetrieveContext extends Closeable {
     List<UpdateLocation> getUpdateLocations();
 
     boolean isUpdateLocationStatusOnRetrieve();
+
+    boolean isStorageVerificationOnRetrieve();
 }

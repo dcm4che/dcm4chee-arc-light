@@ -83,6 +83,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.persistence.EntityManager;
@@ -188,6 +189,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
+
+    @Inject @RetrieveFailures
+    private Event<RetrieveContext> retrieveFailures;
 
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
@@ -1085,8 +1089,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             } catch (IOException e) {
                 LOG.warn("Failed to read {} from {}", inst, location);
                 ex = e;
-                if (ctx.isUpdateLocationStatusOnRetrieve())
-                    ctx.getUpdateLocations().add(new UpdateLocation(inst, location, toStatus(e), null));
+                ctx.getUpdateLocations().add(new UpdateLocation(inst, location, toStatus(e), null));
             }
         }
         throw ex;
@@ -1098,8 +1101,11 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public void updateLocations(RetrieveContext ctx) {
-        if (ctx.isUpdateLocationStatusOnRetrieve())
-            storeService.updateLocations(ctx.getArchiveAEExtension(), ctx.getUpdateLocations());
+        if (!ctx.getUpdateLocations().isEmpty()) {
+            if (ctx.isUpdateLocationStatusOnRetrieve())
+                storeService.updateLocations(ctx.getArchiveAEExtension(), ctx.getUpdateLocations());
+            retrieveFailures.fire(ctx);
+        }
     }
 
     private LocationInputStream openLocationInputStream(

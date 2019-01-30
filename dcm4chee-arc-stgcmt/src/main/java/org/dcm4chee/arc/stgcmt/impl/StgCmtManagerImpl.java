@@ -61,6 +61,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveFailures;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.stgcmt.*;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -73,12 +74,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -279,10 +282,33 @@ public class StgCmtManagerImpl implements StgCmtManager {
         return new Outcome(
                 failed == 0
                         ? QueueMessage.Status.COMPLETED
-                        : completed == 0
-                        ? QueueMessage.Status.FAILED
                         : QueueMessage.Status.WARNING,
                 toOutcomeMessage(storageVerificationTask, ctx));
+    }
+
+    public void onRetrieveFailures(@Observes @RetrieveFailures RetrieveContext ctx) {
+        if (ctx.isStorageVerificationOnRetrieve()) {
+            Map<String, Map<String, List<UpdateLocation>>> updateLocationsByStudyAndSeriesIUID = ctx.getUpdateLocations().stream()
+                    .collect(Collectors.groupingBy(
+                            x -> x.instanceLocation.getAttributes().getString(Tag.StudyInstanceUID),
+                            Collectors.groupingBy(
+                                    x -> x.instanceLocation.getAttributes().getString(Tag.SeriesInstanceUID))));
+            updateLocationsByStudyAndSeriesIUID.forEach(
+                    (studyIUID, seriesMap) -> seriesMap.keySet().forEach(
+                            seriesIUID -> scheduleStgVerTask(ctx, studyIUID, seriesIUID)));
+        }
+    }
+
+    private void scheduleStgVerTask(RetrieveContext ctx, String studyIUID, String seriesIUID) {
+        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
+        storageVerificationTask.setLocalAET(ctx.getLocalAETitle());
+        storageVerificationTask.setStudyInstanceUID(studyIUID);
+        storageVerificationTask.setSeriesInstanceUID(seriesIUID);
+        try {
+            ejb.scheduleStgVerTask(storageVerificationTask, ctx.getHttpServletRequestInfo(), null);
+        } catch (Exception e) {
+            LOG.warn("Failed to schedule {}\n", storageVerificationTask, e);
+        }
     }
 
     private String toOutcomeMessage(StorageVerificationTask storageVerificationTask, StgCmtContext ctx) {
