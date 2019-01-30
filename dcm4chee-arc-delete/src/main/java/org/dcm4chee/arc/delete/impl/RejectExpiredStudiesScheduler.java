@@ -50,7 +50,6 @@ import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +72,6 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     @Inject
     private DeletionServiceEJB ejb;
-
-    @Inject
-    private StoreService storeService;
 
     @Inject
     private RejectionService rejectionService;
@@ -115,19 +111,19 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        reject(arcDev, ae, rn);
+        process(arcDev, ae, rn);
     }
 
-    private void reject(ArchiveDeviceExtension arcDev, ApplicationEntity ae, RejectionNote rjNote) {
+    private void process(ArchiveDeviceExtension arcDev, ApplicationEntity ae, RejectionNote rjNote) {
         int studyFetchSize = arcDev.getRejectExpiredStudiesFetchSize();
         if (studyFetchSize == 0) {
-            LOG.warn("DeleteExpiredStudies operation ABORT : Study fetch size is 0");
+            LOG.warn("RejectExpiredStudies operation ABORT : Study fetch size is 0");
             return;
         }
         processExpiredStudies(ae, rjNote, studyFetchSize);
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
         if (seriesFetchSize == 0) {
-            LOG.warn("DeleteExpiredSeries operation ABORT : Series fetch size is 0");
+            LOG.warn("RejectExpiredSeries operation ABORT : Series fetch size is 0");
             return;
         }
         processExpiredSeries(ae, rjNote, seriesFetchSize);
