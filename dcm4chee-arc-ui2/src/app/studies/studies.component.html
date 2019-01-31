@@ -385,6 +385,11 @@
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="SeriesDescription" type="text" [(ngModel)]="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
                     </div>
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                        <label title="Show only studies failed to be retrieved">
+                            <input type="checkbox" [(ngModel)]="filter.storageVerificationFailed"> Storage Verification Failed
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="col-md-3 block-2-1">
