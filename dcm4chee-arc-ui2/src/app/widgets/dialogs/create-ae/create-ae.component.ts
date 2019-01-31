@@ -176,8 +176,8 @@ export class CreateAeComponent implements OnInit{
                 }],
                 dicomNetworkAE: [{
                     dicomNetworkConnectionReference: ['/dicomNetworkConnection/0']
-                }]
-
+                }],
+                dicomInstitutionName:['']
             };
         }else{
             this.getDevice(null);
@@ -195,6 +195,20 @@ export class CreateAeComponent implements OnInit{
             };
         }
     };
+    trackByFn(index, item) {
+        return index; // or item.id
+    }
+    addArrayElement(model,key){
+       if(_.hasIn(model,key) && _.isArray(model[key])){
+            model[key].push("");
+       }else{
+           model[key] = [""];
+       }
+    }
+    removeElemnt(model,i){
+        model.splice(i,1);
+    }
+
 /*
     getConn(){
         if(this.newAetModel && this.activetab === "createdevice" && this.newAetModel.dicomNetworkConnection && this.newAetModel.dicomNetworkConnection[0] && this.newAetModel.dicomNetworkConnection[0].cn && this.newAetModel.dicomNetworkConnection[0].cn != ""){
@@ -207,7 +221,7 @@ export class CreateAeComponent implements OnInit{
     }*/
     updateAetFromDevicename(e){
         let code = (e.keyCode ? e.keyCode : e.which);
-        if (code === 8){
+        if (code === 8 && _.hasIn(this.newAetModel,"dicomDeviceName")){
             let aetUppercase = this.newAetModel.dicomDeviceName.toUpperCase();
             if (this.newAetModel.dicomNetworkAE[0].dicomAETitle.slice(0, -1) === aetUppercase){
                 this.newAetModel.dicomNetworkAE[0].dicomAETitle = aetUppercase;

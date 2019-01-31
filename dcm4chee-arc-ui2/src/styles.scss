@@ -1224,6 +1224,26 @@ mat-dialog-container{
       padding: 15px 0;
     }
   }
+  .dynamicform{
+    .title{
+      width: 24.6%;
+    }
+    .inputblock{
+      input[type=text]{
+        width: 100%;
+        margin-top: 0;
+        height: 30px;
+      }
+    }
+    .description_parent{
+      margin-left: 35px;
+      color: #777;
+    }
+    .form_content{
+      width: 23%;
+      padding-right: 19px;
+    }
+  }
   .inputblock{
     float:left;
     width:100%;
