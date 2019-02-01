@@ -214,7 +214,7 @@ class StudyQuery extends AbstractQuery {
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 20);
         attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs);
+        attrs.addAll(studyAttrs, true);
         PatientQuery.addPatientQRAttrs(context, results, attrs);
         String externalRetrieveAET = results.get(QStudy.study.externalRetrieveAET);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs(retrieveAETs, externalRetrieveAET));

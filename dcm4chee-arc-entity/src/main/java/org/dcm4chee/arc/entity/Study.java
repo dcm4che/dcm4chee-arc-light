@@ -588,7 +588,8 @@ public class Study {
         this.patient = patient;
     }
 
-    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
+    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr,
+                              boolean withOriginalAttributesSequence) {
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         studyID = attrs.getString(Tag.StudyID, "*");
         studyDescription = attrs.getString(Tag.StudyDescription, "*");
@@ -613,10 +614,11 @@ public class Study {
         studyCustomAttribute3 =
                 AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
 
+        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(withOriginalAttributesSequence));
         if (attributesBlob == null)
-            attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
+            attributesBlob = new AttributesBlob(blobAttrs);
         else
-            attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+            attributesBlob.setAttributes(blobAttrs);
         modifiedTime = new Date();
         if (externalRetrieveAET == null)
             externalRetrieveAET = "*";

@@ -230,8 +230,8 @@ public class QueryServiceEJB {
         Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + seriesAttrs.size() + 20);
         attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs);
-        attrs.addAll(seriesAttrs);
+        attrs.addAll(studyAttrs, true);
+        attrs.addAll(seriesAttrs, true);
         PatientQuery.addPatientQRAttrs(context, result, attrs);
         StudyQuery.addStudyQRAddrs(context, result, studySize, numberOfStudyRelatedInstances,
                 numberOfStudyRelatedSeries, modalitiesInStudy, sopClassesInStudy, attrs);
@@ -451,7 +451,7 @@ public class QueryServiceEJB {
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size());
         attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs);
+        attrs.addAll(studyAttrs, true);
         return attrs;
     }
 

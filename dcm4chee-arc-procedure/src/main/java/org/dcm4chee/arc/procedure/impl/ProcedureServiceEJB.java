@@ -242,7 +242,7 @@ public class ProcedureServiceEJB {
             return false;
 
         study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-        study.setAttributes(studyAttr, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
+        study.setAttributes(studyAttr, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr(), false);
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
             if (sourceSeriesIUIDs == null || sourceSeriesIUIDs.contains(series.getSeriesInstanceUID()))
@@ -266,7 +266,7 @@ public class ProcedureServiceEJB {
             SeriesRequestAttributes request = new SeriesRequestAttributes(rqAttrsItem, issuerOfAccessionNumber, fuzzyStr);
             requestAttributes.add(request);
         }
-        series.setAttributes(seriesAttr, filter, fuzzyStr);
+        series.setAttributes(seriesAttr, filter, fuzzyStr, false);
     }
 
     public void updateStudySeriesAttributes(ProcedureContext ctx) {

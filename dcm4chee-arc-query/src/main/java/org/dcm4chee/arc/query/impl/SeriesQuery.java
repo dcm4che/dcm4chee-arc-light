@@ -204,7 +204,7 @@ class SeriesQuery extends AbstractQuery {
         Attributes.unifyCharacterSets(studyAttrs, seriesAttrs);
         Attributes attrs = new Attributes(studyAttrs.size() + seriesAttrs.size() + 20);
         attrs.addAll(studyAttrs);
-        attrs.addAll(seriesAttrs);
+        attrs.addAll(seriesAttrs, true);
         String externalRetrieveAET = results.get(QSeries.series.externalRetrieveAET);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS,
@@ -306,7 +306,7 @@ class SeriesQuery extends AbstractQuery {
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 20);
         attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs);
+        attrs.addAll(studyAttrs, true);
         PatientQuery.addPatientQRAttrs(context, results, attrs);
         StudyQuery.addStudyQRAddrs(context, results, studySize, numberOfStudyRelatedInstances, numberOfStudyRelatedSeries,
                 modalitiesInStudy, sopClassesInStudy, attrs);

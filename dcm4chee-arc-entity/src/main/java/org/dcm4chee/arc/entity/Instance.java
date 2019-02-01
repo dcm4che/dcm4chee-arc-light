@@ -442,7 +442,8 @@ public class Instance {
         return attributesBlob.getAttributes();
     }
 
-    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
+    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr,
+                              boolean withOriginalAttributesSequence) {
         sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
         sopClassUID = attrs.getString(Tag.SOPClassUID);
         instanceNumber = getInt(attrs, Tag.InstanceNumber, null);
@@ -468,10 +469,11 @@ public class Instance {
         instanceCustomAttribute3 =
                 AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
 
+        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(withOriginalAttributesSequence));
         if (attributesBlob == null)
-            attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
+            attributesBlob = new AttributesBlob(blobAttrs);
         else
-            attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+            attributesBlob.setAttributes(blobAttrs);
         updatedTime = new Date();
     }
 

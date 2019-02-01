@@ -224,7 +224,7 @@ class StoreServiceImpl implements StoreService {
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                UpdateDBResult result = new UpdateDBResult();
+                UpdateDBResult result = new UpdateDBResult(ctx);
                 long start = System.currentTimeMillis();
                 ejb.updateDB(ctx, result);
                 LOG.info("{}: Updated DB in {} ms", session, System.currentTimeMillis() - start);
@@ -260,9 +260,7 @@ class StoreServiceImpl implements StoreService {
                     }
                 }
             }
-            Series series = instance.getSeries();
-            updateAttributes(ctx, series);
-            storeSession.cacheSeries(series);
+            storeSession.cacheSeries(instance.getSeries());
         }
         commitStorage(result);
         ctx.getLocations().clear();
@@ -270,6 +268,8 @@ class StoreServiceImpl implements StoreService {
         ctx.setRejectionNote(result.getRejectionNote());
         ctx.setPreviousInstance(result.getPreviousInstance());
         ctx.setStoredInstance(result.getStoredInstance());
+        ctx.setAttributes(result.getStoredAttributes());
+        ctx.setCoercedAttributes(result.getCoercedAttributes());
         LOG.debug("{}: Leave postUpdateDB", storeSession);
     }
 
@@ -367,8 +367,8 @@ class StoreServiceImpl implements StoreService {
             Sequence failedSOPSeq = result.newSequence(Tag.FailedSOPSequence, 10);
             for (InstanceLocations il : instances) {
                 Attributes attr = il.getAttributes();
-                UIDUtils.remapUIDs(attr, session.getUIDMap());
                 StoreContext ctx = newStoreContext(session);
+                UIDUtils.remapUIDs(attr, session.getUIDMap(), ctx.getCoercedAttributes());
                 for (Location location : il.getLocations()) {
                     ctx.getLocations().add(location);
                     if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
@@ -529,20 +529,6 @@ class StoreServiceImpl implements StoreService {
         }
         mergeMWLCache.put(queryParam, result);
         return result;
-    }
-
-    private void updateAttributes(StoreContext ctx, Series series) {
-        Attributes attrs = ctx.getAttributes();
-        Attributes modified = ctx.getCoercedAttributes();
-        Study study = series.getStudy();
-        Patient patient = study.getPatient();
-        Attributes seriesAttrs = series.getAttributes();
-        Attributes studyAttrs = study.getAttributes();
-        Attributes patAttrs = patient.getAttributes();
-        Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, attrs);
-        attrs.update(Attributes.UpdatePolicy.OVERWRITE, patAttrs, modified);
-        attrs.update(Attributes.UpdatePolicy.OVERWRITE, studyAttrs, modified);
-        attrs.update(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified);
     }
 
     private final class TranscoderHandler implements Transcoder.Handler {

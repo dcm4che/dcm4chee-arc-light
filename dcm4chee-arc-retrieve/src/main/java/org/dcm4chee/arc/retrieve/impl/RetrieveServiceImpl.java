@@ -412,7 +412,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                             Attributes instAttrs = AttributesBlob.decodeAttributes(
                                     tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
                             Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
-                            instAttrs.addAll(seriesAttrs);
+                            instAttrs.addAll(seriesAttrs, true);
                             match = instanceLocationsFromDB(tuple, instAttrs);
                             matches.add(match);
                             instMap.put(instPk, match);
@@ -690,8 +690,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + seriesAttrs.size() + 5);
         attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs);
-        attrs.addAll(seriesAttrs);
+        attrs.addAll(studyAttrs, true);
+        attrs.addAll(seriesAttrs, true);
         return new SeriesAttributes(attrs, studyInfo, seriesInfo, patientUpdatedTime);
 }
 

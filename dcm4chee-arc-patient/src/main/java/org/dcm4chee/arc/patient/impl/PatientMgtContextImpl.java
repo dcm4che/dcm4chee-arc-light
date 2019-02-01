@@ -67,6 +67,7 @@ import java.net.Socket;
 public class PatientMgtContextImpl implements PatientMgtContext {
 
     private final AttributeFilter attributeFilter;
+    private final AttributeFilter studyAttributeFilter;
     private final FuzzyStr fuzzyStr;
     private HL7Application hl7app;
     private Association as;
@@ -87,6 +88,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
+        this.studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
         this.fuzzyStr = arcDev.getFuzzyStr();
     }
 
@@ -117,6 +119,11 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public AttributeFilter getAttributeFilter() {
         return attributeFilter;
+    }
+
+    @Override
+    public AttributeFilter getStudyAttributeFilter() {
+        return studyAttributeFilter;
     }
 
     @Override

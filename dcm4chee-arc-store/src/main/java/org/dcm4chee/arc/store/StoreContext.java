@@ -64,6 +64,8 @@ public interface StoreContext {
 
     Attributes getCoercedAttributes();
 
+    void setCoercedAttributes(Attributes coercedAttributes);
+
     String getStudyInstanceUID();
 
     String getSeriesInstanceUID();

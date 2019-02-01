@@ -76,10 +76,9 @@ class StoreContextImpl implements StoreContext {
     private String acceptedStudyInstanceUID;
     private int moveOriginatorMessageID;
     private String moveOriginatorAETitle;
-    private final EnumMap<Location.ObjectType,WriteContext> writeContexts =
-            new EnumMap<Location.ObjectType, WriteContext>(Location.ObjectType.class);
+    private final EnumMap<Location.ObjectType,WriteContext> writeContexts = new EnumMap<>(Location.ObjectType.class);
     private Attributes attributes;
-    private Attributes coercedAttributes;
+    private Attributes coercedAttributes = new Attributes();
     private String studyInstanceUID;
     private String seriesInstanceUID;
     private String mppsInstanceUID;
@@ -215,7 +214,6 @@ class StoreContextImpl implements StoreContext {
                 ? ppsRef.getString(Tag.ReferencedSOPInstanceUID)
                 : null;
         this.attributes = attrs;
-        this.coercedAttributes = new Attributes(attrs.bigEndian());
     }
 
     @Override
@@ -236,6 +234,11 @@ class StoreContextImpl implements StoreContext {
     @Override
     public Attributes getCoercedAttributes() {
         return coercedAttributes;
+    }
+
+    @Override
+    public void setCoercedAttributes(Attributes coercedAttributes) {
+        this.coercedAttributes = coercedAttributes;
     }
 
     @Override

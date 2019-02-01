@@ -44,6 +44,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -123,11 +124,14 @@ public class StoreServiceEJB {
     @Inject
     private IDService idService;
 
+    @Inject
+    private Device device;
+
     public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result)
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         restoreInstances(session, findSeries(ctx), ctx.getStudyInstanceUID(), null, null);
         Instance prevInstance = findPreviousInstance(ctx);
         if (prevInstance != null) {
@@ -213,8 +217,9 @@ public class StoreServiceEJB {
                     return result;
             }
         }
-        Instance instance = createInstance(ctx, conceptNameCode, result);
         boolean createLocations = ctx.getLocations().isEmpty();
+        Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
+                createLocations ? "COERCE" : "CORRECT");
         if (createLocations)
             createLocations(ctx, instance, result);
         else
@@ -630,7 +635,8 @@ public class StoreServiceEJB {
         em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)
+    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result,
+                                    Date now, String reasonForTheAttributeModification)
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         Series series = session.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
@@ -658,7 +664,7 @@ public class StoreServiceEJB {
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
                 } else {
-                    pat = updatePatient(ctx, pat);
+                    pat = updatePatient(ctx, pat, now, reasonForTheAttributeModification);
                 }
                 study = createStudy(ctx, pat);
                 if (ctx.getExpirationDate() != null)
@@ -667,21 +673,43 @@ public class StoreServiceEJB {
             } else {
                 checkConflictingPID(patMgtCtx, ctx, study.getPatient());
                 checkStorePermission(ctx, study.getPatient());
-                study = updateStudy(ctx, study);
-                updatePatient(ctx, study.getPatient());
+                study = updateStudy(ctx, study, now, reasonForTheAttributeModification);
+                updatePatient(ctx, study.getPatient(), now, reasonForTheAttributeModification);
             }
             series = createSeries(ctx, study, result);
         } else {
             checkConflictingPID(patMgtCtx, ctx, series.getStudy().getPatient());
             checkStorePermission(ctx, series.getStudy().getPatient());
-            series = updateSeries(ctx, series);
-            updateStudy(ctx, series.getStudy());
-            updatePatient(ctx, series.getStudy().getPatient());
+            series = updateSeries(ctx, series, now, reasonForTheAttributeModification);
+            updateStudy(ctx, series.getStudy(), now, reasonForTheAttributeModification);
+            updatePatient(ctx, series.getStudy().getPatient(), now, reasonForTheAttributeModification);
         }
+        result.setStoredAttributes(
+                coerceAttributes(ctx, series, result.getCoercedAttributes(), now, reasonForTheAttributeModification));
         Instance instance = createInstance(session, series, conceptNameCode,
-                ctx.getAttributes(), ctx.getRetrieveAETs(), ctx.getAvailability());
+                result.getStoredAttributes(), ctx.getRetrieveAETs(), ctx.getAvailability());
         result.setCreatedInstance(instance);
         return instance;
+    }
+
+   private Attributes coerceAttributes(StoreContext ctx, Series series, Attributes modified,
+                                        Date now, String reason) {
+        Study study = series.getStudy();
+        Patient patient = study.getPatient();
+        Attributes result = new Attributes(ctx.getAttributes());
+        Attributes seriesAttrs = new Attributes(series.getAttributes());
+        Attributes studyAttrs = new Attributes(study.getAttributes());
+        Attributes patAttrs = new Attributes(patient.getAttributes());
+        Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, result);
+        result.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, patAttrs, modified,
+                Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
+        result.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, studyAttrs, modified,
+                Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
+        result.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified,
+                Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
+        return modified.isEmpty()
+                ? ctx.getAttributes()
+                : result.addOriginalAttributes(null, now, reason, device.getDeviceName(), modified);
     }
 
     private boolean checkMissingPatientID(StoreContext ctx) {
@@ -726,18 +754,17 @@ public class StoreServiceEJB {
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED, errorMsg);
     }
 
-    private Patient updatePatient(StoreContext ctx, Patient pat) {
+    private Patient updatePatient(StoreContext ctx, Patient pat, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
         Attributes.UpdatePolicy updatePolicy = session.getPatientUpdatePolicy();
         if (updatePolicy == null)
             return pat;
 
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
         Attributes attrs = pat.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection(false)))
             return pat;
 
         updateInfo.log(session, pat, attrs);
@@ -754,31 +781,33 @@ public class StoreServiceEJB {
                     issuerEntity.merge(issuer);
             }
         }
-        pat.setAttributes(attrs, filter, arcDev.getFuzzyStr());
+        pat.setAttributes(
+                attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
+                filter, arcDev.getFuzzyStr(), true);
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
         return pat;
     }
 
-    private Study updateStudy(StoreContext ctx, Study study) {
+    private Study updateStudy(StoreContext ctx, Study study, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
         Attributes.UpdatePolicy updatePolicy = session.getStudyUpdatePolicy();
         if (updatePolicy == null)
             return study;
 
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
         Attributes attrs = study.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified,
-                filter.getSelection()))
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false)))
             return study;
 
         updateInfo.log(session, study, attrs);
         study = em.find(Study.class, study.getPk());
-        study.setAttributes(attrs, filter, arcDev.getFuzzyStr());
+        study.setAttributes(
+                attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
+                filter, arcDev.getFuzzyStr(), true);
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
@@ -787,10 +816,9 @@ public class StoreServiceEJB {
         return study;
     }
 
-    private Series updateSeries(StoreContext ctx, Series series) {
+    private Series updateSeries(StoreContext ctx, Series series, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Series);
         Attributes.UpdatePolicy updatePolicy = filter.getAttributeUpdatePolicy();
         if (updatePolicy == null)
@@ -798,13 +826,15 @@ public class StoreServiceEJB {
 
         Attributes attrs = series.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false)))
             return series;
 
         updateInfo.log(session, series, attrs);
         series = em.find(Series.class, series.getPk());
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
-        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
+        series.setAttributes(
+                attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
+                filter, fuzzyStr, true);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         return series;
@@ -876,8 +906,7 @@ public class StoreServiceEJB {
         Study study = storeSession.getCachedStudy(ctx.getStudyInstanceUID());
         if (study == null)
             try {
-                ArchiveAEExtension arcAE = storeSession.getArchiveAEExtension();
-                ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+                ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
@@ -1118,11 +1147,14 @@ public class StoreServiceEJB {
                 selectErrorComment(session, url, response, arcAE.storePermissionServiceErrorCommentPattern()));
     }
 
+    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
     private void setStudyAttributes(StoreContext ctx, Study study) {
-        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
-        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
+        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr(), false);
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
     }
@@ -1231,10 +1263,10 @@ public class StoreServiceEJB {
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
         Attributes attrs = ctx.getAttributes();
-        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
+        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr, false);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getCallingAET());
@@ -1242,10 +1274,10 @@ public class StoreServiceEJB {
 
     private Instance createInstance(StoreSession session, Series series, CodeEntity conceptNameCode, Attributes attrs,
                                     String[] retrieveAETs, Availability availability) {
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
         Instance instance = new Instance();
-        instance.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Instance), fuzzyStr);
+        instance.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Instance), fuzzyStr, true);
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(conceptNameCode);
         setContentItems(instance, attrs);
