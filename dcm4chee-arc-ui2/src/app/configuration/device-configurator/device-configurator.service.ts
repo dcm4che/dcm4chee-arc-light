@@ -45,7 +45,11 @@ export class DeviceConfiguratorService{
                 this.getFormaterValue[i] = {};
                 this.getFormaterValue[i] = (device)=>{
                     if(_.hasIn(device,m.pathInDevice) && _.get(device,m.pathInDevice)){
-                        return Observable.of(_.get(device,m.pathInDevice));
+                        if(i === "dcmArchiveAETitle"){
+                            return Observable.of(j4care.extendAetObjectWithAliasFromSameObject(_.get(device,m.pathInDevice)));
+                        }else{
+                            return Observable.of(_.get(device,m.pathInDevice));
+                        }
                     }else{
                         return Observable.of([]);
                     }
