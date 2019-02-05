@@ -1695,8 +1695,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 //If user clicked save
                 if (result){
                     if(mode === "create"){
-                        if(this.service.getPatientId(patient.attrs))
-                            modifyPatientService = $this.service.modifyPatient(patient, iod, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                        if(this.service.getPatientId(patient.attrs)){
+                            modifyPatientService = $this.service.modifyPatient(patient, iod, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode,this.externalInternalAetMode === "external");
                             if(modifyPatientService){
                                 modifyPatientService.save.subscribe((response)=>{
                                     this.fireRightQuery();
@@ -1710,7 +1710,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                     $this.httpErrorHandler.handleError(err);
                                 });
                             }
-                        else{
+                        }else{
                             this.service.createPatient(
                                 patient.attrs,
                                 this.aet,
@@ -1740,7 +1740,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                             let id = oldPatientID;
                             if(idChanged)
                                 id = this.service.getPatientId(patient.attrs);
-                            modifyPatientService = $this.service.modifyPatient(patient, iod, id, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                            modifyPatientService = $this.service.modifyPatient(patient, iod, id, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode, this.externalInternalAetMode === "external");
                             if(modifyPatientService){
                                 modifyPatientService.save.subscribe((response)=>{
                                     this.fireRightQuery();

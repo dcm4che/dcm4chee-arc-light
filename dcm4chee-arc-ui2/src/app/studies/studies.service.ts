@@ -654,7 +654,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             if(!sendingHl7App || !receivingHl7App){
                 return Observable.throw(new Error('Hl7Applications not found!'));
             }else{
-                url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients`;
+                url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients?queue=true`;
             }
         }else{
             url = `../aets/${aet}/rs/patients/`;
@@ -738,6 +738,9 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                }
             }
         }else{
+            if(queue){
+                url += `?queue=true`
+            }
             if (modifyMode === 'create'){
                 return {
                     save:this.$http.post(
