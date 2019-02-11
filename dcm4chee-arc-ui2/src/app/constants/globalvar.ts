@@ -720,6 +720,36 @@ export class Globalvar {
                     filterKey:"retrievefailed",
                     text:"Only failed retrieving",
                     description:"Only failed to be retrieved"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"storageVerificationFailed",
+                    text:"Verification Failed",
+                    description:"Storage Verification Failed"
+                },
+                {
+                    tag:"combined",
+                    firstField:{
+                        tag:"input",
+                        type:"text",
+                        min:1,
+                        filterKey:"StudySizeInKB",
+                        placeholder:"Study Size Range",
+                        title:"Study Size Range ( <min>-|-<max>|<min>-<max> )",
+                        description:"Study Size Range ( <min>-|-<max>|<min>-<max> )",
+                    },
+                    secondField:{
+                        tag:"select",
+                        filterKey:"StudySizeInKBMode",
+                        showStar:false,
+                        options:[
+                            new SelectDropdown("GB","GB"),
+                            new SelectDropdown("MB","MB"),
+                            new SelectDropdown("KB","KB"),
+                        ],
+                        placeholder:"Unite",
+                        title:"Unite"
+                    }
                 }
             ];
         }
@@ -830,6 +860,11 @@ export class Globalvar {
                 type:"text",
                 filterKey:"StudyAccessDateTime",
                 description:"Study Access"
+            },{
+                tag:"range-picker",
+                type:"text",
+                filterKey:"ExpirationDate",
+                description:"Expiration Date"
             },{
                 tag:"select",
                 options:[

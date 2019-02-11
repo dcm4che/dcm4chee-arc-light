@@ -493,11 +493,11 @@ mat-grid-list{
       & > *{
 
         height:28px;
-        &:first-child{
-          float: left;
-        }
         &:last-child{
           float: right;
+        }
+        &:first-child{
+          float: left;
         }
         &.label_large{
           width:100%;
@@ -2863,6 +2863,10 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
             padding-bottom: 0;
             height: 30px;
             border: none;
+          }
+          .mat-select-trigger{
+            bottom: -2px;
+            padding-left: 7px;
           }
         }
       }

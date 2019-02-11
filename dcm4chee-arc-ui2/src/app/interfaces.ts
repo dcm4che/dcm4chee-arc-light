@@ -17,7 +17,7 @@ export interface RangeObject {
 
 export type StatisticsPage = "simple"|"detailed"
 
-export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "p-calendar" |"multi-select"|"label"|"label_large"|"dummy";
+export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "p-calendar" |"multi-select"|"label"|"label_large"|"dummy"|"combined"|"number";
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 
@@ -79,7 +79,12 @@ export interface FilterSchemaElement {
     placeholder?:string;
     showStar?:boolean;
     maxSelectedLabels?:number;
-    options?:SelectDropdown[]
+    min?:number,
+    title?:string,
+    options?:SelectDropdown[],
+    firstField?:FilterSchemaElement,
+    secondField?:FilterSchemaElement,
+    convert?:Function;
 }
 
 export type StudyTab = "study" | "patient" | "mwl" | "diff";
