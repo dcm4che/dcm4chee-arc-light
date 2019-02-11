@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -80,6 +80,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7UseNullValue", ext.getHL7UseNullValue(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", LdapArchiveConfiguration.toStrings(ext.getProperties()));
     }
 
     @Override
@@ -119,6 +120,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 attrs.get("hl7ScheduledStationAETInOrder"), null));
         ext.setHL7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
         ext.setHL7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), null));
+        ext.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
     }
 
     @Override
@@ -176,6 +178,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHL7NoPatientCreateMessageTypes(), bb.getHL7NoPatientCreateMessageTypes());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7UseNullValue",
                 aa.getHL7UseNullValue(), bb.getHL7UseNullValue(), null);
+        LdapArchiveConfiguration.storeDiffProperties(ldapObj, mods, "dcmProperty", aa.getProperties(), bb.getProperties());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));

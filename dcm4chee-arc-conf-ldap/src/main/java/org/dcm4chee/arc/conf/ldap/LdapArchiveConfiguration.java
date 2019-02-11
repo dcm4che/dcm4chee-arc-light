@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -1702,7 +1702,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private static String[] toStrings(Map<String, ?> props) {
+    static String[] toStrings(Map<String, ?> props) {
         String[] ss = new String[props.size()];
         int i = 0;
         for (Map.Entry<String, ?> entry : props.entrySet())
@@ -1807,7 +1807,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private static void storeDiffProperties(ConfigurationChanges.ModifiedObject ldapObj, List<ModificationItem> mods,
+    static void storeDiffProperties(ConfigurationChanges.ModifiedObject ldapObj, List<ModificationItem> mods,
                                             String attrID, Map<String, ?> prevs, Map<String, ?> props) {
         if (!equalsProperties(prevs, props)) {
             mods.add(props.size() == 0

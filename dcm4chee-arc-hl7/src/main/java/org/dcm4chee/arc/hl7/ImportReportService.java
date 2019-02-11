@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -64,6 +64,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,6 +74,8 @@ import java.util.List;
 @ApplicationScoped
 @Typed(HL7Service.class)
 class ImportReportService extends DefaultHL7Service {
+
+    private static final String DEFAULT_LANGUAGE = "(en, RFC5646, \"English\")";
 
     @Inject
     private PatientService patientService;
@@ -108,13 +111,20 @@ class ImportReportService extends DefaultHL7Service {
                     + hl7App.getApplicationName());
         }
         ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(aet);
-        if (ae == null) {
+        if (ae == null)
             throw new ConfigurationException("No local AE with AE Title " + aet
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
-        }
+
         String hl7cs = msg.msh().getField(17, hl7App.getHL7DefaultCharacterSet());
+        Map<String, String> props = arcHL7App.getProperties();
+        Code languageCode = new Code(props.getOrDefault("Language", DEFAULT_LANGUAGE));
+
         Attributes attrs = SAXTransformer.transform(
-                msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), null);
+                msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), tr -> {
+                    tr.setParameter("langCodeValue", languageCode.getCodeValue());
+                    tr.setParameter("langCodingSchemeDesignator", languageCode.getCodingSchemeDesignator());
+                    tr.setParameter("langCodeMeaning", languageCode.getCodeMeaning());
+                });
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));

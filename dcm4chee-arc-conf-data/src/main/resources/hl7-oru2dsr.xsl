@@ -3,6 +3,9 @@
   <xsl:output method="xml"/>
   <xsl:include href="hl7-common.xsl"/>
   <xsl:param name="VerifyingOrganization">Verifying Organization</xsl:param>
+  <xsl:param name="langCodeValue"/>
+  <xsl:param name="langCodingSchemeDesignator"/>
+  <xsl:param name="langCodeMeaning"/>
   <xsl:template match="/hl7">
     <NativeDicomModel>
       <xsl:call-template name="const-attrs"/>
@@ -179,9 +182,9 @@
       <!--Concept Code Sequence-->
       <xsl:call-template name="codeItem">
         <xsl:with-param name="sqtag">0040A168</xsl:with-param>
-        <xsl:with-param name="code">eng</xsl:with-param>
-        <xsl:with-param name="scheme">ISO639_2</xsl:with-param>
-        <xsl:with-param name="meaning">English</xsl:with-param>
+        <xsl:with-param name="code" select="$langCodeValue"/>
+        <xsl:with-param name="scheme" select="$langCodingSchemeDesignator"/>
+        <xsl:with-param name="meaning" select="$langCodeMeaning"/>
       </xsl:call-template>
     </Item>
   </xsl:template>
