@@ -76,7 +76,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
-        writer.writeNotEmpty("dcmProperty", JsonArchiveConfiguration.descriptorProperties(ext.getProperties()));
+        writer.writeNotEmpty("hl7OruXsltParam", JsonArchiveConfiguration.descriptorProperties(ext.getHl7OruXsltParams()));
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeHL7ExportRules(writer, ext.getHL7ExportRules());
         JsonArchiveConfiguration.writeHL7PrefetchRules(writer, ext.getHL7PrefetchRules());
@@ -135,8 +135,8 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                 case "hl7UseNullValue":
                     ext.setHL7UseNullValue(reader.booleanValue());
                     break;
-                case "dcmProperty":
-                    ext.setProperties(reader.stringArray());
+                case "hl7OruXsltParam":
+                    ext.setHl7OruXsltParams(reader.stringArray());
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);

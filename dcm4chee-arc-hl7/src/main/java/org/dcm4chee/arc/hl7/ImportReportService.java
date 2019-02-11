@@ -116,8 +116,8 @@ class ImportReportService extends DefaultHL7Service {
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
 
         String hl7cs = msg.msh().getField(17, hl7App.getHL7DefaultCharacterSet());
-        Map<String, String> props = arcHL7App.getProperties();
-        Code languageCode = new Code(props.getOrDefault("Language", DEFAULT_LANGUAGE));
+        Map<String, String> hl7OruXsltParams = arcHL7App.getHl7OruXsltParams();
+        Code languageCode = new Code(hl7OruXsltParams.getOrDefault("Language", DEFAULT_LANGUAGE));
 
         Attributes attrs = SAXTransformer.transform(
                 msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), tr -> {

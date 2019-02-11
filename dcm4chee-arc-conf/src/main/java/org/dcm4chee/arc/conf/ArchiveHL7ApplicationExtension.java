@@ -69,7 +69,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
-    private final Map<String, String> properties = new HashMap<>();
+    private final Map<String, String> hl7OruXsltParams = new HashMap<>();
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -101,8 +101,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
         hl7NoPatientCreateMessageTypes.addAll(arcapp.hl7NoPatientCreateMessageTypes);
-        properties.clear();
-        properties.putAll(arcapp.properties);
+        hl7OruXsltParams.clear();
+        hl7OruXsltParams.putAll(arcapp.hl7OruXsltParams);
     }
 
     public String getAETitle() {
@@ -390,21 +390,21 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 : getArchiveDeviceExtension().getHL7ScheduledStationAETInOrder();
     }
 
-    public Map<String, String> getProperties() {
-        return properties;
+    public Map<String, String> getHl7OruXsltParams() {
+        return hl7OruXsltParams;
     }
 
-    public void setProperty(String name, String value) {
-        properties.put(name, value);
+    public void setHl7OruXsltParam(String name, String value) {
+        hl7OruXsltParams.put(name, value);
     }
 
-    public void setProperties(String[] ss) {
-        properties.clear();
+    public void setHl7OruXsltParams(String[] ss) {
+        hl7OruXsltParams.clear();
         for (String s : ss) {
             int index = s.indexOf('=');
             if (index < 0)
                 throw new IllegalArgumentException("Property in incorrect format : " + s);
-            setProperty(s.substring(0, index), s.substring(index+1));
+            setHl7OruXsltParam(s.substring(0, index), s.substring(index+1));
         }
     }
 }
