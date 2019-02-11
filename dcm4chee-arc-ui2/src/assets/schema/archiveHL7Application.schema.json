@@ -120,6 +120,14 @@
       "items" : {
         "$ref": "hl7OrderSPSStatus.schema.json"
       }
+    },
+    "dcmProperty": {
+      "title": "HL7 ORU XSLT Parameter",
+      "description": "Properties passed to stylesheet that converts HL7 ORU messages to DICOM SR in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   }
 }

@@ -372,7 +372,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private String[] descriptorProperties(Map<String, ?> props) {
+    static String[] descriptorProperties(Map<String, ?> props) {
         String[] ss = new String[props.size()];
         int i = 0;
         for (Map.Entry<String, ?> entry : props.entrySet())

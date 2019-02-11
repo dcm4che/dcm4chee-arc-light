@@ -36,6 +36,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
+        writer.writeNotEmpty("dcmProperty", JsonArchiveConfiguration.descriptorProperties(ext.getProperties()));
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeHL7ExportRules(writer, ext.getHL7ExportRules());
         JsonArchiveConfiguration.writeHL7PrefetchRules(writer, ext.getHL7PrefetchRules());

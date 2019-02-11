@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -69,6 +69,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
+    private final Map<String, String> properties = new HashMap<>();
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -100,6 +101,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
         hl7NoPatientCreateMessageTypes.addAll(arcapp.hl7NoPatientCreateMessageTypes);
+        properties.clear();
+        properties.putAll(arcapp.properties);
     }
 
     public String getAETitle() {
@@ -385,5 +388,23 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ScheduledStationAETInOrder != null
                 ? hl7ScheduledStationAETInOrder
                 : getArchiveDeviceExtension().getHL7ScheduledStationAETInOrder();
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperty(String name, String value) {
+        properties.put(name, value);
+    }
+
+    public void setProperties(String[] ss) {
+        properties.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("Property in incorrect format : " + s);
+            setProperty(s.substring(0, index), s.substring(index+1));
+        }
     }
 }
