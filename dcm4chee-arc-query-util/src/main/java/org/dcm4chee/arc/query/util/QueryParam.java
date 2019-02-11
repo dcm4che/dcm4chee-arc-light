@@ -248,7 +248,7 @@ public class QueryParam {
     }
 
     public void setStudySizeRange(String studySizeInKB) {
-        if (studySizeInKB == null || studyStorageIDs.isEmpty())
+        if (studySizeInKB == null || studySizeInKB.isEmpty())
             return;
 
         int delim = studySizeInKB.indexOf('-');
