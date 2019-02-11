@@ -66,6 +66,7 @@ class UpdateDBResult {
     private final Attributes coercedAttributes;
 
     UpdateDBResult(StoreContext ctx) {
+        this.storedAttributes = ctx.getAttributes();
         this.coercedAttributes = new Attributes(ctx.getCoercedAttributes());
     }
 

@@ -684,32 +684,31 @@ public class StoreServiceEJB {
             updateStudy(ctx, series.getStudy(), now, reasonForTheAttributeModification);
             updatePatient(ctx, series.getStudy().getPatient(), now, reasonForTheAttributeModification);
         }
-        result.setStoredAttributes(
-                coerceAttributes(ctx, series, result.getCoercedAttributes(), now, reasonForTheAttributeModification));
+        coerceAttributes(ctx, series, now, reasonForTheAttributeModification, result);
         Instance instance = createInstance(session, series, conceptNameCode,
                 result.getStoredAttributes(), ctx.getRetrieveAETs(), ctx.getAvailability());
         result.setCreatedInstance(instance);
         return instance;
     }
 
-   private Attributes coerceAttributes(StoreContext ctx, Series series, Attributes modified,
-                                        Date now, String reason) {
+    private void coerceAttributes(StoreContext ctx, Series series, Date now, String reason, UpdateDBResult result) {
         Study study = series.getStudy();
         Patient patient = study.getPatient();
-        Attributes result = new Attributes(ctx.getAttributes());
+        Attributes attrs = new Attributes(ctx.getAttributes());
         Attributes seriesAttrs = new Attributes(series.getAttributes());
         Attributes studyAttrs = new Attributes(study.getAttributes());
         Attributes patAttrs = new Attributes(patient.getAttributes());
-        Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, result);
-        result.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, patAttrs, modified,
+        Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, attrs);
+        Attributes modified = result.getCoercedAttributes();
+        attrs.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, patAttrs, modified,
                 Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
-        result.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, studyAttrs, modified,
+        attrs.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, studyAttrs, modified,
                 Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
-        result.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified,
+        attrs.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified,
                 Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
-        return modified.isEmpty()
-                ? ctx.getAttributes()
-                : result.addOriginalAttributes(null, now, reason, device.getDeviceName(), modified);
+        if (!modified.isEmpty())
+            result.setStoredAttributes(
+                    attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), modified));
     }
 
     private boolean checkMissingPatientID(StoreContext ctx) {
