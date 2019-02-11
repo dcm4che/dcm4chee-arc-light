@@ -181,7 +181,7 @@ public class QidoRS {
     private String allOfModalitiesInStudy;
 
     @QueryParam("StudySizeInKB")
-    @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
+    @Pattern(regexp = "\\d{1,9}(-\\d{0,9})?|-\\d{1,9}")
     private String studySizeInKB;
 
     @QueryParam("ExpirationState")
