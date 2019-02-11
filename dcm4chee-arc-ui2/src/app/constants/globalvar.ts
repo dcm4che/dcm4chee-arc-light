@@ -729,6 +729,7 @@ export class Globalvar {
                 },
                 {
                     tag:"combined",
+                    filterKey:"StudySizeInKB",
                     firstField:{
                         tag:"input",
                         type:"text",

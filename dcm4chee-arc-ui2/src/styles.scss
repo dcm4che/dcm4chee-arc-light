@@ -3254,6 +3254,14 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
           color: black;
         }
       }
+      .size_range_picker{
+        .size_range_icon{
+          background-image: url("assets/img/size_range_white.png");
+          background-color: rgba(28, 36, 43, 0.92);
+          background-repeat: no-repeat;
+          background-position: center;
+        }
+      }
     }
     .clearform_button{
       color: rgba(255, 255, 255, 0.61);

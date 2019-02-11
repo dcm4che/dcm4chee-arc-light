@@ -25,11 +25,12 @@
               <ng-container *ngFor="let index of [0,1]">
                 <ng-container *ngIf="line && line[index] && (!line[index].showIf || line[index].showIf(model)) && ((line[index].dependingOn && model[line[index].dependingOn]) || !line[index].dependingOn)" [ngSwitch]="line[index].tag">
                     <div class="input_group_dropdown" *ngSwitchCase="'combined'">
-                        <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
+<!--                        <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
                         <mat-select [(ngModel)]="model[line[index].secondField.filterKey]">
                             <mat-option *ngIf="line[index].secondField.showStar" value="">*</mat-option>
                             <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}">{{option.text}}</mat-option>
-                        </mat-select>
+                        </mat-select>-->
+                        <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
                     </div>
                   <label *ngSwitchCase="'label'">{{line[index].text}}:</label>
                   <modality *ngSwitchCase="'modality'" [model]="model[line[index].filterKey]" [ngStyle]="line[index].style" (modelChange)="model[line[index].filterKey] = $event;filterChange($event)"></modality>
