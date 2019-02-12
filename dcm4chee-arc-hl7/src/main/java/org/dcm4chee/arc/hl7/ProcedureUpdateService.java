@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.ERRSegment;
@@ -73,6 +72,7 @@ import javax.inject.Inject;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -133,13 +133,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 });
 
 
-        boolean result = adjust(attrs, arcHL7App, hl7OrderScheduledStations(hl7App, s, msg));
-        if (!result) {
-            LOG.warn("MWL item not created/updated for HL7 message : " + msh.getMessageType()
-                    + " as no mapping to a Scheduled Procedure Step Status is configured with ORC-1_ORC-5 : "
-                    + attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence).getString(Tag.ScheduledProcedureStepStatus));
-            return;
-        }
+        adjust(attrs, arcHL7App, hl7OrderScheduledStations(hl7App, s, msg));
         ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
@@ -148,8 +142,8 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         archiveHL7Message.setStudyAttrs(ctx.getAttributes());
     }
 
-    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App,
-                           Collection<Device> hl7OrderScheduledStations) {
+    private void adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App,
+                        Collection<Device> hl7OrderScheduledStations) {
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             String studyUID = UIDUtils.createUID();
             attrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
@@ -161,37 +155,47 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                     attrs.getString(Tag.RequestedProcedureID));
         }
 
-        Sequence spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
-        for (Attributes sps : spsItems) {
-            if (!sps.containsValue(Tag.ScheduledProcedureStepID)) {
-                idService.newScheduledProcedureStepID(sps);
-                LOG.info("Missing ScheduledProcedureStepID in HL7 message, adjusted with {}",
-                        sps.getString(Tag.ScheduledProcedureStepID));
-            }
+        Iterator<Attributes> spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
+        while (spsItems.hasNext()) {
+            Attributes sps = spsItems.next();
 
-            if (sps.getString(Tag.ScheduledStationAETitle) == null) {
-                List<String> ssAETs = new ArrayList<>();
-                for (Device device : hl7OrderScheduledStations)
-                    ssAETs.addAll(device.getApplicationAETitles());
-
-                if (!ssAETs.isEmpty())
-                    sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
-
-                String[] ssNames = hl7OrderScheduledStations.stream().filter(x -> x.getStationName() != null)
-                        .map(Device::getStationName).toArray(String[]::new);
-                if (ssNames.length > 0)
-                    sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
-            }
-
+            String spsStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
             for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses()) {
                 if (Stream.of(hl7OrderSPSStatus.getOrderControlStatusCodes())
-                        .anyMatch(x -> x.equals(sps.getString(Tag.ScheduledProcedureStepStatus)))) {
+                        .anyMatch(x -> x.equals(spsStatus))) {
                     sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().name());
-                    return true;
+                    break;
                 }
             }
+
+            if (sps.getString(Tag.ScheduledProcedureStepStatus).contains("_")) {
+                spsItems.remove();
+                LOG.warn("MWL item will not created/updated; no Scheduled Procedure Step Status configured with ORC-1_ORC-5 : {}",
+                        spsStatus);
+            } else {
+                if (!sps.containsValue(Tag.ScheduledProcedureStepID)) {
+                    idService.newScheduledProcedureStepID(sps);
+                    LOG.info("Missing ScheduledProcedureStepID in HL7 message, adjusted with {}",
+                            sps.getString(Tag.ScheduledProcedureStepID));
+                }
+
+                if (!sps.containsValue(Tag.ScheduledStationAETitle))
+                    adjustScheduledStations(hl7OrderScheduledStations, sps);
+            }
         }
-        return false;
+    }
+
+    private void adjustScheduledStations(Collection<Device> hl7OrderScheduledStations, Attributes sps) {
+        List<String> ssAETs = new ArrayList<>();
+        hl7OrderScheduledStations.forEach(device -> ssAETs.addAll(device.getApplicationAETitles()));
+
+        if (!ssAETs.isEmpty())
+            sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[0]));
+
+        String[] ssNames = hl7OrderScheduledStations.stream().filter(x -> x.getStationName() != null)
+                .map(Device::getStationName).toArray(String[]::new);
+        if (ssNames.length > 0)
+            sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
     }
 
     private Collection<Device> hl7OrderScheduledStations(HL7Application hl7App, Socket s, UnparsedHL7Message msg) {
