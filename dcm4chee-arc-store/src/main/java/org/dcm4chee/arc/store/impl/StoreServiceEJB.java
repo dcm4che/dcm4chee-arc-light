@@ -841,16 +841,16 @@ public class StoreServiceEJB {
 
     public List<Attributes> queryMWL(StoreContext ctx, MergeMWLQueryParam queryParam) {
         LOG.info("{}: Query for MWL Items with {}", ctx.getStoreSession(), queryParam);
-        TypedQuery<byte[]> namedQuery = queryParam.accessionNumber != null
-                ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, byte[].class)
+        TypedQuery<Tuple> namedQuery = queryParam.accessionNumber != null
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, Tuple.class)
                 .setParameter(1, queryParam.accessionNumber)
                 : queryParam.spsID != null
-                ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, byte[].class)
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, Tuple.class)
                 .setParameter(1, queryParam.studyIUID)
                 .setParameter(1, queryParam.spsID)
-                : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, byte[].class)
+                : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, Tuple.class)
                 .setParameter(1, queryParam.studyIUID);
-        List<byte[]> resultList = namedQuery.getResultList();
+        List<Tuple> resultList = namedQuery.getResultList();
         if (resultList.isEmpty()) {
             LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
             return null;
@@ -858,8 +858,12 @@ public class StoreServiceEJB {
 
         LOG.info("{}: Found {} matching MWL Items", ctx.getStoreSession(), resultList.size());
         List<Attributes> mwlItems = new ArrayList<>(resultList.size());
-        for (byte[] bytes : resultList) {
-            mwlItems.add(AttributesBlob.decodeAttributes(bytes, null));
+        for (Tuple result : resultList) {
+            Attributes mwlAttrs = AttributesBlob.decodeAttributes(result.get(0, byte[].class), null);
+            Attributes patAttrs = AttributesBlob.decodeAttributes(result.get(1, byte[].class), null);
+            Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
+            mwlAttrs.addAll(patAttrs);
+            mwlItems.add(mwlAttrs);
         }
         return mwlItems;
     }
