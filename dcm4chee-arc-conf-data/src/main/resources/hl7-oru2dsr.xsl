@@ -116,7 +116,14 @@
       <Item number="1">
         <!-- Verifying Organization -->
         <DicomAttribute tag="0040A027" vr="LO">
-          <Value number="1"><xsl:value-of select="$VerifyingOrganization"/></Value>
+          <Value number="1">
+            <xsl:choose>
+              <xsl:when test="$VerifyingOrganization">
+                <xsl:value-of select="$VerifyingOrganization"/>
+              </xsl:when>
+              <xsl:otherwise>Verifying Organization</xsl:otherwise>
+            </xsl:choose>
+          </Value>
         </DicomAttribute>
         <!-- Verification DateTime -->
         <DicomAttribute tag="0040A030" vr="DT">
