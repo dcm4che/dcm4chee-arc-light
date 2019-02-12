@@ -227,6 +227,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
+    private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2201,6 +2202,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         keycloakServerMap.put(keycloakServer.getKeycloakServerID(), keycloakServer);
     }
 
+    public HL7OrderMissingStudyIUIDPolicy getHl7OrderMissingStudyIUIDPolicy() {
+        return hl7OrderMissingStudyIUIDPolicy;
+    }
+
+    public void setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy) {
+        this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2364,6 +2373,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
+        hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

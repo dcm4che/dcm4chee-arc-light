@@ -47,6 +47,7 @@ import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.conf.ldap.hl7.LdapHL7ConfigurationExtension;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7OrderMissingStudyIUIDPolicy;
 import org.dcm4chee.arc.conf.ScheduledProtocolCodeInOrder;
 import org.dcm4chee.arc.conf.ScheduledStationAETInOrder;
 
@@ -81,6 +82,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7UseNullValue", ext.getHL7UseNullValue(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUXSLTParam", LdapArchiveConfiguration.toStrings(ext.getHl7OruXsltParams()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingStudyIUIDPolicy",
+                ext.getHl7OrderMissingStudyIUIDPolicy(), null);
     }
 
     @Override
@@ -121,6 +124,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setHL7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
         ext.setHL7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), null));
         ext.setHl7OruXsltParams(LdapUtils.stringArray(attrs.get("hl7ORUXSLTParam")));
+        ext.setHl7OrderMissingStudyIUIDPolicy(LdapUtils.enumValue(HL7OrderMissingStudyIUIDPolicy.class,
+                attrs.get("hl7OrderMissingStudyIUIDPolicy"), null));
     }
 
     @Override
@@ -180,6 +185,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHL7UseNullValue(), bb.getHL7UseNullValue(), null);
         LdapArchiveConfiguration.storeDiffProperties(ldapObj, mods, "hl7ORUXSLTParam",
                 aa.getHl7OruXsltParams(), bb.getHl7OruXsltParams());
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingStudyIUIDPolicy",
+                aa.getHl7OrderMissingStudyIUIDPolicy(), bb.getHl7OrderMissingStudyIUIDPolicy(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));

@@ -48,6 +48,7 @@ import org.dcm4che3.conf.json.hl7.JsonHL7ConfigurationExtension;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7OrderMissingStudyIUIDPolicy;
 import org.dcm4chee.arc.conf.ScheduledProtocolCodeInOrder;
 import org.dcm4chee.arc.conf.ScheduledStationAETInOrder;
 
@@ -77,6 +78,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
         writer.writeNotEmpty("hl7ORUXSLTParam", JsonArchiveConfiguration.descriptorProperties(ext.getHl7OruXsltParams()));
+        writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHl7OrderMissingStudyIUIDPolicy(), null);
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeHL7ExportRules(writer, ext.getHL7ExportRules());
         JsonArchiveConfiguration.writeHL7PrefetchRules(writer, ext.getHL7PrefetchRules());
@@ -137,6 +139,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7ORUXSLTParam":
                     ext.setHl7OruXsltParams(reader.stringArray());
+                    break;
+                case "hl7OrderMissingStudyIUIDPolicy":
+                    ext.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);

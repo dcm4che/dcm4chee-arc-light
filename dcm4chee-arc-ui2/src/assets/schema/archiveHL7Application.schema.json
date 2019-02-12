@@ -67,6 +67,16 @@
       "description": "Specifies if HL7 v2 null values (|\"\"|) are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. Overwrites value specified on Device level.",
       "type": "boolean"
     },
+    "hl7OrderMissingStudyIUIDPolicy": {
+      "title": "HL7 Order Missing Study Instance UID Policy",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages.",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
     "hl7ForwardRule": {
       "title": "HL7 Forward Rule",
       "description": "HL7 Forward Rule. Supplements values specified on Device level.",

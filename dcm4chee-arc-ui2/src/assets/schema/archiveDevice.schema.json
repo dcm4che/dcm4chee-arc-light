@@ -62,7 +62,8 @@
     "hl7PSUTaskFetchSize",
     "hl7TrackChangedPatientID",
     "dcmAuditSoftwareConfigurationVerbose",
-    "hl7UseNullValue"
+    "hl7UseNullValue",
+    "hl7OrderMissingStudyIUIDPolicy"
   ],
   "properties": {
     "dcmFuzzyAlgorithmClass": {
@@ -1136,6 +1137,17 @@
       "description": "Specifies if HL7 v2 null values (|\"\"|) are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "boolean",
       "default": false
+    },
+    "hl7OrderMissingStudyIUIDPolicy": {
+      "title": "HL7 Order Missing Study Instance UID Policy",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages.",
+      "type": "string",
+      "default": "GENERATE",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
     },
     "dcmRejectionNoteStorageAET": {
       "title": "Rejection Note Storage AE title",

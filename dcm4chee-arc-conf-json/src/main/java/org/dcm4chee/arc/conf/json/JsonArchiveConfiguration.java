@@ -278,6 +278,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationMaxRetries(), 0);
         writer.writeNotNullOrDef("dcmPatientVerificationMaxStaleness",
                 arcDev.getPatientVerificationMaxStaleness(), null);
+        writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", arcDev.getHl7OrderMissingStudyIUIDPolicy(),
+                HL7OrderMissingStudyIUIDPolicy.GENERATE);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1326,6 +1328,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPatientVerificationMaxStaleness":
                     arcDev.setPatientVerificationMaxStaleness(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "hl7OrderMissingStudyIUIDPolicy":
+                    arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

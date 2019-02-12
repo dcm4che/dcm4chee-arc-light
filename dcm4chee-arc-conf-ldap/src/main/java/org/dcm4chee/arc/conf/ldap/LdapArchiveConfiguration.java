@@ -281,6 +281,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPatientVerificationMaxRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationMaxStaleness",
                 ext.getPatientVerificationMaxStaleness(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingStudyIUIDPolicy",
+                ext.getHl7OrderMissingStudyIUIDPolicy(), HL7OrderMissingStudyIUIDPolicy.GENERATE);
     }
 
     @Override
@@ -495,6 +497,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.intValue(attrs.get("dcmPatientVerificationMaxRetries"), 0));
         ext.setPatientVerificationMaxStaleness(
                 toDuration(attrs.get("dcmPatientVerificationMaxStaleness"), null));
+        ext.setHl7OrderMissingStudyIUIDPolicy(
+                LdapUtils.enumValue(HL7OrderMissingStudyIUIDPolicy.class,
+                        attrs.get("hl7OrderMissingStudyIUIDPolicy"), HL7OrderMissingStudyIUIDPolicy.GENERATE));
     }
 
     @Override
@@ -872,6 +877,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPatientVerificationMaxStaleness(),
                 bb.getPatientVerificationMaxStaleness(),
                 null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingStudyIUIDPolicy",
+                aa.getHl7OrderMissingStudyIUIDPolicy(), bb.getHl7OrderMissingStudyIUIDPolicy(),
+                HL7OrderMissingStudyIUIDPolicy.GENERATE);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
