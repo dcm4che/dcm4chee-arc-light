@@ -121,7 +121,7 @@
         "$ref": "hl7OrderSPSStatus.schema.json"
       }
     },
-    "hl7OruXsltParam": {
+    "hl7ORUXSLTParam": {
       "title": "HL7 ORU XSLT Parameter",
       "description": "Properties passed to HL7 ORU to DICOM SR stylesheet in format <name>=<value>",
       "type": "array",
