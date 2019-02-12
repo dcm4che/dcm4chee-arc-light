@@ -1,7 +1,7 @@
 
 <div class="size_range_picker">
-    <div class="main_input_block" title="{{title}}">
-        <input class="main_input" type="text" [(ngModel)]="model" placeholder="Study Size Range"  (ngModelChange)="filterChanged()">
+    <div class="main_input_block">
+        <input class="main_input" type="text" [(ngModel)]="model" placeholder="Study Size Range"  (ngModelChange)="filterChanged()" title="Study Size Range in KB">
         <span class="size_range_icon" (click)="togglePicker()"></span>
     </div>
     <div class="picker" *ngIf="showPicker">
