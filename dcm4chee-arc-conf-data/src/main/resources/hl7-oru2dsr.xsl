@@ -2,10 +2,8 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="xml"/>
   <xsl:include href="hl7-common.xsl"/>
-  <xsl:param name="VerifyingOrganization">Verifying Organization</xsl:param>
-  <xsl:param name="langCodeValue"/>
-  <xsl:param name="langCodingSchemeDesignator"/>
-  <xsl:param name="langCodeMeaning"/>
+  <xsl:param name="VerifyingOrganization"/>
+  <xsl:param name="Language"/>
   <xsl:template match="/hl7">
     <NativeDicomModel>
       <xsl:call-template name="const-attrs"/>
@@ -180,12 +178,26 @@
         <xsl:with-param name="meaning">Language of Content Item and Descendants</xsl:with-param>
       </xsl:call-template>
       <!--Concept Code Sequence-->
-      <xsl:call-template name="codeItem">
-        <xsl:with-param name="sqtag">0040A168</xsl:with-param>
-        <xsl:with-param name="code" select="$langCodeValue"/>
-        <xsl:with-param name="scheme" select="$langCodingSchemeDesignator"/>
-        <xsl:with-param name="meaning" select="$langCodeMeaning"/>
-      </xsl:call-template>
+      <xsl:choose>
+        <xsl:when test="$Language">
+          <xsl:variable name="designatorMeaning" select="substring-after($Language, ', ')"/>
+          <xsl:call-template name="codeItem">
+            <xsl:with-param name="sqtag">0040A168</xsl:with-param>
+            <xsl:with-param name="code" select="substring-before($Language, ',')"/>
+            <xsl:with-param name="scheme" select="substring-before($designatorMeaning, ',')"/>
+            <xsl:with-param name="meaning" select="substring-after($designatorMeaning, ', ')"/>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="codeItem">
+            <xsl:with-param name="sqtag">0040A168</xsl:with-param>
+            <xsl:with-param name="code">en</xsl:with-param>
+            <xsl:with-param name="scheme">RFC5646</xsl:with-param>
+            <xsl:with-param name="meaning">English</xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+
     </Item>
   </xsl:template>
   <xsl:template match="OBR" mode="obsctx">

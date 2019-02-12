@@ -64,7 +64,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,8 +73,6 @@ import java.util.Map;
 @ApplicationScoped
 @Typed(HL7Service.class)
 class ImportReportService extends DefaultHL7Service {
-
-    private static final String DEFAULT_LANGUAGE = "(en, RFC5646, \"English\")";
 
     @Inject
     private PatientService patientService;
@@ -116,15 +113,11 @@ class ImportReportService extends DefaultHL7Service {
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
 
         String hl7cs = msg.msh().getField(17, hl7App.getHL7DefaultCharacterSet());
-        Map<String, String> hl7OruXsltParams = arcHL7App.getHl7OruXsltParams();
-        Code languageCode = new Code(hl7OruXsltParams.getOrDefault("Language", DEFAULT_LANGUAGE));
-
         Attributes attrs = SAXTransformer.transform(
-                msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), tr -> {
-                    tr.setParameter("langCodeValue", languageCode.getCodeValue());
-                    tr.setParameter("langCodingSchemeDesignator", languageCode.getCodingSchemeDesignator());
-                    tr.setParameter("langCodeMeaning", languageCode.getCodeMeaning());
-                });
+                msg.data(),
+                hl7cs,
+                arcHL7App.importReportTemplateURI(),
+                tr -> arcHL7App.getHl7OruXsltParams().forEach(tr::setParameter));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));
