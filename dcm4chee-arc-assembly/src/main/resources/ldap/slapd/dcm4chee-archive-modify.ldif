@@ -1347,6 +1347,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.272 NAME 'dcmStorageVerificationOnRe
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.273 NAME 'hl7ORUXSLTParam'
+  DESC 'Properties passed to HL7 ORU to DICOM SR stylesheet in format <name>=<value>'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 delete: olcObjectClasses
 -
@@ -1630,6 +1634,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
      hl7ErrorLogFilePattern $
      hl7NoPatientCreateMessageType $
      hl7UseNullValue $
+     hl7ORUXSLTParam $
      dicomAETitle ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
   DESC 'Storage Descriptor'
