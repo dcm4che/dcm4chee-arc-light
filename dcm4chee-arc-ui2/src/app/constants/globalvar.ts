@@ -728,29 +728,8 @@ export class Globalvar {
                     description:"Storage Verification Failed"
                 },
                 {
-                    tag:"combined",
-                    filterKey:"StudySizeInKB",
-                    firstField:{
-                        tag:"input",
-                        type:"text",
-                        min:1,
-                        filterKey:"StudySizeInKB",
-                        placeholder:"Study Size Range",
-                        title:"Study Size Range ( <min>-|-<max>|<min>-<max> )",
-                        description:"Study Size Range ( <min>-|-<max>|<min>-<max> )",
-                    },
-                    secondField:{
-                        tag:"select",
-                        filterKey:"StudySizeInKBMode",
-                        showStar:false,
-                        options:[
-                            new SelectDropdown("GB","GB"),
-                            new SelectDropdown("MB","MB"),
-                            new SelectDropdown("KB","KB"),
-                        ],
-                        placeholder:"Unite",
-                        title:"Unite"
-                    }
+                    tag:"size-range-picker",
+                    filterKey:"StudySizeInKB"
                 }
             ];
         }

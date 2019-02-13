@@ -17,7 +17,7 @@ export interface RangeObject {
 
 export type StatisticsPage = "simple"|"detailed"
 
-export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "p-calendar" |"multi-select"|"label"|"label_large"|"dummy"|"combined"|"number";
+export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "p-calendar" |"multi-select"|"label"|"label_large"|"dummy"|"combined"|"number"|"size-range-picker";
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 

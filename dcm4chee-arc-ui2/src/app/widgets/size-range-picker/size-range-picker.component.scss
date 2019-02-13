@@ -9,6 +9,7 @@ $backgroundColorHover:rgba(28, 36, 43, 1);
       width: calc(100% - 27px);
       float: left;
       margin-top:0;
+      border-right: none;
     }
     .size_range_icon{
       width: 27px;
@@ -22,7 +23,6 @@ $backgroundColorHover:rgba(28, 36, 43, 1);
       top: 0;
       &:hover{
         cursor: pointer;
-        background-color:$backgroundColorHover;
       }
     }
     &:hover .clear_picker{
@@ -57,6 +57,7 @@ $backgroundColorHover:rgba(28, 36, 43, 1);
       text-align: center;
       height: 30px;
       line-height: 30px;
+      color:black;
     }
 /*    .input_part, mat-select{
       float: left;

@@ -6,7 +6,7 @@ import {SelectDropdown} from "../../interfaces";
   templateUrl: './size-range-picker.component.html',
   styleUrls: ['./size-range-picker.component.scss']
 })
-export class SizeRangePickerComponent {
+export class SizeRangePickerComponent implements OnInit{
 
     modelValue : string;
     units:SelectDropdown[] = [
@@ -20,6 +20,7 @@ export class SizeRangePickerComponent {
         unit:"MB"
     };
     showPicker:boolean = false;
+
     @Output()
     modelChange = new EventEmitter<string>();
 
@@ -33,11 +34,29 @@ export class SizeRangePickerComponent {
         this.modelChange.emit(this.modelValue);
     }
 
-    filterChanged(){
-
+    ngOnInit(){
+        this.extractValueFromMainInput();
     }
+
+    keyUpMainInput(){
+        this.extractValueFromMainInput();
+    }
+    extractValueFromMainInput(){
+        const regex = /(\d*) *(-) *(\d*)/;
+        let m;
+        if ((m = regex.exec(this.model)) !== null && m[2] === "-") {
+            this.value.unit = "KB";
+            this.value.min = m[1] || "";
+            this.value.max = m[3] || ""
+        }
+    }
+
     togglePicker(){
         this.showPicker = !this.showPicker;
+    }
+    closeFromOutside(){
+        if(this.showPicker)
+            this.showPicker = false;
     }
     clear(){
         this.value = {
@@ -45,20 +64,23 @@ export class SizeRangePickerComponent {
             max:"",
             unit:"MB"
         };
+        this.updateValue();
     }
     setRange(){
-        this.modelValue = (this.value.min || this.value.max) ? `${this.convert(this.value.min , this.value.unit)}-${this.convert(this.value.max, this.value.unit)}` : '';
-        this.modelChange.emit(this.modelValue);
+        this.updateValue();
         this.togglePicker();
     }
-
+    updateValue(){
+        this.modelValue = (this.value.min || this.value.max) ? `${this.convert(this.value.min , this.value.unit)}-${this.convert(this.value.max, this.value.unit)}` : '';
+        this.modelChange.emit(this.modelValue);
+    }
+    onInputChange(){
+        this.updateValue();
+    }
     convert(value, mode){
         if(value != ""){
             let endValue;
             switch(mode) {
-                case "TB":
-                    endValue = value * 1000000000;
-                    break;
                 case "GB":
                     endValue = value * 1000000;
                     break;

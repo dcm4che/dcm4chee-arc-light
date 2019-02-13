@@ -62,7 +62,8 @@ export class StudyComponent implements OnInit {
         },
         filterModel:{
             limit:20,
-            offset:0
+            offset:0,
+            StudySizeInKB:'1000-'
         },
         expand:false,
         quantityText:{
