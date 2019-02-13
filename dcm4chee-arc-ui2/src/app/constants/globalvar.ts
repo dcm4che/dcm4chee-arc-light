@@ -728,7 +728,7 @@ export class Globalvar {
                     description:"Storage Verification Failed"
                 },
                 {
-                    tag:"size-range-picker",
+                    tag:"size_range_picker",
                     filterKey:"StudySizeInKB"
                 }
             ];
