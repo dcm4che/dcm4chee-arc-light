@@ -57,6 +57,7 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
+import org.dcm4chee.arc.conf.HL7OrderMissingStudyIUIDPolicy;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
@@ -133,7 +134,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 });
 
 
-        adjust(attrs, arcHL7App, hl7OrderScheduledStations(hl7App, s, msg));
+        adjust(attrs, hl7App, s, msg);
         ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
@@ -142,18 +143,13 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         archiveHL7Message.setStudyAttrs(ctx.getAttributes());
     }
 
-    private void adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App,
-                        Collection<Device> hl7OrderScheduledStations) {
-        if (!attrs.containsValue(Tag.StudyInstanceUID)) {
-            String studyUID = UIDUtils.createUID();
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-            LOG.info("Missing StudyInstanceUID in HL7 message, adjusted with {}", studyUID);
-        }
-        if (!attrs.containsValue(Tag.RequestedProcedureID)) {
-            idService.newRequestedProcedureID(attrs);
-            LOG.info("Missing RequestedProcedureID in HL7 message, adjusted with {}",
-                    attrs.getString(Tag.RequestedProcedureID));
-        }
+    private void adjust(Attributes attrs, HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
+        ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class);
+        boolean uidsGenerated = adjustIdentifiers(attrs, arcHL7App, msg.msh());
+
+        Collection<Device> hl7OrderScheduledStations = arcHL7App.hl7OrderScheduledStation(
+                ReverseDNS.hostNameOf(s.getLocalAddress()),
+                new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()));
 
         Iterator<Attributes> spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
         while (spsItems.hasNext()) {
@@ -174,15 +170,76 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                         spsStatus);
             } else {
                 if (!sps.containsValue(Tag.ScheduledProcedureStepID)) {
-                    idService.newScheduledProcedureStepID(sps);
-                    LOG.info("Missing ScheduledProcedureStepID in HL7 message, adjusted with {}",
-                            sps.getString(Tag.ScheduledProcedureStepID));
+                    LOG.info("Missing Scheduled ProcedureStep ID in HL7 message");
+                    if (uidsGenerated) {
+                        idService.newScheduledProcedureStepID(sps);
+                        LOG.info("Generate Scheduled ProcedureStep ID {}", sps.getString(Tag.ScheduledProcedureStepID));
+                    }
+                    else {
+                        sps.setString(Tag.ScheduledProcedureStepID, VR.SH, attrs.getString(Tag.RequestedProcedureID));
+                        LOG.info("Derived Scheduled Procedure Step ID from Requested Procedure ID {}",
+                                sps.getString(Tag.ScheduledProcedureStepID));
+                    }
                 }
 
                 if (!sps.containsValue(Tag.ScheduledStationAETitle))
                     adjustScheduledStations(hl7OrderScheduledStations, sps);
             }
         }
+    }
+
+    private boolean adjustIdentifiers(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
+            throws HL7Exception {
+        boolean uidsGenerated = false;
+        boolean omi = msh.getMessageType().startsWith("OMI");
+        String reqProcID = attrs.getString(Tag.RequestedProcedureID);
+        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+        String accessionNum = attrs.getString(Tag.AccessionNumber);
+        HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = arcHL7App.hl7OrderMissingStudyIUIDPolicy();
+
+        if (studyIUID == null) {
+            LOG.info("Missing StudyInstanceUID in HL7 message");
+            if (hl7OrderMissingStudyIUIDPolicy == HL7OrderMissingStudyIUIDPolicy.REJECT)
+                throw new HL7Exception(
+                        new ERRSegment(msh)
+                                .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                                .setErrorLocation(omi ? "IPC^1^3" : "ZDS^1^1")
+                                .setUserMessage("Missing " + (omi ? "IPC-3" : "ZDS-1")));
+
+            if (reqProcID != null) {
+                studyIUID = UIDUtils.createNameBasedUID(reqProcID.getBytes());
+                LOG.info("Study Instance UID {} derived from Requested Procedure ID {}", studyIUID, reqProcID);
+            } else {
+                LOG.info("Missing Requested Procedure ID in HL7 message");
+                if (hl7OrderMissingStudyIUIDPolicy == HL7OrderMissingStudyIUIDPolicy.ACCESSION_BASED) {
+                    if (accessionNum == null)
+                        throw new HL7Exception(
+                                new ERRSegment(msh)
+                                        .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                                        .setErrorLocation(omi ? "IPC^1^1" : "OBR^1^18")
+                                        .setUserMessage("Missing " + (omi ? "IPC-1" : "OBR-18")));
+                    else {
+                        studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
+                        attrs.setString(Tag.RequestedProcedureID, VR.SH, accessionNum);
+                        LOG.info("Derived Study Instance UID {} and Requested Procedure ID {} from Accession Number {}",
+                                studyIUID, accessionNum, accessionNum);
+                    }
+                } else {
+                    studyIUID = UIDUtils.createUID();
+                    idService.newRequestedProcedureID(attrs);
+                    LOG.info("Generate Study Instance UID {} and Requested Procedure ID {}",
+                            studyIUID, attrs.getString(Tag.RequestedProcedureID));
+                    uidsGenerated = true;
+                }
+            }
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        } else if (reqProcID == null) {
+            reqProcID = UIDUtils.createNameBasedUID(studyIUID.getBytes());
+            LOG.info("Missing Requested Procedure ID in HL7 message, derive from Study Instance UID {} as {}",
+                    studyIUID, reqProcID);
+            attrs.setString(Tag.RequestedProcedureID, VR.SH, reqProcID);
+        }
+        return uidsGenerated;
     }
 
     private void adjustScheduledStations(Collection<Device> hl7OrderScheduledStations, Attributes sps) {
@@ -196,12 +253,5 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 .map(Device::getStationName).toArray(String[]::new);
         if (ssNames.length > 0)
             sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
-    }
-
-    private Collection<Device> hl7OrderScheduledStations(HL7Application hl7App, Socket s, UnparsedHL7Message msg) {
-        return hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
-                .hl7OrderScheduledStation(
-                        ReverseDNS.hostNameOf(s.getLocalAddress()),
-                        new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()));
     }
 }
