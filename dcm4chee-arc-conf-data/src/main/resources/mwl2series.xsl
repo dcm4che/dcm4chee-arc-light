@@ -6,6 +6,8 @@
       <xsl:copy-of select="DicomAttribute[@tag='00080050']"/>
       <!-- Issuer of Accession Number Sequence -->
       <xsl:copy-of select="DicomAttribute[@tag='00080051']"/>
+      <!-- Referring Physician's Name -->
+      <xsl:copy-of select="DicomAttribute[@tag='00080090']"/>
       <!-- Study Description from Requested Procedure Description -->
       <xsl:if test="DicomAttribute[@tag='00321060']">
         <DicomAttribute tag="00081030" vr="LO">
@@ -28,6 +30,16 @@
       <xsl:if test="DicomAttribute[@tag='00401001']">
         <DicomAttribute tag="00200010" vr="SH">
           <xsl:copy-of select="DicomAttribute[@tag='00401001']/Value"/>
+        </DicomAttribute>
+      </xsl:if>
+      <!-- Requesting Service -->
+      <xsl:copy-of select="DicomAttribute[@tag='00321033']"/>
+      <!-- Requesting Service Code Sequence -->
+      <xsl:copy-of select="DicomAttribute[@tag='00321034']"/>
+      <!-- Reason For Performed Procedure Code Sequence from Reason for Requested Procedure Code Sequence -->
+      <xsl:if test="DicomAttribute[@tag='0040100A']">
+        <DicomAttribute tag="00401012" vr="SQ">
+          <xsl:copy-of select="DicomAttribute[@tag='0040100A']/Item"/>
         </DicomAttribute>
       </xsl:if>
       <DicomAttribute tag="00400275" vr="SQ">
@@ -62,7 +74,7 @@
           <xsl:copy-of select="DicomAttribute[@tag='00401001']"/>
           <!-- Reason for the Requested Procedure -->
           <xsl:copy-of select="DicomAttribute[@tag='00401002']"/>
-          <!-- ReasonForRequestedProcedureCodeSequence -->
+          <!-- Reason for Requested Procedure Code Sequence -->
           <xsl:copy-of select="DicomAttribute[@tag='0040100A']"/>
         </Item>
       </DicomAttribute>
