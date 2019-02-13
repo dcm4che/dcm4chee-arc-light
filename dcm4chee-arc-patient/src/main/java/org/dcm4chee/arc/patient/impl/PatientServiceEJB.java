@@ -172,7 +172,7 @@ public class PatientServiceEJB {
         Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection());
         Attributes modified = new Attributes();
         if (updatePolicy == Attributes.UpdatePolicy.REPLACE) {
-            if (attrs.diff(newAttrs, filter.getSelection(false), modified) == 0)
+            if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
                 return;
 
             attrs = newAttrs;

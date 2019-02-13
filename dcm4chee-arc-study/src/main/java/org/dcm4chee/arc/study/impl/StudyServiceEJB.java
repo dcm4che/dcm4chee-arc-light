@@ -89,7 +89,7 @@ public class StudyServiceEJB {
         Attributes attrs = study.getAttributes();
         Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection(false));
         Attributes modified = new Attributes();
-        if (attrs.diff(newAttrs, filter.getSelection(false), modified) == 0)
+        if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
             return;
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
@@ -98,6 +98,7 @@ public class StudyServiceEJB {
             throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
                     study.getPatient() + " in existing " + study);
 
+        attrs = newAttrs;
         study.setAttributes(
                 attrs.addOriginalAttributes(
                     null,
