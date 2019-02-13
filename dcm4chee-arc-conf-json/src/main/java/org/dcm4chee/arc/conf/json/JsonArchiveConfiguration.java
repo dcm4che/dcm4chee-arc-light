@@ -150,6 +150,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStowSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotNullOrDef("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7ImportReportTemplateURI", arcDev.getImportReportTemplateURI(), null);
+        writer.writeNotEmpty("hl7ImportReportTemplateParam", JsonArchiveConfiguration.descriptorProperties(arcDev.getImportReportTemplateParams()));
         writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", arcDev.getScheduleProcedureTemplateURI(), null);
         writer.writeNotNullOrDef("hl7OutgoingPatientUpdateTemplateURI", arcDev.getOutgoingPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7LogFilePattern", arcDev.getHL7LogFilePattern(), null);
@@ -1033,6 +1034,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ImportReportTemplateURI":
                     arcDev.setImportReportTemplateURI(reader.stringValue());
+                    break;
+                case "hl7ImportReportTemplateParam":
+                    arcDev.setImportReportTemplateParams(reader.stringArray());
                     break;
                 case "hl7ScheduleProcedureTemplateURI":
                     arcDev.setScheduleProcedureTemplateURI(reader.stringValue());

@@ -70,7 +70,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
-    private final Map<String, String> hl7OruXsltParams = new HashMap<>();
+    private final Map<String, String> importReportTemplateParams = new HashMap<>();
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -103,8 +103,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
         hl7NoPatientCreateMessageTypes.addAll(arcapp.hl7NoPatientCreateMessageTypes);
-        hl7OruXsltParams.clear();
-        hl7OruXsltParams.putAll(arcapp.hl7OruXsltParams);
+        importReportTemplateParams.clear();
+        importReportTemplateParams.putAll(arcapp.importReportTemplateParams);
     }
 
     public String getAETitle() {
@@ -392,21 +392,27 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 : getArchiveDeviceExtension().getHL7ScheduledStationAETInOrder();
     }
 
-    public Map<String, String> getHl7OruXsltParams() {
-        return hl7OruXsltParams;
+    public Map<String, String> importReportTemplateParams() {
+        return importReportTemplateParams.isEmpty()
+                ? importReportTemplateParams
+                : getArchiveDeviceExtension().getImportReportTemplateParams();
     }
 
-    public void setHl7OruXsltParam(String name, String value) {
-        hl7OruXsltParams.put(name, value);
+    public Map<String, String> getImportReportTemplateParams() {
+        return importReportTemplateParams;
     }
 
-    public void setHl7OruXsltParams(String[] ss) {
-        hl7OruXsltParams.clear();
+    public void setImportReportTemplateParam(String name, String value) {
+        importReportTemplateParams.put(name, value);
+    }
+
+    public void setImportReportTemplateParams(String[] ss) {
+        importReportTemplateParams.clear();
         for (String s : ss) {
             int index = s.indexOf('=');
             if (index < 0)
-                throw new IllegalArgumentException("Property in incorrect format : " + s);
-            setHl7OruXsltParam(s.substring(0, index), s.substring(index+1));
+                throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
+            setImportReportTemplateParam(s.substring(0, index), s.substring(index+1));
         }
     }
 
@@ -416,11 +422,11 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 : getArchiveDeviceExtension().getHl7OrderMissingStudyIUIDPolicy();
     }
 
-    public HL7OrderMissingStudyIUIDPolicy getHl7OrderMissingStudyIUIDPolicy() {
+    public HL7OrderMissingStudyIUIDPolicy getHL7OrderMissingStudyIUIDPolicy() {
         return hl7OrderMissingStudyIUIDPolicy;
     }
 
-    public void setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy) {
+    public void setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy) {
         this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
     }
 }

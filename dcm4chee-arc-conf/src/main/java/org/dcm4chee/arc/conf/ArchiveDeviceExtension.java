@@ -257,6 +257,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
+    private final Map<String, String> importReportTemplateParams = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -2202,6 +2203,24 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         keycloakServerMap.put(keycloakServer.getKeycloakServerID(), keycloakServer);
     }
 
+    public Map<String, String> getImportReportTemplateParams() {
+        return importReportTemplateParams;
+    }
+
+    public void setImportReportTemplateParam(String name, String value) {
+        importReportTemplateParams.put(name, value);
+    }
+
+    public void setImportReportTemplateParams(String[] ss) {
+        importReportTemplateParams.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
+            setImportReportTemplateParam(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
     public HL7OrderMissingStudyIUIDPolicy getHl7OrderMissingStudyIUIDPolicy() {
         return hl7OrderMissingStudyIUIDPolicy;
     }
@@ -2426,5 +2445,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         xRoadProperties.putAll(arcdev.xRoadProperties);
         impaxReportProperties.clear();
         impaxReportProperties.putAll(arcdev.impaxReportProperties);
+        importReportTemplateParams.clear();
+        importReportTemplateParams.putAll(arcdev.importReportTemplateParams);
     }
 }

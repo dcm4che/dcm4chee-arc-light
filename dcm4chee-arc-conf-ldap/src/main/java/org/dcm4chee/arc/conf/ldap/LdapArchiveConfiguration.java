@@ -120,6 +120,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoCDA2HtmlTemplateURI", ext.getWadoCDA2HtmlTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ImportReportTemplateParam",
+                LdapArchiveConfiguration.toStrings(ext.getImportReportTemplateParams()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OutgoingPatientUpdateTemplateURI", ext.getOutgoingPatientUpdateTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
@@ -328,6 +330,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoCDA2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoCDA2HtmlTemplateURI"), null));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
+        ext.setImportReportTemplateParams(LdapUtils.stringArray(attrs.get("hl7ImportReportTemplateParam")));
         ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
         ext.setOutgoingPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7OutgoingPatientUpdateTemplateURI"), null));
         ext.setHL7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
@@ -593,6 +596,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoCDA2HtmlTemplateURI(), bb.getWadoCDA2HtmlTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI(), null);
+        LdapArchiveConfiguration.storeDiffProperties(ldapObj, mods, "hl7ImportReportTemplateParam",
+                aa.getImportReportTemplateParams(), bb.getImportReportTemplateParams());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PatientUpdateTemplateURI",
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),

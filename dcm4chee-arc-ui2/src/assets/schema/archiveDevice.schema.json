@@ -559,6 +559,14 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "string"
     },
+    "hl7ImportReportTemplateParam": {
+      "title": "HL7 Import Report Template Parameter",
+      "description": "XSLT parameters passed to style sheet specified by HL7 Import Report Template URI. Format: {name}={value}. E.g.: 'langCodeValue=et', 'langCodingSchemeDesignator=RFC5646', 'langCodeMeaning=Estonian'. May be overwritten by configured values for particular Archive HL7 Application.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "hl7ScheduleProcedureTemplateURI": {
       "title": "HL7 Schedule Procedure Template URI",
       "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items. May be overwritten by configured values for particular Archive HL7 Application.",

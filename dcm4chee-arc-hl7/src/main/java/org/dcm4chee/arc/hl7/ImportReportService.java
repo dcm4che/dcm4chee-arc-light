@@ -117,7 +117,7 @@ class ImportReportService extends DefaultHL7Service {
                 msg.data(),
                 hl7cs,
                 arcHL7App.importReportTemplateURI(),
-                tr -> arcHL7App.getHl7OruXsltParams().forEach(tr::setParameter));
+                tr -> arcHL7App.importReportTemplateParams().forEach(tr::setParameter));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));

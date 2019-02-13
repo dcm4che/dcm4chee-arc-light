@@ -69,6 +69,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeStartObject("dcmArchiveHL7Application");
         writer.writeNotNullOrDef("hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
+        writer.writeNotEmpty("hl7ImportReportTemplateParam", JsonArchiveConfiguration.descriptorProperties(ext.getImportReportTemplateParams()));
         writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
         writer.writeNotNullOrDef("hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", ext.getHL7ErrorLogFilePattern(), null);
@@ -77,8 +78,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
-        writer.writeNotEmpty("hl7ORUXSLTParam", JsonArchiveConfiguration.descriptorProperties(ext.getHl7OruXsltParams()));
-        writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHl7OrderMissingStudyIUIDPolicy(), null);
+        writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHL7OrderMissingStudyIUIDPolicy(), null);
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeHL7ExportRules(writer, ext.getHL7ExportRules());
         JsonArchiveConfiguration.writeHL7PrefetchRules(writer, ext.getHL7PrefetchRules());
@@ -113,6 +113,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                 case "hl7ImportReportTemplateURI":
                     ext.setImportReportTemplateURI(reader.stringValue());
                     break;
+                case "hl7ImportReportTemplateParam":
+                    ext.setImportReportTemplateParams(reader.stringArray());
+                    break;
                 case "hl7ScheduleProcedureTemplateURI":
                     ext.setScheduleProcedureTemplateURI(reader.stringValue());
                     break;
@@ -137,11 +140,8 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                 case "hl7UseNullValue":
                     ext.setHL7UseNullValue(reader.booleanValue());
                     break;
-                case "hl7ORUXSLTParam":
-                    ext.setHl7OruXsltParams(reader.stringArray());
-                    break;
                 case "hl7OrderMissingStudyIUIDPolicy":
-                    ext.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    ext.setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);

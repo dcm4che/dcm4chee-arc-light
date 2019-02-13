@@ -22,6 +22,14 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR. Overwrites value specified on Device level.",
       "type": "string"
     },
+    "hl7ImportReportTemplateParam": {
+      "title": "HL7 Import Report Template Parameter",
+      "description": "XSLT parameters passed to style sheet specified by HL7 Import Report Template URI. Format: {name}={value}. E.g.: 'langCodeValue=et', 'langCodingSchemeDesignator=RFC5646', 'langCodeMeaning=Estonian'. Overwrites value specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "hl7ScheduleProcedureTemplateURI": {
       "title": "HL7 Schedule Procedure Template URI",
       "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items. Overwrites value specified on Device level.",
@@ -129,14 +137,6 @@
       "titleKey":"{dcmSPSStatus}",
       "items" : {
         "$ref": "hl7OrderSPSStatus.schema.json"
-      }
-    },
-    "hl7ORUXSLTParam": {
-      "title": "HL7 ORU XSLT Parameter",
-      "description": "Properties passed to HL7 ORU to DICOM SR stylesheet in format <name>=<value>",
-      "type": "array",
-      "items": {
-        "type": "string"
       }
     }
   }
