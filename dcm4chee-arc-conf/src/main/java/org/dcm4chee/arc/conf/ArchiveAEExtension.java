@@ -1144,7 +1144,9 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public String[] storageVerificationStorageIDs() {
-        return storageVerificationStorageIDs != null ? storageVerificationStorageIDs : getArchiveDeviceExtension().getStorageVerificationStorageIDs();
+        return storageVerificationStorageIDs.length > 0
+                ? storageVerificationStorageIDs
+                : getArchiveDeviceExtension().getStorageVerificationStorageIDs();
     }
 
     public Period getStorageVerificationInitialDelay() {
