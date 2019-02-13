@@ -123,9 +123,8 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         HL7Segment msh = msg.msh();
         LOG.info("Update procedure for message type {}", msh.getMessageType());
-        String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
-                msg.data(), hl7cs, arcHL7App.scheduleProcedureTemplateURI(), tr -> {
+                msg.data(), cs(msh, arcHL7App), arcHL7App.scheduleProcedureTemplateURI(), tr -> {
                     tr.setParameter("hl7ScheduledProtocolCodeInOrder",
                             arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
                     if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
@@ -141,6 +140,13 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         procedureService.updateProcedure(ctx);
         archiveHL7Message.setProcRecEventActionCode(ctx.getEventActionCode());
         archiveHL7Message.setStudyAttrs(ctx.getAttributes());
+    }
+
+    private String cs(HL7Segment msh, ArchiveHL7ApplicationExtension arcHL7App) {
+        String hl7DicomCharacterSet = arcHL7App.hl7DicomCharacterSet();
+        return hl7DicomCharacterSet != null
+                ? hl7DicomCharacterSet
+                : msh.getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
     }
 
     private void adjust(Attributes attrs, HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {

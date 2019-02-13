@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -113,8 +113,8 @@ class PatientUpdateService extends DefaultHL7Service {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         HL7Segment msh = msg.msh();
-        String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
-        Attributes attrs = transform(msg, arcHL7App, hl7cs);
+
+        Attributes attrs = transform(msg, arcHL7App, cs(msh, arcHL7App));
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)
@@ -161,6 +161,13 @@ class PatientUpdateService extends DefaultHL7Service {
         } finally {
             archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
         }
+    }
+
+    private static String cs(HL7Segment msh, ArchiveHL7ApplicationExtension arcHL7App) {
+        String hl7DicomCharacterSet = arcHL7App.hl7DicomCharacterSet();
+        return hl7DicomCharacterSet != null
+                ? hl7DicomCharacterSet
+                : msh.getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
     }
 
     private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App,

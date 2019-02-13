@@ -228,6 +228,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
+    private volatile String hl7DicomCharacterSet;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2229,6 +2230,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
     }
 
+    public String getHl7DicomCharacterSet() {
+        return hl7DicomCharacterSet;
+    }
+
+    public void setHl7DicomCharacterSet(String hl7DicomCharacterSet) {
+        this.hl7DicomCharacterSet = hl7DicomCharacterSet;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2393,6 +2402,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
+        hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

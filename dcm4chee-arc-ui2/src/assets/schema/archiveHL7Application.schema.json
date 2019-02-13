@@ -85,6 +85,12 @@
         "ACCESSION_BASED"
       ]
     },
+    "hl7DicomCharacterSet": {
+      "title": "HL7 Dicom Character Set",
+      "description": "Indicates to use specified Value of Specific Character Set (0008,0005) in Data Sets transcoded from received HL7 messages. Use Value corresponding to Character Set of the HL7 message specified by MSH-18 if absent.",
+      "type": "string",
+      "format": "dcmCharset"
+    },
     "hl7ForwardRule": {
       "title": "HL7 Forward Rule",
       "description": "HL7 Forward Rule. Supplements values specified on Device level.",

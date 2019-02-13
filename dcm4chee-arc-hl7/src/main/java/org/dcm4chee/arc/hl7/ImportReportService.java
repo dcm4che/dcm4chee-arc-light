@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -112,10 +113,9 @@ class ImportReportService extends DefaultHL7Service {
             throw new ConfigurationException("No local AE with AE Title " + aet
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
 
-        String hl7cs = msg.msh().getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
                 msg.data(),
-                hl7cs,
+                cs(msg.msh(), arcHL7App),
                 arcHL7App.importReportTemplateURI(),
                 tr -> arcHL7App.importReportTemplateParams().forEach(tr::setParameter));
 
@@ -139,6 +139,13 @@ class ImportReportService extends DefaultHL7Service {
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
         store(hl7App, s, ae, msg, attrs);
+    }
+
+    private String cs(HL7Segment msh, ArchiveHL7ApplicationExtension arcHL7App) {
+        String hl7DicomCharacterSet = arcHL7App.hl7DicomCharacterSet();
+        return hl7DicomCharacterSet != null
+                ? hl7DicomCharacterSet
+                : msh.getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
     }
 
     private void store(HL7Application hl7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs)

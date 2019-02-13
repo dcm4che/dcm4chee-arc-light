@@ -63,6 +63,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
+    private String hl7DicomCharacterSet;
+
     private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
@@ -89,6 +91,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
+        hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7ExportRules.clear();
         hl7ExportRules.addAll(arcapp.hl7ExportRules);
         hl7PrefetchRules.clear();
@@ -428,5 +431,19 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy) {
         this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
+    }
+
+    public String hl7DicomCharacterSet() {
+        return hl7DicomCharacterSet != null
+                ? hl7DicomCharacterSet
+                : getArchiveDeviceExtension().getHl7DicomCharacterSet();
+    }
+
+    public String getHl7DicomCharacterSet() {
+        return hl7DicomCharacterSet;
+    }
+
+    public void setHl7DicomCharacterSet(String hl7DicomCharacterSet) {
+        this.hl7DicomCharacterSet = hl7DicomCharacterSet;
     }
 }
