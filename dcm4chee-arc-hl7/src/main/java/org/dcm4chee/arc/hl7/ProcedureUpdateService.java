@@ -198,36 +198,42 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = arcHL7App.hl7OrderMissingStudyIUIDPolicy();
 
         if (studyIUID == null) {
-            LOG.info("Missing StudyInstanceUID in HL7 message");
-            if (hl7OrderMissingStudyIUIDPolicy == HL7OrderMissingStudyIUIDPolicy.REJECT)
+            LOG.warn("Missing StudyInstanceUID in HL7 message.");
+            if (hl7OrderMissingStudyIUIDPolicy == HL7OrderMissingStudyIUIDPolicy.REJECT) {
+                LOG.warn("HL7OrderMissingStudyIUIDPolicy.REJECT configured.");
                 throw new HL7Exception(
                         new ERRSegment(msh)
                                 .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
                                 .setErrorLocation(omi ? "IPC^1^3" : "ZDS^1^1")
                                 .setUserMessage("Missing " + (omi ? "IPC-3" : "ZDS-1")));
+            }
 
             if (reqProcID != null) {
                 studyIUID = UIDUtils.createNameBasedUID(reqProcID.getBytes());
-                LOG.info("Study Instance UID {} derived from Requested Procedure ID {}", studyIUID, reqProcID);
+                LOG.info("Derived StudyInstanceUID from RequestedProcedureID {} as {} ",
+                        reqProcID, studyIUID);
             } else {
-                LOG.info("Missing Requested Procedure ID in HL7 message");
+                LOG.info("Missing RequestedProcedureID in HL7 message.");
                 if (hl7OrderMissingStudyIUIDPolicy == HL7OrderMissingStudyIUIDPolicy.ACCESSION_BASED) {
-                    if (accessionNum == null)
+                    if (accessionNum == null) {
+                        LOG.warn("HL7OrderMissingStudyIUIDPolicy.ACCESSION_BASED configured, but AccessionNumber missing in HL7 message.");
                         throw new HL7Exception(
                                 new ERRSegment(msh)
                                         .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
                                         .setErrorLocation(omi ? "IPC^1^1" : "OBR^1^18")
                                         .setUserMessage("Missing " + (omi ? "IPC-1" : "OBR-18")));
+                    }
                     else {
                         studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
                         attrs.setString(Tag.RequestedProcedureID, VR.SH, accessionNum);
-                        LOG.info("Derived Study Instance UID {} and Requested Procedure ID {} from Accession Number {}",
-                                studyIUID, accessionNum, accessionNum);
+                        LOG.info("Derive StudyInstanceUID from AccessionNumber {} as {}."
+                                        + " RequestedProcedureID shall be equal to AccessionNumber ",
+                                accessionNum, studyIUID);
                     }
                 } else {
                     studyIUID = UIDUtils.createUID();
                     idService.newRequestedProcedureID(attrs);
-                    LOG.info("Generate Study Instance UID {} and Requested Procedure ID {}",
+                    LOG.info("StudyInstanceUID generated as {} and RequestedProcedureID as {}",
                             studyIUID, attrs.getString(Tag.RequestedProcedureID));
                     uidsGenerated = true;
                 }
@@ -235,7 +241,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
         } else if (reqProcID == null) {
             reqProcID = UIDUtils.createNameBasedUID(studyIUID.getBytes());
-            LOG.info("Missing Requested Procedure ID in HL7 message, derive from Study Instance UID {} as {}",
+            LOG.info("Derive missing RequestedProcedureID in HL7 message from StudyInstanceUID {} as {}",
                     studyIUID, reqProcID);
             attrs.setString(Tag.RequestedProcedureID, VR.SH, reqProcID);
         }
