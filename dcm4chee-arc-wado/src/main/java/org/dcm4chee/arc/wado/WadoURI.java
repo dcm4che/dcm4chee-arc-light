@@ -196,7 +196,7 @@ public class WadoURI {
         // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
         // s. https://issues.jboss.org/browse/RESTEASY-903
         request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
-        LOG.info("Process GET {} with query params [{}] from {}@{}",
+        LOG.info("Process GET {}?{} from {}@{}",
                 request.getRequestURI(), request.getQueryString(), request.getRemoteUser(), request.getRemoteHost());
         try {
             checkAET();

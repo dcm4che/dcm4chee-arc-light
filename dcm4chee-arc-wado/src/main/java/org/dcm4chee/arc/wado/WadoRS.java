@@ -301,8 +301,17 @@ public class WadoRS {
 */
 
     private void logRequest() {
-        LOG.info("Process GET {} with query params [{}] from {}@{}",
-                request.getRequestURI(), request.getQueryString(), request.getRemoteUser(), request.getRemoteHost());
+        if (request.getQueryString() != null)
+            LOG.info("Process GET {}?{} from {}@{}",
+                    request.getRequestURI(),
+                    request.getQueryString(),
+                    request.getRemoteUser(),
+                    request.getRemoteHost());
+        else
+            LOG.info("Process GET {} from {}@{}",
+                    request.getRequestURI(),
+                    request.getRemoteUser(),
+                    request.getRemoteHost());
     }
 
     private void initAcceptableMediaTypes() {
