@@ -219,8 +219,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmAudit2JsonFhirTemplateURI", ext.getAudit2JsonFhirTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmAudit2XmlFhirTemplateURI", ext.getAudit2XmlFhirTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy",
+                ext.getCopyMoveUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy",
+                ext.getLinkMWLEntryUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageVerificationPolicy", ext.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStorageVerificationUpdateLocationStatus", ext.isStorageVerificationUpdateLocationStatus(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStorageVerificationStorageID", ext.getStorageVerificationStorageIDs());
@@ -430,9 +432,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAudit2JsonFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2JsonFhirTemplateURI"), null));
         ext.setAudit2XmlFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2XmlFhirTemplateURI"), null));
         ext.setCopyMoveUpdatePolicy(
-                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
+                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
+                        attrs.get("dcmCopyMoveUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE));
         ext.setLinkMWLEntryUpdatePolicy(
-                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmLinkMWLEntryUpdatePolicy"), null));
+                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
+                        attrs.get("dcmLinkMWLEntryUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE));
         ext.setStorageVerificationPolicy(
                 LdapUtils.enumValue(StorageVerificationPolicy.class, attrs.get("dcmStorageVerificationPolicy"), StorageVerificationPolicy.OBJECT_CHECKSUM));
         ext.setStorageVerificationUpdateLocationStatus(LdapUtils.booleanValue(attrs.get("dcmStorageVerificationUpdateLocationStatus"), false));
@@ -762,9 +766,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmAudit2XmlFhirTemplateURI",
                 aa.getAudit2XmlFhirTemplateURI(), bb.getAudit2XmlFhirTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy",
-                aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(), null);
+                aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(),
+                org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLinkMWLEntryUpdatePolicy",
-                aa.getLinkMWLEntryUpdatePolicy(), bb.getLinkMWLEntryUpdatePolicy(), null);
+                aa.getLinkMWLEntryUpdatePolicy(), bb.getLinkMWLEntryUpdatePolicy(),
+                org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageVerificationPolicy",
                 aa.getStorageVerificationPolicy(), bb.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageVerificationUpdateLocationStatus",

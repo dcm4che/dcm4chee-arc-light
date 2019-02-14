@@ -182,8 +182,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String auditRecordRepositoryURL;
     private volatile String atna2JsonFhirTemplateURI;
     private volatile String atna2XmlFhirTemplateURI;
-    private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy;
-    private volatile Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
+    private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
+    private volatile Attributes.UpdatePolicy linkMWLEntryUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private volatile boolean hl7TrackChangedPatientID = true;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;

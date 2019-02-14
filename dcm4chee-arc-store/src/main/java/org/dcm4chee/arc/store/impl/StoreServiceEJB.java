@@ -756,9 +756,6 @@ public class StoreServiceEJB {
     private Patient updatePatient(StoreContext ctx, Patient pat, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
         Attributes.UpdatePolicy updatePolicy = session.getPatientUpdatePolicy();
-        if (updatePolicy == null)
-            return pat;
-
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
         Attributes attrs = pat.getAttributes();
@@ -792,9 +789,6 @@ public class StoreServiceEJB {
     private Study updateStudy(StoreContext ctx, Study study, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
         Attributes.UpdatePolicy updatePolicy = session.getStudyUpdatePolicy();
-        if (updatePolicy == null)
-            return study;
-
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
         Attributes attrs = study.getAttributes();

@@ -775,7 +775,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.155 NAME 'dcmAuditRecordRepositoryUR
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.156 NAME 'dcmCopyMoveUpdatePolicy'
-  DESC 'Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, the attributes will not be updated.'
+  DESC 'Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: PRESERVE, SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, PRESERVE will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -924,7 +924,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.185 NAME 'dcmSpanningCFindSCPRetriev
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.186 NAME 'dcmLinkMWLEntryUpdatePolicy'
-  DESC 'Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, the attributes will not be updated.'
+  DESC 'Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. Enumerated values: PRESERVE, SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, PRESERVE will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

@@ -216,8 +216,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL(), null);
         writer.writeNotNullOrDef("dcmAudit2JsonFhirTemplateURI", arcDev.getAudit2JsonFhirTemplateURI(), null);
         writer.writeNotNullOrDef("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI(), null);
-        writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy(), null);
-        writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcDev.getLinkMWLEntryUpdatePolicy(), null);
+        writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy",
+                arcDev.getCopyMoveUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
+        writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy",
+                arcDev.getLinkMWLEntryUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
         writer.writeNotNullOrDef("dcmStorageVerificationPolicy", arcDev.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         writer.writeNotDef("dcmStorageVerificationUpdateLocationStatus", arcDev.isStorageVerificationUpdateLocationStatus(), false);
         writer.writeNotEmpty("dcmStorageVerificationStorageID", arcDev.getStorageVerificationStorageIDs());

@@ -1050,7 +1050,6 @@ class ArchiveDeviceFactory {
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
     static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
-    static final Attributes.UpdatePolicy LINK_MWL_ENTRY_UPDATE_POLICY = Attributes.UpdatePolicy.MERGE;
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
     static final String STORAGE_ID = "fs1";
@@ -1468,7 +1467,6 @@ class ArchiveDeviceFactory {
         ext.addQueryRetrieveView(IOCM_PAT_SAFETY_VIEW);
         ext.addQueryRetrieveView(IOCM_QUALITY_VIEW);
         ext.addQueryRetrieveView(IOCM_WRONG_MWL_VIEW);
-        ext.setLinkMWLEntryUpdatePolicy(LINK_MWL_ENTRY_UPDATE_POLICY);
 
         BasicBulkDataDescriptor bulkDataDescriptor = new BasicBulkDataDescriptor(BULK_DATA_DESCRIPTOR_ID);
         bulkDataDescriptor.setLengthsThresholdsFromStrings(BULK_DATA_LENGTH_THRESHOLD);

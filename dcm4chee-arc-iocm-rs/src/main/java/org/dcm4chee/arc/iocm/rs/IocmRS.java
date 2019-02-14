@@ -580,7 +580,7 @@ public class IocmRS {
                 Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity());
                 moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
                 session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
-                session.setPatientUpdatePolicy(null);
+                session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
                 session.setStudyUpdatePolicy(arcAE.linkMWLEntryUpdatePolicy());
                 result = storeService.copyInstances(session, instanceLocations);
                 rejectInstances(instanceRefs, rjNote, session, result);
@@ -715,7 +715,7 @@ public class IocmRS {
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity());
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
             session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
-            session.setPatientUpdatePolicy(null);
+            session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
             session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
             Attributes result = storeService.copyInstances(session, instances);
             if (rjNote != null)
