@@ -98,6 +98,7 @@ public class StudyServiceEJB {
             throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
                     study.getPatient() + " in existing " + study);
 
+        newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
         study.setAttributes(
                 attrs.addOriginalAttributes(
