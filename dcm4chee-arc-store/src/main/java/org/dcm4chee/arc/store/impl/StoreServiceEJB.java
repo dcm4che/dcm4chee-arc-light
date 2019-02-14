@@ -219,7 +219,7 @@ public class StoreServiceEJB {
         }
         boolean createLocations = ctx.getLocations().isEmpty();
         Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
-                createLocations ? "COERCE" : "CORRECT");
+                createLocations ? Attributes.COERCE : Attributes.CORRECT);
         if (createLocations)
             createLocations(ctx, instance, result);
         else
