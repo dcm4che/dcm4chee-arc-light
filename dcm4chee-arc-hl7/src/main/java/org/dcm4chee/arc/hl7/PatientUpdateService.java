@@ -114,7 +114,7 @@ class PatientUpdateService extends DefaultHL7Service {
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         HL7Segment msh = msg.msh();
 
-        Attributes attrs = transform(msg, arcHL7App, cs(msh, arcHL7App));
+        Attributes attrs = transform(msg, arcHL7App);
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)
@@ -163,17 +163,13 @@ class PatientUpdateService extends DefaultHL7Service {
         }
     }
 
-    private static String cs(HL7Segment msh, ArchiveHL7ApplicationExtension arcHL7App) {
-        String hl7DicomCharacterSet = arcHL7App.hl7DicomCharacterSet();
-        return hl7DicomCharacterSet != null
-                ? hl7DicomCharacterSet
-                : msh.getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
-    }
-
-    private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App,
-                                        String hl7cs) throws HL7Exception {
+    private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
         try {
-            return SAXTransformer.transform(msg.data(), hl7cs, arcHL7App.patientUpdateTemplateURI(), null);
+            return SAXTransformer.transform(
+                    msg,
+                    arcHL7App,
+                    arcHL7App.patientUpdateTemplateURI(),
+                    null);
         } catch (Exception e) {
             throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
         }
