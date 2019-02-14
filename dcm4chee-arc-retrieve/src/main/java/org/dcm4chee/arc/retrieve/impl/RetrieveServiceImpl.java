@@ -297,6 +297,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     public RetrieveContext newRetrieveContext(String localAET, Sequence refSopSeq) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.IMAGE);
         String[] uids = refSopSeq.stream()
                 .map(refSop -> refSop.getString(Tag.ReferencedSOPInstanceUID))
                 .toArray(String[]::new);
