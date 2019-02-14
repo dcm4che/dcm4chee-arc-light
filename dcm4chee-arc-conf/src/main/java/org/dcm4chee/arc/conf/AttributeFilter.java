@@ -55,7 +55,7 @@ public class AttributeFilter implements Serializable {
     private static final long serialVersionUID = -2417549681350544302L;
 
     private int[] selection;
-    private Attributes.UpdatePolicy attributeUpdatePolicy;
+    private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private ValueSelector customAttribute1;
     private ValueSelector customAttribute2;
     private ValueSelector customAttribute3;

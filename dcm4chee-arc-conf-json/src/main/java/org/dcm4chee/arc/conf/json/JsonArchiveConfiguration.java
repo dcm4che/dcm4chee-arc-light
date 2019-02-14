@@ -337,7 +337,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmCustomAttribute2", attributeFilter.getCustomAttribute2(), null);
         writer.writeNotNullOrDef("dcmCustomAttribute3", attributeFilter.getCustomAttribute3(), null);
         writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
-                attributeFilter.getAttributeUpdatePolicy(), null);
+                attributeFilter.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
         writer.writeEnd();
     }
 
@@ -589,7 +589,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", aac.getNullifyIssuerOfPatientID(), null);
             writer.writeNotEmpty("dcmIssuerOfPatientID", aac.getIssuerOfPatientIDs());
-            writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
+            writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
+                    aac.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.MERGE);
             writer.writeNotEmpty("dcmNullifyTag", TagUtils.toHexStrings(aac.getNullifyTags()));
             writer.writeNotNullOrDef("dcmSupplementFromDeviceName", deviceNameOf(aac.getSupplementFromDevice()), null);
             writer.writeEnd();

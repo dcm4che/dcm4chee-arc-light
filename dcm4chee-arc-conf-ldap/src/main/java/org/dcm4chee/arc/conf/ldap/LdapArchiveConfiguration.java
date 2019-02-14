@@ -1450,7 +1450,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCustomAttribute1", filter.getCustomAttribute1(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCustomAttribute2", filter.getCustomAttribute2(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCustomAttribute3", filter.getCustomAttribute3(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy", filter.getAttributeUpdatePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
+                filter.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE);
         return attrs;
     }
 
@@ -1493,7 +1494,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 filter.setCustomAttribute3(valueSelector(attrs.get("dcmCustomAttribute3")));
                 filter.setAttributeUpdatePolicy(
                         LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
-                        attrs.get("dcmAttributeUpdatePolicy"), null));
+                        attrs.get("dcmAttributeUpdatePolicy"),
+                                org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE));
                 device.setAttributeFilter(
                         Entity.valueOf(LdapUtils.stringValue(attrs.get("dcmEntity"), null)),
                         filter);
@@ -1664,7 +1666,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCustomAttribute3",
                 prev.getCustomAttribute3(), filter.getCustomAttribute3(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAttributeUpdatePolicy",
-                prev.getAttributeUpdatePolicy(), filter.getAttributeUpdatePolicy(), null);
+                prev.getAttributeUpdatePolicy(), filter.getAttributeUpdatePolicy(),
+                org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE);
         return mods;
     }
 

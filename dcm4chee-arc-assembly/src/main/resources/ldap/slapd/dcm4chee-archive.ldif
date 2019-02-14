@@ -386,7 +386,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.77 NAME 'dcmPurgeQueueMessageFetchSi
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdatePolicy'
-  DESC 'Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, the attributes will not be updated'
+  DESC 'Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. Enumerated values: PRESERVE, SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, PRESERVE will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
