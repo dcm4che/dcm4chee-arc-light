@@ -5,6 +5,6 @@
         <td *ngIf="row.el">{{row.tag | formatTag}}</td>
         <td *ngIf="row.el">{{row.el.vr}}</td>
         <td *ngIf="row.el">{{row.el | formatAttributeValue}}</td>
-        <td *ngIf="row.item" colspan="4">Item # {{row.item + 1}}</td>
+        <td *ngIf="row.item || row.item === 0" colspan="4">Item # {{row.item + 1}}</td>
     </tr>
 </table>
