@@ -237,6 +237,7 @@ public class StoreServiceEJB {
                 series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
             }
             Study study = series.getStudy();
+            updateStudyRejectionState(ctx, study);
             study.setExternalRetrieveAET("*");
             study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
             Patient patient = study.getPatient();
@@ -788,7 +789,9 @@ public class StoreServiceEJB {
 
     private Study updateStudy(StoreContext ctx, Study study, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
-        Attributes.UpdatePolicy updatePolicy = session.getStudyUpdatePolicy();
+        Attributes.UpdatePolicy updatePolicy = study.getRejectionState() == RejectionState.EMPTY
+                ? Attributes.UpdatePolicy.OVERWRITE
+                : session.getStudyUpdatePolicy();
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
         Attributes attrs = study.getAttributes();
@@ -908,9 +911,6 @@ public class StoreServiceEJB {
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
                 addStorageIDsToStudy(ctx, study);
-                study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
-                if (result.getRejectionNote() == null)
-                    updateStudyRejectionState(ctx, study);
             } catch (NoResultException e) {}
         return study;
     }
@@ -963,7 +963,6 @@ public class StoreServiceEJB {
         if (series.getRejectionState() == RejectionState.COMPLETE) {
             series.setRejectionState(RejectionState.PARTIAL);
             setSeriesAttributes(ctx, series);
-            updateStudyRejectionState(ctx, series.getStudy());
         }
     }
 
