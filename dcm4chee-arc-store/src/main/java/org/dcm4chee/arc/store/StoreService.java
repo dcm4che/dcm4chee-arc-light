@@ -9,6 +9,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +68,7 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances)
+    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs)
             throws Exception;
 
     ZipInputStream openZipInputStream(
