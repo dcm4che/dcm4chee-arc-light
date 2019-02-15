@@ -379,9 +379,10 @@ public class PatientServiceEJB {
         em.createNamedQuery(MPPS.DELETE_BY_PATIENT)
                 .setParameter(1, patient)
                 .executeUpdate();
-        em.createNamedQuery(MWLItem.DELETE_BY_PATIENT)
+        em.createNamedQuery(MWLItem.FIND_BY_PATIENT, MWLItem.class)
                 .setParameter(1, patient)
-                .executeUpdate();
+                .getResultList()
+                .forEach(mwl -> em.remove(mwl));
         em.remove(em.contains(patient) ? patient : em.getReference(Patient.class, patient.getPk()));
         LOG.info("Successfully removed {} from database along with any of its MPPS and MWLs", patient);
     }

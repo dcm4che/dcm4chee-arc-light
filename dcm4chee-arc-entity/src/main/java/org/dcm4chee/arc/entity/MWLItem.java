@@ -62,8 +62,8 @@ import java.util.*;
                 "join fetch mwl.attributesBlob " +
                 "where mwl.studyInstanceUID = ?1"),
 @NamedQuery(
-        name = MWLItem.DELETE_BY_PATIENT,
-        query = "delete from MWLItem mwl " +
+        name = MWLItem.FIND_BY_PATIENT,
+        query = "select mwl from MWLItem mwl " +
                 "where mwl.patient = ?1"),
 @NamedQuery(
         name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER,
@@ -109,7 +109,7 @@ import java.util.*;
 public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID_EAGER = "MWLItem.findByStudyIUIDEager";
-    public static final String DELETE_BY_PATIENT = "MWLItem.deleteByPatient";
+    public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
     public static final String FIND_BY_STUDY_UID_AND_SPS_ID_EAGER = "MWLItem.findByStudyUIDAndSPSIDEager";
     public static final String ATTRS_BY_ACCESSION_NO = "MWLItem.attrsByAccessionNo";
     public static final String ATTRS_BY_STUDY_IUID = "MWLItem.attrsByStudyIUID";
