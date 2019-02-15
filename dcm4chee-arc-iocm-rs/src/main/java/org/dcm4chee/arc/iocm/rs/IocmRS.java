@@ -576,7 +576,6 @@ public class IocmRS {
                 procedureService.updateStudySeriesAttributes(ctx);
                 result = getResult(instanceLocations);
             } else {
-//                mergeMWLItemTo(arcAE, mwl, instanceLocations);
                 Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity());
                 moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
                 session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
