@@ -175,6 +175,7 @@ public class PatientServiceEJB {
             if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
                 return;
 
+            newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
             attrs = newAttrs;
         } else if (!attrs.updateSelected(updatePolicy, newAttrs, modified, filter.getSelection(false)))
             return;
