@@ -107,7 +107,7 @@ public class StudyServiceEJB {
                     Attributes.CORRECT,
                     device.getDeviceName(),
                     modified),
-                filter, ctx.getFuzzyStr(), true);
+                filter, ctx.getFuzzyStr());
         study.setIssuerOfAccessionNumber(
                 findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
         setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
@@ -137,7 +137,7 @@ public class StudyServiceEJB {
         study.setExpirationState(ExpirationState.UPDATEABLE);
         study.setAccessControlID(ctx.getArchiveAEExtension().storeAccessControlID(
                 ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));
-        study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr(), false);
+        study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
         study.setIssuerOfAccessionNumber(
                 findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
         setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));

@@ -392,8 +392,7 @@ public class Patient {
         return attributesBlob.getAttributes();
     }
 
-    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr,
-                              boolean withOriginalAttributesSequence) {
+    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         patientName = PersonName.valueOf(
                 attrs.getString(Tag.PatientName), fuzzyStr, patientName);
         patientBirthDate = attrs.getString(Tag.PatientBirthDate, "*");
@@ -406,7 +405,7 @@ public class Patient {
         patientCustomAttribute3 =
             AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
 
-        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(withOriginalAttributesSequence));
+        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(true));
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(blobAttrs);
         else

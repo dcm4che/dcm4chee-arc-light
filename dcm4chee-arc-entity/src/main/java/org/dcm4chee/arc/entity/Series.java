@@ -930,8 +930,7 @@ public class Series {
         return attributesBlob.getAttributes();
     }
 
-    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr,
-                              boolean withOriginalAttributesSequence) {
+    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
         seriesNumber = getInt(attrs, Tag.SeriesNumber);
         seriesDescription = attrs.getString(Tag.SeriesDescription, "*");
@@ -970,7 +969,7 @@ public class Series {
         seriesCustomAttribute3 =
             AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
 
-        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(withOriginalAttributesSequence));
+        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(true));
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(blobAttrs);
         else
