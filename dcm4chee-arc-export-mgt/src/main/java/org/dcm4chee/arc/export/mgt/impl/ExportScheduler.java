@@ -71,7 +71,12 @@ public class ExportScheduler extends Scheduler {
                 : arcAE.findExportRules(hostname, sendingAET, receivingAET, ctx.getAttributes(), now).entrySet()) {
             String exporterID = entry.getKey();
             ExportRule rule = entry.getValue();
-            ExporterDescriptor desc = arcDev.getExporterDescriptorNotNull(exporterID);
+            ExporterDescriptor desc = arcDev.getExporterDescriptor(exporterID);
+            if (desc == null) {
+                LOG.warn("{}: No Exporter configured with ID:{} - cannot schedule Export Task triggered by {}",
+                        session, exporterID, rule);
+                continue;
+            }
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
             switch (rule.getEntity()) {
                 case Study:
