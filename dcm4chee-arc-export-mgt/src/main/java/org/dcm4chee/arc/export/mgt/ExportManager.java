@@ -59,7 +59,13 @@ import java.util.List;
  * @since Feb 2016
  */
 public interface ExportManager {
-    void onStore(@Observes StoreContext ctx);
+    void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime);
+
+    void createOrUpdateSeriesExportTask(
+            String exporterID, String studyIUID, String seriesIUID, Date scheduledTime);
+
+    void createOrUpdateInstanceExportTask(
+            String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime);
 
     int scheduleExportTasks(int fetchSize);
 
