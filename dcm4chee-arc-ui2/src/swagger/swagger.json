@@ -13918,6 +13918,116 @@
           }
         }
       }
+    },
+    "/aets/{aet}/diff/pdq/{PDQServiceID}/patients": {
+      "get": {
+        "tags": [
+          "DIFF-RS",
+          "PDQ-RS"
+        ],
+        "summary": "Compare Patient Demographics",
+        "operationId": "comparePatientDemographics",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title to query for Patients",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "PDQServiceID",
+            "in": "path",
+            "description": "ID of PDQ Service to query for Patient Demographics",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "different",
+            "in": "query",
+            "description": "include Patients with different Patient Demographics",
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "missing",
+            "in": "query",
+            "description": "include Patients missing at the PDQ Service",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "withoutstudies",
+            "in": "query",
+            "description": "compare Patient w/o Studies",
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "compare only Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset={skippedResults}",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit={maximumResults}",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "different/missing patients as JSON array with DICOM JSON objects - may be empty if no patient differs",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "No matching Patient found at Archive AE"
+          },
+          "404": {
+            "description": "AE Title of Archive or PDQ Service not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
     }
   },
   "definitions": {
