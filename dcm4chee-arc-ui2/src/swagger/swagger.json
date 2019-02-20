@@ -13971,6 +13971,16 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "orderby",
+            "in": "query",
+            "description": "orderby=[-]{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
             "name": "withoutstudies",
             "in": "query",
             "description": "compare Patient w/o Studies",

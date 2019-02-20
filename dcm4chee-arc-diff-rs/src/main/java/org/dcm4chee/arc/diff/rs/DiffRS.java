@@ -346,7 +346,9 @@ public class DiffRS {
                         diff = --remaining > 0 ? diffSCU.nextDiff() : null;
                     } catch (Exception e) {
                         LOG.info("Failure on query for matching studies:\\n", e);
-                        writer.write(new Attributes());
+                        Attributes attrs = new Attributes(1);
+                        attrs.setString(Tag.ErrorComment, VR.LO, e.getMessage());
+                        writer.write(attrs);
                         break;
                     }
                 }
