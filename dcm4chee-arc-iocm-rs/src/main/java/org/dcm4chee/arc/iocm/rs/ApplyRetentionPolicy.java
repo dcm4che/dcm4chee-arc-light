@@ -155,13 +155,18 @@ public class ApplyRetentionPolicy {
                                         aet,
                                         attrs);
 
-                        boolean frozenStudy = ExpirationState.valueOf(
-                                attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState)) == ExpirationState.FROZEN;
-
-                        if (retentionPolicy == null || (!retentionPolicy.protectStudy() && frozenStudy))
-                            continue;
-
+                        String studyExpirationState = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState);
+                        String studyExpirationDate = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate);
                         String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+
+                        if (retentionPolicy == null
+                                || (ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN
+                                    && (studyExpirationDate == null || !retentionPolicy.protectStudy()))) {
+                            LOG.info("Skip applying {} to Study[UID={}, ExpirationDate={}, ExpirationState={}]",
+                                    retentionPolicy, studyInstanceUID, studyExpirationDate, studyExpirationState);
+                            continue;
+                        }
+
                         LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
                         if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                             prevStudyInstanceUID = studyInstanceUID;

@@ -56,6 +56,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -269,7 +270,8 @@ public class StowRS {
     private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws Exception {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
-        final StoreSession session = service.newStoreSession(request, getApplicationEntity(), null);
+        final StoreSession session = service.newStoreSession(
+                HttpServletRequestInfo.valueOf(request), getApplicationEntity(), null);
         new MultipartParser(boundary())
                 .parse(new BufferedInputStream(in), (partNumber, multipartInputStream) -> {
                     Map<String, List<String>> headerParams = multipartInputStream.readHeaderParams();

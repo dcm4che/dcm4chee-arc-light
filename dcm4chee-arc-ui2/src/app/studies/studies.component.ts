@@ -31,6 +31,7 @@ import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
 import {PermissionService} from "../helpers/permissions/permission.service";
 import {LoadingBarModule, LoadingBarService} from "@ngx-loading-bar/core";
 import {ActivatedRoute} from "@angular/router";
+import {SelectDropdown} from "../interfaces";
 declare var Keycloak: any;
 declare var $: any;
 
@@ -87,6 +88,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         StudyTime:'',
         SplitStudyDateRange:'',
         compressionfailed:false,
+        storageVerificationFailed:false,
         StudyInstanceUID:""
     };
     diffQueue = false;
@@ -1145,56 +1147,29 @@ export class StudiesComponent implements OnDestroy,OnInit{
         );
     }
     setExpiredDateQuery(study, infinit){
-        let $this = this;
-        let expiredDate;
-        let yearRange = "1800:2100";
-        if(infinit){
-            expiredDate = new Date();
-            expiredDate.setDate(31);
-            expiredDate.setMonth(11);
-            expiredDate.setFullYear(9999);
-            yearRange = "2017:9999";
-        }else{
-            if(_.hasIn(study,"attrs.77771023.Value.0") && study["attrs"]["77771023"].Value[0] != ""){
-                console.log("va",study["77771023"].Value[0]);
-                let expiredDateString = study["attrs"]["77771023"].Value[0];
-                expiredDate = new Date(expiredDateString.substring(0, 4)+ '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
-            }else{
-                expiredDate = new Date();
-            }
-        }
-        let parameters: any = {
-            content: 'Set expired date',
-            pCalendar: [{
-                dateFormat:"dd.mm.yy",
-                yearRange:yearRange,
-                monthNavigator:true,
-                yearNavigator:true,
-                placeholder:"Expired date"
-            }],
-            result: {pCalendar:[expiredDate]},
-            saveButton: 'SAVE'
-        };
-        this.confirm(parameters).subscribe(result => {
+        this.confirm(this.service.getPrepareParameterForExpiriationDialog(study,this.exporters, infinit)).subscribe(result => {
             if(result){
-                $this.cfpLoadingBar.start();
-                let dateAsString = $this.dateToString(result.pCalendar[0]);
-                $this.service.setExpiredDate($this.aet, _.get(study,"attrs.0020000D.Value[0]"), dateAsString).subscribe(
-                    (res)=>{
-                        _.set(study,"attrs.77771023.Value[0]",$this.dateToString(result.pCalendar[0]));
-                        _.set(study,"attrs.77771023.vr","DA");
-                        $this.mainservice.setMessage( {
-                            'title': 'Info',
-                            'text': 'Expired date set successfully!',
-                            'status': 'info'
-                        });
-                        $this.cfpLoadingBar.complete();
-                    },
-                    (err)=>{
-                        $this.httpErrorHandler.handleError(err);
-                        $this.cfpLoadingBar.complete();
-                    }
-                );
+                this.cfpLoadingBar.start();
+                if(result.schema_model.expiredDate){
+                    this.service.setExpiredDate(this.aet, _.get(study,"attrs.0020000D.Value[0]"), result.schema_model.expiredDate, result.schema_model.exporter).subscribe(
+                        (res)=>{
+                            _.set(study,"attrs.77771023.Value[0]",result.schema_model.expiredDate);
+                            _.set(study,"attrs.77771023.vr","DA");
+                            this.mainservice.setMessage( {
+                                'title': 'Info',
+                                'text': 'Expired date set successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        },
+                        (err)=>{
+                            this.httpErrorHandler.handleError(err);
+                            this.cfpLoadingBar.complete();
+                        }
+                    );
+                }else{
+                    this.mainservice.showError("Expired date is requred!");
+                }
                 // study["77771023"].Value[0] = result.pCalendar[0];
             }
         });
@@ -1720,8 +1695,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 //If user clicked save
                 if (result){
                     if(mode === "create"){
-                        if(this.service.getPatientId(patient.attrs))
-                            modifyPatientService = $this.service.modifyPatient(patient, iod, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                        if(this.service.getPatientId(patient.attrs)){
+                            modifyPatientService = $this.service.modifyPatient(patient, iod, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode,this.externalInternalAetMode === "external");
                             if(modifyPatientService){
                                 modifyPatientService.save.subscribe((response)=>{
                                     this.fireRightQuery();
@@ -1735,7 +1710,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                     $this.httpErrorHandler.handleError(err);
                                 });
                             }
-                        else{
+                        }else{
                             this.service.createPatient(
                                 patient.attrs,
                                 this.aet,
@@ -1765,7 +1740,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                             let id = oldPatientID;
                             if(idChanged)
                                 id = this.service.getPatientId(patient.attrs);
-                            modifyPatientService = $this.service.modifyPatient(patient, iod, id, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                            modifyPatientService = $this.service.modifyPatient(patient, iod, id, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode, this.externalInternalAetMode === "external");
                             if(modifyPatientService){
                                 modifyPatientService.save.subscribe((response)=>{
                                     this.fireRightQuery();
@@ -3718,7 +3693,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                 let object;
                                 let url;
                                 if(this.externalInternalAetMode === 'external'){
-                                    url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge`;
+                                    url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
                                     object = $this.selected.patients[0].attrs;
 
                                 }else{

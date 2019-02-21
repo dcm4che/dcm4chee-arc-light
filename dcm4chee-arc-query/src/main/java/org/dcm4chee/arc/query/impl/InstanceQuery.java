@@ -184,7 +184,7 @@ class InstanceQuery extends AbstractQuery {
         Attributes.unifyCharacterSets(seriesAttrs, instAtts);
         Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size() + 10);
         attrs.addAll(seriesAttrs);
-        attrs.addAll(instAtts);
+        attrs.addAll(instAtts, true);
         attrs.setString(Tag.RetrieveAETitle, VR.AE,
                 retrieveAETs(
                         results.get(QInstance.instance.retrieveAETs),
@@ -231,7 +231,7 @@ class InstanceQuery extends AbstractQuery {
                     return false;
 
                 int[] tags = context.getArchiveAEExtension().getArchiveDeviceExtension()
-                        .getAttributeFilter(Entity.Instance).getSelection();
+                        .getAttributeFilter(Entity.Instance).getSelection(true);
                 instTags = new int[tags.length + ARCHIVE_INST_TAGS.length];
                 System.arraycopy(tags, 0, instTags, 0, tags.length);
                 System.arraycopy(ARCHIVE_INST_TAGS, 0, instTags, tags.length, ARCHIVE_INST_TAGS.length);
@@ -278,7 +278,7 @@ class InstanceQuery extends AbstractQuery {
                         Attributes.unifyCharacterSets(seriesAttrs, instAtts);
                         Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size());
                         attrs.addAll(seriesAttrs);
-                        attrs.addAll(instAtts);
+                        attrs.addAll(instAtts, true);
                         return attrs;
                     }
                 }

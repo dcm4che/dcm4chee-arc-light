@@ -47,10 +47,14 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
 import org.slf4j.Logger;
@@ -58,6 +62,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.jms.JMSRuntimeException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -96,6 +104,9 @@ public class DeletionServiceEJB {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private QueueManager queueManager;
 
     public List<Location> findLocationsWithStatus(String storageID, Location.Status status, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
@@ -618,5 +629,22 @@ public class DeletionServiceEJB {
         return seriesIUID != null
                 ? claimExpiredSeriesFor(findBySeriesIUID(studyIUID, seriesIUID), expirationState)
                 : claimExpiredStudyFor(findByStudyIUID(studyIUID), expirationState);
+    }
+
+    public void scheduleRejection(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
+                                  HttpServletRequestInfo httpRequest, String batchID)
+            throws QueueSizeLimitExceededException {
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage("");
+            msg.setStringProperty("LocalAET", aet);
+            msg.setStringProperty("StudyInstanceUID", studyIUID);
+            msg.setStringProperty("SeriesInstanceUID", seriesIUID);
+            msg.setStringProperty("SOPInstanceUID", sopIUID);
+            msg.setStringProperty("Code", code.toString());
+            httpRequest.copyTo(msg);
+            queueManager.scheduleMessage(RejectionService.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, batchID, 0L);
+        } catch (JMSException e) {
+            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+        }
     }
 }

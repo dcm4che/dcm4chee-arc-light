@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -83,6 +83,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.persistence.EntityManager;
@@ -90,7 +91,6 @@ import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -190,6 +190,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
+    @Inject @RetrieveFailures
+    private Event<RetrieveContext> retrieveFailures;
+
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
     }
@@ -251,10 +254,10 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public RetrieveContext newRetrieveContextIOCM(
-            HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs) {
+            HttpServletRequestInfo request, String localAET, String studyUID, String... seriesUIDs) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, null);
-        ctx.setHttpRequest(request);
+        ctx.setHttpServletRequestInfo(request);
         ctx.setStudyInstanceUIDs(studyUID);
         ctx.setSeriesInstanceUIDs(seriesUIDs);
         return ctx;
@@ -294,6 +297,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     public RetrieveContext newRetrieveContext(String localAET, Sequence refSopSeq) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.IMAGE);
         String[] uids = refSopSeq.stream()
                 .map(refSop -> refSop.getString(Tag.ReferencedSOPInstanceUID))
                 .toArray(String[]::new);
@@ -409,7 +413,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                             Attributes instAttrs = AttributesBlob.decodeAttributes(
                                     tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
                             Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
-                            instAttrs.addAll(seriesAttrs);
+                            instAttrs.addAll(seriesAttrs, true);
                             match = instanceLocationsFromDB(tuple, instAttrs);
                             matches.add(match);
                             instMap.put(instPk, match);
@@ -687,8 +691,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + seriesAttrs.size() + 5);
         attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs);
-        attrs.addAll(seriesAttrs);
+        attrs.addAll(studyAttrs, true);
+        attrs.addAll(seriesAttrs, true);
         return new SeriesAttributes(attrs, studyInfo, seriesInfo, patientUpdatedTime);
 }
 
@@ -1086,8 +1090,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             } catch (IOException e) {
                 LOG.warn("Failed to read {} from {}", inst, location);
                 ex = e;
-                if (ctx.isUpdateLocationStatusOnRetrieve())
-                    ctx.getUpdateLocations().add(new UpdateLocation(inst, location, toStatus(e), null));
+                ctx.getUpdateLocations().add(new UpdateLocation(inst, location, toStatus(e), null));
             }
         }
         throw ex;
@@ -1099,8 +1102,11 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public void updateLocations(RetrieveContext ctx) {
-        if (ctx.isUpdateLocationStatusOnRetrieve())
-            storeService.updateLocations(ctx.getArchiveAEExtension(), ctx.getUpdateLocations());
+        if (!ctx.getUpdateLocations().isEmpty()) {
+            if (ctx.isUpdateLocationStatusOnRetrieve())
+                storeService.updateLocations(ctx.getArchiveAEExtension(), ctx.getUpdateLocations());
+            retrieveFailures.fire(ctx);
+        }
     }
 
     private LocationInputStream openLocationInputStream(

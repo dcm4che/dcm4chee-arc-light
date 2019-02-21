@@ -50,18 +50,22 @@
     "dcmStorageVerificationAETitle",
     "dcmStorageVerificationFetchSize",
     "dcmUpdateLocationStatusOnRetrieve",
+    "dcmStorageVerificationOnRetrieve",
     "dcmCompressionThreads",
     "dcmCompressionFetchSize",
     "dcmPatientVerificationFetchSize",
     "dcmPatientVerificationAdjustIssuerOfPatientID",
     "dcmPatientVerificationMaxRetries",
     "dcmQueueTasksFetchSize",
+    "dcmCopyMoveUpdatePolicy",
+    "dcmLinkMWLEntryUpdatePolicy",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
     "hl7TrackChangedPatientID",
     "dcmAuditSoftwareConfigurationVerbose",
-    "hl7UseNullValue"
+    "hl7UseNullValue",
+    "hl7OrderMissingStudyIUIDPolicy"
   ],
   "properties": {
     "dcmFuzzyAlgorithmClass": {
@@ -557,6 +561,14 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "string"
     },
+    "hl7ImportReportTemplateParam": {
+      "title": "HL7 Import Report Template Parameter",
+      "description": "XSLT parameters passed to style sheet specified by HL7 Import Report Template URI. Format: {name}={value}. E.g.: 'langCodeValue=et', 'langCodingSchemeDesignator=RFC5646', 'langCodeMeaning=Estonian'. May be overwritten by configured values for particular Archive HL7 Application.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "hl7ScheduleProcedureTemplateURI": {
       "title": "HL7 Schedule Procedure Template URI",
       "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items. May be overwritten by configured values for particular Archive HL7 Application.",
@@ -842,9 +854,11 @@
     },
     "dcmCopyMoveUpdatePolicy": {
       "title": "Copy Move Update Policy",
-      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. If absent, the attributes will not be updated. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
+      "default": "PRESERVE",
       "enum": [
+        "PRESERVE",
         "SUPPLEMENT",
         "MERGE",
         "OVERWRITE",
@@ -853,9 +867,11 @@
     },
     "dcmLinkMWLEntryUpdatePolicy": {
       "title": "Link MWL Entry Update Policy",
-      "description": "Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. If absent, the attributes will not be updated. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
+      "default": "PRESERVE",
       "enum": [
+        "PRESERVE",
         "SUPPLEMENT",
         "MERGE",
         "OVERWRITE",
@@ -945,6 +961,12 @@
     "dcmUpdateLocationStatusOnRetrieve": {
       "title": "Update Location Status on Retrieve",
       "description": "Indicates if the Status of the Location DB record shall be updated for objects failed to get fetched from storage on retrieve to MISSING_OBJECT or FAILED_TO_FETCH_OBJECT. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageVerificationOnRetrieve": {
+      "title": "Storage Verification on Retrieve",
+      "description": "Indicates if failures to fetch an object from Storage on retrieve shall trigger a Storage Verification of the whole Series. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
@@ -1129,6 +1151,23 @@
       "description": "Specifies if HL7 v2 null values (|\"\"|) are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "boolean",
       "default": false
+    },
+    "hl7OrderMissingStudyIUIDPolicy": {
+      "title": "HL7 Order Missing Study Instance UID Policy",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages.",
+      "type": "string",
+      "default": "GENERATE",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7DicomCharacterSet": {
+      "title": "HL7 Dicom Character Set",
+      "description": "Indicates to use specified Value of Specific Character Set (0008,0005) in Data Sets transcoded from received HL7 messages. Use Value corresponding to Character Set of the HL7 message specified by MSH-18 if absent.",
+      "type": "string",
+      "format": "dcmCharset"
     },
     "dcmRejectionNoteStorageAET": {
       "title": "Rejection Note Storage AE title",

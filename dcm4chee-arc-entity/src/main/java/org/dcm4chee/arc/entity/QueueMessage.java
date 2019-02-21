@@ -391,11 +391,11 @@ public class QueueMessage {
             String name = names.nextElement();
             if (!name.startsWith("JMS")) {
                 Object o = msg.getObjectProperty(name);
-                boolean quote = o instanceof String;
                 sb.append('"').append(name).append('"').append(':');
-                if (quote) sb.append('"');
-                sb.append(o);
-                if (quote) sb.append('"');
+                if (o instanceof String)
+                    sb.append('"').append(((String) o).replace("\"", "\\\"")).append('"');
+                else
+                    sb.append(o);
                 if (names.hasMoreElements()) sb.append(',');
             }
         }

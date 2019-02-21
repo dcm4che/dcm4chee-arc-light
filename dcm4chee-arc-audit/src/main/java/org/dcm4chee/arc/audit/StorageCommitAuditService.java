@@ -144,7 +144,8 @@ class StorageCommitAuditService {
         return AuditMessages.createMessage(
             eventIdentification(eventType, eventTime, outcome),
             activeParticipants(eventType, auditLogger, auditInfo),
-            poiStudy(reader, auditInfo));
+            poiStudy(reader, auditInfo),
+            AuditService.patientPOI(auditInfo));
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(AuditUtils.EventType eventType, AuditLogger auditLogger, AuditInfo auditInfo) {

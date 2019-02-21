@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -105,10 +105,6 @@ public class StgVerMatchingRS {
     @PathParam("AETitle")
     private String aet;
 
-    @QueryParam("expired")
-    @Pattern(regexp = "true|false")
-    private String expired;
-
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
@@ -128,6 +124,9 @@ public class StgVerMatchingRS {
     @QueryParam("compressionfailed")
     @Pattern(regexp = "true|false")
     private String compressionfailed;
+
+    @QueryParam("ExpirationDate")
+    private String expirationDate;
 
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
@@ -154,7 +153,7 @@ public class StgVerMatchingRS {
     private List<String> storageVerificationStorageIDs;
 
     @QueryParam("StudySizeInKB")
-    @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
+    @Pattern(regexp = "\\d{1,9}(-\\d{0,9})?|-\\d{1,9}")
     private String studySizeInKB;
 
     @QueryParam("ExpirationState")
@@ -344,6 +343,7 @@ public class StgVerMatchingRS {
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
+        queryParam.setExpirationDate(expirationDate);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         queryParam.setStudySizeRange(studySizeInKB);

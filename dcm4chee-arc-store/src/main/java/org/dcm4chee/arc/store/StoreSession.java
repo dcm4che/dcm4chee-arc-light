@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.ExportPriorsRule;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 
@@ -70,7 +71,7 @@ public interface StoreSession extends Closeable {
 
     Association getAssociation();
 
-    HttpServletRequest getHttpRequest();
+    HttpServletRequestInfo getHttpRequest();
 
     Socket getSocket();
 

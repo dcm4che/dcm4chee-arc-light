@@ -42,6 +42,7 @@ package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -70,6 +71,9 @@ public class PatientServiceEJB {
 
     @Inject
     private IssuerService issuerService;
+
+    @Inject
+    private Device device;
 
     public List<Patient> findPatients(IDWithIssuer pid) {
         List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID_EAGER, Patient.class)
@@ -166,16 +170,25 @@ public class PatientServiceEJB {
         AttributeFilter filter = ctx.getAttributeFilter();
         Attributes attrs = pat.getAttributes();
         Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection());
+        Attributes modified = new Attributes();
         if (updatePolicy == Attributes.UpdatePolicy.REPLACE) {
-            if (attrs.equals(newAttrs))
+            if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
                 return;
 
+            newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
             attrs = newAttrs;
-        } else if (!attrs.update(updatePolicy, newAttrs, null))
+        } else if (!attrs.updateSelected(updatePolicy, newAttrs, modified, filter.getSelection(false)))
             return;
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        pat.setAttributes(attrs, filter, ctx.getFuzzyStr());
+        pat.setAttributes(
+                attrs.addOriginalAttributes(
+                        null,
+                        new Date(),
+                        Attributes.CORRECT,
+                        device.getDeviceName(),
+                        modified),
+                filter, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
@@ -197,7 +210,7 @@ public class PatientServiceEJB {
             prev = createPatient(ctx, ctx.getPreviousPatientID(), ctx.getPreviousAttributes());
             suppressMergedPatientDeletionAudit(ctx);
         } else {
-            moveStudies(prev, pat);
+            moveStudies(ctx, prev, pat);
             moveMPPS(prev, pat);
         }
         if (ctx.getHttpServletRequestInfo() != null) {
@@ -242,6 +255,10 @@ public class PatientServiceEJB {
     private void updatePatientAttrs(PatientMgtContext ctx, Patient pat) {
         IDWithIssuer patientID = ctx.getPatientID();
         Attributes patientAttrs = pat.getAttributes();
+        Attributes modified = new Attributes(patientAttrs,
+                Tag.PatientID,
+                Tag.IssuerOfPatientID,
+                Tag.IssuerOfPatientIDQualifiersSequence);
         if (patientAttrs.getString(Tag.IssuerOfPatientID) != null) {
             Issuer patientIDIssuer = patientID.getIssuer();
             if (patientIDIssuer == null) {
@@ -251,7 +268,14 @@ public class PatientServiceEJB {
                 patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
             }
         }
-        pat.setAttributes(patientID.exportPatientIDWithIssuer(patientAttrs), ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        pat.setAttributes(patientID.exportPatientIDWithIssuer(patientAttrs)
+                .addOriginalAttributes(
+                        null,
+                        new Date(),
+                        Attributes.CORRECT,
+                        device.getDeviceName(),
+                        modified),
+                ctx.getAttributeFilter(), ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
@@ -302,10 +326,23 @@ public class PatientServiceEJB {
         return pat;
     }
 
-    private void moveStudies(Patient from, Patient to) {
+    private void moveStudies(PatientMgtContext ctx, Patient from, Patient to) {
         for (Study study : em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, from).getResultList()) {
+            Attributes modified = new Attributes();
+            from.getAttributes().diff(
+                    to.getAttributes(),
+                    ctx.getAttributeFilter().getSelection(false),
+                    modified);
             study.setPatient(to);
+            study.setAttributes(study.getAttributes()
+                            .addOriginalAttributes(
+                                    null,
+                                    new Date(),
+                                    Attributes.CORRECT,
+                                    device.getDeviceName(),
+                                    modified),
+                    ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
             to.incrementNumberOfStudies();
             from.decrementNumberOfStudies();
         }
@@ -343,9 +380,10 @@ public class PatientServiceEJB {
         em.createNamedQuery(MPPS.DELETE_BY_PATIENT)
                 .setParameter(1, patient)
                 .executeUpdate();
-        em.createNamedQuery(MWLItem.DELETE_BY_PATIENT)
+        em.createNamedQuery(MWLItem.FIND_BY_PATIENT, MWLItem.class)
                 .setParameter(1, patient)
-                .executeUpdate();
+                .getResultList()
+                .forEach(mwl -> em.remove(mwl));
         em.remove(em.contains(patient) ? patient : em.getReference(Patient.class, patient.getPk()));
         LOG.info("Successfully removed {} from database along with any of its MPPS and MWLs", patient);
     }

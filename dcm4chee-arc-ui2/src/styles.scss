@@ -493,11 +493,11 @@ mat-grid-list{
       & > *{
 
         height:28px;
-        &:first-child{
-          float: left;
-        }
         &:last-child{
           float: right;
+        }
+        &:first-child{
+          float: left;
         }
         &.label_large{
           width:100%;
@@ -783,7 +783,7 @@ iod-form-generator{
       margin:15px -24px;
     }
   }
-  .dropdown{
+  .dropdown.study_edit{
     max-height: 300px;
     overflow-y:scroll;
     width: 34%;
@@ -1222,6 +1222,26 @@ mat-dialog-container{
     .block{
       margin-top: 20px;
       padding: 15px 0;
+    }
+  }
+  .dynamicform{
+    .title{
+      width: 24.6%;
+    }
+    .inputblock{
+      input[type=text]{
+        width: 100%;
+        margin-top: 0;
+        height: 30px;
+      }
+    }
+    .description_parent{
+      margin-left: 35px;
+      color: #777;
+    }
+    .form_content{
+      width: 23%;
+      padding-right: 19px;
     }
   }
   .inputblock{
@@ -2844,6 +2864,10 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
             height: 30px;
             border: none;
           }
+          .mat-select-trigger{
+            bottom: -2px;
+            padding-left: 7px;
+          }
         }
       }
       input:disabled{
@@ -3228,6 +3252,14 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         }
         .mat-select-value .mat-select-placeholder{
           color: black;
+        }
+      }
+      .size_range_picker{
+        .size_range_icon{
+          background-image: url("assets/img/size_range_white.png");
+          background-color: rgba(28, 36, 43, 0.92);
+          background-repeat: no-repeat;
+          background-position: center;
         }
       }
     }

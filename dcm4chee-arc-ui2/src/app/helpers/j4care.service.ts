@@ -167,6 +167,26 @@ export class j4care {
         });
         return [...aet,...aliases];
     }
+
+    static extendAetObjectWithAliasFromSameObject(aet){
+        const aliasPath = "dcmNetworkAE.dcmOtherAETitle";
+        let aetExtended = [];
+        aet.forEach((a)=>{
+            aetExtended.push(a)
+            if(_.hasIn(a,aliasPath)){
+                try{
+                    (<string[]>_.get(a,aliasPath)).forEach(alias=>{
+                        aetExtended.push({
+                            dicomAETitle:alias
+                        })
+                    });
+                }catch (e) {
+                    this.log("Trying to get aliasis from same path",e);
+                }
+            }
+        });
+        return aetExtended
+    }
     static convertDateRangeToString(rangeArray:Date[]){
         let datePipe = new DatePipe('en_US');
 

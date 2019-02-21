@@ -1,0 +1,109 @@
+$backgroundColor:rgba(28, 36, 43, 0.92);
+$backgroundColorHover:rgba(28, 36, 43, 1);
+
+.size_range_picker{
+  position: relative;
+  .main_input_block{
+    width: 100%;
+    .main_input{
+      width: calc(100% - 27px);
+      float: left;
+      margin-top:0;
+      border-right: none;
+    }
+    .size_range_icon{
+      width: 27px;
+      display: inline-block;
+      height: 30px;
+      color: #ffffff;
+      float: right;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 30px;
+      top: 0;
+      &:hover{
+        cursor: pointer;
+      }
+    }
+    &:hover .clear_picker{
+      display: block;
+    }
+  }
+  .picker{
+    z-index: 1;
+    float: left;
+    padding: 15px 20px;
+    display: block;
+    width:400px;
+    min-height:50px;
+    background: white;
+    position: absolute;
+    top:28px;
+    -webkit-box-shadow: 2px 2px 13px 0px #777;
+    -moz-box-shadow: 2px 2px 13px 0px #777;
+    box-shadow: 2px 2px 13px 0px #777;
+    .min, .minus,.max, mat-select{
+      float: left;
+      border: none
+    }
+    .min,.max, mat-select{
+      border-bottom: 1px solid #cccccc;
+    }
+    .min,.max{
+      width:calc(50% - 12px);
+    }
+    .minus{
+      width: 24px;
+      text-align: center;
+      height: 30px;
+      line-height: 30px;
+      color:black;
+    }
+/*    .input_part, mat-select{
+      float: left;
+      padding: 5px 7px;
+      -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.38);
+      -moz-box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.38);
+      box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.38);
+    }*/
+    .input_block{
+      float: left;
+      margin-bottom: 20px;
+    }
+    .input_part{
+      float: left;
+      width: 70%;
+    }
+    mat-select{
+      width:calc(30% - 10px);
+      border: none;
+      border-left: 1px solid #ccc;
+      margin-left: 10px;
+      padding-left:10px;
+    }
+    button{
+      background: $backgroundColor;
+      color: white;
+      border: 0;
+      width: 24%;
+      float: right;
+      &.clear{
+        margin-right:4px;
+      }
+      &:hover{
+        background:$backgroundColorHover;
+      }
+    }
+    button{
+      width: calc(30% - 13px);
+    }
+  }
+  .close{
+    position: absolute;
+    z-index: 999999;
+    right: 7px;
+    top: 7px;
+    font-size: 16px;
+  }
+
+}

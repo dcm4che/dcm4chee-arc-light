@@ -232,13 +232,6 @@
             "default": false
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "return only expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "return only Studies which are marked as incomplete",
@@ -514,13 +507,6 @@
             "default": false
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "return only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "return only Series which are marked as incomplete",
@@ -734,13 +720,6 @@
             "name": "returnempty",
             "in": "query",
             "description": "return also empty Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "return only expired Series",
             "type": "boolean",
             "default": false
           },

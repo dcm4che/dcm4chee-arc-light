@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -150,6 +150,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStowSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotNullOrDef("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7ImportReportTemplateURI", arcDev.getImportReportTemplateURI(), null);
+        writer.writeNotEmpty("hl7ImportReportTemplateParam", JsonArchiveConfiguration.descriptorProperties(arcDev.getImportReportTemplateParams()));
         writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", arcDev.getScheduleProcedureTemplateURI(), null);
         writer.writeNotNullOrDef("hl7OutgoingPatientUpdateTemplateURI", arcDev.getOutgoingPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7LogFilePattern", arcDev.getHL7LogFilePattern(), null);
@@ -215,8 +216,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL(), null);
         writer.writeNotNullOrDef("dcmAudit2JsonFhirTemplateURI", arcDev.getAudit2JsonFhirTemplateURI(), null);
         writer.writeNotNullOrDef("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI(), null);
-        writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy(), null);
-        writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcDev.getLinkMWLEntryUpdatePolicy(), null);
+        writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy",
+                arcDev.getCopyMoveUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
+        writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy",
+                arcDev.getLinkMWLEntryUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
         writer.writeNotNullOrDef("dcmStorageVerificationPolicy", arcDev.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         writer.writeNotDef("dcmStorageVerificationUpdateLocationStatus", arcDev.isStorageVerificationUpdateLocationStatus(), false);
         writer.writeNotEmpty("dcmStorageVerificationStorageID", arcDev.getStorageVerificationStorageIDs());
@@ -231,6 +234,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStorageVerificationFetchSize", arcDev.getStorageVerificationFetchSize(), 100);
         writer.writeNotDef("dcmUpdateLocationStatusOnRetrieve",
                 arcDev.isUpdateLocationStatusOnRetrieve(), false);
+        writer.writeNotDef("dcmStorageVerificationOnRetrieve",
+                arcDev.isStorageVerificationOnRetrieve(), false);
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHL7TrackChangedPatientID(), true);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(), null);
@@ -276,6 +281,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationMaxRetries(), 0);
         writer.writeNotNullOrDef("dcmPatientVerificationMaxStaleness",
                 arcDev.getPatientVerificationMaxStaleness(), null);
+        writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", arcDev.getHl7OrderMissingStudyIUIDPolicy(),
+                HL7OrderMissingStudyIUIDPolicy.GENERATE);
+        writer.writeNotNullOrDef("hl7DicomCharacterSet", arcDev.getHl7DicomCharacterSet(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -329,7 +337,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmCustomAttribute2", attributeFilter.getCustomAttribute2(), null);
         writer.writeNotNullOrDef("dcmCustomAttribute3", attributeFilter.getCustomAttribute3(), null);
         writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
-                attributeFilter.getAttributeUpdatePolicy(), null);
+                attributeFilter.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
         writer.writeEnd();
     }
 
@@ -370,7 +378,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private String[] descriptorProperties(Map<String, ?> props) {
+    static String[] descriptorProperties(Map<String, ?> props) {
         String[] ss = new String[props.size()];
         int i = 0;
         for (Map.Entry<String, ?> entry : props.entrySet())
@@ -581,7 +589,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", aac.getNullifyIssuerOfPatientID(), null);
             writer.writeNotEmpty("dcmIssuerOfPatientID", aac.getIssuerOfPatientIDs());
-            writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
+            writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
+                    aac.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.MERGE);
             writer.writeNotEmpty("dcmNullifyTag", TagUtils.toHexStrings(aac.getNullifyTags()));
             writer.writeNotNullOrDef("dcmSupplementFromDeviceName", deviceNameOf(aac.getSupplementFromDevice()), null);
             writer.writeEnd();
@@ -818,6 +827,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
         writer.writeNotNull("dcmUpdateLocationStatusOnRetrieve",
                 arcAE.getUpdateLocationStatusOnRetrieve());
+        writer.writeNotNull("dcmStorageVerificationOnRetrieve",
+                arcAE.getStorageVerificationOnRetrieve());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1028,6 +1039,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7ImportReportTemplateURI":
                     arcDev.setImportReportTemplateURI(reader.stringValue());
                     break;
+                case "hl7ImportReportTemplateParam":
+                    arcDev.setImportReportTemplateParams(reader.stringArray());
+                    break;
                 case "hl7ScheduleProcedureTemplateURI":
                     arcDev.setScheduleProcedureTemplateURI(reader.stringValue());
                     break;
@@ -1224,6 +1238,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmUpdateLocationStatusOnRetrieve":
                     arcDev.setUpdateLocationStatusOnRetrieve(reader.booleanValue());
                     break;
+                case "dcmStorageVerificationOnRetrieve":
+                    arcDev.setStorageVerificationOnRetrieve(reader.booleanValue());
+                    break;
                 case "hl7TrackChangedPatientID":
                     arcDev.setHL7TrackChangedPatientID(reader.booleanValue());
                     break;
@@ -1319,6 +1336,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPatientVerificationMaxStaleness":
                     arcDev.setPatientVerificationMaxStaleness(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "hl7OrderMissingStudyIUIDPolicy":
+                    arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7DicomCharacterSet":
+                    arcDev.setHl7DicomCharacterSet(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -2612,6 +2635,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUpdateLocationStatusOnRetrieve":
                     arcAE.setUpdateLocationStatusOnRetrieve(reader.booleanValue());
+                    break;
+                case "dcmStorageVerificationOnRetrieve":
+                    arcAE.setStorageVerificationOnRetrieve(reader.booleanValue());
                     break;
                 case "dcmInvokeImageDisplayPatientURL":
                     arcAE.setInvokeImageDisplayPatientURL(reader.stringValue());

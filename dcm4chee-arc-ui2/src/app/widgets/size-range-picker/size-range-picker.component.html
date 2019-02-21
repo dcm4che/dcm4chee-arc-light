@@ -1,0 +1,23 @@
+
+<div class="size_range_picker" (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['min','max','unit','clear','mat-option-text','mat-option']">
+    <div class="main_input_block">
+        <input class="main_input" type="text" [(ngModel)]="model" placeholder="Study Size Range" title="Study Size Range in KB" (keyup)="keyUpMainInput()">
+        <span class="size_range_icon" (click)="togglePicker()"></span>
+    </div>
+    <div class="picker" *ngIf="showPicker">
+        <h5>Set Size Range:</h5>
+        <div class="input_block" (keyup)="onInputChange()">
+            <div class="input_part">
+                <input class="min" type="text" min="1" [(ngModel)]="value.min" placeholder="min"/>
+                <span class="minus">-</span>
+                <input class="max" type="text" min="1" [(ngModel)]="value.max" placeholder="max"/>
+            </div>
+            <mat-select class="unit" [(ngModel)]="value.unit" placeholder="Unit" (change)="onInputChange()">
+                <mat-option value="">*</mat-option>
+                <mat-option *ngFor="let option of units" value="{{option.value}}" title="{{option.description || option.title}}">{{option.text}}</mat-option>
+            </mat-select>
+        </div>
+        <button (click)="setRange()">Set</button>
+        <button class="clear" (click)="clear()">Clear</button>
+    </div>
+</div>

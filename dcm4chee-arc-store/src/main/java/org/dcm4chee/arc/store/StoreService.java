@@ -9,6 +9,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -50,7 +52,7 @@ public interface StoreService {
 
     StoreSession newStoreSession(Association as);
 
-    StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String sourceAET);
+    StoreSession newStoreSession(HttpServletRequestInfo httpRequestInfo, ApplicationEntity ae, String sourceAET);
 
     StoreSession newStoreSession(ApplicationEntity ae);
 
@@ -66,7 +68,7 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances)
+    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs)
             throws Exception;
 
     ZipInputStream openZipInputStream(

@@ -40,16 +40,28 @@
 
 package org.dcm4chee.arc.delete;
 
+import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2019
  */
 public interface RejectionService {
 
-    void reject(StoreSession session, ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID,
-                RejectionNote rjNote) throws Exception;
+    String QUEUE_NAME = "Rejection";
+    String JNDI_NAME = "jms/queue/Rejection";
+
+    int reject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
+               HttpServletRequestInfo httpRequest) throws Exception;
+
+    int reject(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID, RejectionNote rjNote,
+               HttpServletRequestInfo httpRequest) throws Exception;
+
+    void scheduleReject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
+               HttpServletRequestInfo httpRequest, String batchID) throws QueueSizeLimitExceededException;
 }

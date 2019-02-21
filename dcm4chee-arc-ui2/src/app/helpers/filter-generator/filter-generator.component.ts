@@ -25,7 +25,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
     @Input() schema;
     @Input() model;
-    @Input() filterTreeHeight;
+    private _filterTreeHeight;
     @Input() filterID;
     @Input() hideClearButtons;
     @Input() filterIdTemplate;
@@ -50,10 +50,24 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         public config: MatDialogConfig,
         private deviceConfigurator:DeviceConfiguratorService,
         private devices:DevicesService
-    ) { }
+    ) {
+        console.log("test",this._filterTreeHeight)
+    }
+    get filterTreeHeight() {
+        return this._filterTreeHeight;
+    }
+
+    @Input("filterTreeHeight")
+    set filterTreeHeight(value) {
+        this._filterTreeHeight = value;
+        if(this._filterTreeHeight) {
+            this.cssBlockClass = `height_${this._filterTreeHeight}`;
+        }
+    }
+
     ngOnInit() {
-        if(this.filterTreeHeight) {
-            this.cssBlockClass = `height_${this.filterTreeHeight}`;
+        if(this._filterTreeHeight) {
+            this.cssBlockClass = `height_${this._filterTreeHeight}`;
         }
         if(!this.filterID){
             try{

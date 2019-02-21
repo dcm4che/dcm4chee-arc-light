@@ -57,6 +57,8 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 public interface PatientMgtContext {
     AttributeFilter getAttributeFilter();
 
+    AttributeFilter getStudyAttributeFilter();
+
     FuzzyStr getFuzzyStr();
 
     Association getAssociation();

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -62,6 +62,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
+    private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
+    private String hl7DicomCharacterSet;
+
     private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
@@ -69,6 +72,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
+    private final Map<String, String> importReportTemplateParams = new HashMap<>();
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -86,6 +90,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
+        hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
+        hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7ExportRules.clear();
         hl7ExportRules.addAll(arcapp.hl7ExportRules);
         hl7PrefetchRules.clear();
@@ -100,6 +106,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
         hl7NoPatientCreateMessageTypes.addAll(arcapp.hl7NoPatientCreateMessageTypes);
+        importReportTemplateParams.clear();
+        importReportTemplateParams.putAll(arcapp.importReportTemplateParams);
     }
 
     public String getAETitle() {
@@ -385,5 +393,57 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ScheduledStationAETInOrder != null
                 ? hl7ScheduledStationAETInOrder
                 : getArchiveDeviceExtension().getHL7ScheduledStationAETInOrder();
+    }
+
+    public Map<String, String> importReportTemplateParams() {
+        return importReportTemplateParams.isEmpty()
+                ? importReportTemplateParams
+                : getArchiveDeviceExtension().getImportReportTemplateParams();
+    }
+
+    public Map<String, String> getImportReportTemplateParams() {
+        return importReportTemplateParams;
+    }
+
+    public void setImportReportTemplateParam(String name, String value) {
+        importReportTemplateParams.put(name, value);
+    }
+
+    public void setImportReportTemplateParams(String[] ss) {
+        importReportTemplateParams.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
+            setImportReportTemplateParam(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
+    public HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy() {
+        return hl7OrderMissingStudyIUIDPolicy != null
+                ? hl7OrderMissingStudyIUIDPolicy
+                : getArchiveDeviceExtension().getHl7OrderMissingStudyIUIDPolicy();
+    }
+
+    public HL7OrderMissingStudyIUIDPolicy getHL7OrderMissingStudyIUIDPolicy() {
+        return hl7OrderMissingStudyIUIDPolicy;
+    }
+
+    public void setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy) {
+        this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
+    }
+
+    public String hl7DicomCharacterSet() {
+        return hl7DicomCharacterSet != null
+                ? hl7DicomCharacterSet
+                : getArchiveDeviceExtension().getHl7DicomCharacterSet();
+    }
+
+    public String getHl7DicomCharacterSet() {
+        return hl7DicomCharacterSet;
+    }
+
+    public void setHl7DicomCharacterSet(String hl7DicomCharacterSet) {
+        this.hl7DicomCharacterSet = hl7DicomCharacterSet;
     }
 }

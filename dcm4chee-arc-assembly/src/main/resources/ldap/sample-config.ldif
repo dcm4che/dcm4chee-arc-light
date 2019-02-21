@@ -169,7 +169,6 @@ objectClass: dcmArchiveDevice
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
-dcmLinkMWLEntryUpdatePolicy: MERGE
 dicomManufacturerModelName: dcm4chee-arc
 dcmSeriesMetadataPollingInterval: PT1M
 dcmOverwritePolicy: SAME_SOURCE
@@ -653,12 +652,17 @@ dcmTag: 00081120
 dcmTag: 00101010
 dcmTag: 00101020
 dcmTag: 00101021
+dcmTag: 00101022
+dcmTag: 00101023
+dcmTag: 00101024
 dcmTag: 00101030
 dcmTag: 00102000
 dcmTag: 00102110
 dcmTag: 00102180
+dcmTag: 001021A0
 dcmTag: 001021B0
 dcmTag: 001021C0
+dcmTag: 001021D0
 dcmTag: 00102203
 dcmTag: 0020000D
 dcmTag: 00321031
@@ -667,6 +671,8 @@ dcmTag: 00321033
 dcmTag: 00321034
 dcmTag: 00321060
 dcmTag: 00321064
+dcmTag: 00321066
+dcmTag: 00321067
 dcmTag: 00380008
 dcmTag: 00380010
 dcmTag: 00380014
@@ -780,15 +786,33 @@ dcmTag: 00080201
 dcmTag: 00081030
 dcmTag: 00081032
 dcmTag: 00081048
+dcmTag: 00081080
+dcmTag: 00081084
 dcmTag: 00101010
 dcmTag: 00101020
 dcmTag: 00101021
+dcmTag: 00101022
+dcmTag: 00101023
+dcmTag: 00101024
 dcmTag: 00101030
+dcmTag: 00102000
+dcmTag: 00102110
 dcmTag: 00102180
+dcmTag: 001021A0
 dcmTag: 001021B0
+dcmTag: 001021C0
+dcmTag: 001021D0
 dcmTag: 00102203
 dcmTag: 0020000D
 dcmTag: 00200010
+dcmTag: 00321066
+dcmTag: 00321067
+dcmTag: 00380010
+dcmTag: 00380014
+dcmTag: 00380060
+dcmTag: 00380062
+dcmTag: 00380064
+dcmTag: 00380500
 dcmEntity: Study
 objectClass: dcmAttributeFilter
 dcmAttributeUpdatePolicy: MERGE
@@ -861,19 +885,13 @@ dcmTag: 00101060
 dcmTag: 00101080
 dcmTag: 00101081
 dcmTag: 00101090
-dcmTag: 00102000
-dcmTag: 00102110
 dcmTag: 00102150
 dcmTag: 00102152
 dcmTag: 00102154
 dcmTag: 00102160
-dcmTag: 001021A0
-dcmTag: 001021C0
-dcmTag: 001021D0
 dcmTag: 001021F0
 dcmTag: 00102201
 dcmTag: 00102202
-dcmTag: 00102203
 dcmTag: 00102292
 dcmTag: 00102293
 dcmTag: 00102294
@@ -895,7 +913,6 @@ dcmTag: 00120081
 dcmTag: 00120082
 dcmTag: 00380050
 dcmTag: 00380100
-dcmTag: 00380500
 dcmTag: 00380502
 dcmTag: 00403001
 dcmEntity: Patient
@@ -1295,6 +1312,17 @@ objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/DiffTasks
+
+dn: dcmQueueName=Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Rejection Tasks
+dcmQueueName: Rejection
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Rejection
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Storage Commitment SCP Tasks
@@ -1846,6 +1874,8 @@ dcmTag: 0008103E
 dcmTag: 00081040
 dcmTag: 00081048
 dcmTag: 00081050
+dcmTag: 00081080
+dcmTag: 00081084
 dcmTag: 00081090
 dcmTag: 00081111
 dcmTag: 00081115
@@ -1865,6 +1895,9 @@ dcmTag: 00101005
 dcmTag: 00101010
 dcmTag: 00101020
 dcmTag: 00101021
+dcmTag: 00101022
+dcmTag: 00101023
+dcmTag: 00101024
 dcmTag: 00101030
 dcmTag: 00101040
 dcmTag: 00101060
@@ -1918,7 +1951,14 @@ dcmTag: 00280008
 dcmTag: 00280010
 dcmTag: 00280011
 dcmTag: 00280100
+dcmTag: 00321066
+dcmTag: 00321067
+dcmTag: 00380010
+dcmTag: 00380014
 dcmTag: 00380050
+dcmTag: 00380060
+dcmTag: 00380062
+dcmTag: 00380064
 dcmTag: 00380100
 dcmTag: 00380500
 dcmTag: 00380502

@@ -234,28 +234,43 @@ public class ProcedureServiceEJB {
         if (seriesList.isEmpty())
             return false;
 
+        Date now = new Date();
         Study study = seriesList.get(0).getStudy();
         Attributes studyAttr = study.getAttributes();
-        Attributes attr = new Attributes();
-        if (!studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
-                mwlAttr, attr, arcDev.getAttributeFilter(Entity.Study).getSelection()))
-            return false;
-
-        study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-        study.setAttributes(studyAttr, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
+        Attributes modified = new Attributes();
+        AttributeFilter studyFilter = arcDev.getAttributeFilter(Entity.Study);
+        if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
+                mwlAttr, modified, studyFilter.getSelection())) {
+            study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+            study.setAttributes(studyAttr.addOriginalAttributes(
+                    null,
+                    now,
+                    Attributes.CORRECT,
+                    device.getDeviceName(),
+                    modified),
+                    studyFilter, arcDev.getFuzzyStr());
+        }
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
             if (sourceSeriesIUIDs == null || sourceSeriesIUIDs.contains(series.getSeriesInstanceUID()))
                 updateSeriesAttributes(series, mwlAttr, issuerOfAccessionNumber,
-                        arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr());
+                        arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr(), now);
 
         LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
         return true;
     }
 
     private void updateSeriesAttributes(Series series, Attributes mwlAttr, IssuerEntity issuerOfAccessionNumber,
-                                        AttributeFilter filter, FuzzyStr fuzzyStr) {
+                                        AttributeFilter filter, FuzzyStr fuzzyStr, Date now) {
         Attributes seriesAttr = series.getAttributes();
+        Attributes modified = new Attributes(seriesAttr, Tag.RequestAttributesSequence);
+        if (modified.containsValue(Tag.RequestAttributesSequence))
+            seriesAttr.addOriginalAttributes(
+                    null,
+                    now,
+                    Attributes.CORRECT,
+                    device.getDeviceName(),
+                    modified);
         Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
         Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
         Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();

@@ -2,6 +2,12 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="xml"/>
   <xsl:include href="hl7-common.xsl"/>
+  <xsl:param name="langCodeValue">en</xsl:param>
+  <xsl:param name="langCodingSchemeDesignator">RFC5646</xsl:param>
+  <xsl:param name="langCodeMeaning">English</xsl:param>
+  <xsl:param name="docTitleCodeValue">11528-7</xsl:param>
+  <xsl:param name="docTitleCodingSchemeDesignator">LN</xsl:param>
+  <xsl:param name="docTitleCodeMeaning">Radiology Report</xsl:param>
   <xsl:param name="VerifyingOrganization">Verifying Organization</xsl:param>
   <xsl:template match="/hl7">
     <NativeDicomModel>
@@ -48,9 +54,9 @@
     <!--Concept Name Code Sequence-->
     <xsl:call-template name="codeItem">
       <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-      <xsl:with-param name="code">11528-7</xsl:with-param>
-      <xsl:with-param name="scheme">LN</xsl:with-param>
-      <xsl:with-param name="meaning">Radiology Report</xsl:with-param>
+      <xsl:with-param name="code" select="$docTitleCodeValue"/>
+      <xsl:with-param name="scheme" select="$docTitleCodingSchemeDesignator"/>
+      <xsl:with-param name="meaning" select="$docTitleCodeMeaning"/>
     </xsl:call-template>
     <!--Continuity Of Content-->
     <DicomAttribute tag="0040A050" vr="CS"><Value number="1">SEPARATE</Value></DicomAttribute>
@@ -179,9 +185,9 @@
       <!--Concept Code Sequence-->
       <xsl:call-template name="codeItem">
         <xsl:with-param name="sqtag">0040A168</xsl:with-param>
-        <xsl:with-param name="code">eng</xsl:with-param>
-        <xsl:with-param name="scheme">ISO639_2</xsl:with-param>
-        <xsl:with-param name="meaning">English</xsl:with-param>
+        <xsl:with-param name="code" select="$langCodeValue"/>
+        <xsl:with-param name="scheme" select="$langCodingSchemeDesignator"/>
+        <xsl:with-param name="meaning" select="$langCodeMeaning"/>
       </xsl:call-template>
     </Item>
   </xsl:template>

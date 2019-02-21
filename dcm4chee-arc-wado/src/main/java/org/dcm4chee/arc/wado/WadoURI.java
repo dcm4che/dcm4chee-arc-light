@@ -196,7 +196,8 @@ public class WadoURI {
         // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
         // s. https://issues.jboss.org/browse/RESTEASY-903
         request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {}?{} from {}@{}",
+                request.getRequestURI(), request.getQueryString(), request.getRemoteUser(), request.getRemoteHost());
         try {
             checkAET();
             final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
@@ -247,8 +248,8 @@ public class WadoURI {
             entity = entityOf(ctx, inst, objectType, mimeType);
         }
         ar.register((CompletionCallback) throwable -> {
-                updateLocations(ctx);
-                ctx.setException(throwable);
+            ctx.getRetrieveService().updateLocations(ctx);
+            ctx.setException(throwable);
                 retrieveWado.fire(ctx);
         });
         ar.resume(Response.ok(entity, mimeType).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).build());
@@ -256,11 +257,6 @@ public class WadoURI {
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
         return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
-    }
-
-    private static void updateLocations(RetrieveContext ctx) {
-        if (ctx.isUpdateLocationStatusOnRetrieve())
-            ctx.getRetrieveService().updateLocations(ctx);
     }
 
     private void checkAET() {

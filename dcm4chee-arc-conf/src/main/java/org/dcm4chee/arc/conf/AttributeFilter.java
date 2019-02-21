@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.ValueSelector;
 
 import java.io.Serializable;
@@ -54,7 +55,7 @@ public class AttributeFilter implements Serializable {
     private static final long serialVersionUID = -2417549681350544302L;
 
     private int[] selection;
-    private Attributes.UpdatePolicy attributeUpdatePolicy;
+    private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private ValueSelector customAttribute1;
     private ValueSelector customAttribute2;
     private ValueSelector customAttribute3;
@@ -68,6 +69,34 @@ public class AttributeFilter implements Serializable {
 
     public int[] getSelection() {
         return selection;
+    }
+
+    public int[] getSelection(boolean withOriginalAttributesSequence) {
+        int index = Arrays.binarySearch(selection, Tag.OriginalAttributesSequence);
+        if (withOriginalAttributesSequence) {
+            if (index < 0)
+                return includeOriginalAttributesSequence(selection, -(index + 1));
+        } else {
+            if (index >= 0) {
+                return removeOriginalAttributesSequence(selection, index);
+            }
+        }
+        return selection;
+    }
+
+    private static int[] includeOriginalAttributesSequence(int[] selection, int index) {
+        int[] result = new int[selection.length + 1];
+        System.arraycopy(selection, 0, result, 0, index);
+        result[index] = Tag.OriginalAttributesSequence;
+        System.arraycopy(selection, index, result, index + 1, selection.length - index);
+        return result;
+    }
+
+    private static int[] removeOriginalAttributesSequence(int[] selection, int index) {
+        int[] result = new int[selection.length - 1];
+        System.arraycopy(selection, 0, result, 0, index);
+        System.arraycopy(selection, index + 1, result, index - 1, selection.length - index - 1);
+        return result;
     }
 
     public void setSelection(int[] selection) {

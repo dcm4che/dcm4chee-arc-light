@@ -405,10 +405,11 @@ public class Patient {
         patientCustomAttribute3 =
             AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
 
+        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(true));
         if (attributesBlob == null)
-            attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
+            attributesBlob = new AttributesBlob(blobAttrs);
         else
-            attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+            attributesBlob.setAttributes(blobAttrs);
 
         responsiblePerson = PersonName.valueOf(
                 attrs.getString(Tag.ResponsiblePerson), fuzzyStr, responsiblePerson);

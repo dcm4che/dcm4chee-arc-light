@@ -210,14 +210,6 @@ objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: action-studies-serie
 
-dn: dcmuiPermissionName=Action - Studies - Restore Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmuiPermissionName: Action - Studies - Restore Study
-dcmuiActionParam: visible
-objectClass: dcmuiPermission
-dcmAcceptedUserRole: admin
-dcmAcceptedUserRole: user
-dcmuiAction: action-studies-restore_study
-
 dn: dcmuiPermissionName=Action - Studies - Restore study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Studies - Restore study
 dcmuiActionParam: restore
@@ -320,6 +312,20 @@ objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: action-studies-study
 
+dn: dcmuiPermissionName=Action - Studies - Delete Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Delete Study
+dcmuiActionParam: delete
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-study
+
+dn: dcmuiPermissionName=Action - Studies - Download Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Download Study
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-study
+
 dn: dcmuiPermissionName=Action - Monitoring Export Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Monitoring Export Single Action
 dcmuiActionParam: visible
@@ -355,6 +361,13 @@ dcmuiActionParam: visible
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: action-monitoring->external_retrieve-single_action
+
+dn: dcmuiPermissionName=Action - Monitoring - Diff Monitor All Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Monitoring - Diff Monitor All Action
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->diff_monitor-all_action
 
 dn: dcmuiPermissionName=Action - Studies - Upload MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission

@@ -182,8 +182,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String auditRecordRepositoryURL;
     private volatile String atna2JsonFhirTemplateURI;
     private volatile String atna2XmlFhirTemplateURI;
-    private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy;
-    private volatile Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
+    private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
+    private volatile Attributes.UpdatePolicy linkMWLEntryUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private volatile boolean hl7TrackChangedPatientID = true;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;
@@ -211,6 +211,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile ScheduleExpression[] storageVerificationSchedules = {};
     private volatile int storageVerificationFetchSize = 100;
     private volatile boolean updateLocationStatusOnRetrieve;
+    private volatile boolean storageVerificationOnRetrieve;
     private volatile String compressionAETitle;
     private volatile Duration compressionPollingInterval;
     private volatile int compressionFetchSize = 100;
@@ -226,6 +227,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
+    private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
+    private volatile String hl7DicomCharacterSet;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -255,6 +258,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
+    private final Map<String, String> importReportTemplateParams = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -2049,6 +2053,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.updateLocationStatusOnRetrieve = updateLocationStatusOnRetrieve;
     }
 
+    public boolean isStorageVerificationOnRetrieve() {
+        return storageVerificationOnRetrieve;
+    }
+
+    public void setStorageVerificationOnRetrieve(boolean storageVerificationOnRetrieve) {
+        this.storageVerificationOnRetrieve = storageVerificationOnRetrieve;
+    }
+
     public String getCompressionAETitle() {
         return compressionAETitle;
     }
@@ -2190,6 +2202,40 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void addKeycloakServer(KeycloakServer keycloakServer) {
         keycloakServerMap.put(keycloakServer.getKeycloakServerID(), keycloakServer);
+    }
+
+    public Map<String, String> getImportReportTemplateParams() {
+        return importReportTemplateParams;
+    }
+
+    public void setImportReportTemplateParam(String name, String value) {
+        importReportTemplateParams.put(name, value);
+    }
+
+    public void setImportReportTemplateParams(String[] ss) {
+        importReportTemplateParams.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
+            setImportReportTemplateParam(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
+    public HL7OrderMissingStudyIUIDPolicy getHl7OrderMissingStudyIUIDPolicy() {
+        return hl7OrderMissingStudyIUIDPolicy;
+    }
+
+    public void setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy) {
+        this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
+    }
+
+    public String getHl7DicomCharacterSet() {
+        return hl7DicomCharacterSet;
+    }
+
+    public void setHl7DicomCharacterSet(String hl7DicomCharacterSet) {
+        this.hl7DicomCharacterSet = hl7DicomCharacterSet;
     }
 
     @Override
@@ -2339,6 +2385,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageVerificationPollingInterval = arcdev.storageVerificationPollingInterval;
         storageVerificationFetchSize = arcdev.storageVerificationFetchSize;
         updateLocationStatusOnRetrieve = arcdev.updateLocationStatusOnRetrieve;
+        storageVerificationOnRetrieve = arcdev.storageVerificationOnRetrieve;
         compressionAETitle = arcdev.compressionAETitle;
         compressionPollingInterval = arcdev.compressionPollingInterval;
         compressionFetchSize = arcdev.compressionFetchSize;
@@ -2354,6 +2401,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
+        hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
+        hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
@@ -2406,5 +2455,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         xRoadProperties.putAll(arcdev.xRoadProperties);
         impaxReportProperties.clear();
         impaxReportProperties.putAll(arcdev.impaxReportProperties);
+        importReportTemplateParams.clear();
+        importReportTemplateParams.putAll(arcdev.importReportTemplateParams);
     }
 }

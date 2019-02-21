@@ -613,10 +613,11 @@ public class Study {
         studyCustomAttribute3 =
                 AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
 
+        Attributes blobAttrs = new Attributes(attrs, filter.getSelection(true));
         if (attributesBlob == null)
-            attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
+            attributesBlob = new AttributesBlob(blobAttrs);
         else
-            attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+            attributesBlob.setAttributes(blobAttrs);
         modifiedTime = new Date();
         if (externalRetrieveAET == null)
             externalRetrieveAET = "*";

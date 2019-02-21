@@ -680,11 +680,6 @@ export class Globalvar {
                 },
                 {
                     tag:"checkbox",
-                    filterKey:"expired",
-                    text:"Only expired studies"
-                },
-                {
-                    tag:"checkbox",
                     filterKey:"incomplete",
                     text:"Only incomplete",
                     description:"Only incomplete studies"
@@ -725,6 +720,16 @@ export class Globalvar {
                     filterKey:"retrievefailed",
                     text:"Only failed retrieving",
                     description:"Only failed to be retrieved"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"storageVerificationFailed",
+                    text:"Verification Failed",
+                    description:"Storage Verification Failed"
+                },
+                {
+                    tag:"size_range_picker",
+                    filterKey:"StudySizeInKB"
                 }
             ];
         }
@@ -835,6 +840,11 @@ export class Globalvar {
                 type:"text",
                 filterKey:"StudyAccessDateTime",
                 description:"Study Access"
+            },{
+                tag:"range-picker",
+                type:"text",
+                filterKey:"ExpirationDate",
+                description:"Expiration Date"
             },{
                 tag:"select",
                 options:[

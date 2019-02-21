@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.open-close-container {
+  border: 1px solid #dddddd;
+  margin-top: 1em;
+  padding: 20px 20px 0px 20px;
+  color: #000000;
+  font-weight: bold;
+  font-size: 20px;
+  float:left;
+  width: 100%;
+  overflow: auto;
+  height: 1000px;
+}
+.fixed_header{
+  width: calc(100% - 80px);
+  background: white;
+  position: fixed;
+  top: 0;
+}
+.tab_content_with_fixed_header{
+  margin-top: 226px;
+}

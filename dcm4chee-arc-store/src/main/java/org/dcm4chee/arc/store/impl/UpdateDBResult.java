@@ -40,9 +40,11 @@
 
 package org.dcm4chee.arc.store.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.store.StoreContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +62,13 @@ class UpdateDBResult {
     private Patient createdPatient;
     private Study createdStudy;
     private Instance storedInstance;
+    private Attributes storedAttributes;
+    private final Attributes coercedAttributes;
+
+    UpdateDBResult(StoreContext ctx) {
+        this.storedAttributes = ctx.getAttributes();
+        this.coercedAttributes = new Attributes(ctx.getCoercedAttributes());
+    }
 
     public List<Location> getLocations() {
         return locations;
@@ -115,5 +124,17 @@ class UpdateDBResult {
 
     public void setStoredInstance(Instance storedInstance) {
         this.storedInstance = storedInstance;
+    }
+
+    public Attributes getStoredAttributes() {
+        return storedAttributes;
+    }
+
+    public void setStoredAttributes(Attributes storedAttributes) {
+        this.storedAttributes = storedAttributes;
+    }
+
+    public Attributes getCoercedAttributes() {
+        return coercedAttributes;
     }
 }

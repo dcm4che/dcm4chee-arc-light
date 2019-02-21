@@ -62,8 +62,8 @@ import java.util.*;
                 "join fetch mwl.attributesBlob " +
                 "where mwl.studyInstanceUID = ?1"),
 @NamedQuery(
-        name = MWLItem.DELETE_BY_PATIENT,
-        query = "delete from MWLItem mwl " +
+        name = MWLItem.FIND_BY_PATIENT,
+        query = "select mwl from MWLItem mwl " +
                 "where mwl.patient = ?1"),
 @NamedQuery(
         name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER,
@@ -73,15 +73,18 @@ import java.util.*;
                 "and mwl.scheduledProcedureStepID = ?2"),
 @NamedQuery(
         name = MWLItem.ATTRS_BY_ACCESSION_NO,
-        query = "select mwl.attributesBlob.encodedAttributes from MWLItem mwl " +
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
+                "from MWLItem mwl " +
                 "where mwl.accessionNumber = ?1"),
 @NamedQuery(
         name = MWLItem.ATTRS_BY_STUDY_IUID,
-        query = "select mwl.attributesBlob.encodedAttributes from MWLItem mwl " +
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
+                "from MWLItem mwl " +
                 "where mwl.studyInstanceUID = ?1"),
 @NamedQuery(
         name = MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID,
-        query = "select mwl.attributesBlob.encodedAttributes from MWLItem mwl " +
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
+                "from MWLItem mwl " +
                 "where mwl.studyInstanceUID = ?1 " +
                 "and mwl.scheduledProcedureStepID = ?2"),
 @NamedQuery(
@@ -106,12 +109,13 @@ import java.util.*;
 public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID_EAGER = "MWLItem.findByStudyIUIDEager";
-    public static final String DELETE_BY_PATIENT = "MWLItem.deleteByPatient";
+    public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
     public static final String FIND_BY_STUDY_UID_AND_SPS_ID_EAGER = "MWLItem.findByStudyUIDAndSPSIDEager";
     public static final String ATTRS_BY_ACCESSION_NO = "MWLItem.attrsByAccessionNo";
     public static final String ATTRS_BY_STUDY_IUID = "MWLItem.attrsByStudyIUID";
     public static final String ATTRS_BY_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByStudyUIDAndSPSID";
     public static final String COUNT_BY_STUDY_IUID = "MWLItem.countByStudyIUID";
+
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")

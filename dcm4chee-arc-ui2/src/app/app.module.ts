@@ -96,6 +96,7 @@ import { StorageVerificationComponent } from './monitoring/storage-verification/
 import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
 import { ConfigTabComponent } from './configuration/config-tab.component';
 import {DevicesService} from './configuration/devices/devices.service';
+import {MultiSelectModule} from "primeng/primeng";
 import {StudyTabComponent} from "./study/study-tab.component";
 import { StudyComponent } from './study/study/study.component';
 import {StudyService} from "./study/study/study.service";
@@ -173,6 +174,7 @@ import {StudyService} from "./study/study/study.service";
         CommonModule,
         CalendarModule,
         DropdownModule,
+        MultiSelectModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
         LoadingBarModule.forRoot(),

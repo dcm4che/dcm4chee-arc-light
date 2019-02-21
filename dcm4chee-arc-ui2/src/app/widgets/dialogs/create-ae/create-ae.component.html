@@ -23,6 +23,43 @@
                                 <span class="description">Unconstrained text description of the device</span>
                             </div>
                             <div class="inputblock">
+                                <label class="title">Station Name</label>
+                                <input type="text" [(ngModel)]="newAetModel.dicomStationName">
+                                <span class="description">Should be the same as the value of Station Name (0008,1010) in SOP instances created by this device</span>
+                            </div>
+                            <div class="dynamicform">
+                                <div class="title">
+                                    <label>Institution Name</label>
+                                </div>
+                                <div class="form_content arrayelement">
+                                    <div class="inputblock array_parent">
+                                        <div class="array_single" *ngFor="let el of newAetModel.dicomInstitutionName;let i = index;trackBy:trackByFn">
+                                            <input type="text" [(ngModel)]="newAetModel.dicomInstitutionName[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomInstitutionName,i)"><i class="material-icons">clear</i></span>
+                                        </div>
+                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomInstitutionName')"><i class="material-icons">add</i> <span>Add</span></div>
+                                    </div>
+                                </div>
+                                <div class="description_parent">
+                                    <span class="description">Should be the same as the value of Institution Name (0008,0080) in SOP Instances created by this device</span>
+                                </div>
+                            </div>
+                            <div class="dynamicform">
+                                <div class="title">
+                                    <label>Institution Department Name</label>
+                                </div>
+                                <div class="form_content arrayelement">
+                                    <div class="inputblock array_parent">
+                                        <div class="array_single" *ngFor="let el of newAetModel.dicomInstitutionDepartmentName;let i = index;trackBy:trackByFn">
+                                            <input type="text" [(ngModel)]="newAetModel.dicomInstitutionDepartmentName[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomInstitutionDepartmentName,i)"><i class="material-icons">clear</i></span>
+                                        </div>
+                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomInstitutionDepartmentName')"><i class="material-icons">add</i> <span>Add</span></div>
+                                    </div>
+                                </div>
+                                <div class="description_parent">
+                                    <span class="description">Should be the same as the value of Institutional Department Name (0008,1040) in SOP Instances created by this device</span>
+                                </div>
+                            </div>
+                            <div class="inputblock">
                                 <label class="title">Installed</label>
                                 <div class="radio">
                                     <label>
@@ -140,6 +177,22 @@
                                 <label class="title">AE Description</label>
                                 <textarea name="dicomDescription" [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomDescription"></textarea>
                                 <span class="description">Unconstrained text description of the application entity</span>
+                            </div>
+                            <div class="dynamicform">
+                                <div class="title">
+                                    <label>Application Cluster</label>
+                                </div>
+                                <div class="form_content arrayelement">
+                                    <div class="inputblock array_parent">
+                                        <div class="array_single" *ngFor="let el of newAetModel.dicomNetworkAE[0].dicomApplicationCluster;let i = index;trackBy:trackByFn">
+                                            <input type="text" [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomApplicationCluster[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomNetworkAE[0].dicomApplicationCluster,i)"><i class="material-icons">clear</i></span>
+                                        </div>
+                                        <div class="add" (click)="addArrayElement(newAetModel.dicomNetworkAE[0], 'dicomApplicationCluster')"><i class="material-icons">add</i> <span>Add</span></div>
+                                    </div>
+                                </div>
+                                <div class="description_parent">
+                                    <span class="description">Locally defined names for a subset of related applications</span>
+                                </div>
                             </div>
                         </div>
                     </div>

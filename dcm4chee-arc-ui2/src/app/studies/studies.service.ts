@@ -11,6 +11,7 @@ import {ScalarObservable} from "rxjs/observable/ScalarObservable";
 import 'rxjs/add/operator/switchMap';
 import {Globalvar} from "../constants/globalvar";
 import {HttpErrorResponse, HttpHeaders} from "@angular/common/http";
+import {SelectDropdown} from "../interfaces";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -176,9 +177,75 @@ export class StudiesService {
         return object;
     };
 
-    setExpiredDate(aet,studyUID, expiredDate){
+/*    setExpiredDate(aet,studyUID, expiredDate){
         let url = `../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}`
         return this.$http.put(url,{}).map(res => j4care.redirectOnAuthResponse(res));
+    }*/
+
+    getPrepareParameterForExpiriationDialog(study, exporters, infinit){
+        let expiredDate:Date;
+        let yearRange = "1800:2100";
+        let title = "Set expired date for the study.";
+        let schema:any = [
+            [
+                [
+                    {
+                        tag:"label",
+                        text:"Expired date"
+                    },
+                    {
+                        tag:"p-calendar",
+                        filterKey:"expiredDate",
+                        description:"Birth Date"
+
+                    }
+                ]
+            ]
+        ];
+        if(infinit){
+            expiredDate = new Date();
+            expiredDate.setDate(31);
+            expiredDate.setMonth(11);
+            expiredDate.setFullYear(9999);
+            yearRange = "2017:9999";
+        }else{
+            if(_.hasIn(study,"77771023.Value.0") && study["77771023"].Value[0] != ""){
+                console.log("va",study["77771023"].Value[0]);
+                let expiredDateString = study["77771023"].Value[0];
+                expiredDate = new Date(expiredDateString.substring(0, 4)+ '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
+            }else{
+                expiredDate = new Date();
+            }
+            title += "<p>Set exporter if you wan't to export on expiration date too.";
+            schema[0].push([
+                {
+                    tag:"label",
+                    text:"Exporter"
+                },
+                {
+                    tag:"select",
+                    filterKey:"exporter",
+                    description:"Exporter",
+                    options:exporters.map(exporter=> new SelectDropdown(exporter.id, exporter.description || exporter.id))
+                }])
+        }
+        return {
+            content: title,
+            form_schema:schema,
+            result: {
+                schema_model: {
+                    expiredDate:j4care.formatDate(expiredDate,'yyyyMMdd')
+                }
+            },
+            saveButton: 'SAVE'
+        };
+    }
+    setExpiredDate(aet,studyUID, expiredDate, exporter){
+        let params = "";
+        if(exporter){
+            params = `?ExporterID=${exporter}`
+        }
+        return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${params}`,{}).map(res => j4care.redirectOnAuthResponse(res))
     }
 
     queryPatients = function(url, params) {
@@ -587,7 +654,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             if(!sendingHl7App || !receivingHl7App){
                 return Observable.throw(new Error('Hl7Applications not found!'));
             }else{
-                url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients`;
+                url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients?queue=true`;
             }
         }else{
             url = `../aets/${aet}/rs/patients/`;
@@ -671,6 +738,9 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                }
             }
         }else{
+            if(queue){
+                url += `?queue=true`
+            }
             if (modifyMode === 'create'){
                 return {
                     save:this.$http.post(

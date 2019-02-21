@@ -236,7 +236,6 @@
                             <div class="col-md-12" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                                 <!--<p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>-->
                                 <!--<range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" dateFormat="yymmdd"></range-picker>-->
-
                             </div>
                         </div>
                     </div>
@@ -386,14 +385,19 @@
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="SeriesDescription" type="text" [(ngModel)]="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
                     </div>
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                        <label title="Show only studies failed to be retrieved">
+                            <input type="checkbox" [(ngModel)]="filter.storageVerificationFailed"> Storage Verification Failed
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="col-md-3 block-2-1">
                 <div class="row">
 
-                    <div class="col-md-6" *ngIf="(filterMode === 'study' || filterMode === 'diff') && externalInternalAetMode === 'internal'">
-                        <label title="Show only expired studies">
-                            <input type="checkbox" [(ngModel)]="filter.expired"> Only expired studies
+                    <div class="col-md-6" *ngIf="filterMode === 'study' && externalInternalAetMode === 'internal'">
+                        <label title="Compression Failed"  >
+                            <input type="checkbox" [(ngModel)]="filter.compressionfailed"> Compression Failed
                         </label>
                     </div>
                     <div class="col-md-6" *ngIf="(filterMode === 'study' || filterMode === 'diff') && externalInternalAetMode === 'internal'">
@@ -446,13 +450,10 @@
                     <div class="col-md-6" *ngIf="filterMode === 'diff'">
                         <input  type="checkbox" [(ngModel)]="filter.ForceQueryByStudyUID"> Force query by Study UID
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode != 'diff'">
+                    <div class="col-md-6" *ngIf="externalInternalAetMode === 'internal' && filterMode != 'diff'">
+                        <range-picker *ngIf="externalInternalAetMode === 'internal' && filterMode != 'diff'" [model]="filter.ExpirationDate" (modelChange)="filter.ExpirationDate = $event" mode="range" placeholder="Expiration Date" dateFormat="yymmdd" onlyDate="true" title="Expiration Date"></range-picker>
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study' && externalInternalAetMode === 'internal'">
-                        <label title="Compression Failed"  >
-                            <input type="checkbox" [(ngModel)]="filter.compressionfailed"> Compression Failed
-                        </label>
-                    </div>
+
                 </div>
             </div>
         </div>

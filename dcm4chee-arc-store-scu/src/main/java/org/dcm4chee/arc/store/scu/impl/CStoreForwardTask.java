@@ -147,9 +147,9 @@ class CStoreForwardTask implements Runnable {
         Attributes studyAttrs = study.getAttributes();
         Attributes patAttrs = patient.getAttributes();
         Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, instAttrs);
-        instAttrs.addAll(seriesAttrs);
-        instAttrs.addAll(studyAttrs);
-        instAttrs.addAll(patAttrs);
+        instAttrs.addAll(seriesAttrs, true);
+        instAttrs.addAll(studyAttrs, true);
+        instAttrs.addAll(patAttrs, true);
         RetrieveService service = ctx.getRetrieveService();
         InstanceLocations instanceLocations = service.newInstanceLocations(instAttrs);
         instanceLocations.getLocations().addAll(locations(storeCtx));

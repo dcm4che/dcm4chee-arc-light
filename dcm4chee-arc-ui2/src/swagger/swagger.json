@@ -71,6 +71,10 @@
       "description": "Storage Commitment"
     },
     {
+      "name": "REJECT-RS",
+      "description": "Reject Matching Entities"
+    },
+    {
       "name": "STGVER-RS",
       "description": "Storage Verification"
     },
@@ -5466,7 +5470,7 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -5566,7 +5570,7 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -5673,7 +5677,7 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -6484,10 +6488,10 @@
             }
           },
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
-            "description": "no matching study found at primary C-FIND SCP"
+            "description": "No matching Study found at primary C-FIND SCP"
           },
           "404": {
             "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
@@ -6791,7 +6795,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
@@ -6863,7 +6867,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
@@ -6944,7 +6948,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Receiving HL7 Application not configured"
@@ -7025,7 +7029,7 @@
         ],
         "responses": {
           "202": {
-            "description": "request successfully queued for processing"
+            "description": "Request successfully queued for processing"
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
@@ -8201,13 +8205,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export only expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export only Studies which are marked as incomplete",
@@ -8279,6 +8276,12 @@
             "description": "Export Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -8405,13 +8408,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export only Series which are marked as incomplete",
@@ -8483,6 +8479,12 @@
             "description": "Export Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -8616,13 +8618,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export only Series which are marked as incomplete",
@@ -8694,6 +8689,12 @@
             "description": "Export Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export series of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -8820,13 +8821,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export Instances of expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export Instances of Series which are marked as incomplete",
@@ -8898,6 +8892,12 @@
             "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export instances which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -9031,13 +9031,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export only Instances of expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export only Instances of Series which are marked as incomplete",
@@ -9109,6 +9102,12 @@
             "description": "Export Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export instances of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -9249,13 +9248,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "export only Instances of expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "export only Instances of Series which are marked as incomplete",
@@ -9327,6 +9319,12 @@
             "description": "Export Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
             "type": "boolean",
             "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "export instances of series of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "ExpirationState",
@@ -9704,13 +9702,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Studies which are marked as incomplete",
@@ -9784,6 +9775,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -9892,13 +9889,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Series which are marked as incomplete",
@@ -9972,6 +9962,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only series which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10087,13 +10083,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Series which are marked as incomplete",
@@ -10167,6 +10156,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only series of study which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10275,13 +10270,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only Instances of expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Instances of Series which are marked as incomplete",
@@ -10355,6 +10343,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only instances of studies which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10470,13 +10464,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only Instances of expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Instances of Series which are marked as incomplete",
@@ -10550,6 +10537,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only instances of study which have expiration date between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -10672,13 +10665,6 @@
             "type": "string"
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "match only Instances of expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "match only Instances of Series which are marked as incomplete",
@@ -10755,6 +10741,12 @@
             "type": "string"
           },
           {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "match only Instances of Series of Study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "ExpirationState",
             "in": "query",
             "description": "match only Instances of Series of Study with given Expiration State",
@@ -10823,14 +10815,36 @@
             "description": "Coding Scheme Designator of Rejection Note",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Study successfully rejected",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
           },
           "404": {
-            "description": "study not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+            "description": "Study not found or no Rejection Note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "default": {
             "description": "unexpected error"
@@ -10880,14 +10894,36 @@
             "description": "Coding Scheme Designator of Rejection Note",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Series successfully rejected",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
           },
           "404": {
-            "description": "series not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+            "description": "Series not found or no Rejection Note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "default": {
             "description": "unexpected error"
@@ -10944,14 +10980,36 @@
             "description": "Coding Scheme Designator of Rejection Note",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Instance successfully rejected",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
           },
           "404": {
-            "description": "instance not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+            "description": "Instance not found or no Rejection Note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           },
           "default": {
             "description": "unexpected error"
@@ -11141,6 +11199,1222 @@
         }
       }
     },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies": {
+      "post": {
+        "tags": [
+          "REJECT-RS"
+        ],
+        "summary": "Reject Matching Studies",
+        "operationId": "rejectMatchingStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "reject Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "reject Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "reject Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "reject Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "reject Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "reject Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "reject only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "reject only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "reject only Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "reject only Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "reject only Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "reject Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "reject Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "reject Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "reject Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as reject Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "reject studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "reject Studies with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled reject of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note Code"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Rejection Note Code reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/series": {
+      "post": {
+        "tags": [
+          "REJECT-RS"
+        ],
+        "summary": "Reject Matching Series",
+        "operationId": "rejectMatchingSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "reject Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "reject Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "reject Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "reject Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "reject Series of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "reject Series of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "reject only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "reject only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "reject only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "reject only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "reject only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "reject Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "reject Series of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "reject Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "reject Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as reject Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "reject series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "reject Series with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled reject of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note Code"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Rejection Note Code reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "REJECT-RS"
+        ],
+        "summary": "Reject Matching Series of Study",
+        "operationId": "rejectMatchingSeriesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "reject Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "reject Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "reject Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "reject Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "reject Series of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "reject Series of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "reject only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "reject only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "reject only Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "reject only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "reject only Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "reject Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "reject Series of Study which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "reject only Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "reject Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as reject Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "reject Series of Study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "reject Series of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled reject of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note Code"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Rejection Note Code reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/instances": {
+      "post": {
+        "tags": [
+          "REJECT-RS"
+        ],
+        "summary": "Reject Matching Instances",
+        "operationId": "rejectMatchingInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "reject Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "reject Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "reject Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "reject Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "reject Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "reject Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "reject Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "reject only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "reject only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "reject Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "reject Instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "reject Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "reject Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as reject Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "reject Instances of Study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "reject Instances of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled reject of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note Code"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Rejection Note Code reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "REJECT-RS"
+        ],
+        "summary": "Reject Matching Instances of Studies",
+        "operationId": "rejectMatchingInstancesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "reject Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "reject Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "reject Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "reject Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "reject Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "reject Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "reject only Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "reject only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "reject Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "reject Instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "reject Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "reject Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as reject Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "reject Instances of Study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "reject Instances of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled reject of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note Code"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Rejection Note Code reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "REJECT-RS"
+        ],
+        "summary": "Reject Matching Instances of Series",
+        "operationId": "rejectMatchingInstancesOfSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "reject Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "reject Instances of Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "reject Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "reject Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "reject Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "reject Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "reject only Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "reject only Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "reject only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "reject Instances of Series of Study have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "reject Instances of Series of Study which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Reject Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Reject Matching only Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as reject Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "reject Instances of Series of Study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "reject Instances of Series of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled reject of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note Code"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Rejection Note Code reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/patients/count": {
       "get": {
         "tags": [
@@ -11279,13 +12553,6 @@
             "name": "returnempty",
             "in": "query",
             "description": "count also empty Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "count only expired Studies",
             "type": "boolean",
             "default": false
           },
@@ -11450,13 +12717,6 @@
             "default": false
           },
           {
-            "name": "expired",
-            "in": "query",
-            "description": "count only expired Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
             "name": "incomplete",
             "in": "query",
             "description": "count only Series which are marked as incomplete",
@@ -11588,13 +12848,6 @@
             "name": "returnempty",
             "in": "query",
             "description": "count also empty Series",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "count only expired Series",
             "type": "boolean",
             "default": false
           },
@@ -12078,13 +13331,6 @@
             "name": "returnempty",
             "in": "query",
             "description": "size of rejected Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "size of expired Studies",
             "type": "boolean",
             "default": false
           },
@@ -12666,6 +13912,126 @@
           },
           "502": {
             "description": "Query of PDQ Service fails"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/diff/pdq/{PDQServiceID}/patients": {
+      "get": {
+        "tags": [
+          "DIFF-RS",
+          "PDQ-RS"
+        ],
+        "summary": "Compare Patient Demographics",
+        "operationId": "comparePatientDemographics",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title to query for Patients",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "PDQServiceID",
+            "in": "path",
+            "description": "ID of PDQ Service to query for Patient Demographics",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "different",
+            "in": "query",
+            "description": "include Patients with different Patient Demographics",
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "missing",
+            "in": "query",
+            "description": "include Patients missing at the PDQ Service",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "orderby=[-]{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "withoutstudies",
+            "in": "query",
+            "description": "compare Patient w/o Studies",
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "compare only Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset={skippedResults}",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit={maximumResults}",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "different/missing patients as JSON array with DICOM JSON objects - may be empty if no patient differs",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "No matching Patient found at Archive AE"
+          },
+          "404": {
+            "description": "AE Title of Archive or PDQ Service not found"
           },
           "default": {
             "description": "unexpected error"

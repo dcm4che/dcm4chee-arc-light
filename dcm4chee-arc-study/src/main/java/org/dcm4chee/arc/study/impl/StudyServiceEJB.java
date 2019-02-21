@@ -42,6 +42,7 @@ package org.dcm4chee.arc.study.impl;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
@@ -58,6 +59,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -78,11 +80,16 @@ public class StudyServiceEJB {
     @Inject
     private IssuerService issuerService;
 
+    @Inject
+    private Device device;
+
     public void updateStudy(StudyMgtContext ctx) {
         AttributeFilter filter = ctx.getStudyAttributeFilter();
         Study study = findStudy(ctx);
-        Attributes attrs = new Attributes(ctx.getAttributes(), filter.getSelection());
-        if (attrs.equals(study.getAttributes()))
+        Attributes attrs = study.getAttributes();
+        Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection(false));
+        Attributes modified = new Attributes();
+        if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
             return;
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
@@ -91,7 +98,16 @@ public class StudyServiceEJB {
             throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
                     study.getPatient() + " in existing " + study);
 
-        study.setAttributes(attrs, filter, ctx.getFuzzyStr());
+        newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
+        attrs = newAttrs;
+        study.setAttributes(
+                attrs.addOriginalAttributes(
+                    null,
+                    new Date(),
+                    Attributes.CORRECT,
+                    device.getDeviceName(),
+                    modified),
+                filter, ctx.getFuzzyStr());
         study.setIssuerOfAccessionNumber(
                 findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
         setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));

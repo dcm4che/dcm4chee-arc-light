@@ -50,7 +50,6 @@ import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +72,6 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
 
     @Inject
     private DeletionServiceEJB ejb;
-
-    @Inject
-    private StoreService storeService;
 
     @Inject
     private RejectionService rejectionService;
@@ -115,19 +111,19 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        reject(arcDev, ae, rn);
+        process(arcDev, ae, rn);
     }
 
-    private void reject(ArchiveDeviceExtension arcDev, ApplicationEntity ae, RejectionNote rjNote) {
+    private void process(ArchiveDeviceExtension arcDev, ApplicationEntity ae, RejectionNote rjNote) {
         int studyFetchSize = arcDev.getRejectExpiredStudiesFetchSize();
         if (studyFetchSize == 0) {
-            LOG.warn("DeleteExpiredStudies operation ABORT : Study fetch size is 0");
+            LOG.warn("RejectExpiredStudies operation ABORT : Study fetch size is 0");
             return;
         }
         processExpiredStudies(ae, rjNote, studyFetchSize);
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
         if (seriesFetchSize == 0) {
-            LOG.warn("DeleteExpiredSeries operation ABORT : Series fetch size is 0");
+            LOG.warn("RejectExpiredSeries operation ABORT : Series fetch size is 0");
             return;
         }
         processExpiredSeries(ae, rjNote, seriesFetchSize);
@@ -152,10 +148,8 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     private void rejectExpiredSeries(Series series, ApplicationEntity ae, RejectionNote rn) {
         try {
             if (ejb.claimExpiredSeriesFor(series, ExpirationState.REJECTED))
-                rejectionService.reject(
-                        storeService.newStoreSession(ae), ae,
-                        series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
-                        null, rn);
+                rejectionService.reject(ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
+                        null, rn, null);
         } catch (Exception e) {
             LOG.warn("Failed to reject Expired Series[UID={}] of Study[UID={}].\n",
                     series.getSeriesInstanceUID(), series.getStudy().getStudyInstanceUID(), e);
@@ -206,9 +200,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     private void rejectExpiredStudy(Study study, ApplicationEntity ae, RejectionNote rn) {
         try {
             if (ejb.claimExpiredStudyFor(study, ExpirationState.REJECTED))
-                rejectionService.reject(
-                        storeService.newStoreSession(ae), ae,
-                        study.getStudyInstanceUID(), null, null, rn);
+                rejectionService.reject(ae,study.getStudyInstanceUID(), null, null, rn, null);
         } catch (Exception e) {
             LOG.warn("Failed to reject Expired Study[UID={}].\n", study.getStudyInstanceUID(), e);
         }

@@ -94,7 +94,7 @@ public class StgCmtSCUMDB implements MessageListener {
                     msg.getStringProperty("RemoteAET"),
                     msg.getStringProperty("StudyInstanceUID"),
                     msg.getStringProperty("SeriesInstanceUID"),
-                    msg.getStringProperty("SopInstanceUID"),
+                    msg.getStringProperty("SOPInstanceUID"),
                     msg.getStringProperty("ExporterID"),
                     msg.getStringProperty("MessageID"),
                     queueMessage.getBatchID(),

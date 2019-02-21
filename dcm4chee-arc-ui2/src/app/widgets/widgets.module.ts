@@ -35,6 +35,7 @@ import { RangePickerComponent } from './range-picker/range-picker.component';
 import { DynamicFieldComponent } from './dynamic-field/dynamic-field.component';
 import { DcmSelectComponent } from './dcm-select/dcm-select.component';
 import { CsvUploadComponent } from './dialogs/csv-upload/csv-upload.component';
+import { SizeRangePickerComponent } from './size-range-picker/size-range-picker.component';
 
 
 @NgModule({
@@ -79,5 +80,6 @@ export const WidgetsComponents = [
     RangePickerComponent,
     DynamicFieldComponent,
     DcmSelectComponent,
-    CsvUploadComponent
+    CsvUploadComponent,
+    SizeRangePickerComponent
 ];

@@ -12,7 +12,7 @@
 
 	<types>
 		<schema targetNamespace="http://rr.x-road.eu/producer" xmlns="http://www.w3.org/2001/XMLSchema">
-			<import namespace="http://x-road.eu/xsd/xroad.xsd" schemaLocation="http://x-road.eu/xsd/xroad.xsd"></import>
+			<import namespace="http://x-road.eu/xsd/xroad.xsd" schemaLocation="../schema/xroad.xsd"></import>
 
 			<complexType name="XRoadResponseBaseType" abstract="true">
 				<sequence>

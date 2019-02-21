@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -113,10 +113,6 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String returnempty;
 
-    @QueryParam("expired")
-    @Pattern(regexp = "true|false")
-    private String expired;
-
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
@@ -185,7 +181,7 @@ public class QidoRS {
     private String allOfModalitiesInStudy;
 
     @QueryParam("StudySizeInKB")
-    @Pattern(regexp = "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}")
+    @Pattern(regexp = "\\d{1,9}(-\\d{0,9})?|-\\d{1,9}")
     private String studySizeInKB;
 
     @QueryParam("ExpirationState")
@@ -467,7 +463,11 @@ public class QidoRS {
     }
 
     private void logRequest() {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {}?{} from {}@{}",
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private Output selectMediaType() {

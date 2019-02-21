@@ -190,13 +190,8 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 }
             return false;
         } finally {
-            updateLocations(ctx);
-        }
-    }
-
-    private void updateLocations(RetrieveContext ctx) {
-        if (ctx.isUpdateLocationStatusOnRetrieve())
             ctx.getRetrieveService().updateLocations(ctx);
+        }
     }
 
     private Location copyTo(InstanceLocations match, Storage storage, WriteContext writeCtx) throws IOException {

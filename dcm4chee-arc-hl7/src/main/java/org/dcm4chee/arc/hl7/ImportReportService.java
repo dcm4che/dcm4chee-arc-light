@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -108,13 +108,15 @@ class ImportReportService extends DefaultHL7Service {
                     + hl7App.getApplicationName());
         }
         ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(aet);
-        if (ae == null) {
+        if (ae == null)
             throw new ConfigurationException("No local AE with AE Title " + aet
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
-        }
-        String hl7cs = msg.msh().getField(17, hl7App.getHL7DefaultCharacterSet());
+
         Attributes attrs = SAXTransformer.transform(
-                msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), null);
+                msg,
+                arcHL7App,
+                arcHL7App.importReportTemplateURI(),
+                tr -> arcHL7App.importReportTemplateParams().forEach(tr::setParameter));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));

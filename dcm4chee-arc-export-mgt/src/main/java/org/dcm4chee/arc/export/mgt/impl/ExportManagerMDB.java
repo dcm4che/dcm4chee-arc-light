@@ -105,7 +105,7 @@ public class ExportManagerMDB implements MessageListener {
             exportContext.setBatchID(queueMessage.getBatchID());
             exportContext.setStudyInstanceUID(msg.getStringProperty("StudyInstanceUID"));
             exportContext.setSeriesInstanceUID(msg.getStringProperty("SeriesInstanceUID"));
-            exportContext.setSopInstanceUID(msg.getStringProperty("SopInstanceUID"));
+            exportContext.setSopInstanceUID(msg.getStringProperty("SOPInstanceUID"));
             exportContext.setAETitle(exporterDesc.getAETitle());
             exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
             outcome = exporter.export(exportContext);

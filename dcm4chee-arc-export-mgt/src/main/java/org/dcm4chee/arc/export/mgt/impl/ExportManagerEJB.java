@@ -46,20 +46,25 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.export.mgt.*;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.export.mgt.ExportBatch;
+import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreSession;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -68,7 +73,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
@@ -76,7 +80,9 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -115,48 +121,7 @@ public class ExportManagerEJB implements ExportManager {
     };
 
     @Override
-    public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getLocations().isEmpty() || ctx.getException() != null)
-            return;
-
-        StoreSession session = ctx.getStoreSession();
-        String hostname = session.getRemoteHostName();
-        String sendingAET = session.getCallingAET();
-        String receivingAET = session.getCalledAET();
-        Calendar now = Calendar.getInstance();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        for (Map.Entry<String, ExportRule> entry
-                : arcAE.findExportRules(hostname, sendingAET, receivingAET, ctx.getAttributes(), now).entrySet()) {
-            String exporterID = entry.getKey();
-            ExportRule rule = entry.getValue();
-            ExporterDescriptor desc = arcDev.getExporterDescriptorNotNull(exporterID);
-            Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
-            switch (rule.getEntity()) {
-                case Study:
-                    createOrUpdateStudyExportTask(exporterID, ctx.getStudyInstanceUID(), scheduledTime);
-                    if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentStudy())
-                        createOrUpdateStudyExportTask(exporterID,
-                                ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(), scheduledTime);
-                    break;
-                case Series:
-                    createOrUpdateSeriesExportTask(exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(),
-                            scheduledTime);
-                    if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentSeries())
-                        createOrUpdateSeriesExportTask(exporterID,
-                                ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
-                                ctx.getPreviousInstance().getSeries().getSeriesInstanceUID(),
-                                scheduledTime);
-                    break;
-                case Instance:
-                    createOrUpdateInstanceExportTask(exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(),
-                            ctx.getSopInstanceUID(), scheduledTime);
-                    break;
-            }
-        }
-    }
-
-    private void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime) {
+    public void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime) {
         try {
             ExportTask task = em.createNamedQuery(ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID, ExportTask.class)
                     .setParameter(1, exporterID)
@@ -168,7 +133,8 @@ public class ExportManagerEJB implements ExportManager {
         }
     }
 
-    private void createOrUpdateSeriesExportTask(
+    @Override
+    public void createOrUpdateSeriesExportTask(
             String exporterID, String studyIUID, String seriesIUID, Date scheduledTime) {
         try {
             ExportTask task = em.createNamedQuery(
@@ -183,7 +149,8 @@ public class ExportManagerEJB implements ExportManager {
         }
     }
 
-    private void createOrUpdateInstanceExportTask(
+    @Override
+    public void createOrUpdateInstanceExportTask(
             String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime) {
         try {
             ExportTask task = em.createNamedQuery(
@@ -228,15 +195,6 @@ public class ExportManagerEJB implements ExportManager {
         em.persist(task);
         LOG.info("Create {}", task);
         return task;
-    }
-
-    private Date scheduledTime(Calendar cal, Duration exportDelay, ScheduleExpression[] schedules) {
-        if (exportDelay != null) {
-            cal = (Calendar) cal.clone();
-            cal.add(Calendar.SECOND, (int) exportDelay.getSeconds());
-        }
-        cal = ScheduleExpression.ceil(cal, schedules);
-        return cal.getTime();
     }
 
     @Override
@@ -332,7 +290,7 @@ public class ExportManagerEJB implements ExportManager {
             if (!exportTask.getSeriesInstanceUID().equals("*")) {
                 msg.setStringProperty("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
                 if (!exportTask.getSopInstanceUID().equals("*")) {
-                    msg.setStringProperty("SopInstanceUID", exportTask.getSopInstanceUID());
+                    msg.setStringProperty("SOPInstanceUID", exportTask.getSopInstanceUID());
                 }
             }
             msg.setStringProperty("ExporterID", exportTask.getExporterID());

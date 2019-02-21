@@ -192,8 +192,8 @@ public class DiffContext {
             queryAttributes.addReturnTags(compareKeys);
         if (queryAttributes.isIncludeAll()) {
             ArchiveDeviceExtension arcdev = arcdev();
-            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
-            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
+            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection(false));
+            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection(false));
         }
         Attributes keys = queryAttributes.getQueryKeys();
         returnKeys = keys.tags();

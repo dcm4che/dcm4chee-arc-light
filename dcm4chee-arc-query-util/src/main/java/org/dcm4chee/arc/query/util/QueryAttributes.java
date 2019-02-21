@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -116,7 +116,6 @@ public class QueryAttributes {
                 case "withoutstudies":
                 case "fuzzymatching":
                 case "returnempty":
-                case "expired":
                 case "retrievefailed":
                 case "compressionfailed":
                 case "patientVerificationStatus":

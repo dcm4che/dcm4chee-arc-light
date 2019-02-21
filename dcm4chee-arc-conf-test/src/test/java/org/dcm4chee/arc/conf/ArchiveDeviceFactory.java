@@ -212,7 +212,8 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("HL7Send", "HL7 Forward Tasks"),
         newQueueDescriptor("RSClient", "RESTful Forward Tasks"),
         newQueueDescriptor("CMoveSCU", "Dicom Retrieve Tasks"),
-        newQueueDescriptor("DiffTasks", "Diff Tasks")
+        newQueueDescriptor("DiffTasks", "Diff Tasks"),
+        newQueueDescriptor("Rejection", "Rejection Tasks")
     };
 
     static final HL7OrderSPSStatus[] HL7_ORDER_SPS_STATUSES = {
@@ -275,15 +276,10 @@ class ArchiveDeviceFactory {
             Tag.MilitaryRank,
             Tag.BranchOfService,
             Tag.MedicalRecordLocator,
-            Tag.MedicalAlerts,
-            Tag.Allergies,
             Tag.CountryOfResidence,
             Tag.RegionOfResidence,
             Tag.PatientTelephoneNumbers,
             Tag.EthnicGroup,
-            Tag.SmokingStatus,
-            Tag.PregnancyStatus,
-            Tag.LastMenstrualDate,
             Tag.PatientReligiousPreference,
             Tag.PatientSpeciesDescription,
             Tag.PatientSpeciesCodeSequence,
@@ -308,10 +304,8 @@ class ArchiveDeviceFactory {
             Tag.ClinicalTrialProtocolEthicsCommitteeApprovalNumber,
             Tag.SpecialNeeds,
             Tag.PertinentDocumentsSequence,
-            Tag.PatientState,
             Tag.PatientClinicalTrialParticipationSequence,
-            Tag.ConfidentialityConstraintOnPatientDataDescription,
-            Tag.PatientSexNeutered
+            Tag.ConfidentialityConstraintOnPatientDataDescription
     };
 
     static final int[] STUDY_ATTRS = {
@@ -329,8 +323,26 @@ class ArchiveDeviceFactory {
             Tag.PatientSize,
             Tag.PatientSizeCodeSequence,
             Tag.PatientWeight,
+            Tag.PatientBodyMassIndex,
+            Tag.MeasuredAPDimension,
+            Tag.MeasuredLateralDimension,
+            Tag.MedicalAlerts,
+            Tag.Allergies,
+            Tag.SmokingStatus,
+            Tag.PregnancyStatus,
+            Tag.LastMenstrualDate,
+            Tag.PatientState,
+            Tag.AdmittingDiagnosesDescription,
+            Tag.AdmittingDiagnosesCodeSequence,
+            Tag.AdmissionID,
+            Tag.IssuerOfAdmissionIDSequence,
+            Tag.ReasonForVisit,
+            Tag.ReasonForVisitCodeSequence,
             Tag.Occupation,
             Tag.AdditionalPatientHistory,
+            Tag.ServiceEpisodeID,
+            Tag.ServiceEpisodeDescription,
+            Tag.IssuerOfServiceEpisodeIDSequence,
             Tag.PatientSexNeutered,
             Tag.StudyInstanceUID,
             Tag.StudyID
@@ -530,12 +542,17 @@ class ArchiveDeviceFactory {
             Tag.PatientSize,
             Tag.PatientSizeCodeSequence,
             Tag.PatientWeight,
+            Tag.PatientBodyMassIndex,
+            Tag.MeasuredAPDimension,
+            Tag.MeasuredLateralDimension,
             Tag.Occupation,
             Tag.AdditionalPatientHistory,
             Tag.PatientSexNeutered,
             Tag.MedicalAlerts,
             Tag.Allergies,
+            Tag.SmokingStatus,
             Tag.PregnancyStatus,
+            Tag.LastMenstrualDate,
             Tag.StudyInstanceUID,
             Tag.RequestingPhysicianIdentificationSequence,
             Tag.RequestingPhysician,
@@ -549,6 +566,8 @@ class ArchiveDeviceFactory {
             Tag.RouteOfAdmissions,
             Tag.AdmittingDate,
             Tag.AdmittingTime,
+            Tag.ReasonForVisit,
+            Tag.ReasonForVisitCodeSequence,
             Tag.SpecialNeeds,
             Tag.ServiceEpisodeID,
             Tag.ServiceEpisodeDescription,
@@ -1031,7 +1050,6 @@ class ArchiveDeviceFactory {
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
     static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
-    static final Attributes.UpdatePolicy LINK_MWL_ENTRY_UPDATE_POLICY = Attributes.UpdatePolicy.MERGE;
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
     static final String STORAGE_ID = "fs1";
@@ -1449,7 +1467,6 @@ class ArchiveDeviceFactory {
         ext.addQueryRetrieveView(IOCM_PAT_SAFETY_VIEW);
         ext.addQueryRetrieveView(IOCM_QUALITY_VIEW);
         ext.addQueryRetrieveView(IOCM_WRONG_MWL_VIEW);
-        ext.setLinkMWLEntryUpdatePolicy(LINK_MWL_ENTRY_UPDATE_POLICY);
 
         BasicBulkDataDescriptor bulkDataDescriptor = new BasicBulkDataDescriptor(BULK_DATA_DESCRIPTOR_ID);
         bulkDataDescriptor.setLengthsThresholdsFromStrings(BULK_DATA_LENGTH_THRESHOLD);
