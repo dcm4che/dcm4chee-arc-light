@@ -732,9 +732,19 @@ export class Globalvar {
                     filterKey:"StudySizeInKB"
                 },
                 {
-                    tag:"checkbox",
-                    filterKey:"FreezeExpirationDate",
-                    text:"Freezen Studies"
+                    tag:"select",
+                    filterKey:"ExpirationState",
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("UPDATEABLE", "UPDATEABLE"),
+                        new SelectDropdown("FROZEN", "FROZEN"),
+                        new SelectDropdown("REJECTED", "REJECTED"),
+                        new SelectDropdown("EXPORT_SCHEDULED", "EXPORT_SCHEDULED"),
+                        new SelectDropdown("FAILED_TO_EXPORT", "FAILED_TO_EXPORT"),
+                        new SelectDropdown("FAILED_TO_REJECT", "FAILED_TO_REJECT"),
+                    ],
+                    description:"Expiration State",
+                    placeholder:"Expiration State",
                 }
             ];
         }
