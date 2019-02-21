@@ -61,6 +61,14 @@ dcmuiPermissionName: Tab - Correct Data Diff
 dcmAcceptedUserRole: admin
 dcmuiActionParam: accessible
 
+dn: dcmuiPermissionName=Tab - Corrupted Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-correct_data->corrupted_studies
+dcmuiPermissionName: Tab - Corrupted Studies
+dcmAcceptedUserRole: admin
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+
 dn: dcmuiPermissionName=Menu - Correct Data,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-correct_data
@@ -82,3 +90,65 @@ dcmuiAction: menu-statistics
 dcmuiPermissionName: Menu - Statistics
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Tab - Configuration Permission,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Configuration Permission
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-configuration->permission
+
+dn: dcmuiPermissionName=Tab - Correct Data Patient Data,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Correct Data Patient Data
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-correct_data->patient_data
+
+dn: dcmuiPermissionName=Tab - Correct Data Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Correct Data Diff
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-correct_data->diff
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository All,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Audit Record Repository All
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-audit-record-repository->all
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository Authentication,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Audit Record Repository Authentication
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-audit-record-repository->authentication
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository Audit Errors,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Audit Record Repository Audit Errors
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-audit-record-repository->audit_errors
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository App Errors,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Audit Record Repository App Errors
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-audit-record-repository->app_errors
+
+dn: dcmuiPermissionName=Tab - Monitoring External Retrieve,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype:delete
+
+dn: dcmuiPermissionName=Tab - Monitoring Export,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype:delete

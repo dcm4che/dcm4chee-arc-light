@@ -3304,3 +3304,13 @@ dcmTag: 00700081
 dcmTag: 00700082
 dcmTag: 00700083
 dcmTag: 00700084
+
+
+dn: dcmuiPermissionName=Tab - Corrupted Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmuiPermission
+dcmuiAction: tab-correct_data->corrupted_studies
+dcmuiPermissionName: Tab - Corrupted Studies
+dcmAcceptedUserRole: admin
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
