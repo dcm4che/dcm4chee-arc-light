@@ -390,6 +390,11 @@
                             <input type="checkbox" [(ngModel)]="filter.storageVerificationFailed"> Storage Verification Failed
                         </label>
                     </div>
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                        <label title="Show only Studies be which the Expiration Date is frozen">
+                            <input type="checkbox" [(ngModel)]="filter.FreezeExpirationDate"> Freezed Expiration Date
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="col-md-3 block-2-1">
