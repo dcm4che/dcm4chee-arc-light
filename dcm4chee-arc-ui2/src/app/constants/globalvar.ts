@@ -730,6 +730,11 @@ export class Globalvar {
                 {
                     tag:"size_range_picker",
                     filterKey:"StudySizeInKB"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"FreezeExpirationDate",
+                    text:"Freezen Studies"
                 }
             ];
         }
