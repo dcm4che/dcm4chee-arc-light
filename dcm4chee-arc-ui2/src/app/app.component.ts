@@ -14,6 +14,7 @@ import * as _ from 'lodash';
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import {j4care} from "./helpers/j4care.service";
 import {PermissionService} from "./helpers/permissions/permission.service";
+import {Observable} from "../../node_modules/rxjs";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -46,13 +47,14 @@ export class AppComponent implements OnInit {
     clockUnExtended = true;
     myDeviceName = '';
     timeZone;
+    sidenavopen = false;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public config: MatDialogConfig,
         public mainservice: AppService,
-        public $http:J4careHttpService,
+        private $http:J4careHttpService,
         private permissionService:PermissionService
     ){}
 
@@ -60,93 +62,9 @@ export class AppComponent implements OnInit {
         Date.prototype.toDateString = function() {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
-        let $this = this;
-/*        if (!this.mainservice.user){
-            this.mainservice.user = this.mainservice.getUserInfo().share();
-            this.mainservice.user
-                .subscribe(
-                    (response) => {
-                        if(_.hasIn(response,"token") && response.token === null){
-                            if ($this.mainservice.global && !$this.mainservice.global.notSecure){
-                                let global = _.cloneDeep($this.mainservice.global);
-                                global.notSecure = true;
-                                $this.mainservice.setGlobal(global);
-                            }else{
-                                if ($this.mainservice.global && $this.mainservice.global.notSecure){
-                                    $this.mainservice.global.notSecure = true;
-                                }else{
-                                    $this.mainservice.setGlobal({notSecure: true});
-                                }
-                            }
-                            $this.mainservice.user.user = 'admin';
-                            $this.mainservice.user.roles = ['user', 'admin'];
-                            $this.mainservice.isRole = (role) => {
-                                return true;
-                            };
-                            $this.isRole = $this.mainservice.isRole;
-                            $this.initGetDevicename(2);
-                        }else{
-                            let browserTime = Math.floor(Date.now() / 1000);
-                            if(response.systemCurrentTime != browserTime){
-                                let diffTime = browserTime - response.systemCurrentTime;
-                                response.expiration = response.expiration + diffTime;
-                            }
-                            if ($this.mainservice.global && !$this.mainservice.global.authentication){
-                                let global = _.cloneDeep($this.mainservice.global);
-                                global.authentication = response;
-                                $this.mainservice.setGlobal(global);
-                            }else{
-                                if ($this.mainservice.global && $this.mainservice.global.authentication){
-                                    $this.mainservice.global.authentication = response;
-                                }else{
-                                    $this.mainservice.setGlobal({authentication: response});
-                                }
-                            }
-                            $this.mainservice.user.user = response.user;
-                            $this.mainservice.user.roles = response.roles;
-                            $this.mainservice.user.realm = response.realm;
-                            $this.mainservice.user.authServerUrl = response['auth-server-url'];
-                            $this.mainservice.isRole = function(role){
-                                if (response.user === null && response.roles.length === 0){
-                                    return true;
-                                }else{
-                                    if (response.roles && response.roles.indexOf(role) > -1){
-                                        return true;
-                                    }else{
-                                        return false;
-                                    }
-                                }
-                            };
-                            $this.user = $this.mainservice.user;
-                            $this.isRole = $this.mainservice.isRole;
-                            $this.realm = response.realm;
-                            $this.authServerUrl = response['auth-server-url'];
-                            let host    = location.protocol + '//' + location.host;
-                            $this.logoutUrl = response['auth-server-url'] + `/realms/${response.realm}/protocol/openid-connect/logout?redirect_uri=`
-                                + encodeURIComponent(host + location.pathname);
-                            $this.initGetDevicename(2);
-                        }
-                    },
-                    (response) => {
-                        // this.user = this.user || {};
-                        console.log('in user auth errorespons', response);
-                        $this.mainservice.user.user = 'user';
-                        $this.mainservice.user.roles = ['user', 'admin'];
-                        $this.mainservice.isRole = (role) => {
-                            if (role === 'admin'){
-                                return false;
-                            }else{
-                                return true;
-                            }
-                        };
-                        $this.isRole = $this.mainservice.isRole;
-                        $this.initGetDevicename(2);
-                    }
-                );
-        }*/
         this.initGetDevicename(2);
         let currentBrowserTime = new Date().getTime();
-        this.$http.get('../monitor/serverTime')
+        this.getServerTime()
             .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe(res=>{
                 if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
@@ -157,6 +75,7 @@ export class AppComponent implements OnInit {
                     // this.startClock(new Date(serverTimeObject.time));
                 }
                 this.setLogutUrl();
+                this.initGetPDQServices();
             });
     }
     setLogutUrl(){
@@ -300,15 +219,12 @@ export class AppComponent implements OnInit {
     }*/
     initGetDevicename(retries){
         let $this = this;
-        this.$http.get('../devicename')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+        this.getDeviceName()
             .subscribe(
                 (res) => {
-
                     // $this.mainservice["deviceName"] = res.dicomDeviceName;
                     $this.mainservice["xRoad"] = res.xRoad || false;
-                    $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)
-                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                    this.getDeviceInfo(res.dicomDeviceName)
                         .subscribe(
                             arc => {
                                 $this.mainservice["archiveDevice"] = arc[0];
@@ -330,7 +246,23 @@ export class AppComponent implements OnInit {
                 }
             );
     }
-    sidenavopen = false;
+    initGetPDQServices(){
+        this.getPDQServices().subscribe(pdqs=>{
+            this.mainservice.updateGlobal("PDQs",pdqs);
+        })
+    }
+    getPDQServices(url?:string):Observable<any[]>{
+        return this.$http.get(`${url || '..'}/pdq`).map(res => j4care.redirectOnAuthResponse(res));
+    }
+    getServerTime(url?:string){
+        return this.$http.get(`${url || '..'}/monitor/serverTime`).map(res => j4care.redirectOnAuthResponse(res));
+    }
+    getDeviceName(url?:string){
+        return this.$http.get(`${url || '..'}/devicename`).map(res => j4care.redirectOnAuthResponse(res));
+    }
+    getDeviceInfo(dicomDeviceName:string, url?:string){
+        return this.$http.get(`${url || '..'}/devices?dicomDeviceName=${dicomDeviceName}`).map(res => j4care.redirectOnAuthResponse(res));
+    }
 }
 
 

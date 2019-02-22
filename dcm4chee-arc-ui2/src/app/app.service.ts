@@ -7,6 +7,7 @@ import {WindowRefService} from "./helpers/window-ref.service";
 import {DatePipe} from "@angular/common";
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import {HttpClient} from "@angular/common/http";
+import {j4care} from "./helpers/j4care.service";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -14,7 +15,9 @@ export class AppService implements OnInit, OnDestroy{
     private _global;
     subscription: Subscription;
 
-    constructor(public ngHttp:Http) {
+    constructor(
+        public ngHttp:Http,
+    ) {
         this.subscription = this.globalSet$.subscribe(obj => {
             this._global = obj;
         });
@@ -109,36 +112,25 @@ export class AppService implements OnInit, OnDestroy{
         })
     }
     setGlobal(object: any) {
-        // if(this._global){
-        //
-        //     let globalClone = _.cloneDeep(this._global);
-        //     _.merge(globalClone, object);
-        //     console.log("globalClone",globalClone);
-        //     this.setGlobalSource.next(globalClone);
-        // }else{
-            this.setGlobalSource.next(object);
-        // }
+        this.setGlobalSource.next(object);
+    }
+    updateGlobal(key:string, object:any){
+        if (this.global && !this.global["key"]){
+            let global = _.cloneDeep(this.global); //,...[{hl7:response}]];
+            global[key] = object;
+            this.setGlobal(global);
+        }else{
+            if (this.global && this.global[key]){
+                this.global[key] = object;
+            }else{
+                this.setGlobal({[key]: global});
+            }
+        }
     }
     createPatient(patient: any){
         this.createPatientSource.next(patient);
     }
 
-    // setMsg(msg){
-    //     console.log("in appservice",msg);
-    //     this.msg.setMsg(msg);
-    // }
-/*    getRealmOfLogedinUser(){
-        return this.$http.get('rs/realm')
-            .map(res => {
-                let resjson;
-                try {
-                    resjson = res.json();
-                } catch (e) {
-                    resjson = res;
-                }
-                return resjson;
-            });
-    }*/
     getUserInfo(): Observable<User>{
         return this.ngHttp.get('rs/realm')
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
@@ -161,25 +153,7 @@ export class AppService implements OnInit, OnDestroy{
 
     ngOnInit(): void {
     }
-    // getUserObservable():Observable<User>{
-    //     return Observable.create(()=>{
-    //         return this._user;
-    //     })
-    // }
-    // setMessag(show, msg){
-    //     this.messaging.showMessageBlock = show;
-    //     this.messaging.msg = msg;
-    // }
 
-/*    confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ConfirmComponent, {
-            height: 'auto',
-            width: '500px'
-        });
-        this.dialogRef.componentInstance.parameters = confirmparameters;
-        return this.dialogRef;
-    }*/
     ngOnDestroy() {
         // prevent memory leak when component destroyed
         this.subscription.unsubscribe();
@@ -193,13 +167,10 @@ export class AppService implements OnInit, OnDestroy{
         let filterCleared = _.compact(filterMaped);
         return filterCleared.join('&');
     }
-    getServerTime(){
-/*        return this.http.get('../monitor/serverTime')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
-    */}
 
     getUniqueID(){
         let newDate = new Date(this.serverTime);
         return `${newDate.getFullYear().toString().substr(-2)}${newDate.getMonth()}${newDate.getDate()}${newDate.getHours()}${newDate.getMinutes()}${newDate.getSeconds()}`;
     }
+
 }
