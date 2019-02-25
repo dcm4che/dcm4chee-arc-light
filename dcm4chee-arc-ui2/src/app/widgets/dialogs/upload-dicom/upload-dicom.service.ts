@@ -50,7 +50,7 @@ export class UploadDicomService {
     }
     getUrlFromWebApp(webApp){
         try{
-            return `http://${webApp.dicomNetworkConnection[0].dicomHostname}:${webApp.dicomNetworkConnection[0].dicomPort}${webApp.dcmWebServicePath}/studies`;
+            return `${location.protocol}//${webApp.dicomNetworkConnection[0].dicomHostname}:${webApp.dicomNetworkConnection[0].dicomPort}${webApp.dcmWebServicePath}/studies`;
         }catch (e){
             return null;
         }
