@@ -1,6 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {AccessLocation, FilterSchema, StudyFilterConfig, StudyPageConfig, StudyTab} from "../../interfaces";
+import {AccessLocation, FilterSchema, StudyFilterConfig, StudyPageConfig, DicomMode} from "../../interfaces";
 import {StudyService} from "./study.service";
 import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
@@ -11,6 +11,12 @@ import { retry } from 'rxjs/operators';
 import {Globalvar} from "../../constants/globalvar";
 import {unescape} from "querystring";
 import {animate, state, style, transition, trigger} from "@angular/animations";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {PatientDicom} from "../../models/patient-dicom";
+import {StudyDicom} from "../../models/study-dicom";
+import * as _  from "lodash";
+import {LoadingBarService} from "@ngx-loading-bar/core";
+
 
 @Component({
     selector: 'app-study',
@@ -51,6 +57,8 @@ export class StudyComponent implements OnInit {
         accessLocation:"internal"
     };
 
+    patientAttributes;
+
     filter:StudyFilterConfig = {
         filterSchemaMain:{
             lineLength:undefined,
@@ -81,14 +89,16 @@ export class StudyComponent implements OnInit {
           external:[],
           internal:[]
         },
-        isSet:false
+        aetsAreSet:false
     };
 
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
         private permissionService:PermissionService,
-        private appService:AppService
+        private appService:AppService,
+        private httpErrorHandler:HttpErrorHandler,
+        private cfpLoadingBar:LoadingBarService
     ) { }
 
     ngOnInit() {
@@ -100,6 +110,9 @@ export class StudyComponent implements OnInit {
     }
     testShow = true;
     fixedHeader = false;
+    patients:PatientDicom[] = [];
+    moreStudies:boolean = false;
+
     @HostListener("window:scroll", [])
     onWindowScroll(e) {
         let html = document.documentElement;
@@ -115,6 +128,59 @@ export class StudyComponent implements OnInit {
 
     search(e){
         console.log("e",e);
+        console.log("e", e);
+        if (this.filter.filterModel.aet){
+            let callingAet = new Aet(this.filter.filterModel.aet);
+            let filters = _.clone(this.filter.filterModel);
+            if(filters.limit){
+                filters.limit++;
+            }
+            delete filters.aet;
+            this.service.getStudies(callingAet, filters)
+                .subscribe(res => {
+                    if(res){
+                        let index = 0;
+                        let patient: PatientDicom;
+                        let study: StudyDicom;
+                        let patAttrs;
+                        let tags = this.patientAttributes.dcmTag;
+
+                        while (tags && (tags[index] < '00201200')) {
+                            index++;
+                        }
+                        tags.splice(index, 0, '00201200');
+                        tags.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014');
+
+                        res.forEach((studyAttrs, index) => {
+                            patAttrs = {};
+                            this.service.extractAttrs(studyAttrs, tags, patAttrs);
+                            if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                                patient = new PatientDicom(patAttrs, []);
+                                this.patients.push(patient);
+                            }
+                            study = new StudyDicom(studyAttrs, patient, this.filter.filterModel.offset + index);
+                            patient.studies.push(study);
+                        });
+                        if (this.moreStudies = (res.length > this.filter.filterModel.limit)) {
+                            patient.studies.pop();
+                            if (patient.studies.length === 0) {
+                                this.patients.pop();
+                            }
+                            // this.studies.pop();
+                        }
+                    }else{
+                        this.appService.showMsg("No Studies found!");
+                    }
+                    this.cfpLoadingBar.complete();
+                    console.log("this.patients", this.patients);
+                }, err => {
+                    j4care.log("Something went wrong on search", e);
+                    this.httpErrorHandler.handleError(err);
+                    this.cfpLoadingBar.complete();
+                });
+        }else{
+            this.appService.showError("Calling AET is missing!");
+        }
     }
 
     filterChanged(){
@@ -136,8 +202,16 @@ export class StudyComponent implements OnInit {
         this.setSchema();
     }
 
+    getPatientAttributeFilters(){
+        this.service.getAttributeFilter().subscribe(patientAttributes=>{
+            this.patientAttributes = patientAttributes;
+        },err=>{
+            j4care.log("Something went wrong on getting Patient Attributes",err);
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     getApplicationEntities(){
-        if(!this.applicationEntities.isSet){
+        if(!this.applicationEntities.aetsAreSet){
             Observable.forkJoin(
                 this.service.getAes().map(aes=> aes.map(aet=> new Aet(aet))),
                 this.service.getAets().map(aets=> aets.map(aet => new Aet(aet))),
@@ -148,7 +222,7 @@ export class StudyComponent implements OnInit {
                     ["external","internal"].forEach(location=>{
                       this.applicationEntities.aes[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
                       this.applicationEntities.aets[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
-                      this.applicationEntities.isSet = true;
+                      this.applicationEntities.aetsAreSet = true;
                     })
                 });
                 this.setSchema();

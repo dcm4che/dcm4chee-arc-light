@@ -880,6 +880,9 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         // return Observable.of([])
        return this.$http.get(`../xroad/RR441/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
     }
+    queryPatientDemographics(patientID:string, PDQServiceID:string,url?:string){
+       return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
+    }
 
     gitDiffTaskResults(params, mode){
         if(mode === 'pk'){

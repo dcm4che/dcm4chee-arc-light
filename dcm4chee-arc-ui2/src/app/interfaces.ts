@@ -87,7 +87,7 @@ export interface FilterSchemaElement {
     convert?:Function;
 }
 
-export type StudyTab = "study" | "patient" | "mwl" | "diff";
+export type DicomMode = "study" | "patient" | "mwl" | "diff";
 export type AccessLocation = "internal" | "external";
 
 export interface StudyFilterConfig {
@@ -102,6 +102,8 @@ export interface StudyFilterConfig {
 }
 
 export interface StudyPageConfig {
-    tab:StudyTab;
+    tab:DicomMode;
     accessLocation:AccessLocation;
 }
+
+export type DicomResponseType = 'object'|'count'|'size';
