@@ -54,7 +54,7 @@
                     <range-picker
                             [ngStyle]="line[index].style"
                             *ngSwitchCase="'range-picker'"
-                            onlyDate="line[index].onlyDate"
+                            [onlyDate]="line[index].onlyDate"
                             [model]="model[line[index]?.filterKey]"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
@@ -65,7 +65,7 @@
                     <range-picker
                             [ngStyle]="line[index].style"
                             *ngSwitchCase="'range-picker-limit'"
-                            onlyDate="line[index].onlyDate"
+                            [onlyDate]="line[index].onlyDate"
                             [model]="model[line[index]?.filterKey]"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
@@ -78,7 +78,7 @@
                     <range-picker
                             [ngStyle]="line[index].style"
                             *ngSwitchCase="'range-picker-time'"
-                            onlyDate="line[index].onlyDate"
+                            [onlyDate]="line[index].onlyDate"
                             [model]="model[line[index]?.filterKey]"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
