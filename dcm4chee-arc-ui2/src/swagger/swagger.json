@@ -7844,7 +7844,7 @@
           }
         }
       }
-    }
+    },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
       "post": {
         "tags": [
