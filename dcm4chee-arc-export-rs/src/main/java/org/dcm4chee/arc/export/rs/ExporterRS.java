@@ -229,7 +229,6 @@ public class ExporterRS {
                 gen.write("completed", ctx.completed());
                 writer.writeNotDef("warning", ctx.warning(), 0);
                 writer.writeNotDef("failed", ctx.failed(), 0);
-                writer.writeNotNullOrDef("failed", ctx.getException(), null);
                 writer.writeNotNullOrDef("error", ctx.getException(), null);
                 gen.writeEnd();
                 gen.flush();
