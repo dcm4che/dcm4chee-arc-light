@@ -115,4 +115,8 @@ public interface StudyMgtContext {
     boolean isUnfreezeExpirationDate();
 
     void setUnfreezeExpirationDate(boolean UnfreezeExpirationDate);
+
+    String getAccessControlID();
+
+    void setAccessControlID(String accessControlID);
 }

@@ -481,6 +481,28 @@ public class IocmRS {
     }
 
     @PUT
+    @Path("/studies/{StudyInstanceUID}/access/{accessControlID}")
+    public Response updateStudyAccessControlID(
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("accessControlID") String accessControlID) {
+        logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setAccessControlID(accessControlID);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+            if (studyService.updateAccessControlID(ctx) == 0)
+                return errResponse("Study not found. " + studyUID, Response.Status.NOT_FOUND);
+
+            rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);
+            return Response.noContent().build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
+    }
+
+    @PUT
     @Path("/studies/{studyUID}/expire/{expirationDate}")
     public Response updateStudyExpirationDate(
             @PathParam("studyUID") String studyUID,
