@@ -492,7 +492,7 @@ public class IocmRS {
             ctx.setStudyInstanceUID(studyUID);
             ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-            if (!studyService.updateAccessControlID(ctx))
+            if (studyService.updateAccessControlID(ctx) == 0)
                 return errResponse("Study not found. " + studyUID, Response.Status.NOT_FOUND);
 
             rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);

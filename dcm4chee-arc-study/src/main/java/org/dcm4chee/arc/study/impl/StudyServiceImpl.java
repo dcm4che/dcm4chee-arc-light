@@ -105,15 +105,12 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    public boolean updateAccessControlID(StudyMgtContext ctx) {
+    public int updateAccessControlID(StudyMgtContext ctx) {
         try {
             return ejb.updateAccessControlID(ctx);
         } catch (Exception e) {
             ctx.setException(e);
             throw e;
-        } finally {
-            if (ctx.getStudy() != null)
-                updateStudyEvent.fire(ctx);
         }
     }
 
