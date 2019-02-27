@@ -135,11 +135,7 @@ import java.util.*;
         @NamedQuery(
                 name = Study.SET_STORAGE_IDS,
                 query = "update Study st set st.storageIDs = ?2 " +
-                        "where st.pk = ?1"),
-        @NamedQuery(
-                name = Study.UPDATE_ACCESS_CONTROL_ID,
-                query = "update Study st set st.accessControlID = ?2 " +
-                        "where st.studyInstanceUID = ?1")
+                        "where st.pk = ?1")
 })
 @Entity
 @Table(name = "study",
@@ -183,7 +179,6 @@ public class Study {
     public static final String FIND_PK_BY_STUDY_UID = "Study.findPkByStudyUID";
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
-    public static final String UPDATE_ACCESS_CONTROL_ID = "Study.updateAccessControlID";
 
     public static class PKUID {
         public final Long pk;

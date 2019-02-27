@@ -257,11 +257,17 @@ public class StudyServiceEJB {
         updateStudyExpirationDate(ctx);
     }
 
-    public int updateAccessControlID(StudyMgtContext ctx) {
-        return em.createNamedQuery(Study.UPDATE_ACCESS_CONTROL_ID)
+    public boolean updateAccessControlID(StudyMgtContext ctx) {
+        try {
+            Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
-                    .setParameter(2, ctx.getAccessControlID())
-                    .executeUpdate();
+                    .getSingleResult();
+            study.setAccessControlID(ctx.getAccessControlID());
+            ctx.setStudy(study);
+        } catch (NoResultException e) {
+            return false;
+        }
+        return true;
     }
 
     private void setCodes(Collection<CodeEntity> codes, Sequence seq) {

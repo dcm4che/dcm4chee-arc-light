@@ -490,9 +490,9 @@ public class IocmRS {
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
-            ctx.setAccessControlID(accessControlID);
+            ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-            if (studyService.updateAccessControlID(ctx) == 0)
+            if (!studyService.updateAccessControlID(ctx))
                 return errResponse("Study not found. " + studyUID, Response.Status.NOT_FOUND);
 
             rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);

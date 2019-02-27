@@ -60,5 +60,5 @@ public interface StudyService {
 
     void updateExpirationDate(StudyMgtContext ctx) throws Exception;
 
-    int updateAccessControlID(StudyMgtContext ctx) throws Exception;
+    boolean updateAccessControlID(StudyMgtContext ctx) throws Exception;
 }
