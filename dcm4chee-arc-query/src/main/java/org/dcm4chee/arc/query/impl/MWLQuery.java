@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,26 +35,25 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
 package org.dcm4chee.arc.query.impl;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.hibernate.StatelessSession;
+import org.dcm4chee.arc.query.util.QueryBuilder2;
 
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,66 +61,60 @@ import java.util.ArrayList;
  */
 public class MWLQuery extends AbstractQuery {
 
-    static final Expression<?>[] SELECT = {
-            QPatient.patient.numberOfStudies,
-            QueryBuilder.mwlAttributesBlob.encodedAttributes,
-            QueryBuilder.patientAttributesBlob.encodedAttributes
-    };
+    private Root<MWLItem> mwlItem;
+    private Join<MWLItem, Patient> patient;
+    private Path<byte[]> patientAttrBlob;
+    private Path<byte[]> mwlAttrBlob;
 
-    public MWLQuery(QueryContext context, StatelessSession session) {
-        super(context, session);
+    public MWLQuery(QueryContext context, EntityManager em) {
+        super(context, em);
     }
 
     @Override
-    protected HibernateQuery<Tuple> newHibernateQuery(boolean forCount) {
-        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QMWLItem.mWLItem);
-        return newHibernateQuery(q, forCount);
-    }
-
-    @Override
-    protected boolean addOrderSpecifier(int tag, Order order, ArrayList<OrderSpecifier<?>> result) {
-        return QueryBuilder.addMWLOrderSpecifier(tag, order, result);
-    }
-
-    @Override
-    public long fetchCount() {
-        HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QMWLItem.mWLItem);
-        return newHibernateQuery(q, true).fetchCount();
-    }
-
-    private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount) {
-        q = QueryBuilder.applyMWLJoins(q,
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                forCount);
-        q = QueryBuilder.applyPatientLevelJoins(q,
+    protected CriteriaQuery<Tuple> multiselect() {
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        this.mwlItem = q.from(MWLItem.class);
+        this.patient = mwlItem.join(MWLItem_.patient);
+        QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
+        QueryBuilder2.applyPatientLevelJoins(patient,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam(),
-                context.isOrderByPatientName(),
-                forCount);
-        BooleanBuilder predicates = new BooleanBuilder();
-        QueryBuilder.addPatientLevelPredicates(predicates,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam());
-        QueryBuilder.addMWLPredicates(predicates,
-                context.getQueryKeys(),
-                context.getQueryParam());
-        return q.where(predicates);
+                context.isOrderByPatientName());
+        return q.multiselect(
+                patient.get(Patient_.numberOfStudies),
+                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
+                mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes))
+                .where(builder.mwlItemPredicates(q, null,
+                        patient, mwlItem,
+                        context.getPatientIDs(),
+                        context.getQueryKeys(),
+                        context.getQueryParam()))
+                .orderBy(builder.orderMWLItems(patient, mwlItem, context.getOrderByTags()));
+    }
+
+    @Override
+    protected CriteriaQuery<Long> count() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<MWLItem> mwlItem = q.from(MWLItem.class);
+        Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
+        QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
+        QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
+        return q.select(cb.count(patient))
+                .where(builder.mwlItemPredicates(q, null, patient, mwlItem,
+                        context.getPatientIDs(),
+                        context.getQueryKeys(),
+                        context.getQueryParam()));
     }
 
     @Override
     protected Attributes toAttributes(Tuple results) {
-        Attributes mwlAttrs = AttributesBlob.decodeAttributes(
-                results.get(QueryBuilder.mwlAttributesBlob.encodedAttributes), null);
-        Attributes patAttrs = AttributesBlob.decodeAttributes(
-                results.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
+        Attributes mwlAttrs = AttributesBlob.decodeAttributes(results.get(mwlAttrBlob), null);
+        Attributes patAttrs = AttributesBlob.decodeAttributes(results.get(patientAttrBlob), null);
         Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + mwlAttrs.size() + 1);
         attrs.addAll(patAttrs);
         attrs.addAll(mwlAttrs);
-        attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
+        attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(patient.get(Patient_.numberOfStudies)));
         return attrs;
     }
 

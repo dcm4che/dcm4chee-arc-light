@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
-import com.querydsl.core.types.Order;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
@@ -208,11 +207,10 @@ public class ExportPriorsScheduler {
         queryCtx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         queryCtx.setPatientIDs(pid);
         queryCtx.setQueryKeys(queryKeys);
-        queryCtx.setOrderByTags(Collections.singletonList(new OrderByTag(Tag.StudyDate, Order.DESC)));
+        queryCtx.setOrderByTags(Collections.singletonList(OrderByTag.desc(Tag.StudyDate)));
         int remaining = numberOfPriors;
         try (Query query = queryService.createStudyQuery(queryCtx)) {
-            query.initQuery();
-            query.executeQuery();
+            query.executeQuery(arcdev.getQueryFetchSize());
             while (query.hasMoreMatches() && remaining != 0) {
                 Attributes match = query.nextMatch();
                 String suid;

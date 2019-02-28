@@ -50,6 +50,7 @@ import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
@@ -58,158 +59,200 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jan 2019
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Aug 2015
  */
-public class CriteriaQueryBuilder<T> {
+public class QueryBuilder2 {
 
     private final CriteriaBuilder cb;
-    private final CriteriaQuery<T> q;
 
-    public CriteriaQueryBuilder(CriteriaBuilder cb, Class<T> resultClass) {
+    public QueryBuilder2(CriteriaBuilder cb) {
         this.cb = Objects.requireNonNull(cb);
-        this.q = cb.createQuery(resultClass);
     }
 
-    public boolean orderPatients(Path<Patient> patient, CriteriaOrderByTag orderByTag, List<Order> result) {
+    public List<Order> orderPatients(Path<Patient> patient, List<OrderByTag> orderByTags) {
+        List<Order> result = new ArrayList<>(orderByTags.size());
+        for (OrderByTag orderByTag : orderByTags)
+            orderPatients(patient, orderByTag, result);
+        return result;
+    }
+
+    public List<Order> orderStudies(Path<Patient> patient, Path<Study> study, List<OrderByTag> orderByTags) {
+        List<Order> result = new ArrayList<>(orderByTags.size());
+        for (OrderByTag orderByTag : orderByTags)
+            orderStudies(patient, study, orderByTag, result);
+        return result;
+    }
+
+    public List<Order> orderSeries(Path<Patient> patient, Path<Study> study, Path<Series> series,
+            List<OrderByTag> orderByTags) {
+        List<Order> result = new ArrayList<>(orderByTags.size());
+        for (OrderByTag orderByTag : orderByTags)
+            orderSeries(patient, study, series, orderByTag, result);
+        return result;
+    }
+
+    public List<Order> orderInstances(Path<Patient> patient, Path<Study> study, Path<Series> series,
+            Path<Instance> instance, List<OrderByTag> orderByTags) {
+        List<Order> result = new ArrayList<>(orderByTags.size());
+        for (OrderByTag orderByTag : orderByTags)
+            orderInstances(patient, study, series, instance, orderByTag, result);
+        return result;
+    }
+
+    public List<Order> orderMWLItems(Path<Patient> patient, Path<MWLItem> mwlItem, List<OrderByTag> orderByTags) {
+        List<Order> result = new ArrayList<>(orderByTags.size());
+        for (OrderByTag orderByTag : orderByTags)
+            orderMWLItems(patient, mwlItem, orderByTag, result);
+        return result;
+    }
+
+    private boolean orderPatients(Path<Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
                 return orderPersonName(patient.get(Patient_.patientName), orderByTag, result);
             case Tag.PatientSex:
-                return result.add(orderByTag.order.apply(cb, patient.get(Patient_.patientSex)));
+                return result.add(orderByTag.order(cb, patient.get(Patient_.patientSex)));
             case Tag.PatientBirthDate:
-                return result.add(orderByTag.order.apply(cb, patient.get(Patient_.patientBirthDate)));
+                return result.add(orderByTag.order(cb, patient.get(Patient_.patientBirthDate)));
         }
         return false;
     }
 
-    public boolean orderStudies(Path<Patient> patient, Path<Study> study,
-            CriteriaOrderByTag orderByTag, List<Order> result) {
+    private boolean orderStudies(Path<Patient> patient, Path<Study> study,
+            OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
 
         switch (orderByTag.tag) {
             case Tag.StudyInstanceUID:
-                return result.add(orderByTag.order.apply(cb, study.get(Study_.studyInstanceUID)));
+                return result.add(orderByTag.order(cb, study.get(Study_.studyInstanceUID)));
             case Tag.StudyID:
-                return result.add(orderByTag.order.apply(cb, study.get(Study_.studyID)));
+                return result.add(orderByTag.order(cb, study.get(Study_.studyID)));
             case Tag.StudyDate:
-                return result.add(orderByTag.order.apply(cb, study.get(Study_.studyDate)));
+                return result.add(orderByTag.order(cb, study.get(Study_.studyDate)));
             case Tag.StudyTime:
-                return result.add(orderByTag.order.apply(cb, study.get(Study_.studyTime)));
+                return result.add(orderByTag.order(cb, study.get(Study_.studyTime)));
             case Tag.ReferringPhysicianName:
                 return orderPersonName(study.get(Study_.referringPhysicianName), orderByTag, result);
             case Tag.StudyDescription:
-                return result.add(orderByTag.order.apply(cb, study.get(Study_.studyDescription)));
+                return result.add(orderByTag.order(cb, study.get(Study_.studyDescription)));
             case Tag.AccessionNumber:
-                return result.add(orderByTag.order.apply(cb, study.get(Study_.accessionNumber)));
+                return result.add(orderByTag.order(cb, study.get(Study_.accessionNumber)));
         }
         return false;
     }
 
-    public boolean orderSeries(Path<Patient> patient, Path<Study> study, Path<Series> series,
-            CriteriaOrderByTag orderByTag, List<Order> result) {
+    private boolean orderSeries(Path<Patient> patient, Path<Study> study, Path<Series> series,
+            OrderByTag orderByTag, List<Order> result) {
         if (study != null && orderStudies(patient, study, orderByTag, result))
             return true;
 
         switch (orderByTag.tag) {
             case Tag.SeriesInstanceUID:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.seriesInstanceUID)));
+                return result.add(orderByTag.order(cb, series.get(Series_.seriesInstanceUID)));
             case Tag.SeriesNumber:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.seriesNumber)));
+                return result.add(orderByTag.order(cb, series.get(Series_.seriesNumber)));
             case Tag.Modality:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.modality)));
+                return result.add(orderByTag.order(cb, series.get(Series_.modality)));
             case Tag.BodyPartExamined:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.bodyPartExamined)));
+                return result.add(orderByTag.order(cb, series.get(Series_.bodyPartExamined)));
             case Tag.Laterality:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.laterality)));
+                return result.add(orderByTag.order(cb, series.get(Series_.laterality)));
             case Tag.PerformedProcedureStepStartDate:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.performedProcedureStepStartDate)));
+                return result.add(orderByTag.order(cb, series.get(Series_.performedProcedureStepStartDate)));
             case Tag.PerformedProcedureStepStartTime:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.performedProcedureStepStartTime)));
+                return result.add(orderByTag.order(cb, series.get(Series_.performedProcedureStepStartTime)));
             case Tag.PerformingPhysicianName:
                 return orderPersonName(series.get(Series_.performingPhysicianName), orderByTag, result);
             case Tag.SeriesDescription:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.seriesDescription)));
+                return result.add(orderByTag.order(cb, series.get(Series_.seriesDescription)));
             case Tag.StationName:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.stationName)));
+                return result.add(orderByTag.order(cb, series.get(Series_.stationName)));
             case Tag.InstitutionName:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.institutionName)));
+                return result.add(orderByTag.order(cb, series.get(Series_.institutionName)));
             case Tag.InstitutionalDepartmentName:
-                return result.add(orderByTag.order.apply(cb, series.get(Series_.institutionalDepartmentName)));
+                return result.add(orderByTag.order(cb, series.get(Series_.institutionalDepartmentName)));
         }
         return false;
     }
 
-    public boolean orderInstances(Path<Patient> patient, Path<Study> study, Path<Series> series,
-            Path<Instance> instance, CriteriaOrderByTag orderByTag, List<Order> result) {
+    private boolean orderInstances(Path<Patient> patient, Path<Study> study, Path<Series> series,
+            Path<Instance> instance, OrderByTag orderByTag, List<Order> result) {
         if (series != null && orderSeries(patient, study, series, orderByTag, result))
             return true;
 
         switch (orderByTag.tag) {
             case Tag.SOPInstanceUID:
-                return result.add(orderByTag.order.apply(cb, instance.get(Instance_.sopInstanceUID)));
+                return result.add(orderByTag.order(cb, instance.get(Instance_.sopInstanceUID)));
             case Tag.SOPClassUID:
-                return result.add(orderByTag.order.apply(cb, instance.get(Instance_.sopClassUID)));
+                return result.add(orderByTag.order(cb, instance.get(Instance_.sopClassUID)));
             case Tag.InstanceNumber:
-                return result.add(orderByTag.order.apply(cb, instance.get(Instance_.instanceNumber)));
+                return result.add(orderByTag.order(cb, instance.get(Instance_.instanceNumber)));
             case Tag.VerificationFlag:
-                return result.add(orderByTag.order.apply(cb, instance.get(Instance_.verificationFlag)));
+                return result.add(orderByTag.order(cb, instance.get(Instance_.verificationFlag)));
             case Tag.CompletionFlag:
-                return result.add(orderByTag.order.apply(cb, instance.get(Instance_.completionFlag)));
+                return result.add(orderByTag.order(cb, instance.get(Instance_.completionFlag)));
             case Tag.ContentDate:
-                return result.add(orderByTag.order.apply(cb, instance.get(Instance_.contentDate)));
+                return result.add(orderByTag.order(cb, instance.get(Instance_.contentDate)));
             case Tag.ContentTime:
-                return result.add(orderByTag.order.apply(cb, instance.get(Instance_.contentTime)));
+                return result.add(orderByTag.order(cb, instance.get(Instance_.contentTime)));
         }
         return false;
     }
 
-    public boolean orderMWLItemsPatients(Path<Patient> patient, Path<MWLItem> mwlItem,
-            CriteriaOrderByTag orderByTag, List<Order> result) {
+    private boolean orderMWLItems(Path<Patient> patient, Path<MWLItem> mwlItem,
+            OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
 
         switch (orderByTag.tag) {
             case Tag.AccessionNumber:
-                return result.add(orderByTag.order.apply(cb, mwlItem.get(MWLItem_.accessionNumber)));
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.accessionNumber)));
             case Tag.Modality:
-                return result.add(orderByTag.order.apply(cb, mwlItem.get(MWLItem_.modality)));
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.modality)));
             case Tag.StudyInstanceUID:
-                return result.add(orderByTag.order.apply(cb, mwlItem.get(MWLItem_.studyInstanceUID)));
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.studyInstanceUID)));
             case Tag.ScheduledProcedureStepStartDate:
-                return result.add(orderByTag.order.apply(cb, mwlItem.get(MWLItem_.scheduledStartDate)));
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.scheduledStartDate)));
             case Tag.ScheduledProcedureStepStartTime:
-                return result.add(orderByTag.order.apply(cb, mwlItem.get(MWLItem_.scheduledStartTime)));
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.scheduledStartTime)));
             case Tag.ScheduledPerformingPhysicianName:
                 return orderPersonName(mwlItem.get(MWLItem_.scheduledPerformingPhysicianName), orderByTag, result);
             case Tag.ScheduledProcedureStepID:
-                return result.add(orderByTag.order.apply(cb, mwlItem.get(MWLItem_.scheduledProcedureStepID)));
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.scheduledProcedureStepID)));
             case Tag.RequestedProcedureID:
-                return result.add(orderByTag.order.apply(cb, mwlItem.get(MWLItem_.requestedProcedureID)));
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.requestedProcedureID)));
         }
         return false;
     }
 
     private boolean orderPersonName(Path<org.dcm4chee.arc.entity.PersonName> personName,
-            CriteriaOrderByTag orderByTag, List<Order> result) {
-        result.add(orderByTag.order.apply(cb, personName.get(PersonName_.familyName)));
-        result.add(orderByTag.order.apply(cb, personName.get(PersonName_.givenName)));
-        result.add(orderByTag.order.apply(cb, personName.get(PersonName_.middleName)));
+            OrderByTag orderByTag, List<Order> result) {
+        result.add(orderByTag.order(cb, personName.get(PersonName_.familyName)));
+        result.add(orderByTag.order(cb, personName.get(PersonName_.givenName)));
+        result.add(orderByTag.order(cb, personName.get(PersonName_.middleName)));
         return true;
     }
 
     public static <X> void applyPatientLevelJoins(From<X, Patient> patient, IDWithIssuer[] pids, Attributes keys,
-            QueryParam queryParam, boolean orderByPatientName, boolean forCount) {
+            boolean orderByPatientName) {
         applyPatientIDJoins(patient, pids);
         if (!isUniversalMatching(keys.getString(Tag.PatientName)))
             patient.join(Patient_.patientName);
-        else if (!forCount && orderByPatientName)
+        else if (orderByPatientName)
             patient.join(Patient_.patientName, JoinType.LEFT);
         if (!isUniversalMatching(keys.getString(Tag.ResponsiblePerson)))
             patient.join(Patient_.responsiblePerson);
-        if (!forCount)
-            patient.join(Patient_.attributesBlob);
+    }
 
+    public static <X> void applyPatientLevelJoinsForCount(From<X, Patient> patient, IDWithIssuer[] pids,
+            Attributes keys) {
+        applyPatientIDJoins(patient, pids);
+        if (!isUniversalMatching(keys.getString(Tag.PatientName)))
+            patient.join(Patient_.patientName);
+        if (!isUniversalMatching(keys.getString(Tag.ResponsiblePerson)))
+            patient.join(Patient_.responsiblePerson);
     }
 
     public static <X> void applyPatientIDJoins(From<X, Patient> patient, IDWithIssuer[] pids) {
@@ -239,16 +282,68 @@ public class CriteriaQueryBuilder<T> {
         return and(x, y);
     }
 
-    public Expression<Boolean> patientLevelPredicates(Expression<Boolean> x, Path<Patient> patient,
+    public <T> Expression<Boolean> patientPredicates(CriteriaQuery<T> q,
+            Expression<Boolean> x, Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        return patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.PATIENT);
+    }
+
+    public <T> Expression<Boolean> studyPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Patient> patient, Path<Study> study,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        return studyLevelPredicates(q,
+                patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.STUDY),
+                study, keys, queryParam, QueryRetrieveLevel2.STUDY);
+    }
+
+    public <T> Expression<Boolean> seriesPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Patient> patient, Path<Study> study, Path<Series> series,
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        return seriesLevelPredicates(q,
+                studyLevelPredicates(q,
+                    patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.SERIES),
+                    study, keys, queryParam, QueryRetrieveLevel2.SERIES),
+                series, keys, queryParam);
+    }
+
+    public <T> Expression<Boolean> instancePredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Patient> patient, Path<Study> study, Path<Series> series, Path<Instance> instance,
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+            CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
+        return instanceLevelPredicates(q,
+                seriesLevelPredicates(q,
+                    studyLevelPredicates(q,
+                        patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.IMAGE),
+                        study, keys, queryParam, QueryRetrieveLevel2.IMAGE),
+                    series, keys, queryParam),
+                instance, keys, queryParam, showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
+    }
+
+    public <T> Expression<Boolean> mwlItemPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Patient> patient, Path<MWLItem> mwlItem,
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        return mwlItemLevelPredicates(q,
+                patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.STUDY),
+                mwlItem, keys, queryParam);
+    }
+
+    private <T> Expression<Boolean> patientLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+            QueryRetrieveLevel2 queryRetrieveLevel) {
+        if (patient == null)
+            return x;
+        if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
+            x = and(x, patient.get(Patient_.mergedWith).isNull());
+            if (!queryParam.isWithoutStudies())
+                x = cb.and(x, cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
+        }
         x = patientIDPredicate(x, patient.get(Patient_.patientID), pids);
-        x = personName(x, patient.get(Patient_.patientName),
+        x = personName(q, x, patient.get(Patient_.patientName),
                 keys.getString(Tag.PatientName, "*"), queryParam);
         x = wildCard(x, patient.get(Patient_.patientSex),
                 keys.getString(Tag.PatientSex, "*").toUpperCase());
         x = dateRange(x, patient.get(Patient_.patientBirthDate),
                 keys.getDateRange(Tag.PatientBirthDate), FormatDate.DA);
-        x = personName(x, patient.get(Patient_.responsiblePerson),
+        x = personName(q, x, patient.get(Patient_.responsiblePerson),
                 keys.getString(Tag.ResponsiblePerson, "*"), queryParam);
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
         x = wildCard(x, patient.get(Patient_.patientCustomAttribute1),
@@ -279,27 +374,32 @@ public class CriteriaQueryBuilder<T> {
                 || !isUniversalMatching(AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), null));
     }
 
-    public <X> void applyStudyLevelJoins(From<X, Study> study, IDWithIssuer[] pids, Attributes keys,
-            QueryParam queryParam, boolean forCount) {
-        if (!forCount) {
-            CollectionJoin<Study, StudyQueryAttributes> join = study.join(Study_.queryAttributes, JoinType.LEFT);
-            join.on(cb.equal(join.get(StudyQueryAttributes_.viewID), queryParam.getViewID()));
-        }
+    public static <X> void applyStudyLevelJoins(From<X, Study> study, Attributes keys) {
         if (!isUniversalMatching(keys.getString(Tag.AccessionNumber))
                 && !isUniversalMatching(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)))
             study.join(Study_.issuerOfAccessionNumber);
         if (!isUniversalMatching(keys.getString(Tag.ReferringPhysicianName)))
             study.join(Study_.referringPhysicianName);
-        if (!forCount)
-            study.join(Study_.attributesBlob);
+    }
+
+    public static <X> CollectionJoin<Study, StudyQueryAttributes> joinStudyQueryAttributes(
+            CriteriaBuilder cb, From<X, Study> study, String viewID) {
+        CollectionJoin<Study, StudyQueryAttributes> join = study.join(Study_.queryAttributes, JoinType.LEFT);
+        return join.on(cb.equal(join.get(StudyQueryAttributes_.viewID), viewID));
+    }
+
+    public static <X> CollectionJoin<Series, SeriesQueryAttributes> joinSeriesQueryAttributes(
+            CriteriaBuilder cb, From<X, Series> series, String viewID) {
+        CollectionJoin<Series, SeriesQueryAttributes> join = series.join(Series_.queryAttributes, JoinType.LEFT);
+        return join.on(cb.equal(join.get(SeriesQueryAttributes_.viewID), viewID));
     }
 
     public static Expression<Boolean> uidsPredicate(Expression<Boolean> x, Path<String> path, String[] values) {
         return isUniversalMatching(values) ? x : path.in(values);
     }
 
-    public Expression<Boolean> studyLevelPredicates(Expression<Boolean> x, Path<Study> study, Attributes keys,
-            QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
+    private <T> Expression<Boolean> studyLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         x = accessControl(x, study, queryParam.getAccessControlIDs());
         x = uidsPredicate(x, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
@@ -307,7 +407,7 @@ public class CriteriaQueryBuilder<T> {
         x = dateRange(x, study.get(Study_.studyDate), study.get(Study_.studyTime),
                 Tag.StudyDate, Tag.StudyTime, Tag.StudyDateAndTime,
                 keys, combinedDatetimeMatching);
-        x = personName(x, study.get(Study_.referringPhysicianName),
+        x = personName(q, x, study.get(Study_.referringPhysicianName),
                 keys.getString(Tag.ReferringPhysicianName, "*"), queryParam);
         x = wildCard(x, study.get(Study_.studyDescription),
                 keys.getString(Tag.StudyDescription, "*"), true);
@@ -319,10 +419,10 @@ public class CriteriaQueryBuilder<T> {
             x = idWithIssuer(x, study.get(Study_.accessionNumber), study.get(Study_.issuerOfAccessionNumber),
                     accNo, issuer);
         }
-        x = seriesAttributesInStudy(x, study, keys, queryParam);
+        x = seriesAttributesInStudy(q, x, study, keys, queryParam);
         Attributes procedureCode = keys.getNestedDataset(Tag.ProcedureCodeSequence);
         if (!isUniversalMatching(procedureCode))
-            x = codes(x, study.get(Study_.procedureCodes), procedureCode);
+            x = codes(q, x, study.get(Study_.procedureCodes), procedureCode);
         if (queryParam.isHideNotRejectedInstances())
             x = and(x, cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
@@ -367,21 +467,14 @@ public class CriteriaQueryBuilder<T> {
         return study.get(Study_.accessControlID).in(a);
     }
 
-    public <X> void applySeriesLevelJoins(From<X, Series> series, Attributes keys, QueryParam queryParam,
-            boolean forCount) {
-        if (!forCount) {
-            CollectionJoin<Series, SeriesQueryAttributes> join = series.join(Series_.queryAttributes, JoinType.LEFT);
-            join.on(cb.equal(join.get(SeriesQueryAttributes_.viewID), queryParam.getViewID()));
-        }
+    public static <X> void applySeriesLevelJoins(From<X, Series> series, Attributes keys) {
         if (!isUniversalMatching(keys.getString(Tag.PerformingPhysicianName))) {
             series.join(Series_.performingPhysicianName);
         }
-        if (!forCount)
-            series.join(Series_.attributesBlob);
     }
 
-    public Expression<Boolean> seriesLevelPredicates(Expression<Boolean> x, Path<Series> series, Attributes keys,
-            QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
+    private <T> Expression<Boolean> seriesLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Series> series, Attributes keys, QueryParam queryParam) {
         x = uidsPredicate(x, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID));
         x = numberPredicate(x, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
         x = wildCard(x, series.get(Series_.modality),
@@ -396,7 +489,7 @@ public class CriteriaQueryBuilder<T> {
                 Tag.PerformedProcedureStepStartDate, Tag.PerformedProcedureStepStartTime,
                 Tag.PerformedProcedureStepStartDateAndTime,
                 keys, queryParam.isCombinedDatetimeMatching());
-        x = personName(x, series.get(Series_.performingPhysicianName),
+        x = personName(q, x, series.get(Series_.performingPhysicianName),
                 keys.getString(Tag.PerformingPhysicianName, "*"), queryParam);
         x = wildCard(x, series.get(Series_.seriesDescription),
                 keys.getString(Tag.SeriesDescription, "*"), true);
@@ -407,7 +500,7 @@ public class CriteriaQueryBuilder<T> {
                 keys.getString(Tag.InstitutionName, "*"), true);
         Attributes reqAttrs = keys.getNestedDataset(Tag.RequestAttributesSequence);
         if (!isUniversalMatching(reqAttrs))
-            x = requestAttributes(x, series.get(Series_.requestAttributes), reqAttrs, queryParam);
+            x = requestAttributes(q, x, series.get(Series_.requestAttributes), reqAttrs, queryParam);
         x = code(x, series.get(Series_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
         if (queryParam.isHideNotRejectedInstances())
             x = and(x, cb.notEqual(series.get(Series_.rejectionState), RejectionState.NONE));
@@ -435,15 +528,9 @@ public class CriteriaQueryBuilder<T> {
         return x;
     }
 
-    public <X> void applyInstanceLevelJoins(From<X, Instance> instance, Attributes keys, QueryParam queryParam,
-            boolean forCount) {
-        if (!forCount)
-            instance.join(Instance_.attributesBlob);
-        instance.join(Instance_.rejectionNoteCode, JoinType.LEFT);
-    }
-
-    public Expression<Boolean> instanceLevelPredicates(Expression<Boolean> x, Path<Instance> instance, Attributes keys,
-            QueryParam queryParam, CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
+    private <T> Expression<Boolean> instanceLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Instance> instance, Attributes keys, QueryParam queryParam,
+            CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         x = uidsPredicate(x, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
         x = uidsPredicate(x, instance.get(Instance_.sopClassUID), keys.getStrings(Tag.SOPClassUID));
@@ -460,11 +547,11 @@ public class CriteriaQueryBuilder<T> {
         x = code(x, instance.get(Instance_.conceptNameCode), keys.getNestedDataset(Tag.ConceptNameCodeSequence));
         Attributes verifyingObserver = keys.getNestedDataset(Tag.VerifyingObserverSequence);
         if (!isUniversalMatching(verifyingObserver))
-            x = verifyingObserver(x, instance.get(Instance_.verifyingObservers), verifyingObserver, queryParam);
+            x = verifyingObserver(q, x, instance.get(Instance_.verifyingObservers), verifyingObserver, queryParam);
         Sequence contentSeq = keys.getSequence(Tag.ContentSequence);
         if (contentSeq != null)
             for (Attributes item : contentSeq)
-                x = contentItem(x, instance.get(Instance_.contentItems), item);
+                x = contentItem(q, x, instance.get(Instance_.contentItems), item);
         AttributeFilter attrFilter = queryParam
                 .getAttributeFilter(Entity.Instance);
         x = wildCard(x,
@@ -487,7 +574,21 @@ public class CriteriaQueryBuilder<T> {
         return x;
     }
 
-    public <X> void applyMWLJoins(From<X, MWLItem> mwlItem, Attributes keys, QueryParam queryParam, boolean forCount) {
+    public <T> Expression<Boolean> sopInstanceRefs(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Study> study, Path<Series> series, Root<Instance> instance,
+            String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView,
+            CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
+        x = and(x, cb.equal(study.get(Study_.studyInstanceUID), studyIUID));
+        if (!isUniversalMatching(seriesUID))
+            cb.and(x, cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
+        if (!isUniversalMatching(objectUID))
+            cb.and(x, cb.equal(instance.get(Instance_.sopInstanceUID), objectUID));
+        x = hideRejectedInstance(x, instance, showInstancesRejectedByCodes, qrView.isHideNotRejectedInstances());
+        x = hideRejectionNote(x, instance, hideRejectionNoteWithCodes);
+        return x;
+    }
+
+    public static <X> void applyMWLItemJoins(From<X, MWLItem> mwlItem, Attributes keys) {
         if (!isUniversalMatching(keys.getString(Tag.AccessionNumber))
                 && !isUniversalMatching(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence))) {
             mwlItem.join(MWLItem_.issuerOfAccessionNumber, JoinType.LEFT);
@@ -497,12 +598,10 @@ public class CriteriaQueryBuilder<T> {
         if (sps != null && !isUniversalMatching(sps.getString(Tag.ScheduledPerformingPhysicianName))) {
             mwlItem.join(MWLItem_.scheduledPerformingPhysicianName);
         }
-        if (!forCount)
-            mwlItem.join(MWLItem_.attributesBlob);
     }
 
-    public Expression<Boolean> mwlPredicates(Expression<Boolean> x, Path<MWLItem> mwlItem, Attributes keys,
-            QueryParam queryParam) {
+    private <T> Expression<Boolean> mwlItemLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x, Path<MWLItem> mwlItem,
+            Attributes keys, QueryParam queryParam) {
         x = uidsPredicate(x, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
         x = wildCard(x, mwlItem.get(MWLItem_.requestedProcedureID), keys.getString(Tag.RequestedProcedureID, "*"));
         String accNo = keys.getString(Tag.AccessionNumber, "*");
@@ -527,7 +626,7 @@ public class CriteriaQueryBuilder<T> {
                     Tag.ScheduledProcedureStepStartDate,
                     Tag.ScheduledProcedureStepStartDateAndTime,
                     sps, true);
-            x = personName(x, mwlItem.get(MWLItem_.scheduledPerformingPhysicianName),
+            x = personName(q, x, mwlItem.get(MWLItem_.scheduledPerformingPhysicianName),
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
             x = wildCard(x, mwlItem.get(MWLItem_.modality), sps.getString(Tag.Modality, "*").toUpperCase());
             x = showSPSWithStatus(x, mwlItem, sps);
@@ -686,8 +785,8 @@ public class CriteriaQueryBuilder<T> {
         return like.toString();
     }
 
-    private Expression<Boolean> seriesAttributesInStudy(Expression<Boolean> x, Path<Study> study,
-            Attributes keys, QueryParam queryParam) {
+    private <T> Expression<Boolean> seriesAttributesInStudy(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<Study> study, Attributes keys, QueryParam queryParam) {
         Subquery<Series> sq = q.subquery(Series.class);
         Root<Series> series = sq.from(Series.class);
         Expression<Boolean> y = null;
@@ -729,15 +828,15 @@ public class CriteriaQueryBuilder<T> {
         return x;
     }
 
-    private Expression<Boolean> codes(Expression<Boolean> x, Expression<Collection<CodeEntity>> codes,
-            Attributes item) {
+    private <T> Expression<Boolean> codes(CriteriaQuery<T> q, Expression<Boolean> x,
+            Expression<Collection<CodeEntity>> codes, Attributes item) {
         Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
         Root<CodeEntity> code = sq.from(CodeEntity.class);
         Expression<Boolean> y = code(null, code, item);
         return y == null ? x : and(x, cb.exists(sq.where(cb.and(code.in(codes), y))));
     }
 
-    private Expression<Boolean> requestAttributes(Expression<Boolean> x,
+    private <T> Expression<Boolean> requestAttributes(CriteriaQuery<T> q, Expression<Boolean> x,
             Expression<Collection<SeriesRequestAttributes>> requests, Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
             return x;
@@ -764,7 +863,7 @@ public class CriteriaQueryBuilder<T> {
         String requestingPhysician = item.getString(Tag.RequestingPhysician, "*");
         if (!isUniversalMatching(requestingPhysician)) {
             request.join(SeriesRequestAttributes_.requestingPhysician);
-            y = personName(y,
+            y = personName(q, y,
                     request.get(SeriesRequestAttributes_.requestingPhysician),
                     requestingPhysician, queryParam);
         }
@@ -780,7 +879,7 @@ public class CriteriaQueryBuilder<T> {
         return y == null ? x : and(x, cb.exists(sq.where(cb.and(request.in(requests), y))));
     }
 
-    private Expression<Boolean> verifyingObserver(Expression<Boolean> x,
+    private <T> Expression<Boolean> verifyingObserver(CriteriaQuery<T> q, Expression<Boolean> x,
             Expression<Collection<VerifyingObserver>> observers, Attributes item, QueryParam queryParam) {
         Subquery<VerifyingObserver> sq = q.subquery(VerifyingObserver.class);
         Root<VerifyingObserver> observer = sq.from(VerifyingObserver.class);
@@ -788,14 +887,14 @@ public class CriteriaQueryBuilder<T> {
         String observerName = item.getString(Tag.VerifyingObserverName, "*");
         if (!isUniversalMatching(observerName)) {
             observer.join(VerifyingObserver_.verifyingObserverName);
-            y = personName(y, observer.get(VerifyingObserver_.verifyingObserverName), observerName, queryParam);
+            y = personName(q, y, observer.get(VerifyingObserver_.verifyingObserverName), observerName, queryParam);
         }
         y = dateRange(y, observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
         return y == null ? x : and(x, cb.exists(sq.where(cb.and(observer.in(observers), y))));
     }
 
-    private Expression<Boolean> contentItem(Expression<Boolean> x,
+    private <T> Expression<Boolean> contentItem(CriteriaQuery<T> q, Expression<Boolean> x,
             Expression<Collection<ContentItem>> contentItems, Attributes item) {
         String valueType = item.getString(Tag.ValueType);
         if (!("CODE".equals(valueType) || "TEXT".equals(valueType)))
@@ -816,14 +915,14 @@ public class CriteriaQueryBuilder<T> {
         return y == null ? x : and(x, cb.exists(sq.where(cb.and(contentItem.in(contentItems), y))));
     }
 
-    private Expression<Boolean> personName(Expression<Boolean> x, Path<org.dcm4chee.arc.entity.PersonName> qpn,
-            String value, QueryParam queryParam) {
+    private <T> Expression<Boolean> personName(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<org.dcm4chee.arc.entity.PersonName> qpn, String value, QueryParam queryParam) {
         if (value.equals("*"))
             return x;
 
         PersonName pn = new PersonName(value, true);
         return and(x, queryParam.isFuzzySemanticMatching()
-                ? fuzzyMatch(qpn, pn, queryParam)
+                ? fuzzyMatch(q, qpn, pn, queryParam)
                 : literalMatch(qpn, pn, queryParam));
     }
 
@@ -879,30 +978,31 @@ public class CriteriaQueryBuilder<T> {
         return x;
     }
 
-    private Expression<Boolean> fuzzyMatch(Path<org.dcm4chee.arc.entity.PersonName> qpn,
+    private <T> Expression<Boolean> fuzzyMatch(CriteriaQuery<T> q, Path<org.dcm4chee.arc.entity.PersonName> qpn,
             PersonName pn, QueryParam param) {
         Expression<Boolean> x = null;
-        x = fuzzyMatch(x, qpn, pn, PersonName.Component.FamilyName, param);
-        x = fuzzyMatch(x, qpn, pn, PersonName.Component.GivenName, param);
-        x = fuzzyMatch(x, qpn, pn, PersonName.Component.MiddleName, param);
+        x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.FamilyName, param);
+        x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.GivenName, param);
+        x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.MiddleName, param);
         return x;
     }
 
-    private Expression<Boolean> fuzzyMatch(Expression<Boolean> x, Path<org.dcm4chee.arc.entity.PersonName> qpn,
-            PersonName pn, PersonName.Component c, QueryParam param) {
+    private <T> Expression<Boolean> fuzzyMatch(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName pn, PersonName.Component c, QueryParam param) {
         String name = StringUtils.maskNull(pn.get(c), "*");
         if (name.equals("*"))
             return x;
 
         Iterator<String> parts = SoundexCode.tokenizePersonNameComponent(name);
         for (int i = 0; parts.hasNext(); ++i)
-            x = fuzzyMatch(x, qpn, c, i, parts.next(), param);
+            x = fuzzyMatch(q, x, qpn, c, i, parts.next(), param);
 
         return x;
     }
 
-    private Expression<Boolean> fuzzyMatch(Expression<Boolean> x, Path<org.dcm4chee.arc.entity.PersonName> qpn,
-            PersonName.Component c, int partIndex, String name, QueryParam param) {
+    private <T> Expression<Boolean> fuzzyMatch(CriteriaQuery<T> q, Expression<Boolean> x,
+            Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName.Component c, int partIndex, String name,
+            QueryParam param) {
         boolean wc = name.endsWith("*");
         if (wc) {
             name = name.substring(0, name.length()-1);

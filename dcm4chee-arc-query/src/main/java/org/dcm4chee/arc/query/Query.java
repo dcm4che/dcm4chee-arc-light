@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,17 +35,17 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
 package org.dcm4chee.arc.query;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.hibernate.Transaction;
 
 import java.io.Closeable;
-import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -56,23 +56,17 @@ public interface Query extends Closeable {
 
     void close();
 
-    void initQuery();
+    void beginTransaction();
 
-    Transaction beginTransaction();
+    void executeQuery(int fetchSize);
 
-    void setFetchSize(int fetchSize);
-
-    void executeQuery();
+    void executeQuery(int fetchSize, int offset, int limit);
 
     long fetchCount();
 
-    Iterator<Long> withUnknownSize(int fetchSize);
+    Stream<Long> withUnknownSize(int fetchSize);
 
     long fetchSize();
-
-    void limit(long limit);
-
-    void offset(long offset);
 
     boolean hasMoreMatches() throws DicomServiceException;
 

@@ -50,7 +50,10 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.AttributeSet;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -58,7 +61,6 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
-import org.hibernate.Transaction;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
@@ -74,6 +76,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -346,24 +349,16 @@ public class QidoRS {
         if (ctx.getQueryParam().noMatches()) {
             return Response.ok("{\"size\":0}").build();
         }
+        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         try (Query query = service.createStudyQuery(ctx)) {
-            Transaction transaction = query.beginTransaction();
-            try {
-                Iterator<Long> studyPks = query.withUnknownSize(
-                        device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
+            query.beginTransaction();
+            try (Stream<Long> studyPkStream = query.withUnknownSize(arcdev.getQueryFetchSize())) {
+                Iterator<Long> studyPks = studyPkStream.iterator();
                 while (studyPks.hasNext())
                     ctx.getQueryService().calculateStudySize(studyPks.next());
             } catch (Exception e) {
                 return errResponseAsTextPlain(e);
-            } finally {
-                try {
-                    transaction.commit();
-                } catch (Exception e) {
-                    LOG.warn("Failed to commit transaction:\n{}", e);
-                }
             }
-        }
-        try (Query query = service.createStudyQuery(ctx)) {
             return Response.ok("{\"size\":" + query.fetchSize() + '}').build();
         }
     }
@@ -399,6 +394,7 @@ public class QidoRS {
                     : queryAttrs.getQueryKeys());
             ctx.setReturnPrivate(queryAttrs.isIncludePrivate());
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
             if (output == Output.CSV) {
                 model.setIncludeAll(queryAttrs.isIncludeAll());
                 model.setReturnKeys(ctx.getReturnKeys());
@@ -410,7 +406,6 @@ public class QidoRS {
                         .build();
             }
             try (Query query = model.createQuery(service, ctx)) {
-                query.initQuery();
                 int maxResults = arcAE.qidoMaxNumberOfResults();
                 int offsetInt = parseInt(offset);
                 int limitInt = parseInt(limit);
@@ -422,36 +417,19 @@ public class QidoRS {
 
                     remaining = numResults - maxResults;
                 }
-                if (offsetInt > 0)
-                    query.offset(offsetInt);
+                query.beginTransaction();
+                query.executeQuery(arcdev.getQueryFetchSize(), offsetInt, remaining > 0 ? maxResults : limitInt);
+                if (!query.hasMoreMatches())
+                    return Response.noContent().build();
 
+                Response.ResponseBuilder builder = Response.ok();
                 if (remaining > 0)
-                    query.limit(maxResults);
-                else if (limitInt > 0)
-                    query.limit(limitInt);
+                    builder.header("Warning", warning(remaining));
 
-                Transaction transaction = query.beginTransaction();
-                try {
-                    query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
-                    query.executeQuery();
-                    if (!query.hasMoreMatches())
-                        return Response.noContent().build();
-
-                    Response.ResponseBuilder builder = Response.ok();
-                    if (remaining > 0)
-                        builder.header("Warning", warning(remaining));
-
-                    return builder.entity(
-                            output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
-                            .type(output.type())
-                            .build();
-                } finally {
-                    try {
-                        transaction.commit();
-                    } catch (Exception e) {
-                        LOG.warn("Failed to commit transaction:\n{}", e);
-                    }
-                }
+                return builder.entity(
+                        output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
+                        .type(output.type())
+                        .build();
             }
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -748,7 +726,7 @@ public class QidoRS {
             throws DicomServiceException {
         final List<Attributes> matches =  matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
-            Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+            Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
             int[] tags = tagsFrom(model, matches.get(0));
             if (tags.length != 0) {
                 writeCSVHeader(writer, tags, matches.get(0));

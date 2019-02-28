@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,30 +35,26 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
 package org.dcm4chee.arc.query.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.dcm4chee.arc.query.util.QueryBuilder2;
 import org.dcm4chee.arc.query.util.QueryParam;
-import org.hibernate.StatelessSession;
 
-import java.util.Iterator;
+import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.*;
 
 
 /**
@@ -68,115 +64,113 @@ import java.util.Iterator;
  */
 class StudyQuery extends AbstractQuery {
 
-    static final Expression<?>[] SELECT = {
-            QStudy.study.pk,
-            QPatient.patient.numberOfStudies,
-            QPatient.patient.createdTime,
-            QPatient.patient.updatedTime,
-            QPatient.patient.verificationTime,
-            QPatient.patient.verificationStatus,
-            QPatient.patient.failedVerifications,
-            QStudy.study.createdTime,
-            QStudy.study.updatedTime,
-            QStudy.study.accessTime,
-            QStudy.study.expirationState,
-            QStudy.study.expirationDate,
-            QStudy.study.expirationExporterID,
-            QStudy.study.rejectionState,
-            QStudy.study.completeness,
-            QStudy.study.failedRetrieves,
-            QStudy.study.accessControlID,
-            QStudy.study.storageIDs,
-            QStudy.study.externalRetrieveAET,
-            QStudy.study.size,
-            QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
-            QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
-            QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy,
-            QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy,
-            QStudyQueryAttributes.studyQueryAttributes.retrieveAETs,
-            QStudyQueryAttributes.studyQueryAttributes.availability,
-            QueryBuilder.studyAttributesBlob.encodedAttributes,
-            QueryBuilder.patientAttributesBlob.encodedAttributes
-    };
+    private Join<Study, Patient> patient;
+    private Root<Study> study;
+    private CollectionJoin<Study, StudyQueryAttributes> studyQueryAttributes;
+    private Path<byte[]> patientAttrBlob;
+    private Path<byte[]> studyAttrBlob;
 
-    public StudyQuery(QueryContext context, StatelessSession session) {
-        super(context, session);
+    StudyQuery(QueryContext context, EntityManager em) {
+        super(context, em);
     }
 
     @Override
-    protected HibernateQuery<Tuple> newHibernateQuery(boolean forCount) {
-        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QStudy.study);
-        return newHibernateQuery(q, forCount, new BooleanBuilder());
-    }
-
-    @Override
-    public long fetchCount() {
-        HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QStudy.study);
-        return newHibernateQuery(q, true, new BooleanBuilder()).fetchCount();
-    }
-
-    private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount, BooleanBuilder predicates) {
-        boolean hasPatientLevelPredicates = !forCount
-                || QueryBuilder.hasPatientLevelPredicates(
+    protected CriteriaQuery<javax.persistence.Tuple> multiselect() {
+        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        this.study = q.from(Study.class);
+        this.patient = study.join(Study_.patient);
+        String viewID = context.getQueryParam().getViewID();
+        this.studyQueryAttributes = QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID);
+        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
+        QueryBuilder2.applyPatientLevelJoins(patient,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.isOrderByPatientName());
+        return q.multiselect(
+                study.get(Study_.pk),
+                patient.get(Patient_.numberOfStudies),
+                patient.get(Patient_.createdTime),
+                patient.get(Patient_.updatedTime),
+                patient.get(Patient_.verificationTime),
+                patient.get(Patient_.verificationStatus),
+                patient.get(Patient_.failedVerifications),
+                study.get(Study_.createdTime),
+                study.get(Study_.updatedTime),
+                study.get(Study_.accessTime),
+                study.get(Study_.expirationState),
+                study.get(Study_.expirationDate),
+                study.get(Study_.expirationExporterID),
+                study.get(Study_.rejectionState),
+                study.get(Study_.completeness),
+                study.get(Study_.failedRetrieves),
+                study.get(Study_.accessControlID),
+                study.get(Study_.storageIDs),
+                study.get(Study_.externalRetrieveAET),
+                study.get(Study_.size),
+                studyQueryAttributes.get(StudyQueryAttributes_.numberOfInstances),
+                studyQueryAttributes.get(StudyQueryAttributes_.numberOfSeries),
+                studyQueryAttributes.get(StudyQueryAttributes_.modalitiesInStudy),
+                studyQueryAttributes.get(StudyQueryAttributes_.sopClassesInStudy),
+                studyQueryAttributes.get(StudyQueryAttributes_.retrieveAETs),
+                studyQueryAttributes.get(StudyQueryAttributes_.availability),
+                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
+                studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes))
+                .where(builder.studyPredicates(q, null,
+                        patient,
+                        study,
                         context.getPatientIDs(),
                         context.getQueryKeys(),
-                        context.getQueryParam());
-        q = QueryBuilder.applyStudyLevelJoins(q,
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                forCount, hasPatientLevelPredicates);
-        if (hasPatientLevelPredicates) {
-            q = QueryBuilder.applyPatientLevelJoins(q,
-                    context.getPatientIDs(),
-                    context.getQueryKeys(),
-                    context.getQueryParam(),
-                    context.isOrderByPatientName(),
-                    forCount);
-            QueryBuilder.addPatientLevelPredicates(predicates,
-                    context.getPatientIDs(),
-                    context.getQueryKeys(),
-                    context.getQueryParam());
-        }
-        QueryBuilder.addStudyLevelPredicates(predicates,
-                context.getQueryKeys(),
-                context.getQueryParam(), QueryRetrieveLevel2.STUDY);
-        return q.where(predicates);
+                        context.getQueryParam()))
+                .orderBy(builder.orderStudies(patient, study, context.getOrderByTags()));
     }
 
     @Override
-    public long fetchSize() {
-        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session)
-                .select(new Expression[]{QStudy.study.size.sum()}).from(QStudy.study);
-        Long size = newHibernateQuery(q, true, new BooleanBuilder()).fetchOne().get(0, Long.class);
-        return size != null ? size.longValue() : 0L;
+    protected CriteriaQuery<Long> count() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Study> study = q.from(Study.class);
+        return createQuery(q, null, study, cb.count(study));
     }
 
-    public Iterator<Long> withUnknownSize(int fetchSize) {
-        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session)
-                .select(new Expression[]{QStudy.study.pk}).from(QStudy.study);
-        q = newHibernateQuery(q, true, new BooleanBuilder(QStudy.study.size.eq(-1L)));
-        q.setFetchSize(fetchSize);
-        final CloseableIterator<Tuple> iterate = q.iterate();
-        return new Iterator<Long>() {
-            @Override
-            public boolean hasNext() {
-                return iterate.hasNext();
-            }
+    @Override
+    protected CriteriaQuery<Long> sumStudySize() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Study> study = q.from(Study.class);
+        return createQuery(q, null, study, cb.sum(study.get(Study_.size)));
+    }
 
-            @Override
-            public Long next() {
-                return iterate.next().get(QStudy.study.pk);
-            }
-        };
+    @Override
+    protected CriteriaQuery<Long> withUnknownSize() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Study> study = q.from(Study.class);
+        return createQuery(q, cb.equal(study.get(Study_.size), -1L), study, study.get(Study_.pk));
+    }
+
+    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
+            From<X, Study> study, Expression<Long> longExpression) {
+        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
+        boolean hasPatientLevelPredicates = QueryBuilder2.hasPatientLevelPredicates(
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        Join<Study, Patient> patient = null;
+        if (hasPatientLevelPredicates) {
+            patient = study.join(Study_.patient);
+            QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
+        }
+        return q.select(longExpression)
+                .where(builder.studyPredicates(q, x, patient, study,
+                        context.getPatientIDs(),
+                        context.getQueryKeys(),
+                        context.getQueryParam()));
     }
 
     @Override
     protected Attributes toAttributes(Tuple results) {
-        Long studyPk = results.get(QStudy.study.pk);
-        long studySize = results.get(QStudy.study.size);
+        Long studyPk = results.get(study.get(Study_.pk));
+        long studySize = results.get(study.get(Study_.size));
         if (studySize < 0)
             studySize = context.getQueryService().calculateStudySize(studyPk);
-        Integer numberOfInstancesI = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
+        Integer numberOfInstancesI = results.get(studyQueryAttributes.get(StudyQueryAttributes_.numberOfInstances));
         int numberOfStudyRelatedInstances;
         int numberOfStudyRelatedSeries;
         String modalitiesInStudy;
@@ -189,11 +183,11 @@ class StudyQuery extends AbstractQuery {
             if (numberOfStudyRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;
             }
-            numberOfStudyRelatedSeries = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfSeries);
-            modalitiesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy);
-            sopClassesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy);
-            retrieveAETs = results.get(QStudyQueryAttributes.studyQueryAttributes.retrieveAETs);
-            availability = results.get(QStudyQueryAttributes.studyQueryAttributes.availability);
+            numberOfStudyRelatedSeries = results.get(studyQueryAttributes.get(StudyQueryAttributes_.numberOfSeries));
+            modalitiesInStudy = results.get(studyQueryAttributes.get(StudyQueryAttributes_.modalitiesInStudy));
+            sopClassesInStudy = results.get(studyQueryAttributes.get(StudyQueryAttributes_.sopClassesInStudy));
+            retrieveAETs = results.get(studyQueryAttributes.get(StudyQueryAttributes_.retrieveAETs));
+            availability = results.get(studyQueryAttributes.get(StudyQueryAttributes_.availability));
         } else {
             StudyQueryAttributes studyView = context.getQueryService()
                     .calculateStudyQueryAttributes(studyPk, queryParam.getQueryRetrieveView());
@@ -207,27 +201,26 @@ class StudyQuery extends AbstractQuery {
             retrieveAETs = studyView.getRetrieveAETs();
             availability = studyView.getAvailability();
         }
-        Attributes studyAttrs = AttributesBlob.decodeAttributes(
-                results.get(QueryBuilder.studyAttributesBlob.encodedAttributes), null);
-        Attributes patAttrs = AttributesBlob.decodeAttributes(
-                results.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
+        Attributes studyAttrs = AttributesBlob.decodeAttributes(results.get(studyAttrBlob), null);
+        Attributes patAttrs = AttributesBlob.decodeAttributes(results.get(patientAttrBlob), null);
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 20);
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs, true);
-        PatientQuery.addPatientQRAttrs(context, results, attrs);
-        String externalRetrieveAET = results.get(QStudy.study.externalRetrieveAET);
+        PatientQuery.addPatientQRAttrs(patient, context, results, attrs);
+        String externalRetrieveAET = results.get(study.get(Study_.externalRetrieveAET));
         attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS,
                 StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
-        StudyQuery.addStudyQRAddrs(context, results, studySize, numberOfStudyRelatedInstances, numberOfStudyRelatedSeries,
+        StudyQuery.addStudyQRAddrs(study, context, results, studySize,
+                numberOfStudyRelatedInstances, numberOfStudyRelatedSeries,
                 modalitiesInStudy, sopClassesInStudy, attrs);
         return attrs;
     }
 
-    static void addStudyQRAddrs(QueryContext context, Tuple results, long studySize, int numberOfStudyRelatedInstances,
-                                int numberOfStudyRelatedSeries, String modalitiesInStudy,
-                                String sopClassesInStudy, Attributes attrs) {
+    static void addStudyQRAddrs(Path<Study> study, QueryContext context, Tuple results, long studySize,
+            int numberOfStudyRelatedInstances, int numberOfStudyRelatedSeries,
+            String modalitiesInStudy, String sopClassesInStudy, Attributes attrs) {
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, StringUtils.split(modalitiesInStudy, '\\'));
         attrs.setString(Tag.SOPClassesInStudy, VR.UI, StringUtils.split(sopClassesInStudy, '\\'));
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
@@ -236,31 +229,31 @@ class StudyQuery extends AbstractQuery {
             return;
 
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
-                results.get(QStudy.study.createdTime));
+                results.get(study.get(Study_.createdTime)));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyUpdateDateTime, VR.DT,
-                results.get(QStudy.study.updatedTime));
+                results.get(study.get(Study_.updatedTime)));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT,
-                results.get(QStudy.study.accessTime));
+                results.get(study.get(Study_.accessTime)));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState, VR.CS,
-                results.get(QStudy.study.expirationState).toString());
-        if (results.get(QStudy.study.expirationDate) != null)
+                results.get(study.get(Study_.expirationState)).toString());
+        if (results.get(study.get(Study_.expirationDate)) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
-                    results.get(QStudy.study.expirationDate));
-        if (results.get(QStudy.study.expirationExporterID) != null)
+                    results.get(study.get(Study_.expirationDate)));
+        if (results.get(study.get(Study_.expirationExporterID)) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationExporterID, VR.LO,
-                    results.get(QStudy.study.expirationExporterID));
+                    results.get(study.get(Study_.expirationExporterID)));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyRejectionState, VR.CS,
-                results.get(QStudy.study.rejectionState).toString());
+                results.get(study.get(Study_.rejectionState)).toString());
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyCompleteness, VR.CS,
-                results.get(QStudy.study.completeness).toString());
-        if (results.get(QStudy.study.failedRetrieves) != 0)
+                results.get(study.get(Study_.completeness)).toString());
+        if (results.get(study.get(Study_.failedRetrieves)) != 0)
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
-                    results.get(QStudy.study.failedRetrieves));
-        if (!results.get(QStudy.study.accessControlID).equals("*"))
+                    results.get(study.get(Study_.failedRetrieves)));
+        if (!results.get(study.get(Study_.accessControlID)).equals("*"))
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
-                    results.get(QStudy.study.accessControlID));
+                    results.get(study.get(Study_.accessControlID)));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
-                StringUtils.split(results.get(QStudy.study.storageIDs), '\\'));
+                StringUtils.split(results.get(study.get(Study_.storageIDs)), '\\'));
         attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
         attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
     }

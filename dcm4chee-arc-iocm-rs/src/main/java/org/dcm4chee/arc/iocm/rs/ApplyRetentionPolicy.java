@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
-import com.querydsl.core.types.Order;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -62,7 +61,6 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,11 +137,9 @@ public class ApplyRetentionPolicy {
             int count = 0;
             QueryContext ctx = queryContext(ae);
             try (Query query = queryService.createQuery(ctx)) {
-                query.initQuery();
-                Transaction transaction = query.beginTransaction();
+                query.beginTransaction();
                 try {
-                    query.setFetchSize(queryFetchSize);
-                    query.executeQuery();
+                    query.executeQuery(queryFetchSize);
                     String prevStudyInstanceUID = null;
                     LocalDate prevStudyExpirationDate = null;
                     while (query.hasMoreMatches()) {
@@ -188,12 +184,6 @@ public class ApplyRetentionPolicy {
                 } catch (Exception e) {
                     LOG.warn("Unexpected exception:", e);
                     return errResponseAsTextPlain(e);
-                } finally {
-                    try {
-                        transaction.commit();
-                    } catch (Exception e) {
-                        LOG.info("Failed to commit transaction:\n{}", e);
-                    }
                 }
             }
             rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, null, request);
@@ -232,7 +222,7 @@ public class ApplyRetentionPolicy {
         if (idWithIssuer != null)
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
-        ctx.setOrderByTags(Collections.singletonList(new OrderByTag(Tag.StudyInstanceUID, Order.ASC)));
+        ctx.setOrderByTags(Collections.singletonList(OrderByTag.desc(Tag.StudyInstanceUID)));
         ctx.setReturnPrivate(true);
         return ctx;
     }

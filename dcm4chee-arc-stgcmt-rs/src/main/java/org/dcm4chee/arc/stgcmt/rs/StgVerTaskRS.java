@@ -200,7 +200,7 @@ public class StgVerTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return rsp(Response.Status.BAD_REQUEST, "Missing multiselect parameter: status");
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
@@ -253,7 +253,7 @@ public class StgVerTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return rsp(Response.Status.BAD_REQUEST, "Missing multiselect parameter: status");
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;

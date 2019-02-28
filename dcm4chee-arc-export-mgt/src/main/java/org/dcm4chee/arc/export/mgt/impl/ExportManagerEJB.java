@@ -279,7 +279,7 @@ public class ExportManagerEJB implements ExportManager {
             exportTask.setNumberOfInstances(
                     Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
         } catch (Exception e) {
-            LOG.warn("Failed to query Export Task Info for {} - ", exportTask, e);
+            LOG.warn("Failed to multiselect Export Task Info for {} - ", exportTask, e);
         }
     }
 

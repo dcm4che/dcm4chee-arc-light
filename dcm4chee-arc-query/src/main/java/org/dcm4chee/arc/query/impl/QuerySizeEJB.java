@@ -49,7 +49,6 @@ import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.math.BigDecimal;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

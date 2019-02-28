@@ -45,7 +45,6 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -60,7 +59,6 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
-import org.hibernate.Transaction;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +71,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -170,30 +167,20 @@ public class DiffPatientDemographicsRS {
         PDQService service = serviceFactory.getPDQService(descriptor);
         QueryContext ctx = createQueryContext(ae);
         try (Query query = ctx.getQueryService().createQuery(ctx)) {
-            query.initQuery();
             int queryMaxNumberOfResults1 = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
             if (queryMaxNumberOfResults1 > 0 && !ctx.containsUniqueKey()
                     && query.fetchCount() > queryMaxNumberOfResults1)
                 return responseAsTextPlain(Response.Status.BAD_REQUEST, "Request entity too large");
 
-            Transaction transaction = query.beginTransaction();
+            query.beginTransaction();
+            query.executeQuery(arcdev.getQueryFetchSize());
             try {
-                query.setFetchSize(arcdev.getQueryFetchSize());
-                query.executeQuery();
-                try {
-                    return (query.hasMoreMatches()
-                                ? Response.ok(entity(calculateDiffs(query, service)))
-                                : Response.noContent())
-                            .build();
-                } catch (DicomServiceException e) {
-                    return responseAsTextPlain(Response.Status.INTERNAL_SERVER_ERROR, exceptionAsString(e));
-                }
-            } finally {
-                try {
-                    transaction.commit();
-                } catch (Exception e) {
-                    LOG.warn("Failed to commit transaction:\n{}", e);
-                }
+                return (query.hasMoreMatches()
+                            ? Response.ok(entity(calculateDiffs(query, service)))
+                            : Response.noContent())
+                        .build();
+            } catch (DicomServiceException e) {
+                return responseAsTextPlain(Response.Status.INTERNAL_SERVER_ERROR, exceptionAsString(e));
             }
         }
    }

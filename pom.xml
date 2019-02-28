@@ -55,9 +55,9 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-javaee7.version>13.0.0.Final</wildfly-javaee7.version>
-    <jbossws-cxf-client.version>5.2.1.Final</jbossws-cxf-client.version>
-    <apache-cxf.version>3.2.4-jbossorg-1</apache-cxf.version>
+    <wildfly-javaee8.version>15.0.1.Final</wildfly-javaee8.version>
+    <jbossws-cxf-client.version>5.2.4.Final</jbossws-cxf-client.version>
+    <apache-cxf.version>3.2.5-jbossorg-1</apache-cxf.version>
     <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
     <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     <maven-ear-plugin.version>3.0.1</maven-ear-plugin.version>
@@ -136,8 +136,8 @@
     <dependencies>
       <dependency>
         <groupId>org.wildfly.bom</groupId>
-        <artifactId>wildfly-javaee7-with-tools</artifactId>
-        <version>${wildfly-javaee7.version}</version>
+        <artifactId>wildfly-javaee8-with-tools</artifactId>
+        <version>${wildfly-javaee8.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -379,10 +379,10 @@
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- Import Java Persistence API, Version 2.1 -->
+    <!-- Import Java Persistence API, Version 2.2 -->
     <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.1-api</artifactId>
+      <groupId>javax.persistence</groupId>
+      <artifactId>javax.persistence-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Import the CDI API -->
@@ -394,13 +394,13 @@
     <!-- Import the Common Annotations API (JSR-250) -->
     <dependency>
       <groupId>org.jboss.spec.javax.annotation</groupId>
-      <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+      <artifactId>jboss-annotations-api_1.3_spec</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Import the Servlet API -->
     <dependency>
       <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+      <artifactId>jboss-servlet-api_4.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Import Concurrency Utilities for Java EE (JSR-236) -->

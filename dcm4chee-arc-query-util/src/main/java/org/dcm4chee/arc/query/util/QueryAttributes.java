@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.query.util;
 
-import com.querydsl.core.types.Order;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Tag;
@@ -200,7 +199,8 @@ public class QueryAttributes {
                 for (String field : StringUtils.split(s, ',')) {
                     boolean desc = field.charAt(0) == '-';
                     int tags[] = TagUtils.parseTagPath(desc ? field.substring(1) : field);
-                    orderByTags.add(new OrderByTag(tags[tags.length - 1], desc ? Order.DESC : Order.ASC));
+                    int tag = tags[tags.length - 1];
+                    orderByTags.add(desc ? OrderByTag.desc(tag) : OrderByTag.asc(tag));
                 }
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("orderby=" + s);

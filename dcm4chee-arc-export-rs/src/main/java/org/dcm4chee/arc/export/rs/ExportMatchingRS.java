@@ -61,7 +61,6 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -289,11 +288,9 @@ public class ExportMatchingRS {
             int count = 0;
             Response.Status status = Response.Status.ACCEPTED;
             try (Query query = queryService.createQuery(ctx)) {
-                query.initQuery();
-                Transaction transaction = query.beginTransaction();
+                query.beginTransaction();
                 try {
-                    query.setFetchSize(arcDev.getQueryFetchSize());
-                    query.executeQuery();
+                    query.executeQuery(arcDev.getQueryFetchSize());
                     while (query.hasMoreMatches()) {
                         Attributes match = query.nextMatch();
                         if (bOnlyIAN || bOnlyStgCmt) {
@@ -312,12 +309,6 @@ public class ExportMatchingRS {
                 } catch (Exception e) {
                     warning = e.getMessage();
                     status = Response.Status.INTERNAL_SERVER_ERROR;
-                } finally {
-                    try {
-                        transaction.commit();
-                    } catch (Exception e) {
-                        LOG.warn("Failed to commit transaction:\n{}", e);
-                    }
                 }
             }
             Response.ResponseBuilder builder = Response.status(status);

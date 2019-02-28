@@ -53,6 +53,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7StudyRetentionPolicy;
@@ -120,6 +121,7 @@ public class ApplyHL7RetentionPolicy {
     private void apply(HL7ConnectionEvent event, HL7StudyRetentionPolicy policy, HL7Fields hl7Fields) {
         LOG.info("{}: Apply {}:", event.getSocket(), policy);
         IDWithIssuer pid = new IDWithIssuer(hl7Fields.get("PID-3", null));
+        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         ApplicationEntity ae = device.getApplicationEntity(policy.getAETitle(), true);
         QueryParam queryParam = queryParam(policy, ae);
         QueryContext queryCtx = queryService.newQueryContext(ae, queryParam);
@@ -128,8 +130,7 @@ public class ApplyHL7RetentionPolicy {
         queryCtx.setQueryKeys(new Attributes(0));
         queryCtx.setReturnPrivate(true);
         try (Query query = queryService.createStudyQuery(queryCtx)) {
-            query.initQuery();
-            query.executeQuery();
+            query.executeQuery(arcdev.getQueryFetchSize());
             while (query.hasMoreMatches()) {
                 Attributes match = query.nextMatch();
                 if (match != null)

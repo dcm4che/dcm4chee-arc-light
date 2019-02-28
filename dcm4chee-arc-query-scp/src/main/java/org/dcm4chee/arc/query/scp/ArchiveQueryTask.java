@@ -56,7 +56,6 @@ import org.dcm4chee.arc.conf.SpanningCFindSCPPolicy;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.scu.CFindSCU;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +83,6 @@ public class ArchiveQueryTask extends BasicQueryTask {
     private DimseRSP spanningCFindRSP;
     private Attributes spanningMatch;
     private Query query;
-    private Transaction transaction;
     private State state = State.NOT_INITALIZED;
     private Set<String> uniqueKeys = new HashSet<>();
     private int removeUniqueKeyFromSpanningMatch;
@@ -111,12 +109,6 @@ public class ArchiveQueryTask extends BasicQueryTask {
 
     private void closeQuery() {
         if (query != null) {
-            if (transaction != null)
-                try {
-                    transaction.commit();
-                } catch (Exception e) {
-                    LOG.warn("Failed to commit transaction:\n{}", e);
-                }
             query.close();
             query = null;
         }
@@ -161,14 +153,11 @@ public class ArchiveQueryTask extends BasicQueryTask {
     private void initQuery() throws DicomServiceException {
         this.query = ctx.getQueryService().createQuery(ctx);
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
-        query.initQuery();
         if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
                 && query.fetchCount() > queryMaxNumberOfResults) {
             throw new DicomServiceException(Status.UnableToProcess, "Request entity too large");
         }
-        transaction = query.beginTransaction();
-        query.setFetchSize(queryFetchSize);
-        query.executeQuery();
+        query.executeQuery(queryFetchSize);
     }
 
     private void initSpanning() throws Exception {

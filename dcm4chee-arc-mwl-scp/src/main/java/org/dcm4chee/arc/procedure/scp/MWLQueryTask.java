@@ -52,7 +52,6 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +65,6 @@ public class MWLQueryTask extends BasicQueryTask {
     private static final Logger LOG = LoggerFactory.getLogger(MWLQueryTask.class);
 
     private final Query query;
-    private Transaction transaction;
 
     public MWLQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query)
             throws DicomServiceException {
@@ -75,31 +73,18 @@ public class MWLQueryTask extends BasicQueryTask {
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
     }
 
-    private int getQueryFetchSize(Association as) {
-        return as.getApplicationEntity().getDevice().getDeviceExtension(ArchiveDeviceExtension.class)
-                .getQueryFetchSize();
-    }
-
     @Override
     public void run() {
         try {
-            query.initQuery();
             QueryContext ctx = query.getQueryContext();
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
-            transaction = query.beginTransaction();
-            query.setFetchSize(arcdev.getQueryFetchSize());
-            query.executeQuery();
+            query.beginTransaction();
+            query.executeQuery(arcdev.getQueryFetchSize());
             super.run();
         } catch (Exception e) {
             writeDimseRSP(new DicomServiceException(Status.UnableToProcess, e));
         } finally {
-            if (transaction != null)
-                try {
-                    transaction.commit();
-                } catch (Exception e) {
-                    LOG.warn("Failed to commit transaction:\n{}", e);
-                }
             query.close();
         }
     }
