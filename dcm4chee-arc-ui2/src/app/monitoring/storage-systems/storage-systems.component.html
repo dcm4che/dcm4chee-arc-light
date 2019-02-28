@@ -4,7 +4,7 @@
         <h2>Storage systems</h2>
         <div class="filter_line" (keyup)="filterKeyUp($event)">
             <div class="filter_block">
-                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters" (submit)="search(0)"></filter-generator>
+                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters" (submit)="search(0)" [filterTreeHeight]="2"></filter-generator>
             </div>
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">

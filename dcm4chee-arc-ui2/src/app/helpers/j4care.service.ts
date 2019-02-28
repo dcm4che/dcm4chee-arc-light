@@ -638,7 +638,15 @@ export class j4care {
         let paramString = jQuery.param(params);
         return paramString ? '?' + paramString : '';
     };
-
+    static objToUrlParams(filter){
+        let filterMaped = Object.keys(filter).map((key) => {
+            if (filter[key] || filter[key] === false || filter[key] === 0){
+                return key + '=' + filter[key];
+            }
+        });
+        let filterCleared = _.compact(filterMaped);
+        return filterCleared.join('&');
+    }
     get(url: string): Observable<any> {
         return new Observable((observer: Subscriber<any>) => {
             let objectUrl: string = null;
@@ -679,7 +687,8 @@ export class j4care {
     }
     static getLastMonthRangeFromNow(){
         let firstDate = new Date();
-        firstDate.setMonth(firstDate.getMonth()-1)
+        firstDate.setMonth(firstDate.getMonth()-1);
+        firstDate.setDate(firstDate.getDate()+1);
         return this.convertToDatePareString(firstDate,new Date());
     }
     static convertToDatePareString(firstDate,secondDate):string{
@@ -777,23 +786,57 @@ export class j4care {
     * SSS - milliseconds
     * */
     static formatDate(date:Date, format:string):string{
-        format = format || 'yyyyMMdd';
-        return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
-            if(g2)
-                return `${date.getFullYear()}`;
-            if(g3)
-                return this.setZeroPrefix(`${date.getMonth() + 1}`);
-            if(g4)
-                return this.setZeroPrefix(`${date.getDate()}`);
-            if(g5)
-                return this.setZeroPrefix(`${date.getHours()}`);
-            if(g6)
-                return this.setZeroPrefix(`${date.getMinutes()}`);
-            if(g7)
-                return this.setZeroPrefix(`${date.getSeconds()}`);
-            if(g8)
-                return `${date.getMilliseconds()}`;
-        });
+        try{
+            format = format || 'yyyyMMdd';
+            return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
+                if(g2)
+                    return `${date.getFullYear()}`;
+                if(g3)
+                    return this.setZeroPrefix(`${date.getMonth() + 1}`);
+                if(g4)
+                    return this.setZeroPrefix(`${date.getDate()}`);
+                if(g5)
+                    return this.setZeroPrefix(`${date.getHours()}`);
+                if(g6)
+                    return this.setZeroPrefix(`${date.getMinutes()}`);
+                if(g7)
+                    return this.setZeroPrefix(`${date.getSeconds()}`);
+                if(g8)
+                    return `${date.getMilliseconds()}`;
+            });
+        }catch (e) {
+            this.log(`Error on formatting date, date=${date}, format=${format}`,e);
+            return "";
+        }
+    }
+    /*
+    * Input:
+    * range:string - javascript date
+    * format:string - format as string
+    * Output:
+    * formatted date as string
+    * defined format elements:
+    * yyyy - 4 digit year
+    * MM - month
+    * dd - date
+    * HH - Hour
+    * mm - minute
+    * ss - second
+    * SSS - milliseconds
+    * */
+    static formatRangeString(range:string, format?:string):string{
+        let localFormatRange = "yyyy-MM-dd HH:mm:ss";
+        let singleFormat = "yyyy-MM-dd";
+        let rangeObject:RangeObject = this.extractDateTimeFromString(range);
+        if(rangeObject){
+            if(rangeObject.mode === "range"){
+                return `${this.formatDate(rangeObject.firstDateTime.dateObject,format || localFormatRange)} - ${this.formatDate(rangeObject.secondDateTime.dateObject,format || localFormatRange)}`;
+            }
+            if(rangeObject.mode === "single"){
+                return `${this.formatDate(rangeObject.firstDateTime.dateObject,format || singleFormat)}`;
+            }
+        }
+        return range;
     }
     /*
     *Adding 0 as prefix if the input is on  digit string for Example: 1 => 01
@@ -821,9 +864,6 @@ export class j4care {
     * create new Date javascript object while ignoring zone information in the date-time string
     * */
     static newDate(dateString:string):Date{
-        console.log("this.splitTimeAndTimezone(dateString).time",this.splitTimeAndTimezone(dateString));
-        console.log("d",new Date(this.splitTimeAndTimezone(dateString).time));
-
         try{
             return new Date(this.splitTimeAndTimezone(dateString).time);
         }catch (e) {
@@ -920,5 +960,29 @@ export class j4care {
         console.trace();
         console.error(e);
         console.groupEnd();
+    }
+
+    static getDateFromString(dateString:string):Date|string{
+        let date:RangeObject = j4care.extractDateTimeFromString(dateString);
+        if(date.mode === "single" || date.mode === "rightOpen"){
+            return date.firstDateTime.dateObject;
+        }
+        if(date.mode === "range"){
+            return new Date((date.firstDateTime.dateObject.getTime() + (date.secondDateTime.dateObject.getTime() - date.firstDateTime.dateObject.getTime()) / 2))
+        }
+
+        if(date.mode === "leftOpen"){
+            return date.secondDateTime.dateObject
+        }
+        return dateString;
+    }
+    static convertFilterValueToRegex(value){
+        return value ? `^${value.replace(/(\*|\?)/g,(match, p1)=>{
+            if(p1 === "*"){
+                return ".*";
+            }
+            if(p1 === "?")
+                return ".";
+        })}$`: '';
     }
 }

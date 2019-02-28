@@ -15,6 +15,10 @@
       "description": "Authentication/Authorization services"
     },
     {
+      "name": "ACCESS-RS",
+      "description": "Study access control services"
+    },
+    {
       "name": "CTRL-RS",
       "description": "Start/Stop/Reload Archive"
     },
@@ -7798,6 +7802,49 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/access/{accessControlID}": {
+      "put": {
+        "tags": [
+          "ACCESS-RS"
+        ],
+        "summary": "Update Study Access Control ID",
+        "operationId": "UpdateStudyAccessControlID",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accessControlID",
+            "in": "path",
+            "description": "Access Control ID or 'null'",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "study not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
       "post": {
         "tags": [
@@ -11056,7 +11103,7 @@
             "name": "FreezeExpirationDate",
             "in": "query",
             "description": "Shall be set to true to freeze(=FROZEN) or false to unfreeze(=UPDATEABLE) Expiration Date of the Study. If the query param is absent, keep the ExpirationDate unchanged for FROZEN studies.",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           }
         ],

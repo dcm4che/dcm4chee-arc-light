@@ -127,15 +127,19 @@ export class StorageSystemsService {
                 ]
             ],[
                 [
-                        {
-                            tag:"button",
-                            id:"submit",
-                            text:"SUBMIT",
-                            description:"Get Storage commitments"
-                        },
-                        {
-                            tag:"dummy"
-                        }
+                    {
+                        tag:"input",
+                        type:"text",
+                        filterKey:"dcmStorageClusterID",
+                        placeholder:"Storage Cluster ID",
+                        description:"Storage Cluster ID"
+                    },
+                    {
+                        tag:"button",
+                        id:"submit",
+                        text:"SUBMIT",
+                        description:"Get Storage commitments"
+                    }
                 ],[]
             ]
         ]

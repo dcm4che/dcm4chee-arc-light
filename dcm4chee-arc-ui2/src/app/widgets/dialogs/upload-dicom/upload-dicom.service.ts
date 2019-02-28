@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs';
-
+import * as _ from "lodash";
 @Injectable()
 export class UploadDicomService {
     progress$;
@@ -50,7 +50,11 @@ export class UploadDicomService {
     }
     getUrlFromWebApp(webApp){
         try{
-            return `http://${webApp.dicomNetworkConnection[0].dicomHostname}:${webApp.dicomNetworkConnection[0].dicomPort}${webApp.dcmWebServicePath}/studies`;
+            let protocol = "http:";
+            if(_.hasIn(webApp, "dicomNetworkConnection[0].dicomTLSCipherSuite") && _.isArray(webApp.dicomNetworkConnection[0].dicomTLSCipherSuite) && webApp.dicomNetworkConnection[0].dicomTLSCipherSuite.length > 0){
+                protocol = "https:";
+            }
+            return `${protocol}//${webApp.dicomNetworkConnection[0].dicomHostname}:${webApp.dicomNetworkConnection[0].dicomPort}${webApp.dcmWebServicePath}/studies`;
         }catch (e){
             return null;
         }

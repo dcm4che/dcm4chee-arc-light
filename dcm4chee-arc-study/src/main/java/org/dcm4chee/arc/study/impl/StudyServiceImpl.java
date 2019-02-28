@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -42,7 +42,6 @@ package org.dcm4chee.arc.study.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
@@ -102,6 +101,16 @@ public class StudyServiceImpl implements StudyService {
         } finally {
             if (ctx.getEventActionCode() != null)
                 updateStudyEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public int updateAccessControlID(StudyMgtContext ctx) {
+        try {
+            return ejb.updateAccessControlID(ctx);
+        } catch (Exception e) {
+            ctx.setException(e);
+            throw e;
         }
     }
 

@@ -315,6 +315,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
 
     private init(){
+        console.log("study global PDQs",this.mainservice.global.PDQs);
         this.route.queryParams.subscribe(params => {
             console.log("params",params);
             this.checkDiffView(params);
@@ -326,10 +327,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
             if (dateset === 'no'){
                 this.clearStudyDate();
                 this.filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'] = null;
-    /*            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
-                this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.toObject = null;
-                this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.from = '';
-                this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.to = '';*/
             }
 
             if (_.hasIn(this.mainservice.global, 'state')){
@@ -349,9 +346,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     $this.aetmodel = $this.aes[selectedAetIndex];
                 }
             }
-            // if(_.hasIn(this.mainservice.global,"patients")){
-            //     this.patients = this.mainservice.global.patients;
-            // }
             this.modalities = Globalvar.MODALITIES;
 
             this.initAETs(2,);
@@ -360,50 +354,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.initExporters(2);
             this.initRjNotes(2);
             this.getDiffAttributeSet();
-            // this.user = this.mainservice.user;
-    /*        if (!this.mainservice.user){
-                // console.log("in if studies ajax");
-                this.mainservice.user = this.mainservice.getUserInfo().share();
-                this.mainservice.user
-                    .subscribe(
-                        (response) => {
-                            $this.user.user  = response.user;
-                            $this.mainservice.user.user = response.user;
-                            $this.user.roles = response.roles;
-                            $this.mainservice.user.roles = response.roles;
-                            $this.isRole = (role) => {
-                                if (response.user === null && response.roles.length === 0){
-                                    return true;
-                                }else{
-                                    if (response.roles && response.roles.indexOf(role) > -1){
-                                        return true;
-                                    }else{
-                                        return false;
-                                    }
-                                }
-                            };
-                        },
-                        (response) => {
-                            // $this.user = $this.user || {};
-                            $this.user.user = 'user';
-                            $this.mainservice.user.user = 'user';
-                            $this.user.roles = ['user', 'admin'];
-                            $this.mainservice.user.roles = ['user', 'admin'];
-                            $this.isRole = (role) => {
-                                if (role === 'admin'){
-                                    return false;
-                                }else{
-                                    return true;
-                                }
-                            };
-                        }
-                    );
-
-            }else{
-                this.user = this.mainservice.user;
-                this.isRole = this.mainservice.isRole;
-                // console.log("isroletest",this.user.applyisRole("admin"));
-            }*/
             this.hoverdic.forEach((m, i) => {
                 $(document.body).on('mouseover mouseleave', m, function(e){
                     if (e.type === 'mouseover' && $this.visibleHeaderIndex != i){
@@ -426,10 +376,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     // Ignore it
                     return;
                 }
-                console.log('$this.keysdown', this.keysdown);
-                console.log('e.keyCode', e.keyCode);
-                // console.log('isrole admin=', $this.isRole('admin'));
-                // console.log("isrole admin=",this.mainservice.isRole);
                 // Remember it's down
                 let validKeys = [16, 17, 67, 77, 86, 88, 91, 93, 224];
                 if (validKeys.indexOf(e.keyCode) > -1){
@@ -4597,16 +4543,69 @@ export class StudiesComponent implements OnDestroy,OnInit{
         if(patientId.xroad){
             delete patientId.xroad;
         }else{
-            this.cfpLoadingBar.start();
-            this.service.queryNationalPationtRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
-                patientId.xroad = xroadAttr;
-                this.cfpLoadingBar.complete();
-            },(err)=>{
-                console.error("Error Querieng National Pation Register",err);
-                this.httpErrorHandler.handleError(err);
-                this.cfpLoadingBar.complete();
-            });
+            if(_.hasIn(this.mainservice,"global['PDQs']") && this.mainservice.global['PDQs'].length > 0){
+                //PDQ is configured
+                console.log("global",this.mainservice.global);
+                if(this.mainservice.global['PDQs'].length > 1){
+                    this.confirm({
+                        content: 'Schedule Storage Verification of matching Studies',
+                        doNotSave:true,
+                        form_schema:[
+                                [
+                                    [
+
+                                    {
+                                        tag:"label",
+                                        text:"Select PDQ Service"
+                                    },
+                                    {
+                                        tag:"select",
+                                        options:this.mainservice.global['PDQs'].map(pdq=>{
+                                            return new SelectDropdown(pdq.id, (pdq.description || pdq.id))
+                                        }),
+                                        filterKey:"PDQServiceID",
+                                        description:"PDQ ServiceID",
+                                        placeholder:"PDQ ServiceID"
+                                    }
+                                ]
+                            ]
+                        ],
+                        result: {
+                            schema_model: {}
+                        },
+                        saveButton: 'QUERY'
+                    }).subscribe(ok=>{
+                        if(ok && ok.schema_model.PDQServiceID){
+                            this.queryPDQ(patientId,ok.schema_model.PDQServiceID);
+                        }
+                    })
+                }else{
+                    this.queryPDQ(patientId, this.mainservice.global.PDQs[0].id);
+                }
+            }else{
+                console.log("global",this.mainservice.global);
+                this.cfpLoadingBar.start();
+                this.service.queryNationalPationtRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
+                    patientId.xroad = xroadAttr;
+                    this.cfpLoadingBar.complete();
+                },(err)=>{
+                    console.error("Error Quering National Pation Register",err);
+                    this.httpErrorHandler.handleError(err);
+                    this.cfpLoadingBar.complete();
+                });
+            }
         }
+    }
+    queryPDQ(patientId, PDQServiceID){
+        this.cfpLoadingBar.start();
+        this.service.queryPatientDemographics(this.service.getPatientId(patientId.attrs),PDQServiceID).subscribe((xroadAttr)=>{
+            patientId.xroad = xroadAttr;
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            console.error("Error Quering National Patient Register",err);
+            this.httpErrorHandler.handleError(err);
+            this.cfpLoadingBar.complete();
+        });
     }
     getDiffAttributeSet(){
         this.service.getDiffAttributeSet()

@@ -257,6 +257,13 @@ public class StudyServiceEJB {
         updateStudyExpirationDate(ctx);
     }
 
+    public int updateAccessControlID(StudyMgtContext ctx) {
+        return em.createNamedQuery(Study.UPDATE_ACCESS_CONTROL_ID)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(2, ctx.getAccessControlID())
+                    .executeUpdate();
+    }
+
     private void setCodes(Collection<CodeEntity> codes, Sequence seq) {
         codes.clear();
         if (seq != null)

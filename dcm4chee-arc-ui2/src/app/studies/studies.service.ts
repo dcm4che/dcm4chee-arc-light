@@ -86,6 +86,12 @@ export class StudiesService {
                         'text': "Accepted User Roles in the AETs are missing, add at least one role per AET (ArchiveDevice -> AET -> Archive Network AE -> Accepted User Role)",
                         'status': "error"
                     });
+                    console.log("getAes(user,aes); studies.service.ts):");
+                    console.group();
+                    console.log("user",user);
+                    console.log("aes",aes);
+                    console.log("enAes",endAes);
+                    console.groupEnd();
                 }
                 return endAes;
             }else{
@@ -196,18 +202,84 @@ export class StudiesService {
                     {
                         tag:"p-calendar",
                         filterKey:"expiredDate",
-                        description:"Birth Date"
-
+                        description:"Expired Date"
                     }
                 ]
             ]
         ];
+        let schemaModel = {};
         if(infinit){
-            expiredDate = new Date();
-            expiredDate.setDate(31);
-            expiredDate.setMonth(11);
-            expiredDate.setFullYear(9999);
-            yearRange = "2017:9999";
+            if(_.hasIn(study,"7777102B.Value[0]") && study["7777102B"].Value[0] === "FROZEN"){
+                schemaModel = {
+                    setExpirationDateToNever:false,
+                    FreezeExpirationDate:false
+                };
+                title = "Unfreeze Expiration Date of the Study";
+                schema = [
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:"Expired Date"
+                            },
+                            {
+                                tag:"p-calendar",
+                                filterKey:"expiredDate",
+                                description:"Expired Date"
+                            }
+                        ]
+                    ]
+                ];
+            }else{
+                title = "Freeze Expiration Date of the Study";
+                schemaModel = {
+                    setExpirationDateToNever:true,
+                    FreezeExpirationDate:true
+                };
+                schema = [
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:"Expired date",
+                                showIf:(model)=>{
+                                    return !model.setExpirationDateToNever
+                                }
+                            },
+                            {
+                                tag:"p-calendar",
+                                filterKey:"expiredDate",
+                                description:"Expired Date",
+                                showIf:(model)=>{
+                                    return !model.setExpirationDateToNever
+                                }
+                            }
+                        ],[
+                        {
+                            tag:"dummy",
+                            text:"Set Expiration Date to 'never'"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"setExpirationDateToNever",
+                            description:"Set Expiration Date to 'never'",
+                            text:"Set Expiration Date to 'never'"
+                        }
+                        ],[
+                            {
+                                tag:"dummy",
+                                text:"Freeze Expiration Date"
+                            },
+                            {
+                                tag:"checkbox",
+                                filterKey:"FreezeExpirationDate",
+                                description:"Freeze Expiration Date",
+                                text:"Freeze Expiration Date"
+                            }
+                        ]
+                    ]
+                ];
+            }
         }else{
             if(_.hasIn(study,"77771023.Value.0") && study["77771023"].Value[0] != ""){
                 console.log("va",study["77771023"].Value[0]);
@@ -216,6 +288,9 @@ export class StudiesService {
             }else{
                 expiredDate = new Date();
             }
+            schemaModel = {
+                expiredDate:j4care.formatDate(expiredDate,'yyyyMMdd')
+            };
             title += "<p>Set exporter if you wan't to export on expiration date too.";
             schema[0].push([
                 {
@@ -233,19 +308,24 @@ export class StudiesService {
             content: title,
             form_schema:schema,
             result: {
-                schema_model: {
-                    expiredDate:j4care.formatDate(expiredDate,'yyyyMMdd')
-                }
+                schema_model: schemaModel
             },
             saveButton: 'SAVE'
         };
     }
-    setExpiredDate(aet,studyUID, expiredDate, exporter){
-        let params = "";
+    setExpiredDate(aet,studyUID, expiredDate, exporter, params?:any){
+        let localParams = "";
         if(exporter){
-            params = `?ExporterID=${exporter}`
+            localParams = `?ExporterID=${exporter}`
         }
-        return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${params}`,{}).map(res => j4care.redirectOnAuthResponse(res))
+        if(params && Object.keys(params).length > 0){
+            if(localParams){
+                localParams += j4care.objToUrlParams(params);
+            }else{
+                localParams = `?${j4care.objToUrlParams(params)}`
+            }
+        }
+        return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{}).map(res => j4care.redirectOnAuthResponse(res))
     }
 
     queryPatients = function(url, params) {
@@ -799,6 +879,9 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         // return Observable.of([{"00080052":{"vr":"CS","Value":["PATIENT"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"PROBST^KATHY"}]},"00100020":{"vr":"LO","Value":["ALGO00001"]},"00100030":{"vr":"DA","Value":["19000101"]},"00100040":{"vr":"CS","Value":["F"]}}])
         // return Observable.of([])
        return this.$http.get(`../xroad/RR441/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
+    }
+    queryPatientDemographics(patientID:string, PDQServiceID:string,url?:string){
+       return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
     }
 
     gitDiffTaskResults(params, mode){
