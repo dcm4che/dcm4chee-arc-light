@@ -63,7 +63,8 @@
           "ApplyRetentionPolicy",
           "CreateMWL",
           "UpdateMWL",
-          "DeleteMWL"
+          "DeleteMWL",
+          "UpdateStudyAccessControlID"
         ]
       }
     }
