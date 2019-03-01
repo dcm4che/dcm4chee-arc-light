@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qido;
 
-import com.querydsl.core.types.dsl.NumberPath;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
@@ -541,7 +540,7 @@ public class QidoRS {
     }
 
     private enum Model {
-        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk, UID.PatientRootQueryRetrieveInformationModelFIND){
+        PATIENT(QueryRetrieveLevel2.PATIENT, UID.PatientRootQueryRetrieveInformationModelFIND){
             @Override
             public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
                 return null;
@@ -551,28 +550,28 @@ public class QidoRS {
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
         },
-        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        STUDY(QueryRetrieveLevel2.STUDY, UID.StudyRootQueryRetrieveInformationModelFIND) {
             @Override
             public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return super.retrieveURL(qidoRS, match)
                         .append("/studies/").append(match.getString(Tag.StudyInstanceUID));
             }
         },
-        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        SERIES(QueryRetrieveLevel2.SERIES, UID.StudyRootQueryRetrieveInformationModelFIND) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return STUDY.retrieveURL(qidoRS, match)
                         .append("/series/").append(match.getString(Tag.SeriesInstanceUID));
             }
         },
-        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        INSTANCE(QueryRetrieveLevel2.IMAGE, UID.StudyRootQueryRetrieveInformationModelFIND) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return SERIES.retrieveURL(qidoRS, match)
                         .append("/instances/").append(match.getString(Tag.SOPInstanceUID));
             }
         },
-        MWL(null, QMWLItem.mWLItem.pk, UID.ModalityWorklistInformationModelFIND) {
+        MWL(null, UID.ModalityWorklistInformationModelFIND) {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createMWLQuery(ctx);
@@ -589,23 +588,17 @@ public class QidoRS {
         };
 
         final QueryRetrieveLevel2 qrLevel;
-        final NumberPath<Long> pk;
         final String sopClassUID;
         Attributes returnKeys;
         boolean includeAll;
 
-        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID) {
+        Model(QueryRetrieveLevel2 qrLevel, String sopClassUID) {
             this.qrLevel = qrLevel;
-            this.pk = pk;
             this.sopClassUID = sopClassUID;
         }
 
         QueryRetrieveLevel2 getQueryRetrieveLevel() {
             return qrLevel;
-        }
-
-        NumberPath<Long> getPk() {
-            return pk;
         }
 
         Query createQuery(QueryService service, QueryContext ctx) {
