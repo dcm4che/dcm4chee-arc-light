@@ -9,23 +9,30 @@ export class Aet {
     private _dicomApplicationCluster:string[];
     private _dicomAssociationAcceptor:boolean;
     private _dicomAssociationInitiator:boolean;
-    private _dicomNetworkConnection:any
+    private _dicomNetworkConnection:any;
+    private _value;
+    private _text;
+    private _title;
 
     constructor(aetObject){
-        [
-            "dicomAETitle",
-            "dicomDescription",
-            "dcmAcceptedUserRole",
-            "dcmAllowDeletePatient",
-            "dcmAllowDeleteStudyPermanently",
-            "dicomApplicationCluster",
-            "dicomAssociationAcceptor",
-            "dicomAssociationInitiator",
-            "dicomNetworkConnection"
-        ].forEach(attr=>{
-            if(_.hasIn(aetObject,attr))
-                this[attr] = aetObject[attr];
-        });
+        if(typeof aetObject === "string"){
+            this._dicomAETitle = aetObject;
+        }else{
+            [
+                "dicomAETitle",
+                "dicomDescription",
+                "dcmAcceptedUserRole",
+                "dcmAllowDeletePatient",
+                "dcmAllowDeleteStudyPermanently",
+                "dicomApplicationCluster",
+                "dicomAssociationAcceptor",
+                "dicomAssociationInitiator",
+                "dicomNetworkConnection"
+            ].forEach(attr=>{
+                if(_.hasIn(aetObject,attr))
+                    this[attr] = aetObject[attr];
+            });
+        }
     }
 
     get dcmAcceptedUserRole(): string[] {
@@ -98,5 +105,17 @@ export class Aet {
 
     set dicomNetworkConnection(value: any) {
         this._dicomNetworkConnection = value;
+    }
+
+    get value() {
+        return this._dicomAETitle;
+    }
+
+    get text() {
+        return this._dicomAETitle;
+    }
+
+    get title() {
+        return this._dicomDescription || this._dicomAETitle;
     }
 }
