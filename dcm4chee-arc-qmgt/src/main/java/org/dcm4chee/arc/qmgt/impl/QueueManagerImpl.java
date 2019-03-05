@@ -38,17 +38,19 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -57,6 +59,9 @@ import java.util.List;
 public class QueueManagerImpl implements QueueManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
+
+    @PersistenceContext(unitName = "dcm4chee-arc")
+    private EntityManager em;
 
     @Inject
     private QueueManagerEJB ejb;
@@ -208,8 +213,16 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listQueueMessages(matchQueueMessage, order, offset, limit);
+    public QueueMessageQuery listQueueMessages1(
+            String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMsgID,
+            String createdTime, String updatedTime, Date updatedBefore, String orderBy, int offset, int limit) {
+        MatchTask matchTask = new MatchTask(em.getCriteriaBuilder());
+        return ejb.listQueueMessages(
+                matchTask.matchQueueMsg(
+                        null, queueName, deviceName, status, batchID, jmsMsgID, createdTime, updatedTime, updatedBefore),
+                matchTask.queueMsgOrder(orderBy),
+                offset,
+                limit);
     }
 
     @Override

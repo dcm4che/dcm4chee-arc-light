@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.qmgt.impl;
 
 import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateUpdateClause;
@@ -71,6 +70,7 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -488,7 +488,7 @@ public class QueueManagerEJB {
                 .select(QQueueMessage.queueMessage.deviceName)
                 .distinct()
                 .fetch();
-        }
+    }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {
         jmsCtx.createProducer().setDeliveryDelay(delay).setPriority(priority).send(lookup(desc.getJndiName()), msg);
@@ -517,9 +517,9 @@ public class QueueManagerEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
-        return new QueueMessageQueryImpl(
-                openStatelessSession(), queryFetchSize(), matchQueueMessage, order, offset, limit);
+    public QueueMessageQuery listQueueMessages(Expression<Boolean> matchQueueMessage,
+                                               Order order, int offset, int limit) {
+        return new QueueMessageQueryImpl(em, matchQueueMessage, order, queryFetchSize(), offset, limit);
     }
 
     private StatelessSession openStatelessSession() {

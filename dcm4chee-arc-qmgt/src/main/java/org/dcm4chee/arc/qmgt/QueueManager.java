@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qmgt;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -97,7 +96,9 @@ public interface QueueManager {
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 
-    QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
+    QueueMessageQuery listQueueMessages1(String queueName, String deviceName, QueueMessage.Status status, String batchID,
+                                         String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore,
+                                         String orderBy, int offset, int limit);
 
     List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

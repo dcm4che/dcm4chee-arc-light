@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -67,6 +67,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -141,9 +142,18 @@ public class QueueManagerRS {
     public Response search() {
         logRequest();
         try {
-            QueueMessageQuery queueMessages = mgr.listQueueMessages(
-                    matchQueueMessage(status(), null),
-                    MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit));
+            QueueMessageQuery queueMessages = mgr.listQueueMessages1(
+                            queueName,
+                            deviceName,
+                            status(),
+                            batchID,
+                            jmsMessageID,
+                            createdTime,
+                            updatedTime,
+                            null,
+                            orderby,
+                            parseInt(offset),
+                            parseInt(limit));
             return Response.ok(toEntity(queueMessages)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -364,7 +374,7 @@ public class QueueManagerRS {
     private StreamingOutput toEntity(QueueMessageQuery msgs) {
         return out -> {
             try (QueueMessageQuery m = msgs) {
-                Writer w = new OutputStreamWriter(out, "UTF-8");
+                Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
                 int count = 0;
                 w.write('[');
                 for (QueueMessage msg : m) {

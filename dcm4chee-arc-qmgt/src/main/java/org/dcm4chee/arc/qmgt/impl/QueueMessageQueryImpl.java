@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,21 +41,23 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueMessageQuery;
+import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -64,30 +66,35 @@ import java.util.Iterator;
 
 class QueueMessageQueryImpl implements QueueMessageQuery {
     private static final Logger LOG = LoggerFactory.getLogger(QueueMessageQueryImpl.class);
-    private final StatelessSession session;
-    private final HibernateQuery<QueueMessage> query;
     private Transaction transaction;
-    private CloseableIterator<QueueMessage> iterate;
+    private final StatelessSession session;
+    private final TypedQuery<QueueMessage> query;
+    private Iterator<QueueMessage> iterate;
+    private Stream<QueueMessage> queueMsgStream;
 
-    public QueueMessageQueryImpl(StatelessSession session, int fetchSize, Predicate matchQueueMessage,
-                                 OrderSpecifier<Date> order, int offset, int limit) {
-        this.session = session;
-        query = new HibernateQuery<QueueMessage>(session)
-                .from(QQueueMessage.queueMessage)
+    public QueueMessageQueryImpl(EntityManager em, Expression<Boolean> matchQueueMessage,
+                                 Order order, int fetchSize, int offset, int limit) {
+        this.session = openStatelessSession(em);
+        CriteriaQuery<QueueMessage> query1 = em.getCriteriaBuilder().createQuery(QueueMessage.class)
                 .where(matchQueueMessage);
-
-        if (limit > 0)
-            query.limit(limit);
-        if (offset > 0)
-            query.offset(offset);
         if (order != null)
-            query.orderBy(order);
-        query.setFetchSize(fetchSize);
+            query1.orderBy(order);
+        query1.from(QueueMessage.class);
+        query = em.createQuery(query1);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        query.setHint(QueryHints.FETCH_SIZE, fetchSize);
+    }
+
+    private StatelessSession openStatelessSession(EntityManager em) {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
     }
 
     @Override
     public void close() {
-        SafeClose.close(iterate);
+        queueMsgStream.close();
         if (transaction != null) {
             try {
                 transaction.commit();
@@ -101,7 +108,8 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
     @Override
     public Iterator<QueueMessage> iterator() {
         transaction = session.beginTransaction();
-        iterate = query.iterate();
+        queueMsgStream = query.getResultStream();
+        iterate = queueMsgStream.iterator();
         return iterate;
     }
 }

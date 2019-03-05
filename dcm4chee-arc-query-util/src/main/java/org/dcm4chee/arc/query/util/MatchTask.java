@@ -49,8 +49,13 @@ import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.DateTimePath;
 import org.dcm4chee.arc.entity.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -58,8 +63,13 @@ import java.util.function.Function;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2018
  */
-
 public class MatchTask {
+
+    private final CriteriaBuilder cb;
+
+    public MatchTask(CriteriaBuilder cb) {
+        this.cb = Objects.requireNonNull(cb);
+    }
 
     public static Predicate matchQueueMessage(
             String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
@@ -84,6 +94,29 @@ public class MatchTask {
         if (updatedBefore != null)
             predicate.and(QQueueMessage.queueMessage.updatedTime.before(updatedBefore));
         return predicate;
+    }
+
+    public Expression<Boolean> matchQueueMsg(Expression<Boolean> x,
+            String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
+            String createdTime, String updatedTime, Date updatedBefore) {
+        Path<QueueMessage> queueMsg = cb.createQuery().from(QueueMessage.class);
+        x = and(x, cb.equal(queueMsg.get(QueueMessage_.queueName), queueName));
+        x = and(x, cb.equal(queueMsg.get(QueueMessage_.deviceName), deviceName));
+        x = and(x, cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+        x = and(x, cb.equal(queueMsg.get(QueueMessage_.messageID), jmsMessageID));
+        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.status), status));
+        if (createdTime != null)
+            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.createdTime), createdTime));
+        if (updatedTime != null)
+            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.updatedTime), updatedTime));
+        if (updatedBefore != null)
+            x = and(x, cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), updatedBefore));
+        return x;
+    }
+
+    private Expression<Boolean> and(Expression<Boolean> x, Expression<Boolean> y) {
+        return y == null ? x : x == null ? y : cb.and(x, y);
     }
 
     public static Predicate matchRetrieveTask(String localAET, String remoteAET, String destinationAET, String studyUID,
@@ -166,6 +199,30 @@ public class MatchTask {
 
     public static OrderSpecifier<Date> queueMessageOrder(String orderby) {
         return taskOrder(orderby, QQueueMessage.queueMessage.createdTime, QQueueMessage.queueMessage.updatedTime);
+    }
+
+    public Order queueMsgOrder(String orderBy) {
+        Path<QueueMessage> queueMsg = cb.createQuery().from(QueueMessage.class);
+        return taskOrder1(orderBy, queueMsg.get(QueueMessage_.createdTime), queueMsg.get(QueueMessage_.updatedTime), cb);
+    }
+
+    private static Order taskOrder1(
+            String orderby, Path<Date> createdTime, Path<Date> updatedTime, CriteriaBuilder cb) {
+        return order(orderby, createdTime, updatedTime, cb);
+    }
+
+    private static Order order(String orderby, Path<Date> createdTime, Path<Date> updatedTime, CriteriaBuilder cb) {
+        switch (orderby) {
+            case "createdTime":
+                return cb.asc(createdTime);
+            case "updatedTime":
+                return cb.asc(updatedTime);
+            case "-createdTime":
+                return cb.desc(createdTime);
+            case "-updatedTime":
+                return cb.desc(updatedTime);
+        }
+        throw new IllegalArgumentException(orderby);
     }
 
     public static OrderSpecifier<Date> exportTaskOrder(String orderby) {

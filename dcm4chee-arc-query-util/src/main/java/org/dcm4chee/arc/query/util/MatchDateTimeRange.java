@@ -51,6 +51,8 @@ import org.dcm4che3.data.DateRange;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.util.DateUtils;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Path;
 import java.util.Date;
 
 /**
@@ -173,6 +175,19 @@ public class MatchDateTimeRange {
                     ? field.eq(startDate)
                     : field.between(startDate, endDate);
         }
+    }
+
+    public static javax.persistence.criteria.Predicate range(CriteriaBuilder cb, Path<Date> field, String dateRange) {
+        DateRange range = parseDateRange(dateRange);
+        Date startDate = range.getStartDate();
+        Date endDate = range.getEndDate();
+        if (startDate == null)
+            return cb.lessThanOrEqualTo(field, endDate);
+        if (endDate == null)
+            return cb.greaterThanOrEqualTo(field, startDate);
+        return endDate.equals(startDate)
+                ? cb.equal(field, startDate)
+                : cb.between(field, startDate, endDate);
     }
 
     private static Predicate combinedRange(StringPath dateField, StringPath timeField, DateRange dateRange) {

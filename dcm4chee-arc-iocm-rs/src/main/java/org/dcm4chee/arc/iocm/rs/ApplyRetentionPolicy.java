@@ -222,7 +222,7 @@ public class ApplyRetentionPolicy {
         if (idWithIssuer != null)
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
-        ctx.setOrderByTags(Collections.singletonList(OrderByTag.desc(Tag.StudyInstanceUID)));
+        ctx.setOrderByTags(Collections.singletonList(OrderByTag.asc(Tag.StudyInstanceUID)));
         ctx.setReturnPrivate(true);
         return ctx;
     }
