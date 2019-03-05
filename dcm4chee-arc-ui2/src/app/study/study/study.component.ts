@@ -103,6 +103,7 @@ export class StudyComponent implements OnInit {
 
     ngOnInit() {
         console.log("aet",this.applicationEntities);
+        this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
           this.getApplicationEntities();
