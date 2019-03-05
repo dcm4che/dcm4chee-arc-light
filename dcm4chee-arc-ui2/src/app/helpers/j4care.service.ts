@@ -67,7 +67,7 @@ export class j4care {
         return str && str[0].toLowerCase() + str.slice(1);
     }
     static isSet(value){
-        if((value === undefined || value === null) && (value != 0 && value != "")){
+        if((value === undefined || value === null || (_.isObject(value) && _.isEmpty(value))) && (value != 0 && value != "") && !_.isDate(value) && !_.isBoolean(value)){
             return false;
         }
         return true;
@@ -128,6 +128,21 @@ export class j4care {
         }else{
             return array;
         }
+    }
+    static arrayHasIn(arr:any[], path:string, value?:any){
+        let check:boolean = false;
+        arr.forEach(el=>{
+            if(_.hasIn(el,path)){
+                if((value || value === false)){
+                    if(_.get(el, path) === value){
+                        check = true;
+                    }
+                }else{
+                    check = true;
+                }
+            }
+        });
+        return check;
     }
     static stringifyArrayOrObject(properties, exceptions){
         Object.keys(properties).forEach(task=>{

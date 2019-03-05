@@ -37,20 +37,20 @@
                     <div class="input_group_dropdown" *ngSwitchCase="'size_range_picker'">
                         <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
                     </div>
-                    <input (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" type="{{line[index].type}}" [ngStyle]="line[index].style" title="{{line[index]?.description}}" placeholder="{{line[index]?.placeholder}}" *ngSwitchCase="'input'">
+                    <input [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" type="{{line[index].type}}" [ngStyle]="line[index].style" title="{{line[index]?.description}}" placeholder="{{line[index]?.placeholder}}" *ngSwitchCase="'input'">
                     <div class="filter_checkbox" *ngSwitchCase="'checkbox'" title="{{line[index]?.description}}" [ngClass]="{'active':model[line[index].filterKey]}">
-                      <input type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
+                      <input [disabled]="line[index].disabled" type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
                     </div>
                     <span *ngIf="line[index].type === 'checkbox'">{{line[index].text}}</span>
-                    <p-multiSelect [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>
-                    <mat-select [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
+                    <p-multiSelect [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"  [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>
+                    <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                       <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
                       <mat-option *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description || option.title}}">{{option.text}}</mat-option>
                     </mat-select>
-                    <mat-radio-group [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'radio'">
+                    <mat-radio-group [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'radio'">
                         <mat-radio-button *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description}}">{{option.text}}</mat-radio-button>
                     </mat-radio-group>
-                    <p-calendar [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[index].description || line[index].placeholder}}" title="{{line[index]?.description}}"></p-calendar>
+                    <p-calendar [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[index].description || line[index].placeholder}}" title="{{line[index]?.description}}"></p-calendar>
                     <range-picker
                             [ngStyle]="line[index].style"
                             *ngSwitchCase="'range-picker'"

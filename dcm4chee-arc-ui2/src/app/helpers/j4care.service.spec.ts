@@ -35,6 +35,15 @@ const AETS2 = [{
     }, {"dicomAETitle": "TESCACHE"}
 ];
 
+const arr = [
+    {
+        key:"test1"
+    },
+    {
+        key:"test2"
+    }
+]
+
 describe('j4care', () => {
     it("Should set 0 as prefix if only one digit available: setZeroPrefix()", () => {
         expect(j4care.setZeroPrefix('1')).toBe('01');
@@ -218,4 +227,9 @@ describe('j4care', () => {
         ])
     });
 
+    it("Checks if key or value is in the array path",()=>{
+        expect(j4care.arrayHasIn(arr,"key")).toBeTruthy();
+        expect(j4care.arrayHasIn(arr,"key", "test1")).toBeTruthy();
+        expect(j4care.arrayHasIn(arr,"key", "not in the object")).toBeFalsy();
+    })
 });
