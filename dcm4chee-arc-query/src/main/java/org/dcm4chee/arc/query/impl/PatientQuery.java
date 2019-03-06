@@ -74,7 +74,7 @@ class PatientQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        return q.multiselect(
+        q = q.multiselect(
                 patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
                 patient.get(Patient_.createdTime),
@@ -82,12 +82,16 @@ class PatientQuery extends AbstractQuery {
                 patient.get(Patient_.verificationTime),
                 patient.get(Patient_.verificationStatus),
                 patient.get(Patient_.failedVerifications),
-                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-        .where(builder.patientPredicates(q, null, patient,
+                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
+        Expression<Boolean> predicates = builder.patientPredicates(q, null, patient,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam()))
-        .orderBy(builder.orderPatients(patient, context.getOrderByTags()));
+                context.getQueryParam());
+        if (predicates != null)
+            q = q.where(predicates);
+        if (context.getOrderByTags() != null)
+            q = q.orderBy(builder.orderPatients(patient, context.getOrderByTags()));
+        return q;
     }
 
     @Override

@@ -50,10 +50,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder2;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -80,16 +77,20 @@ public class MWLQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        return q.multiselect(
+        q = q.multiselect(
                 patient.get(Patient_.numberOfStudies),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-                .where(builder.mwlItemPredicates(q, null,
-                        patient, mwlItem,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam()))
-                .orderBy(builder.orderMWLItems(patient, mwlItem, context.getOrderByTags()));
+                mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes));
+        Expression<Boolean> predicates = builder.mwlItemPredicates(q, null,
+                patient, mwlItem,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (predicates != null)
+            q = q.where(predicates);
+        if (context.getOrderByTags() != null)
+            q = q.orderBy(builder.orderMWLItems(patient, mwlItem, context.getOrderByTags()));
+        return q;
     }
 
     @Override

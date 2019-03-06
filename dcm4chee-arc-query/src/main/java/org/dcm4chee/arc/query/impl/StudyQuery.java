@@ -86,7 +86,7 @@ class StudyQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        return q.multiselect(
+        q = q.multiselect(
                 study.get(Study_.pk),
                 patient.get(Patient_.numberOfStudies),
                 patient.get(Patient_.createdTime),
@@ -114,14 +114,18 @@ class StudyQuery extends AbstractQuery {
                 studyQueryAttributes.get(StudyQueryAttributes_.retrieveAETs),
                 studyQueryAttributes.get(StudyQueryAttributes_.availability),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-                .where(builder.studyPredicates(q, null,
-                        patient,
-                        study,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam()))
-                .orderBy(builder.orderStudies(patient, study, context.getOrderByTags()));
+                studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes));
+        Expression<Boolean> predicates = builder.studyPredicates(q, null,
+                patient,
+                study,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (predicates != null)
+            q = q.where(predicates);
+        if (context.getOrderByTags() != null)
+            q = q.orderBy(builder.orderStudies(patient, study, context.getOrderByTags()));
+        return q;
     }
 
     @Override

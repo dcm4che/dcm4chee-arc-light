@@ -129,7 +129,7 @@ class InstanceQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        return q.multiselect(
+        q = q.multiselect(
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
                 instance.get(Instance_.retrieveAETs),
@@ -140,16 +140,20 @@ class InstanceQuery extends AbstractQuery {
                 rejectionNoteCode.get(CodeEntity_.codeValue),
                 rejectionNoteCode.get(CodeEntity_.codingSchemeDesignator),
                 rejectionNoteCode.get(CodeEntity_.codeMeaning),
-                instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-                .where(builder.instancePredicates(q, null, patient, study, series, instance,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam(),
-                        codeCache.findOrCreateEntities(
-                                context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
-                        codeCache.findOrCreateEntities(
-                                context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes())))
-                .orderBy(builder.orderInstances(patient, study, series, instance, context.getOrderByTags()));
+                instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes));
+        Expression<Boolean> predicates = builder.instancePredicates(q, null, patient, study, series, instance,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
+                codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes()));
+        if (predicates != null)
+            q = q.where(predicates);
+        if (context.getOrderByTags() != null)
+            q = q.orderBy(builder.orderInstances(patient, study, series, instance, context.getOrderByTags()));
+        return q;
     }
 
     @Override
