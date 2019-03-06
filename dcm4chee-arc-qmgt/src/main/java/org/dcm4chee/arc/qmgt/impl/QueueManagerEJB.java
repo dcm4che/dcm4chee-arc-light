@@ -56,7 +56,6 @@ import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -566,15 +565,7 @@ public class QueueManagerEJB {
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public QueueMessageQuery listQueueMessages(Expression<Boolean> matchQueueMessage,
-                                               Order order, int offset, int limit) {
-        return new QueueMessageQueryImpl(em, matchQueueMessage, order, queryFetchSize(), offset, limit);
-    }
-
-    private StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
-    }
-
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+                                               Order order) {
+        return new QueueMessageQueryImpl(em, matchQueueMessage, order);
     }
 }

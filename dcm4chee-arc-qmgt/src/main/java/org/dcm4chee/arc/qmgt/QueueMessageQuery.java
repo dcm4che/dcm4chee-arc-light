@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.qmgt;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.entity.QueueMessage;
 
 import java.io.Closeable;
@@ -50,5 +52,13 @@ import java.io.Closeable;
  * @since June 2018
  */
 
-public interface QueueMessageQuery extends Closeable, Iterable<QueueMessage> {
+public interface QueueMessageQuery extends Closeable {
+    void beginTransaction();
+
+    void executeQuery(int fetchSize, int offset, int limit);
+
+    boolean hasMoreMatches();
+
+    QueueMessage nextMatch();
+
 }

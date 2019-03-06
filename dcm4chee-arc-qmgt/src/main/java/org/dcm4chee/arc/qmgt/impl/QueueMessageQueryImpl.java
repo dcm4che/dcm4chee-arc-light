@@ -41,23 +41,15 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueMessageQuery;
-import org.hibernate.Session;
-import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
 import org.hibernate.annotations.QueryHints;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -65,50 +57,75 @@ import java.util.Iterator;
  */
 
 class QueueMessageQueryImpl implements QueueMessageQuery {
-    private static final Logger LOG = LoggerFactory.getLogger(QueueMessageQueryImpl.class);
-    private Transaction transaction;
-    private final StatelessSession session;
-    private final TypedQuery<QueueMessage> query;
-    private Iterator<QueueMessage> iterate;
     private Root<QueueMessage> queueMsg;
 
-    public QueueMessageQueryImpl(EntityManager em, Expression<Boolean> matchQueueMessage,
-                                 Order order, int fetchSize, int offset, int limit) {
-        this.session = openStatelessSession(em);
-        CriteriaQuery<QueueMessage> query1 = em.getCriteriaBuilder().createQuery(QueueMessage.class)
-                .where(matchQueueMessage);
-        if (order != null)
-            query1.orderBy(order);
-        queueMsg = query1.from(QueueMessage.class);
-        query1.select(queueMsg);
-        query = em.createQuery(query1);
-        if (limit > 0)
-            query.setMaxResults(limit);
+    private Stream<QueueMessage> resultStream;
+    private Iterator<QueueMessage> results;
+    private int offset;
+    private int limit;
+    private int fetchSize;
+    private Expression<Boolean> matchQueueMessage;
+    private Order order;
+
+    protected final EntityManager em;
+    protected final CriteriaBuilder cb;
+
+    public QueueMessageQueryImpl(EntityManager em, Expression<Boolean> matchQueueMessage, Order order) {
+      //  this.session = session;
+        this.em = em;
+        this.cb = em.getCriteriaBuilder();
+        this.matchQueueMessage = matchQueueMessage;
+        this.order = order;
+    }
+
+    @Override
+    public void close() {}
+
+    @Override
+    public void beginTransaction() {}
+
+    @Override
+    public void executeQuery(int fetchSize, int offset, int limit) {
+        this.fetchSize = fetchSize;
+        this.offset = offset;
+        this.limit = limit;
+        close(resultStream);
+        TypedQuery<QueueMessage> query = em.createQuery(select())
+                .setHint(QueryHints.FETCH_SIZE, fetchSize);
         if (offset > 0)
             query.setFirstResult(offset);
-        query.setHint(QueryHints.FETCH_SIZE, fetchSize);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        resultStream = query.getResultStream();
+        results = resultStream.iterator();
     }
 
-    private StatelessSession openStatelessSession(EntityManager em) {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+
+    private CriteriaQuery<QueueMessage> select() {
+        CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
+        this.queueMsg = q.from(QueueMessage.class);
+        q = q.select(queueMsg);
+//        q.where(cb.equal(queueMsg.get(QueueMessage_.queueName), "Export4"));
+//        q.orderBy(cb.desc(queueMsg.get(QueueMessage_.updatedTime)));
+//        if (matchQueueMessage != null)
+//            q.where(matchQueueMessage);
+//        if (order != null)
+//            q.orderBy(order);
+        return q;
+    }
+
+    private void close(Stream<QueueMessage> resultStream) {
+        if (resultStream != null)
+            resultStream.close();
     }
 
     @Override
-    public void close() {
-        if (transaction != null) {
-            try {
-                transaction.commit();
-            } catch (Exception e) {
-                LOG.warn("Failed to commit transaction:\n{}", e);
-            }
-        }
-        SafeClose.close(session);
+    public boolean hasMoreMatches() {
+        return results.hasNext();
     }
 
     @Override
-    public Iterator<QueueMessage> iterator() {
-        transaction = session.beginTransaction();
-        iterate = query.getResultList().iterator();
-        return iterate;
+    public QueueMessage nextMatch() {
+        return results.next();
     }
 }

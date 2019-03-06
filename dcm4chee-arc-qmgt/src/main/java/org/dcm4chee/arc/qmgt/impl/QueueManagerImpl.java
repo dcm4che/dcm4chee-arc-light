@@ -16,7 +16,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -220,14 +220,12 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public QueueMessageQuery listQueueMessages1(
             String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMsgID,
-            String createdTime, String updatedTime, Date updatedBefore, String orderBy, int offset, int limit) {
+            String createdTime, String updatedTime, Date updatedBefore, String orderBy) {
         MatchTask matchTask = new MatchTask(em.getCriteriaBuilder());
         return ejb.listQueueMessages(
                 matchTask.matchQueueMsg(
                         null, queueName, deviceName, status, batchID, jmsMsgID, createdTime, updatedTime, updatedBefore),
-                matchTask.queueMsgOrder(orderBy),
-                offset,
-                limit);
+                matchTask.queueMsgOrder(orderBy));
     }
 
     @Override

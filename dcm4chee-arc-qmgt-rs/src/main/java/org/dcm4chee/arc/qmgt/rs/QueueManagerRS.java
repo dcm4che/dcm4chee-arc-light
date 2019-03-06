@@ -142,7 +142,7 @@ public class QueueManagerRS {
     public Response search() {
         logRequest();
         try {
-            QueueMessageQuery queueMessages = mgr.listQueueMessages1(
+            try (QueueMessageQuery queueMessages = mgr.listQueueMessages1(
                             queueName,
                             deviceName,
                             status(),
@@ -151,13 +151,18 @@ public class QueueManagerRS {
                             createdTime,
                             updatedTime,
                             null,
-                            orderby,
-                            parseInt(offset),
-                            parseInt(limit));
-            return Response.ok(toEntity(queueMessages)).build();
+                            orderby)) {
+                queueMessages.beginTransaction();
+                queueMessages.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
+                return Response.ok(toEntity(queueMessages)).build();
+            }
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 
     @GET
@@ -381,18 +386,16 @@ public class QueueManagerRS {
 
     private StreamingOutput toEntity(QueueMessageQuery msgs) {
         return out -> {
-            try (QueueMessageQuery m = msgs) {
                 Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
                 int count = 0;
                 w.write('[');
-                for (QueueMessage msg : m) {
+                while (msgs.hasMoreMatches()) {
                     if (count++ > 0)
                         w.write(',');
-                    msg.writeAsJSON(w);
+                    msgs.nextMatch().writeAsJSON(w);
                 }
                 w.write(']');
                 w.flush();
-            }
         };
     }
 

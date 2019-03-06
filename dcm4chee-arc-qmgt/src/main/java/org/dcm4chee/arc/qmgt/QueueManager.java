@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -98,7 +98,7 @@ public interface QueueManager {
 
     QueueMessageQuery listQueueMessages1(String queueName, String deviceName, QueueMessage.Status status, String batchID,
                                          String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore,
-                                         String orderBy, int offset, int limit);
+                                         String orderBy);
 
     long countTasks(String queueName, String deviceName, QueueMessage.Status status, String batchID,
                     String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore);
