@@ -1,0 +1,39 @@
+.j4care_dynamic_table{
+  float: left;
+  width: 100%;
+  .th{
+    width: 100%;
+    float: left;
+    background: rgba(28, 36, 43, 0.92);
+    color:white;
+    -webkit-box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
+    -moz-box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
+    box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
+    .td{
+      float: left;
+      border-right: 1px solid white;
+      padding: 5px 7px;
+      &:last-child{
+        border:none;
+      }
+    }
+  }
+  .tr{
+    width: 100%;
+    float: left;
+    background:white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.46);
+    margin-bottom: 1px;
+    .td{
+      float: left;
+      padding: 5px 7px;
+      border-right: 1px solid rgba(0, 0, 0, 0.19);
+      &:last-child{
+        border:none;
+      }
+    }
+    .tr{
+      padding-left: 20px;
+    }
+  }
+}

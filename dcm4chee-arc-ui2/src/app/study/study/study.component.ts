@@ -16,6 +16,7 @@ import {PatientDicom} from "../../models/patient-dicom";
 import {StudyDicom} from "../../models/study-dicom";
 import * as _  from "lodash";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {DicomTableSchema, TableSchemaConfig} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 
 
 @Component({
@@ -59,7 +60,7 @@ export class StudyComponent implements OnInit {
 
     patientAttributes;
 
-    filter:StudyFilterConfig = {
+    private _filter:StudyFilterConfig = {
         filterSchemaMain:{
             lineLength:undefined,
             schema:[]
@@ -80,6 +81,15 @@ export class StudyComponent implements OnInit {
         }
     };
 
+    get filter(): StudyFilterConfig {
+        return this._filter;
+    }
+
+    set filter(value: StudyFilterConfig) {
+        this.tableParam.config.offset = value.filterModel.offset;
+        this._filter = value;
+    }
+
     applicationEntities = {
         aes:{
           external:[],
@@ -92,6 +102,12 @@ export class StudyComponent implements OnInit {
         aetsAreSet:false
     };
 
+    tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
+        tableSchema:Globalvar.PATIENT_STUDIES_TABLE_SCHEMA(),
+        config:{
+            offset:0
+        }
+    };
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -130,9 +146,9 @@ export class StudyComponent implements OnInit {
     search(e){
         console.log("e",e);
         console.log("e", e);
-        if (this.filter.filterModel.aet){
-            let callingAet = new Aet(this.filter.filterModel.aet);
-            let filters = _.clone(this.filter.filterModel);
+        if (this._filter.filterModel.aet){
+            let callingAet = new Aet(this._filter.filterModel.aet);
+            let filters = _.clone(this._filter.filterModel);
             if(filters.limit){
                 filters.limit++;
             }
@@ -159,10 +175,10 @@ export class StudyComponent implements OnInit {
                                 patient = new PatientDicom(patAttrs, []);
                                 this.patients.push(patient);
                             }
-                            study = new StudyDicom(studyAttrs, patient, this.filter.filterModel.offset + index);
+                            study = new StudyDicom(studyAttrs, patient, this._filter.filterModel.offset + index);
                             patient.studies.push(study);
                         });
-                        if (this.moreStudies = (res.length > this.filter.filterModel.limit)) {
+                        if (this.moreStudies = (res.length > this._filter.filterModel.limit)) {
                             patient.studies.pop();
                             if (patient.studies.length === 0) {
                                 this.patients.pop();
@@ -189,11 +205,11 @@ export class StudyComponent implements OnInit {
     }
 
     setSchema(){
-        this.filter.filterSchemaMain.lineLength = undefined;
-        this.filter.filterSchemaExpand.lineLength = undefined;
+        this._filter.filterSchemaMain.lineLength = undefined;
+        this._filter.filterSchemaExpand.lineLength = undefined;
         // setTimeout(()=>{
-            this.filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this.filter.quantityText,false);
-            this.filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this.filter.quantityText,true);
+            this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,false);
+            this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,true);
         // },0);
     }
 

@@ -1,4 +1,5 @@
 import {FilterSchema, SelectDropdown} from "../interfaces";
+import {DicomTableSchema, DynamicPipe} from "../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 
 export class Globalvar {
     public static get MODALITIES(): any {
@@ -947,5 +948,357 @@ export class Globalvar {
                 placeholder:"Limit of studies"
             }
         ]
+    }
+
+    static PATIENT_STUDIES_TABLE_SCHEMA():DicomTableSchema{
+        return {
+            patient:[
+                {
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    widthWeight:0.2
+                },
+                {
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    widthWeight:0.5,
+                    calculatedWidth:"6%"
+                },{
+                    type:"value",
+                    header:"Patient's Name",
+                    pathToValue:"00100010.Value[0].Alphabetic",
+                    headerDescription:"Patient's Name",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Patient ID",
+                    pathToValue:"00100020.Value[0]",
+                    headerDescription:"Patient ID",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Issuer of Patient",
+                    pathToValue:"00100021.Value[0]",
+                    headerDescription:"Issuer of Patient ID",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Birth Date",
+                    pathToValue:"00100030.Value[0]",
+                    headerDescription:"Patient's Birth Date",
+                    widthWeight:0.5,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Sex",
+                    pathToValue:"00100040.Value[0]",
+                    headerDescription:"Patient's Sex",
+                    widthWeight:0.2,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Patient Comments",
+                    pathToValue:"00104000.Value[0]",
+                    headerDescription:"Patient Comments",
+                    widthWeight:3,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"#S",
+                    pathToValue:"00201200.Value[0]",
+                    headerDescription:"Number of Patient Related Studies",
+                    widthWeight:0.2,
+                    calculatedWidth:"20%"
+                }
+            ],
+            studies:[
+                {
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                },
+                {
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                },{
+                    type:"value",
+                    header:"Study ID",
+                    pathToValue:"[00200010].Value[0]",
+                    headerDescription:"Study ID",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Study Instance UID",
+                    pathToValue:"[0020000D].Value[0]",
+                    headerDescription:"Study Instance UID",
+                    widthWeight:1.6,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Study Date",
+                    pathToValue:"[00080020].Value[0]",
+                    headerDescription:"Study Date",
+                    widthWeight:0.6,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Study Time",
+                    pathToValue:"[00080030].Value[0]",
+                    headerDescription:"Study Time",
+                    widthWeight:0.6,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"R. Physician's Name",
+                    pathToValue:"[00080090].Value[0]",
+                    headerDescription:"Referring Physician's Name",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Accession Number",
+                    pathToValue:"[00080050].Value[0]",
+                    headerDescription:"Accession Number",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Modalities",
+                    pathToValue:"[00080061].Value[0]",
+                    headerDescription:"Modalities in Study",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"Study Description",
+                    pathToValue:"[00081030].Value[0]",
+                    headerDescription:"Study Description",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"#S",
+                    pathToValue:"[00201206].Value[0]",
+                    headerDescription:"Number of Study Related Series",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                },
+                {
+                    type:"value",
+                    header:"#I",
+                    pathToValue:"[00201208].Value[0]",
+                    headerDescription:"Number of Study Related Instances",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }
+            ],
+            series:[
+                {
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    widthWeight:0.1,
+
+                    calculatedWidth:"6%"
+                },
+                {
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                },{
+                    type:"value",
+                    header:"Station Name",
+                    pathToValue:"00081010.Value[0]",
+                    headerDescription:"Station Name",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Series Number",
+                    pathToValue:"00200011.Value[0]",
+                    headerDescription:"Series Number",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"PPS Start Date",
+                    pathToValue:"00400244.Value[0]",
+                    headerDescription:"Performed Procedure Step Start Date",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"PPS Start Time",
+                    pathToValue:"00400245.Value[0]",
+                    headerDescription:"Performed Procedure Step Start Time",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Body Part",
+                    pathToValue:"00180015.Value[0]",
+                    headerDescription:"Body Part Examined",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Modality",
+                    pathToValue:"00080060.Value[0]",
+                    headerDescription:"Modality",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Series Description",
+                    pathToValue:"0008103E.Value[0]",
+                    headerDescription:"Series Description",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"#I",
+                    pathToValue:"00201209.Value[0]",
+                    headerDescription:"Number of Series Related Instances",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }
+            ],
+            instance:[
+                {
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    widthWeight:0.1,
+                    calculatedWidth:"6%"
+                },
+                {
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                },{
+                    type:"value",
+                    header:"SOP Class UID",
+                    pathToValue:"00080016.Value[0]",
+                    headerDescription:"SOP Class UID",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Instance Number",
+                    pathToValue:"00200013.Value[0]",
+                    headerDescription:"Instance Number",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Content Date",
+                    pathToValue:"00080023.Value[0]",
+                    headerDescription:"Content Date",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"value",
+                    header:"Content Time",
+                    pathToValue:"00080033.Value[0]",
+                    headerDescription:"Content Time",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                },{
+                    type:"pipe",
+                    header:"Content Description",
+                    headerDescription:"Content Description",
+                    widthWeight:1.5,
+                    calculatedWidth:"20%",
+                    pipe:new DynamicPipe("contentDescription",undefined)
+                },{
+                    type:"value",
+                    header:"#F",
+                    pathToValue:"00280008.Value[0]",
+                    headerDescription:"Number of Frames",
+                    widthWeight:0.3,
+                    calculatedWidth:"20%"
+                }
+            ]
+        }
     }
 }

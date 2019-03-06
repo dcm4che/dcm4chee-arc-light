@@ -1,0 +1,46 @@
+<h3 *ngIf="title">{{title}}</h3>
+<div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass">
+    <!--Patient header 1:-->
+    <div class="th patient" [ngClass]="config?.cssThClass">
+        <div class="td"*ngFor="let patient_table of tableSchema.patient" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}">
+            <ng-container *ngIf="patient_table.type === 'value'">{{patient_table.header}}</ng-container>
+            <ng-container *ngIf="patient_table.type != 'value'">&nbsp;</ng-container>
+        </div>
+    </div>
+    <!--1:END;-->
+
+    <!--Patient Table 1:-->
+    <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let patient of patients;let i = index">
+        <div class="td" *ngFor="let patient_table of tableSchema.patient" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}" [ngSwitch]="patient_table.type">
+            <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
+            <ng-container *ngSwitchCase="'actions'">
+              <a (click)="$event.preventDefault();action.click(patient)" *ngFor="let action of patient_table.actions">
+                  <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                  <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+              </a>
+            </ng-container>
+            <ng-container *ngSwitchCase="'pipe'">{{patient_table.pipe | dynamicPipe}}</ng-container>
+            <ng-container *ngSwitchCase="'value'">{{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}</ng-container>
+        </div>
+        <attribute-list *ngIf="patient.showAttributes" [attrs]="patient.attrs"></attribute-list>
+
+        <!--Studies 2:-->
+        <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let study of patient.studies;let i = index">
+            <div class="td" *ngFor="let studies_table of tableSchema.studies" [ngClass]="config?.cssTdClass" [ngStyle]="{width: studies_table.calculatedWidth}" [ngSwitch]="studies_table.type">
+                <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
+                <ng-container *ngSwitchCase="'actions'">
+                    <a (click)="$event.preventDefault();action.click(study)" *ngFor="let action of studies_table.actions">
+                        <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                    </a>
+                </ng-container>
+                <ng-container *ngSwitchCase="'pipe'">{{studies_table.pipe | dynamicPipe}}</ng-container>
+                <ng-container *ngSwitchCase="'value'">{{_.get(study.attrs,studies_table.pathToValue) || '&nbsp;'}}</ng-container>
+            </div>
+            <attribute-list *ngIf="study.showAttributes" [attrs]="study.attrs"></attribute-list>
+        </div>
+        <!--2:END;-->
+
+    </div>
+    <!--1:END;-->
+</div>
