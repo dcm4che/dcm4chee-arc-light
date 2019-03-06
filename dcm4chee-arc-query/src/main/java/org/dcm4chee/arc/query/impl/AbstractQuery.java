@@ -108,7 +108,7 @@ abstract class AbstractQuery implements Query {
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
-            query.setMaxResults(offset);
+            query.setMaxResults(limit);
         resultStream = query.getResultStream();
         results = resultStream.iterator();
     }

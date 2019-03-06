@@ -77,6 +77,6 @@ public class OrderByTag {
     }
 
     public Order order(CriteriaBuilder cb, Expression<?> x) {
-        return order(cb, x);
+        return order.apply(cb, x);
     }
 }
