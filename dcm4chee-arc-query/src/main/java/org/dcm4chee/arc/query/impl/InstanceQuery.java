@@ -167,15 +167,18 @@ class InstanceQuery extends AbstractQuery {
         QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
         QueryBuilder2.applyStudyLevelJoins(study,context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        return q.select(cb.count(instance))
-                .where(builder.instancePredicates(q, null, patient, study, series, instance,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam(),
-                        codeCache.findOrCreateEntities(
-                                context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
-                        codeCache.findOrCreateEntities(
-                                context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes())));
+        q = q.select(cb.count(instance));
+        Expression<Boolean> predicates = builder.instancePredicates(q, null, patient, study, series, instance,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
+                codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes()));
+        if (predicates != null)
+            q = q.where(predicates);
+        return q;
     }
 
     @Override

@@ -101,11 +101,14 @@ class PatientQuery extends AbstractQuery {
         builder.applyPatientLevelJoinsForCount(patient,
                 context.getPatientIDs(),
                 context.getQueryKeys());
-        return q.select(cb.count(patient))
-                .where(builder.patientPredicates(q, null, patient,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam()));
+        q = q.select(cb.count(patient));
+        Expression<Boolean> predicates = builder.patientPredicates(q, null, patient,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (predicates != null)
+            q = q.where(predicates);
+        return q;
     }
 
     @Override

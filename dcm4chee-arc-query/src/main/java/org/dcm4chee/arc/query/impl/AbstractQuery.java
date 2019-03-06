@@ -87,7 +87,7 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public void beginTransaction() {
-        em.getTransaction().begin();
+//        em.getTransaction().begin();
     }
 
     @Override
@@ -165,7 +165,7 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public void close() {
-        close(em.getTransaction());
+//        close(em.getTransaction());
         close(resultStream);
         context.close();
     }

@@ -100,11 +100,14 @@ public class MWLQuery extends AbstractQuery {
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        return q.select(cb.count(patient))
-                .where(builder.mwlItemPredicates(q, null, patient, mwlItem,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam()));
+        q = q.select(cb.count(mwlItem));
+        Expression<Boolean> predicates = builder.mwlItemPredicates(q, null, patient, mwlItem,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (predicates != null)
+            q = q.where(predicates);
+        return q;
     }
 
     @Override

@@ -168,11 +168,14 @@ class SeriesQuery extends AbstractQuery {
         QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
         QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        return q.select(cb.count(patient))
-                .where(builder.seriesPredicates(q, null, patient, study, series,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam()));
+        q = q.select(cb.count(patient));
+        Expression<Boolean> predicates = builder.seriesPredicates(q, null, patient, study, series,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (predicates != null)
+            q = q.where(predicates);
+        return q;
     }
 
     @Override

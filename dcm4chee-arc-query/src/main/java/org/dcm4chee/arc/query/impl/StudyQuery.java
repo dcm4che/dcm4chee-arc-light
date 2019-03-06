@@ -161,11 +161,14 @@ class StudyQuery extends AbstractQuery {
             patient = study.join(Study_.patient);
             QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
         }
-        return q.select(longExpression)
-                .where(builder.studyPredicates(q, x, patient, study,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam()));
+        q = q.select(longExpression);
+        Expression<Boolean> predicates = builder.studyPredicates(q, x, patient, study,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (predicates != null)
+            q = q.where(predicates);
+        return q;
     }
 
     @Override
