@@ -92,7 +92,7 @@ public class QueryAttributesEJB {
                         seriesQueryAttributes.get(SeriesQueryAttributes_.availability))
                 .where(cb.equal(series.get(Series_.study).get(Study_.pk), studyPk)));
         StudyQueryAttributesBuilder builder = new StudyQueryAttributesBuilder(series, seriesQueryAttributes);
-        try (Stream<Tuple> resultStream = query.getResultList().stream()) {
+        try (Stream<Tuple> resultStream = query.getResultStream()) {
             resultStream.forEach(tuple -> {
             Integer numberOfInstancesI = tuple.get(seriesQueryAttributes.get(SeriesQueryAttributes_.numberOfInstances));
             if (numberOfInstancesI == null)
@@ -126,7 +126,7 @@ public class QueryAttributesEJB {
                         instance.get(Instance_.availability))
                 .where(x));
         SeriesQueryAttributesBuilder builder = new SeriesQueryAttributesBuilder(instance);
-        try (Stream<Tuple> resultStream = query.getResultList().stream()) {
+        try (Stream<Tuple> resultStream = query.getResultStream()) {
             resultStream.forEach(builder::addInstance);
         }
         SeriesQueryAttributes queryAttrs = builder.build();

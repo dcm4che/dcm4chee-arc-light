@@ -167,7 +167,15 @@ public class QueueManagerRS {
     public Response countTasks() {
         logRequest();
         try {
-            return count(mgr.countTasks(matchQueueMessage(status(), null)));
+            return count(mgr.countTasks(
+                    queueName,
+                    deviceName,
+                    status(),
+                    batchID,
+                    jmsMessageID,
+                    createdTime,
+                    updatedTime,
+                    null));
         } catch (Exception e) {
           return errResponseAsTextPlain(e);
         }

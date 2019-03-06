@@ -100,10 +100,14 @@ public class MatchTask {
             String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
             String createdTime, String updatedTime, Date updatedBefore) {
         Path<QueueMessage> queueMsg = cb.createQuery().from(QueueMessage.class);
-        x = and(x, cb.equal(queueMsg.get(QueueMessage_.queueName), queueName));
-        x = and(x, cb.equal(queueMsg.get(QueueMessage_.deviceName), deviceName));
-        x = and(x, cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-        x = and(x, cb.equal(queueMsg.get(QueueMessage_.messageID), jmsMessageID));
+        if (queueName != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.queueName), queueName));
+        if (deviceName != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.deviceName), deviceName));
+        if (batchID != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+        if (jmsMessageID != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.messageID), jmsMessageID));
         if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
             x = and(x, cb.equal(queueMsg.get(QueueMessage_.status), status));
         if (createdTime != null)

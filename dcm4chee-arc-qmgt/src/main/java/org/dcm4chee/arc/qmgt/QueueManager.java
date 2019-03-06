@@ -100,5 +100,8 @@ public interface QueueManager {
                                          String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore,
                                          String orderBy, int offset, int limit);
 
+    long countTasks(String queueName, String deviceName, QueueMessage.Status status, String batchID,
+                    String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore);
+
     List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

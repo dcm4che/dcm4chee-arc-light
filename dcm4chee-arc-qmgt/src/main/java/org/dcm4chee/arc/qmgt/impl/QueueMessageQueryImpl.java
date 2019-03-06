@@ -56,8 +56,8 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
 import java.util.Iterator;
-import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -70,7 +70,7 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
     private final StatelessSession session;
     private final TypedQuery<QueueMessage> query;
     private Iterator<QueueMessage> iterate;
-    private Stream<QueueMessage> queueMsgStream;
+    private Root<QueueMessage> queueMsg;
 
     public QueueMessageQueryImpl(EntityManager em, Expression<Boolean> matchQueueMessage,
                                  Order order, int fetchSize, int offset, int limit) {
@@ -79,7 +79,8 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
                 .where(matchQueueMessage);
         if (order != null)
             query1.orderBy(order);
-        query1.from(QueueMessage.class);
+        queueMsg = query1.from(QueueMessage.class);
+        query1.select(queueMsg);
         query = em.createQuery(query1);
         if (limit > 0)
             query.setMaxResults(limit);
@@ -94,7 +95,6 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
 
     @Override
     public void close() {
-        queueMsgStream.close();
         if (transaction != null) {
             try {
                 transaction.commit();
@@ -108,8 +108,7 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
     @Override
     public Iterator<QueueMessage> iterator() {
         transaction = session.beginTransaction();
-        queueMsgStream = query.getResultStream();
-        iterate = queueMsgStream.iterator();
+        iterate = query.getResultList().iterator();
         return iterate;
     }
 }

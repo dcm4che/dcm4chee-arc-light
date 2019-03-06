@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -54,6 +54,7 @@ import org.dcm4chee.arc.qmgt.MessageCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -84,6 +85,8 @@ import java.util.List;
 public class QueueManagerEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
+
+    private Root<QueueMessage> queueMsg;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -467,6 +470,51 @@ public class QueueManagerEJB {
 
     public long countTasks(Predicate matchQueueMessage) {
         return createQuery(matchQueueMessage).fetchCount();
+    }
+
+    public long countTasks(String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
+                           String createdTime, String updatedTime, Date updatedBefore) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        queueMsg = cq.from(QueueMessage.class);
+        Expression<Boolean> matchQueueMsg = matchQueueMsg(null, queueName, deviceName, status, batchID, jmsMessageID,
+                createdTime, updatedTime, updatedBefore);
+
+
+        CriteriaQuery<QueueMessage> query = cb.createQuery(QueueMessage.class);
+        Root<QueueMessage> root = query.from(QueueMessage.class);
+        CriteriaQuery<QueueMessage> select = query.select(root);
+
+        em.createQuery(select);
+        return em.createQuery(select.where(matchQueueMsg)).getResultList().size();
+    }
+
+    private Expression<Boolean> matchQueueMsg(Expression<Boolean> x,
+                                              String queueName, String deviceName, QueueMessage.Status status,
+                                              String batchID, String jmsMessageID,
+                                              String createdTime, String updatedTime, Date updatedBefore) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        if (queueName != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.queueName), queueName), cb);
+        if (deviceName != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.deviceName), deviceName), cb);
+        if (batchID != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.batchID), batchID), cb);
+        if (jmsMessageID != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.messageID), jmsMessageID), cb);
+        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.status), status), cb);
+        if (createdTime != null)
+            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.createdTime), createdTime), cb);
+        if (updatedTime != null)
+            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.updatedTime), updatedTime), cb);
+        if (updatedBefore != null)
+            x = and(x, cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), updatedBefore), cb);
+        return x;
+    }
+
+    private Expression<Boolean> and(Expression<Boolean> x, Expression<Boolean> y, CriteriaBuilder cb) {
+        return y == null ? x : x == null ? y : cb.and(x, y);
     }
 
     private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {

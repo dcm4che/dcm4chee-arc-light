@@ -40,8 +40,10 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.QueueMessage_;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,9 @@ import javax.inject.Inject;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -223,6 +228,13 @@ public class QueueManagerImpl implements QueueManager {
                 matchTask.queueMsgOrder(orderBy),
                 offset,
                 limit);
+    }
+
+    @Override
+    public long countTasks(String queueName, String deviceName, QueueMessage.Status status, String batchID,
+                           String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore) {
+        //MatchTask matchTask = new MatchTask(em.getCriteriaBuilder());
+        return ejb.countTasks(queueName, deviceName, status, batchID, jmsMsgID, createdTime, updatedTime, updatedBefore);
     }
 
     @Override
