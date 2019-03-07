@@ -114,15 +114,13 @@ class StudyQuery extends AbstractQuery {
                 studyQueryAttributes.get(StudyQueryAttributes_.retrieveAETs),
                 studyQueryAttributes.get(StudyQueryAttributes_.availability),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes));
-        Expression<Boolean> predicates = builder.studyPredicates(q, null,
+                studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes))
+            .where(builder.studyPredicates(q, cb.conjunction(),
                 patient,
                 study,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
+                context.getQueryParam()));
         if (context.getOrderByTags() != null)
             q = q.orderBy(builder.orderStudies(patient, study, context.getOrderByTags()));
         return q;
@@ -149,7 +147,7 @@ class StudyQuery extends AbstractQuery {
         return createQuery(q, cb.equal(study.get(Study_.size), -1L), study, study.get(Study_.pk));
     }
 
-    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
+    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Predicate x,
             From<X, Study> study, Expression<Long> longExpression) {
         QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         boolean hasPatientLevelPredicates = QueryBuilder2.hasPatientLevelPredicates(
@@ -161,14 +159,11 @@ class StudyQuery extends AbstractQuery {
             patient = study.join(Study_.patient);
             QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
         }
-        q = q.select(longExpression);
-        Expression<Boolean> predicates = builder.studyPredicates(q, x, patient, study,
+        return q.select(longExpression)
+            .where(builder.studyPredicates(q, x, patient, study,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
-        return q;
+                context.getQueryParam()));
     }
 
     @Override

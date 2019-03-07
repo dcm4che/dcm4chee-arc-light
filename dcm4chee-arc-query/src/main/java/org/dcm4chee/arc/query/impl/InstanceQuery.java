@@ -140,17 +140,15 @@ class InstanceQuery extends AbstractQuery {
                 rejectionNoteCode.get(CodeEntity_.codeValue),
                 rejectionNoteCode.get(CodeEntity_.codingSchemeDesignator),
                 rejectionNoteCode.get(CodeEntity_.codeMeaning),
-                instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes));
-        Expression<Boolean> predicates = builder.instancePredicates(q, null, patient, study, series, instance,
+                instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes))
+            .where(builder.instancePredicates(q, cb.conjunction(), patient, study, series, instance,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam(),
                 codeCache.findOrCreateEntities(
                         context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
                 codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes()));
-        if (predicates != null)
-            q = q.where(predicates);
+                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes())));
         if (context.getOrderByTags() != null)
             q = q.orderBy(builder.orderInstances(patient, study, series, instance, context.getOrderByTags()));
         return q;
@@ -167,18 +165,15 @@ class InstanceQuery extends AbstractQuery {
         QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
         QueryBuilder2.applyStudyLevelJoins(study,context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        q = q.select(cb.count(instance));
-        Expression<Boolean> predicates = builder.instancePredicates(q, null, patient, study, series, instance,
+        return q.select(cb.count(instance))
+            .where(builder.instancePredicates(q, cb.conjunction(), patient, study, series, instance,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam(),
                 codeCache.findOrCreateEntities(
                         context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
                 codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes()));
-        if (predicates != null)
-            q = q.where(predicates);
-        return q;
+                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes())));
     }
 
     @Override

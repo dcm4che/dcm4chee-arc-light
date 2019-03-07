@@ -82,13 +82,11 @@ class PatientQuery extends AbstractQuery {
                 patient.get(Patient_.verificationTime),
                 patient.get(Patient_.verificationStatus),
                 patient.get(Patient_.failedVerifications),
-                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
-        Expression<Boolean> predicates = builder.patientPredicates(q, null, patient,
+                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes))
+            .where(builder.patientPredicates(q, cb.conjunction(), patient,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
+                context.getQueryParam()));
         if (context.getOrderByTags() != null)
             q = q.orderBy(builder.orderPatients(patient, context.getOrderByTags()));
         return q;
@@ -101,14 +99,11 @@ class PatientQuery extends AbstractQuery {
         builder.applyPatientLevelJoinsForCount(patient,
                 context.getPatientIDs(),
                 context.getQueryKeys());
-        q = q.select(cb.count(patient));
-        Expression<Boolean> predicates = builder.patientPredicates(q, null, patient,
+        return q.select(cb.count(patient))
+            .where(builder.patientPredicates(q, cb.conjunction(), patient,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
-        return q;
+                context.getQueryParam()));
     }
 
     @Override

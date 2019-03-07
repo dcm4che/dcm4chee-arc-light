@@ -80,14 +80,12 @@ public class MWLQuery extends AbstractQuery {
         q = q.multiselect(
                 patient.get(Patient_.numberOfStudies),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes));
-        Expression<Boolean> predicates = builder.mwlItemPredicates(q, null,
+                mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes))
+            .where(builder.mwlItemPredicates(q, cb.conjunction(),
                 patient, mwlItem,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
+                context.getQueryParam()));
         if (context.getOrderByTags() != null)
             q = q.orderBy(builder.orderMWLItems(patient, mwlItem, context.getOrderByTags()));
         return q;
@@ -100,14 +98,11 @@ public class MWLQuery extends AbstractQuery {
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        q = q.select(cb.count(mwlItem));
-        Expression<Boolean> predicates = builder.mwlItemPredicates(q, null, patient, mwlItem,
+        return q.select(cb.count(mwlItem))
+            .where(builder.mwlItemPredicates(q, cb.conjunction(), patient, mwlItem,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
-        return q;
+                context.getQueryParam()));
     }
 
     @Override

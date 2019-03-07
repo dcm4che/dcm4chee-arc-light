@@ -113,7 +113,7 @@ public class QueryAttributesEJB {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
         QueryBuilder2 queryBuilder = new QueryBuilder2(cb);
-        Expression<Boolean> x = cb.equal(instance.get(Instance_.series).get(Series_.pk), seriesPk);
+        Predicate x = cb.equal(instance.get(Instance_.series).get(Series_.pk), seriesPk);
         x = queryBuilder.hideRejectedInstance(x, instance,
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
                 qrView.isHideNotRejectedInstances());

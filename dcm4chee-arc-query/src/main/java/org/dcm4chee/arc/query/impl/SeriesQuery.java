@@ -147,13 +147,11 @@ class SeriesQuery extends AbstractQuery {
                 seriesQueryAttributes.get(SeriesQueryAttributes_.availability),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
                 studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                seriesAttrBlob = series.join(Series_.attributesBlob).get(AttributesBlob_.encodedAttributes));
-        Expression<Boolean> predicates = builder.seriesPredicates(q, null, patient, study, series,
+                seriesAttrBlob = series.join(Series_.attributesBlob).get(AttributesBlob_.encodedAttributes))
+           .where(builder.seriesPredicates(q, cb.conjunction(), patient, study, series,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
+                context.getQueryParam()));
         if (context.getOrderByTags() != null)
             q = q.orderBy(builder.orderSeries(patient, study, series, context.getOrderByTags()));
         return q;
@@ -168,14 +166,11 @@ class SeriesQuery extends AbstractQuery {
         QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
         QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        q = q.select(cb.count(patient));
-        Expression<Boolean> predicates = builder.seriesPredicates(q, null, patient, study, series,
+        return q.select(cb.count(patient))
+            .where(builder.seriesPredicates(q, cb.conjunction(), patient, study, series,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
-        if (predicates != null)
-            q = q.where(predicates);
-        return q;
+                context.getQueryParam()));
     }
 
     @Override

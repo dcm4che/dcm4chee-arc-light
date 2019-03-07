@@ -54,6 +54,7 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
+import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.*;
 
@@ -263,31 +264,23 @@ public class QueryBuilder2 {
         }
     }
 
-    private Expression<Boolean> and(Expression<Boolean> x, Expression<Boolean> y) {
-        return y == null ? x : x == null ? y : cb.and(x, y);
-    }
-
-    private Expression<Boolean> or(Expression<Boolean> x, Expression<Boolean> y) {
-        return y == null ? x : x == null ? y : cb.or(x, y);
-    }
-
-    public Expression<Boolean> patientIDPredicate(Expression<Boolean> x, Path<PatientID> patient, IDWithIssuer[] pids) {
+    public Predicate patientIDPredicate(Predicate x, Path<PatientID> patient, IDWithIssuer[] pids) {
         if (pids.length == 0)
             return x;
 
-        Expression<Boolean> y = null;
+        Predicate y = cb.disjunction();
         for (IDWithIssuer pid : pids)
-            y = or(y, idWithIssuer(x, patient.get(PatientID_.id), patient.get(PatientID_.issuer), pid.getID(), pid.getIssuer()));
+            y = cb.or(y, idWithIssuer(x, patient.get(PatientID_.id), patient.get(PatientID_.issuer), pid.getID(), pid.getIssuer()));
 
-        return and(x, y);
+        return cb.and(x, y);
     }
 
-    public <T> Expression<Boolean> patientPredicates(CriteriaQuery<T> q,
-            Expression<Boolean> x, Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+    public <T> Predicate patientPredicates(CriteriaQuery<T> q,
+            Predicate x, Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         return patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.PATIENT);
     }
 
-    public <T> Expression<Boolean> studyPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    public <T> Predicate studyPredicates(CriteriaQuery<T> q, Predicate x,
             Path<Patient> patient, Path<Study> study,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         return studyLevelPredicates(q,
@@ -295,7 +288,7 @@ public class QueryBuilder2 {
                 study, keys, queryParam, QueryRetrieveLevel2.STUDY);
     }
 
-    public <T> Expression<Boolean> seriesPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    public <T> Predicate seriesPredicates(CriteriaQuery<T> q, Predicate x,
             Path<Patient> patient, Path<Study> study, Path<Series> series,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         return seriesLevelPredicates(q,
@@ -305,7 +298,7 @@ public class QueryBuilder2 {
                 series, keys, queryParam);
     }
 
-    public <T> Expression<Boolean> instancePredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    public <T> Predicate instancePredicates(CriteriaQuery<T> q, Predicate x,
             Path<Patient> patient, Path<Study> study, Path<Series> series, Path<Instance> instance,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
@@ -318,7 +311,7 @@ public class QueryBuilder2 {
                 instance, keys, queryParam, showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
     }
 
-    public <T> Expression<Boolean> mwlItemPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    public <T> Predicate mwlItemPredicates(CriteriaQuery<T> q, Predicate x,
             Path<Patient> patient, Path<MWLItem> mwlItem,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         return mwlItemLevelPredicates(q,
@@ -326,13 +319,13 @@ public class QueryBuilder2 {
                 mwlItem, keys, queryParam);
     }
 
-    private <T> Expression<Boolean> patientLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate patientLevelPredicates(CriteriaQuery<T> q, Predicate x,
             Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             QueryRetrieveLevel2 queryRetrieveLevel) {
         if (patient == null)
             return x;
         if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
-            x = and(x, patient.get(Patient_.mergedWith).isNull());
+            x = cb.and(x, patient.get(Patient_.mergedWith).isNull());
             if (!queryParam.isWithoutStudies())
                 x = cb.and(x, cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
         }
@@ -353,7 +346,7 @@ public class QueryBuilder2 {
         x = wildCard(x, patient.get(Patient_.patientCustomAttribute3),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
         if (queryParam.getPatientVerificationStatus() != null)
-            x = and(x, cb.equal(patient.get(Patient_.verificationStatus), queryParam.getPatientVerificationStatus()));
+            x = cb.and(x, cb.equal(patient.get(Patient_.verificationStatus), queryParam.getPatientVerificationStatus()));
         return x;
     }
 
@@ -394,11 +387,11 @@ public class QueryBuilder2 {
         return join.on(cb.equal(join.get(SeriesQueryAttributes_.viewID), viewID));
     }
 
-    public static Expression<Boolean> uidsPredicate(Expression<Boolean> x, Path<String> path, String[] values) {
+    public static Predicate uidsPredicate(Predicate x, Path<String> path, String[] values) {
         return isUniversalMatching(values) ? x : path.in(values);
     }
 
-    private <T> Expression<Boolean> studyLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate studyLevelPredicates(CriteriaQuery<T> q, Predicate x,
             Path<Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         x = accessControl(x, study, queryParam.getAccessControlIDs());
@@ -424,7 +417,7 @@ public class QueryBuilder2 {
         if (!isUniversalMatching(procedureCode))
             x = codes(q, x, study.get(Study_.procedureCodes), procedureCode);
         if (queryParam.isHideNotRejectedInstances())
-            x = and(x, cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
+            x = cb.and(x, cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
         x = wildCard(x, study.get(Study_.studyCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
@@ -435,29 +428,29 @@ public class QueryBuilder2 {
         x = dateRange(x, study.get(Study_.createdTime),
                 keys.getDateRange(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT));
         if (queryParam.getExternalRetrieveAET() != null)
-            x = and(x, cb.equal(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAET()));
+            x = cb.and(x, cb.equal(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAET()));
         if (queryParam.getExternalRetrieveAETNot() != null)
-            x = and(x, cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
+            x = cb.and(x, cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             if (queryParam.isIncomplete())
-                x = and(x, cb.notEqual(study.get(Study_.completeness), Completeness.COMPLETE));
+                x = cb.and(x, cb.notEqual(study.get(Study_.completeness), Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
-                x = and(x, cb.greaterThan(study.get(Study_.failedRetrieves), 0));
+                x = cb.and(x, cb.greaterThan(study.get(Study_.failedRetrieves), 0));
         }
         if (queryParam.getExpirationDate() != null)
             x = dateRange(x, study.get(Study_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
         if (queryParam.getStudyStorageIDs() != null)
-            x = and(x, study.get(Study_.storageIDs).in(queryParam.getStudyStorageIDs()));
+            x = cb.and(x, study.get(Study_.storageIDs).in(queryParam.getStudyStorageIDs()));
         if (queryParam.getMinStudySize() != 0)
-            x = and(x, cb.greaterThanOrEqualTo(study.get(Study_.size), queryParam.getMinStudySize()));
+            x = cb.and(x, cb.greaterThanOrEqualTo(study.get(Study_.size), queryParam.getMinStudySize()));
         if (queryParam.getMaxStudySize() != 0)
-            x = and(x, cb.lessThanOrEqualTo(study.get(Study_.size), queryParam.getMaxStudySize()));
+            x = cb.and(x, cb.lessThanOrEqualTo(study.get(Study_.size), queryParam.getMaxStudySize()));
         if (queryParam.getExpirationState() != null)
-            x = and(x, study.get(Study_.expirationState).in(queryParam.getExpirationState()));
+            x = cb.and(x, study.get(Study_.expirationState).in(queryParam.getExpirationState()));
         return x;
     }
 
-    public Expression<Boolean> accessControl(Expression<Boolean> x, Path<Study> study, String[] accessControlIDs) {
+    public Predicate accessControl(Predicate x, Path<Study> study, String[] accessControlIDs) {
         if (accessControlIDs.length == 0)
             return x;
 
@@ -473,7 +466,7 @@ public class QueryBuilder2 {
         }
     }
 
-    private <T> Expression<Boolean> seriesLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate seriesLevelPredicates(CriteriaQuery<T> q, Predicate x,
             Path<Series> series, Attributes keys, QueryParam queryParam) {
         x = uidsPredicate(x, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID));
         x = numberPredicate(x, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
@@ -503,7 +496,7 @@ public class QueryBuilder2 {
             x = requestAttributes(q, x, series.get(Series_.requestAttributes), reqAttrs, queryParam);
         x = code(x, series.get(Series_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
         if (queryParam.isHideNotRejectedInstances())
-            x = and(x, cb.notEqual(series.get(Series_.rejectionState), RejectionState.NONE));
+            x = cb.and(x, cb.notEqual(series.get(Series_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Series);
         x = wildCard(x, series.get(Series_.seriesCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
@@ -512,13 +505,13 @@ public class QueryBuilder2 {
         x = wildCard(x, series.get(Series_.seriesCustomAttribute3),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
         if (queryParam.isIncomplete())
-            x = and(x, cb.notEqual(series.get(Series_.completeness), Completeness.COMPLETE));
+            x = cb.and(x, cb.notEqual(series.get(Series_.completeness), Completeness.COMPLETE));
         if (queryParam.isRetrieveFailed())
-            x = and(x, cb.greaterThan(series.get(Series_.failedRetrieves), 0));
+            x = cb.and(x, cb.greaterThan(series.get(Series_.failedRetrieves), 0));
         if (queryParam.isStorageVerificationFailed())
-            x = and(x, cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
+            x = cb.and(x, cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
         if (queryParam.isCompressionFailed())
-            x = and(x, cb.greaterThan(series.get(Series_.compressionFailures), 0));
+            x = cb.and(x, cb.greaterThan(series.get(Series_.compressionFailures), 0));
         x = wildCard(x, series.get(Series_.sourceAET),
                 keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries,
                         VR.AE, "*"),
@@ -528,7 +521,7 @@ public class QueryBuilder2 {
         return x;
     }
 
-    private <T> Expression<Boolean> instanceLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate instanceLevelPredicates(CriteriaQuery<T> q, Predicate x,
             Path<Instance> instance, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
@@ -574,11 +567,11 @@ public class QueryBuilder2 {
         return x;
     }
 
-    public <T> Expression<Boolean> sopInstanceRefs(CriteriaQuery<T> q, Expression<Boolean> x,
+    public <T> Predicate sopInstanceRefs(CriteriaQuery<T> q, Predicate x,
             Path<Study> study, Path<Series> series, Root<Instance> instance,
             String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
-        x = and(x, cb.equal(study.get(Study_.studyInstanceUID), studyIUID));
+        x = cb.and(x, cb.equal(study.get(Study_.studyInstanceUID), studyIUID));
         if (!isUniversalMatching(seriesUID))
             cb.and(x, cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
         if (!isUniversalMatching(objectUID))
@@ -600,7 +593,7 @@ public class QueryBuilder2 {
         }
     }
 
-    private <T> Expression<Boolean> mwlItemLevelPredicates(CriteriaQuery<T> q, Expression<Boolean> x, Path<MWLItem> mwlItem,
+    private <T> Predicate mwlItemLevelPredicates(CriteriaQuery<T> q, Predicate x, Path<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
         x = uidsPredicate(x, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
         x = wildCard(x, mwlItem.get(MWLItem_.requestedProcedureID), keys.getString(Tag.RequestedProcedureID, "*"));
@@ -632,52 +625,52 @@ public class QueryBuilder2 {
             x = showSPSWithStatus(x, mwlItem, sps);
             String spsAET = sps.getString(Tag.ScheduledStationAETitle, "*");
             if (!isUniversalMatching(spsAET))
-                x = and(x, cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
+                x = cb.and(x, cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
         }
         x = hideSPSWithStatus(x, mwlItem, queryParam);
         return x;
     }
 
-    private Expression<Boolean> showSPSWithStatus(Expression<Boolean> x, Path<MWLItem> mwlItem, Attributes sps) {
+    private Predicate showSPSWithStatus(Predicate x, Path<MWLItem> mwlItem, Attributes sps) {
         String status = sps.getString(Tag.ScheduledProcedureStepStatus, "*").toUpperCase();
         switch(status) {
             case "SCHEDULED":
             case "ARRIVED":
             case "READY":
-                return and(x, cb.equal(mwlItem.get(MWLItem_.status), SPSStatus.valueOf(status)));
+                return cb.and(x, cb.equal(mwlItem.get(MWLItem_.status), SPSStatus.valueOf(status)));
             default:
                 return x;
         }
     }
 
-    private Expression<Boolean> hideSPSWithStatus(Expression<Boolean> x, Path<MWLItem> mwlItem, QueryParam queryParam) {
+    private Predicate hideSPSWithStatus(Predicate x, Path<MWLItem> mwlItem, QueryParam queryParam) {
         SPSStatus[] hideSPSWithStatusFromMWL = queryParam.getHideSPSWithStatusFromMWL();
         return (hideSPSWithStatusFromMWL.length > 0)
-                ? and(x, mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not())
+                ? cb.and(x, mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not())
                 : x;
     }
 
-    public Expression<Boolean> hideRejectedInstance(Expression<Boolean> x, Path<Instance> instance, CodeEntity[] codes,
+    public Predicate hideRejectedInstance(Predicate x, Path<Instance> instance, CodeEntity[] codes,
             boolean hideNotRejectedInstances) {
-        return and(x, hideRejectedInstance(instance, codes, hideNotRejectedInstances));
+        return cb.and(x, hideRejectedInstance(instance, codes, hideNotRejectedInstances));
     }
 
-    private Expression<Boolean> hideRejectedInstance(Path<Instance> instance, CodeEntity[] codes,
+    private Predicate hideRejectedInstance(Path<Instance> instance, CodeEntity[] codes,
             boolean hideNotRejectedInstances) {
         if (codes.length == 0)
             return hideNotRejectedInstances
                     ? instance.get(Instance_.rejectionNoteCode).isNotNull()
                     : instance.get(Instance_.rejectionNoteCode).isNull();
 
-        Expression<Boolean> showRejected = instance.get(Instance_.rejectionNoteCode).in(codes);
+        Predicate showRejected = instance.get(Instance_.rejectionNoteCode).in(codes);
         return hideNotRejectedInstances
                 ? showRejected
                 : cb.or(instance.get(Instance_.rejectionNoteCode).isNull(), showRejected);
     }
 
-    public Expression<Boolean> hideRejectionNote(Expression<Boolean> x, Path<Instance> instance, CodeEntity[] codes) {
+    public Predicate hideRejectionNote(Predicate x, Path<Instance> instance, CodeEntity[] codes) {
         return codes.length == 0 ? x
-                : and(x, cb.or(
+                : cb.and(x, cb.or(
                         instance.get(Instance_.conceptNameCode).isNull(),
                         instance.get(Instance_.conceptNameCode).in(codes).not()));
     }
@@ -689,9 +682,9 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private Expression<Boolean> idWithIssuer(Expression<Boolean> x, Expression<String> idPath,
+    private Predicate idWithIssuer(Predicate x, Expression<String> idPath,
             Path<IssuerEntity> issuerPath, String id, Issuer issuer) {
-        Expression<Boolean> y = wildCard(x, idPath, id);
+        Predicate y = wildCard(x, idPath, id);
         if (x == y || issuer == null)
             return y;
 
@@ -699,10 +692,10 @@ public class QueryBuilder2 {
         String entityUID = issuer.getUniversalEntityID();
         String entityUIDType = issuer.getUniversalEntityIDType();
         if (!isUniversalMatching(entityID))
-            y = and(y, cb.or(issuerPath.get(IssuerEntity_.localNamespaceEntityID).isNull(),
+            y = cb.and(y, cb.or(issuerPath.get(IssuerEntity_.localNamespaceEntityID).isNull(),
                             cb.equal(issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID)));
         if (!isUniversalMatching(entityUID))
-            y = and(y, cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
+            y = cb.and(y, cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
                             cb.and(cb.equal(issuerPath.get(IssuerEntity_.universalEntityID), entityUID),
                                     cb.equal(issuerPath.get(IssuerEntity_.universalEntityIDType), entityUIDType))));
         return y;
@@ -724,11 +717,11 @@ public class QueryBuilder2 {
         return range == null || (range.getStartDate() == null && range.getEndDate() == null);
     }
 
-    private Expression<Boolean> wildCard(Expression<Boolean> x, Expression<String> path, String value) {
+    private Predicate wildCard(Predicate x, Expression<String> path, String value) {
         return wildCard(x, path, value, false);
     }
 
-    private Expression<Boolean> wildCard(Expression<Boolean> x, Expression<String> path, String value,
+    private Predicate wildCard(Predicate x, Expression<String> path, String value,
             boolean ignoreCase) {
         if (isUniversalMatching(value))
             return x;
@@ -737,18 +730,18 @@ public class QueryBuilder2 {
             path = cb.upper(path);
 
         if (!containsWildcard(value))
-            return and(x, cb.equal(path, value));
+            return cb.and(x, cb.equal(path, value));
 
         String pattern = toLikePattern(value);
-        return pattern.equals("%") ? x : and(x, cb.like(path, pattern, '!'));
+        return pattern.equals("%") ? x : cb.and(x, cb.like(path, pattern, '!'));
     }
 
-    private Expression<Boolean> numberPredicate(Expression<Boolean> x, Expression<Integer> path, String value) {
+    private Predicate numberPredicate(Predicate x, Expression<Integer> path, String value) {
         if (isUniversalMatching(value))
             return x;
 
         try {
-            return and(x, cb.equal(path, Integer.parseInt(value)));
+            return cb.and(x, cb.equal(path, Integer.parseInt(value)));
         } catch (NumberFormatException e) {
             return x;
         }
@@ -784,11 +777,11 @@ public class QueryBuilder2 {
         return like.toString();
     }
 
-    private <T> Expression<Boolean> seriesAttributesInStudy(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate seriesAttributesInStudy(CriteriaQuery<T> q, Predicate x,
             Path<Study> study, Attributes keys, QueryParam queryParam) {
         Subquery<Series> sq = q.subquery(Series.class);
         Root<Series> series = sq.from(Series.class);
-        Expression<Boolean> y = null;
+        Predicate y = cb.conjunction();
         y = wildCard(y, series.get(Series_.institutionName),
                 keys.getString(Tag.InstitutionName), true);
         y = wildCard(y, series.get(Series_.institutionalDepartmentName),
@@ -807,14 +800,15 @@ public class QueryBuilder2 {
                 keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries,
                         VR.AE, "*"));
         if (queryParam.isStorageVerificationFailed())
-            y = and(y, cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
+            y = cb.and(y, cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
         if (queryParam.isCompressionFailed())
-            y = and(y, cb.greaterThan(series.get(Series_.compressionFailures), 0));
-        return y == null ? x : and(x, cb.exists(sq.where(cb.and(cb.equal(series.get(Series_.study), study), y))));
+            y = cb.and(y, cb.greaterThan(series.get(Series_.compressionFailures), 0));
+        return y.getExpressions().isEmpty() ? x
+                : cb.and(x, cb.exists(sq.where(cb.and(cb.equal(series.get(Series_.study), study), y))));
     }
 
 
-    private Expression<Boolean> code(Expression<Boolean> x, Path<CodeEntity> code, Attributes item) {
+    private Predicate code(Predicate x, Path<CodeEntity> code, Attributes item) {
         if (isUniversalMatching(item))
             return x;
 
@@ -827,22 +821,23 @@ public class QueryBuilder2 {
         return x;
     }
 
-    private <T> Expression<Boolean> codes(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate codes(CriteriaQuery<T> q, Predicate x,
             Expression<Collection<CodeEntity>> codes, Attributes item) {
         Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
         Root<CodeEntity> code = sq.from(CodeEntity.class);
-        Expression<Boolean> y = code(null, code, item);
-        return y == null ? x : and(x, cb.exists(sq.where(cb.and(code.in(codes), y))));
+        Predicate y = code(cb.conjunction(), code, item);
+        return y.getExpressions().isEmpty() ? x
+                : cb.and(x, cb.exists(sq.where(cb.and(code.in(codes), y))));
     }
 
-    private <T> Expression<Boolean> requestAttributes(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate requestAttributes(CriteriaQuery<T> q, Predicate x,
             Expression<Collection<SeriesRequestAttributes>> requests, Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
             return x;
 
         Subquery<SeriesRequestAttributes> sq = q.subquery(SeriesRequestAttributes.class);
         Root<SeriesRequestAttributes> request = sq.from(SeriesRequestAttributes.class);
-        Expression<Boolean> y = null;
+        Predicate y = cb.conjunction();
         String accNo = item.getString(Tag.AccessionNumber, "*");
         if (!isUniversalMatching(accNo)) {
             Issuer issuerOfAccessionNumber = Issuer.valueOf(item
@@ -875,14 +870,15 @@ public class QueryBuilder2 {
                 request.get(SeriesRequestAttributes_.scheduledProcedureStepID),
                 item.getString(Tag.ScheduledProcedureStepID, "*"),
                 false);
-        return y == null ? x : and(x, cb.exists(sq.where(cb.and(request.in(requests), y))));
+        return y.getExpressions().isEmpty() ? x
+                : cb.and(x, cb.exists(sq.where(cb.and(request.in(requests), y))));
     }
 
-    private <T> Expression<Boolean> verifyingObserver(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate verifyingObserver(CriteriaQuery<T> q, Predicate x,
             Expression<Collection<VerifyingObserver>> observers, Attributes item, QueryParam queryParam) {
         Subquery<VerifyingObserver> sq = q.subquery(VerifyingObserver.class);
         Root<VerifyingObserver> observer = sq.from(VerifyingObserver.class);
-        Expression<Boolean> y = null;
+        Predicate y = cb.conjunction();
         String observerName = item.getString(Tag.VerifyingObserverName, "*");
         if (!isUniversalMatching(observerName)) {
             observer.join(VerifyingObserver_.verifyingObserverName);
@@ -890,10 +886,11 @@ public class QueryBuilder2 {
         }
         y = dateRange(y, observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
-        return y == null ? x : and(x, cb.exists(sq.where(cb.and(observer.in(observers), y))));
+        return y.getExpressions().isEmpty() ? x
+                : cb.and(x, cb.exists(sq.where(cb.and(observer.in(observers), y))));
     }
 
-    private <T> Expression<Boolean> contentItem(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate contentItem(CriteriaQuery<T> q, Predicate x,
             Expression<Collection<ContentItem>> contentItems, Attributes item) {
         String valueType = item.getString(Tag.ValueType);
         if (!("CODE".equals(valueType) || "TEXT".equals(valueType)))
@@ -901,8 +898,7 @@ public class QueryBuilder2 {
 
         Subquery<ContentItem> sq = q.subquery(ContentItem.class);
         Root<ContentItem> contentItem = sq.from(ContentItem.class);
-        Expression<Boolean> y = null;
-
+        Predicate y = cb.conjunction();
         y = code(y, contentItem.get(ContentItem_.conceptName),
                 item.getNestedDataset(Tag.ConceptNameCodeSequence));
         y = wildCard(y, contentItem.get(ContentItem_.relationshipType),
@@ -911,82 +907,82 @@ public class QueryBuilder2 {
                 item.getNestedDataset(Tag.ConceptCodeSequence));
         y = wildCard(y, contentItem.get(ContentItem_.textValue),
                 item.getString(Tag.TextValue, "*"), true);
-        return y == null ? x : and(x, cb.exists(sq.where(cb.and(contentItem.in(contentItems), y))));
+        return y.getExpressions().isEmpty() ? x
+                : cb.and(x, cb.exists(sq.where(cb.and(contentItem.in(contentItems), y))));
     }
 
-    private <T> Expression<Boolean> personName(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate personName(CriteriaQuery<T> q, Predicate x,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, String value, QueryParam queryParam) {
         if (value.equals("*"))
             return x;
 
         PersonName pn = new PersonName(value, true);
-        return and(x, queryParam.isFuzzySemanticMatching()
-                ? fuzzyMatch(q, qpn, pn, queryParam)
-                : literalMatch(qpn, pn, queryParam));
+        return queryParam.isFuzzySemanticMatching()
+                ? fuzzyMatch(q, x, qpn, pn, queryParam)
+                : literalMatch(x, qpn, pn, queryParam);
     }
 
-    private Expression<Boolean> literalMatch(Path<org.dcm4chee.arc.entity.PersonName> qpn,
+    private Predicate literalMatch(Predicate x, Path<org.dcm4chee.arc.entity.PersonName> qpn,
             PersonName pn, QueryParam param) {
-        Expression<Boolean> y = null;
         if (!pn.contains(PersonName.Group.Ideographic)
                 && !pn.contains(PersonName.Group.Phonetic)) {
-            y = or(y, match(
+            Predicate y = cb.disjunction();
+            y = cb.or(y, match(cb.conjunction(),
                     qpn.get(PersonName_.familyName),
                     qpn.get(PersonName_.givenName),
                     qpn.get(PersonName_.middleName),
                     pn, PersonName.Group.Alphabetic, true));
-            y = or(y, match(
+            y = cb.or(y, match(cb.conjunction(),
                     qpn.get(PersonName_.ideographicFamilyName),
                     qpn.get(PersonName_.ideographicGivenName),
                     qpn.get(PersonName_.ideographicMiddleName),
                     pn, PersonName.Group.Alphabetic, false));
-            y = or(y, match(
+            y = cb.or(y, match(cb.conjunction(),
                     qpn.get(PersonName_.phoneticFamilyName),
                     qpn.get(PersonName_.phoneticGivenName),
                     qpn.get(PersonName_.phoneticMiddleName),
                     pn, PersonName.Group.Alphabetic, false));
+            x = cb.and(x, y);
         } else {
-            y = and(y, match(
+            if (pn.contains(PersonName.Group.Alphabetic))
+                x = match(x,
                     qpn.get(PersonName_.familyName),
                     qpn.get(PersonName_.givenName),
                     qpn.get(PersonName_.middleName),
-                    pn, PersonName.Group.Alphabetic, true));
-            y = and(y, match(
+                    pn, PersonName.Group.Alphabetic, true);
+            if (pn.contains(PersonName.Group.Ideographic))
+                x = match(x,
                     qpn.get(PersonName_.ideographicFamilyName),
                     qpn.get(PersonName_.ideographicGivenName),
                     qpn.get(PersonName_.ideographicMiddleName),
-                    pn, PersonName.Group.Ideographic, false));
-            y = and(y, match(
+                    pn, PersonName.Group.Ideographic, false);
+            if (pn.contains(PersonName.Group.Phonetic))
+                x = match(x,
                     qpn.get(PersonName_.phoneticFamilyName),
                     qpn.get(PersonName_.phoneticGivenName),
                     qpn.get(PersonName_.phoneticMiddleName),
-                    pn, PersonName.Group.Phonetic, false));
+                    pn, PersonName.Group.Phonetic, false);
         }
-        return y;
+        return x;
     }
 
-    private Expression<Boolean> match(Path<String> familyName, Path<String> givenName, Path<String> middleName,
+    private Predicate match(Predicate x, Path<String> familyName, Path<String> givenName, Path<String> middleName,
             PersonName pn, PersonName.Group group, boolean ignoreCase) {
-        if (!pn.contains(group))
-            return null;
-
-        Expression<Boolean> x = null;
         x = wildCard(x, familyName, pn.get(group, PersonName.Component.FamilyName), ignoreCase);
         x = wildCard(x, givenName, pn.get(group, PersonName.Component.GivenName), ignoreCase);
         x = wildCard(x, middleName, pn.get(group, PersonName.Component.MiddleName), ignoreCase);
         return x;
     }
 
-    private <T> Expression<Boolean> fuzzyMatch(CriteriaQuery<T> q, Path<org.dcm4chee.arc.entity.PersonName> qpn,
+    private <T> Predicate fuzzyMatch(CriteriaQuery<T> q, Predicate x, Path<org.dcm4chee.arc.entity.PersonName> qpn,
             PersonName pn, QueryParam param) {
-        Expression<Boolean> x = null;
         x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.FamilyName, param);
         x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.GivenName, param);
         x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.MiddleName, param);
         return x;
     }
 
-    private <T> Expression<Boolean> fuzzyMatch(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate fuzzyMatch(CriteriaQuery<T> q, Predicate x,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName pn, PersonName.Component c, QueryParam param) {
         String name = StringUtils.maskNull(pn.get(c), "*");
         if (name.equals("*"))
@@ -999,7 +995,7 @@ public class QueryBuilder2 {
         return x;
     }
 
-    private <T> Expression<Boolean> fuzzyMatch(CriteriaQuery<T> q, Expression<Boolean> x,
+    private <T> Predicate fuzzyMatch(CriteriaQuery<T> q, Predicate x,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName.Component c, int partIndex, String name,
             QueryParam param) {
         boolean wc = name.endsWith("*");
@@ -1018,7 +1014,7 @@ public class QueryBuilder2 {
 
         Subquery<SoundexCode> sq = q.subquery(SoundexCode.class);
         Root<SoundexCode> soundexCode = sq.from(SoundexCode.class);
-        Expression<Boolean> y = cb.and(cb.equal(soundexCode.get(SoundexCode_.personName), qpn),
+        Predicate y = cb.and(cb.equal(soundexCode.get(SoundexCode_.personName), qpn),
                 wc ? cb.like(soundexCode.get(SoundexCode_.codeValue), fuzzyName + '%')
                    : cb.equal(soundexCode.get(SoundexCode_.codeValue), fuzzyName));
         if (!param.isPersonNameComponentOrderInsensitiveMatching()) {
@@ -1026,7 +1022,7 @@ public class QueryBuilder2 {
                     cb.equal(soundexCode.get(SoundexCode_.personNameComponent), c),
                     cb.equal(soundexCode.get(SoundexCode_.componentPartIndex), partIndex)));
         }
-        return and(x, cb.exists(sq.where(y)));
+        return cb.and(x, cb.exists(sq.where(y)));
     }
 
     private enum FormatDate {
@@ -1051,15 +1047,16 @@ public class QueryBuilder2 {
         abstract String format(Date date);
     }
 
-    private Expression<Boolean> dateRange(Expression<Boolean> x, Path<String> path, String s, FormatDate dt) {
+    private Predicate dateRange(Predicate x, Path<String> path, String s, FormatDate dt) {
         return dateRange(x, path, parseDateRange(s), dt);
     }
 
-    private Expression<Boolean> dateRange(Expression<Boolean> x, Path<String> path, DateRange range, FormatDate dt) {
-        return isUniversalMatching(range) ? x : and(x, cb.and(dateRange(path, range, dt), cb.notEqual(path, "*")));
+    private Predicate dateRange(Predicate x, Path<String> path, DateRange range, FormatDate dt) {
+        return isUniversalMatching(range) ? x
+                : cb.and(x, cb.and(dateRange(path, range, dt), cb.notEqual(path, "*")));
     }
 
-    private Expression<Boolean> dateRange(Path<String> path, DateRange range, FormatDate dt) {
+    private Predicate dateRange(Path<String> path, DateRange range, FormatDate dt) {
         String start = format(range.getStartDate(), dt);
         String end = format(range.getEndDate(), dt);
         return start == null ? cb.lessThanOrEqualTo(path, end)
@@ -1070,16 +1067,16 @@ public class QueryBuilder2 {
                 : cb.between(path, start, end);
     }
 
-    private Expression<Boolean> dateRange(Expression<Boolean> x, Path<Date> path, String s) {
+    private Predicate dateRange(Predicate x, Path<Date> path, String s) {
         DateRange range = parseDateRange(s);
         return dateRange(x, path, range);
     }
 
-    private Expression<Boolean> dateRange(Expression<Boolean> x, Path<Date> path, DateRange range) {
-        return isUniversalMatching(range) ? x : and(x, dateRange(path, range));
+    private Predicate dateRange(Predicate x, Path<Date> path, DateRange range) {
+        return isUniversalMatching(range) ? x : cb.and(x, dateRange(path, range));
     }
 
-    private Expression<Boolean> dateRange(Path<Date> path, DateRange range) {
+    private Predicate dateRange(Path<Date> path, DateRange range) {
         Date startDate = range.getStartDate();
         Date endDate = range.getEndDate();
         return startDate == null ? cb.lessThanOrEqualTo(path, endDate)
@@ -1092,12 +1089,12 @@ public class QueryBuilder2 {
         return date != null ? dt.format(date) : null;
     }
 
-    private Expression<Boolean> dateRange(Expression<Boolean> x, Path<String> datePath, Path<String> timePath,
+    private Predicate dateRange(Predicate x, Path<String> datePath, Path<String> timePath,
             int dateTag, int timeTag, long dateAndTimeTag, Attributes keys, boolean combinedDatetimeMatching) {
         DateRange dateRange = keys.getDateRange(dateTag, null);
         DateRange timeRange = keys.getDateRange(timeTag, null);
         if (combinedDatetimeMatching && !isUniversalMatching(dateRange) && !isUniversalMatching(timeRange)) {
-            x = and(x, cb.and(combinedRange(
+            x = cb.and(x, cb.and(combinedRange(
                     datePath, timePath, keys.getDateRange(dateAndTimeTag, null)), cb.notEqual(datePath, "*")));
         } else {
             x = dateRange(x, datePath, dateRange, FormatDate.DA);
@@ -1106,7 +1103,7 @@ public class QueryBuilder2 {
         return x;
     }
 
-    private Expression<Boolean> combinedRange(Path<String> datePath, Path<String> timePath, DateRange dateRange) {
+    private Predicate combinedRange(Path<String> datePath, Path<String> timePath, DateRange dateRange) {
         if (dateRange.getStartDate() == null)
             return combinedRangeEnd(datePath, timePath,
                     DateUtils.formatDA(null, dateRange.getEndDate()),
@@ -1119,7 +1116,7 @@ public class QueryBuilder2 {
                 dateRange.getStartDate(), dateRange.getEndDate());
     }
 
-    private Expression<Boolean> combinedRangeInterval(Path<String> datePath, Path<String> timePath,
+    private Predicate combinedRangeInterval(Path<String> datePath, Path<String> timePath,
             Date startDateRange, Date endDateRange) {
         String startTime = DateUtils.formatTM(null, startDateRange);
         String endTime = DateUtils.formatTM(null, endDateRange);
@@ -1135,7 +1132,7 @@ public class QueryBuilder2 {
                         combinedRangeEnd(datePath, timePath, endDate, endTime));
     }
 
-    private Expression<Boolean> combinedRangeEnd(Path<String> datePath, Path<String> timePath,
+    private Predicate combinedRangeEnd(Path<String> datePath, Path<String> timePath,
             String endDate, String endTime) {
         return cb.or(
                 cb.lessThan(datePath, endDate),
@@ -1146,7 +1143,7 @@ public class QueryBuilder2 {
                                 cb.equal(timePath, "*"))));
     }
 
-    private Expression<Boolean> combinedRangeStart(Path<String> datePath, Path<String> timePath,
+    private Predicate combinedRangeStart(Path<String> datePath, Path<String> timePath,
             String startDate, String startTime) {
         return cb.or(
                 cb.greaterThan(datePath, startDate),
