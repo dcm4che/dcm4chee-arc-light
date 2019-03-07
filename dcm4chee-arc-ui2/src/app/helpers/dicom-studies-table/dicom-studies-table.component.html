@@ -27,7 +27,7 @@
         </div>
 
         <!--Studies 2:-->
-        <div *ngIf="patient.showStudies">
+        <div *ngIf="patient.showStudies" class="study_main_block">
             <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let study of patient.studies;let i = index">
                 <div class="study_block table_item">
                     <div class="td" *ngFor="let studies_table of tableSchema.studies" [ngClass]="config?.cssTdClass" [ngStyle]="{width: studies_table.calculatedWidth}" [ngSwitch]="studies_table.type">
@@ -44,11 +44,11 @@
                     <attribute-list *ngIf="study.showAttributes" [attrs]="study.attrs"></attribute-list>
                 </div>
                 <!--Series 3:-->
-                <div *ngIf="study.showSeries">
+                <div *ngIf="study.showSeries" class="series_main_block">
                     <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let serie of study.series;let i = index">
                         <div class="series_block table_item">
                             <div class="td" *ngFor="let serie_table of tableSchema.series" [ngClass]="config?.cssTdClass" [ngStyle]="{width: serie_table.calculatedWidth}" [ngSwitch]="serie_table.type">
-                                <ng-container *ngSwitchCase="'index'">{{serie.offset + 1}}</ng-container>
+                                <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
                                     <a class="pointer"  (click)="$event.preventDefault();action.click(serie)" *ngFor="let action of serie_table.actions">
                                         <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>

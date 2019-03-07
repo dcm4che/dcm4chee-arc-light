@@ -1277,7 +1277,7 @@ export class Globalvar {
                     type:"index",
                     header:'',
                     pathToValue:'',
-                    widthWeight:0.1,
+                    widthWeight:0.2,
 
                     calculatedWidth:"6%"
                 },

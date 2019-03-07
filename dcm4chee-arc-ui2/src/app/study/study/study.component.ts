@@ -243,16 +243,6 @@ export class StudyComponent implements OnInit {
                 }else{
 
                     study.series = res.map((attrs, index) =>{
-/*                        return {
-                            study: study,
-                            offset: study.offset + index,
-                            moreInstances: false,
-                            attrs: attrs,
-                            instances: null,
-                            showAttributes: false,
-                            selected: false,
-                            showInstances:false
-                        };*/
                         return new SeriesDicom(study, attrs, study.offset + index);
                     });
                     if (study.moreSeries = (study.series.length > this._filter.filterModel.limit)) {
