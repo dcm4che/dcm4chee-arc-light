@@ -804,7 +804,7 @@ public class QueryBuilder2 {
         if (queryParam.isCompressionFailed())
             y = cb.and(y, cb.greaterThan(series.get(Series_.compressionFailures), 0));
         return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.where(cb.and(cb.equal(series.get(Series_.study), study), y))));
+                : cb.and(x, cb.exists(sq.select(series).where(cb.and(cb.equal(series.get(Series_.study), study), y))));
     }
 
 
@@ -827,7 +827,7 @@ public class QueryBuilder2 {
         Root<CodeEntity> code = sq.from(CodeEntity.class);
         Predicate y = code(cb.conjunction(), code, item);
         return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.where(cb.and(code.in(codes), y))));
+                : cb.and(x, cb.exists(sq.select(code).where(cb.and(code.in(codes), y))));
     }
 
     private <T> Predicate requestAttributes(CriteriaQuery<T> q, Predicate x,
@@ -871,7 +871,7 @@ public class QueryBuilder2 {
                 item.getString(Tag.ScheduledProcedureStepID, "*"),
                 false);
         return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.where(cb.and(request.in(requests), y))));
+                : cb.and(x, cb.exists(sq.select(request).where(cb.and(request.in(requests), y))));
     }
 
     private <T> Predicate verifyingObserver(CriteriaQuery<T> q, Predicate x,
@@ -887,7 +887,7 @@ public class QueryBuilder2 {
         y = dateRange(y, observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
         return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.where(cb.and(observer.in(observers), y))));
+                : cb.and(x, cb.exists(sq.select(observer).where(cb.and(observer.in(observers), y))));
     }
 
     private <T> Predicate contentItem(CriteriaQuery<T> q, Predicate x,
@@ -908,7 +908,7 @@ public class QueryBuilder2 {
         y = wildCard(y, contentItem.get(ContentItem_.textValue),
                 item.getString(Tag.TextValue, "*"), true);
         return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.where(cb.and(contentItem.in(contentItems), y))));
+                : cb.and(x, cb.exists(sq.select(contentItem).where(cb.and(contentItem.in(contentItems), y))));
     }
 
     private <T> Predicate personName(CriteriaQuery<T> q, Predicate x,
