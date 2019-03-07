@@ -78,6 +78,21 @@ export class StudyService {
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
+    getSeries(callingAet:Aet, studyInstanceUID:string, filters:any, responseType?:DicomResponseType, accessLocation?:AccessLocation, externalAet?:Aet, baseUrl?:string):Observable<any>{
+        let header;
+        if(!responseType || responseType === "object"){
+            header = {
+                headers:  new Headers({'Accept': 'application/dicom+json'})
+            };
+        }
+        let params = j4care.objToUrlParams(filters);
+        params = params ? `?${params}`:params;
+
+        return this.$http.get(
+            `${this.getDicomURL("study", callingAet, responseType ,accessLocation, externalAet,undefined, baseUrl)}/${studyInstanceUID}/series${params || ''}`,
+                header
+            ).map(res => j4care.redirectOnAuthResponse(res));
+    }
     getDicomURL(mode:DicomMode, callingAet:Aet, responseType?:DicomResponseType, accessLocation?:AccessLocation,  externalAet?:Aet, secondExternalAet?:Aet, baseUrl?:string):string{
 
         let url = this.rsURL(callingAet, accessLocation,  externalAet, baseUrl);

@@ -1,5 +1,5 @@
 <h3 *ngIf="title">{{title}}</h3>
-<div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass">
+<div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" *ngIf="patients && patients.length > 0">
     <!--Patient header 1:-->
     <div class="th patient" [ngClass]="config?.cssThClass">
         <div class="td"*ngFor="let patient_table of tableSchema.patient" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}">
@@ -11,33 +11,59 @@
 
     <!--Patient Table 1:-->
     <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let patient of patients;let i = index">
-        <div class="td" *ngFor="let patient_table of tableSchema.patient" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}" [ngSwitch]="patient_table.type">
-            <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
-            <ng-container *ngSwitchCase="'actions'">
-              <a (click)="$event.preventDefault();action.click(patient)" *ngFor="let action of patient_table.actions">
-                  <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                  <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-              </a>
-            </ng-container>
-            <ng-container *ngSwitchCase="'pipe'">{{patient_table.pipe | dynamicPipe}}</ng-container>
-            <ng-container *ngSwitchCase="'value'">{{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}</ng-container>
-        </div>
-        <attribute-list *ngIf="patient.showAttributes" [attrs]="patient.attrs"></attribute-list>
-
-        <!--Studies 2:-->
-        <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let study of patient.studies;let i = index">
-            <div class="td" *ngFor="let studies_table of tableSchema.studies" [ngClass]="config?.cssTdClass" [ngStyle]="{width: studies_table.calculatedWidth}" [ngSwitch]="studies_table.type">
+        <div class="patient_block table_item">
+            <div class="td" *ngFor="let patient_table of tableSchema.patient" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}" [ngSwitch]="patient_table.type">
                 <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
-                    <a (click)="$event.preventDefault();action.click(study)" *ngFor="let action of studies_table.actions">
-                        <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-                    </a>
+                  <a class="pointer" (click)="$event.preventDefault();action.click(patient)" *ngFor="let action of patient_table.actions">
+                      <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                      <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                  </a>
                 </ng-container>
-                <ng-container *ngSwitchCase="'pipe'">{{studies_table.pipe | dynamicPipe}}</ng-container>
-                <ng-container *ngSwitchCase="'value'">{{_.get(study.attrs,studies_table.pathToValue) || '&nbsp;'}}</ng-container>
+                <ng-container *ngSwitchCase="'pipe'">{{patient_table.pipe | dynamicPipe}}</ng-container>
+                <ng-container *ngSwitchCase="'value'">{{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}</ng-container>
             </div>
-            <attribute-list *ngIf="study.showAttributes" [attrs]="study.attrs"></attribute-list>
+            <attribute-list *ngIf="patient.showAttributes" [attrs]="patient.attrs"></attribute-list>
+        </div>
+
+        <!--Studies 2:-->
+        <div *ngIf="patient.showStudies">
+            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let study of patient.studies;let i = index">
+                <div class="study_block table_item">
+                    <div class="td" *ngFor="let studies_table of tableSchema.studies" [ngClass]="config?.cssTdClass" [ngStyle]="{width: studies_table.calculatedWidth}" [ngSwitch]="studies_table.type">
+                        <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
+                        <ng-container *ngSwitchCase="'actions'">
+                            <a class="pointer"  (click)="$event.preventDefault();action.click(study)" *ngFor="let action of studies_table.actions">
+                                <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                            </a>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">{{studies_table.pipe | dynamicPipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">{{_.get(study.attrs,studies_table.pathToValue) || '&nbsp;'}}</ng-container>
+                    </div>
+                    <attribute-list *ngIf="study.showAttributes" [attrs]="study.attrs"></attribute-list>
+                </div>
+                <!--Series 3:-->
+                <div *ngIf="study.showSeries">
+                    <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let serie of study.series;let i = index">
+                        <div class="series_block table_item">
+                            <div class="td" *ngFor="let serie_table of tableSchema.series" [ngClass]="config?.cssTdClass" [ngStyle]="{width: serie_table.calculatedWidth}" [ngSwitch]="serie_table.type">
+                                <ng-container *ngSwitchCase="'index'">{{serie.offset + 1}}</ng-container>
+                                <ng-container *ngSwitchCase="'actions'">
+                                    <a class="pointer"  (click)="$event.preventDefault();action.click(serie)" *ngFor="let action of serie_table.actions">
+                                        <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                        <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                    </a>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'pipe'">{{serie_table.pipe | dynamicPipe}}</ng-container>
+                                <ng-container *ngSwitchCase="'value'">{{_.get(serie.attrs,serie_table.pathToValue) || '&nbsp;'}}</ng-container>
+                            </div>
+                            <attribute-list *ngIf="serie.showAttributes" [attrs]="serie.attrs"></attribute-list>
+                        </div>
+                    </div>
+                </div>
+                <!--3:END;-->
+            </div>
         </div>
         <!--2:END;-->
 

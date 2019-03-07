@@ -9,6 +9,7 @@ export class StudyDicom {
     private _series:SeriesDicom[];
     private _showAttributes:boolean;
     private _fromAllStudies:boolean;
+    private _showSeries:boolean;
     private _selected:boolean;
 
     constructor(
@@ -19,16 +20,18 @@ export class StudyDicom {
         series?:SeriesDicom[],
         showAttributes?:boolean,
         fromAllStudies?:boolean,
-        selected?:boolean
+        selected?:boolean,
+        showSeries?:boolean,
     ){
-        this.attrs = attrs;
-        this.patient = patient;
-        this.offset = offset || 0;
-        this.moreSeries = moreSeries || false;
-        this.series = series || null;
-        this.showAttributes = showAttributes || false;
-        this.fromAllStudies = fromAllStudies || false;
-        this.selected = selected || false;
+        this._attrs = attrs;
+        this._patient = patient;
+        this._offset = offset || 0;
+        this._moreSeries = moreSeries || false;
+        this._series = series || null;
+        this._showAttributes = showAttributes || false;
+        this._fromAllStudies = fromAllStudies || false;
+        this._selected = selected || false;
+        this._showSeries = showSeries || false;
     }
 
 
@@ -86,6 +89,14 @@ export class StudyDicom {
 
     set fromAllStudies(value: boolean) {
         this._fromAllStudies = value;
+    }
+
+    get showSeries(): boolean {
+        return this._showSeries;
+    }
+
+    set showSeries(value: boolean) {
+        this._showSeries = value;
     }
 
     get selected(): boolean {

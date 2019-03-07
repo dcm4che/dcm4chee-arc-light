@@ -950,9 +950,56 @@ export class Globalvar {
         ]
     }
 
-    static PATIENT_STUDIES_TABLE_SCHEMA():DicomTableSchema{
+    static PATIENT_STUDIES_TABLE_SCHEMA($this, actions):DicomTableSchema{
         return {
             patient:[
+                {
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-down',
+                                text:'',
+                                showIf:(e)=>{
+                                    return e.showStudies
+                                }
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"patient",
+                                    action:"toggle_studies"
+                                },e);
+                                // e.showStudies = !e.showStudies;
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-right',
+                                text:'',
+                                showIf:(e)=>{
+                                    return !e.showStudies
+                                }
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                // e.showStudies = !e.showStudies;
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"patient",
+                                    action:"toggle_studies"
+                                },e);
+                                // actions.call(this, 'study_arrow',e);
+                            }
+                        }
+                    ],
+                    headerDescription:"Show studies",
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                },
                 {
                     type:"index",
                     header:'',
@@ -1037,11 +1084,52 @@ export class Globalvar {
             ],
             studies:[
                 {
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-down',
+                                text:'',
+                                showIf:(e)=>{
+                                    return e.showSeries
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"studies",
+                                    action:"toggle_series"
+                                },e);
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-right',
+                                text:'',
+                                showIf:(e)=>{
+                                    return !e.showSeries
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"studies",
+                                    action:"toggle_series"
+                                },e);
+                            }
+                        }
+                    ],
+                    headerDescription:"Show studies",
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                },
+                {
                     type:"index",
                     header:'',
                     pathToValue:'',
-                    widthWeight:0.2,
-                    calculatedWidth:"6%"
+                    widthWeight:0.2
                 },
                 {
                     type:"actions",
@@ -1074,7 +1162,7 @@ export class Globalvar {
                     header:"Study Instance UID",
                     pathToValue:"[0020000D].Value[0]",
                     headerDescription:"Study Instance UID",
-                    widthWeight:1.6,
+                    widthWeight:3,
                     calculatedWidth:"20%"
                 },
                 {
@@ -1096,7 +1184,7 @@ export class Globalvar {
                 {
                     type:"value",
                     header:"R. Physician's Name",
-                    pathToValue:"[00080090].Value[0]",
+                    pathToValue:"[00080090].Value[0].Alphabetic",
                     headerDescription:"Referring Physician's Name",
                     widthWeight:1,
                     calculatedWidth:"20%"
@@ -1143,6 +1231,48 @@ export class Globalvar {
                 }
             ],
             series:[
+                {
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-down',
+                                text:'',
+                                showIf:(e)=>{
+                                    return e.showInstances
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"series",
+                                    action:"toggle_instances"
+                                },e);
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-right',
+                                text:'',
+                                showIf:(e)=>{
+                                    return !e.showInstances
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"series",
+                                    action:"toggle_instances"
+                                },e);
+                            }
+                        }
+                    ],
+                    headerDescription:"Show Instances",
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                },
                 {
                     type:"index",
                     header:'',

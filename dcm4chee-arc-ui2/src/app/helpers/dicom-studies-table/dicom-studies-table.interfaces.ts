@@ -23,7 +23,8 @@ export interface TableSchemaElement {
 export interface Icon{
     tag:("span"|"i");
     cssClass:string;
-    text?:string
+    text?:string;
+    showIf?:Function
 }
 
 export interface TableAction{

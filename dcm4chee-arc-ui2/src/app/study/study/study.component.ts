@@ -17,6 +17,7 @@ import {StudyDicom} from "../../models/study-dicom";
 import * as _  from "lodash";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DicomTableSchema, TableSchemaConfig} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {SeriesDicom} from "../../models/series-dicom";
 
 
 @Component({
@@ -103,7 +104,7 @@ export class StudyComponent implements OnInit {
     };
 
     tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
-        tableSchema:Globalvar.PATIENT_STUDIES_TABLE_SCHEMA(),
+        tableSchema:Globalvar.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions),
         config:{
             offset:0
         }
@@ -143,6 +144,19 @@ export class StudyComponent implements OnInit {
 
     }
 
+    actions(id, model){
+        console.log("id",id);
+        console.log("model",model);
+        if(id.action === "toggle_series"){
+            if(!model.series){
+                //TODO get series to this study
+                this.getSeries(model);
+            }else{
+                model.showSeries = !model.showSeries;
+            }
+
+        }
+    }
     search(e){
         console.log("e",e);
         console.log("e", e);
@@ -172,7 +186,7 @@ export class StudyComponent implements OnInit {
                             patAttrs = {};
                             this.service.extractAttrs(studyAttrs, tags, patAttrs);
                             if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
-                                patient = new PatientDicom(patAttrs, []);
+                                patient = new PatientDicom(patAttrs, [], false, true);
                                 this.patients.push(patient);
                             }
                             study = new StudyDicom(studyAttrs, patient, this._filter.filterModel.offset + index);
@@ -191,7 +205,7 @@ export class StudyComponent implements OnInit {
                     this.cfpLoadingBar.complete();
                     console.log("this.patients", this.patients);
                 }, err => {
-                    j4care.log("Something went wrong on search", e);
+                    j4care.log("Something went wrong on search", err);
                     this.httpErrorHandler.handleError(err);
                     this.cfpLoadingBar.complete();
                 });
@@ -200,6 +214,69 @@ export class StudyComponent implements OnInit {
         }
     }
 
+    getSeries(study:StudyDicom){
+        console.log('in query sersies study=', study);
+        this.cfpLoadingBar.start();
+        if (study.offset < 0) study.offset = 0;
+        let callingAet = new Aet(this._filter.filterModel.aet);
+        let filters = _.clone(this._filter.filterModel);
+        if(filters.limit){
+            filters.limit++;
+        }
+        delete filters.aet;
+        filters["orderby"] = 'SeriesNumber';
+/*        this.service.getSeries(
+            this.rsURL(),
+            study.attrs['0020000D'].Value[0],
+            this.createQueryParams(offset, this.limit + 1, { orderby: 'SeriesNumber'})
+        )*/
+        this.service.getSeries(callingAet,study.attrs['0020000D'].Value[0], filters)
+            .subscribe((res)=>{
+            if (res){
+                if (res.length === 0){
+                    this.appService.setMessage( {
+                        'title': 'Info',
+                        'text': 'No matching series found!',
+                        'status': 'info'
+                    });
+                    console.log('in reslength 0');
+                }else{
+
+                    study.series = res.map((attrs, index) =>{
+/*                        return {
+                            study: study,
+                            offset: study.offset + index,
+                            moreInstances: false,
+                            attrs: attrs,
+                            instances: null,
+                            showAttributes: false,
+                            selected: false,
+                            showInstances:false
+                        };*/
+                        return new SeriesDicom(study, attrs, study.offset + index);
+                    });
+                    if (study.moreSeries = (study.series.length > this._filter.filterModel.limit)) {
+                        study.series.pop();
+                    }
+                    console.log("study",study);
+                    console.log("patients",this.patients);
+                    // StudiesService.trim(this);
+                }
+                study.showSeries = true;
+                this.cfpLoadingBar.complete();
+            }else{
+                this.appService.setMessage( {
+                    'title': 'Info',
+                    'text': 'No matching series found!',
+                    'status': 'info'
+                });
+            }
+        },(err)=>{
+                j4care.log("Something went wrong on search", err);
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+        });
+    }
     filterChanged(){
 
     }

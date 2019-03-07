@@ -5,10 +5,12 @@ export class PatientDicom {
     private _attrs:any[];
     private _studies:StudyDicom[];
     private _showAttributes:boolean;
-    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean){
+    private _showStudies:boolean;
+    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean, showStudies?:boolean){
         this._attrs = attrs;
         this._studies = studies;
-        this._showAttributes = showAttributes;
+        this._showAttributes = showAttributes || false;
+        this._showStudies = showStudies || false;
     }
 
 
@@ -34,5 +36,13 @@ export class PatientDicom {
 
     set showAttributes(value: boolean) {
         this._showAttributes = value;
+    }
+
+    get showStudies(): boolean {
+        return this._showStudies;
+    }
+
+    set showStudies(value: boolean) {
+        this._showStudies = value;
     }
 }
