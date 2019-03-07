@@ -69,18 +69,4 @@
     </attributes>
   </entity>
 
-  <embeddable class="org.dcm4che3.data.Issuer">
-    <attributes>
-      <basic name="localNamespaceEntityID" optional="true">
-        <column name="entity_id"/>
-      </basic>
-      <basic name="universalEntityID" optional="true">
-        <column name="entity_uid"/>
-      </basic>
-      <basic name="universalEntityIDType" optional="true">
-        <column name="entity_uid_type"/>
-      </basic>
-    </attributes>
-  </embeddable>
-
 </entity-mappings>

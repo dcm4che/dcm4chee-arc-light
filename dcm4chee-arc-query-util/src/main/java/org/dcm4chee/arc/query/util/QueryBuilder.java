@@ -613,13 +613,13 @@ public class QueryBuilder {
             String entityUIDType = issuer.getUniversalEntityIDType();
             if (!isUniversalMatching(entityID))
                 predicate = ExpressionUtils.and(predicate,
-                        ExpressionUtils.or(issuerPath.issuer.localNamespaceEntityID.isNull(),
-                            issuerPath.issuer.localNamespaceEntityID.eq(entityID)));
+                        ExpressionUtils.or(issuerPath.localNamespaceEntityID.isNull(),
+                            issuerPath.localNamespaceEntityID.eq(entityID)));
             if (!isUniversalMatching(entityUID))
                 predicate = ExpressionUtils.and(predicate,
-                        ExpressionUtils.or(issuerPath.issuer.universalEntityID.isNull(),
-                            ExpressionUtils.and(issuerPath.issuer.universalEntityID.eq(entityUID),
-                                    issuerPath.issuer.universalEntityIDType.eq(entityUIDType))));
+                        ExpressionUtils.or(issuerPath.universalEntityID.isNull(),
+                            ExpressionUtils.and(issuerPath.universalEntityID.eq(entityUID),
+                                    issuerPath.universalEntityIDType.eq(entityUIDType))));
         }
         return predicate;
     }

@@ -690,7 +690,7 @@ public class QueryBuilder2 {
     }
 
     private Expression<Boolean> idWithIssuer(Expression<Boolean> x, Expression<String> idPath,
-            Path<IssuerEntity> issuerEnityPath, String id, Issuer issuer) {
+            Path<IssuerEntity> issuerPath, String id, Issuer issuer) {
         Expression<Boolean> y = wildCard(x, idPath, id);
         if (x == y || issuer == null)
             return y;
@@ -698,14 +698,13 @@ public class QueryBuilder2 {
         String entityID = issuer.getLocalNamespaceEntityID();
         String entityUID = issuer.getUniversalEntityID();
         String entityUIDType = issuer.getUniversalEntityIDType();
-        Path<Issuer> issuerPath = issuerEnityPath.get(IssuerEntity_.issuer);
         if (!isUniversalMatching(entityID))
-            y = and(y, cb.or(issuerPath.get(Issuer_.localNamespaceEntityID).isNull(),
-                            cb.equal(issuerPath.get(Issuer_.localNamespaceEntityID), entityID)));
+            y = and(y, cb.or(issuerPath.get(IssuerEntity_.localNamespaceEntityID).isNull(),
+                            cb.equal(issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID)));
         if (!isUniversalMatching(entityUID))
-            y = and(y, cb.or(issuerPath.get(Issuer_.universalEntityID).isNull(),
-                            cb.and(cb.equal(issuerPath.get(Issuer_.universalEntityID), entityUID),
-                                    cb.equal(issuerPath.get(Issuer_.universalEntityIDType), entityUIDType))));
+            y = and(y, cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
+                            cb.and(cb.equal(issuerPath.get(IssuerEntity_.universalEntityID), entityUID),
+                                    cb.equal(issuerPath.get(IssuerEntity_.universalEntityIDType), entityUIDType))));
         return y;
     }
 

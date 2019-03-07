@@ -51,15 +51,15 @@ import javax.persistence.*;
 @NamedQueries({
 @NamedQuery(
     name=IssuerEntity.FIND_BY_ENTITY_ID,
-    query="select entity from IssuerEntity entity where entity.issuer.localNamespaceEntityID = ?1"),
+    query="select issuer from IssuerEntity issuer where issuer.localNamespaceEntityID = ?1"),
 @NamedQuery(
     name=IssuerEntity.FIND_BY_ENTITY_UID,
-    query="select entity from IssuerEntity entity " +
-            "where entity.issuer.universalEntityID = ?1 and entity.issuer.universalEntityIDType = ?2"),
+    query="select issuer from IssuerEntity issuer " +
+            "where issuer.universalEntityID = ?1 and issuer.universalEntityIDType = ?2"),
 @NamedQuery(
     name=IssuerEntity.FIND_BY_ENTITY_ID_OR_UID,
-    query="select entity from IssuerEntity entity where entity.issuer.localNamespaceEntityID = ?1 " +
-            "or (entity.issuer.universalEntityID = ?2 and entity.issuer.universalEntityIDType = ?3)")
+    query="select issuer from IssuerEntity issuer where issuer.localNamespaceEntityID = ?1 " +
+            "or (issuer.universalEntityID = ?2 and issuer.universalEntityIDType = ?3)")
 })
 @Entity
 @Table(name = "issuer", uniqueConstraints = {
@@ -77,13 +77,19 @@ public class IssuerEntity {
     @Column(name = "pk")
     private long pk;
 
-    @Embedded
-    private Issuer issuer;
+    @Column(name = "entity_id")
+    private String localNamespaceEntityID;
+
+    @Column(name = "entity_uid")
+    private String universalEntityID;
+
+    @Column(name = "entity_uid_type")
+    private String universalEntityIDType;
 
     protected IssuerEntity() {} // for JPA
 
     public IssuerEntity(Issuer issuer) {
-        this.issuer = issuer;
+        setIssuer(issuer);
     }
 
     public long getPk() {
@@ -91,22 +97,23 @@ public class IssuerEntity {
     }
 
     public Issuer getIssuer() {
-        return issuer;
+        return new Issuer(localNamespaceEntityID, universalEntityID, universalEntityIDType);
     }
 
     public void setIssuer(Issuer issuer) {
-        this.issuer = issuer;
+        this.localNamespaceEntityID = issuer.getLocalNamespaceEntityID();
+        this.universalEntityID = issuer.getUniversalEntityID();
+        this.universalEntityIDType = issuer.getUniversalEntityIDType();
     }
 
     @Override
     public String toString() {
-        return issuer.toString();
+        return getIssuer().toString();
     }
 
     public void merge(Issuer other) {
-        if (issuer != null)
-            issuer.matches(other);
-        else
-            issuer = other;
+        Issuer issuer = getIssuer();
+        issuer.merge(other);
+        setIssuer(issuer);
     }
 }
