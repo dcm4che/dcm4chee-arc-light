@@ -1022,7 +1022,7 @@ public class QueryBuilder2 {
                     cb.equal(soundexCode.get(SoundexCode_.personNameComponent), c),
                     cb.equal(soundexCode.get(SoundexCode_.componentPartIndex), partIndex)));
         }
-        return cb.and(x, cb.exists(sq.where(y)));
+        return cb.and(x, cb.exists(sq.select(soundexCode).where(y)));
     }
 
     private enum FormatDate {
