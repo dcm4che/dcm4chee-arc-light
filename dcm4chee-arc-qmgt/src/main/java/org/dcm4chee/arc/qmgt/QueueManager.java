@@ -43,10 +43,10 @@ package org.dcm4chee.arc.qmgt;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -92,16 +92,11 @@ public interface QueueManager {
 
     int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize);
 
-    long countTasks(Predicate matchQueueMessage);
-
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 
-    QueueMessageQuery listQueueMessages1(String queueName, String deviceName, QueueMessage.Status status, String batchID,
-                                         String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore,
-                                         String orderBy);
+    QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam);
 
-    long countTasks(String queueName, String deviceName, QueueMessage.Status status, String batchID,
-                    String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore);
+    QueueMessageQuery countTasks(TaskQueryParam taskQueryParam);
 
     List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

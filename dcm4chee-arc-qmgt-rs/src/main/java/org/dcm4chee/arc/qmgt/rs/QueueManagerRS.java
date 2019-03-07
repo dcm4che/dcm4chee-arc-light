@@ -52,6 +52,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -141,21 +142,10 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() {
         logRequest();
-        try {
-            try (QueueMessageQuery queueMessages = mgr.listQueueMessages1(
-                            queueName,
-                            deviceName,
-                            status(),
-                            batchID,
-                            jmsMessageID,
-                            createdTime,
-                            updatedTime,
-                            null,
-                            orderby)) {
+        try (QueueMessageQuery queueMessages = mgr.listQueueMessages(taskQueryParam())) {
                 queueMessages.beginTransaction();
                 queueMessages.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
                 return Response.ok(toEntity(queueMessages)).build();
-            }
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -165,24 +155,29 @@ public class QueueManagerRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 
+    private TaskQueryParam taskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setQueueName(queueName);
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setJmsMessageID(jmsMessageID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
+    }
+
     @GET
     @NoCache
     @Path("/count")
     @Produces("application/json")
     public Response countTasks() {
         logRequest();
-        try {
-            return count(mgr.countTasks(
-                    queueName,
-                    deviceName,
-                    status(),
-                    batchID,
-                    jmsMessageID,
-                    createdTime,
-                    updatedTime,
-                    null));
+        try (QueueMessageQuery query = mgr.countTasks(taskQueryParam())) {
+            return count(query.fetchCount());
         } catch (Exception e) {
-          return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(e);
         }
     }
 

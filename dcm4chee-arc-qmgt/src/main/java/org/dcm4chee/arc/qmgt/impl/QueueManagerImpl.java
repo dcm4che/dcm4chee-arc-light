@@ -45,6 +45,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,8 +209,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public long countTasks(Predicate matchQueueMessage) {
-        return ejb.countTasks(matchQueueMessage);
+    public QueueMessageQuery countTasks(TaskQueryParam taskQueryParam) {
+        return ejb.countTasks(taskQueryParam);
     }
 
     @Override
@@ -218,21 +219,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public QueueMessageQuery listQueueMessages1(
-            String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMsgID,
-            String createdTime, String updatedTime, Date updatedBefore, String orderBy) {
-        MatchTask matchTask = new MatchTask(em.getCriteriaBuilder());
-        return ejb.listQueueMessages(
-                matchTask.matchQueueMsg(
-                        null, queueName, deviceName, status, batchID, jmsMsgID, createdTime, updatedTime, updatedBefore),
-                matchTask.queueMsgOrder(orderBy));
-    }
-
-    @Override
-    public long countTasks(String queueName, String deviceName, QueueMessage.Status status, String batchID,
-                           String jmsMsgID, String createdTime, String updatedTime, Date updatedBefore) {
-        //MatchTask matchTask = new MatchTask(em.getCriteriaBuilder());
-        return ejb.countTasks(queueName, deviceName, status, batchID, jmsMsgID, createdTime, updatedTime, updatedBefore);
+    public QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam) {
+        return ejb.listQueueMessages(taskQueryParam);
     }
 
     @Override

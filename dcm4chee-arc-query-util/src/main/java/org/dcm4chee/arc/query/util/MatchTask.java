@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -96,26 +96,26 @@ public class MatchTask {
         return predicate;
     }
 
-    public Expression<Boolean> matchQueueMsg(Expression<Boolean> x,
-            String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
-            String createdTime, String updatedTime, Date updatedBefore) {
-        Path<QueueMessage> queueMsg = cb.createQuery().from(QueueMessage.class);
-        if (queueName != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.queueName), queueName));
-        if (deviceName != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.deviceName), deviceName));
-        if (batchID != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-        if (jmsMessageID != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.messageID), jmsMessageID));
+    public Expression<Boolean> matchQueueMsg(
+            Expression<Boolean> x, TaskQueryParam taskQueryParam, Path<QueueMessage> queueMsg) {
+        if (taskQueryParam.getQueueName() != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.queueName), taskQueryParam.getQueueName()));
+        QueueMessage.Status status = taskQueryParam.getStatus();
         if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
             x = and(x, cb.equal(queueMsg.get(QueueMessage_.status), status));
-        if (createdTime != null)
-            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.createdTime), createdTime));
-        if (updatedTime != null)
-            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.updatedTime), updatedTime));
-        if (updatedBefore != null)
-            x = and(x, cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), updatedBefore));
+
+        if (taskQueryParam.getDeviceName() != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getBatchID() != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.batchID), taskQueryParam.getBatchID()));
+        if (taskQueryParam.getJmsMessageID() != null)
+            x = and(x, cb.equal(queueMsg.get(QueueMessage_.messageID), taskQueryParam.getJmsMessageID()));
+        if (taskQueryParam.getCreatedTime() != null)
+            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.createdTime), taskQueryParam.getCreatedTime()));
+        if (taskQueryParam.getUpdatedTime() != null)
+            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.updatedTime), taskQueryParam.getUpdatedTime()));
+        if (taskQueryParam.getUpdatedBefore() != null)
+            x = and(x, cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), taskQueryParam.getUpdatedBefore()));
         return x;
     }
 
@@ -201,12 +201,29 @@ public class MatchTask {
         return predicate;
     }
 
-    public static OrderSpecifier<Date> queueMessageOrder(String orderby) {
-        return taskOrder(orderby, QQueueMessage.queueMessage.createdTime, QQueueMessage.queueMessage.updatedTime);
+    public Expression<Boolean> matchStgVerTask(
+            Expression<Boolean> x, TaskQueryParam taskQueryParam, Path<StorageVerificationTask> stgVerTask) {
+        if (taskQueryParam.getLocalAET() != null)
+            x = and(x, cb.equal(stgVerTask.get(StorageVerificationTask_.localAET), taskQueryParam.getLocalAET()));
+        if (taskQueryParam.getStudyIUID() != null)
+            x = and(x, cb.equal(stgVerTask.get(StorageVerificationTask_.studyInstanceUID), taskQueryParam.getStudyIUID()));
+        if (taskQueryParam.getCreatedTime() != null)
+            x = and(x, MatchDateTimeRange.range(
+                    cb, stgVerTask.get(StorageVerificationTask_.createdTime), taskQueryParam.getCreatedTime()));
+        if (taskQueryParam.getUpdatedTime() != null)
+            x = and(x, MatchDateTimeRange.range(
+                    cb, stgVerTask.get(StorageVerificationTask_.updatedTime), taskQueryParam.getUpdatedTime()));
+        return x;
     }
 
-    public Order queueMsgOrder(String orderBy) {
-        Path<QueueMessage> queueMsg = cb.createQuery().from(QueueMessage.class);
+    public Order stgVerTaskOrder(String orderby, Path<StorageVerificationTask> stgVerTask) {
+        return taskOrder1(orderby,
+                stgVerTask.get(StorageVerificationTask_.createdTime),
+                stgVerTask.get(StorageVerificationTask_.updatedTime),
+                cb);
+    }
+
+    public Order queueMessageOrder(String orderBy, Path<QueueMessage> queueMsg) {
         return taskOrder1(orderBy, queueMsg.get(QueueMessage_.createdTime), queueMsg.get(QueueMessage_.updatedTime), cb);
     }
 

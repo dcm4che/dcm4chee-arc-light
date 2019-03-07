@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -62,11 +62,11 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -348,26 +348,6 @@ public class StgCmtEJB {
                 .executeUpdate();
     }
 
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
-                                                        OrderSpecifier<Date> order, int offset, int limit) {
-        return new StgVerTaskQueryImpl(
-                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchStgVerTask, order, offset, limit);
-    }
-
-    private StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
-    }
-
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
-    }
-
-    public long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
-        return createQuery(matchQueueMessage, matchStgVerTask)
-                .fetchCount();
-    }
-
     private HibernateQuery<StorageVerificationTask> createQuery(Predicate matchQueueMessage, Predicate matchStgVerTask) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
@@ -553,5 +533,14 @@ public class StgCmtEJB {
                 .setParameter(2, verificationTime, TemporalType.TIMESTAMP)
                 .setParameter(3, nextVerificationTime, TemporalType.TIMESTAMP)
                 .executeUpdate();
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public StgVerTaskQuery listStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return new StgVerTaskQueryImpl(queueTaskQueryParam, stgVerTaskQueryParam, em);
+    }
+
+    public StgVerTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return new StgVerTaskQueryImpl(queueTaskQueryParam, stgVerTaskQueryParam, em);
     }
 }

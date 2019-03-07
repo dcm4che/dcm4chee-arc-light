@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -60,6 +60,7 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveFailures;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -185,17 +186,6 @@ public class StgCmtManagerImpl implements StgCmtManager {
     public boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
         return ejb.scheduleStgVerTask(storageVerificationTask, httpServletRequestInfo, batchID);
-    }
-
-    @Override
-    public StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
-                                                        OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listStgVerTasks(matchQueueMessage, matchStgVerTask, order, offset, limit);
-    }
-
-    @Override
-    public long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
-        return ejb.countStgVerTasks(matchQueueMessage, matchStgVerTask);
     }
 
     @Override
@@ -605,4 +595,13 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 : new CheckResult(Location.Status.DIFFERING_S3_MD5SUM);
     }
 
+    @Override
+    public StgVerTaskQuery listStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return ejb.listStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
+    }
+
+    @Override
+    public StgVerTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return ejb.countTasks(queueTaskQueryParam, stgVerTaskQueryParam);
+    }
 }

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,5 +49,14 @@ import java.io.Closeable;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2018
  */
-public interface StgVerTaskQuery extends Closeable, Iterable<StorageVerificationTask> {
+public interface StgVerTaskQuery extends Closeable {
+    void beginTransaction();
+
+    void executeQuery(int fetchSize, int offset, int limit);
+
+    boolean hasMoreMatches();
+
+    StorageVerificationTask nextMatch();
+
+    long fetchCount();
 }

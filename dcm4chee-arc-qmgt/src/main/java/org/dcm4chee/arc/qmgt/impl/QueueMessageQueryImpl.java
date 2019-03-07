@@ -43,6 +43,8 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueMessageQuery;
+import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.annotations.QueryHints;
 
 import javax.persistence.EntityManager;
@@ -61,21 +63,17 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
 
     private Stream<QueueMessage> resultStream;
     private Iterator<QueueMessage> results;
-    private int offset;
-    private int limit;
-    private int fetchSize;
-    private Expression<Boolean> matchQueueMessage;
-    private Order order;
 
+    protected final MatchTask matchTask;
+    protected final TaskQueryParam taskQueryParam;
     protected final EntityManager em;
     protected final CriteriaBuilder cb;
 
-    public QueueMessageQueryImpl(EntityManager em, Expression<Boolean> matchQueueMessage, Order order) {
-      //  this.session = session;
+    public QueueMessageQueryImpl(TaskQueryParam taskQueryParam, EntityManager em) {
         this.em = em;
         this.cb = em.getCriteriaBuilder();
-        this.matchQueueMessage = matchQueueMessage;
-        this.order = order;
+        this.matchTask = new MatchTask(cb);
+        this.taskQueryParam = taskQueryParam;
     }
 
     @Override
@@ -86,9 +84,6 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
 
     @Override
     public void executeQuery(int fetchSize, int offset, int limit) {
-        this.fetchSize = fetchSize;
-        this.offset = offset;
-        this.limit = limit;
         close(resultStream);
         TypedQuery<QueueMessage> query = em.createQuery(select())
                 .setHint(QueryHints.FETCH_SIZE, fetchSize);
@@ -100,17 +95,35 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
         results = resultStream.iterator();
     }
 
+    @Override
+    public long fetchCount() {
+        return em.createQuery(count()).getSingleResult();
+    }
+
+    private CriteriaQuery<Long> count() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        queueMsg = q.from(QueueMessage.class);
+        return createQuery(q, null, queueMsg, cb.count(queueMsg));
+    }
+
+    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
+                                                From<X, QueueMessage> queueMsg, Expression<Long> longExpression) {
+        q = q.select(longExpression);
+        Expression<Boolean> predicate = matchTask.matchQueueMsg(x, taskQueryParam, queueMsg);
+        if (predicate != null)
+            q = q.where(predicate);
+        return q;
+    }
 
     private CriteriaQuery<QueueMessage> select() {
         CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
-        this.queueMsg = q.from(QueueMessage.class);
+        queueMsg = q.from(QueueMessage.class);
         q = q.select(queueMsg);
-//        q.where(cb.equal(queueMsg.get(QueueMessage_.queueName), "Export4"));
-//        q.orderBy(cb.desc(queueMsg.get(QueueMessage_.updatedTime)));
-//        if (matchQueueMessage != null)
-//            q.where(matchQueueMessage);
-//        if (order != null)
-//            q.orderBy(order);
+        Expression<Boolean> predicate = matchTask.matchQueueMsg(null, taskQueryParam, queueMsg);
+        if (predicate != null)
+            q = q.where(predicate);
+        if (taskQueryParam.getOrderBy() != null)
+            q = q.orderBy(matchTask.queueMessageOrder(taskQueryParam.getOrderBy(), queueMsg));
         return q;
     }
 

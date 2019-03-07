@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,8 +41,6 @@
 
 package org.dcm4chee.arc.qmgt;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.entity.QueueMessage;
 
 import java.io.Closeable;
@@ -61,4 +59,5 @@ public interface QueueMessageQuery extends Closeable {
 
     QueueMessage nextMatch();
 
+    long fetchCount();
 }

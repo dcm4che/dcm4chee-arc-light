@@ -54,7 +54,7 @@ import org.dcm4chee.arc.qmgt.MessageCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.query.util.MatchDateTimeRange;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,6 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -84,8 +83,6 @@ import java.util.List;
 public class QueueManagerEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
-
-    private Root<QueueMessage> queueMsg;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -467,55 +464,6 @@ public class QueueManagerEJB {
         return count;
     }
 
-    public long countTasks(Predicate matchQueueMessage) {
-        return createQuery(matchQueueMessage).fetchCount();
-    }
-
-    public long countTasks(String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
-                           String createdTime, String updatedTime, Date updatedBefore) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        queueMsg = cq.from(QueueMessage.class);
-        Expression<Boolean> matchQueueMsg = matchQueueMsg(null, queueName, deviceName, status, batchID, jmsMessageID,
-                createdTime, updatedTime, updatedBefore);
-
-
-        CriteriaQuery<QueueMessage> query = cb.createQuery(QueueMessage.class);
-        Root<QueueMessage> root = query.from(QueueMessage.class);
-        CriteriaQuery<QueueMessage> select = query.select(root);
-
-        em.createQuery(select);
-        return em.createQuery(select.where(matchQueueMsg)).getResultList().size();
-    }
-
-    private Expression<Boolean> matchQueueMsg(Expression<Boolean> x,
-                                              String queueName, String deviceName, QueueMessage.Status status,
-                                              String batchID, String jmsMessageID,
-                                              String createdTime, String updatedTime, Date updatedBefore) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        if (queueName != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.queueName), queueName), cb);
-        if (deviceName != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.deviceName), deviceName), cb);
-        if (batchID != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.batchID), batchID), cb);
-        if (jmsMessageID != null)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.messageID), jmsMessageID), cb);
-        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
-            x = and(x, cb.equal(queueMsg.get(QueueMessage_.status), status), cb);
-        if (createdTime != null)
-            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.createdTime), createdTime), cb);
-        if (updatedTime != null)
-            x = and(x, MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.updatedTime), updatedTime), cb);
-        if (updatedBefore != null)
-            x = and(x, cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), updatedBefore), cb);
-        return x;
-    }
-
-    private Expression<Boolean> and(Expression<Boolean> x, Expression<Boolean> y, CriteriaBuilder cb) {
-        return y == null ? x : x == null ? y : cb.and(x, y);
-    }
-
     private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
@@ -564,8 +512,11 @@ public class QueueManagerEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public QueueMessageQuery listQueueMessages(Expression<Boolean> matchQueueMessage,
-                                               Order order) {
-        return new QueueMessageQueryImpl(em, matchQueueMessage, order);
+    public QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam) {
+        return new QueueMessageQueryImpl(taskQueryParam, em);
+    }
+
+    public QueueMessageQuery countTasks(TaskQueryParam taskQueryParam) {
+        return new QueueMessageQueryImpl(taskQueryParam, em);
     }
 }

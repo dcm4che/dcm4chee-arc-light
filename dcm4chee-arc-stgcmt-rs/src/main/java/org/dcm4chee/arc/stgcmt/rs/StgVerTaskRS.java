@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -52,6 +52,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
@@ -146,19 +147,38 @@ public class StgVerTaskRS {
     @NoCache
     public Response listStgVerTasks(@QueryParam("accept") String accept) {
         logRequest();
-        try {
-            Output output = selectMediaType(accept);
-            if (output == null)
-                return notAcceptable();
-
-            StgVerTaskQuery tasks = stgCmtMgr.listStgVerTasks(
-                    matchQueueMessage(status(), deviceName, null),
-                    matchStgVerTask(updatedTime),
-                    MatchTask.stgVerTaskOrder(orderby), parseInt(offset), parseInt(limit));
-            return Response.ok(output.entity(tasks), output.type).build();
+        Output output = selectMediaType(accept);
+        if (output == null)
+            return notAcceptable();
+        try (StgVerTaskQuery stgVerTasks = stgCmtMgr.listStgVerTasks(queueTaskQueryParam(), stgVerTaskQueryParam())) {
+                stgVerTasks.beginTransaction();
+                stgVerTasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
+                return Response.ok(output.entity(stgVerTasks), output.type).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setBatchID(batchID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam stgVerTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setStudyIUID(studyIUID);
+        return taskQueryParam;
     }
 
     @GET
@@ -167,10 +187,8 @@ public class StgVerTaskRS {
     @Produces("application/json")
     public Response countStgVerTasks() {
         logRequest();
-        try {
-            return count(stgCmtMgr.countStgVerTasks(
-                    matchQueueMessage(status(), deviceName, null),
-                    matchStgVerTask(updatedTime)));
+        try (StgVerTaskQuery query = stgCmtMgr.countTasks(queueTaskQueryParam(), stgVerTaskQueryParam())) {
+            return count(query.fetchCount());
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -361,14 +379,12 @@ public class StgVerTaskRS {
             @Override
             Object entity(final StgVerTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (StgVerTaskQuery t = tasks) {
-                        JsonGenerator gen = Json.createGenerator(out);
-                        gen.writeStartArray();
-                        for (StorageVerificationTask task : t)
-                            task.writeAsJSONTo(gen);
-                        gen.writeEnd();
-                        gen.flush();
-                    }
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    while (tasks.hasMoreMatches())
+                        tasks.nextMatch().writeAsJSONTo(gen);
+                    gen.writeEnd();
+                    gen.flush();
                 };
             }
         },
@@ -376,13 +392,11 @@ public class StgVerTaskRS {
             @Override
             Object entity(final StgVerTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (StgVerTaskQuery t = tasks) {
-                        Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        StorageVerificationTask.writeCSVHeader(writer, delimiter);
-                        for (StorageVerificationTask task : t)
-                            task.writeAsCSVTo(writer, delimiter);
-                        writer.flush();
-                    }
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                    StorageVerificationTask.writeCSVHeader(writer, delimiter);
+                    while (tasks.hasMoreMatches())
+                        tasks.nextMatch().writeAsCSVTo(writer, delimiter);
+                    writer.flush();
                 };
             }
         };

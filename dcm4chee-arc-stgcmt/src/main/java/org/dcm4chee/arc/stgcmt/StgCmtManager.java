@@ -45,7 +45,6 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
@@ -54,7 +53,7 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.store.UpdateLocation;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import java.io.IOException;
 import java.util.Date;
@@ -89,11 +88,6 @@ public interface StgCmtManager {
 
     Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;
 
-    StgVerTaskQuery listStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask,
-                                                 OrderSpecifier<Date> order, int offset, int limit);
-
-    long countStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask);
-
     boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
     long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
@@ -115,4 +109,8 @@ public interface StgCmtManager {
 
     List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
                                         OrderSpecifier<Date> order, int offset, int limit);
+
+    StgVerTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
+
+    StgVerTaskQuery listStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 }
