@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -65,8 +65,8 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,27 +302,6 @@ public class ExportManagerEJB implements ExportManager {
         return msg;
     }
 
-    @Override
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public ExportTaskQuery listExportTasks(
-            QueueMessage.Status status, String batchID, Predicate matchExportTask, OrderSpecifier<Date> order,
-            int offset, int limit) {
-        return new ExportTaskQueryImpl(status, batchID, openStatelessSession(), queryFetchSize(), matchExportTask,
-                order, offset, limit);
-    }
-
-    @Override
-    public long countExportTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask) {
-        HibernateQuery<ExportTask> exportTaskQuery = exportTaskQuery(matchExportTask);
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            exportTaskQuery.where(QExportTask.exportTask.queueMessage.isNull());
-        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
-            exportTaskQuery.where(QExportTask.exportTask.queueMessage.status.eq(status));
-        if (batchID != null)
-            exportTaskQuery.where(QExportTask.exportTask.queueMessage.batchID.eq(batchID));
-        return exportTaskQuery.fetchCount();
-    }
-
     private HibernateQuery<ExportTask> exportTaskQuery(Predicate matchExportTask) {
         return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                 .from(QExportTask.exportTask)
@@ -534,11 +513,12 @@ public class ExportManagerEJB implements ExportManager {
                 .where(QQueueMessage.queueMessage.batchID.eq(batchID));
     }
 
-    private StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public ExportTaskQuery listExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        return new ExportTaskQueryImpl(queueTaskQueryParam, exportTaskQueryParam, em);
     }
 
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    public ExportTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        return new ExportTaskQueryImpl(queueTaskQueryParam, exportTaskQueryParam, em);
     }
 }

@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -43,6 +43,7 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
 import java.util.Date;
@@ -55,18 +56,12 @@ import java.util.List;
  */
 public interface RetrieveManager {
     String QUEUE_NAME = "CMoveSCU";
-    String JNDI_NAME = "jms/queue/CMoveSCU";
 
     Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
 
     boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID, Date notRetrievedAfter,
                                  long delay)
             throws QueueSizeLimitExceededException;
-
-    RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
-                                        OrderSpecifier<Date> order, int offset, int limit);
-
-    long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
     boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 
@@ -89,4 +84,8 @@ public interface RetrieveManager {
                                             OrderSpecifier<Date> order, int offset, int limit);
 
     List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
+
+    RetrieveTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
+
+    RetrieveTaskQuery listRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
 }

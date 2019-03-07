@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -47,16 +47,14 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,9 +104,6 @@ public class DiffServiceEJB {
             QDiffTask.diffTask.different.sum(),
             QQueueMessage.queueMessage.batchID
     };
-
-    @Inject
-    private Device device;
 
     public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
         try {
@@ -161,13 +156,6 @@ public class DiffServiceEJB {
             diffTask.setMissing(diffSCU.missing());
             diffTask.setDifferent(diffSCU.different());
         }
-    }
-
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public DiffTaskQuery listDiffTasks(
-            Predicate matchQueueMessage, Predicate matchDiffTask, OrderSpecifier<Date> order, int offset, int limit) {
-        return new DiffTaskQueryImpl(
-                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchDiffTask, order, offset, limit);
     }
 
     public long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
@@ -408,11 +396,12 @@ public class DiffServiceEJB {
                 .where(QQueueMessage.queueMessage.batchID.eq(batchID));
     }
 
-    private StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public DiffTaskQuery listDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return new DiffTaskQueryImpl(queueTaskQueryParam, diffTaskQueryParam, em);
     }
 
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    public DiffTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return new DiffTaskQueryImpl(queueTaskQueryParam, diffTaskQueryParam, em);
     }
 }

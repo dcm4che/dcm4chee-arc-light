@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -54,6 +54,7 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -70,6 +71,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -150,17 +152,10 @@ public class ExportTaskRS {
         if (output == null)
             return notAcceptable();
 
-        try {
-            QueueMessage.Status status = status();
-            ExportTaskQuery tasks = mgr.listExportTasks(status, batchID,
-                    matchExportTask(deviceName, updatedTime),
-                    MatchTask.exportTaskOrder(orderby),
-                    parseInt(offset), parseInt(limit)
-            );
-            return Response.ok(
-                    output.entity(tasks, device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)),
-                    output.type)
-                    .build();
+        try (ExportTaskQuery exportTasks = mgr.listExportTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName))) {
+            exportTasks.beginTransaction();
+            exportTasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
+            return Response.ok(output.entity(exportTasks, arcDev()), output.type).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -176,8 +171,8 @@ public class ExportTaskRS {
         if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
             return count(0);
 
-        try {
-            return count(mgr.countExportTasks(status, batchID, matchExportTask(deviceName, updatedTime)));
+        try (ExportTaskQuery query = mgr.countTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName))) {
+            return count(query.fetchCount());
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -246,7 +241,7 @@ public class ExportTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            ArchiveDeviceExtension arcDev = arcDev();
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
             if (exporter == null)
                 return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
@@ -294,41 +289,42 @@ public class ExportTaskRS {
                 return rsClient.forward(request, devName, "");
 
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(newExporter, status)
-                    : rescheduleTasks(newExporter, status,
-                        matchExportTask(devName, updatedTime)));
+                    ? rescheduleOnDistinctDevices(newExporter)
+                    : rescheduleTasks(newExporter, exportTaskQueryParam(devName)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(ExporterDescriptor newExporter, QueueMessage.Status status) throws Exception {
+    private int rescheduleOnDistinctDevices(ExporterDescriptor newExporter) throws Exception {
         List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchExportTask(null, updatedTime));
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(newExporter, status,
-                        matchExportTask(devName, updatedTime))
+                    ? rescheduleTasks(newExporter, exportTaskQueryParam(devName))
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
         return count;
     }
 
     private int rescheduleTasks(
-            ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchExportTask)
+            ExporterDescriptor newExporter,
+            TaskQueryParam exportTaskQueryParam)
             throws Exception {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count = 0;
-            try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
-                    batchID, matchExportTask, null, 0, 0)) {
-                for (ExportTask task : exportTasks) {
-                    mgr.rescheduleExportTask(
-                            task,
-                            newExporter != null ? newExporter : exporter(task.getExporterID()),
-                            null);
-                    count++;
-                }
+              try (ExportTaskQuery exportTasks = mgr.listExportTasks(queueTaskQueryParam(), exportTaskQueryParam)) {
+                    exportTasks.beginTransaction();
+                    exportTasks.executeQuery(queryFetchSize(), 0, 0);
+                    while (exportTasks.hasMoreMatches()) {
+                        ExportTask task = exportTasks.nextMatch();
+                        mgr.rescheduleExportTask(
+                                task,
+                                newExporter != null ? newExporter : exporter(task.getExporterID()),
+                                null);
+                        count++;
+                    }
             }
             queueEvent.setCount(count);
             LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
@@ -436,14 +432,14 @@ public class ExportTaskRS {
             @Override
             Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
-                    try (ExportTaskQuery t = tasks) {
-                        JsonGenerator gen = Json.createGenerator(out);
-                        gen.writeStartArray();
-                        for (ExportTask task : t)
-                            task.writeAsJSONTo(gen, localAETitleOf(arcDev, task));
-                        gen.writeEnd();
-                        gen.flush();
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    while (tasks.hasMoreMatches()) {
+                        ExportTask task = tasks.nextMatch();
+                        task.writeAsJSONTo(gen, localAETitleOf(arcDev, task));
                     }
+                    gen.writeEnd();
+                    gen.flush();
                 };
             }
         },
@@ -451,13 +447,13 @@ public class ExportTaskRS {
             @Override
             Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
-                    try (ExportTaskQuery t = tasks) {
-                        Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        ExportTask.writeCSVHeader(writer, delimiter);
-                        for (ExportTask task : t)
-                            task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
-                        writer.flush();
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+                    ExportTask.writeCSVHeader(writer, delimiter);
+                    while (tasks.hasMoreMatches()) {
+                        ExportTask task = tasks.nextMatch();
+                        task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
                     }
+                    writer.flush();
                 };
             }
         };
@@ -514,7 +510,7 @@ public class ExportTaskRS {
     }
 
     private ExporterDescriptor exporter(String exporterID) {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(exporterID);
+        return arcDev().getExporterDescriptorNotNull(exporterID);
     }
 
     private void logRequest() {
@@ -536,6 +532,32 @@ public class ExportTaskRS {
     }
 
     private int queueTasksFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        return arcDev().getQueueTasksFetchSize();
+    }
+
+    private int queryFetchSize() {
+        return arcDev().getQueryFetchSize();
+    }
+
+    private ArchiveDeviceExtension arcDev() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setBatchID(batchID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam exportTaskQueryParam(String deviceName) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setExporterIDs(exporterIDs);
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setStudyIUID(studyUID);
+        return taskQueryParam;
     }
 }

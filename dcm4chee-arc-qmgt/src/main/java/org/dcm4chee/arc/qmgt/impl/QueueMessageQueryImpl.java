@@ -64,10 +64,10 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
     private Stream<QueueMessage> resultStream;
     private Iterator<QueueMessage> results;
 
-    protected final MatchTask matchTask;
-    protected final TaskQueryParam taskQueryParam;
-    protected final EntityManager em;
-    protected final CriteriaBuilder cb;
+    private final MatchTask matchTask;
+    private final TaskQueryParam taskQueryParam;
+    private final EntityManager em;
+    private final CriteriaBuilder cb;
 
     public QueueMessageQueryImpl(TaskQueryParam taskQueryParam, EntityManager em) {
         this.em = em;

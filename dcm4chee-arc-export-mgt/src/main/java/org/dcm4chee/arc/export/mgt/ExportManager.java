@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2017
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -47,9 +47,7 @@ import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
-import org.dcm4chee.arc.store.StoreContext;
-
-import javax.enterprise.event.Observes;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import java.util.Date;
 import java.util.List;
 
@@ -75,11 +73,6 @@ public interface ExportManager {
 
     boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID);
 
-    ExportTaskQuery listExportTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask,
-                                    OrderSpecifier<Date> order, int offset, int limit);
-
-    long countExportTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask);
-
     boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent);
 
     boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
@@ -99,4 +92,8 @@ public interface ExportManager {
 
     List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                         OrderSpecifier<Date> order, int offset, int limit);
+
+    ExportTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
+
+    ExportTaskQuery listExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
 }

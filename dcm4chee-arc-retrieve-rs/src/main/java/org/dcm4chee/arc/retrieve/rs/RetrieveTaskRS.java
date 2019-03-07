@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -52,6 +52,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.dcm4chee.arc.rs.client.RSClient;
@@ -70,6 +71,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -157,11 +159,9 @@ public class RetrieveTaskRS {
         if (output == null)
             return notAcceptable();
 
-        try {
-            RetrieveTaskQuery tasks = mgr.listRetrieveTasks(
-                    matchQueueMessage(status(), deviceName, null),
-                    matchRetrieveTask(updatedTime),
-                    MatchTask.retrieveTaskOrder(orderby), parseInt(offset), parseInt(limit));
+        try (RetrieveTaskQuery tasks = mgr.listRetrieveTasks(queueTaskQueryParam(), retrieveTaskQueryParam())) {
+            tasks.beginTransaction();
+            tasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
             return Response.ok(output.entity(tasks), output.type).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -174,10 +174,8 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response countRetrieveTasks() {
         logRequest();
-        try {
-            return count( mgr.countRetrieveTasks(
-                matchQueueMessage(status(), deviceName, null),
-                matchRetrieveTask(updatedTime)));
+        try (RetrieveTaskQuery query = mgr.countTasks(queueTaskQueryParam(), retrieveTaskQueryParam())) {
+            return count(query.fetchCount());
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -404,14 +402,12 @@ public class RetrieveTaskRS {
             @Override
             Object entity(final RetrieveTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (RetrieveTaskQuery t = tasks) {
-                        JsonGenerator gen = Json.createGenerator(out);
-                        gen.writeStartArray();
-                        for (RetrieveTask task : t)
-                            task.writeAsJSONTo(gen);
-                        gen.writeEnd();
-                        gen.flush();
-                    }
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    while (tasks.hasMoreMatches())
+                        tasks.nextMatch().writeAsJSONTo(gen);
+                    gen.writeEnd();
+                    gen.flush();
                 };
             }
         },
@@ -419,13 +415,11 @@ public class RetrieveTaskRS {
             @Override
             Object entity(final RetrieveTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (RetrieveTaskQuery t = tasks) {
-                        Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        RetrieveTask.writeCSVHeader(writer, delimiter);
-                        for (RetrieveTask task : t)
-                            task.writeAsCSVTo(writer, delimiter);
-                        writer.flush();
-                    }
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+                    RetrieveTask.writeCSVHeader(writer, delimiter);
+                    while (tasks.hasMoreMatches())
+                        tasks.nextMatch().writeAsCSVTo(writer, delimiter);
+                    writer.flush();
                 };
             }
         };
@@ -497,6 +491,34 @@ public class RetrieveTaskRS {
     }
 
     private int queueTasksFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        return arcDev().getQueueTasksFetchSize();
+    }
+
+    private int queryFetchSize() {
+        return arcDev().getQueryFetchSize();
+    }
+
+    private ArchiveDeviceExtension arcDev() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setBatchID(batchID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam retrieveTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setRemoteAET(remoteAET);
+        taskQueryParam.setDestinationAET(destinationAET);
+        taskQueryParam.setStudyIUID(studyIUID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
     }
 }

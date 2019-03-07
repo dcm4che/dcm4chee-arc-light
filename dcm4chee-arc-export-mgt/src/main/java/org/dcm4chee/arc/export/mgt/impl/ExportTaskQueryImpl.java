@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,72 +41,114 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
-import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.hibernate.annotations.QueryHints;
 
-import java.util.Date;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2018
  */
 class ExportTaskQueryImpl implements ExportTaskQuery {
-    private static final Logger LOG = LoggerFactory.getLogger(ExportTaskQueryImpl.class);
-    private final StatelessSession session;
-    private final HibernateQuery<ExportTask> query;
-    private Transaction transaction;
-    private CloseableIterator<ExportTask> iterate;
+    private Join<ExportTask, QueueMessage> queueMsg;
+    private Root<ExportTask> exportTask;
+    private Stream<ExportTask> resultStream;
+    private Iterator<ExportTask> results;
 
-    public ExportTaskQueryImpl(QueueMessage.Status status, String batchID, StatelessSession session, int fetchSize,
-                               Predicate matchExportTask, OrderSpecifier<Date> order, int offset, int limit) {
-        this.session = session;
-        query = new HibernateQuery<ExportTask>(session)
-                .from(QExportTask.exportTask)
-                .where(matchExportTask);
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            query.where(QExportTask.exportTask.queueMessage.isNull());
-        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
-            query.where(QExportTask.exportTask.queueMessage.status.eq(status));
-        if (batchID != null)
-            query.where(QExportTask.exportTask.queueMessage.batchID.eq(batchID));
-        if (status == null && batchID == null)
-            query.leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage);
-        if (limit > 0)
-            query.limit(limit);
+    private final MatchTask matchTask;
+    private final TaskQueryParam queueTaskQueryParam;
+    private final TaskQueryParam exportTaskQueryParam;
+    private final EntityManager em;
+    private final CriteriaBuilder cb;
+
+    public ExportTaskQueryImpl(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, EntityManager em) {
+        this.em = em;
+        this.cb = em.getCriteriaBuilder();
+        this.matchTask = new MatchTask(cb);
+        this.queueTaskQueryParam = queueTaskQueryParam;
+        this.exportTaskQueryParam = exportTaskQueryParam;
+    }
+
+    @Override
+    public void beginTransaction() {}
+
+    @Override
+    public void executeQuery(int fetchSize, int offset, int limit) {
+        close(resultStream);
+        TypedQuery<ExportTask> query = em.createQuery(select())
+                .setHint(QueryHints.FETCH_SIZE, fetchSize);
         if (offset > 0)
-            query.offset(offset);
-        if (order != null)
-            query.orderBy(order);
-        query.setFetchSize(fetchSize);
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        resultStream = query.getResultStream();
+        results = resultStream.iterator();
     }
 
     @Override
-    public void close() {
-        SafeClose.close(iterate);
-        if (transaction != null) {
-            try {
-                transaction.commit();
-            } catch (Exception e) {
-                LOG.warn("Failed to commit transaction:\n{}", e);
-            }
-        }
-        SafeClose.close(session);
+    public long fetchCount() {
+        return em.createQuery(count()).getSingleResult();
+    }
+
+    private CriteriaQuery<Long> count() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        exportTask = q.from(ExportTask.class);
+        return createQuery(q, null, exportTask, cb.count(exportTask));
+    }
+
+    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
+                                                From<X, ExportTask> exportTask, Expression<Long> longExpression) {
+        queueMsg = exportTask.join(ExportTask_.queueMessage);
+        q = q.select(longExpression);
+        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(x, queueTaskQueryParam, queueMsg);
+        Expression<Boolean> exportTaskPredicate = matchTask.matchExportTask(x, exportTaskQueryParam, exportTask);
+        if (queueMsgPredicate != null)
+            q = q.where(queueMsgPredicate);
+        if (exportTaskPredicate != null)
+            q = q.where(exportTaskPredicate);
+        return q;
+    }
+
+    private CriteriaQuery<ExportTask> select() {
+        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
+        exportTask = q.from(ExportTask.class);
+        queueMsg = exportTask.join(ExportTask_.queueMessage);
+        q = q.select(exportTask);
+        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(null, queueTaskQueryParam, queueMsg);
+        Expression<Boolean> exportTaskPredicate = matchTask.matchExportTask(null, exportTaskQueryParam, exportTask);
+        if (queueMsgPredicate != null)
+            q = q.where(queueMsgPredicate);
+        if (exportTaskPredicate != null)
+            q = q.where(exportTaskPredicate);
+        if (exportTaskQueryParam.getOrderBy() != null)
+            q = q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
+        return q;
+    }
+
+    private void close(Stream<ExportTask> resultStream) {
+        if (resultStream != null)
+            resultStream.close();
     }
 
     @Override
-    public Iterator<ExportTask> iterator() {
-        transaction = session.beginTransaction();
-        iterate = query.iterate();
-        return iterate;
+    public boolean hasMoreMatches() {
+        return results.hasNext();
     }
+
+    @Override
+    public ExportTask nextMatch() {
+        return results.next();
+    }
+
+    @Override
+    public void close() {}
 }

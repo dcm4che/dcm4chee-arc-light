@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -47,7 +47,17 @@ import java.io.Closeable;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2018
  */
-public interface RetrieveTaskQuery extends Closeable, Iterable<RetrieveTask> {
+public interface RetrieveTaskQuery extends Closeable {
+    void beginTransaction();
+
+    void executeQuery(int fetchSize, int offset, int limit);
+
+    boolean hasMoreMatches();
+
+    RetrieveTask nextMatch();
+
+    long fetchCount();
 }

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -48,6 +48,7 @@ import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import java.util.Date;
 import java.util.List;
@@ -59,18 +60,12 @@ import java.util.List;
  */
 public interface DiffService {
     String QUEUE_NAME = "DiffTasks";
-    String JNDI_NAME = "jms/queue/DiffTasks";
 
     DiffSCU createDiffSCU(DiffContext ctx);
 
     void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException;
 
     Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
-
-    DiffTaskQuery listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
-                                 OrderSpecifier<Date> order, int offset, int limit);
-
-    long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
 
     DiffTask getDiffTask(long taskPK);
 
@@ -101,4 +96,8 @@ public interface DiffService {
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask);
 
     List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
+
+    DiffTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
+
+    DiffTaskQuery listDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 }

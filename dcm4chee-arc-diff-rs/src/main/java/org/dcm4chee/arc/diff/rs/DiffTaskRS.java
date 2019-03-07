@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -57,6 +57,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -76,6 +77,7 @@ import java.io.*;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -169,14 +171,10 @@ public class DiffTaskRS {
         if (output == null)
             return notAcceptable();
 
-        try {
-            DiffTaskQuery diffTasks = diffService.listDiffTasks(
-                    matchQueueMessage(status(), deviceName, null),
-                    matchDiffTask(updatedTime),
-                    MatchTask.diffTaskOrder(orderby),
-                    parseInt(offset), parseInt(limit));
-
-            return Response.ok(output.entity(diffTasks), output.type).build();
+        try (DiffTaskQuery tasks = diffService.listDiffTasks(queueTaskQueryParam(), diffTaskQueryParam())) {
+            tasks.beginTransaction();
+            tasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
+            return Response.ok(output.entity(tasks), output.type).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -188,10 +186,8 @@ public class DiffTaskRS {
     @Produces("application/json")
     public Response countDiffTasks() {
         logRequest();
-        try {
-            return count(diffService.countDiffTasks(
-                    matchQueueMessage(status(), deviceName, null),
-                    matchDiffTask(updatedTime)));
+        try (DiffTaskQuery query = diffService.countTasks(queueTaskQueryParam(), diffTaskQueryParam())) {
+            return count(query.fetchCount());
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -405,14 +401,12 @@ public class DiffTaskRS {
             @Override
             Object entity(final DiffTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (DiffTaskQuery  t = tasks) {
-                        JsonGenerator gen = Json.createGenerator(out);
-                        gen.writeStartArray();
-                        for (DiffTask task : t)
-                            task.writeAsJSONTo(gen);
-                        gen.writeEnd();
-                        gen.flush();
-                    }
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    while (tasks.hasMoreMatches())
+                        tasks.nextMatch().writeAsJSONTo(gen);
+                    gen.writeEnd();
+                    gen.flush();
                 };
             }
         },
@@ -420,13 +414,11 @@ public class DiffTaskRS {
             @Override
             Object entity(final DiffTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    try (DiffTaskQuery  t = tasks) {
-                        Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        DiffTask.writeCSVHeader(writer, delimiter);
-                        for (DiffTask task : t)
-                            task.writeAsCSVTo(writer, delimiter);
-                        writer.flush();
-                    }
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+                    DiffTask.writeCSVHeader(writer, delimiter);
+                    while (tasks.hasMoreMatches())
+                        tasks.nextMatch().writeAsCSVTo(writer, delimiter);
+                    writer.flush();
                 };
             }
         };
@@ -547,7 +539,35 @@ public class DiffTaskRS {
     }
 
     private int queueTasksFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        return arcDev().getQueueTasksFetchSize();
+    }
+
+    private int queryFetchSize() {
+        return arcDev().getQueryFetchSize();
+    }
+
+    private ArchiveDeviceExtension arcDev() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setBatchID(batchID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam diffTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setPrimaryAET(primaryAET);
+        taskQueryParam.setSecondaryAET(secondaryAET);
+        taskQueryParam.setCompareFields(comparefields);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
     }
 
 }

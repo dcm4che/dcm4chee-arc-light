@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -56,6 +56,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -132,17 +133,6 @@ public class DiffServiceImpl implements DiffService {
         DiffSCU diffSCU = diffSCUMap.get(event.getMessageID());
         if (diffSCU != null)
             diffSCU.cancel();
-    }
-
-    @Override
-    public DiffTaskQuery listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
-                                       OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listDiffTasks(matchQueueMessage, matchDiffTask, order, offset, limit);
-    }
-
-    @Override
-    public long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        return ejb.countDiffTasks(matchQueueMessage, matchDiffTask);
     }
 
     private Outcome toOutcome(DiffSCU diffSCU) {
@@ -242,5 +232,15 @@ public class DiffServiceImpl implements DiffService {
                 .setSecondaryAE(aeCache.get(diffTask.getSecondaryAET()))
                 .setQueryString(diffTask.getQueryString())
                 .setHttpServletRequestInfo(httpServletRequestInfo);
+    }
+
+    @Override
+    public DiffTaskQuery listDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return ejb.listDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
+    }
+
+    @Override
+    public DiffTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return ejb.countTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 }

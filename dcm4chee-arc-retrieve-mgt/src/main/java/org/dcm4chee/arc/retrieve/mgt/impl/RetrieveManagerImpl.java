@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -50,6 +50,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -151,17 +152,6 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
-                                               OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listRetrieveTasks(matchQueueMessage, matchRetrieveTask, order, offset, limit);
-    }
-
-    @Override
-    public long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        return ejb.countRetrieveTasks(matchQueueMessage, matchRetrieveTask);
-    }
-
-    @Override
     public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
         return ejb.deleteRetrieveTask(pk, queueEvent);
     }
@@ -211,5 +201,15 @@ public class RetrieveManagerImpl implements RetrieveManager {
     @Override
     public List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
         return ejb.listRetrieveTaskQueueMsgIDs(matchQueueMessage, matchRetrieveTask, limit);
+    }
+
+    @Override
+    public RetrieveTaskQuery listRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return ejb.listRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
+    }
+
+    @Override
+    public RetrieveTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return ejb.countTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 }

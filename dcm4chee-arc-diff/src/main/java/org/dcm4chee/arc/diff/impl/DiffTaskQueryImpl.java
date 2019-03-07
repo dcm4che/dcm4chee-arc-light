@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,73 +41,114 @@
 
 package org.dcm4chee.arc.diff.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.diff.DiffTaskQuery;
 import org.dcm4chee.arc.entity.*;
-import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.hibernate.annotations.QueryHints;
 
-import java.util.Date;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2018
  */
 class DiffTaskQueryImpl implements DiffTaskQuery {
-    private static final Logger LOG = LoggerFactory.getLogger(DiffTaskQueryImpl.class);
-    private final StatelessSession session;
-    private final HibernateQuery<DiffTask> query;
-    private Transaction transaction;
-    private CloseableIterator<DiffTask> iterate;
+    private Join<DiffTask, QueueMessage> queueMsg;
+    private Root<DiffTask> diffTask;
+    private Stream<DiffTask> resultStream;
+    private Iterator<DiffTask> results;
 
-    public DiffTaskQueryImpl(StatelessSession session, int fetchSize,
-                             Predicate matchQueueMessage,
-                             Predicate matchDiffTask,
-                             OrderSpecifier<Date> order,
-                             int offset, int limit) {
-        this.session = session;
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(session)
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
+    private final MatchTask matchTask;
+    private final TaskQueryParam queueTaskQueryParam;
+    private final TaskQueryParam diffTaskQueryParam;
+    private final EntityManager em;
+    private final CriteriaBuilder cb;
 
-        query = new HibernateQuery<DiffTask>(session)
-                .from(QDiffTask.diffTask)
-                .leftJoin(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchDiffTask, QDiffTask.diffTask.queueMessage.in(queueMsgQuery));
-        if (limit > 0)
-            query.limit(limit);
+    public DiffTaskQueryImpl(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, EntityManager em) {
+        this.em = em;
+        this.cb = em.getCriteriaBuilder();
+        this.matchTask = new MatchTask(cb);
+        this.queueTaskQueryParam = queueTaskQueryParam;
+        this.diffTaskQueryParam = diffTaskQueryParam;
+    }
+
+    @Override
+    public void beginTransaction() {}
+
+    @Override
+    public void executeQuery(int fetchSize, int offset, int limit) {
+        close(resultStream);
+        TypedQuery<DiffTask> query = em.createQuery(select())
+                .setHint(QueryHints.FETCH_SIZE, fetchSize);
         if (offset > 0)
-            query.offset(offset);
-        if (order != null)
-            query.orderBy(order);
-        query.setFetchSize(fetchSize);
-    }
-
-
-    @Override
-    public void close() {
-        SafeClose.close(iterate);
-        if (transaction != null) {
-            try {
-                transaction.commit();
-            } catch (Exception e) {
-                LOG.warn("Failed to commit transaction:\n{}", e);
-            }
-        }
-        SafeClose.close(session);
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        resultStream = query.getResultStream();
+        results = resultStream.iterator();
     }
 
     @Override
-    public Iterator<DiffTask> iterator() {
-        transaction = session.beginTransaction();
-        iterate = query.iterate();
-        return iterate;
+    public long fetchCount() {
+        return em.createQuery(count()).getSingleResult();
     }
+
+    private CriteriaQuery<Long> count() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        diffTask = q.from(DiffTask.class);
+        return createQuery(q, null, diffTask, cb.count(diffTask));
+    }
+
+    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
+                                                From<X, DiffTask> diffTask, Expression<Long> longExpression) {
+        queueMsg = diffTask.join(DiffTask_.queueMessage);
+        q = q.select(longExpression);
+        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(x, queueTaskQueryParam, queueMsg);
+        Expression<Boolean> diffTaskPredicate = matchTask.matchDiffTask(x, diffTaskQueryParam, diffTask);
+        if (queueMsgPredicate != null)
+            q = q.where(queueMsgPredicate);
+        if (diffTaskPredicate != null)
+            q = q.where(diffTaskPredicate);
+        return q;
+    }
+
+    private CriteriaQuery<DiffTask> select() {
+        CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage);
+        q = q.select(diffTask);
+        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(null, queueTaskQueryParam, queueMsg);
+        Expression<Boolean> diffTaskPredicate = matchTask.matchDiffTask(null, diffTaskQueryParam, diffTask);
+        if (queueMsgPredicate != null)
+            q = q.where(queueMsgPredicate);
+        if (diffTaskPredicate != null)
+            q = q.where(diffTaskPredicate);
+        if (diffTaskQueryParam.getOrderBy() != null)
+            q = q.orderBy(matchTask.diffTaskOrder(diffTaskQueryParam.getOrderBy(), diffTask));
+        return q;
+    }
+
+    private void close(Stream<DiffTask> resultStream) {
+        if (resultStream != null)
+            resultStream.close();
+    }
+
+    @Override
+    public boolean hasMoreMatches() {
+        return results.hasNext();
+    }
+
+    @Override
+    public DiffTask nextMatch() {
+        return results.next();
+    }
+
+    @Override
+    public void close() {}
 }

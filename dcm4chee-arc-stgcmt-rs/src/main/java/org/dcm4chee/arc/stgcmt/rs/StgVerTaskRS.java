@@ -71,6 +71,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -392,7 +393,7 @@ public class StgVerTaskRS {
             @Override
             Object entity(final StgVerTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     StorageVerificationTask.writeCSVHeader(writer, delimiter);
                     while (tasks.hasMoreMatches())
                         tasks.nextMatch().writeAsCSVTo(writer, delimiter);

@@ -63,11 +63,11 @@ class StgVerTaskQueryImpl implements StgVerTaskQuery {
     private Stream<StorageVerificationTask> resultStream;
     private Iterator<StorageVerificationTask> results;
 
-    protected final MatchTask matchTask;
-    protected final TaskQueryParam queueTaskQueryParam;
-    protected final TaskQueryParam stgVerTaskQueryParam;
-    protected final EntityManager em;
-    protected final CriteriaBuilder cb;
+    private final MatchTask matchTask;
+    private final TaskQueryParam queueTaskQueryParam;
+    private final TaskQueryParam stgVerTaskQueryParam;
+    private final EntityManager em;
+    private final CriteriaBuilder cb;
 
     public StgVerTaskQueryImpl(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, EntityManager em) {
         this.em = em;
@@ -106,6 +106,7 @@ class StgVerTaskQueryImpl implements StgVerTaskQuery {
 
     private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
                                                 From<X, StorageVerificationTask> stgVerTask, Expression<Long> longExpression) {
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
         q = q.select(longExpression);
         Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(x, queueTaskQueryParam, queueMsg);
         Expression<Boolean> stgVerPredicate = matchTask.matchStgVerTask(x, stgVerTaskQueryParam, stgVerTask);

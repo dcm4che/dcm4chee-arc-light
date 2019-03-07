@@ -42,7 +42,9 @@ package org.dcm4chee.arc.query.util;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -60,7 +62,15 @@ public class TaskQueryParam {
     private Date updatedBefore;
     private String orderBy;
     private String localAET;
+    private String remoteAET;
+    private String destinationAET;
+    private String primaryAET;
+    private String secondaryAET;
     private String studyIUID;
+    private String checkMissing;
+    private String checkDifferent;
+    private String compareFields;
+    private List<String> exporterIDs = new ArrayList<>();
 
     public String getQueueName() {
         return queueName;
@@ -148,5 +158,69 @@ public class TaskQueryParam {
 
     public void setStudyIUID(String studyIUID) {
         this.studyIUID = studyIUID;
+    }
+
+    public List<String> getExporterIDs() {
+        return exporterIDs;
+    }
+
+    public void setExporterIDs(List<String> exporterIDs) {
+        this.exporterIDs = exporterIDs;
+    }
+
+    public String getRemoteAET() {
+        return remoteAET;
+    }
+
+    public void setRemoteAET(String remoteAET) {
+        this.remoteAET = remoteAET;
+    }
+
+    public String getDestinationAET() {
+        return destinationAET;
+    }
+
+    public void setDestinationAET(String destinationAET) {
+        this.destinationAET = destinationAET;
+    }
+
+    public String getPrimaryAET() {
+        return primaryAET;
+    }
+
+    public void setPrimaryAET(String primaryAET) {
+        this.primaryAET = primaryAET;
+    }
+
+    public String getSecondaryAET() {
+        return secondaryAET;
+    }
+
+    public void setSecondaryAET(String secondaryAET) {
+        this.secondaryAET = secondaryAET;
+    }
+
+    public String getCompareFields() {
+        return compareFields;
+    }
+
+    public void setCompareFields(String compareFields) {
+        this.compareFields = compareFields;
+    }
+
+    public String getCheckMissing() {
+        return checkMissing;
+    }
+
+    public void setCheckMissing(String checkMissing) {
+        this.checkMissing = checkMissing;
+    }
+
+    public String getCheckDifferent() {
+        return checkDifferent;
+    }
+
+    public void setCheckDifferent(String checkDifferent) {
+        this.checkDifferent = checkDifferent;
     }
 }

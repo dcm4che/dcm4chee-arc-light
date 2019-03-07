@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -48,19 +48,18 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,9 +91,6 @@ public class RetrieveManagerEJB {
 
     @Inject
     private QueueManager queueManager;
-
-    @Inject
-    private Device device;
 
     private static final Expression<?>[] SELECT = {
             QQueueMessage.queueMessage.processingStartTime.min(),
@@ -204,11 +200,6 @@ public class RetrieveManagerEJB {
                 .setParameter(6, -1)
                 .setParameter(7, null)
                 .executeUpdate();
-    }
-
-    public long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        return createQuery(matchQueueMessage, matchRetrieveTask)
-                .fetchCount();
     }
 
     private HibernateQuery<RetrieveTask> createQuery(
@@ -398,17 +389,11 @@ public class RetrieveManagerEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
-                                               OrderSpecifier<Date> order, int offset, int limit) {
-        return new RetrieveTaskQueryImpl(
-                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchRetrieveTask, order, offset, limit);
+    public RetrieveTaskQuery listRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return new RetrieveTaskQueryImpl(queueTaskQueryParam, retrieveTaskQueryParam, em);
     }
 
-    private StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
-    }
-
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    public RetrieveTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return new RetrieveTaskQueryImpl(queueTaskQueryParam, retrieveTaskQueryParam, em);
     }
 }
