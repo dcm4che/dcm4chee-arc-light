@@ -127,8 +127,7 @@ class InstanceQuery extends AbstractQuery {
         QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoins(patient,
                 context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.isOrderByPatientName());
+                context.getQueryKeys());
         return order(restrict(q, patient, study, series, instance)).multiselect(
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),

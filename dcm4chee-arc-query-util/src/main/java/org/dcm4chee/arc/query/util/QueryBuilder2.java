@@ -70,21 +70,21 @@ public class QueryBuilder2 {
         this.cb = Objects.requireNonNull(cb);
     }
 
-    public List<Order> orderPatients(Path<Patient> patient, List<OrderByTag> orderByTags) {
+    public <Z> List<Order> orderPatients(From<Z, Patient> patient, List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderPatients(patient, orderByTag, result);
         return result;
     }
 
-    public List<Order> orderStudies(Path<Patient> patient, Path<Study> study, List<OrderByTag> orderByTags) {
+    public <Z> List<Order> orderStudies(From<Z, Patient> patient, Path<Study> study, List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderStudies(patient, study, orderByTag, result);
         return result;
     }
 
-    public List<Order> orderSeries(Path<Patient> patient, Path<Study> study, Path<Series> series,
+    public <Z> List<Order> orderSeries(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
             List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
@@ -92,7 +92,7 @@ public class QueryBuilder2 {
         return result;
     }
 
-    public List<Order> orderInstances(Path<Patient> patient, Path<Study> study, Path<Series> series,
+    public <Z> List<Order> orderInstances(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
             Path<Instance> instance, List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
@@ -100,17 +100,17 @@ public class QueryBuilder2 {
         return result;
     }
 
-    public List<Order> orderMWLItems(Path<Patient> patient, Path<MWLItem> mwlItem, List<OrderByTag> orderByTags) {
+    public <Z> List<Order> orderMWLItems(From<Z, Patient> patient, Path<MWLItem> mwlItem, List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderMWLItems(patient, mwlItem, orderByTag, result);
         return result;
     }
 
-    private boolean orderPatients(Path<Patient> patient, OrderByTag orderByTag, List<Order> result) {
+    private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
-                return orderPersonName(patient.get(Patient_.patientName), orderByTag, result);
+                return orderPersonName(joinPersonName(patient), orderByTag, result);
             case Tag.PatientSex:
                 return result.add(orderByTag.order(cb, patient.get(Patient_.patientSex)));
             case Tag.PatientBirthDate:
@@ -119,7 +119,13 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private boolean orderStudies(Path<Patient> patient, Path<Study> study,
+    private <Z> Path<org.dcm4chee.arc.entity.PersonName> joinPersonName(From<Z, Patient> patient) {
+        return patient.getJoins().stream().noneMatch(j -> j.getAttribute().equals(Patient_.patientName))
+                ? patient.join(Patient_.patientName, JoinType.LEFT)
+                : patient.get(Patient_.patientName);
+    }
+
+    private <Z> boolean orderStudies(From<Z, Patient> patient, Path<Study> study,
             OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
@@ -143,7 +149,7 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private boolean orderSeries(Path<Patient> patient, Path<Study> study, Path<Series> series,
+    private <Z> boolean orderSeries(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
             OrderByTag orderByTag, List<Order> result) {
         if (study != null && orderStudies(patient, study, orderByTag, result))
             return true;
@@ -177,7 +183,7 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private boolean orderInstances(Path<Patient> patient, Path<Study> study, Path<Series> series,
+    private <Z> boolean orderInstances(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
             Path<Instance> instance, OrderByTag orderByTag, List<Order> result) {
         if (series != null && orderSeries(patient, study, series, orderByTag, result))
             return true;
@@ -201,7 +207,7 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private boolean orderMWLItems(Path<Patient> patient, Path<MWLItem> mwlItem,
+    private <Z> boolean orderMWLItems(From<Z, Patient> patient, Path<MWLItem> mwlItem,
             OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
@@ -235,13 +241,10 @@ public class QueryBuilder2 {
         return true;
     }
 
-    public static <X> void applyPatientLevelJoins(From<X, Patient> patient, IDWithIssuer[] pids, Attributes keys,
-            boolean orderByPatientName) {
+    public static <X> void applyPatientLevelJoins(From<X, Patient> patient, IDWithIssuer[] pids, Attributes keys) {
         applyPatientIDJoins(patient, pids);
         if (!isUniversalMatching(keys.getString(Tag.PatientName)))
             patient.join(Patient_.patientName);
-        else if (orderByPatientName)
-            patient.join(Patient_.patientName, JoinType.LEFT);
         if (!isUniversalMatching(keys.getString(Tag.ResponsiblePerson)))
             patient.join(Patient_.responsiblePerson);
     }

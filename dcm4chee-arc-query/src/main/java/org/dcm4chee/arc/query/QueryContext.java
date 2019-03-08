@@ -104,8 +104,6 @@ public interface QueryContext {
 
     boolean containsUniqueKey();
 
-    boolean isOrderByPatientName();
-
     List<OrderByTag> getOrderByTags();
 
     void setOrderByTags(List<OrderByTag> orderByTags);

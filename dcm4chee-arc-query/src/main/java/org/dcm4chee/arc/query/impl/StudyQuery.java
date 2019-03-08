@@ -85,8 +85,7 @@ class StudyQuery extends AbstractQuery {
         QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoins(patient,
                 context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.isOrderByPatientName());
+                context.getQueryKeys());
         return order(restrict(q, patient, study)).multiselect(
                 study.get(Study_.pk),
                 patient.get(Patient_.numberOfStudies),

@@ -53,6 +53,7 @@ import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,8 +74,7 @@ class PatientQuery extends AbstractQuery {
         this.patient = q.from(Patient.class);
         builder.applyPatientLevelJoins(patient,
                 context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.isOrderByPatientName());
+                context.getQueryKeys());
         return order(restrict(q, patient)).multiselect(
                 patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
@@ -104,8 +104,9 @@ class PatientQuery extends AbstractQuery {
     }
 
     private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
-        if (context.getOrderByTags() != null)
+        if (context.getOrderByTags() != null) {
             q.orderBy(builder.orderPatients(patient, context.getOrderByTags()));
+        }
         return q;
     }
 

@@ -76,8 +76,7 @@ public class MWLQuery extends AbstractQuery {
         QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoins(patient,
                 context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.isOrderByPatientName());
+                context.getQueryKeys());
         return order(restrict(q, patient, mwlItem)).multiselect(
                 patient.get(Patient_.numberOfStudies),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),

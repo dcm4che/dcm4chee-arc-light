@@ -217,11 +217,6 @@ class QueryContextImpl implements QueryContext {
     }
 
     @Override
-    public boolean isOrderByPatientName() {
-        return orderByTags != null && orderByTags.stream().anyMatch(x -> x.tag == Tag.PatientName);
-    }
-
-    @Override
     public List<OrderByTag> getOrderByTags() {
         return orderByTags;
     }
