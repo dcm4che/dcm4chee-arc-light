@@ -11,20 +11,26 @@
     -moz-box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
     box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
     &.studies{
-      padding-left: 20px;
+      padding-left: 22px;
     }
     &.series{
-      padding-left: 40px;
+      padding-left: 44px;
     }
     &.instance{
-      padding-left: 60px;
+      padding-left: 66px;
     }
     .td{
       float: left;
-      border-right: 1px solid white;
+      //border-right: 1px solid white;
       padding: 5px 7px;
       &:last-child{
         border:none;
+      }
+      &.empty_td{
+        //border-right: none;
+      }
+      &.not_empty_td{
+        border-left: 1px solid white;
       }
     }
   }

@@ -17,6 +17,7 @@ export class DicomStudiesTableComponent implements OnInit {
     @Input() title:string;
     constructor() { }
 
+    hover_mode = 'patient';
     ngOnInit() {
         this._config.offset = this._config.offset || 0;
     }

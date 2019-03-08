@@ -112,7 +112,6 @@ export class StudyComponent implements OnInit {
             offset:0
         }
     };
-    hover_mode = 'patient';
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,

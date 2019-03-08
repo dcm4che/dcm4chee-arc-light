@@ -2,7 +2,7 @@
 <div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" *ngIf="patients && patients.length > 0">
     <!--Patient header 1:-->
         <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass">
-            <div class="td"*ngFor="let patient_table of tableSchema[hover_mode]" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}">
+            <div class="td"*ngFor="let patient_table of tableSchema[hover_mode]" [ngClass]="[config?.cssTdClass || '',(patient_table.type != 'value')?'empty_td':'not_empty_td']" [ngStyle]="{width: patient_table.calculatedWidth}">
                 <ng-container *ngIf="patient_table.type === 'value'">{{patient_table.header}}</ng-container>
                 <ng-container *ngIf="patient_table.type != 'value'">&nbsp;</ng-container>
             </div>
