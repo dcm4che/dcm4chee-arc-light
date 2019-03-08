@@ -71,21 +71,22 @@ public class QueryBuilder2 {
         this.cb = Objects.requireNonNull(cb);
     }
 
-    public <Z> List<Order> orderPatients(From<Z, Patient> patient, List<OrderByTag> orderByTags) {
+    public List<Order> orderPatients(Root<Patient> patient, List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderPatients(patient, orderByTag, result);
         return result;
     }
 
-    public <Z> List<Order> orderStudies(From<Z, Patient> patient, Path<Study> study, List<OrderByTag> orderByTags) {
+    public List<Order> orderStudies(From<Study, Patient> patient, Root<Study> study,
+            List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderStudies(patient, study, orderByTag, result);
         return result;
     }
 
-    public <Z> List<Order> orderSeries(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
+    public List<Order> orderSeries(From<Study, Patient> patient, From<Series, Study> study, Root<Series> series,
             List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
@@ -93,15 +94,16 @@ public class QueryBuilder2 {
         return result;
     }
 
-    public <Z> List<Order> orderInstances(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
-            Path<Instance> instance, List<OrderByTag> orderByTags) {
+    public List<Order> orderInstances(From<Study, Patient> patient, From<Series, Study> study,
+            From<Instance, Series> series, Root<Instance> instance, List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderInstances(patient, study, series, instance, orderByTag, result);
         return result;
     }
 
-    public <Z> List<Order> orderMWLItems(From<Z, Patient> patient, Path<MWLItem> mwlItem, List<OrderByTag> orderByTags) {
+    public List<Order> orderMWLItems(From<MWLItem, Patient> patient, Root<MWLItem> mwlItem,
+            List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderMWLItems(patient, mwlItem, orderByTag, result);
@@ -111,7 +113,7 @@ public class QueryBuilder2 {
     private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
-                return orderPersonName(joinPersonName(patient), orderByTag, result);
+                return orderPersonName(patient, Patient_.patientName, orderByTag, result);
             case Tag.PatientSex:
                 return result.add(orderByTag.order(cb, patient.get(Patient_.patientSex)));
             case Tag.PatientBirthDate:
@@ -120,13 +122,7 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private <Z> Path<org.dcm4chee.arc.entity.PersonName> joinPersonName(From<Z, Patient> patient) {
-        return patient.getJoins().stream().noneMatch(j -> j.getAttribute().equals(Patient_.patientName))
-                ? patient.join(Patient_.patientName, JoinType.LEFT)
-                : patient.get(Patient_.patientName);
-    }
-
-    private <Z> boolean orderStudies(From<Z, Patient> patient, Path<Study> study,
+    private <Z> boolean orderStudies(From<Study, Patient> patient, From<Z, Study> study,
             OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
@@ -141,7 +137,7 @@ public class QueryBuilder2 {
             case Tag.StudyTime:
                 return result.add(orderByTag.order(cb, study.get(Study_.studyTime)));
             case Tag.ReferringPhysicianName:
-                return orderPersonName(study.get(Study_.referringPhysicianName), orderByTag, result);
+                return orderPersonName(study, Study_.referringPhysicianName, orderByTag, result);
             case Tag.StudyDescription:
                 return result.add(orderByTag.order(cb, study.get(Study_.studyDescription)));
             case Tag.AccessionNumber:
@@ -150,7 +146,7 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private <Z> boolean orderSeries(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
+    private <Z> boolean orderSeries(From<Study, Patient> patient, From<Series, Study> study, From<Z, Series> series,
             OrderByTag orderByTag, List<Order> result) {
         if (study != null && orderStudies(patient, study, orderByTag, result))
             return true;
@@ -171,7 +167,7 @@ public class QueryBuilder2 {
             case Tag.PerformedProcedureStepStartTime:
                 return result.add(orderByTag.order(cb, series.get(Series_.performedProcedureStepStartTime)));
             case Tag.PerformingPhysicianName:
-                return orderPersonName(series.get(Series_.performingPhysicianName), orderByTag, result);
+                return orderPersonName(series, Series_.performingPhysicianName, orderByTag, result);
             case Tag.SeriesDescription:
                 return result.add(orderByTag.order(cb, series.get(Series_.seriesDescription)));
             case Tag.StationName:
@@ -184,8 +180,8 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private <Z> boolean orderInstances(From<Z, Patient> patient, Path<Study> study, Path<Series> series,
-            Path<Instance> instance, OrderByTag orderByTag, List<Order> result) {
+    private <Z> boolean orderInstances(From<Study, Patient> patient, From<Series, Study> study,
+            From<Instance, Series> series, From<Z, Instance> instance, OrderByTag orderByTag, List<Order> result) {
         if (series != null && orderSeries(patient, study, series, orderByTag, result))
             return true;
 
@@ -208,7 +204,7 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private <Z> boolean orderMWLItems(From<Z, Patient> patient, Path<MWLItem> mwlItem,
+    private <Z> boolean orderMWLItems(From<MWLItem, Patient> patient, From<Z, MWLItem> mwlItem,
             OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
@@ -225,13 +221,26 @@ public class QueryBuilder2 {
             case Tag.ScheduledProcedureStepStartTime:
                 return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.scheduledStartTime)));
             case Tag.ScheduledPerformingPhysicianName:
-                return orderPersonName(mwlItem.get(MWLItem_.scheduledPerformingPhysicianName), orderByTag, result);
+                return orderPersonName(mwlItem, MWLItem_.scheduledPerformingPhysicianName, orderByTag, result);
             case Tag.ScheduledProcedureStepID:
                 return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.scheduledProcedureStepID)));
             case Tag.RequestedProcedureID:
                 return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.requestedProcedureID)));
         }
         return false;
+    }
+
+    private <Z, X> boolean orderPersonName(
+            From<Z, X> entity, SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute,
+            OrderByTag orderByTag, List<Order> result) {
+        return orderPersonName(joinPersonName(entity, attribute), orderByTag, result);
+    }
+
+    private <Z, X> Path<org.dcm4chee.arc.entity.PersonName> joinPersonName(
+            From<Z, X> entity, SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute) {
+        return entity.getJoins().stream().noneMatch(j -> j.getAttribute().equals(attribute))
+                ? entity.join(attribute, JoinType.LEFT)
+                : entity.get(attribute);
     }
 
     private boolean orderPersonName(Path<org.dcm4chee.arc.entity.PersonName> personName,
