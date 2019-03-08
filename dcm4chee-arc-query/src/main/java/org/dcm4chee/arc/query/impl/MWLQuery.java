@@ -51,6 +51,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder2;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -77,18 +78,10 @@ public class MWLQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        q = q.multiselect(
+        return order(restrict(q, patient, mwlItem)).multiselect(
                 patient.get(Patient_.numberOfStudies),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-            .where(builder.mwlItemPredicates(q, cb.conjunction(),
-                patient, mwlItem,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
-        if (context.getOrderByTags() != null)
-            q = q.orderBy(builder.orderMWLItems(patient, mwlItem, context.getOrderByTags()));
-        return q;
+                mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
 
     @Override
@@ -98,11 +91,7 @@ public class MWLQuery extends AbstractQuery {
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        return q.select(cb.count(mwlItem))
-            .where(builder.mwlItemPredicates(q, cb.conjunction(), patient, mwlItem,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
+        return restrict(q, patient, mwlItem).select(cb.count(mwlItem));
     }
 
     @Override
@@ -122,4 +111,21 @@ public class MWLQuery extends AbstractQuery {
         //TODO
         return false;
     }
+
+    private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
+        if (context.getOrderByTags() != null)
+            q.orderBy(builder.orderMWLItems(patient, mwlItem, context.getOrderByTags()));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<MWLItem, Patient> patient, Root<MWLItem> mwlItem) {
+        List<Predicate> predicates = builder.mwlItemPredicates(q, patient, mwlItem,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q;
+    }
+
 }

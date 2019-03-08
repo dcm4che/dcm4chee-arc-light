@@ -55,6 +55,7 @@ import org.dcm4chee.arc.query.util.QueryParam;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
+import java.util.List;
 
 
 /**
@@ -86,7 +87,7 @@ class StudyQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        q = q.multiselect(
+        return order(restrict(q, patient, study)).multiselect(
                 study.get(Study_.pk),
                 patient.get(Patient_.numberOfStudies),
                 patient.get(Patient_.createdTime),
@@ -114,56 +115,28 @@ class StudyQuery extends AbstractQuery {
                 studyQueryAttributes.get(StudyQueryAttributes_.retrieveAETs),
                 studyQueryAttributes.get(StudyQueryAttributes_.availability),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-            .where(builder.studyPredicates(q, cb.conjunction(),
-                patient,
-                study,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
-        if (context.getOrderByTags() != null)
-            q = q.orderBy(builder.orderStudies(patient, study, context.getOrderByTags()));
-        return q;
+                studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
 
     @Override
     protected CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<Study> study = q.from(Study.class);
-        return createQuery(q, null, study, cb.count(study));
+        return createQuery(q, study, cb.count(study));
     }
 
     @Override
     protected CriteriaQuery<Long> sumStudySize() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<Study> study = q.from(Study.class);
-        return createQuery(q, null, study, cb.sum(study.get(Study_.size)));
+        return createQuery(q, study, cb.sum(study.get(Study_.size)));
     }
 
     @Override
     protected CriteriaQuery<Long> withUnknownSize() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<Study> study = q.from(Study.class);
-        return createQuery(q, cb.equal(study.get(Study_.size), -1L), study, study.get(Study_.pk));
-    }
-
-    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Predicate x,
-            From<X, Study> study, Expression<Long> longExpression) {
-        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
-        boolean hasPatientLevelPredicates = QueryBuilder2.hasPatientLevelPredicates(
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam());
-        Join<Study, Patient> patient = null;
-        if (hasPatientLevelPredicates) {
-            patient = study.join(Study_.patient);
-            QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        }
-        return q.select(longExpression)
-            .where(builder.studyPredicates(q, x, patient, study,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
+        return createQuery(q, study, study.get(Study_.pk), cb.equal(study.get(Study_.size), -1L));
     }
 
     @Override
@@ -218,6 +191,37 @@ class StudyQuery extends AbstractQuery {
                 numberOfStudyRelatedInstances, numberOfStudyRelatedSeries,
                 modalitiesInStudy, sopClassesInStudy, attrs);
         return attrs;
+    }
+
+    private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
+        if (context.getOrderByTags() != null)
+            q.orderBy(builder.orderStudies(patient, study, context.getOrderByTags()));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<Study, Patient> patient, Root<Study> study) {
+        List<Predicate> predicates = builder.studyPredicates(q, patient, study,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q;
+    }
+
+    private CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q,
+            Root<Study> study, Expression<Long> longExpression, Predicate... extra) {
+        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
+        boolean hasPatientLevelPredicates = QueryBuilder2.hasPatientLevelPredicates(
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        Join<Study, Patient> patient = null;
+        if (hasPatientLevelPredicates) {
+            patient = study.join(Study_.patient);
+            QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
+        }
+        return restrict(q, patient, study).select(longExpression);
     }
 
     static void addStudyQRAddrs(Path<Study> study, QueryContext context, Tuple results, long studySize,

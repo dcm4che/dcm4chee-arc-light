@@ -54,7 +54,6 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
-import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.*;
 
@@ -260,94 +259,110 @@ public class QueryBuilder2 {
         if (pids.length > 0) {
             Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
             if (containsIssuer(pids))
-                patientID.join(PatientID_.issuer);
+                patientID.join(PatientID_.issuer, JoinType.LEFT);
         }
     }
 
-    public Predicate patientIDPredicate(Predicate x, Path<PatientID> patient, IDWithIssuer[] pids) {
+    public void patientIDPredicate(List<Predicate> x, Path<PatientID> patient, IDWithIssuer[] pids) {
         if (pids.length == 0)
-            return x;
+            return;
 
-        Predicate y = cb.disjunction();
-        for (IDWithIssuer pid : pids)
-            y = cb.or(y, idWithIssuer(x, patient.get(PatientID_.id), patient.get(PatientID_.issuer), pid.getID(), pid.getIssuer()));
-
-        return cb.and(x, y);
+        List<Predicate> y = new ArrayList<>(pids.length);
+        for (IDWithIssuer pid : pids) {
+            if (!isUniversalMatching(pid.getID())) {
+                List<Predicate> z = new ArrayList<>(3);
+                idWithIssuer(z, patient.get(PatientID_.id), patient.get(PatientID_.issuer), pid.getID(),
+                        pid.getIssuer());
+                if (!z.isEmpty()) {
+                    y.add(cb.and(z.toArray(new Predicate[0])));
+                }
+            }
+        }
+        if (!y.isEmpty())
+            x.add(cb.or(y.toArray(new Predicate[0])));
     }
 
-    public <T> Predicate patientPredicates(CriteriaQuery<T> q,
-            Predicate x, Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        return patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.PATIENT);
+    public <T> List<Predicate> patientPredicates(CriteriaQuery<T> q,
+            Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.PATIENT);
+        return predicates;
     }
 
-    public <T> Predicate studyPredicates(CriteriaQuery<T> q, Predicate x,
+    public <T> List<Predicate> studyPredicates(CriteriaQuery<T> q,
             Path<Patient> patient, Path<Study> study,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        return studyLevelPredicates(q,
-                patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.STUDY),
-                study, keys, queryParam, QueryRetrieveLevel2.STUDY);
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam, Predicate... extra) {
+        List<Predicate> predicates = new ArrayList<>();
+        for (Predicate predicate : extra)
+            predicates.add(predicate);
+        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.STUDY);
+        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.STUDY);
+        return predicates;
     }
 
-    public <T> Predicate seriesPredicates(CriteriaQuery<T> q, Predicate x,
+    public <T> List<Predicate> seriesPredicates(CriteriaQuery<T> q,
             Path<Patient> patient, Path<Study> study, Path<Series> series,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        return seriesLevelPredicates(q,
-                studyLevelPredicates(q,
-                    patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.SERIES),
-                    study, keys, queryParam, QueryRetrieveLevel2.SERIES),
-                series, keys, queryParam);
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam, Predicate... initPredicates) {
+        List<Predicate> predicates = new ArrayList<>();
+        for (Predicate predicate : initPredicates)
+            predicates.add(predicate);
+        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.SERIES);
+        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.SERIES);
+        seriesLevelPredicates(predicates, q, series, keys, queryParam);
+        return predicates;
     }
 
-    public <T> Predicate instancePredicates(CriteriaQuery<T> q, Predicate x,
+    public <T> List<Predicate> instancePredicates(CriteriaQuery<T> q,
             Path<Patient> patient, Path<Study> study, Path<Series> series, Path<Instance> instance,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
-        return instanceLevelPredicates(q,
-                seriesLevelPredicates(q,
-                    studyLevelPredicates(q,
-                        patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.IMAGE),
-                        study, keys, queryParam, QueryRetrieveLevel2.IMAGE),
-                    series, keys, queryParam),
-                instance, keys, queryParam, showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
+        List<Predicate> predicates = new ArrayList<>();
+        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.IMAGE);
+        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.IMAGE);
+        seriesLevelPredicates(predicates, q, series, keys, queryParam);
+        instanceLevelPredicates(predicates, q, instance, keys, queryParam,
+                showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
+        return predicates;
     }
 
-    public <T> Predicate mwlItemPredicates(CriteriaQuery<T> q, Predicate x,
+    public <T> List<Predicate> mwlItemPredicates(CriteriaQuery<T> q,
             Path<Patient> patient, Path<MWLItem> mwlItem,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        return mwlItemLevelPredicates(q,
-                patientLevelPredicates(q, x, patient, pids, keys, queryParam, QueryRetrieveLevel2.STUDY),
-                mwlItem, keys, queryParam);
+        List<Predicate> predicates = new ArrayList<>();
+        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
+        mwlItemLevelPredicates(predicates, q, mwlItem, keys, queryParam);
+        return predicates;
     }
 
-    private <T> Predicate patientLevelPredicates(CriteriaQuery<T> q, Predicate x,
+    private <T> void patientLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             QueryRetrieveLevel2 queryRetrieveLevel) {
         if (patient == null)
-            return x;
+            return;
+
         if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
-            x = cb.and(x, patient.get(Patient_.mergedWith).isNull());
+            predicates.add(patient.get(Patient_.mergedWith).isNull());
             if (!queryParam.isWithoutStudies())
-                x = cb.and(x, cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
+                predicates.add(cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
         }
-        x = patientIDPredicate(x, patient.get(Patient_.patientID), pids);
-        x = personName(q, x, patient.get(Patient_.patientName),
+        patientIDPredicate(predicates, patient.get(Patient_.patientID), pids);
+        personName(predicates, q, patient.get(Patient_.patientName),
                 keys.getString(Tag.PatientName, "*"), queryParam);
-        x = wildCard(x, patient.get(Patient_.patientSex),
+        wildCard(predicates, patient.get(Patient_.patientSex),
                 keys.getString(Tag.PatientSex, "*").toUpperCase());
-        x = dateRange(x, patient.get(Patient_.patientBirthDate),
+        dateRange(predicates, patient.get(Patient_.patientBirthDate),
                 keys.getDateRange(Tag.PatientBirthDate), FormatDate.DA);
-        x = personName(q, x, patient.get(Patient_.responsiblePerson),
+        personName(predicates, q, patient.get(Patient_.responsiblePerson),
                 keys.getString(Tag.ResponsiblePerson, "*"), queryParam);
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
-        x = wildCard(x, patient.get(Patient_.patientCustomAttribute1),
+        wildCard(predicates, patient.get(Patient_.patientCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
-        x = wildCard(x, patient.get(Patient_.patientCustomAttribute2),
+        wildCard(predicates, patient.get(Patient_.patientCustomAttribute2),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true);
-        x = wildCard(x, patient.get(Patient_.patientCustomAttribute3),
+        wildCard(predicates, patient.get(Patient_.patientCustomAttribute3),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
         if (queryParam.getPatientVerificationStatus() != null)
-            x = cb.and(x, cb.equal(patient.get(Patient_.verificationStatus), queryParam.getPatientVerificationStatus()));
-        return x;
+            predicates.add(cb.equal(patient.get(Patient_.verificationStatus), queryParam.getPatientVerificationStatus()));
     }
 
     public static boolean hasPatientLevelPredicates(IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
@@ -387,77 +402,78 @@ public class QueryBuilder2 {
         return join.on(cb.equal(join.get(SeriesQueryAttributes_.viewID), viewID));
     }
 
-    public static Predicate uidsPredicate(Predicate x, Path<String> path, String[] values) {
-        return isUniversalMatching(values) ? x : path.in(values);
+    public void uidsPredicate(List<Predicate> x, Path<String> path, String[] values) {
+        if (!isUniversalMatching(values))
+            x.add(values.length == 1 ? cb.equal(path, values[0]) : path.in(values));
     }
 
-    private <T> Predicate studyLevelPredicates(CriteriaQuery<T> q, Predicate x,
+    private <T> List<Predicate> studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
-        x = accessControl(x, study, queryParam.getAccessControlIDs());
-        x = uidsPredicate(x, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
-        x = wildCard(x, study.get(Study_.studyID), keys.getString(Tag.StudyID, "*"));
-        x = dateRange(x, study.get(Study_.studyDate), study.get(Study_.studyTime),
+        accessControl(predicates, study, queryParam.getAccessControlIDs());
+        uidsPredicate(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
+        wildCard(predicates, study.get(Study_.studyID), keys.getString(Tag.StudyID, "*"));
+        dateRange(predicates, study.get(Study_.studyDate), study.get(Study_.studyTime),
                 Tag.StudyDate, Tag.StudyTime, Tag.StudyDateAndTime,
                 keys, combinedDatetimeMatching);
-        x = personName(q, x, study.get(Study_.referringPhysicianName),
+        personName(predicates, q, study.get(Study_.referringPhysicianName),
                 keys.getString(Tag.ReferringPhysicianName, "*"), queryParam);
-        x = wildCard(x, study.get(Study_.studyDescription),
+        wildCard(predicates, study.get(Study_.studyDescription),
                 keys.getString(Tag.StudyDescription, "*"), true);
         String accNo = keys.getString(Tag.AccessionNumber, "*");
         if (!accNo.equals("*")) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuer == null)
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
-            x = idWithIssuer(x, study.get(Study_.accessionNumber), study.get(Study_.issuerOfAccessionNumber),
+            idWithIssuer(predicates, study.get(Study_.accessionNumber), study.get(Study_.issuerOfAccessionNumber),
                     accNo, issuer);
         }
-        x = seriesAttributesInStudy(q, x, study, keys, queryParam);
+        seriesAttributesInStudy(predicates, q, study, keys, queryParam);
         Attributes procedureCode = keys.getNestedDataset(Tag.ProcedureCodeSequence);
         if (!isUniversalMatching(procedureCode))
-            x = codes(q, x, study.get(Study_.procedureCodes), procedureCode);
+            codes(predicates, q, study.get(Study_.procedureCodes), procedureCode);
         if (queryParam.isHideNotRejectedInstances())
-            x = cb.and(x, cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
+            predicates.add(cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
-        x = wildCard(x, study.get(Study_.studyCustomAttribute1),
+        wildCard(predicates, study.get(Study_.studyCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
-        x = wildCard(x, study.get(Study_.studyCustomAttribute2),
+        wildCard(predicates, study.get(Study_.studyCustomAttribute2),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true);
-        x = wildCard(x, study.get(Study_.studyCustomAttribute3),
+        wildCard(predicates, study.get(Study_.studyCustomAttribute3),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
-        x = dateRange(x, study.get(Study_.createdTime),
+        dateRange(predicates, study.get(Study_.createdTime),
                 keys.getDateRange(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT));
         if (queryParam.getExternalRetrieveAET() != null)
-            x = cb.and(x, cb.equal(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAET()));
+            predicates.add(cb.equal(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAET()));
         if (queryParam.getExternalRetrieveAETNot() != null)
-            x = cb.and(x, cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
+            predicates.add(cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             if (queryParam.isIncomplete())
-                x = cb.and(x, cb.notEqual(study.get(Study_.completeness), Completeness.COMPLETE));
+                predicates.add(cb.notEqual(study.get(Study_.completeness), Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
-                x = cb.and(x, cb.greaterThan(study.get(Study_.failedRetrieves), 0));
+                predicates.add(cb.greaterThan(study.get(Study_.failedRetrieves), 0));
         }
         if (queryParam.getExpirationDate() != null)
-            x = dateRange(x, study.get(Study_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
+            dateRange(predicates, study.get(Study_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
         if (queryParam.getStudyStorageIDs() != null)
-            x = cb.and(x, study.get(Study_.storageIDs).in(queryParam.getStudyStorageIDs()));
+            predicates.add(study.get(Study_.storageIDs).in(queryParam.getStudyStorageIDs()));
         if (queryParam.getMinStudySize() != 0)
-            x = cb.and(x, cb.greaterThanOrEqualTo(study.get(Study_.size), queryParam.getMinStudySize()));
+            predicates.add(cb.greaterThanOrEqualTo(study.get(Study_.size), queryParam.getMinStudySize()));
         if (queryParam.getMaxStudySize() != 0)
-            x = cb.and(x, cb.lessThanOrEqualTo(study.get(Study_.size), queryParam.getMaxStudySize()));
+            predicates.add(cb.lessThanOrEqualTo(study.get(Study_.size), queryParam.getMaxStudySize()));
         if (queryParam.getExpirationState() != null)
-            x = cb.and(x, study.get(Study_.expirationState).in(queryParam.getExpirationState()));
-        return x;
+            predicates.add(study.get(Study_.expirationState).in(queryParam.getExpirationState()));
+        return predicates;
     }
 
-    public Predicate accessControl(Predicate x, Path<Study> study, String[] accessControlIDs) {
+    public void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
         if (accessControlIDs.length == 0)
-            return x;
+            return;
 
         String[] a = new String[accessControlIDs.length + 1];
         a[0] = "*";
         System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);
-        return study.get(Study_.accessControlID).in(a);
+        predicates.add(study.get(Study_.accessControlID).in(a));
     }
 
     public static <X> void applySeriesLevelJoins(From<X, Series> series, Attributes keys) {
@@ -466,119 +482,119 @@ public class QueryBuilder2 {
         }
     }
 
-    private <T> Predicate seriesLevelPredicates(CriteriaQuery<T> q, Predicate x,
+    private <T> List<Predicate> seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<Series> series, Attributes keys, QueryParam queryParam) {
-        x = uidsPredicate(x, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID));
-        x = numberPredicate(x, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
-        x = wildCard(x, series.get(Series_.modality),
+        uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID));
+        numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
+        wildCard(predicates, series.get(Series_.modality),
                 keys.getString(Tag.Modality, "*").toUpperCase());
-        x = wildCard(x, series.get(Series_.bodyPartExamined),
+        wildCard(predicates, series.get(Series_.bodyPartExamined),
                 keys.getString(Tag.BodyPartExamined, "*").toUpperCase());
-        x = wildCard(x, series.get(Series_.laterality),
+        wildCard(predicates, series.get(Series_.laterality),
                 keys.getString(Tag.Laterality, "*").toUpperCase());
-        x = dateRange(x,
+        dateRange(predicates,
                 series.get(Series_.performedProcedureStepStartDate),
                 series.get(Series_.performedProcedureStepStartTime),
                 Tag.PerformedProcedureStepStartDate, Tag.PerformedProcedureStepStartTime,
                 Tag.PerformedProcedureStepStartDateAndTime,
                 keys, queryParam.isCombinedDatetimeMatching());
-        x = personName(q, x, series.get(Series_.performingPhysicianName),
+        personName(predicates, q, series.get(Series_.performingPhysicianName),
                 keys.getString(Tag.PerformingPhysicianName, "*"), queryParam);
-        x = wildCard(x, series.get(Series_.seriesDescription),
+        wildCard(predicates, series.get(Series_.seriesDescription),
                 keys.getString(Tag.SeriesDescription, "*"), true);
-        x = wildCard(x, series.get(Series_.stationName), keys.getString(Tag.StationName, "*"), true);
-        x = wildCard(x, series.get(Series_.institutionalDepartmentName),
+        wildCard(predicates, series.get(Series_.stationName), keys.getString(Tag.StationName, "*"), true);
+        wildCard(predicates, series.get(Series_.institutionalDepartmentName),
                 keys.getString(Tag.InstitutionalDepartmentName, "*"), true);
-        x = wildCard(x, series.get(Series_.institutionName),
+        wildCard(predicates, series.get(Series_.institutionName),
                 keys.getString(Tag.InstitutionName, "*"), true);
         Attributes reqAttrs = keys.getNestedDataset(Tag.RequestAttributesSequence);
         if (!isUniversalMatching(reqAttrs))
-            x = requestAttributes(q, x, series.get(Series_.requestAttributes), reqAttrs, queryParam);
-        x = code(x, series.get(Series_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
+            requestAttributes(predicates, q, series.get(Series_.requestAttributes), reqAttrs, queryParam);
+        code(predicates, series.get(Series_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
         if (queryParam.isHideNotRejectedInstances())
-            x = cb.and(x, cb.notEqual(series.get(Series_.rejectionState), RejectionState.NONE));
+            predicates.add(cb.notEqual(series.get(Series_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Series);
-        x = wildCard(x, series.get(Series_.seriesCustomAttribute1),
+        wildCard(predicates, series.get(Series_.seriesCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
-        x = wildCard(x, series.get(Series_.seriesCustomAttribute2),
+        wildCard(predicates, series.get(Series_.seriesCustomAttribute2),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true);
-        x = wildCard(x, series.get(Series_.seriesCustomAttribute3),
+        wildCard(predicates, series.get(Series_.seriesCustomAttribute3),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
         if (queryParam.isIncomplete())
-            x = cb.and(x, cb.notEqual(series.get(Series_.completeness), Completeness.COMPLETE));
+            predicates.add(cb.notEqual(series.get(Series_.completeness), Completeness.COMPLETE));
         if (queryParam.isRetrieveFailed())
-            x = cb.and(x, cb.greaterThan(series.get(Series_.failedRetrieves), 0));
+            predicates.add(cb.greaterThan(series.get(Series_.failedRetrieves), 0));
         if (queryParam.isStorageVerificationFailed())
-            x = cb.and(x, cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
+            predicates.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
         if (queryParam.isCompressionFailed())
-            x = cb.and(x, cb.greaterThan(series.get(Series_.compressionFailures), 0));
-        x = wildCard(x, series.get(Series_.sourceAET),
+            predicates.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
+        wildCard(predicates, series.get(Series_.sourceAET),
                 keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries,
                         VR.AE, "*"),
                 false);
         if (queryParam.getExpirationDate() != null)
-            x = dateRange(x, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
-        return x;
+            dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
+        return predicates;
     }
 
-    private <T> Predicate instanceLevelPredicates(CriteriaQuery<T> q, Predicate x,
+    private <T> void instanceLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<Instance> instance, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
-        x = uidsPredicate(x, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
-        x = uidsPredicate(x, instance.get(Instance_.sopClassUID), keys.getStrings(Tag.SOPClassUID));
-        x = numberPredicate(x, instance.get(Instance_.instanceNumber), keys.getString(Tag.InstanceNumber, "*"));
-        x = wildCard(x, instance.get(Instance_.verificationFlag),
+        uidsPredicate(predicates, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
+        uidsPredicate(predicates, instance.get(Instance_.sopClassUID), keys.getStrings(Tag.SOPClassUID));
+        numberPredicate(predicates, instance.get(Instance_.instanceNumber), keys.getString(Tag.InstanceNumber, "*"));
+        wildCard(predicates, instance.get(Instance_.verificationFlag),
                 keys.getString(Tag.VerificationFlag, "*").toUpperCase());
-        x = wildCard(x, instance.get(Instance_.completionFlag),
+        wildCard(predicates, instance.get(Instance_.completionFlag),
                 keys.getString(Tag.CompletionFlag, "*").toUpperCase());
-        x = dateRange(x,
+        dateRange(predicates,
                 instance.get(Instance_.contentDate),
                 instance.get(Instance_.contentTime),
                 Tag.ContentDate, Tag.ContentTime, Tag.ContentDateAndTime,
                 keys, combinedDatetimeMatching);
-        x = code(x, instance.get(Instance_.conceptNameCode), keys.getNestedDataset(Tag.ConceptNameCodeSequence));
+        code(predicates, instance.get(Instance_.conceptNameCode), keys.getNestedDataset(Tag.ConceptNameCodeSequence));
         Attributes verifyingObserver = keys.getNestedDataset(Tag.VerifyingObserverSequence);
         if (!isUniversalMatching(verifyingObserver))
-            x = verifyingObserver(q, x, instance.get(Instance_.verifyingObservers), verifyingObserver, queryParam);
+            verifyingObserver(predicates, q, instance.get(Instance_.verifyingObservers), verifyingObserver, queryParam);
         Sequence contentSeq = keys.getSequence(Tag.ContentSequence);
         if (contentSeq != null)
             for (Attributes item : contentSeq)
-                x = contentItem(q, x, instance.get(Instance_.contentItems), item);
+                contentItem(predicates, q, instance.get(Instance_.contentItems), item);
         AttributeFilter attrFilter = queryParam
                 .getAttributeFilter(Entity.Instance);
-        x = wildCard(x,
+        wildCard(predicates,
                 instance.get(Instance_.instanceCustomAttribute1),
                 AttributeFilter.selectStringValue(keys,
                         attrFilter.getCustomAttribute1(), "*"),
                 true);
-        x = wildCard(x,
+        wildCard(predicates,
                 instance.get(Instance_.instanceCustomAttribute2),
                 AttributeFilter.selectStringValue(keys,
                         attrFilter.getCustomAttribute2(), "*"),
                 true);
-        x = wildCard(x,
+        wildCard(predicates,
                 instance.get(Instance_.instanceCustomAttribute3),
                 AttributeFilter.selectStringValue(keys,
                         attrFilter.getCustomAttribute3(), "*"),
                 true);
-        x = hideRejectedInstance(x, instance, showInstancesRejectedByCodes, queryParam.isHideNotRejectedInstances());
-        x = hideRejectionNote(x, instance, hideRejectionNoteWithCodes);
-        return x;
+        hideRejectedInstance(predicates, instance, showInstancesRejectedByCodes, queryParam.isHideNotRejectedInstances());
+        hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
     }
 
-    public <T> Predicate sopInstanceRefs(CriteriaQuery<T> q, Predicate x,
+    public <T> List<Predicate> sopInstanceRefs(CriteriaQuery<T> q,
             Path<Study> study, Path<Series> series, Root<Instance> instance,
             String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
-        x = cb.and(x, cb.equal(study.get(Study_.studyInstanceUID), studyIUID));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(study.get(Study_.studyInstanceUID), studyIUID));
         if (!isUniversalMatching(seriesUID))
-            cb.and(x, cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
+            predicates.add(cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
         if (!isUniversalMatching(objectUID))
-            cb.and(x, cb.equal(instance.get(Instance_.sopInstanceUID), objectUID));
-        x = hideRejectedInstance(x, instance, showInstancesRejectedByCodes, qrView.isHideNotRejectedInstances());
-        x = hideRejectionNote(x, instance, hideRejectionNoteWithCodes);
-        return x;
+            predicates.add(cb.equal(instance.get(Instance_.sopInstanceUID), objectUID));
+        hideRejectedInstance(predicates, instance, showInstancesRejectedByCodes, qrView.isHideNotRejectedInstances());
+        hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
+        return predicates;
     }
 
     public static <X> void applyMWLItemJoins(From<X, MWLItem> mwlItem, Attributes keys) {
@@ -593,66 +609,62 @@ public class QueryBuilder2 {
         }
     }
 
-    private <T> Predicate mwlItemLevelPredicates(CriteriaQuery<T> q, Predicate x, Path<MWLItem> mwlItem,
+    private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Path<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
-        x = uidsPredicate(x, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
-        x = wildCard(x, mwlItem.get(MWLItem_.requestedProcedureID), keys.getString(Tag.RequestedProcedureID, "*"));
+        uidsPredicate(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
+        wildCard(predicates, mwlItem.get(MWLItem_.requestedProcedureID), keys.getString(Tag.RequestedProcedureID, "*"));
         String accNo = keys.getString(Tag.AccessionNumber, "*");
         if (!accNo.equals("*")) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuer == null) {
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
             }
-            x = idWithIssuer(x,
+            idWithIssuer(predicates,
                     mwlItem.get(MWLItem_.accessionNumber),
                     mwlItem.get(MWLItem_.issuerOfAccessionNumber),
                     accNo, issuer);
         }
         Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (sps != null) {
-            x = wildCard(x, mwlItem.get(MWLItem_.scheduledProcedureStepID),
+            wildCard(predicates, mwlItem.get(MWLItem_.scheduledProcedureStepID),
                     sps.getString(Tag.ScheduledProcedureStepID, "*"));
-            x = dateRange(x,
+            dateRange(predicates,
                     mwlItem.get(MWLItem_.scheduledStartDate),
                     mwlItem.get(MWLItem_.scheduledStartTime),
                     Tag.ScheduledProcedureStepStartDate,
                     Tag.ScheduledProcedureStepStartDate,
                     Tag.ScheduledProcedureStepStartDateAndTime,
                     sps, true);
-            x = personName(q, x, mwlItem.get(MWLItem_.scheduledPerformingPhysicianName),
+            personName(predicates, q, mwlItem.get(MWLItem_.scheduledPerformingPhysicianName),
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
-            x = wildCard(x, mwlItem.get(MWLItem_.modality), sps.getString(Tag.Modality, "*").toUpperCase());
-            x = showSPSWithStatus(x, mwlItem, sps);
+            wildCard(predicates, mwlItem.get(MWLItem_.modality), sps.getString(Tag.Modality, "*").toUpperCase());
+            showSPSWithStatus(predicates, mwlItem, sps);
             String spsAET = sps.getString(Tag.ScheduledStationAETitle, "*");
             if (!isUniversalMatching(spsAET))
-                x = cb.and(x, cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
+                predicates.add(cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
         }
-        x = hideSPSWithStatus(x, mwlItem, queryParam);
-        return x;
+        hideSPSWithStatus(predicates, mwlItem, queryParam);
     }
 
-    private Predicate showSPSWithStatus(Predicate x, Path<MWLItem> mwlItem, Attributes sps) {
+    private void showSPSWithStatus(List<Predicate> predicates, Path<MWLItem> mwlItem, Attributes sps) {
         String status = sps.getString(Tag.ScheduledProcedureStepStatus, "*").toUpperCase();
         switch(status) {
             case "SCHEDULED":
             case "ARRIVED":
             case "READY":
-                return cb.and(x, cb.equal(mwlItem.get(MWLItem_.status), SPSStatus.valueOf(status)));
-            default:
-                return x;
+                predicates.add(cb.equal(mwlItem.get(MWLItem_.status), SPSStatus.valueOf(status)));
         }
     }
 
-    private Predicate hideSPSWithStatus(Predicate x, Path<MWLItem> mwlItem, QueryParam queryParam) {
+    private void hideSPSWithStatus(List<Predicate> predicates, Path<MWLItem> mwlItem, QueryParam queryParam) {
         SPSStatus[] hideSPSWithStatusFromMWL = queryParam.getHideSPSWithStatusFromMWL();
-        return (hideSPSWithStatusFromMWL.length > 0)
-                ? cb.and(x, mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not())
-                : x;
+        if (hideSPSWithStatusFromMWL.length > 0)
+            predicates.add(mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not());
     }
 
-    public Predicate hideRejectedInstance(Predicate x, Path<Instance> instance, CodeEntity[] codes,
+    public void hideRejectedInstance(List<Predicate> predicates, Path<Instance> instance, CodeEntity[] codes,
             boolean hideNotRejectedInstances) {
-        return cb.and(x, hideRejectedInstance(instance, codes, hideNotRejectedInstances));
+        predicates.add(hideRejectedInstance(instance, codes, hideNotRejectedInstances));
     }
 
     private Predicate hideRejectedInstance(Path<Instance> instance, CodeEntity[] codes,
@@ -668,11 +680,12 @@ public class QueryBuilder2 {
                 : cb.or(instance.get(Instance_.rejectionNoteCode).isNull(), showRejected);
     }
 
-    public Predicate hideRejectionNote(Predicate x, Path<Instance> instance, CodeEntity[] codes) {
-        return codes.length == 0 ? x
-                : cb.and(x, cb.or(
-                        instance.get(Instance_.conceptNameCode).isNull(),
-                        instance.get(Instance_.conceptNameCode).in(codes).not()));
+    public void hideRejectionNote(List<Predicate> predicates, Path<Instance> instance, CodeEntity[] codes) {
+        if (codes.length > 0)
+            predicates.add(
+                cb.or(
+                    instance.get(Instance_.conceptNameCode).isNull(),
+                    instance.get(Instance_.conceptNameCode).in(codes).not()));
     }
 
     private static boolean containsIssuer(IDWithIssuer[] pids) {
@@ -682,23 +695,21 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private Predicate idWithIssuer(Predicate x, Expression<String> idPath,
+    private void idWithIssuer(List<Predicate> predicates, Expression<String> idPath,
             Path<IssuerEntity> issuerPath, String id, Issuer issuer) {
-        Predicate y = wildCard(x, idPath, id);
-        if (x == y || issuer == null)
-            return y;
+        if (!wildCard(predicates, idPath, id) || issuer == null)
+            return;
 
         String entityID = issuer.getLocalNamespaceEntityID();
         String entityUID = issuer.getUniversalEntityID();
         String entityUIDType = issuer.getUniversalEntityIDType();
         if (!isUniversalMatching(entityID))
-            y = cb.and(y, cb.or(issuerPath.get(IssuerEntity_.localNamespaceEntityID).isNull(),
+            predicates.add(cb.or(issuerPath.get(IssuerEntity_.localNamespaceEntityID).isNull(),
                             cb.equal(issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID)));
         if (!isUniversalMatching(entityUID))
-            y = cb.and(y, cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
+            predicates.add(cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
                             cb.and(cb.equal(issuerPath.get(IssuerEntity_.universalEntityID), entityUID),
                                     cb.equal(issuerPath.get(IssuerEntity_.universalEntityIDType), entityUIDType))));
-        return y;
     }
 
     private static boolean isUniversalMatching(Attributes item) {
@@ -717,34 +728,35 @@ public class QueryBuilder2 {
         return range == null || (range.getStartDate() == null && range.getEndDate() == null);
     }
 
-    private Predicate wildCard(Predicate x, Expression<String> path, String value) {
-        return wildCard(x, path, value, false);
+    private boolean wildCard(List<Predicate> predicates, Expression<String> path, String value) {
+        return wildCard(predicates, path, value, false);
     }
 
-    private Predicate wildCard(Predicate x, Expression<String> path, String value,
-            boolean ignoreCase) {
+    private boolean wildCard(List<Predicate> predicates, Expression<String> path, String value, boolean ignoreCase) {
         if (isUniversalMatching(value))
-            return x;
+            return false;
 
         if (ignoreCase && StringUtils.isUpperCase(value))
             path = cb.upper(path);
 
-        if (!containsWildcard(value))
-            return cb.and(x, cb.equal(path, value));
+        if (containsWildcard(value)) {
+            String pattern = toLikePattern(value);
+            if (pattern.equals("%"))
+                return false;
 
-        String pattern = toLikePattern(value);
-        return pattern.equals("%") ? x : cb.and(x, cb.like(path, pattern, '!'));
+            predicates.add(cb.like(path, pattern, '!'));
+        } else {
+            predicates.add(cb.equal(path, value));
+        }
+        return true;
     }
 
-    private Predicate numberPredicate(Predicate x, Expression<Integer> path, String value) {
-        if (isUniversalMatching(value))
-            return x;
-
-        try {
-            return cb.and(x, cb.equal(path, Integer.parseInt(value)));
-        } catch (NumberFormatException e) {
-            return x;
-        }
+    private void numberPredicate(List<Predicate> predicates, Expression<Integer> path, String value) {
+        if (!isUniversalMatching(value))
+            try {
+                predicates.add(cb.equal(path, Integer.parseInt(value)));
+            } catch (NumberFormatException e) {
+            }
     }
 
     private static boolean containsWildcard(String s) {
@@ -777,67 +789,73 @@ public class QueryBuilder2 {
         return like.toString();
     }
 
-    private <T> Predicate seriesAttributesInStudy(CriteriaQuery<T> q, Predicate x,
+    private <T> void seriesAttributesInStudy(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<Study> study, Attributes keys, QueryParam queryParam) {
         Subquery<Series> sq = q.subquery(Series.class);
         Root<Series> series = sq.from(Series.class);
-        Predicate y = cb.conjunction();
-        y = wildCard(y, series.get(Series_.institutionName),
+        List<Predicate> y = new ArrayList<>();
+        wildCard(y, series.get(Series_.institutionName),
                 keys.getString(Tag.InstitutionName), true);
-        y = wildCard(y, series.get(Series_.institutionalDepartmentName),
+        wildCard(y, series.get(Series_.institutionalDepartmentName),
                 keys.getString(Tag.InstitutionalDepartmentName), true);
-        y = wildCard(y, series.get(Series_.stationName),
+        wildCard(y, series.get(Series_.stationName),
                 keys.getString(Tag.StationName), true);
-        y = wildCard(y, series.get(Series_.seriesDescription),
+        wildCard(y, series.get(Series_.seriesDescription),
                 keys.getString(Tag.SeriesDescription), true);
-        y = wildCard(y, series.get(Series_.modality),
+        wildCard(y, series.get(Series_.modality),
                 keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase());
-        y = wildCard(y, series.get(Series_.sopClassUID),
+        wildCard(y, series.get(Series_.sopClassUID),
                 keys.getString(Tag.SOPClassesInStudy, "*"));
-        y = wildCard(y, series.get(Series_.bodyPartExamined),
+        wildCard(y, series.get(Series_.bodyPartExamined),
                 keys.getString(Tag.BodyPartExamined, "*").toUpperCase());
-        y = wildCard(y, series.get(Series_.sourceAET),
+        wildCard(y, series.get(Series_.sourceAET),
                 keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries,
                         VR.AE, "*"));
         if (queryParam.isStorageVerificationFailed())
-            y = cb.and(y, cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
+            y.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
         if (queryParam.isCompressionFailed())
-            y = cb.and(y, cb.greaterThan(series.get(Series_.compressionFailures), 0));
-        return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.select(series).where(cb.and(cb.equal(series.get(Series_.study), study), y))));
+            y.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
+        if (!y.isEmpty()) {
+            y.add(cb.equal(series.get(Series_.study), study));
+            predicates.add(cb.exists(sq.select(series).where(y.toArray(new Predicate[0]))));
+        }
     }
 
-
-    private Predicate code(Predicate x, Path<CodeEntity> code, Attributes item) {
+    private void code(List<Predicate> predicates, Path<CodeEntity> code, Attributes item) {
         if (isUniversalMatching(item))
-            return x;
+            return;
 
-        x = wildCard(x, code.get(CodeEntity_.codeValue),
+        wildCard(predicates, code.get(CodeEntity_.codeValue),
                 item.getString(Tag.CodeValue, "*"));
-        x = wildCard(x, code.get(CodeEntity_.codingSchemeDesignator),
+        wildCard(predicates, code.get(CodeEntity_.codingSchemeDesignator),
                 item.getString(Tag.CodingSchemeDesignator, "*"));
-        x = wildCard(x, code.get(CodeEntity_.codingSchemeVersion),
+        wildCard(predicates, code.get(CodeEntity_.codingSchemeVersion),
                 item.getString(Tag.CodingSchemeVersion, "*"));
-        return x;
     }
 
-    private <T> Predicate codes(CriteriaQuery<T> q, Predicate x,
+    private <T> void codes(List<Predicate> predicates, CriteriaQuery<T> q,
             Expression<Collection<CodeEntity>> codes, Attributes item) {
+        if (isUniversalMatching(item))
+            return;
+
         Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
         Root<CodeEntity> code = sq.from(CodeEntity.class);
-        Predicate y = code(cb.conjunction(), code, item);
-        return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.select(code).where(cb.and(code.in(codes), y))));
+        List<Predicate> y = new ArrayList<>();
+        code(y, code, item);
+        if (!y.isEmpty()) {
+            y.add(code.in(codes));
+            predicates.add(cb.exists(sq.select(code).where(y.toArray(new Predicate[0]))));
+        }
     }
 
-    private <T> Predicate requestAttributes(CriteriaQuery<T> q, Predicate x,
+    private <T> void requestAttributes(List<Predicate> predicates, CriteriaQuery<T> q,
             Expression<Collection<SeriesRequestAttributes>> requests, Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
-            return x;
+            return;
 
         Subquery<SeriesRequestAttributes> sq = q.subquery(SeriesRequestAttributes.class);
         Root<SeriesRequestAttributes> request = sq.from(SeriesRequestAttributes.class);
-        Predicate y = cb.conjunction();
+        List<Predicate> y = new ArrayList<>();
         String accNo = item.getString(Tag.AccessionNumber, "*");
         if (!isUniversalMatching(accNo)) {
             Issuer issuerOfAccessionNumber = Issuer.valueOf(item
@@ -846,169 +864,179 @@ public class QueryBuilder2 {
                 issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
             if (issuerOfAccessionNumber != null)
                 request.join(SeriesRequestAttributes_.issuerOfAccessionNumber, JoinType.LEFT);
-            y = idWithIssuer(y,
+            idWithIssuer(y,
                     request.get(SeriesRequestAttributes_.accessionNumber),
                     request.get(SeriesRequestAttributes_.issuerOfAccessionNumber),
                     accNo, issuerOfAccessionNumber);
         }
-        y = wildCard(y, 
+        wildCard(y,
                 request.get(SeriesRequestAttributes_.requestingService),
                 item.getString(Tag.RequestingService, "*"), true);
         String requestingPhysician = item.getString(Tag.RequestingPhysician, "*");
         if (!isUniversalMatching(requestingPhysician)) {
             request.join(SeriesRequestAttributes_.requestingPhysician);
-            y = personName(q, y,
+            personName(y, q,
                     request.get(SeriesRequestAttributes_.requestingPhysician),
                     requestingPhysician, queryParam);
         }
-        y = wildCard(y,
+        wildCard(y,
                 request.get(SeriesRequestAttributes_.requestedProcedureID),
                 item.getString(Tag.RequestedProcedureID, "*"));
-        y = uidsPredicate(y, request.get(SeriesRequestAttributes_.studyInstanceUID),
+        uidsPredicate(y, request.get(SeriesRequestAttributes_.studyInstanceUID),
                 item.getStrings(Tag.StudyInstanceUID));
-        y = wildCard(y,
+        wildCard(y,
                 request.get(SeriesRequestAttributes_.scheduledProcedureStepID),
                 item.getString(Tag.ScheduledProcedureStepID, "*"),
                 false);
-        return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.select(request).where(cb.and(request.in(requests), y))));
+        if (!y.isEmpty()) {
+            y.add(request.in(requests));
+            predicates.add(cb.exists(sq.select(request).where(y.toArray(new Predicate[0]))));
+        }
     }
 
-    private <T> Predicate verifyingObserver(CriteriaQuery<T> q, Predicate x,
+    private <T> void verifyingObserver(List<Predicate> predicates, CriteriaQuery<T> q,
             Expression<Collection<VerifyingObserver>> observers, Attributes item, QueryParam queryParam) {
         Subquery<VerifyingObserver> sq = q.subquery(VerifyingObserver.class);
         Root<VerifyingObserver> observer = sq.from(VerifyingObserver.class);
-        Predicate y = cb.conjunction();
+        List<Predicate> y = new ArrayList<>();
         String observerName = item.getString(Tag.VerifyingObserverName, "*");
         if (!isUniversalMatching(observerName)) {
             observer.join(VerifyingObserver_.verifyingObserverName);
-            y = personName(q, y, observer.get(VerifyingObserver_.verifyingObserverName), observerName, queryParam);
+            personName(y, q, observer.get(VerifyingObserver_.verifyingObserverName), observerName, queryParam);
         }
-        y = dateRange(y, observer.get(VerifyingObserver_.verificationDateTime),
+        dateRange(observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
-        return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.select(observer).where(cb.and(observer.in(observers), y))));
+        if (!y.isEmpty()) {
+            y.add(observer.in(observers));
+            predicates.add(cb.exists(sq.select(observer).where(y.toArray(new Predicate[0]))));
+        }
     }
 
-    private <T> Predicate contentItem(CriteriaQuery<T> q, Predicate x,
+    private <T> void contentItem(List<Predicate> predicates, CriteriaQuery<T> q,
             Expression<Collection<ContentItem>> contentItems, Attributes item) {
         String valueType = item.getString(Tag.ValueType);
         if (!("CODE".equals(valueType) || "TEXT".equals(valueType)))
-            return x;
+            return;
 
         Subquery<ContentItem> sq = q.subquery(ContentItem.class);
         Root<ContentItem> contentItem = sq.from(ContentItem.class);
-        Predicate y = cb.conjunction();
-        y = code(y, contentItem.get(ContentItem_.conceptName),
+        List<Predicate> y = new ArrayList<>();
+        code(y, contentItem.get(ContentItem_.conceptName),
                 item.getNestedDataset(Tag.ConceptNameCodeSequence));
-        y = wildCard(y, contentItem.get(ContentItem_.relationshipType),
+        wildCard(y, contentItem.get(ContentItem_.relationshipType),
                 item.getString(Tag.RelationshipType, "*").toUpperCase());
-        y = code(y, contentItem.get(ContentItem_.conceptCode),
+        code(y, contentItem.get(ContentItem_.conceptCode),
                 item.getNestedDataset(Tag.ConceptCodeSequence));
-        y = wildCard(y, contentItem.get(ContentItem_.textValue),
+        wildCard(y, contentItem.get(ContentItem_.textValue),
                 item.getString(Tag.TextValue, "*"), true);
-        return y.getExpressions().isEmpty() ? x
-                : cb.and(x, cb.exists(sq.select(contentItem).where(cb.and(contentItem.in(contentItems), y))));
+        if (!y.isEmpty()) {
+            y.add(contentItem.in(contentItems));
+            predicates.add(cb.exists(sq.select(contentItem).where(y.toArray(new Predicate[0]))));
+        }
     }
 
-    private <T> Predicate personName(CriteriaQuery<T> q, Predicate x,
+    private <T> void personName(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, String value, QueryParam queryParam) {
-        if (value.equals("*"))
-            return x;
-
-        PersonName pn = new PersonName(value, true);
-        return queryParam.isFuzzySemanticMatching()
-                ? fuzzyMatch(q, x, qpn, pn, queryParam)
-                : literalMatch(x, qpn, pn, queryParam);
+        if (!isUniversalMatching(value)) {
+            PersonName pn = new PersonName(value, true);
+            if (queryParam.isFuzzySemanticMatching())
+                fuzzyMatch(predicates, q, qpn, pn, queryParam);
+            else
+                literalMatch(predicates, qpn, pn, queryParam);
+        }
     }
 
-    private Predicate literalMatch(Predicate x, Path<org.dcm4chee.arc.entity.PersonName> qpn,
+    private void literalMatch(List<Predicate> predicates, Path<org.dcm4chee.arc.entity.PersonName> qpn,
             PersonName pn, QueryParam param) {
         if (!pn.contains(PersonName.Group.Ideographic)
                 && !pn.contains(PersonName.Group.Phonetic)) {
-            Predicate y = cb.disjunction();
-            y = cb.or(y, match(cb.conjunction(),
-                    qpn.get(PersonName_.familyName),
-                    qpn.get(PersonName_.givenName),
-                    qpn.get(PersonName_.middleName),
-                    pn, PersonName.Group.Alphabetic, true));
-            y = cb.or(y, match(cb.conjunction(),
-                    qpn.get(PersonName_.ideographicFamilyName),
-                    qpn.get(PersonName_.ideographicGivenName),
-                    qpn.get(PersonName_.ideographicMiddleName),
-                    pn, PersonName.Group.Alphabetic, false));
-            y = cb.or(y, match(cb.conjunction(),
-                    qpn.get(PersonName_.phoneticFamilyName),
-                    qpn.get(PersonName_.phoneticGivenName),
-                    qpn.get(PersonName_.phoneticMiddleName),
-                    pn, PersonName.Group.Alphabetic, false));
-            x = cb.and(x, y);
+            predicates.add(
+                cb.or(
+                    match(
+                        qpn.get(PersonName_.familyName),
+                        qpn.get(PersonName_.givenName),
+                        qpn.get(PersonName_.middleName),
+                        pn, PersonName.Group.Alphabetic, true),
+                    match(
+                        qpn.get(PersonName_.ideographicFamilyName),
+                        qpn.get(PersonName_.ideographicGivenName),
+                        qpn.get(PersonName_.ideographicMiddleName),
+                        pn, PersonName.Group.Alphabetic, true),
+                    match(
+                        qpn.get(PersonName_.phoneticFamilyName),
+                        qpn.get(PersonName_.phoneticGivenName),
+                        qpn.get(PersonName_.phoneticMiddleName),
+                        pn, PersonName.Group.Alphabetic, true)
+                )
+            );
         } else {
             if (pn.contains(PersonName.Group.Alphabetic))
-                x = match(x,
+                match(predicates,
                     qpn.get(PersonName_.familyName),
                     qpn.get(PersonName_.givenName),
                     qpn.get(PersonName_.middleName),
                     pn, PersonName.Group.Alphabetic, true);
             if (pn.contains(PersonName.Group.Ideographic))
-                x = match(x,
+                match(predicates,
                     qpn.get(PersonName_.ideographicFamilyName),
                     qpn.get(PersonName_.ideographicGivenName),
                     qpn.get(PersonName_.ideographicMiddleName),
                     pn, PersonName.Group.Ideographic, false);
             if (pn.contains(PersonName.Group.Phonetic))
-                x = match(x,
+                match(predicates,
                     qpn.get(PersonName_.phoneticFamilyName),
                     qpn.get(PersonName_.phoneticGivenName),
                     qpn.get(PersonName_.phoneticMiddleName),
                     pn, PersonName.Group.Phonetic, false);
         }
-        return x;
     }
 
-    private Predicate match(Predicate x, Path<String> familyName, Path<String> givenName, Path<String> middleName,
+    private Predicate match(Path<String> familyName, Path<String> givenName, Path<String> middleName,
             PersonName pn, PersonName.Group group, boolean ignoreCase) {
-        x = wildCard(x, familyName, pn.get(group, PersonName.Component.FamilyName), ignoreCase);
-        x = wildCard(x, givenName, pn.get(group, PersonName.Component.GivenName), ignoreCase);
-        x = wildCard(x, middleName, pn.get(group, PersonName.Component.MiddleName), ignoreCase);
-        return x;
+        List<Predicate> x = new ArrayList<>(3);
+        match(x, familyName, givenName, middleName, pn, group, ignoreCase);
+        return cb.and(x.toArray(new Predicate[0]));
     }
 
-    private <T> Predicate fuzzyMatch(CriteriaQuery<T> q, Predicate x, Path<org.dcm4chee.arc.entity.PersonName> qpn,
+    private void match(List<Predicate> predicates, Path<String> familyName, Path<String> givenName, Path<String> middleName,
+            PersonName pn, PersonName.Group group, boolean ignoreCase) {
+        wildCard(predicates, familyName, pn.get(group, PersonName.Component.FamilyName), ignoreCase);
+        wildCard(predicates, givenName, pn.get(group, PersonName.Component.GivenName), ignoreCase);
+        wildCard(predicates, middleName, pn.get(group, PersonName.Component.MiddleName), ignoreCase);
+    }
+
+    private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q, Path<org.dcm4chee.arc.entity.PersonName> qpn,
             PersonName pn, QueryParam param) {
-        x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.FamilyName, param);
-        x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.GivenName, param);
-        x = fuzzyMatch(q, x, qpn, pn, PersonName.Component.MiddleName, param);
-        return x;
+        fuzzyMatch(predicates, q, qpn, pn, PersonName.Component.FamilyName, param);
+        fuzzyMatch(predicates, q, qpn, pn, PersonName.Component.GivenName, param);
+        fuzzyMatch(predicates, q, qpn, pn, PersonName.Component.MiddleName, param);
     }
 
-    private <T> Predicate fuzzyMatch(CriteriaQuery<T> q, Predicate x,
+    private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName pn, PersonName.Component c, QueryParam param) {
-        String name = StringUtils.maskNull(pn.get(c), "*");
-        if (name.equals("*"))
-            return x;
+        String name = pn.get(c);
+        if (isUniversalMatching(name))
+            return;
 
         Iterator<String> parts = SoundexCode.tokenizePersonNameComponent(name);
         for (int i = 0; parts.hasNext(); ++i)
-            x = fuzzyMatch(q, x, qpn, c, i, parts.next(), param);
-
-        return x;
+            fuzzyMatch(predicates, q, qpn, c, i, parts.next(), param);
     }
 
-    private <T> Predicate fuzzyMatch(CriteriaQuery<T> q, Predicate x,
+    private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName.Component c, int partIndex, String name,
             QueryParam param) {
         boolean wc = name.endsWith("*");
         if (wc) {
             name = name.substring(0, name.length()-1);
             if (name.isEmpty())
-                return x;
+                return;
         }
         FuzzyStr fuzzyStr = param.getFuzzyStr();
         String fuzzyName = fuzzyStr.toFuzzy(name);
         if (fuzzyName.isEmpty())
             if (wc)
-                return x;
+                return;
             else // code "" is stored as "*"
                 fuzzyName = "*";
 
@@ -1022,7 +1050,7 @@ public class QueryBuilder2 {
                     cb.equal(soundexCode.get(SoundexCode_.personNameComponent), c),
                     cb.equal(soundexCode.get(SoundexCode_.componentPartIndex), partIndex)));
         }
-        return cb.and(x, cb.exists(sq.select(soundexCode).where(y)));
+        predicates.add(cb.exists(sq.select(soundexCode).where(y)));
     }
 
     private enum FormatDate {
@@ -1047,13 +1075,15 @@ public class QueryBuilder2 {
         abstract String format(Date date);
     }
 
-    private Predicate dateRange(Predicate x, Path<String> path, String s, FormatDate dt) {
-        return dateRange(x, path, parseDateRange(s), dt);
+    private void dateRange(List<Predicate> predicates, Path<String> path, String s, FormatDate dt) {
+        dateRange(predicates, path, parseDateRange(s), dt);
     }
 
-    private Predicate dateRange(Predicate x, Path<String> path, DateRange range, FormatDate dt) {
-        return isUniversalMatching(range) ? x
-                : cb.and(x, cb.and(dateRange(path, range, dt), cb.notEqual(path, "*")));
+    private void dateRange(List<Predicate> predicates, Path<String> path, DateRange range, FormatDate dt) {
+        if (!isUniversalMatching(range)) {
+            predicates.add(dateRange(path, range, dt));
+            predicates.add(cb.notEqual(path, "*"));
+        }
     }
 
     private Predicate dateRange(Path<String> path, DateRange range, FormatDate dt) {
@@ -1067,13 +1097,14 @@ public class QueryBuilder2 {
                 : cb.between(path, start, end);
     }
 
-    private Predicate dateRange(Predicate x, Path<Date> path, String s) {
+    private void dateRange(List<Predicate> predicates, Path<Date> path, String s) {
         DateRange range = parseDateRange(s);
-        return dateRange(x, path, range);
+        dateRange(predicates, path, range);
     }
 
-    private Predicate dateRange(Predicate x, Path<Date> path, DateRange range) {
-        return isUniversalMatching(range) ? x : cb.and(x, dateRange(path, range));
+    private void dateRange(List<Predicate> x, Path<Date> path, DateRange range) {
+        if (!isUniversalMatching(range))
+            x.add(dateRange(path, range));
     }
 
     private Predicate dateRange(Path<Date> path, DateRange range) {
@@ -1089,18 +1120,17 @@ public class QueryBuilder2 {
         return date != null ? dt.format(date) : null;
     }
 
-    private Predicate dateRange(Predicate x, Path<String> datePath, Path<String> timePath,
+    private void dateRange(List<Predicate> predicates, Path<String> datePath, Path<String> timePath,
             int dateTag, int timeTag, long dateAndTimeTag, Attributes keys, boolean combinedDatetimeMatching) {
         DateRange dateRange = keys.getDateRange(dateTag, null);
         DateRange timeRange = keys.getDateRange(timeTag, null);
         if (combinedDatetimeMatching && !isUniversalMatching(dateRange) && !isUniversalMatching(timeRange)) {
-            x = cb.and(x, cb.and(combinedRange(
-                    datePath, timePath, keys.getDateRange(dateAndTimeTag, null)), cb.notEqual(datePath, "*")));
+            predicates.add(combinedRange(datePath, timePath, keys.getDateRange(dateAndTimeTag, null)));
+            predicates.add(cb.notEqual(datePath, "*"));
         } else {
-            x = dateRange(x, datePath, dateRange, FormatDate.DA);
-            x = dateRange(x, timePath, timeRange, FormatDate.TM);
+            dateRange(predicates, datePath, dateRange, FormatDate.DA);
+            dateRange(predicates, timePath, timeRange, FormatDate.TM);
         }
-        return x;
     }
 
     private Predicate combinedRange(Path<String> datePath, Path<String> timePath, DateRange dateRange) {

@@ -54,6 +54,7 @@ import org.dcm4chee.arc.query.util.QueryParam;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -85,17 +86,17 @@ class SeriesQuery extends AbstractQuery {
         this.study = series.join(Series_.study);
         this.patient = study.join(Study_.patient);
         this.metadata = series.join(Series_.metadata, JoinType.LEFT);
-        String viewID1 = context.getQueryParam().getViewID();
-        this.studyQueryAttributes = QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID1);
-        String viewID = context.getQueryParam().getViewID();
-        this.seriesQueryAttributes = QueryBuilder2.joinSeriesQueryAttributes(cb, series, viewID);
+        this.studyQueryAttributes = QueryBuilder2.joinStudyQueryAttributes(cb, study,
+                context.getQueryParam().getViewID());
+        this.seriesQueryAttributes = QueryBuilder2.joinSeriesQueryAttributes(cb, series,
+                context.getQueryParam().getViewID());
         QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
         QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoins(patient,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-       q = q.multiselect(
+        return order(restrict(q, patient, study, series)).multiselect(
                 study.get(Study_.pk),
                 series.get(Series_.pk),
                 patient.get(Patient_.numberOfStudies),
@@ -147,14 +148,7 @@ class SeriesQuery extends AbstractQuery {
                 seriesQueryAttributes.get(SeriesQueryAttributes_.availability),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
                 studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                seriesAttrBlob = series.join(Series_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-           .where(builder.seriesPredicates(q, cb.conjunction(), patient, study, series,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
-        if (context.getOrderByTags() != null)
-            q = q.orderBy(builder.orderSeries(patient, study, series, context.getOrderByTags()));
-        return q;
+                seriesAttrBlob = series.join(Series_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
 
     @Override
@@ -166,11 +160,7 @@ class SeriesQuery extends AbstractQuery {
         QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
         QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        return q.select(cb.count(patient))
-            .where(builder.seriesPredicates(q, cb.conjunction(), patient, study, series,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
+        return restrict(q, patient, study, series).select(cb.count(patient));
     }
 
     @Override
@@ -215,6 +205,23 @@ class SeriesQuery extends AbstractQuery {
                 StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         addSeriesQRAttrs(series, metadata, context, results, numberOfSeriesRelatedInstances, attrs);
         return attrs;
+    }
+
+    private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
+        if (context.getOrderByTags() != null)
+            q.orderBy(builder.orderSeries(patient, study, series, context.getOrderByTags()));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<Study, Patient> patient,
+            Join<Series, Study> study, Root<Series> series) {
+        List<Predicate> predicates = builder.seriesPredicates(q, patient, study, series,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q;
     }
 
     static void addSeriesQRAttrs(Root<Series> series, Join<Series, Metadata> metadata, QueryContext context,

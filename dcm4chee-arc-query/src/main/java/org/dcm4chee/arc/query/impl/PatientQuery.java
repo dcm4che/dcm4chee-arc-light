@@ -52,6 +52,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,7 +75,7 @@ class PatientQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        q = q.multiselect(
+        return order(restrict(q, patient)).multiselect(
                 patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
                 patient.get(Patient_.createdTime),
@@ -82,14 +83,7 @@ class PatientQuery extends AbstractQuery {
                 patient.get(Patient_.verificationTime),
                 patient.get(Patient_.verificationStatus),
                 patient.get(Patient_.failedVerifications),
-                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-            .where(builder.patientPredicates(q, cb.conjunction(), patient,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
-        if (context.getOrderByTags() != null)
-            q = q.orderBy(builder.orderPatients(patient, context.getOrderByTags()));
-        return q;
+                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
 
     @Override
@@ -99,11 +93,7 @@ class PatientQuery extends AbstractQuery {
         builder.applyPatientLevelJoinsForCount(patient,
                 context.getPatientIDs(),
                 context.getQueryKeys());
-        return q.select(cb.count(patient))
-            .where(builder.patientPredicates(q, cb.conjunction(), patient,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam()));
+        return restrict(q, patient).select(cb.count(patient));
     }
 
     @Override
@@ -111,6 +101,22 @@ class PatientQuery extends AbstractQuery {
         Attributes patAttrs = AttributesBlob.decodeAttributes(results.get(patientAttrBlob), null);
         addPatientQRAttrs(patient, context, results, patAttrs);
         return patAttrs;
+    }
+
+    private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
+        if (context.getOrderByTags() != null)
+            q.orderBy(builder.orderPatients(patient, context.getOrderByTags()));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Root<Patient> patient) {
+        List<Predicate> predicates = builder.patientPredicates(q, patient,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q;
     }
 
     static void addPatientQRAttrs(Path<Patient> patient, QueryContext context, Tuple results, Attributes attrs) {

@@ -361,12 +361,12 @@ public class QueryServiceEJB {
             Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
             Availability availability) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        QueryBuilder2 builder = new QueryBuilder2(cb);
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
         Join<Instance, Series> series = instance.join(Instance_.series);
         Join<Series, Study> study = series.join(Series_.study);
-        List<Tuple> tuples = em.createQuery(q
+        List<Tuple> tuples = em.createQuery(
+                restrict(new QueryBuilder2(cb), q, study, series, instance, studyIUID, seriesUID, objectUID, qrView)
                 .multiselect(
                         study.get(Study_.pk),
                         series.get(Series_.pk),
@@ -374,11 +374,7 @@ public class QueryServiceEJB {
                         instance.get(Instance_.sopInstanceUID),
                         instance.get(Instance_.sopClassUID),
                         instance.get(Instance_.retrieveAETs),
-                        instance.get(Instance_.availability))
-                .where(builder.sopInstanceRefs(q, null, study, series, instance,
-                        studyIUID, seriesUID, objectUID, qrView,
-                        codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
-                        codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()))))
+                        instance.get(Instance_.availability)))
                 .getResultList();
 
         if (tuples.isEmpty() && type != SOPInstanceRefsType.KOS_XDSI)
@@ -427,6 +423,16 @@ public class QueryServiceEJB {
         if (type == SOPInstanceRefsType.IAN)
             refStudy.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         return refStudy;
+    }
+
+    private CriteriaQuery<Tuple> restrict(QueryBuilder2 builder, CriteriaQuery<Tuple> q, Join<Series, Study> study,
+            Join<Instance, Series> series, Root<Instance> instance,
+            String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView) {
+        return q.where(
+                builder.sopInstanceRefs(q, study, series, instance, studyIUID, seriesUID, objectUID, qrView,
+                    codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
+                    codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()))
+                .toArray(new Predicate[0]));
     }
 
     private Attributes getStgCmtRqstAttr(List<Tuple> tuples, Path<Instance> instance) {

@@ -53,7 +53,9 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -113,18 +115,19 @@ public class QueryAttributesEJB {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
         QueryBuilder2 queryBuilder = new QueryBuilder2(cb);
-        Predicate x = cb.equal(instance.get(Instance_.series).get(Series_.pk), seriesPk);
-        x = queryBuilder.hideRejectedInstance(x, instance,
+        List<Predicate> x = new ArrayList<>();
+        x.add(cb.equal(instance.get(Instance_.series).get(Series_.pk), seriesPk));
+        queryBuilder.hideRejectedInstance(x, instance,
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
                 qrView.isHideNotRejectedInstances());
-        x = queryBuilder.hideRejectionNote(x, instance,
+        queryBuilder.hideRejectionNote(x, instance,
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
         TypedQuery<Tuple> query = em.createQuery(q
                 .multiselect(
                         instance.get(Instance_.sopClassUID),
                         instance.get(Instance_.retrieveAETs),
                         instance.get(Instance_.availability))
-                .where(x));
+                .where(x.toArray(new Predicate[0])));
         SeriesQueryAttributesBuilder builder = new SeriesQueryAttributesBuilder(instance);
         try (Stream<Tuple> resultStream = query.getResultStream()) {
             resultStream.forEach(builder::addInstance);

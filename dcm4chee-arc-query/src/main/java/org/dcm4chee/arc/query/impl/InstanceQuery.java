@@ -129,7 +129,7 @@ class InstanceQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.isOrderByPatientName());
-        q = q.multiselect(
+        return order(restrict(q, patient, study, series, instance)).multiselect(
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
                 instance.get(Instance_.retrieveAETs),
@@ -140,18 +140,7 @@ class InstanceQuery extends AbstractQuery {
                 rejectionNoteCode.get(CodeEntity_.codeValue),
                 rejectionNoteCode.get(CodeEntity_.codingSchemeDesignator),
                 rejectionNoteCode.get(CodeEntity_.codeMeaning),
-                instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes))
-            .where(builder.instancePredicates(q, cb.conjunction(), patient, study, series, instance,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
-                codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes())));
-        if (context.getOrderByTags() != null)
-            q = q.orderBy(builder.orderInstances(patient, study, series, instance, context.getOrderByTags()));
-        return q;
+                instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
 
     @Override
@@ -165,15 +154,7 @@ class InstanceQuery extends AbstractQuery {
         QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
         QueryBuilder2.applyStudyLevelJoins(study,context.getQueryKeys());
         QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
-        return q.select(cb.count(instance))
-            .where(builder.instancePredicates(q, cb.conjunction(), patient, study, series, instance,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
-                codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes())));
+        return restrict(q, patient, study, series, instance).select(cb.count(instance));
     }
 
     @Override
@@ -254,6 +235,27 @@ class InstanceQuery extends AbstractQuery {
         return nextMatchFromMetadata != null;
     }
 
+    private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
+        if (context.getOrderByTags() != null)
+            q = q.orderBy(builder.orderInstances(patient, study, series, instance, context.getOrderByTags()));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<Study, Patient> patient,
+            Join<Series, Study> study, Join<Instance, Series> series, Root<Instance> instance) {
+        List<Predicate> predicates = builder.instancePredicates(q, patient, study, series, instance,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
+                codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes()));
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q;
+    }
+
     private List<MetadataStoragePath> queryMetadataStoragePath() {
         Attributes keys = context.getQueryKeys();
         String studyInstanceUID = keys.getString(Tag.StudyInstanceUID);
@@ -266,16 +268,11 @@ class InstanceQuery extends AbstractQuery {
         Join<Series, Metadata> metadata = series.join(Series_.metadata);
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
-        TypedQuery<Tuple> query = em.createQuery(q.multiselect(
-                series.get(Series_.pk),
-                metadata.get(Metadata_.storageID),
-                metadata.get(Metadata_.storagePath))
-                .where(builder.seriesPredicates(q,
-                        cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED),
-                        patient, study, series,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam())));
+        TypedQuery<Tuple> query = em.createQuery(
+                restrict(q, patient, study, series).multiselect(
+                    series.get(Series_.pk),
+                    metadata.get(Metadata_.storageID),
+                    metadata.get(Metadata_.storagePath)));
         try (Stream<Tuple> resultStream = query.getResultStream()) {
             return resultStream.map(t -> new MetadataStoragePath(
                         t.get(series.get(Series_.pk)),
@@ -283,6 +280,17 @@ class InstanceQuery extends AbstractQuery {
                         t.get(metadata.get(Metadata_.storagePath))))
                     .collect(Collectors.toList());
         }
+    }
+
+    private CriteriaQuery<Tuple> restrict(CriteriaQuery<Tuple> q, Join<Study, Patient> patient,
+            Join<Series, Study> study, Root<Series> series) {
+        return q.where(
+                builder.seriesPredicates(q, patient, study, series,
+                        context.getPatientIDs(),
+                        context.getQueryKeys(),
+                        context.getQueryParam(),
+                        cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED))
+                    .toArray(new Predicate[0]));
     }
 
     private boolean nextSeriesMetadataStream() throws IOException {
