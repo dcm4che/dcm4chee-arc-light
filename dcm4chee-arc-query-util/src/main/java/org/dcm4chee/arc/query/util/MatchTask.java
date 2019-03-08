@@ -199,6 +199,8 @@ public class MatchTask {
     private void matchExportTask(
             List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
             Root<ExportTask> exportTask) {
+        if (taskQueryParam.getStatus() == QueueMessage.Status.TO_SCHEDULE)
+            predicates.add(cb.and(exportTask.get(ExportTask_.queueMessage).isNull()));
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
         if (taskQueryParam.getDeviceName() != null)

@@ -554,6 +554,7 @@ public class ExportTaskRS {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setExporterIDs(exporterIDs);
         taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status());
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
