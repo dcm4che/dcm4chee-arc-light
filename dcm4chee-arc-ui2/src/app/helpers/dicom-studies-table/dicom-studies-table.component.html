@@ -1,17 +1,17 @@
 <h3 *ngIf="title">{{title}}</h3>
 <div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" *ngIf="patients && patients.length > 0">
     <!--Patient header 1:-->
-    <div class="th patient" [ngClass]="config?.cssThClass">
-        <div class="td"*ngFor="let patient_table of tableSchema.patient" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}">
-            <ng-container *ngIf="patient_table.type === 'value'">{{patient_table.header}}</ng-container>
-            <ng-container *ngIf="patient_table.type != 'value'">&nbsp;</ng-container>
+        <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass">
+            <div class="td"*ngFor="let patient_table of tableSchema[hover_mode]" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}">
+                <ng-container *ngIf="patient_table.type === 'value'">{{patient_table.header}}</ng-container>
+                <ng-container *ngIf="patient_table.type != 'value'">&nbsp;</ng-container>
+            </div>
         </div>
-    </div>
     <!--1:END;-->
 
     <!--Patient Table 1:-->
     <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let patient of patients;let i = index">
-        <div class="patient_block table_item">
+        <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'">
             <div class="td" *ngFor="let patient_table of tableSchema.patient" [ngClass]="config?.cssTdClass" [ngStyle]="{width: patient_table.calculatedWidth}" [ngSwitch]="patient_table.type">
                 <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
@@ -29,7 +29,7 @@
         <!--Studies 2:-->
         <div *ngIf="patient.showStudies" class="study_main_block">
             <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let study of patient.studies;let i = index">
-                <div class="study_block table_item">
+                <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'">
                     <div class="td" *ngFor="let studies_table of tableSchema.studies" [ngClass]="config?.cssTdClass" [ngStyle]="{width: studies_table.calculatedWidth}" [ngSwitch]="studies_table.type">
                         <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -46,7 +46,7 @@
                 <!--Series 3:-->
                 <div *ngIf="study.showSeries" class="series_main_block">
                     <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let serie of study.series;let i = index">
-                        <div class="series_block table_item">
+                        <div class="series_block table_item" (mouseenter)="hover_mode = 'series'">
                             <div class="td" *ngFor="let serie_table of tableSchema.series" [ngClass]="config?.cssTdClass" [ngStyle]="{width: serie_table.calculatedWidth}" [ngSwitch]="serie_table.type">
                                 <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
@@ -64,7 +64,7 @@
                         <!--Instance 4:-->
                         <div *ngIf="serie.showInstances" class="instance_main_block">
                             <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let instance of serie.instances;let i = index">
-                                <div class="instance_block table_item">
+                                <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'">
                                     <div class="td" *ngFor="let instance_table of tableSchema.instance" [ngClass]="config?.cssTdClass" [ngStyle]="{width: instance_table.calculatedWidth}" [ngSwitch]="instance_table.type">
                                         <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                         <ng-container *ngSwitchCase="'actions'">

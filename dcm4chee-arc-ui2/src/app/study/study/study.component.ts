@@ -112,6 +112,7 @@ export class StudyComponent implements OnInit {
             offset:0
         }
     };
+    hover_mode = 'patient';
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -137,7 +138,7 @@ export class StudyComponent implements OnInit {
     @HostListener("window:scroll", [])
     onWindowScroll(e) {
         let html = document.documentElement;
-        if(html.scrollTop > 73){
+        if(html.scrollTop > 63){
             this.fixedHeader = true;
             this.testShow = false;
         }else{
