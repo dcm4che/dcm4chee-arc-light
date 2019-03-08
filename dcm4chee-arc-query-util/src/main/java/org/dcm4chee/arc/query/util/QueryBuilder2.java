@@ -243,26 +243,26 @@ public class QueryBuilder2 {
     }
 
     public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
-        if (pids.length == 0)
+        if (isUniversalMatching(pids))
             return;
 
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
         Join<PatientID, IssuerEntity> issuer = containsIssuer(pids)
                 ? patientID.join(PatientID_.issuer, JoinType.LEFT)
                 : null;
-        List<Predicate> y = new ArrayList<>(pids.length);
+        List<Predicate> idPredicates = new ArrayList<>(pids.length);
         for (IDWithIssuer pid : pids) {
             if (!isUniversalMatching(pid.getID())) {
-                List<Predicate> z = new ArrayList<>(3);
-                if (wildCard(z, patientID.get(PatientID_.id), pid.getID())) {
+                List<Predicate> idPredicate = new ArrayList<>(3);
+                if (wildCard(idPredicate, patientID.get(PatientID_.id), pid.getID())) {
                     if (pid.getIssuer() != null)
-                        issuer(z, issuer, pid.getIssuer());
-                    y.add(cb.and(z.toArray(new Predicate[0])));
+                        issuer(idPredicate, issuer, pid.getIssuer());
+                    idPredicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
                 }
             }
         }
-        if (!y.isEmpty())
-            predicates.add(cb.or(y.toArray(new Predicate[0])));
+        if (!idPredicates.isEmpty())
+            predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
     }
 
     public <T> List<Predicate> patientPredicates(CriteriaQuery<T> q,
@@ -345,10 +345,9 @@ public class QueryBuilder2 {
     }
 
     public static boolean hasPatientLevelPredicates(IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        for (IDWithIssuer pid : pids) {
-            if (!isUniversalMatching(pid.getID()))
-                return true;
-        }
+        if (!isUniversalMatching(pids))
+            return true;
+
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
         return queryParam.getPatientVerificationStatus() != null
                 || !isUniversalMatching(keys.getString(Tag.PatientName))
@@ -674,6 +673,14 @@ public class QueryBuilder2 {
 
     private static boolean isUniversalMatching(String[] values) {
         return values == null || values.length == 0 || values[0].equals("*");
+    }
+
+    private static boolean isUniversalMatching(IDWithIssuer[] pids) {
+        for (IDWithIssuer pid : pids) {
+            if (!isUniversalMatching(pid.getID()))
+                return false;
+        }
+        return true;
     }
 
     private static boolean isUniversalMatching(DateRange range) {
