@@ -72,9 +72,6 @@ class PatientQuery extends AbstractQuery {
     protected CriteriaQuery<Tuple> multiselect() {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         this.patient = q.from(Patient.class);
-        builder.applyPatientLevelJoins(patient,
-                context.getPatientIDs(),
-                context.getQueryKeys());
         return order(restrict(q, patient)).multiselect(
                 patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
@@ -90,9 +87,6 @@ class PatientQuery extends AbstractQuery {
     protected CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<Patient> patient = q.from(Patient.class);
-        builder.applyPatientLevelJoinsForCount(patient,
-                context.getPatientIDs(),
-                context.getQueryKeys());
         return restrict(q, patient).select(cb.count(patient));
     }
 

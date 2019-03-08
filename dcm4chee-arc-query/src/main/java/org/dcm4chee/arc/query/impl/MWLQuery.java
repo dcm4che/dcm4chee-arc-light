@@ -73,10 +73,6 @@ public class MWLQuery extends AbstractQuery {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         this.mwlItem = q.from(MWLItem.class);
         this.patient = mwlItem.join(MWLItem_.patient);
-        QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
-        QueryBuilder2.applyPatientLevelJoins(patient,
-                context.getPatientIDs(),
-                context.getQueryKeys());
         return order(restrict(q, patient, mwlItem)).multiselect(
                 patient.get(Patient_.numberOfStudies),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
@@ -88,8 +84,6 @@ public class MWLQuery extends AbstractQuery {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
-        QueryBuilder2.applyMWLItemJoins(mwlItem, context.getQueryKeys());
-        QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
         return restrict(q, patient, mwlItem).select(cb.count(mwlItem));
     }
 

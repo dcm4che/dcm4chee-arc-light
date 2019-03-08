@@ -123,11 +123,6 @@ class InstanceQuery extends AbstractQuery {
         this.study = series.join(Series_.study);
         this.patient = study.join(Study_.patient);
         this.rejectionNoteCode = instance.join(Instance_.rejectionNoteCode, JoinType.LEFT);
-        QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
-        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
-        QueryBuilder2.applyPatientLevelJoins(patient,
-                context.getPatientIDs(),
-                context.getQueryKeys());
         return order(restrict(q, patient, study, series, instance)).multiselect(
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
@@ -150,9 +145,6 @@ class InstanceQuery extends AbstractQuery {
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
         instance.join(Instance_.rejectionNoteCode, JoinType.LEFT);
-        QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
-        QueryBuilder2.applyStudyLevelJoins(study,context.getQueryKeys());
-        QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
         return restrict(q, patient, study, series, instance).select(cb.count(instance));
     }
 
@@ -283,13 +275,13 @@ class InstanceQuery extends AbstractQuery {
 
     private CriteriaQuery<Tuple> restrict(CriteriaQuery<Tuple> q, Join<Study, Patient> patient,
             Join<Series, Study> study, Root<Series> series) {
-        return q.where(
-                builder.seriesPredicates(q, patient, study, series,
-                        context.getPatientIDs(),
-                        context.getQueryKeys(),
-                        context.getQueryParam(),
-                        cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED))
-                    .toArray(new Predicate[0]));
+        List<Predicate> predicates = builder.seriesPredicates(q, patient, study, series,
+                context.getPatientIDs(),
+                context.getQueryKeys(),
+                context.getQueryParam()
+        );
+        predicates.add(cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED));
+        return q.where(predicates.toArray(new Predicate[0]));
     }
 
     private boolean nextSeriesMetadataStream() throws IOException {

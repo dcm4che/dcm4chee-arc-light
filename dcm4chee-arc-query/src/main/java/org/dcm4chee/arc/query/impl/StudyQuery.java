@@ -82,10 +82,6 @@ class StudyQuery extends AbstractQuery {
         this.patient = study.join(Study_.patient);
         String viewID = context.getQueryParam().getViewID();
         this.studyQueryAttributes = QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID);
-        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
-        QueryBuilder2.applyPatientLevelJoins(patient,
-                context.getPatientIDs(),
-                context.getQueryKeys());
         return order(restrict(q, patient, study)).multiselect(
                 study.get(Study_.pk),
                 patient.get(Patient_.numberOfStudies),
@@ -198,11 +194,14 @@ class StudyQuery extends AbstractQuery {
         return q;
     }
 
-    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<Study, Patient> patient, Root<Study> study) {
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<Study, Patient> patient, Root<Study> study,
+            Predicate... extra) {
         List<Predicate> predicates = builder.studyPredicates(q, patient, study,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam());
+        for (Predicate predicate : extra)
+            predicates.add(predicate);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         return q;
@@ -210,7 +209,6 @@ class StudyQuery extends AbstractQuery {
 
     private CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q,
             Root<Study> study, Expression<Long> longExpression, Predicate... extra) {
-        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
         boolean hasPatientLevelPredicates = QueryBuilder2.hasPatientLevelPredicates(
                 context.getPatientIDs(),
                 context.getQueryKeys(),
@@ -218,9 +216,8 @@ class StudyQuery extends AbstractQuery {
         Join<Study, Patient> patient = null;
         if (hasPatientLevelPredicates) {
             patient = study.join(Study_.patient);
-            QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
         }
-        return restrict(q, patient, study).select(longExpression);
+        return restrict(q, patient, study, extra).select(longExpression);
     }
 
     static void addStudyQRAddrs(Path<Study> study, QueryContext context, Tuple results, long studySize,

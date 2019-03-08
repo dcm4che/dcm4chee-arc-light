@@ -90,11 +90,6 @@ class SeriesQuery extends AbstractQuery {
                 context.getQueryParam().getViewID());
         this.seriesQueryAttributes = QueryBuilder2.joinSeriesQueryAttributes(cb, series,
                 context.getQueryParam().getViewID());
-        QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
-        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
-        QueryBuilder2.applyPatientLevelJoins(patient,
-                context.getPatientIDs(),
-                context.getQueryKeys());
         return order(restrict(q, patient, study, series)).multiselect(
                 study.get(Study_.pk),
                 series.get(Series_.pk),
@@ -156,9 +151,6 @@ class SeriesQuery extends AbstractQuery {
         Root<Series> series = q.from(Series.class);
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
-        QueryBuilder2.applySeriesLevelJoins(series, context.getQueryKeys());
-        QueryBuilder2.applyStudyLevelJoins(study, context.getQueryKeys());
-        QueryBuilder2.applyPatientLevelJoinsForCount(patient, context.getPatientIDs(), context.getQueryKeys());
         return restrict(q, patient, study, series).select(cb.count(patient));
     }
 

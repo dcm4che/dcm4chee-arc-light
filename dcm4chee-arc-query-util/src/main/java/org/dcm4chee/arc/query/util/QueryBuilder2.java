@@ -55,6 +55,7 @@ import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 
 /**
@@ -241,74 +242,49 @@ public class QueryBuilder2 {
         return true;
     }
 
-    public static <X> void applyPatientLevelJoins(From<X, Patient> patient, IDWithIssuer[] pids, Attributes keys) {
-        applyPatientIDJoins(patient, pids);
-        if (!isUniversalMatching(keys.getString(Tag.PatientName)))
-            patient.join(Patient_.patientName);
-        if (!isUniversalMatching(keys.getString(Tag.ResponsiblePerson)))
-            patient.join(Patient_.responsiblePerson);
-    }
-
-    public static <X> void applyPatientLevelJoinsForCount(From<X, Patient> patient, IDWithIssuer[] pids,
-            Attributes keys) {
-        applyPatientIDJoins(patient, pids);
-        if (!isUniversalMatching(keys.getString(Tag.PatientName)))
-            patient.join(Patient_.patientName);
-        if (!isUniversalMatching(keys.getString(Tag.ResponsiblePerson)))
-            patient.join(Patient_.responsiblePerson);
-    }
-
-    public static <X> void applyPatientIDJoins(From<X, Patient> patient, IDWithIssuer[] pids) {
-        if (pids.length > 0) {
-            Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
-            if (containsIssuer(pids))
-                patientID.join(PatientID_.issuer, JoinType.LEFT);
-        }
-    }
-
-    public void patientIDPredicate(List<Predicate> x, Path<PatientID> patient, IDWithIssuer[] pids) {
+    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
         if (pids.length == 0)
             return;
 
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        Join<PatientID, IssuerEntity> issuer = containsIssuer(pids)
+                ? patientID.join(PatientID_.issuer, JoinType.LEFT)
+                : null;
         List<Predicate> y = new ArrayList<>(pids.length);
         for (IDWithIssuer pid : pids) {
             if (!isUniversalMatching(pid.getID())) {
                 List<Predicate> z = new ArrayList<>(3);
-                idWithIssuer(z, patient.get(PatientID_.id), patient.get(PatientID_.issuer), pid.getID(),
-                        pid.getIssuer());
-                if (!z.isEmpty()) {
+                if (wildCard(z, patientID.get(PatientID_.id), pid.getID())) {
+                    if (pid.getIssuer() != null)
+                        issuer(z, issuer, pid.getIssuer());
                     y.add(cb.and(z.toArray(new Predicate[0])));
                 }
             }
         }
         if (!y.isEmpty())
-            x.add(cb.or(y.toArray(new Predicate[0])));
+            predicates.add(cb.or(y.toArray(new Predicate[0])));
     }
 
     public <T> List<Predicate> patientPredicates(CriteriaQuery<T> q,
-            Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+            Root<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.PATIENT);
         return predicates;
     }
 
     public <T> List<Predicate> studyPredicates(CriteriaQuery<T> q,
-            Path<Patient> patient, Path<Study> study,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam, Predicate... extra) {
+            From<Study, Patient> patient, Root<Study> study,
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        for (Predicate predicate : extra)
-            predicates.add(predicate);
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.STUDY);
         studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.STUDY);
         return predicates;
     }
 
     public <T> List<Predicate> seriesPredicates(CriteriaQuery<T> q,
-            Path<Patient> patient, Path<Study> study, Path<Series> series,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam, Predicate... initPredicates) {
+            From<Study, Patient> patient, From<Series, Study> study, Root<Series> series,
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        for (Predicate predicate : initPredicates)
-            predicates.add(predicate);
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.SERIES);
         studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.SERIES);
         seriesLevelPredicates(predicates, q, series, keys, queryParam);
@@ -316,8 +292,8 @@ public class QueryBuilder2 {
     }
 
     public <T> List<Predicate> instancePredicates(CriteriaQuery<T> q,
-            Path<Patient> patient, Path<Study> study, Path<Series> series, Path<Instance> instance,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+            From<Study, Patient> patient, From<Series, Study> study, From<Instance, Series> series,
+            Root<Instance> instance, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.IMAGE);
@@ -329,7 +305,7 @@ public class QueryBuilder2 {
     }
 
     public <T> List<Predicate> mwlItemPredicates(CriteriaQuery<T> q,
-            Path<Patient> patient, Path<MWLItem> mwlItem,
+            From<MWLItem, Patient> patient, Root<MWLItem> mwlItem,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
@@ -337,8 +313,8 @@ public class QueryBuilder2 {
         return predicates;
     }
 
-    private <T> void patientLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            Path<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+    private <T, Z> void patientLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+            From<Z, Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             QueryRetrieveLevel2 queryRetrieveLevel) {
         if (patient == null)
             return;
@@ -348,14 +324,14 @@ public class QueryBuilder2 {
             if (!queryParam.isWithoutStudies())
                 predicates.add(cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
         }
-        patientIDPredicate(predicates, patient.get(Patient_.patientID), pids);
-        personName(predicates, q, patient.get(Patient_.patientName),
+        patientIDPredicate(predicates, patient, pids);
+        personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
         wildCard(predicates, patient.get(Patient_.patientSex),
                 keys.getString(Tag.PatientSex, "*").toUpperCase());
         dateRange(predicates, patient.get(Patient_.patientBirthDate),
                 keys.getDateRange(Tag.PatientBirthDate), FormatDate.DA);
-        personName(predicates, q, patient.get(Patient_.responsiblePerson),
+        personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.ResponsiblePerson, "*"), queryParam);
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
         wildCard(predicates, patient.get(Patient_.patientCustomAttribute1),
@@ -385,14 +361,6 @@ public class QueryBuilder2 {
                 || !isUniversalMatching(AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), null));
     }
 
-    public static <X> void applyStudyLevelJoins(From<X, Study> study, Attributes keys) {
-        if (!isUniversalMatching(keys.getString(Tag.AccessionNumber))
-                && !isUniversalMatching(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)))
-            study.join(Study_.issuerOfAccessionNumber);
-        if (!isUniversalMatching(keys.getString(Tag.ReferringPhysicianName)))
-            study.join(Study_.referringPhysicianName);
-    }
-
     public static <X> CollectionJoin<Study, StudyQueryAttributes> joinStudyQueryAttributes(
             CriteriaBuilder cb, From<X, Study> study, String viewID) {
         CollectionJoin<Study, StudyQueryAttributes> join = study.join(Study_.queryAttributes, JoinType.LEFT);
@@ -410,8 +378,8 @@ public class QueryBuilder2 {
             x.add(values.length == 1 ? cb.equal(path, values[0]) : path.in(values));
     }
 
-    private <T> List<Predicate> studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            Path<Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
+    private <T, Z> List<Predicate> studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+            From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         accessControl(predicates, study, queryParam.getAccessControlIDs());
         uidsPredicate(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
@@ -419,17 +387,16 @@ public class QueryBuilder2 {
         dateRange(predicates, study.get(Study_.studyDate), study.get(Study_.studyTime),
                 Tag.StudyDate, Tag.StudyTime, Tag.StudyDateAndTime,
                 keys, combinedDatetimeMatching);
-        personName(predicates, q, study.get(Study_.referringPhysicianName),
+        personName(predicates, q, study, Study_.referringPhysicianName,
                 keys.getString(Tag.ReferringPhysicianName, "*"), queryParam);
         wildCard(predicates, study.get(Study_.studyDescription),
                 keys.getString(Tag.StudyDescription, "*"), true);
         String accNo = keys.getString(Tag.AccessionNumber, "*");
-        if (!accNo.equals("*")) {
+        if (!isUniversalMatching(accNo)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuer == null)
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
-            idWithIssuer(predicates, study.get(Study_.accessionNumber), study.get(Study_.issuerOfAccessionNumber),
-                    accNo, issuer);
+            idWithIssuer(predicates, study, Study_.accessionNumber, Study_.issuerOfAccessionNumber, accNo, issuer);
         }
         seriesAttributesInStudy(predicates, q, study, keys, queryParam);
         Attributes procedureCode = keys.getNestedDataset(Tag.ProcedureCodeSequence);
@@ -479,14 +446,8 @@ public class QueryBuilder2 {
         predicates.add(study.get(Study_.accessControlID).in(a));
     }
 
-    public static <X> void applySeriesLevelJoins(From<X, Series> series, Attributes keys) {
-        if (!isUniversalMatching(keys.getString(Tag.PerformingPhysicianName))) {
-            series.join(Series_.performingPhysicianName);
-        }
-    }
-
-    private <T> List<Predicate> seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            Path<Series> series, Attributes keys, QueryParam queryParam) {
+    private <T, Z> List<Predicate> seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+            From<Z, Series> series, Attributes keys, QueryParam queryParam) {
         uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID));
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
         wildCard(predicates, series.get(Series_.modality),
@@ -501,7 +462,7 @@ public class QueryBuilder2 {
                 Tag.PerformedProcedureStepStartDate, Tag.PerformedProcedureStepStartTime,
                 Tag.PerformedProcedureStepStartDateAndTime,
                 keys, queryParam.isCombinedDatetimeMatching());
-        personName(predicates, q, series.get(Series_.performingPhysicianName),
+        personName(predicates, q, series, Series_.performingPhysicianName,
                 keys.getString(Tag.PerformingPhysicianName, "*"), queryParam);
         wildCard(predicates, series.get(Series_.seriesDescription),
                 keys.getString(Tag.SeriesDescription, "*"), true);
@@ -600,32 +561,17 @@ public class QueryBuilder2 {
         return predicates;
     }
 
-    public static <X> void applyMWLItemJoins(From<X, MWLItem> mwlItem, Attributes keys) {
-        if (!isUniversalMatching(keys.getString(Tag.AccessionNumber))
-                && !isUniversalMatching(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence))) {
-            mwlItem.join(MWLItem_.issuerOfAccessionNumber, JoinType.LEFT);
-        }
-
-        Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
-        if (sps != null && !isUniversalMatching(sps.getString(Tag.ScheduledPerformingPhysicianName))) {
-            mwlItem.join(MWLItem_.scheduledPerformingPhysicianName);
-        }
-    }
-
-    private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Path<MWLItem> mwlItem,
+    private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Root<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
         uidsPredicate(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
         wildCard(predicates, mwlItem.get(MWLItem_.requestedProcedureID), keys.getString(Tag.RequestedProcedureID, "*"));
         String accNo = keys.getString(Tag.AccessionNumber, "*");
-        if (!accNo.equals("*")) {
+        if (!isUniversalMatching(accNo)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuer == null) {
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
             }
-            idWithIssuer(predicates,
-                    mwlItem.get(MWLItem_.accessionNumber),
-                    mwlItem.get(MWLItem_.issuerOfAccessionNumber),
-                    accNo, issuer);
+            idWithIssuer(predicates, mwlItem, MWLItem_.accessionNumber, MWLItem_.issuerOfAccessionNumber, accNo, issuer);
         }
         Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (sps != null) {
@@ -638,7 +584,7 @@ public class QueryBuilder2 {
                     Tag.ScheduledProcedureStepStartDate,
                     Tag.ScheduledProcedureStepStartDateAndTime,
                     sps, true);
-            personName(predicates, q, mwlItem.get(MWLItem_.scheduledPerformingPhysicianName),
+            personName(predicates, q, mwlItem, MWLItem_.scheduledPerformingPhysicianName,
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
             wildCard(predicates, mwlItem.get(MWLItem_.modality), sps.getString(Tag.Modality, "*").toUpperCase());
             showSPSWithStatus(predicates, mwlItem, sps);
@@ -698,21 +644,24 @@ public class QueryBuilder2 {
         return false;
     }
 
-    private void idWithIssuer(List<Predicate> predicates, Expression<String> idPath,
-            Path<IssuerEntity> issuerPath, String id, Issuer issuer) {
-        if (!wildCard(predicates, idPath, id) || issuer == null)
-            return;
+    private <Z, X> void idWithIssuer(List<Predicate> predicates, From<Z, X> entity,
+            SingularAttribute<X, String> idAttribute, SingularAttribute<X, IssuerEntity> issuerAttribute,
+            String accNo, Issuer issuer) {
+        if (wildCard(predicates, entity.get(idAttribute), accNo) && issuer != null)
+            issuer(predicates, entity.join(issuerAttribute, JoinType.LEFT), issuer);
+    }
 
+    private void issuer(List<Predicate> predicates, Path<IssuerEntity> issuerPath, Issuer issuer) {
         String entityID = issuer.getLocalNamespaceEntityID();
         String entityUID = issuer.getUniversalEntityID();
         String entityUIDType = issuer.getUniversalEntityIDType();
         if (!isUniversalMatching(entityID))
             predicates.add(cb.or(issuerPath.get(IssuerEntity_.localNamespaceEntityID).isNull(),
-                            cb.equal(issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID)));
+                    cb.equal(issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID)));
         if (!isUniversalMatching(entityUID))
             predicates.add(cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
-                            cb.and(cb.equal(issuerPath.get(IssuerEntity_.universalEntityID), entityUID),
-                                    cb.equal(issuerPath.get(IssuerEntity_.universalEntityIDType), entityUIDType))));
+                    cb.and(cb.equal(issuerPath.get(IssuerEntity_.universalEntityID), entityUID),
+                            cb.equal(issuerPath.get(IssuerEntity_.universalEntityIDType), entityUIDType))));
     }
 
     private static boolean isUniversalMatching(Attributes item) {
@@ -858,42 +807,34 @@ public class QueryBuilder2 {
 
         Subquery<SeriesRequestAttributes> sq = q.subquery(SeriesRequestAttributes.class);
         Root<SeriesRequestAttributes> request = sq.from(SeriesRequestAttributes.class);
-        List<Predicate> y = new ArrayList<>();
+        List<Predicate> requestPredicates = new ArrayList<>();
         String accNo = item.getString(Tag.AccessionNumber, "*");
         if (!isUniversalMatching(accNo)) {
             Issuer issuerOfAccessionNumber = Issuer.valueOf(item
                     .getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuerOfAccessionNumber == null)
                 issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
-            if (issuerOfAccessionNumber != null)
-                request.join(SeriesRequestAttributes_.issuerOfAccessionNumber, JoinType.LEFT);
-            idWithIssuer(y,
-                    request.get(SeriesRequestAttributes_.accessionNumber),
-                    request.get(SeriesRequestAttributes_.issuerOfAccessionNumber),
+            idWithIssuer(requestPredicates, request,
+                    SeriesRequestAttributes_.accessionNumber, SeriesRequestAttributes_.issuerOfAccessionNumber,
                     accNo, issuerOfAccessionNumber);
         }
-        wildCard(y,
+        wildCard(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestingService),
                 item.getString(Tag.RequestingService, "*"), true);
-        String requestingPhysician = item.getString(Tag.RequestingPhysician, "*");
-        if (!isUniversalMatching(requestingPhysician)) {
-            request.join(SeriesRequestAttributes_.requestingPhysician);
-            personName(y, q,
-                    request.get(SeriesRequestAttributes_.requestingPhysician),
-                    requestingPhysician, queryParam);
-        }
-        wildCard(y,
+        personName(requestPredicates, q, request, SeriesRequestAttributes_.requestingPhysician,
+                item.getString(Tag.RequestingPhysician, "*"), queryParam);
+        wildCard(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestedProcedureID),
                 item.getString(Tag.RequestedProcedureID, "*"));
-        uidsPredicate(y, request.get(SeriesRequestAttributes_.studyInstanceUID),
+        uidsPredicate(requestPredicates, request.get(SeriesRequestAttributes_.studyInstanceUID),
                 item.getStrings(Tag.StudyInstanceUID));
-        wildCard(y,
+        wildCard(requestPredicates,
                 request.get(SeriesRequestAttributes_.scheduledProcedureStepID),
                 item.getString(Tag.ScheduledProcedureStepID, "*"),
                 false);
-        if (!y.isEmpty()) {
-            y.add(request.in(requests));
-            predicates.add(cb.exists(sq.select(request).where(y.toArray(new Predicate[0]))));
+        if (!requestPredicates.isEmpty()) {
+            requestPredicates.add(request.in(requests));
+            predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
         }
     }
 
@@ -902,11 +843,8 @@ public class QueryBuilder2 {
         Subquery<VerifyingObserver> sq = q.subquery(VerifyingObserver.class);
         Root<VerifyingObserver> observer = sq.from(VerifyingObserver.class);
         List<Predicate> y = new ArrayList<>();
-        String observerName = item.getString(Tag.VerifyingObserverName, "*");
-        if (!isUniversalMatching(observerName)) {
-            observer.join(VerifyingObserver_.verifyingObserverName);
-            personName(y, q, observer.get(VerifyingObserver_.verifyingObserverName), observerName, queryParam);
-        }
+        personName(y, q, observer, VerifyingObserver_.verifyingObserverName,
+                item.getString(Tag.VerifyingObserverName, "*"), queryParam);
         dateRange(observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
         if (!y.isEmpty()) {
@@ -938,9 +876,11 @@ public class QueryBuilder2 {
         }
     }
 
-    private <T> void personName(List<Predicate> predicates, CriteriaQuery<T> q,
-            Path<org.dcm4chee.arc.entity.PersonName> qpn, String value, QueryParam queryParam) {
+    private <T, Z, X> void personName(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, X> patient,
+            SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute, String value,
+            QueryParam queryParam) {
         if (!isUniversalMatching(value)) {
+            Path<org.dcm4chee.arc.entity.PersonName> qpn = patient.join(attribute);
             PersonName pn = new PersonName(value, true);
             if (queryParam.isFuzzySemanticMatching())
                 fuzzyMatch(predicates, q, qpn, pn, queryParam);
