@@ -241,7 +241,7 @@ public class QueryBuilder2 {
         return (Path<org.dcm4chee.arc.entity.PersonName>) entity.getJoins().stream()
                 .filter(j -> j.getAttribute().equals(attribute))
                 .findFirst()
-                .orElseGet(()->entity.join(attribute, JoinType.LEFT));
+                .orElseGet(() -> entity.join(attribute, JoinType.LEFT));
     }
 
     private boolean orderPersonName(Path<org.dcm4chee.arc.entity.PersonName> personName,
