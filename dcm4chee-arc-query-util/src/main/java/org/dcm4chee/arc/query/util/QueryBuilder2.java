@@ -238,9 +238,10 @@ public class QueryBuilder2 {
 
     private <Z, X> Path<org.dcm4chee.arc.entity.PersonName> joinPersonName(
             From<Z, X> entity, SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute) {
-        return entity.getJoins().stream().noneMatch(j -> j.getAttribute().equals(attribute))
-                ? entity.join(attribute, JoinType.LEFT)
-                : entity.get(attribute);
+        return (Path<org.dcm4chee.arc.entity.PersonName>) entity.getJoins().stream()
+                .filter(j -> j.getAttribute().equals(attribute))
+                .findFirst()
+                .orElseGet(()->entity.join(attribute, JoinType.LEFT));
     }
 
     private boolean orderPersonName(Path<org.dcm4chee.arc.entity.PersonName> personName,
