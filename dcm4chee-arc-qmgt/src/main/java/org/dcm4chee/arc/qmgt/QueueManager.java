@@ -92,6 +92,8 @@ public interface QueueManager {
 
     int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize);
 
+    int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize);
+
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 
     QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam);

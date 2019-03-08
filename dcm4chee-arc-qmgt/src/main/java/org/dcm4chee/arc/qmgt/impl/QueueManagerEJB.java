@@ -70,6 +70,7 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -460,6 +461,21 @@ public class QueueManagerEJB {
                 deleteTask(iterate.next());
                 count++;
             }
+        }
+        return count;
+    }
+
+    public int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize) {
+        int count = 0;
+        try (QueueMessageQuery query = new QueueMessageQueryImpl(taskQueryParam, em)) {
+            query.beginTransaction();
+            query.executeQuery(0, 0, deleteTaskFetchSize);
+            while (query.hasMoreMatches()) {
+                deleteTask(query.nextMatch());
+                count++;
+            }
+        } catch (Exception e) {
+            LOG.warn(e.getMessage());
         }
         return count;
     }

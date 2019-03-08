@@ -209,6 +209,11 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
+    public int deleteTasks(TaskQueryParam taskQueryParam, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(taskQueryParam, deleteTasksFetchSize);
+    }
+
+    @Override
     public QueueMessageQuery countTasks(TaskQueryParam taskQueryParam) {
         return ejb.countTasks(taskQueryParam);
     }

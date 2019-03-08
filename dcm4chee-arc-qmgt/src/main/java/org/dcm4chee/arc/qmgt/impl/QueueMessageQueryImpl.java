@@ -86,8 +86,9 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
     @Override
     public void executeQuery(int fetchSize, int offset, int limit) {
         close(resultStream);
-        TypedQuery<QueueMessage> query = em.createQuery(select())
-                .setHint(QueryHints.FETCH_SIZE, fetchSize);
+        TypedQuery<QueueMessage> query = em.createQuery(select());
+        if (fetchSize > 0)
+            query.setHint(QueryHints.FETCH_SIZE, fetchSize);
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)

@@ -313,7 +313,7 @@ public class QueueManagerRS {
             int count;
             int deleteTaskFetchSize = queueTasksFetchSize();
             do {
-                count = mgr.deleteTasks(matchQueueMessage(status(), null), deleteTaskFetchSize);
+                count = mgr.deleteTasks(taskQueryParam(), deleteTaskFetchSize);
                 deleted += count;
             } while (count >= deleteTaskFetchSize);
             queueEvent.setCount(deleted);
