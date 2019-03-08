@@ -757,6 +757,14 @@ export class j4care {
         return table;
     };
 
+
+    static valuesOf(attr) {
+        return attr && attr.Value;
+    }
+    static valueOf(attr) {
+        return attr && attr.Value && attr.Value[0];
+    }
+
     static encode64(inputStr) {
         let b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
         let outputStr = "";

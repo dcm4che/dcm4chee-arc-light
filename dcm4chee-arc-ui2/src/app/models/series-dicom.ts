@@ -6,7 +6,7 @@ export class SeriesDicom {
     private _offset:number;
     private _attrs:any[];
     private _instances:InstanceDicom[];
-    private _moreSeries:boolean;
+    private _moreInstances:boolean;
     private _showAttributes:boolean;
     private _selected:boolean;
     private _showInstances:boolean;
@@ -16,7 +16,7 @@ export class SeriesDicom {
         attrs:any[],
         offset?:number,
         instances?:InstanceDicom[],
-        moreSeries?:boolean,
+        moreInstances?:boolean,
         showAttributes?:boolean,
         selected?:boolean,
         showInstances?:boolean,
@@ -25,7 +25,7 @@ export class SeriesDicom {
         this._attrs = attrs;
         this._offset = offset || 0;
         this._instances = instances;
-        this._moreSeries = moreSeries || false;
+        this._moreInstances = moreInstances || false;
         this._showAttributes = showAttributes || false;
         this._selected = selected || false;
         this._showInstances = showInstances || false;
@@ -63,12 +63,12 @@ export class SeriesDicom {
         this._instances = value;
     }
 
-    get moreSeries(): boolean {
-        return this._moreSeries;
+    get moreInstances(): boolean {
+        return this._moreInstances;
     }
 
-    set moreSeries(value: boolean) {
-        this._moreSeries = value;
+    set moreInstances(value: boolean) {
+        this._moreInstances = value;
     }
 
     get showAttributes(): boolean {

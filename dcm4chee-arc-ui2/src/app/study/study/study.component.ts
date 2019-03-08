@@ -18,6 +18,9 @@ import * as _  from "lodash";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DicomTableSchema, TableSchemaConfig} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {SeriesDicom} from "../../models/series-dicom";
+import {InstanceDicom} from "../../models/instance-dicom";
+import {WadoQueryParams} from "./wado-wuery-params";
+import {GSPSQueryParams} from "../../models/gsps-query-params";
 
 
 @Component({
@@ -149,10 +152,17 @@ export class StudyComponent implements OnInit {
         console.log("model",model);
         if(id.action === "toggle_series"){
             if(!model.series){
-                //TODO get series to this study
                 this.getSeries(model);
             }else{
                 model.showSeries = !model.showSeries;
+            }
+
+        }
+        if(id.action === "toggle_instances"){
+            if(!model.instances){
+                this.getInstances(model);
+            }else{
+                model.showInstances = !model.showInstances;
             }
 
         }
@@ -169,6 +179,7 @@ export class StudyComponent implements OnInit {
             delete filters.aet;
             this.service.getStudies(callingAet, filters)
                 .subscribe(res => {
+                    this.patients = [];
                     if(res){
                         let index = 0;
                         let patient: PatientDicom;
@@ -225,11 +236,6 @@ export class StudyComponent implements OnInit {
         }
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
-/*        this.service.getSeries(
-            this.rsURL(),
-            study.attrs['0020000D'].Value[0],
-            this.createQueryParams(offset, this.limit + 1, { orderby: 'SeriesNumber'})
-        )*/
         this.service.getSeries(callingAet,study.attrs['0020000D'].Value[0], filters)
             .subscribe((res)=>{
             if (res){
@@ -251,8 +257,8 @@ export class StudyComponent implements OnInit {
                     console.log("study",study);
                     console.log("patients",this.patients);
                     // StudiesService.trim(this);
+                    study.showSeries = true;
                 }
-                study.showSeries = true;
                 this.cfpLoadingBar.complete();
             }else{
                 this.appService.setMessage( {
@@ -261,6 +267,60 @@ export class StudyComponent implements OnInit {
                     'status': 'info'
                 });
             }
+        },(err)=>{
+                j4care.log("Something went wrong on search", err);
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+        });
+    }
+
+    getInstances(series:SeriesDicom){
+        console.log('in query Instances serie=', series);
+        this.cfpLoadingBar.start();
+        if (series.offset < 0) series.offset = 0;
+        let callingAet = new Aet(this._filter.filterModel.aet);
+        let filters = _.clone(this._filter.filterModel);
+        if(filters.limit){
+            filters.limit++;
+        }
+        delete filters.aet;
+        filters["orderby"] = 'InstanceNumber';
+        this.service.getInstances(callingAet,series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters)
+            .subscribe((res)=>{
+            if (res){
+                series.instances = res.map((attrs, index) => {
+                    let numberOfFrames = j4care.valueOf(attrs['00280008']),
+                        gspsQueryParams:GSPSQueryParams[] = this.service.createGSPSQueryParams(attrs),
+                        video = this.service.isVideo(attrs),
+                        image = this.service.isImage(attrs);
+                    return new InstanceDicom(
+                        series,
+                        series.offset + index,
+                        attrs,
+                        new WadoQueryParams(attrs['0020000D'].Value[0],attrs['0020000E'].Value[0], attrs['00080018'].Value[0]),
+                        video,
+                        image,
+                        numberOfFrames,
+                        gspsQueryParams,
+                        this.service.createArray(video || numberOfFrames || gspsQueryParams.length || 1),
+                        1
+                    )
+                });
+                console.log(series);
+                console.log(this.patients);
+                series.showInstances = true;
+            }else{
+                series.instances = [];
+                if (series.moreInstances = (series.instances.length > this._filter.filterModel.limit)) {
+                    series.instances.pop();
+                    this.appService.setMessage( {
+                        'title': 'Info',
+                        'text': 'No matching Instancess found!',
+                        'status': 'info'
+                    });
+                }
+            }
+            this.cfpLoadingBar.complete();
         },(err)=>{
                 j4care.log("Something went wrong on search", err);
                 this.httpErrorHandler.handleError(err);

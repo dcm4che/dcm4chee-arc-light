@@ -60,6 +60,27 @@
                             </div>
                             <attribute-list *ngIf="serie.showAttributes" [attrs]="serie.attrs"></attribute-list>
                         </div>
+
+                        <!--Instance 4:-->
+                        <div *ngIf="serie.showInstances" class="instance_main_block">
+                            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let instance of serie.instances;let i = index">
+                                <div class="instance_block table_item">
+                                    <div class="td" *ngFor="let instance_table of tableSchema.instance" [ngClass]="config?.cssTdClass" [ngStyle]="{width: instance_table.calculatedWidth}" [ngSwitch]="instance_table.type">
+                                        <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
+                                        <ng-container *ngSwitchCase="'actions'">
+                                            <a class="pointer"  (click)="$event.preventDefault();action.click(instance)" *ngFor="let action of instance_table.actions">
+                                                <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                                <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                            </a>
+                                        </ng-container>
+                                        <ng-container *ngSwitchCase="'pipe'">{{instance_table.pipe | dynamicPipe}}</ng-container>
+                                        <ng-container *ngSwitchCase="'value'">{{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}</ng-container>
+                                    </div>
+                                    <attribute-list *ngIf="instance.showAttributes" [attrs]="instance.attrs"></attribute-list>
+                                </div>
+                            </div>
+                        </div>
+                        <!--4:END;-->
                     </div>
                 </div>
                 <!--3:END;-->

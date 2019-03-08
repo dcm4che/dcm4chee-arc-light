@@ -8,6 +8,7 @@ import {Headers} from "@angular/http";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {Observable} from "rxjs/Observable";
 import * as _ from 'lodash'
+import {GSPSQueryParams} from "../../models/gsps-query-params";
 
 @Injectable()
 export class StudyService {
@@ -93,6 +94,22 @@ export class StudyService {
                 header
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
+
+    getInstances(callingAet:Aet, studyInstanceUID:string, seriesInstanceUID:string, filters:any, responseType?:DicomResponseType, accessLocation?:AccessLocation, externalAet?:Aet, baseUrl?:string):Observable<any>{
+        let header;
+        if(!responseType || responseType === "object"){
+            header = {
+                headers:  new Headers({'Accept': 'application/dicom+json'})
+            };
+        }
+        let params = j4care.objToUrlParams(filters);
+        params = params ? `?${params}`:params;
+
+        return this.$http.get(
+            `${this.getDicomURL("study", callingAet, responseType ,accessLocation, externalAet,undefined, baseUrl)}/${studyInstanceUID}/series/${seriesInstanceUID}/instances${params || ''}`,
+                header
+            ).map(res => j4care.redirectOnAuthResponse(res));
+    }
     getDicomURL(mode:DicomMode, callingAet:Aet, responseType?:DicomResponseType, accessLocation?:AccessLocation,  externalAet?:Aet, secondExternalAet?:Aet, baseUrl?:string):string{
 
         let url = this.rsURL(callingAet, accessLocation,  externalAet, baseUrl);
@@ -171,5 +188,50 @@ export class StudyService {
                 extracted[tag] = attrs[tag];
             }
         }
+    }
+
+    createGSPSQueryParams(attrs):GSPSQueryParams[] {
+        let sopClass = j4care.valueOf(attrs['00080016']),
+            refSeries = j4care.valuesOf(attrs['00081115']),
+            queryParams:GSPSQueryParams[] = [];
+        if (sopClass === '1.2.840.10008.5.1.4.1.1.11.1' && refSeries) {
+            refSeries.forEach((seriesRef) => {
+                j4care.valuesOf(seriesRef['00081140']).forEach((objRef) => {
+                    queryParams.push(
+                        new GSPSQueryParams(
+                            attrs['0020000D'].Value[0],
+                            seriesRef['0020000E'].Value[0],
+                            objRef['00081155'].Value[0],
+                            'image/jpeg',
+                            j4care.valueOf(objRef['00081160']) || 1,
+                            attrs['0020000E'].Value[0],
+                            attrs['00080018'].Value[0]
+                        )
+                    );
+                });
+            });
+        }
+        return queryParams;
+    }
+
+    isVideo(attrs):boolean {
+        let sopClass = j4care.valueOf(attrs['00080016']);
+        return [
+            '1.2.840.10008.5.1.4.1.1.77.1.1.1',
+            '1.2.840.10008.5.1.4.1.1.77.1.2.1',
+            '1.2.840.10008.5.1.4.1.1.77.1.4.1']
+            .indexOf(sopClass) != -1;
+    }
+    isImage(attrs):boolean{
+        let sopClass = j4care.valueOf(attrs['00080016']);
+        let bitsAllocated = j4care.valueOf(attrs['00280100']);
+        return ((bitsAllocated && bitsAllocated != "") && (sopClass != '1.2.840.10008.5.1.4.1.1.481.2'));
+    }
+
+    createArray(n):any[] {
+        let a = [];
+        for (let i = 1; i <= n; i++)
+            a.push(i);
+        return a;
     }
 }
