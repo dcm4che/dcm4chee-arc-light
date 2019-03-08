@@ -115,7 +115,7 @@ class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
         return orderBy(restrict(q, queueMsg, retrieveTask)).select(retrieveTask);
     }
 
-    private CriteriaQuery<RetrieveTask> orderBy(CriteriaQuery<RetrieveTask> q) {
+    private <T> CriteriaQuery<T> orderBy(CriteriaQuery<T> q) {
         if (retrieveTaskQueryParam.getOrderBy() != null)
             q.orderBy(matchTask.retrieveTaskOrder(retrieveTaskQueryParam.getOrderBy(), retrieveTask));
         return q;
@@ -133,7 +133,23 @@ class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
         return q;
     }
 
-    private void close(Stream<RetrieveTask> resultStream) {
+    @Override
+    public List<String> executeQuery(int limit) {
+        TypedQuery<String> query = em.createQuery(referencedQueueMsgs());
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultList();
+    }
+    
+    private CriteriaQuery<String> referencedQueueMsgs() {
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+        return orderBy(restrict(q, queueMsg, retrieveTask))
+                .multiselect(queueMsg.get(QueueMessage_.messageID));
+    }
+
+    private <T> void close(Stream<T> resultStream) {
         if (resultStream != null)
             resultStream.close();
     }

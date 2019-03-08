@@ -76,7 +76,7 @@ public interface RetrieveManager {
 
     void rescheduleRetrieveTask(String retrieveTaskQueueMsgId);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize);
+    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 

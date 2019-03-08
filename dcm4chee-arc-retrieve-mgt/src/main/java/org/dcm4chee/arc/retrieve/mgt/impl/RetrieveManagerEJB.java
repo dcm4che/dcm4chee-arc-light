@@ -271,15 +271,13 @@ public class RetrieveManagerEJB {
                 .fetch();
     }
 
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize) {
-        List<String> referencedQueueMsgIDs = createQuery(matchQueueMessage, matchRetrieveTask)
-                    .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
-                    .limit(deleteTasksFetchSize)
-                    .fetch();
-
-        for (String queueMsgID : referencedQueueMsgIDs)
-            queueManager.deleteTask(queueMsgID, null);
-
+    public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
+        List<String> referencedQueueMsgIDs;
+        try (RetrieveTaskQueryImpl query = new RetrieveTaskQueryImpl(queueTaskQueryParam, retrieveTaskQueryParam, em)) {
+            query.beginTransaction();
+            referencedQueueMsgIDs = query.executeQuery(deleteTasksFetchSize);
+            referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
+        }
         return referencedQueueMsgIDs.size();
     }
 

@@ -334,10 +334,7 @@ public class RetrieveTaskRS {
             int count;
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
-                count = mgr.deleteTasks(
-                        matchQueueMessage(status(), deviceName, null),
-                        matchRetrieveTask(updatedTime),
-                        deleteTasksFetchSize);
+                count = mgr.deleteTasks(queueTaskQueryParam(), retrieveTaskQueryParam(), deleteTasksFetchSize);
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
