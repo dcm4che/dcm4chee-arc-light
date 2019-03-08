@@ -51,6 +51,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -102,35 +103,32 @@ class DiffTaskQueryImpl implements DiffTaskQuery {
     private CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         diffTask = q.from(DiffTask.class);
-        return createQuery(q, null, diffTask, cb.count(diffTask));
-    }
-
-    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
-                                                From<X, DiffTask> diffTask, Expression<Long> longExpression) {
         queueMsg = diffTask.join(DiffTask_.queueMessage);
-        q = q.select(longExpression);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(x, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> diffTaskPredicate = matchTask.matchDiffTask(x, diffTaskQueryParam, diffTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (diffTaskPredicate != null)
-            q = q.where(diffTaskPredicate);
-        return q;
+        return restrict(q, queueMsg, diffTask).select(cb.count(diffTask));
     }
 
     private CriteriaQuery<DiffTask> select() {
         CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
         diffTask = q.from(DiffTask.class);
         queueMsg = diffTask.join(DiffTask_.queueMessage);
-        q = q.select(diffTask);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(null, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> diffTaskPredicate = matchTask.matchDiffTask(null, diffTaskQueryParam, diffTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (diffTaskPredicate != null)
-            q = q.where(diffTaskPredicate);
+        return orderBy(restrict(q, queueMsg, diffTask)).select(diffTask);
+    }
+
+    private CriteriaQuery<DiffTask> orderBy(CriteriaQuery<DiffTask> q) {
         if (diffTaskQueryParam.getOrderBy() != null)
-            q = q.orderBy(matchTask.diffTaskOrder(diffTaskQueryParam.getOrderBy(), diffTask));
+            q.orderBy(matchTask.diffTaskOrder(diffTaskQueryParam.getOrderBy(), diffTask));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<DiffTask, QueueMessage> queueMsg,
+                                          Root<DiffTask> diffTask) {
+        List<Predicate> predicates = matchTask.diffPredicates(
+                queueMsg,
+                diffTask,
+                queueTaskQueryParam,
+                diffTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 

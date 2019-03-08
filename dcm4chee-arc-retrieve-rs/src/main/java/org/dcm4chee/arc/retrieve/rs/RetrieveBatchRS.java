@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -43,6 +43,7 @@ package org.dcm4chee.arc.retrieve.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -212,5 +213,24 @@ public class RetrieveBatchRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setBatchID(batchID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam retrieveTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setRemoteAET(remoteAET);
+        taskQueryParam.setDestinationAET(destinationAET);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
     }
 }

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -45,6 +45,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +115,9 @@ public class ExportBatchRS {
     @QueryParam("batchID")
     private String batchID;
 
+    @QueryParam("ExporterID")
+    private List<String> exporterIDs;
+
     @Context
     private HttpServletRequest request;
 
@@ -124,7 +128,7 @@ public class ExportBatchRS {
         try {
             List<ExportBatch> exportBatches = mgr.listExportBatches(
                     MatchTask.matchQueueBatch(deviceName, status(), batchID),
-                    MatchTask.matchExportBatch(uriInfo.getQueryParameters().get("ExporterID"), deviceName, createdTime,
+                    MatchTask.matchExportBatch(exporterIDs, deviceName, createdTime,
                             updatedTime),
                     MatchTask.exportBatchOrder(orderby), parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
@@ -206,5 +210,23 @@ public class ExportBatchRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setDeviceName(deviceName);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam exportTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setExporterIDs(exporterIDs);
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
     }
 }

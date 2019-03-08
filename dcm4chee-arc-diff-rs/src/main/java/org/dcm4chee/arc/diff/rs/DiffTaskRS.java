@@ -328,7 +328,8 @@ public class DiffTaskRS {
             int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             do {
-                List<String> diffTaskQueueMsgIDs = diffService.listDiffTaskQueueMsgIDs(matchQueueMessage, matchDiffTask, rescheduleTasksFetchSize);
+                List<String> diffTaskQueueMsgIDs = diffService.listDiffTaskQueueMsgIDs(
+                        matchQueueMessage, matchDiffTask, rescheduleTasksFetchSize);
                 for (String diffTaskQueueMsgID : diffTaskQueueMsgIDs)
                     diffService.rescheduleDiffTask(diffTaskQueueMsgID);
                 count = diffTaskQueueMsgIDs.size();
@@ -564,6 +565,8 @@ public class DiffTaskRS {
         taskQueryParam.setPrimaryAET(primaryAET);
         taskQueryParam.setSecondaryAET(secondaryAET);
         taskQueryParam.setCompareFields(comparefields);
+        taskQueryParam.setCheckMissing(checkMissing);
+        taskQueryParam.setCheckDifferent(checkDifferent);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);

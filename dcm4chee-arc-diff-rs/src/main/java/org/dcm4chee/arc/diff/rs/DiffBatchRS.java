@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -48,6 +48,7 @@ import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -275,4 +276,25 @@ public class DiffBatchRS {
         return sw.toString();
     }
 
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setBatchID(batchID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam diffTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setPrimaryAET(primaryAET);
+        taskQueryParam.setSecondaryAET(secondaryAET);
+        taskQueryParam.setCompareFields(comparefields);
+        taskQueryParam.setCheckMissing(checkMissing);
+        taskQueryParam.setCheckDifferent(checkDifferent);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
+    }
 }

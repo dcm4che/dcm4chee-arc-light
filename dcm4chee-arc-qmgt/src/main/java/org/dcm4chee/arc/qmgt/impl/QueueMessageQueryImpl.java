@@ -51,6 +51,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -103,27 +104,25 @@ class QueueMessageQueryImpl implements QueueMessageQuery {
     private CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         queueMsg = q.from(QueueMessage.class);
-        return createQuery(q, null, queueMsg, cb.count(queueMsg));
-    }
-
-    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
-                                                From<X, QueueMessage> queueMsg, Expression<Long> longExpression) {
-        q = q.select(longExpression);
-        Expression<Boolean> predicate = matchTask.matchQueueMsg(x, taskQueryParam, queueMsg);
-        if (predicate != null)
-            q = q.where(predicate);
-        return q;
+        return restrict(q, queueMsg).select(cb.count(queueMsg));
     }
 
     private CriteriaQuery<QueueMessage> select() {
         CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
         queueMsg = q.from(QueueMessage.class);
-        q = q.select(queueMsg);
-        Expression<Boolean> predicate = matchTask.matchQueueMsg(null, taskQueryParam, queueMsg);
-        if (predicate != null)
-            q = q.where(predicate);
+        return orderBy(restrict(q, queueMsg)).select(queueMsg);
+    }
+
+    private CriteriaQuery<QueueMessage> orderBy(CriteriaQuery<QueueMessage> q) {
         if (taskQueryParam.getOrderBy() != null)
-            q = q.orderBy(matchTask.queueMessageOrder(taskQueryParam.getOrderBy(), queueMsg));
+            q.orderBy(matchTask.queueMessageOrder(taskQueryParam.getOrderBy(), queueMsg));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Root<QueueMessage> queueMsg) {
+        List<Predicate> predicates = matchTask.queueMsgPredicates(queueMsg, taskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 

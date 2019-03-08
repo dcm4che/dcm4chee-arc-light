@@ -51,6 +51,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -101,35 +102,33 @@ class StgVerTaskQueryImpl implements StgVerTaskQuery {
     private CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         stgVerTask = q.from(StorageVerificationTask.class);
-        return createQuery(q, null, stgVerTask, cb.count(stgVerTask));
-    }
-
-    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
-                                                From<X, StorageVerificationTask> stgVerTask, Expression<Long> longExpression) {
         queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-        q = q.select(longExpression);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(x, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> stgVerPredicate = matchTask.matchStgVerTask(x, stgVerTaskQueryParam, stgVerTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (stgVerPredicate != null)
-            q = q.where(stgVerPredicate);
-        return q;
+        return restrict(q, queueMsg, stgVerTask).select(cb.count(stgVerTask));
     }
 
     private CriteriaQuery<StorageVerificationTask> select() {
         CriteriaQuery<StorageVerificationTask> q = cb.createQuery(StorageVerificationTask.class);
         stgVerTask = q.from(StorageVerificationTask.class);
         queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-        q = q.select(stgVerTask);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(null, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> stgVerPredicate = matchTask.matchStgVerTask(null, stgVerTaskQueryParam, stgVerTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (stgVerPredicate != null)
-            q = q.where(stgVerPredicate);
+
+        return orderBy(restrict(q, queueMsg, stgVerTask)).select(stgVerTask);
+    }
+
+    private CriteriaQuery<StorageVerificationTask> orderBy(CriteriaQuery<StorageVerificationTask> q) {
         if (stgVerTaskQueryParam.getOrderBy() != null)
-            q = q.orderBy(matchTask.stgVerTaskOrder(stgVerTaskQueryParam.getOrderBy(), stgVerTask));
+            q.orderBy(matchTask.stgVerTaskOrder(stgVerTaskQueryParam.getOrderBy(), stgVerTask));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<StorageVerificationTask, QueueMessage> queueMsg,
+                                          Root<StorageVerificationTask> stgVerTask) {
+        List<Predicate> predicates = matchTask.stgVerPredicates(
+                queueMsg,
+                stgVerTask,
+                queueTaskQueryParam,
+                stgVerTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 

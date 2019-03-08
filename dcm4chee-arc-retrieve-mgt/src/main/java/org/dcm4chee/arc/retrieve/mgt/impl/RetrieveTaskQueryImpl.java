@@ -51,6 +51,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -103,35 +104,32 @@ class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
     private CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         retrieveTask = q.from(RetrieveTask.class);
-        return createQuery(q, null, retrieveTask, cb.count(retrieveTask));
-    }
-
-    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
-                                                From<X, RetrieveTask> retrieveTask, Expression<Long> longExpression) {
         queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-        q = q.select(longExpression);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(x, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> retrieveTaskPredicate = matchTask.matchRetrieveTask(x, retrieveTaskQueryParam, retrieveTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (retrieveTaskPredicate != null)
-            q = q.where(retrieveTaskPredicate);
-        return q;
+        return restrict(q, queueMsg, retrieveTask).select(cb.count(retrieveTask));
     }
 
     private CriteriaQuery<RetrieveTask> select() {
         CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
         retrieveTask = q.from(RetrieveTask.class);
         queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-        q = q.select(retrieveTask);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(null, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> retrieveTaskPredicate = matchTask.matchRetrieveTask(null, retrieveTaskQueryParam, retrieveTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (retrieveTaskPredicate != null)
-            q = q.where(retrieveTaskPredicate);
+        return orderBy(restrict(q, queueMsg, retrieveTask)).select(retrieveTask);
+    }
+
+    private CriteriaQuery<RetrieveTask> orderBy(CriteriaQuery<RetrieveTask> q) {
         if (retrieveTaskQueryParam.getOrderBy() != null)
-            q = q.orderBy(matchTask.retrieveTaskOrder(retrieveTaskQueryParam.getOrderBy(), retrieveTask));
+            q.orderBy(matchTask.retrieveTaskOrder(retrieveTaskQueryParam.getOrderBy(), retrieveTask));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<RetrieveTask, QueueMessage> queueMsg,
+                                          Root<RetrieveTask> retrieveTask) {
+        List<Predicate> predicates = matchTask.retrievePredicates(
+                queueMsg,
+                retrieveTask,
+                queueTaskQueryParam,
+                retrieveTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 

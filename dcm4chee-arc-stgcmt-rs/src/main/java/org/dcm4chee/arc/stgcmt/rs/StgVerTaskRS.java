@@ -160,28 +160,6 @@ public class StgVerTaskRS {
         }
     }
 
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
-    }
-
-    private TaskQueryParam queueTaskQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setStatus(status());
-        taskQueryParam.setBatchID(batchID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam stgVerTaskQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        taskQueryParam.setLocalAET(localAET);
-        taskQueryParam.setStudyIUID(studyIUID);
-        return taskQueryParam;
-    }
-
     @GET
     @NoCache
     @Path("/count")
@@ -506,5 +484,27 @@ public class StgVerTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    private TaskQueryParam queueTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setBatchID(batchID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam stgVerTaskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setStudyIUID(studyIUID);
+        return taskQueryParam;
     }
 }

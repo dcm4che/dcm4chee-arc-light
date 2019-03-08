@@ -51,6 +51,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -94,6 +95,13 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
         results = resultStream.iterator();
     }
 
+    private CriteriaQuery<ExportTask> select() {
+        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
+        exportTask = q.from(ExportTask.class);
+        queueMsg = exportTask.join(ExportTask_.queueMessage);
+        return orderBy(restrict(q, queueMsg, exportTask)).select(exportTask);
+    }
+
     @Override
     public long fetchCount() {
         return em.createQuery(count()).getSingleResult();
@@ -102,35 +110,25 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
     private CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         exportTask = q.from(ExportTask.class);
-        return createQuery(q, null, exportTask, cb.count(exportTask));
+        queueMsg = exportTask.join(ExportTask_.queueMessage);
+        return restrict(q, queueMsg, exportTask).select(cb.count(exportTask));
     }
 
-    private <X> CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q, Expression<Boolean> x,
-                                                From<X, ExportTask> exportTask, Expression<Long> longExpression) {
-        queueMsg = exportTask.join(ExportTask_.queueMessage);
-        q = q.select(longExpression);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(x, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> exportTaskPredicate = matchTask.matchExportTask(x, exportTaskQueryParam, exportTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (exportTaskPredicate != null)
-            q = q.where(exportTaskPredicate);
+    private CriteriaQuery<ExportTask> orderBy(CriteriaQuery<ExportTask> q) {
+        if (exportTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
         return q;
     }
 
-    private CriteriaQuery<ExportTask> select() {
-        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
-        exportTask = q.from(ExportTask.class);
-        queueMsg = exportTask.join(ExportTask_.queueMessage);
-        q = q.select(exportTask);
-        Expression<Boolean> queueMsgPredicate = matchTask.matchQueueMsg(null, queueTaskQueryParam, queueMsg);
-        Expression<Boolean> exportTaskPredicate = matchTask.matchExportTask(null, exportTaskQueryParam, exportTask);
-        if (queueMsgPredicate != null)
-            q = q.where(queueMsgPredicate);
-        if (exportTaskPredicate != null)
-            q = q.where(exportTaskPredicate);
-        if (exportTaskQueryParam.getOrderBy() != null)
-            q = q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<ExportTask, QueueMessage> queueMsg,
+                                          Root<ExportTask> exportTask) {
+        List<Predicate> predicates = matchTask.exportPredicates(
+                queueMsg,
+                exportTask,
+                queueTaskQueryParam,
+                exportTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 
@@ -151,4 +149,6 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
 
     @Override
     public void close() {}
+
+
 }

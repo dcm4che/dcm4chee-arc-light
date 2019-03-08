@@ -151,23 +151,6 @@ public class QueueManagerRS {
         }
     }
 
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
-    }
-
-    private TaskQueryParam taskQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setQueueName(queueName);
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setStatus(status());
-        taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setJmsMessageID(jmsMessageID);
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        return taskQueryParam;
-    }
-
     @GET
     @NoCache
     @Path("/count")
@@ -433,6 +416,27 @@ public class QueueManagerRS {
     }
 
     private int queueTasksFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        return arcDev().getQueueTasksFetchSize();
+    }
+
+    private int queryFetchSize() {
+        return arcDev().getQueryFetchSize();
+    }
+
+    private ArchiveDeviceExtension arcDev() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
+    private TaskQueryParam taskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setQueueName(queueName);
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status());
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setJmsMessageID(jmsMessageID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
     }
 }
