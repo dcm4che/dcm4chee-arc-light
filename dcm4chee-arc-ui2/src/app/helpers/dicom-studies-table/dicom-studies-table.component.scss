@@ -1,6 +1,7 @@
 .j4care_dynamic_table{
   float: left;
   width: 100%;
+  margin-bottom: 40px;
   .th{
     width: 100%;
     float: left;
@@ -43,27 +44,33 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.46);
     margin-bottom: 1px;
     &.patient_block{
-      -webkit-box-shadow:  4px 0px 6px rgba(68, 68, 68, 0.57);
-      -moz-box-shadow:  4px 0px 6px rgba(68, 68, 68, 0.57);
-      box-shadow:  4px 0px 6px rgba(68, 68, 68, 0.57);
+      -webkit-box-shadow:  4px 3px 6px rgba(68, 68, 68, 0.57);
+      -moz-box-shadow:  4px 3px 6px rgba(68, 68, 68, 0.57);
+      box-shadow:  4px 3px 6px rgba(68, 68, 68, 0.57);
+      z-index: 4;
+      position: relative;
     }
     &.study_block{
-      -webkit-box-shadow:  inset 0px 9px 7px -7px rgba(68, 68, 68, 0.52), 2px 0px 10px 0px rgba(68, 68, 68, 0.7);
-      -moz-box-shadow:  inset 0px 9px 7px -7px rgba(68, 68, 68, 0.52), 2px 0px 10px 0px rgba(68, 68, 68, 0.7);
-      box-shadow:  inset 0px 9px 7px -7px rgba(68, 68, 68, 0.52), 2px 0px 10px 0px rgba(68, 68, 68, 0.7);
+      -webkit-box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
+      -moz-box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
+      box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
       margin-left: 2px;
       width: calc(100% - 2px);
       background: rgba(235, 235, 235, 0.9);
       padding-left: 20px;
+      position: relative;
+      z-index: 3;
     }
     &.series_block{
-      -webkit-box-shadow:  inset 0px 9px 7px -7px rgba(68, 68, 68, 0.52), 1px 0px 8px 0px rgba(68, 68, 68, 0.7);
-      -moz-box-shadow:  inset 0px 9px 7px -7px rgba(68, 68, 68, 0.52), 1px 0px 8px 0px rgba(68, 68, 68, 0.7);
-      box-shadow:  inset 0px 9px 7px -7px rgba(68, 68, 68, 0.52), 1px 0px 8px 0px rgba(68, 68, 68, 0.7);
+      -webkit-box-shadow:  1px 0px 8px 0px rgba(68, 68, 68, 0.7);
+      -moz-box-shadow:  1px 0px 8px 0px rgba(68, 68, 68, 0.7);
+      box-shadow:  1px 0px 8px 0px rgba(68, 68, 68, 0.7);
       margin-left: 4px;
       width: calc(100% - 4px);
       background: rgba(215, 215, 215, 0.8);
       padding-left: 40px;
+      position: relative;
+      z-index: 2;
 
     }
   }
