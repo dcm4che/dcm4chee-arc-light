@@ -1,4 +1,4 @@
 /subsystem=datasources/jdbc-driver=db2:add(driver-name=db2,driver-module-name=com.ibm.db2)
 data-source add --name=pacsds --driver-name=db2 --jndi-name=java:/PacsDS \
---connection-url=jdbc:db2://<host>:50000/<database-name> \
---user-name=<user-name> --password=<user-password>
+--connection-url=jdbc:db2://localhost:50000/pacsdb \
+--user-name=pacs --password=<user-password>

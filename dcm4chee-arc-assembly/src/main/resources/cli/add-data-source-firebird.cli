@@ -1,4 +1,4 @@
 /subsystem=datasources/jdbc-driver=firebird:add(driver-name=firebird,driver-module-name=org.firebird)
 data-source add --name=pacsds --driver-name=firebird --jndi-name=java:/PacsDS \
---connection-url=jdbc:firebirdsql:<host>/3050/<database-name> \
---user-name=<user-name> --password=<user-password>
+--connection-url=jdbc:firebirdsql:localhost/3050/pacsdb \
+--user-name=pacs --password=<user-password>

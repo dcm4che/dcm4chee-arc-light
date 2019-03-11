@@ -1,4 +1,4 @@
 /subsystem=datasources/jdbc-driver=sqlserver:add(driver-name=sqlserver,driver-module-name=com.microsoft)
 data-source add --name=pacsds --driver-name=sqlserver --jndi-name=java:/PacsDS \
---connection-url=jdbc:sqlserver://<host>:1433;databaseName=<database-name> \
---user-name=<user-name> --password=<user-password>
+--connection-url=jdbc:sqlserver://localhost:1433;databaseName=pacsdb \
+--user-name=pacs --password=pacs

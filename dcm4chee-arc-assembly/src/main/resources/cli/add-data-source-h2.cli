@@ -1,3 +1,3 @@
 data-source add --name=pacsds --driver-name=h2 --jndi-name=java:/PacsDS \
---connection-url=jdbc:h2:${jboss.server.data.dir}/<database-name>;AUTO_SERVER=TRUE \
---user-name=<user-name> --password=<user-password>
+--connection-url=jdbc:h2:${jboss.server.data.dir}/pacsdb;AUTO_SERVER=TRUE \
+--user-name=pacs --password=<user-password>

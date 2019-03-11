@@ -46,7 +46,6 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;

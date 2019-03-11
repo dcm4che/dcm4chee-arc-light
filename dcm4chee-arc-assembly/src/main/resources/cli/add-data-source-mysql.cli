@@ -1,4 +1,4 @@
 /subsystem=datasources/jdbc-driver=mysql:add(driver-module-name=com.mysql,driver-name=mysql)
 data-source add --name=pacsds --driver-name=mysql --jndi-name=java:/PacsDS \
---connection-url=jdbc:mysql://<host>:3306/<database-name> \
---user-name=<user-name> --password=<user-password>
+--connection-url=jdbc:mysql://localhost:3306/pacsdb \
+--user-name=pacs --password=<user-password>

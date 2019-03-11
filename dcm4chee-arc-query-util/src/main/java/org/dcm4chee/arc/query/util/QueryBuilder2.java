@@ -481,8 +481,7 @@ public class QueryBuilder2 {
         wildCard(predicates, series.get(Series_.institutionName),
                 keys.getString(Tag.InstitutionName, "*"), true);
         Attributes reqAttrs = keys.getNestedDataset(Tag.RequestAttributesSequence);
-        if (!isUniversalMatching(reqAttrs))
-            requestAttributes(predicates, q, series.get(Series_.requestAttributes), reqAttrs, queryParam);
+        requestAttributes(predicates, q, series, reqAttrs, queryParam);
         code(predicates, series.get(Series_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
         if (queryParam.isHideNotRejectedInstances())
             predicates.add(cb.notEqual(series.get(Series_.rejectionState), RejectionState.NONE));
@@ -511,7 +510,7 @@ public class QueryBuilder2 {
     }
 
     private <T> void instanceLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            Path<Instance> instance, Attributes keys, QueryParam queryParam,
+            Root<Instance> instance, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         uidsPredicate(predicates, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
@@ -527,9 +526,7 @@ public class QueryBuilder2 {
                 Tag.ContentDate, Tag.ContentTime, Tag.ContentDateAndTime,
                 keys, combinedDatetimeMatching);
         code(predicates, instance.get(Instance_.conceptNameCode), keys.getNestedDataset(Tag.ConceptNameCodeSequence));
-        Attributes verifyingObserver = keys.getNestedDataset(Tag.VerifyingObserverSequence);
-        if (!isUniversalMatching(verifyingObserver))
-            verifyingObserver(predicates, q, instance.get(Instance_.verifyingObservers), verifyingObserver, queryParam);
+        verifyingObserver(predicates, q, instance, keys.getNestedDataset(Tag.VerifyingObserverSequence), queryParam);
         Sequence contentSeq = keys.getSequence(Tag.ContentSequence);
         if (contentSeq != null)
             for (Attributes item : contentSeq)
@@ -817,13 +814,14 @@ public class QueryBuilder2 {
         }
     }
 
-    private <T> void requestAttributes(List<Predicate> predicates, CriteriaQuery<T> q,
-            Expression<Collection<SeriesRequestAttributes>> requests, Attributes item, QueryParam queryParam) {
+    private <T, Z> void requestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Series> series,
+            Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
             return;
 
         Subquery<SeriesRequestAttributes> sq = q.subquery(SeriesRequestAttributes.class);
-        Root<SeriesRequestAttributes> request = sq.from(SeriesRequestAttributes.class);
+        From<Z, Series> sqSeries = correlate(sq, series);
+        Join<Series, SeriesRequestAttributes> request = sqSeries.join(Series_.requestAttributes);
         List<Predicate> requestPredicates = new ArrayList<>();
         String accNo = item.getString(Tag.AccessionNumber, "*");
         if (!isUniversalMatching(accNo)) {
@@ -850,22 +848,28 @@ public class QueryBuilder2 {
                 item.getString(Tag.ScheduledProcedureStepID, "*"),
                 false);
         if (!requestPredicates.isEmpty()) {
-            requestPredicates.add(request.in(requests));
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
         }
     }
 
+    private static <T, Z, X> From<Z, X> correlate(Subquery<T> sq, From<Z, X> parent) {
+        return parent instanceof Root ? sq.correlate((Root) parent) : sq.correlate((Join) parent);
+    }
+
     private <T> void verifyingObserver(List<Predicate> predicates, CriteriaQuery<T> q,
-            Expression<Collection<VerifyingObserver>> observers, Attributes item, QueryParam queryParam) {
+            Root<Instance> instance, Attributes item, QueryParam queryParam) {
+        if (isUniversalMatching(item))
+            return;
+
         Subquery<VerifyingObserver> sq = q.subquery(VerifyingObserver.class);
-        Root<VerifyingObserver> observer = sq.from(VerifyingObserver.class);
+        Root<Instance> sqInstance = sq.correlate(instance);
+        Join<Instance, VerifyingObserver> observer = instance.join(Instance_.verifyingObservers);
         List<Predicate> y = new ArrayList<>();
         personName(y, q, observer, VerifyingObserver_.verifyingObserverName,
                 item.getString(Tag.VerifyingObserverName, "*"), queryParam);
         dateRange(observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
         if (!y.isEmpty()) {
-            y.add(observer.in(observers));
             predicates.add(cb.exists(sq.select(observer).where(y.toArray(new Predicate[0]))));
         }
     }
