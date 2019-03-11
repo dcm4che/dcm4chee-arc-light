@@ -897,7 +897,7 @@ public class QueryBuilder2 {
 
         Subquery<VerifyingObserver> sq = q.subquery(VerifyingObserver.class);
         Root<Instance> sqInstance = sq.correlate(instance);
-        Join<Instance, VerifyingObserver> observer = instance.join(Instance_.verifyingObservers);
+        Join<Instance, VerifyingObserver> observer = sqInstance.join(Instance_.verifyingObservers);
         List<Predicate> y = new ArrayList<>();
         personName(y, q, observer, VerifyingObserver_.verifyingObserverName,
                 item.getString(Tag.VerifyingObserverName, "*"), queryParam);
