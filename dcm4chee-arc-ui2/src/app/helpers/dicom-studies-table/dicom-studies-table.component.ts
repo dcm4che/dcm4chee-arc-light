@@ -13,7 +13,7 @@ export class DicomStudiesTableComponent implements OnInit {
     _ = _;
     private _tableSchema:DicomTableSchema;
     private _config:TableSchemaConfig;
-    @Input() patients:PatientDicom;
+    @Input() patients:PatientDicom[];
     @Input() title:string;
     constructor() { }
 
