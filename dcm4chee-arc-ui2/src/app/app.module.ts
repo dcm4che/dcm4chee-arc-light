@@ -250,6 +250,7 @@ import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
         RangePickerService,
         StorageVerificationService,
         StudyService,
+        ContentDescriptionPipe,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]

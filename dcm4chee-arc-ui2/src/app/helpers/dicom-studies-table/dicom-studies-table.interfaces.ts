@@ -43,20 +43,20 @@ export interface TableSchemaConfig {
 
 export class DynamicPipe{
 
-    private _pipeToken:string;
+    private _pipeToken:any;
     private _pipeArgs:any[];
 
-    constructor(pipeToken:string, pipeArgs:any[]){
+    constructor(pipeToken:any, pipeArgs:any[]){
         this._pipeToken = pipeToken;
         this._pipeArgs = pipeArgs;
     }
 
 
-    get pipeToken(): string {
+    get pipeToken(): any {
         return this._pipeToken;
     }
 
-    set pipeToken(value: string) {
+    set pipeToken(value: any) {
         this._pipeToken = value;
     }
 

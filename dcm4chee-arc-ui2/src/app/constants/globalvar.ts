@@ -1,5 +1,6 @@
 import {FilterSchema, SelectDropdown} from "../interfaces";
 import {DicomTableSchema, DynamicPipe} from "../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {ContentDescriptionPipe} from "../pipes/content-description.pipe";
 
 export class Globalvar {
     public static get MODALITIES(): any {
@@ -1419,7 +1420,7 @@ export class Globalvar {
                     headerDescription:"Content Description",
                     widthWeight:1.5,
                     calculatedWidth:"20%",
-                    pipe:new DynamicPipe("contentDescription",undefined)
+                    pipe:new DynamicPipe(ContentDescriptionPipe,undefined)
                 },{
                     type:"value",
                     header:"#F",
