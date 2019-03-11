@@ -337,8 +337,8 @@ public class QueryBuilder2 {
         patientIDPredicate(predicates, patient, pids);
         personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
-        wildCard(predicates, patient.get(Patient_.patientSex),
-                keys.getString(Tag.PatientSex, "*").toUpperCase());
+        anyOf(predicates, patient.get(Patient_.patientSex),
+                toUpperCase(keys.getStrings(Tag.PatientSex)), false);
         dateRange(predicates, patient.get(Patient_.patientBirthDate),
                 keys.getDateRange(Tag.PatientBirthDate), FormatDate.DA);
         personName(predicates, q, patient, Patient_.patientName,
@@ -392,14 +392,14 @@ public class QueryBuilder2 {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         accessControl(predicates, study, queryParam.getAccessControlIDs());
         uidsPredicate(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
-        wildCard(predicates, study.get(Study_.studyID), keys.getString(Tag.StudyID, "*"));
+        anyOf(predicates, study.get(Study_.studyID), keys.getStrings(Tag.StudyID), false);
         dateRange(predicates, study.get(Study_.studyDate), study.get(Study_.studyTime),
                 Tag.StudyDate, Tag.StudyTime, Tag.StudyDateAndTime,
                 keys, combinedDatetimeMatching);
         personName(predicates, q, study, Study_.referringPhysicianName,
                 keys.getString(Tag.ReferringPhysicianName, "*"), queryParam);
-        wildCard(predicates, study.get(Study_.studyDescription),
-                keys.getString(Tag.StudyDescription, "*"), true);
+        anyOf(predicates, study.get(Study_.studyDescription),
+                keys.getStrings(Tag.StudyDescription), true);
         String accNo = keys.getString(Tag.AccessionNumber, "*");
         if (!isUniversalMatching(accNo)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
@@ -407,7 +407,14 @@ public class QueryBuilder2 {
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
             idWithIssuer(predicates, study, Study_.accessionNumber, Study_.issuerOfAccessionNumber, accNo, issuer);
         }
-        seriesAttributesInStudy(predicates, q, study, keys, queryParam);
+        String[] modalitiesInStudy = keys.getStrings(Tag.ModalitiesInStudy);
+        if (queryParam.isAllOfModalitiesInStudy() && modalitiesInStudy != null && modalitiesInStudy.length > 1) {
+            for (String modality : modalitiesInStudy) {
+                seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modality);
+            }
+        } else {
+            seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modalitiesInStudy);
+        }
         Attributes procedureCode = keys.getNestedDataset(Tag.ProcedureCodeSequence);
         if (!isUniversalMatching(procedureCode))
             codes(predicates, q, study.get(Study_.procedureCodes), procedureCode);
@@ -459,12 +466,12 @@ public class QueryBuilder2 {
             From<Z, Series> series, Attributes keys, QueryParam queryParam) {
         uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID));
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
-        wildCard(predicates, series.get(Series_.modality),
-                keys.getString(Tag.Modality, "*").toUpperCase());
-        wildCard(predicates, series.get(Series_.bodyPartExamined),
-                keys.getString(Tag.BodyPartExamined, "*").toUpperCase());
-        wildCard(predicates, series.get(Series_.laterality),
-                keys.getString(Tag.Laterality, "*").toUpperCase());
+        anyOf(predicates, series.get(Series_.modality),
+                toUpperCase(keys.getStrings(Tag.Modality)), false);
+        anyOf(predicates, series.get(Series_.bodyPartExamined),
+                toUpperCase(keys.getStrings(Tag.BodyPartExamined)), false);
+        anyOf(predicates, series.get(Series_.laterality),
+                toUpperCase(keys.getStrings(Tag.Laterality)), false);
         dateRange(predicates,
                 series.get(Series_.performedProcedureStepStartDate),
                 series.get(Series_.performedProcedureStepStartTime),
@@ -472,14 +479,15 @@ public class QueryBuilder2 {
                 Tag.PerformedProcedureStepStartDateAndTime,
                 keys, queryParam.isCombinedDatetimeMatching());
         personName(predicates, q, series, Series_.performingPhysicianName,
-                keys.getString(Tag.PerformingPhysicianName, "*"), queryParam);
-        wildCard(predicates, series.get(Series_.seriesDescription),
-                keys.getString(Tag.SeriesDescription, "*"), true);
-        wildCard(predicates, series.get(Series_.stationName), keys.getString(Tag.StationName, "*"), true);
-        wildCard(predicates, series.get(Series_.institutionalDepartmentName),
-                keys.getString(Tag.InstitutionalDepartmentName, "*"), true);
-        wildCard(predicates, series.get(Series_.institutionName),
-                keys.getString(Tag.InstitutionName, "*"), true);
+                keys.getString(Tag.PerformingPhysicianName), queryParam);
+        anyOf(predicates, series.get(Series_.seriesDescription),
+                keys.getStrings(Tag.SeriesDescription), true);
+        anyOf(predicates, series.get(Series_.stationName),
+                keys.getStrings(Tag.StationName), true);
+        anyOf(predicates, series.get(Series_.institutionalDepartmentName),
+                keys.getStrings(Tag.InstitutionalDepartmentName), true);
+        anyOf(predicates, series.get(Series_.institutionName),
+                keys.getStrings(Tag.InstitutionName), true);
         Attributes reqAttrs = keys.getNestedDataset(Tag.RequestAttributesSequence);
         requestAttributes(predicates, q, series, reqAttrs, queryParam);
         code(predicates, series.get(Series_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
@@ -500,9 +508,8 @@ public class QueryBuilder2 {
             predicates.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
         if (queryParam.isCompressionFailed())
             predicates.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
-        wildCard(predicates, series.get(Series_.sourceAET),
-                keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries,
-                        VR.AE, "*"),
+        anyOf(predicates, series.get(Series_.sourceAET),
+                keys.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE),
                 false);
         if (queryParam.getExpirationDate() != null)
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
@@ -516,10 +523,10 @@ public class QueryBuilder2 {
         uidsPredicate(predicates, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
         uidsPredicate(predicates, instance.get(Instance_.sopClassUID), keys.getStrings(Tag.SOPClassUID));
         numberPredicate(predicates, instance.get(Instance_.instanceNumber), keys.getString(Tag.InstanceNumber, "*"));
-        wildCard(predicates, instance.get(Instance_.verificationFlag),
-                keys.getString(Tag.VerificationFlag, "*").toUpperCase());
-        wildCard(predicates, instance.get(Instance_.completionFlag),
-                keys.getString(Tag.CompletionFlag, "*").toUpperCase());
+        anyOf(predicates, instance.get(Instance_.verificationFlag),
+                toUpperCase(keys.getStrings(Tag.VerificationFlag)), false);
+        anyOf(predicates, instance.get(Instance_.completionFlag),
+                toUpperCase(keys.getStrings(Tag.CompletionFlag)), false);
         dateRange(predicates,
                 instance.get(Instance_.contentDate),
                 instance.get(Instance_.contentTime),
@@ -570,7 +577,8 @@ public class QueryBuilder2 {
     private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Root<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
         uidsPredicate(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
-        wildCard(predicates, mwlItem.get(MWLItem_.requestedProcedureID), keys.getString(Tag.RequestedProcedureID, "*"));
+        anyOf(predicates, mwlItem.get(MWLItem_.requestedProcedureID),
+                keys.getStrings(Tag.RequestedProcedureID), false);
         String accNo = keys.getString(Tag.AccessionNumber, "*");
         if (!isUniversalMatching(accNo)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
@@ -581,8 +589,8 @@ public class QueryBuilder2 {
         }
         Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (sps != null) {
-            wildCard(predicates, mwlItem.get(MWLItem_.scheduledProcedureStepID),
-                    sps.getString(Tag.ScheduledProcedureStepID, "*"));
+            anyOf(predicates, mwlItem.get(MWLItem_.scheduledProcedureStepID),
+                    sps.getStrings(Tag.ScheduledProcedureStepID), false);
             dateRange(predicates,
                     mwlItem.get(MWLItem_.scheduledStartDate),
                     mwlItem.get(MWLItem_.scheduledStartTime),
@@ -592,7 +600,8 @@ public class QueryBuilder2 {
                     sps, true);
             personName(predicates, q, mwlItem, MWLItem_.scheduledPerformingPhysicianName,
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
-            wildCard(predicates, mwlItem.get(MWLItem_.modality), sps.getString(Tag.Modality, "*").toUpperCase());
+            anyOf(predicates, mwlItem.get(MWLItem_.modality),
+                    toUpperCase(sps.getStrings(Tag.Modality)), false);
             showSPSWithStatus(predicates, mwlItem, sps);
             String spsAET = sps.getString(Tag.ScheduledStationAETitle, "*");
             if (!isUniversalMatching(spsAET))
@@ -694,6 +703,22 @@ public class QueryBuilder2 {
         return range == null || (range.getStartDate() == null && range.getEndDate() == null);
     }
 
+    private boolean anyOf(List<Predicate> predicates, Expression<String> path, String[] values, boolean ignoreCase) {
+        if (isUniversalMatching(values))
+            return false;
+
+        if (values.length == 1)
+            return wildCard(predicates, path, values[0], ignoreCase);
+
+        List<Predicate> y = new ArrayList<>(values.length);
+        for (String value : values) {
+            if (!wildCard(y, path, value, ignoreCase))
+                return false;
+        }
+        predicates.add(cb.or(y.toArray(new Predicate[0])));
+        return true;
+    }
+
     private boolean wildCard(List<Predicate> predicates, Expression<String> path, String value) {
         return wildCard(predicates, path, value, false);
     }
@@ -755,32 +780,42 @@ public class QueryBuilder2 {
         return like.toString();
     }
 
+    private static String[] toUpperCase(String[] ss) {
+        if (ss != null)
+            for (int i = 0; i < ss.length; i++)
+                ss[i] = ss[i].toUpperCase();
+        return ss;
+    }
+
     private <T> void seriesAttributesInStudy(List<Predicate> predicates, CriteriaQuery<T> q,
-            Path<Study> study, Attributes keys, QueryParam queryParam) {
+            Path<Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel,
+            String... modalitiesInStudy) {
         Subquery<Series> sq = q.subquery(Series.class);
         Root<Series> series = sq.from(Series.class);
         List<Predicate> y = new ArrayList<>();
-        wildCard(y, series.get(Series_.institutionName),
-                keys.getString(Tag.InstitutionName), true);
-        wildCard(y, series.get(Series_.institutionalDepartmentName),
-                keys.getString(Tag.InstitutionalDepartmentName), true);
-        wildCard(y, series.get(Series_.stationName),
-                keys.getString(Tag.StationName), true);
-        wildCard(y, series.get(Series_.seriesDescription),
-                keys.getString(Tag.SeriesDescription), true);
-        wildCard(y, series.get(Series_.modality),
-                keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase());
-        wildCard(y, series.get(Series_.sopClassUID),
-                keys.getString(Tag.SOPClassesInStudy, "*"));
-        wildCard(y, series.get(Series_.bodyPartExamined),
-                keys.getString(Tag.BodyPartExamined, "*").toUpperCase());
-        wildCard(y, series.get(Series_.sourceAET),
-                keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries,
-                        VR.AE, "*"));
-        if (queryParam.isStorageVerificationFailed())
-            y.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
-        if (queryParam.isCompressionFailed())
-            y.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
+        anyOf(y, series.get(Series_.modality), toUpperCase(modalitiesInStudy), false);
+        uidsPredicate(y, series.get(Series_.sopClassUID), keys.getStrings(Tag.SOPClassesInStudy));
+        if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
+            anyOf(y, series.get(Series_.institutionName),
+                    keys.getStrings(Tag.InstitutionName), true);
+            anyOf(y, series.get(Series_.institutionalDepartmentName),
+                    keys.getStrings(Tag.InstitutionalDepartmentName), true);
+            anyOf(y, series.get(Series_.stationName),
+                    keys.getStrings(Tag.StationName), true);
+            anyOf(y, series.get(Series_.seriesDescription),
+                    keys.getStrings(Tag.SeriesDescription), true);
+            anyOf(y, series.get(Series_.bodyPartExamined),
+                    toUpperCase(keys.getStrings(Tag.BodyPartExamined)), false);
+            anyOf(y, series.get(Series_.laterality),
+                    toUpperCase(keys.getStrings(Tag.Laterality)), false);
+            anyOf(y, series.get(Series_.sourceAET),
+                    keys.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE),
+                    false);
+            if (queryParam.isStorageVerificationFailed())
+                y.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
+            if (queryParam.isCompressionFailed())
+                y.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
+        }
         if (!y.isEmpty()) {
             y.add(cb.equal(series.get(Series_.study), study));
             predicates.add(cb.exists(sq.select(series).where(y.toArray(new Predicate[0]))));
@@ -833,20 +868,19 @@ public class QueryBuilder2 {
                     SeriesRequestAttributes_.accessionNumber, SeriesRequestAttributes_.issuerOfAccessionNumber,
                     accNo, issuerOfAccessionNumber);
         }
-        wildCard(requestPredicates,
+        anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestingService),
-                item.getString(Tag.RequestingService, "*"), true);
+                item.getStrings(Tag.RequestingService), true);
         personName(requestPredicates, q, request, SeriesRequestAttributes_.requestingPhysician,
                 item.getString(Tag.RequestingPhysician, "*"), queryParam);
-        wildCard(requestPredicates,
+        anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestedProcedureID),
-                item.getString(Tag.RequestedProcedureID, "*"));
+                item.getStrings(Tag.RequestedProcedureID), false);
         uidsPredicate(requestPredicates, request.get(SeriesRequestAttributes_.studyInstanceUID),
                 item.getStrings(Tag.StudyInstanceUID));
-        wildCard(requestPredicates,
+        anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.scheduledProcedureStepID),
-                item.getString(Tag.ScheduledProcedureStepID, "*"),
-                false);
+                item.getStrings(Tag.ScheduledProcedureStepID), false);
         if (!requestPredicates.isEmpty()) {
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
         }
