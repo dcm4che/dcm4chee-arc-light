@@ -56,14 +56,15 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.Session;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,8 +78,14 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -90,7 +97,10 @@ import java.util.List;
 public class ExportManagerEJB implements ExportManager {
 
     static final Logger LOG = LoggerFactory.getLogger(ExportManagerEJB.class);
-
+    
+    private Join<ExportTask, QueueMessage> queueMsg;
+    private Root<ExportTask> exportTask;
+    
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -511,11 +521,58 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public ExportTaskQuery listExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        return new ExportTaskQueryImpl(queueTaskQueryParam, exportTaskQueryParam, em);
+    public Iterator<ExportTask> listExportTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        TypedQuery<ExportTask> query = em.createQuery(select(cb, matchTask, queueTaskQueryParam, exportTaskQueryParam))
+                .setHint(QueryHints.FETCH_SIZE, queryFetchSize());
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultStream().iterator();
     }
 
-    public ExportTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        return new ExportTaskQueryImpl(queueTaskQueryParam, exportTaskQueryParam, em);
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        exportTask = q.from(ExportTask.class);
+        queueMsg = exportTask.join(ExportTask_.queueMessage);
+
+        return em.createQuery(
+                restrict(queueTaskQueryParam, exportTaskQueryParam, matchTask, q).select(cb.count(exportTask)))
+                .getSingleResult();
+    }
+
+    private <T> CriteriaQuery<T> restrict(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.exportPredicates(
+                queueMsg,
+                exportTask,
+                queueTaskQueryParam,
+                exportTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    private CriteriaQuery<ExportTask> select(
+            CriteriaBuilder cb, MatchTask matchTask, TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
+        exportTask = q.from(ExportTask.class);
+        queueMsg = exportTask.join(ExportTask_.queueMessage);
+
+        q = restrict(queueTaskQueryParam, exportTaskQueryParam, matchTask, q);
+        if (exportTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
+
+        return q.select(exportTask);
     }
 }

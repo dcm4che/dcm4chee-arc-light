@@ -49,6 +49,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -93,7 +94,8 @@ public interface ExportManager {
     List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                         OrderSpecifier<Date> order, int offset, int limit);
 
-    ExportTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
+    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
 
-    ExportTaskQuery listExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
+    Iterator<ExportTask> listExportTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit);
 }

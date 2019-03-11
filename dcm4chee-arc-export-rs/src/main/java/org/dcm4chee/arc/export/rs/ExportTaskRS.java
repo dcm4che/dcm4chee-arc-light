@@ -51,7 +51,6 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -72,6 +71,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -152,10 +152,14 @@ public class ExportTaskRS {
         if (output == null)
             return notAcceptable();
 
-        try (ExportTaskQuery exportTasks = mgr.listExportTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName))) {
-            exportTasks.beginTransaction();
-            exportTasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
-            return Response.ok(output.entity(exportTasks, arcDev()), output.type).build();
+        try {
+            return Response.ok(
+                    output.entity(
+                            mgr.listExportTasks(
+                                    queueTaskQueryParam(), exportTaskQueryParam(deviceName), parseInt(offset), parseInt(limit)),
+                            arcDev()),
+                    output.type)
+                    .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -171,8 +175,8 @@ public class ExportTaskRS {
         if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
             return count(0);
 
-        try (ExportTaskQuery query = mgr.countTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName))) {
-            return count(query.fetchCount());
+        try {
+            return count(mgr.countTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -307,24 +311,19 @@ public class ExportTaskRS {
         return count;
     }
 
-    private int rescheduleTasks(
-            ExporterDescriptor newExporter,
-            TaskQueryParam exportTaskQueryParam)
-            throws Exception {
+    private int rescheduleTasks(ExporterDescriptor newExporter, TaskQueryParam exportTaskQueryParam) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count = 0;
-              try (ExportTaskQuery exportTasks = mgr.listExportTasks(queueTaskQueryParam(), exportTaskQueryParam)) {
-                    exportTasks.beginTransaction();
-                    exportTasks.executeQuery(queryFetchSize(), 0, 0);
-                    while (exportTasks.hasMoreMatches()) {
-                        ExportTask task = exportTasks.nextMatch();
-                        mgr.rescheduleExportTask(
-                                task,
-                                newExporter != null ? newExporter : exporter(task.getExporterID()),
-                                null);
-                        count++;
-                    }
+            Iterator<ExportTask> exportTasks = mgr.listExportTasks(
+                    queueTaskQueryParam(), exportTaskQueryParam, 0, 0);
+            while (exportTasks.hasNext()) {
+                ExportTask task = exportTasks.next();
+                mgr.rescheduleExportTask(
+                        task,
+                        newExporter != null ? newExporter : exporter(task.getExporterID()),
+                        null);
+                count++;
             }
             queueEvent.setCount(count);
             LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
@@ -430,12 +429,12 @@ public class ExportTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev) {
+            Object entity(final Iterator<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasMoreMatches()) {
-                        ExportTask task = tasks.nextMatch();
+                    while (tasks.hasNext()) {
+                        ExportTask task = tasks.next();
                         task.writeAsJSONTo(gen, localAETitleOf(arcDev, task));
                     }
                     gen.writeEnd();
@@ -445,12 +444,12 @@ public class ExportTaskRS {
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev) {
+            Object entity(final Iterator<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     ExportTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasMoreMatches()) {
-                        ExportTask task = tasks.nextMatch();
+                    while (tasks.hasNext()) {
+                        ExportTask task = tasks.next();
                         task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
                     }
                     writer.flush();
@@ -480,7 +479,7 @@ public class ExportTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev);
+        abstract Object entity(final Iterator<ExportTask> tasks, ArchiveDeviceExtension arcDev);
     }
 
     private static String localAETitleOf(ArchiveDeviceExtension arcDev, ExportTask task) {
@@ -533,10 +532,6 @@ public class ExportTaskRS {
 
     private int queueTasksFetchSize() {
         return arcDev().getQueueTasksFetchSize();
-    }
-
-    private int queryFetchSize() {
-        return arcDev().getQueryFetchSize();
     }
 
     private ArchiveDeviceExtension arcDev() {
