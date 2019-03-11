@@ -45,14 +45,11 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
-import org.hibernate.annotations.QueryHints;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,8 +59,6 @@ import java.util.stream.Stream;
 class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
     private Join<RetrieveTask, QueueMessage> queueMsg;
     private Root<RetrieveTask> retrieveTask;
-    private Stream<RetrieveTask> resultStream;
-    private Iterator<RetrieveTask> results;
 
     private final MatchTask matchTask;
     private final TaskQueryParam queueTaskQueryParam;
@@ -82,38 +77,6 @@ class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
 
     @Override
     public void beginTransaction() {}
-
-    @Override
-    public void executeQuery(int fetchSize, int offset, int limit) {
-        close(resultStream);
-        TypedQuery<RetrieveTask> query = em.createQuery(select())
-                .setHint(QueryHints.FETCH_SIZE, fetchSize);
-        if (offset > 0)
-            query.setFirstResult(offset);
-        if (limit > 0)
-            query.setMaxResults(limit);
-        resultStream = query.getResultStream();
-        results = resultStream.iterator();
-    }
-
-    @Override
-    public long fetchCount() {
-        return em.createQuery(count()).getSingleResult();
-    }
-
-    private CriteriaQuery<Long> count() {
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        retrieveTask = q.from(RetrieveTask.class);
-        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-        return restrict(q, queueMsg, retrieveTask).select(cb.count(retrieveTask));
-    }
-
-    private CriteriaQuery<RetrieveTask> select() {
-        CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
-        retrieveTask = q.from(RetrieveTask.class);
-        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-        return orderBy(restrict(q, queueMsg, retrieveTask)).select(retrieveTask);
-    }
 
     private <T> CriteriaQuery<T> orderBy(CriteriaQuery<T> q) {
         if (retrieveTaskQueryParam.getOrderBy() != null)
@@ -147,21 +110,6 @@ class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
         queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
         return orderBy(restrict(q, queueMsg, retrieveTask))
                 .multiselect(queueMsg.get(QueueMessage_.messageID));
-    }
-
-    private <T> void close(Stream<T> resultStream) {
-        if (resultStream != null)
-            resultStream.close();
-    }
-
-    @Override
-    public boolean hasMoreMatches() {
-        return results.hasNext();
-    }
-
-    @Override
-    public RetrieveTask nextMatch() {
-        return results.next();
     }
 
     @Override

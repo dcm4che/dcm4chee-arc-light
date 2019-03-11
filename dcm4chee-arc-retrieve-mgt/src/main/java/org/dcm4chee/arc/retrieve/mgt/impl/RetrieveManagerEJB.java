@@ -48,18 +48,20 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.hibernate.Session;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +75,14 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -86,11 +94,17 @@ import java.util.List;
 public class RetrieveManagerEJB {
     private static final Logger LOG = LoggerFactory.getLogger(RetrieveManagerEJB.class);
 
+    private Join<RetrieveTask, QueueMessage> queueMsg;
+    private Root<RetrieveTask> retrieveTask;
+
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
 
     @Inject
     private QueueManager queueManager;
+
+    @Inject
+    private Device device;
 
     private static final Expression<?>[] SELECT = {
             QQueueMessage.queueMessage.processingStartTime.min(),
@@ -387,11 +401,59 @@ public class RetrieveManagerEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public RetrieveTaskQuery listRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return new RetrieveTaskQueryImpl(queueTaskQueryParam, retrieveTaskQueryParam, em);
+    public Iterator<RetrieveTask> listRetrieveTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        TypedQuery<RetrieveTask> query = em.createQuery(select(cb, matchTask, queueTaskQueryParam, retrieveTaskQueryParam))
+                .setHint(QueryHints.FETCH_SIZE, queryFetchSize());
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultStream().iterator();
     }
 
-    public RetrieveTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return new RetrieveTaskQueryImpl(queueTaskQueryParam, retrieveTaskQueryParam, em);
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+
+        return em.createQuery(
+                restrict(queueTaskQueryParam, retrieveTaskQueryParam, matchTask, q).select(cb.count(retrieveTask)))
+                .getSingleResult();
     }
+
+    private <T> CriteriaQuery<T> restrict(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.retrievePredicates(
+                queueMsg,
+                retrieveTask,
+                queueTaskQueryParam,
+                retrieveTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    private CriteriaQuery<RetrieveTask> select(CriteriaBuilder cb,
+            MatchTask matchTask, TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+
+        q = restrict(queueTaskQueryParam, retrieveTaskQueryParam, matchTask, q);
+        if (retrieveTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.retrieveTaskOrder(retrieveTaskQueryParam.getOrderBy(), retrieveTask));
+
+        return q.select(retrieveTask);
+    }
+
 }

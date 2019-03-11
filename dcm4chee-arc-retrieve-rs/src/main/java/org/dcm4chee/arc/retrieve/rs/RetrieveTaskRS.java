@@ -54,7 +54,6 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -72,6 +71,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -159,13 +159,13 @@ public class RetrieveTaskRS {
         if (output == null)
             return notAcceptable();
 
-        try (RetrieveTaskQuery tasks = mgr.listRetrieveTasks(queueTaskQueryParam(), retrieveTaskQueryParam())) {
-            tasks.beginTransaction();
-            tasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
-            return Response.ok(output.entity(tasks), output.type).build();
+        try {
+            return Response.ok(output.entity(mgr.listRetrieveTasks(
+                    queueTaskQueryParam(), retrieveTaskQueryParam(), parseInt(offset), parseInt(limit))), output.type).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
+
     }
 
     @GET
@@ -174,8 +174,8 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response countRetrieveTasks() {
         logRequest();
-        try (RetrieveTaskQuery query = mgr.countTasks(queueTaskQueryParam(), retrieveTaskQueryParam())) {
-            return count(query.fetchCount());
+        try {
+            return count(mgr.countTasks(queueTaskQueryParam(), retrieveTaskQueryParam()));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -397,12 +397,12 @@ public class RetrieveTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final RetrieveTaskQuery tasks) {
+            Object entity(final Iterator<RetrieveTask> tasks) {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasMoreMatches())
-                        tasks.nextMatch().writeAsJSONTo(gen);
+                    while (tasks.hasNext())
+                        tasks.next().writeAsJSONTo(gen);
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -410,12 +410,12 @@ public class RetrieveTaskRS {
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final RetrieveTaskQuery tasks) {
+            Object entity(final Iterator<RetrieveTask> tasks) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     RetrieveTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasMoreMatches())
-                        tasks.nextMatch().writeAsCSVTo(writer, delimiter);
+                    while (tasks.hasNext())
+                        tasks.next().writeAsCSVTo(writer, delimiter);
                     writer.flush();
                 };
             }
@@ -437,13 +437,13 @@ public class RetrieveTaskRS {
         private static boolean isCSV(MediaType type) {
             boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
             delimiter = csvCompatible
-                            && type.getParameters().keySet().contains("delimiter")
-                            && type.getParameters().get("delimiter").equals("semicolon")
-                        ? ';' : ',';
+                    && type.getParameters().keySet().contains("delimiter")
+                    && type.getParameters().get("delimiter").equals("semicolon")
+                    ? ';' : ',';
             return csvCompatible;
         }
 
-        abstract Object entity(final RetrieveTaskQuery tasks);
+        abstract Object entity(final Iterator<RetrieveTask> tasks);
     }
 
     private QueueMessage.Status status() {
@@ -489,10 +489,6 @@ public class RetrieveTaskRS {
 
     private int queueTasksFetchSize() {
         return arcDev().getQueueTasksFetchSize();
-    }
-
-    private int queryFetchSize() {
-        return arcDev().getQueryFetchSize();
     }
 
     private ArchiveDeviceExtension arcDev() {

@@ -46,6 +46,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -54,7 +55,6 @@ import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +64,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -204,12 +205,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public RetrieveTaskQuery listRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return ejb.listRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
+    public Iterator<RetrieveTask> listRetrieveTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
+        return ejb.listRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam, offset, limit);
     }
 
     @Override
-    public RetrieveTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
         return ejb.countTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 }

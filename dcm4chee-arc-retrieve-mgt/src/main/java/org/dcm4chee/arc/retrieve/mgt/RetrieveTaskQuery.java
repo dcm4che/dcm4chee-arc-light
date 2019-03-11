@@ -41,8 +41,6 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
-import org.dcm4chee.arc.entity.RetrieveTask;
-
 import java.io.Closeable;
 import java.util.List;
 
@@ -54,13 +52,5 @@ import java.util.List;
 public interface RetrieveTaskQuery extends Closeable {
     void beginTransaction();
 
-    void executeQuery(int fetchSize, int offset, int limit);
-
     List<String> executeQuery(int limit);
-
-    boolean hasMoreMatches();
-
-    RetrieveTask nextMatch();
-
-    long fetchCount();
 }
