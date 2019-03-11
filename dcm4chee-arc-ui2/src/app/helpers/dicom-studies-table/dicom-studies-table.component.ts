@@ -15,9 +15,10 @@ export class DicomStudiesTableComponent implements OnInit {
     private _config:TableSchemaConfig;
     @Input() patients:PatientDicom[];
     @Input() title:string;
-    constructor() { }
 
     hover_mode = 'patient';
+    active_td = '';
+    constructor() { }
     ngOnInit() {
         this._config.offset = this._config.offset || 0;
     }

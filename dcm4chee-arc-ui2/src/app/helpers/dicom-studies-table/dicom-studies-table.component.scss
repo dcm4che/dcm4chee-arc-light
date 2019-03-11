@@ -1,3 +1,5 @@
+$hoverColor:#9fa4a9;
+
 .j4care_dynamic_table{
   float: left;
   width: 100%;
@@ -32,6 +34,10 @@
       &.not_empty_td{
         border-left: 1px solid white;
       }
+      &.active{
+        background: $hoverColor;
+        color: black;
+      }
     }
   }
   .tr{
@@ -49,6 +55,11 @@
           position: static;
         }
       }
+      &.active, &:hover{
+        background: $hoverColor;
+        color: black;
+      }
+
     }
 
   }

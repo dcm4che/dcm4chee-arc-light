@@ -1,3 +1,5 @@
+import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+
 export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"
 
 export interface DicomTableSchema{
@@ -7,18 +9,18 @@ export interface DicomTableSchema{
     instance:TableSchemaElement[];
 }
 
-export interface TableSchemaElement {
+/*export interface TableSchemaElement {
     type:TableSchemaElementType;
     header?:string;
     headerDescription?:string;
-    pathToValue?:string;/*Path or key of the value how you can find it on the data model*/
-    widthWeight?:number;/*width weight of this table element in compare to the others*/
+    pathToValue?:string;/!*Path or key of the value how you can find it on the data model*!/
+    widthWeight?:number;/!*width weight of this table element in compare to the others*!/
     cssClass?:string;
-    hook?:Function; /*Use this to modify the data*/
+    hook?:Function; /!*Use this to modify the data*!/
     actions?:TableAction[];
     calculatedWidth?:string;
     pipe?:DynamicPipe;
-}
+}*/
 
 export interface Icon{
     tag:("span"|"i");
