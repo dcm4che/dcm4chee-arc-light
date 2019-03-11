@@ -55,7 +55,6 @@ import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +71,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -151,10 +151,13 @@ public class StgVerTaskRS {
         Output output = selectMediaType(accept);
         if (output == null)
             return notAcceptable();
-        try (StgVerTaskQuery stgVerTasks = stgCmtMgr.listStgVerTasks(queueTaskQueryParam(), stgVerTaskQueryParam())) {
-                stgVerTasks.beginTransaction();
-                stgVerTasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
-                return Response.ok(output.entity(stgVerTasks), output.type).build();
+        try {
+            return Response.ok(
+                    output.entity(
+                            stgCmtMgr.listStgVerTasks(
+                                    queueTaskQueryParam(), stgVerTaskQueryParam(), parseInt(offset), parseInt(limit))),
+                    output.type)
+                    .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -166,8 +169,8 @@ public class StgVerTaskRS {
     @Produces("application/json")
     public Response countStgVerTasks() {
         logRequest();
-        try (StgVerTaskQuery query = stgCmtMgr.countTasks(queueTaskQueryParam(), stgVerTaskQueryParam())) {
-            return count(query.fetchCount());
+        try {
+            return count(stgCmtMgr.countTasks(queueTaskQueryParam(), stgVerTaskQueryParam()));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -326,10 +329,7 @@ public class StgVerTaskRS {
             int count;
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
-                count = stgCmtMgr.deleteTasks(
-                        matchQueueMessage(status(), deviceName, null),
-                        matchStgVerTask(updatedTime),
-                        deleteTasksFetchSize);
+                count = stgCmtMgr.deleteTasks(queueTaskQueryParam(), stgVerTaskQueryParam(), deleteTasksFetchSize);
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
@@ -356,12 +356,12 @@ public class StgVerTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final StgVerTaskQuery tasks) {
+            Object entity(Iterator<StorageVerificationTask> tasks) {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasMoreMatches())
-                        tasks.nextMatch().writeAsJSONTo(gen);
+                    while (tasks.hasNext())
+                        tasks.next().writeAsJSONTo(gen);
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -369,12 +369,12 @@ public class StgVerTaskRS {
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final StgVerTaskQuery tasks) {
+            Object entity(Iterator<StorageVerificationTask> tasks) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     StorageVerificationTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasMoreMatches())
-                        tasks.nextMatch().writeAsCSVTo(writer, delimiter);
+                    while (tasks.hasNext())
+                        tasks.next().writeAsCSVTo(writer, delimiter);
                     writer.flush();
                 };
             }
@@ -402,7 +402,7 @@ public class StgVerTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final StgVerTaskQuery tasks);
+        abstract Object entity(Iterator<StorageVerificationTask> tasks);
     }
 
     private int count(Response response, String devName) {
@@ -484,10 +484,6 @@ public class StgVerTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 
     private TaskQueryParam queueTaskQueryParam() {

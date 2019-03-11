@@ -161,7 +161,8 @@ public class RetrieveTaskRS {
 
         try {
             return Response.ok(output.entity(mgr.listRetrieveTasks(
-                    queueTaskQueryParam(), retrieveTaskQueryParam(), parseInt(offset), parseInt(limit))), output.type).build();
+                    queueTaskQueryParam(), retrieveTaskQueryParam(), parseInt(offset), parseInt(limit))), output.type)
+                    .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }

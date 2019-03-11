@@ -285,16 +285,6 @@ public class RetrieveManagerEJB {
                 .fetch();
     }
 
-    public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
-        List<String> referencedQueueMsgIDs;
-        try (RetrieveTaskQueryImpl query = new RetrieveTaskQueryImpl(queueTaskQueryParam, retrieveTaskQueryParam, em)) {
-            query.beginTransaction();
-            referencedQueueMsgIDs = query.executeQuery(deleteTasksFetchSize);
-            referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
-        }
-        return referencedQueueMsgIDs.size();
-    }
-
     public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return createQuery(matchQueueMessage, matchRetrieveTask)
                 .select(QQueueMessage.queueMessage.deviceName)
@@ -454,6 +444,25 @@ public class RetrieveManagerEJB {
             q.orderBy(matchTask.retrieveTaskOrder(retrieveTaskQueryParam.getOrderBy(), retrieveTask));
 
         return q.select(retrieveTask);
+    }
+
+    public int deleteTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+
+        TypedQuery<String> query = em.createQuery(restrict(queueTaskQueryParam, retrieveTaskQueryParam, matchTask, q)
+                .multiselect(queueMsg.get(QueueMessage_.messageID)));
+
+        if (deleteTasksFetchSize > 0)
+            query.setMaxResults(deleteTasksFetchSize);
+
+        List<String> referencedQueueMsgIDs = query.getResultList();
+        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
+        return referencedQueueMsgIDs.size();
     }
 
 }

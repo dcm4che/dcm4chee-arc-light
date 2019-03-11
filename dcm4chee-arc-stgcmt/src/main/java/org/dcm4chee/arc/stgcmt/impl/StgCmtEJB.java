@@ -62,11 +62,12 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.StgVerTaskQuery;
 import org.hibernate.Session;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,10 +78,11 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
 import java.util.*;
 
 /**
@@ -93,6 +95,9 @@ public class StgCmtEJB {
 
     private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
 
+    private Join<StorageVerificationTask, QueueMessage> queueMsg;
+    private Root<StorageVerificationTask> stgVerTask;
+    
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -423,18 +428,6 @@ public class StgCmtEJB {
         return true;
     }
 
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize) {
-        List<String> referencedQueueMsgIDs = createQuery(matchQueueMessage, matchStgVerTask)
-                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.messageID)
-                .limit(deleteTasksFetchSize)
-                .fetch();
-
-        for (String queueMsgID : referencedQueueMsgIDs)
-            queueManager.deleteTask(queueMsgID, null);
-
-        return referencedQueueMsgIDs.size();
-    }
-
     public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
                                                OrderSpecifier<Date> order, int offset, int limit) {
         HibernateQuery<StorageVerificationTask> stgVerTaskQuery = createQuery(matchQueueBatch, matchStgCmtBatch);
@@ -536,11 +529,77 @@ public class StgCmtEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public StgVerTaskQuery listStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return new StgVerTaskQueryImpl(queueTaskQueryParam, stgVerTaskQueryParam, em);
+    public Iterator<StorageVerificationTask> listStgVerTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        TypedQuery<StorageVerificationTask> query = em.createQuery(select(cb, matchTask, queueTaskQueryParam, stgVerTaskQueryParam))
+                .setHint(QueryHints.FETCH_SIZE, queryFetchSize());
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultStream().iterator();
     }
 
-    public StgVerTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return new StgVerTaskQueryImpl(queueTaskQueryParam, stgVerTaskQueryParam, em);
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+
+        return em.createQuery(
+                restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q).select(cb.count(stgVerTask)))
+                .getSingleResult();
+    }
+
+    private <T> CriteriaQuery<T> restrict(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.stgVerPredicates(
+                queueMsg,
+                stgVerTask,
+                queueTaskQueryParam,
+                stgVerTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    private CriteriaQuery<StorageVerificationTask> select(CriteriaBuilder cb,
+                                               MatchTask matchTask, TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        CriteriaQuery<StorageVerificationTask> q = cb.createQuery(StorageVerificationTask.class);
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+
+        q = restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q);
+        if (stgVerTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.stgVerTaskOrder(stgVerTaskQueryParam.getOrderBy(), stgVerTask));
+
+        return q.select(stgVerTask);
+    }
+
+    public int deleteTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+
+        TypedQuery<String> query = em.createQuery(restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q)
+                .multiselect(queueMsg.get(QueueMessage_.messageID)));
+
+        if (deleteTasksFetchSize > 0)
+            query.setMaxResults(deleteTasksFetchSize);
+
+        List<String> referencedQueueMsgIDs = query.getResultList();
+        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
+        return referencedQueueMsgIDs.size();
     }
 }

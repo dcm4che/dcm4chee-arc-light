@@ -230,8 +230,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(matchQueueMessage, matchStgVerTask, deleteTasksFetchSize);
+    public int deleteTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
     }
 
     @Override
@@ -596,12 +597,13 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public StgVerTaskQuery listStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.listStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
+    public Iterator<StorageVerificationTask> listStgVerTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
+        return ejb.listStgVerTasks(queueTaskQueryParam, retrieveTaskQueryParam, offset, limit);
     }
 
     @Override
-    public StgVerTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, stgVerTaskQueryParam);
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return ejb.countTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 }
