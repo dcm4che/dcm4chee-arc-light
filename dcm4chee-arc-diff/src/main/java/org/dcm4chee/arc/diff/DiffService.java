@@ -51,6 +51,7 @@ import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -97,7 +98,8 @@ public interface DiffService {
 
     List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
 
-    DiffTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
+    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
-    DiffTaskQuery listDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
+    Iterator<DiffTask> listDiffTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit);
 }

@@ -235,12 +235,13 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public DiffTaskQuery listDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.listDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
+    public Iterator<DiffTask> listDiffTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit) {
+        return ejb.listDiffTasks(queueTaskQueryParam, diffTaskQueryParam, offset, limit);
     }
 
     @Override
-    public DiffTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         return ejb.countTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 }

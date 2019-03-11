@@ -47,14 +47,18 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.Session;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,8 +72,14 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -84,6 +94,12 @@ public class DiffServiceEJB {
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
+
+    private Join<DiffTask, QueueMessage> queueMsg;
+    private Root<DiffTask> diffTask;
+
+    @Inject
+    private Device device;
 
     @Inject
     private QueueManager queueManager;
@@ -156,10 +172,6 @@ public class DiffServiceEJB {
             diffTask.setMissing(diffSCU.missing());
             diffTask.setDifferent(diffSCU.different());
         }
-    }
-
-    public long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        return createQuery(matchQueueMessage, matchDiffTask).fetchCount();
     }
 
     private HibernateQuery<DiffTask> createQuery(Predicate matchQueueMessage, Predicate matchDiffTask) {
@@ -397,11 +409,59 @@ public class DiffServiceEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public DiffTaskQuery listDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return new DiffTaskQueryImpl(queueTaskQueryParam, diffTaskQueryParam, em);
+    public Iterator<DiffTask> listDiffTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        TypedQuery<DiffTask> query = em.createQuery(select(cb, matchTask, queueTaskQueryParam, diffTaskQueryParam))
+                .setHint(QueryHints.FETCH_SIZE, queryFetchSize());
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultStream().iterator();
     }
 
-    public DiffTaskQuery countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return new DiffTaskQueryImpl(queueTaskQueryParam, diffTaskQueryParam, em);
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage);
+
+        return em.createQuery(
+                restrict(queueTaskQueryParam, diffTaskQueryParam, matchTask, q).select(cb.count(diffTask)))
+                .getSingleResult();
     }
+
+    private <T> CriteriaQuery<T> restrict(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.diffPredicates(
+                queueMsg,
+                diffTask,
+                queueTaskQueryParam,
+                diffTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    private CriteriaQuery<DiffTask> select(
+            CriteriaBuilder cb, MatchTask matchTask, TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage);
+
+        q = restrict(queueTaskQueryParam, diffTaskQueryParam, matchTask, q);
+        if (diffTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.diffTaskOrder(diffTaskQueryParam.getOrderBy(), diffTask));
+
+        return q.select(diffTask);
+    }
+    
 }

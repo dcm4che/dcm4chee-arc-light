@@ -48,7 +48,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffTaskQuery;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -78,6 +77,7 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -171,10 +171,13 @@ public class DiffTaskRS {
         if (output == null)
             return notAcceptable();
 
-        try (DiffTaskQuery tasks = diffService.listDiffTasks(queueTaskQueryParam(), diffTaskQueryParam())) {
-            tasks.beginTransaction();
-            tasks.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
-            return Response.ok(output.entity(tasks), output.type).build();
+        try {
+            return Response.ok(
+                    output.entity(
+                            diffService.listDiffTasks(
+                                    queueTaskQueryParam(), diffTaskQueryParam(), parseInt(offset), parseInt(limit))),
+                    output.type)
+                    .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -186,8 +189,8 @@ public class DiffTaskRS {
     @Produces("application/json")
     public Response countDiffTasks() {
         logRequest();
-        try (DiffTaskQuery query = diffService.countTasks(queueTaskQueryParam(), diffTaskQueryParam())) {
-            return count(query.fetchCount());
+        try {
+            return count(diffService.countTasks(queueTaskQueryParam(), diffTaskQueryParam()));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -400,12 +403,12 @@ public class DiffTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final DiffTaskQuery tasks) {
+            Object entity(final Iterator<DiffTask> tasks) {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasMoreMatches())
-                        tasks.nextMatch().writeAsJSONTo(gen);
+                    while (tasks.hasNext())
+                        tasks.next().writeAsJSONTo(gen);
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -413,12 +416,12 @@ public class DiffTaskRS {
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final DiffTaskQuery tasks) {
+            Object entity(final Iterator<DiffTask> tasks) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     DiffTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasMoreMatches())
-                        tasks.nextMatch().writeAsCSVTo(writer, delimiter);
+                    while (tasks.hasNext())
+                        tasks.next().writeAsCSVTo(writer, delimiter);
                     writer.flush();
                 };
             }
@@ -446,7 +449,7 @@ public class DiffTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final DiffTaskQuery tasks);
+        abstract Object entity(final Iterator<DiffTask> tasks);
     }
 
     private StreamingOutput entity(List<AttributesBlob> diffTaskAttributesList) {
@@ -541,10 +544,6 @@ public class DiffTaskRS {
 
     private int queueTasksFetchSize() {
         return arcDev().getQueueTasksFetchSize();
-    }
-
-    private int queryFetchSize() {
-        return arcDev().getQueryFetchSize();
     }
 
     private ArchiveDeviceExtension arcDev() {
