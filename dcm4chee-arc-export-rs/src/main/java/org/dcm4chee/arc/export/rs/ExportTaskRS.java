@@ -152,6 +152,10 @@ public class ExportTaskRS {
         if (output == null)
             return notAcceptable();
 
+        QueueMessage.Status status = status();
+        if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
+            return Response.ok().build();
+
         try {
             return Response.ok(
                     output.entity(
@@ -365,8 +369,7 @@ public class ExportTaskRS {
             int count;
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
-                count = mgr.deleteTasks(status, batchID,
-                        matchExportTask(deviceName, updatedTime));
+                count = mgr.deleteTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName), deleteTasksFetchSize);
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);

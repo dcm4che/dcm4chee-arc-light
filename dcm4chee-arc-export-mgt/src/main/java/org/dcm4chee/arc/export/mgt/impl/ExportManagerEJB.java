@@ -44,7 +44,6 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -79,10 +78,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -397,37 +393,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int deleteTasks(QueueMessage.Status status, String batchID, Predicate matchExportTask) {
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            return deletedToScheduleTasks(matchExportTask);
-
-        HibernateQuery<ExportTask> exportTaskQuery = exportTaskQuery(matchExportTask);
-        if (status == null && batchID == null)
-            return deletedRefQueueMsgs(exportTaskQuery) + deletedToScheduleTasks(matchExportTask);
-
-        if (batchID != null)
-            exportTaskQuery.where(QExportTask.exportTask.queueMessage.batchID.eq(batchID));
-        if (status != null)
-            exportTaskQuery.where(QExportTask.exportTask.queueMessage.status.eq(status));
-
-        return deletedRefQueueMsgs(exportTaskQuery);
-    }
-
-    private int deletedRefQueueMsgs(HibernateQuery<ExportTask> exportTaskQuery) {
-        List<String> refQueueMsgIDs = exportTaskQuery.select(QExportTask.exportTask.queueMessage.messageID).fetch();
-        for (String queueMsgID : refQueueMsgIDs)
-            queueManager.deleteTask(queueMsgID, null);
-
-        return refQueueMsgIDs.size();
-    }
-
-    private int deletedToScheduleTasks(Predicate matchExportTask) {
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
-                .execute();
-    }
-
-    @Override
     public List<String> listDistinctDeviceNames(Predicate matchExportTask) {
         return exportTaskQuery(matchExportTask)
                 .select(QExportTask.exportTask.deviceName)
@@ -523,9 +488,7 @@ public class ExportManagerEJB implements ExportManager {
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Iterator<ExportTask> listExportTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        TypedQuery<ExportTask> query = em.createQuery(select(cb, matchTask, queueTaskQueryParam, exportTaskQueryParam))
+        TypedQuery<ExportTask> query = em.createQuery(select(queueTaskQueryParam, exportTaskQueryParam))
                 .setHint(QueryHints.FETCH_SIZE, queryFetchSize());
         if (offset > 0)
             query.setFirstResult(offset);
@@ -540,39 +503,119 @@ public class ExportManagerEJB implements ExportManager {
 
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         exportTask = q.from(ExportTask.class);
-        queueMsg = exportTask.join(ExportTask_.queueMessage);
 
         return em.createQuery(
-                restrict(queueTaskQueryParam, exportTaskQueryParam, matchTask, q).select(cb.count(exportTask)))
+                restrict(queueTaskQueryParam, exportTaskQueryParam, matchTask, q)
+                        .select(cb.count(exportTask)))
                 .getSingleResult();
+    }
+
+    private CriteriaQuery<ExportTask> select(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
+        exportTask = q.from(ExportTask.class);
+
+        return orderBy(restrict(
+                    queueTaskQueryParam, exportTaskQueryParam, matchTask, q),
+                    matchTask,
+                    exportTaskQueryParam)
+                .select(exportTask);
+    }
+
+    private <T> CriteriaQuery<T> orderBy(CriteriaQuery<T> q, MatchTask matchTask, TaskQueryParam exportTaskQueryParam) {
+        if (exportTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
+        return q;
     }
 
     private <T> CriteriaQuery<T> restrict(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.exportPredicates(
+        List<javax.persistence.criteria.Predicate> predicates;
+
+        QueueMessage.Status status = exportTaskQueryParam.getStatus();
+        if (status == QueueMessage.Status.TO_SCHEDULE) {
+            predicates = predicates(exportTaskQueryParam, matchTask);
+            predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        } else {
+            if (status != null || queueTaskQueryParam.getBatchID() != null) {
+                queueMsg = exportTask.join(ExportTask_.queueMessage);
+                q.where(predicates(queueTaskQueryParam, exportTaskQueryParam, matchTask)
+                        .toArray(new javax.persistence.criteria.Predicate[0]));
+            }
+
+            if (status == null && queueTaskQueryParam.getBatchID() == null) {
+                queueMsg = exportTask.join(ExportTask_.queueMessage, JoinType.LEFT);
+                q.where(predicates(exportTaskQueryParam, matchTask).toArray(new javax.persistence.criteria.Predicate[0]));
+            }
+        }
+        return q;
+    }
+
+    private List<javax.persistence.criteria.Predicate> predicates(TaskQueryParam exportTaskQueryParam, MatchTask matchTask) {
+        return matchTask.exportPredicates(
+                queueMsg,
+                exportTask,
+                null,
+                exportTaskQueryParam);
+    }
+
+    private List<javax.persistence.criteria.Predicate> predicates(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, MatchTask matchTask) {
+        return matchTask.exportPredicates(
                 queueMsg,
                 exportTask,
                 queueTaskQueryParam,
                 exportTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
-        return q;
     }
 
     private int queryFetchSize() {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 
-    private CriteriaQuery<ExportTask> select(
-            CriteriaBuilder cb, MatchTask matchTask, TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
+    public int deleteTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
+        QueueMessage.Status status = exportTaskQueryParam.getStatus();
+        if (status == QueueMessage.Status.TO_SCHEDULE)
+            return deleteToSchedule(exportTaskQueryParam);
+
+        if (status == null && queueTaskQueryParam.getBatchID() == null)
+            return deleteReferencedTasks(queueTaskQueryParam, exportTaskQueryParam, deleteTasksFetchSize)
+                    + deleteToSchedule(exportTaskQueryParam);
+
+        return deleteReferencedTasks(queueTaskQueryParam, exportTaskQueryParam, deleteTasksFetchSize);
+    }
+
+    private int deleteToSchedule(TaskQueryParam exportTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaDelete<ExportTask> q = cb.createCriteriaDelete(ExportTask.class);
+        exportTask = q.from(ExportTask.class);
+        List<javax.persistence.criteria.Predicate> predicates = predicates(exportTaskQueryParam, matchTask);
+        predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
+        q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return em.createQuery(q).executeUpdate();
+    }
+
+    private int deleteReferencedTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
         exportTask = q.from(ExportTask.class);
         queueMsg = exportTask.join(ExportTask_.queueMessage);
 
-        q = restrict(queueTaskQueryParam, exportTaskQueryParam, matchTask, q);
-        if (exportTaskQueryParam.getOrderBy() != null)
-            q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
+        q.where(predicates(queueTaskQueryParam, exportTaskQueryParam, matchTask)
+                .toArray(new javax.persistence.criteria.Predicate[0]));
+        TypedQuery<String> query = em.createQuery(q.multiselect(queueMsg.get(QueueMessage_.messageID)));
 
-        return q.select(exportTask);
+        if (deleteTasksFetchSize > 0)
+            query.setMaxResults(deleteTasksFetchSize);
+
+        List<String> referencedQueueMsgIDs = query.getResultList();
+        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
+        return referencedQueueMsgIDs.size();
     }
 }
