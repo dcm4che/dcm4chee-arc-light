@@ -295,8 +295,9 @@
     <xsl:value-of select='.'/>
   </xsl:template>
   <xsl:template match="escape" mode="txt">
+    <xsl:variable name="text" select="translate(translate(text(), '0', ''), 'da', 'DA')"/>
     <xsl:choose>
-      <xsl:when test="text()='.br' or text()='X000d' or text()='X0d' or text()='X0A'">
+      <xsl:when test="$text='.br' or $text='XD' or $text='XA'">
         <xsl:text>&#13;&#10;</xsl:text>
       </xsl:when>
       <xsl:when test="text()='F'">
