@@ -296,7 +296,7 @@
   </xsl:template>
   <xsl:template match="escape" mode="txt">
     <xsl:choose>
-      <xsl:when test="text()='.br'">
+      <xsl:when test="text()='.br' or text()='X000d' or text()='X0d' or text()='X0A'">
         <xsl:text>&#13;&#10;</xsl:text>
       </xsl:when>
       <xsl:when test="text()='F'">
