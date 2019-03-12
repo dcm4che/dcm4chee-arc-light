@@ -40,11 +40,9 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -300,41 +298,42 @@ public class StgCmtEJB {
     }
 
     private boolean isAlreadyScheduled(StorageVerificationTask storageVerificationTask) {
-        BooleanBuilder predicate = new BooleanBuilder(QStorageVerificationTask.storageVerificationTask.queueMessage.status.in(
-                QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
-        predicate.and(QStorageVerificationTask.storageVerificationTask.studyInstanceUID.eq(
-                storageVerificationTask.getStudyInstanceUID()));
-        if (storageVerificationTask.getSeriesInstanceUID() == null) {
-            predicate.and(QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.isNull());
-        } else {
-            predicate.and(ExpressionUtils.or(
-                    QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.isNull(),
-                    QStorageVerificationTask.storageVerificationTask.seriesInstanceUID.eq(
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        predicates.add(queueMsg.get(QueueMessage_.status).in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
+        predicates.add(cb.equal(
+                stgVerTask.get(StorageVerificationTask_.studyInstanceUID), storageVerificationTask.getStudyInstanceUID()));
+        if (storageVerificationTask.getSeriesInstanceUID() == null)
+            predicates.add(stgVerTask.get(StorageVerificationTask_.seriesInstanceUID).isNull());
+        else {
+            predicates.add(cb.or(
+                    stgVerTask.get(StorageVerificationTask_.seriesInstanceUID).isNull(),
+                    cb.equal(stgVerTask.get(StorageVerificationTask_.seriesInstanceUID),
                             storageVerificationTask.getSeriesInstanceUID())));
-            if (storageVerificationTask.getSOPInstanceUID() == null) {
-                predicate.and(QStorageVerificationTask.storageVerificationTask.sopInstanceUID.isNull());
-            } else {
-                predicate.and(ExpressionUtils.or(
-                    QStorageVerificationTask.storageVerificationTask.sopInstanceUID.isNull(),
-                    QStorageVerificationTask.storageVerificationTask.sopInstanceUID.eq(
-                            storageVerificationTask.getSOPInstanceUID())));
-            }
+            if (storageVerificationTask.getSOPInstanceUID() == null)
+                predicates.add(stgVerTask.get(StorageVerificationTask_.sopInstanceUID).isNull());
+            else
+                predicates.add(cb.or(
+                        stgVerTask.get(StorageVerificationTask_.sopInstanceUID).isNull(),
+                        cb.equal(stgVerTask.get(StorageVerificationTask_.sopInstanceUID),
+                                storageVerificationTask.getSOPInstanceUID())));
         }
-        if (storageVerificationTask.getStorageVerificationPolicy() != null) {
-            predicate.and(QStorageVerificationTask.storageVerificationTask.storageVerificationPolicy.eq(
+        if (storageVerificationTask.getStorageVerificationPolicy() != null)
+            predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.storageVerificationPolicy),
                     storageVerificationTask.getStorageVerificationPolicy()));
-        }
-        if (storageVerificationTask.getStorageIDsAsString() != null) {
-            predicate.and(QStorageVerificationTask.storageVerificationTask.storageIDs.eq(
+        if (storageVerificationTask.getStorageIDsAsString() != null)
+            predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.storageIDs),
                     storageVerificationTask.getStorageIDsAsString()));
-        }
-        try (CloseableIterator<Long> iterate = new HibernateQuery<>(em.unwrap(Session.class))
-                .select(QStorageVerificationTask.storageVerificationTask.pk)
-                .from(QStorageVerificationTask.storageVerificationTask)
-                .where(predicate)
-                .iterate()) {
-            return iterate.hasNext();
-        }
+        return em.createQuery(q
+                    .where(predicates.toArray(new javax.persistence.criteria.Predicate[0]))
+                    .select(stgVerTask.get(StorageVerificationTask_.pk)))
+                .getResultStream()
+                .iterator()
+                .hasNext();
     }
 
     public int updateStgVerTask(StorageVerificationTask storageVerificationTask) {
