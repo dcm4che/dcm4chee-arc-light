@@ -58,6 +58,8 @@ import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 
+import static org.dcm4chee.arc.entity.Instance_.contentItems;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -553,12 +555,14 @@ public class QueryBuilder2 {
                 instance.get(Instance_.contentTime),
                 Tag.ContentDate, Tag.ContentTime, Tag.ContentDateAndTime,
                 keys, combinedDatetimeMatching);
-        code(predicates, instance.get(Instance_.conceptNameCode), keys.getNestedDataset(Tag.ConceptNameCodeSequence));
+        if (!code(predicates, instance.get(Instance_.conceptNameCode),
+                keys.getNestedDataset(Tag.ConceptNameCodeSequence)))
+            hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
         verifyingObserver(predicates, q, instance, keys.getNestedDataset(Tag.VerifyingObserverSequence), queryParam);
         Sequence contentSeq = keys.getSequence(Tag.ContentSequence);
         if (contentSeq != null)
             for (Attributes item : contentSeq)
-                contentItem(predicates, q, instance.get(Instance_.contentItems), item);
+                contentItem(predicates, q, instance, item);
         AttributeFilter attrFilter = queryParam
                 .getAttributeFilter(Entity.Instance);
         wildCard(predicates,
@@ -576,8 +580,8 @@ public class QueryBuilder2 {
                 AttributeFilter.selectStringValue(keys,
                         attrFilter.getCustomAttribute3(), "*"),
                 true);
-        hideRejectedInstance(predicates, instance, showInstancesRejectedByCodes, queryParam.isHideNotRejectedInstances());
-        hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
+        hideRejectedInstance(predicates, instance,
+                showInstancesRejectedByCodes, queryParam.isHideNotRejectedInstances());
     }
 
     public <T> List<Predicate> sopInstanceRefs(CriteriaQuery<T> q,
@@ -843,16 +847,17 @@ public class QueryBuilder2 {
         }
     }
 
-    private void code(List<Predicate> predicates, Path<CodeEntity> code, Attributes item) {
+    private boolean code(List<Predicate> predicates, Path<CodeEntity> code, Attributes item) {
         if (isUniversalMatching(item))
-            return;
+            return false;
 
-        wildCard(predicates, code.get(CodeEntity_.codeValue),
+        boolean result = wildCard(predicates, code.get(CodeEntity_.codeValue),
                 item.getString(Tag.CodeValue, "*"));
-        wildCard(predicates, code.get(CodeEntity_.codingSchemeDesignator),
-                item.getString(Tag.CodingSchemeDesignator, "*"));
-        wildCard(predicates, code.get(CodeEntity_.codingSchemeVersion),
-                item.getString(Tag.CodingSchemeVersion, "*"));
+        result = wildCard(predicates, code.get(CodeEntity_.codingSchemeDesignator),
+                item.getString(Tag.CodingSchemeDesignator, "*")) || result;
+        result = wildCard(predicates, code.get(CodeEntity_.codingSchemeVersion),
+                item.getString(Tag.CodingSchemeVersion, "*")) || result;
+        return result;
     }
 
     private <T, Z> void procedureCode(List<Predicate> predicates, CriteriaQuery<T> q,
@@ -930,13 +935,14 @@ public class QueryBuilder2 {
     }
 
     private <T> void contentItem(List<Predicate> predicates, CriteriaQuery<T> q,
-            Expression<Collection<ContentItem>> contentItems, Attributes item) {
+            Root<Instance> instance, Attributes item) {
         String valueType = item.getString(Tag.ValueType);
         if (!("CODE".equals(valueType) || "TEXT".equals(valueType)))
             return;
 
         Subquery<ContentItem> sq = q.subquery(ContentItem.class);
-        Root<ContentItem> contentItem = sq.from(ContentItem.class);
+        Root<Instance> sqInstance = sq.correlate(instance);
+        CollectionJoin<Instance, ContentItem> contentItem = sqInstance.join(contentItems);
         List<Predicate> y = new ArrayList<>();
         code(y, contentItem.get(ContentItem_.conceptName),
                 item.getNestedDataset(Tag.ConceptNameCodeSequence));
@@ -947,7 +953,6 @@ public class QueryBuilder2 {
         wildCard(y, contentItem.get(ContentItem_.textValue),
                 item.getString(Tag.TextValue, "*"), true);
         if (!y.isEmpty()) {
-            y.add(contentItem.in(contentItems));
             predicates.add(cb.exists(sq.select(contentItem).where(y.toArray(new Predicate[0]))));
         }
     }
