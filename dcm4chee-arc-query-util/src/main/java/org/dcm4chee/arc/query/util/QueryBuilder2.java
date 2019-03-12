@@ -55,6 +55,7 @@ import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.CollectionAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 
@@ -438,9 +439,7 @@ public class QueryBuilder2 {
         } else {
             seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modalitiesInStudy);
         }
-        Attributes procedureCode = keys.getNestedDataset(Tag.ProcedureCodeSequence);
-        if (!isUniversalMatching(procedureCode))
-            codes(predicates, q, study.get(Study_.procedureCodes), procedureCode);
+        procedureCode(predicates, q, study, keys.getNestedDataset(Tag.ProcedureCodeSequence));
         if (queryParam.isHideNotRejectedInstances())
             predicates.add(cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
@@ -857,17 +856,17 @@ public class QueryBuilder2 {
                 item.getString(Tag.CodingSchemeVersion, "*"));
     }
 
-    private <T> void codes(List<Predicate> predicates, CriteriaQuery<T> q,
-            Expression<Collection<CodeEntity>> codes, Attributes item) {
+    private <T, Z> void procedureCode(List<Predicate> predicates, CriteriaQuery<T> q,
+            From<Z, Study> study, Attributes item) {
         if (isUniversalMatching(item))
             return;
 
         Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
-        Root<CodeEntity> code = sq.from(CodeEntity.class);
+        From<Z, Study> sqStudy = correlate(sq, study);
+        CollectionJoin<Study, CodeEntity> code = sqStudy.join(Study_.procedureCodes);
         List<Predicate> y = new ArrayList<>();
         code(y, code, item);
         if (!y.isEmpty()) {
-            y.add(code.in(codes));
             predicates.add(cb.exists(sq.select(code).where(y.toArray(new Predicate[0]))));
         }
     }
