@@ -49,11 +49,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.MessageCanceled;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueMessageQuery;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.Session;
@@ -69,14 +65,8 @@ import javax.inject.Inject;
 import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.io.IOException;
+import javax.persistence.*;
+import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
@@ -474,21 +464,6 @@ public class QueueManagerEJB {
         return count;
     }
 
-//    public int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize) {
-//        int count = 0;
-//        try (QueueMessageQuery query = new QueueMessageQueryImpl(taskQueryParam, em)) {
-//            query.beginTransaction();
-//            query.executeQuery(0, 0, deleteTaskFetchSize);
-//            while (query.hasMoreMatches()) {
-//                deleteTask(query.nextMatch());
-//                count++;
-//            }
-//        } catch (Exception e) {
-//            LOG.warn(e.getMessage());
-//        }
-//        return count;
-//    }
-
     private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
@@ -535,15 +510,6 @@ public class QueueManagerEJB {
             return null;
         }
     }
-
-//    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-//    public QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam) {
-//        return new QueueMessageQueryImpl(taskQueryParam, em);
-//    }
-//
-//    public QueueMessageQuery countTasks(TaskQueryParam taskQueryParam) {
-//        return new QueueMessageQueryImpl(taskQueryParam, em);
-//    }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Iterator<QueueMessage> listQueueMessages(

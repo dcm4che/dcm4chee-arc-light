@@ -50,7 +50,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
@@ -419,10 +418,6 @@ public class QueueManagerRS {
 
     private int queueTasksFetchSize() {
         return arcDev().getQueueTasksFetchSize();
-    }
-
-    private int queryFetchSize() {
-        return arcDev().getQueryFetchSize();
     }
 
     private ArchiveDeviceExtension arcDev() {

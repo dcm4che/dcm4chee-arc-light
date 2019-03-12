@@ -40,11 +40,8 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.QueueMessage_;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
-import org.dcm4chee.arc.query.util.MatchDateTimeRange;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +49,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -66,9 +57,6 @@ import java.util.List;
 public class QueueManagerImpl implements QueueManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
-
-    @PersistenceContext(unitName = "dcm4chee-arc")
-    private EntityManager em;
 
     @Inject
     private QueueManagerEJB ejb;
