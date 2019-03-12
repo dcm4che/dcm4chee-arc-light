@@ -40,12 +40,6 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
@@ -61,24 +55,21 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
+import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
+import org.dcm4chee.arc.query.util.QueryBuilder2;
 import org.dcm4chee.arc.retrieve.*;
-import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.store.UpdateLocation;
-import org.hibernate.Session;
-import org.hibernate.StatelessSession;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,12 +79,15 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -109,59 +103,6 @@ import java.util.zip.ZipInputStream;
 public class RetrieveServiceImpl implements RetrieveService {
 
     private static Logger LOG = LoggerFactory.getLogger(RetrieveServiceImpl.class);
-
-    private static final int MAX_FAILED_IUIDS_LEN = 4000;
-
-    private static final Expression<?>[] SELECT = {
-            QLocation.location.pk,
-            QLocation.location.storageID,
-            QLocation.location.storagePath,
-            QLocation.location.objectType,
-            QLocation.location.transferSyntaxUID,
-            QLocation.location.digest,
-            QLocation.location.size,
-            QLocation.location.status,
-            QSeries.series.pk,
-            QInstance.instance.pk,
-            QInstance.instance.retrieveAETs,
-            QInstance.instance.externalRetrieveAET,
-            QInstance.instance.availability,
-            QInstance.instance.createdTime,
-            QInstance.instance.updatedTime,
-            QCodeEntity.codeEntity.codeValue,
-            QCodeEntity.codeEntity.codingSchemeDesignator,
-            QCodeEntity.codeEntity.codeMeaning,
-            QUIDMap.uIDMap.pk,
-            QUIDMap.uIDMap.encodedMap,
-            QueryBuilder.instanceAttributesBlob.encodedAttributes
-    };
-
-    static final Expression<?>[] PATIENT_STUDY_SERIES_ATTRS = {
-            QPatient.patient.updatedTime,
-            QStudy.study.pk,
-            QStudy.study.studyInstanceUID,
-            QStudy.study.accessTime,
-            QStudy.study.failedRetrieves,
-            QStudy.study.completeness,
-            QStudy.study.modifiedTime,
-            QStudy.study.expirationDate,
-            QStudy.study.accessControlID,
-            QSeries.series.seriesInstanceUID,
-            QSeries.series.failedRetrieves,
-            QSeries.series.completeness,
-            QSeries.series.updatedTime,
-            QSeries.series.expirationDate,
-            QSeries.series.sourceAET,
-            QueryBuilder.seriesAttributesBlob.encodedAttributes,
-            QueryBuilder.studyAttributesBlob.encodedAttributes,
-            QueryBuilder.patientAttributesBlob.encodedAttributes
-    };
-
-    static final Expression<?>[] METADATA_STORAGE_PATH = {
-            QSeries.series.pk,
-            QMetadata.metadata.storageID,
-            QMetadata.metadata.storagePath,
-    };
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
@@ -192,15 +133,6 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Inject @RetrieveFailures
     private Event<RetrieveContext> retrieveFailures;
-
-    StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
-    }
-
-    private int getInExpressionCountLimit() {
-        return ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
-                .getDialect().getInExpressionCountLimit();
-    }
 
     @Override
     public Device getDevice() {
@@ -378,16 +310,14 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException {
-        StatelessSession session = openStatelessSession();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
         Collection<InstanceLocations> matches = ctx.getMatches();
         matches.clear();
         try {
-            HashMap<Long,InstanceLocations> instMap = new HashMap<>();
-            HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
             HashMap<Long,StudyInfo> studyInfoMap = new HashMap<>();
             Series.MetadataUpdate metadataUpdate = ctx.getSeriesMetadataUpdate();
             if (metadataUpdate != null && metadataUpdate.instancePurgeState == Series.InstancePurgeState.PURGED) {
-                SeriesAttributes seriesAttributes = getSeriesAttributes(session, metadataUpdate.seriesPk);
+                SeriesAttributes seriesAttributes = new SeriesAttributes(em, cb, metadataUpdate.seriesPk);
                 studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
                 ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
                 addLocationsFromMetadata(ctx,
@@ -395,45 +325,9 @@ public class RetrieveServiceImpl implements RetrieveService {
                         metadataUpdate.storagePath,
                         seriesAttributes.attrs);
             } else {
-                HibernateQuery<Tuple> query = createQuery(ctx, session);
-                for (Predicate predicate : createPredicates(ctx)) {
-                    for (Tuple tuple : query.where(predicate).fetch()) {
-                        Long instPk = tuple.get(QInstance.instance.pk);
-                        InstanceLocations match = instMap.get(instPk);
-                        if (match == null) {
-                            Long seriesPk = tuple.get(QSeries.series.pk);
-                            Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
-                            if (seriesAttrs == null) {
-                                SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
-                                studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
-                                ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
-                                ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
-                                seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
-                            }
-                            Attributes instAttrs = AttributesBlob.decodeAttributes(
-                                    tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
-                            Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
-                            instAttrs.addAll(seriesAttrs, true);
-                            match = instanceLocationsFromDB(tuple, instAttrs);
-                            matches.add(match);
-                            instMap.put(instPk, match);
-                        }
-                        addLocation(match, tuple);
-                    }
-                }
-                if (ctx.isConsiderPurgedInstances()) {
-                    for (Tuple tuple : queryMetadataStoragePath(ctx, session).fetch()) {
-                        Long seriesPk = tuple.get(QSeries.series.pk);
-                        SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
-                        studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
-                        ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
-                        ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
-                        addLocationsFromMetadata(ctx,
-                                tuple.get(QMetadata.metadata.storageID),
-                                tuple.get(QMetadata.metadata.storagePath),
-                                seriesAttributes.attrs);
-                    }
-                }
+                new LocationQuery(em, cb, ctx, codeCache).execute(studyInfoMap);
+                if (ctx.isConsiderPurgedInstances())
+                    queryLocationsFromMetadata(ctx, cb, studyInfoMap);
             }
             ctx.setNumberOfMatches(matches.size());
             ctx.getStudyInfos().addAll(studyInfoMap.values());
@@ -441,8 +335,39 @@ public class RetrieveServiceImpl implements RetrieveService {
             return !matches.isEmpty();
         } catch (IOException e) {
             throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
-        } finally {
-            session.close();
+        }
+    }
+
+    private void queryLocationsFromMetadata(RetrieveContext ctx, CriteriaBuilder cb, Map<Long, StudyInfo> studyInfoMap)
+            throws IOException {
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        Root<Series> series = q.from(Series.class);
+        Join<Series, Study> study = series.join(Series_.study);
+        Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
+        List<Predicate> predicates = new ArrayList<>();
+        QueryBuilder2 builder = new QueryBuilder2(cb);
+        if (!QueryBuilder2.isUniversalMatching(ctx.getPatientIDs())) {
+            builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
+        }
+        builder.accessControl(predicates, study, ctx.getAccessControlIDs());
+        builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
+        builder.uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), ctx.getSeriesInstanceUIDs());
+        predicates.add(cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED));
+        q.multiselect(
+                series.get(Series_.pk),
+                metadata.get(Metadata_.storageID),
+                metadata.get(Metadata_.storagePath));
+        q.where(predicates.toArray(new Predicate[0]));
+        for (Tuple tuple : em.createQuery(q).getResultList()) {
+            Long seriesPk = tuple.get(series.get(Series_.pk));
+            SeriesAttributes seriesAttributes = new SeriesAttributes(em, cb, seriesPk);
+            studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
+            ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
+            ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
+            addLocationsFromMetadata(ctx,
+                    tuple.get(metadata.get(Metadata_.storageID)),
+                    tuple.get(metadata.get(Metadata_.storagePath)),
+                    seriesAttributes.attrs);
         }
     }
 
@@ -498,18 +423,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     private boolean contains(Map<String, Set<String>> refIUIDsBySeriesIUID, InstanceLocations il) {
         Set<String> iuids = refIUIDsBySeriesIUID.get(il.getAttributes().getString(Tag.SeriesInstanceUID));
         return iuids == null || iuids.contains(il.getSopInstanceUID());
-    }
-
-    private InstanceLocations instanceLocationsFromDB(Tuple tuple, Attributes instAttrs) {
-        InstanceLocationsImpl inst = new InstanceLocationsImpl(instAttrs);
-        inst.setInstancePk(tuple.get(QInstance.instance.pk));
-        inst.setRetrieveAETs(tuple.get(QInstance.instance.retrieveAETs));
-        inst.setExternalRetrieveAET(tuple.get(QInstance.instance.externalRetrieveAET));
-        inst.setAvailability(tuple.get(QInstance.instance.availability));
-        inst.setCreatedTime(tuple.get(QInstance.instance.createdTime));
-        inst.setUpdatedTime(tuple.get(QInstance.instance.updatedTime));
-        inst.setRejectionCode(rejectionCode(tuple));
-        return inst;
     }
 
     private void addLocationsFromMetadata(
@@ -580,39 +493,6 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .build());
     }
 
-    private Attributes rejectionCode(Tuple tuple) {
-        if (tuple.get(QCodeEntity.codeEntity.codeValue) == null)
-            return null;
-
-        Attributes item = new Attributes();
-        item.setString(Tag.CodeValue, VR.SH, tuple.get(QCodeEntity.codeEntity.codeValue));
-        item.setString(Tag.CodeMeaning, VR.LO, tuple.get(QCodeEntity.codeEntity.codeMeaning));
-        item.setString(Tag.CodingSchemeDesignator, VR.SH, tuple.get(QCodeEntity.codeEntity.codingSchemeDesignator));
-        return item;
-    }
-
-    private void addLocation(InstanceLocations match, Tuple tuple) {
-        Long pk = tuple.get(QLocation.location.pk);
-        if (pk == null)
-            return;
-
-        Location location = new Location.Builder()
-                .pk(pk)
-                .storageID(tuple.get(QLocation.location.storageID))
-                .storagePath(tuple.get(QLocation.location.storagePath))
-                .objectType(tuple.get(QLocation.location.objectType))
-                .transferSyntaxUID(tuple.get(QLocation.location.transferSyntaxUID))
-                .digest(tuple.get(QLocation.location.digest))
-                .size(tuple.get(QLocation.location.size))
-                .status(tuple.get(QLocation.location.status))
-                .build();
-        Long uidMapPk = tuple.get(QUIDMap.uIDMap.pk);
-        if (uidMapPk != null) {
-            location.setUidMap(new UIDMap(uidMapPk, tuple.get(QUIDMap.uIDMap.encodedMap)));
-        }
-        match.getLocations().add(location);
-    }
-
     @Override
     public InstanceLocations newInstanceLocations(Attributes attrs) {
         return new InstanceLocationsImpl(attrs);
@@ -637,154 +517,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public StoreService getStoreService() {
         return storeService;
-    }
-
-    private static class SeriesAttributes {
-        final Attributes attrs;
-        final StudyInfo studyInfo;
-        final SeriesInfo seriesInfo;
-        final Date patientUpdatedTime;
-
-        SeriesAttributes(Attributes attrs, StudyInfo studyInfo, SeriesInfo seriesInfo, Date patientUpdatedTime) {
-            this.attrs = attrs;
-            this.studyInfo = studyInfo;
-            this.seriesInfo = seriesInfo;
-            this.patientUpdatedTime = patientUpdatedTime;
-        }
-
-    }
-
-    private SeriesAttributes getSeriesAttributes(StatelessSession session, Long seriesPk) {
-        Tuple tuple = new HibernateQuery<Void>(session).select(PATIENT_STUDY_SERIES_ATTRS)
-                .from(QSeries.series)
-                .join(QSeries.series.attributesBlob, QueryBuilder.seriesAttributesBlob)
-                .join(QSeries.series.study, QStudy.study)
-                .join(QStudy.study.attributesBlob, QueryBuilder.studyAttributesBlob)
-                .join(QStudy.study.patient, QPatient.patient)
-                .join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob)
-                .where(QSeries.series.pk.eq(seriesPk))
-                .fetchOne();
-        StudyInfo studyInfo = new StudyInfoImpl(
-                tuple.get(QStudy.study.pk),
-                tuple.get(QStudy.study.studyInstanceUID),
-                tuple.get(QStudy.study.accessTime),
-                tuple.get(QStudy.study.failedRetrieves),
-                tuple.get(QStudy.study.completeness),
-                tuple.get(QStudy.study.modifiedTime),
-                tuple.get(QStudy.study.expirationDate),
-                tuple.get(QStudy.study.accessControlID));
-        SeriesInfo seriesInfo = new SeriesInfoImpl(
-                studyInfo.getStudyInstanceUID(),
-                tuple.get(QSeries.series.seriesInstanceUID),
-                tuple.get(QSeries.series.failedRetrieves),
-                tuple.get(QSeries.series.completeness),
-                tuple.get(QSeries.series.updatedTime),
-                tuple.get(QSeries.series.expirationDate),
-                tuple.get(QSeries.series.sourceAET));
-        Date patientUpdatedTime = tuple.get(QPatient.patient.updatedTime);
-        Attributes patAttrs = AttributesBlob.decodeAttributes(
-                tuple.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
-        Attributes studyAttrs = AttributesBlob.decodeAttributes(
-                tuple.get(QueryBuilder.studyAttributesBlob.encodedAttributes), null);
-        Attributes seriesAttrs = AttributesBlob.decodeAttributes(
-                tuple.get(QueryBuilder.seriesAttributesBlob.encodedAttributes), null);
-        Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs);
-        Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + seriesAttrs.size() + 5);
-        attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs, true);
-        attrs.addAll(seriesAttrs, true);
-        return new SeriesAttributes(attrs, studyInfo, seriesInfo, patientUpdatedTime);
-}
-
-    private HibernateQuery<Tuple> createQuery(RetrieveContext ctx, StatelessSession session) {
-        HibernateQuery<Tuple> query = new HibernateQuery<Void>(session).select(SELECT)
-                .from(QInstance.instance)
-                .join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob)
-                .join(QInstance.instance.series, QSeries.series)
-                .join(QSeries.series.study, QStudy.study)
-                .leftJoin(QInstance.instance.rejectionNoteCode, QCodeEntity.codeEntity)
-                .leftJoin(QInstance.instance.locations, QLocation.location);
-
-        Location.ObjectType objectType = ctx.getObjectType();
-        if (objectType != null)
-            query.on(QLocation.location.objectType.eq(objectType));
-
-        query = query.leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
-
-        if (ctx.getSeriesMetadataUpdate() != null)
-            return query.orderBy(QInstance.instance.instanceNumber.asc());
-
-        IDWithIssuer[] pids = ctx.getPatientIDs();
-        if (pids.length > 0) {
-            query = query.join(QStudy.study.patient, QPatient.patient);
-            query = QueryBuilder.applyPatientIDJoins(query, pids);
-        }
-
-        return query;
-    }
-
-    private Predicate[] createPredicates(RetrieveContext ctx) {
-        if (ctx.getSeriesMetadataUpdate() != null)
-            return new Predicate[]{ QSeries.series.pk.eq(ctx.getSeriesMetadataUpdate().seriesPk) };
-
-        BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QueryBuilder.patientIDPredicate(ctx.getPatientIDs()));
-        predicate.and(QueryBuilder.accessControl(ctx.getAccessControlIDs()));
-        predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs()));
-        predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs()));
-        QueryRetrieveView qrView = ctx.getQueryRetrieveView();
-        if (qrView != null) {
-            predicate.and(QueryBuilder.hideRejectedInstance(
-                    codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
-                    qrView.isHideNotRejectedInstances()));
-            predicate.and(QueryBuilder.hideRejectionNote(
-                    codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes())));
-        }
-        String[] sopInstanceUIDs = ctx.getSopInstanceUIDs();
-        if (QueryBuilder.isUniversalMatching(sopInstanceUIDs)) {
-            return new Predicate[]{ predicate };
-        }
-        // SQL Server actually does support lesser parameters than its specified limit (2100)
-        int limit = getInExpressionCountLimit() - 10;
-        if (limit <= 0 || sopInstanceUIDs.length < limit) {
-            return new Predicate[]{
-                    ExpressionUtils.and(predicate, QInstance.instance.sopInstanceUID.in(sopInstanceUIDs))};
-        }
-        int index = sopInstanceUIDs.length / limit + 1;
-        int remainder = sopInstanceUIDs.length % limit;
-        Predicate[] predicates = new Predicate[index];
-        if (remainder > 0) {
-            String[] sopIUIDs = new String[remainder];
-            System.arraycopy(sopInstanceUIDs, sopInstanceUIDs.length - remainder, sopIUIDs, 0, remainder);
-            predicates[--index] = ExpressionUtils.and(predicate, QInstance.instance.sopInstanceUID.in(sopIUIDs));
-        }
-        String[] sopIUIDs = new String[limit];
-        while (--index >= 0) {
-            System.arraycopy(sopInstanceUIDs, index * limit, sopIUIDs, 0, limit);
-            predicates[index] = ExpressionUtils.and(predicate, QInstance.instance.sopInstanceUID.in(sopIUIDs));
-        }
-        return predicates;
-    }
-
-    private HibernateQuery<Tuple> queryMetadataStoragePath(RetrieveContext ctx, StatelessSession session) {
-        HibernateQuery<Tuple> query = new HibernateQuery<Void>(session).select(METADATA_STORAGE_PATH)
-                .from(QSeries.series)
-                .join(QSeries.series.metadata, QMetadata.metadata)
-                .join(QSeries.series.study, QStudy.study);
-
-        IDWithIssuer[] pids = ctx.getPatientIDs();
-        if (pids.length > 0) {
-            query = query.join(QStudy.study.patient, QPatient.patient);
-            query = QueryBuilder.applyPatientIDJoins(query, pids);
-        }
-
-        BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QueryBuilder.patientIDPredicate(pids));
-        predicate.and(QueryBuilder.accessControl(ctx.getAccessControlIDs()));
-        predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs()));
-        predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs()));
-        predicate.and(QSeries.series.instancePurgeState.eq(Series.InstancePurgeState.PURGED));
-        return query.where(predicate);
     }
 
     @Override
@@ -1162,7 +894,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private Attributes parseJSON(InputStream in, boolean skipBulkDataURI) throws IOException {
-        JSONReader jsonReader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        JSONReader jsonReader = new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)));
         jsonReader.setSkipBulkDataURI(skipBulkDataURI);
         return jsonReader.readDataset(null);
     }

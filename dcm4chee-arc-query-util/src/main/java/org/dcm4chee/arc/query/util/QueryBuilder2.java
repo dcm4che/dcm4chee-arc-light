@@ -387,6 +387,29 @@ public class QueryBuilder2 {
             x.add(values.length == 1 ? cb.equal(path, values[0]) : path.in(values));
     }
 
+    public Predicate[] splitUIDPredicates(Path<String> path, String[] values, int inExpressionCountLimit) {
+        if (!isUniversalMatching(values))
+            return new Predicate[0];
+
+        if (values.length <= inExpressionCountLimit)
+            return new Predicate[] { path.in(values) };
+
+        Predicate[] predicates = new Predicate[(values.length - 1) / inExpressionCountLimit + 1];
+        int remaining = values.length % inExpressionCountLimit;
+        int last = predicates.length;
+        if (remaining > 0) {
+            String[] dst = new String[remaining];
+            System.arraycopy(values, values.length - remaining, dst, 0, remaining);
+            predicates[--last] = path.in(dst);
+        }
+        String[] dst = new String[inExpressionCountLimit];
+        for (int i = 0; i < last; i++) {
+            System.arraycopy(values, i * inExpressionCountLimit, dst, 0, inExpressionCountLimit);
+            predicates[i] = path.in(dst);
+        }
+        return predicates;
+    }
+
     private <T, Z> List<Predicate> studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
@@ -687,11 +710,11 @@ public class QueryBuilder2 {
         return value == null || value.equals("*");
     }
 
-    private static boolean isUniversalMatching(String[] values) {
+    public static boolean isUniversalMatching(String[] values) {
         return values == null || values.length == 0 || values[0].equals("*");
     }
 
-    private static boolean isUniversalMatching(IDWithIssuer[] pids) {
+    public static boolean isUniversalMatching(IDWithIssuer[] pids) {
         for (IDWithIssuer pid : pids) {
             if (!isUniversalMatching(pid.getID()))
                 return false;

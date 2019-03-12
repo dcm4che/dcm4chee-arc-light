@@ -90,10 +90,9 @@ public class QueryServiceEJB {
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
         Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
-        String viewID1 = context.getQueryParam().getViewID();
-        CollectionJoin<Study, StudyQueryAttributes> studyQueryAttributesPath =
-                QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID1);
         String viewID = context.getQueryParam().getViewID();
+        CollectionJoin<Study, StudyQueryAttributes> studyQueryAttributesPath =
+                QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID);
         CollectionJoin<Series, SeriesQueryAttributes> seriesQueryAttributesPath =
                 QueryBuilder2.joinSeriesQueryAttributes(cb, series, viewID);
         Path<byte[]> seriesAttrBlob = series.join(Series_.attributesBlob).get(AttributesBlob_.encodedAttributes);
