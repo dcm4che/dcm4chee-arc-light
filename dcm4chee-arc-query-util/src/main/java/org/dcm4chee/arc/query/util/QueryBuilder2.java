@@ -55,7 +55,6 @@ import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.CollectionAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 
@@ -923,7 +922,7 @@ public class QueryBuilder2 {
         List<Predicate> y = new ArrayList<>();
         personName(y, q, observer, VerifyingObserver_.verifyingObserverName,
                 item.getString(Tag.VerifyingObserverName, "*"), queryParam);
-        dateRange(observer.get(VerifyingObserver_.verificationDateTime),
+        dateRange(y, observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
         if (!y.isEmpty()) {
             predicates.add(cb.exists(sq.select(observer).where(y.toArray(new Predicate[0]))));
