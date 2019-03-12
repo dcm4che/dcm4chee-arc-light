@@ -69,6 +69,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -142,10 +143,11 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() {
         logRequest();
-        try (QueueMessageQuery queueMessages = mgr.listQueueMessages(taskQueryParam())) {
-                queueMessages.beginTransaction();
-                queueMessages.executeQuery(queryFetchSize(), parseInt(offset), parseInt(limit));
-                return Response.ok(toEntity(queueMessages)).build();
+        try {
+             return Response.ok(
+                     toEntity(
+                             mgr.listQueueMessages(taskQueryParam(), parseInt(offset), parseInt(limit))))
+                     .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -157,8 +159,8 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() {
         logRequest();
-        try (QueueMessageQuery query = mgr.countTasks(taskQueryParam())) {
-            return count(query.fetchCount());
+        try {
+            return count(mgr.countTasks(taskQueryParam()));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -362,15 +364,15 @@ public class QueueManagerRS {
         return count;
     }
 
-    private StreamingOutput toEntity(QueueMessageQuery msgs) {
+    private StreamingOutput toEntity(Iterator<QueueMessage> msgs) {
         return out -> {
                 Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
                 int count = 0;
                 w.write('[');
-                while (msgs.hasMoreMatches()) {
+                while (msgs.hasNext()) {
                     if (count++ > 0)
                         w.write(',');
-                    msgs.nextMatch().writeAsJSON(w);
+                    msgs.next().writeAsJSON(w);
                 }
                 w.write(']');
                 w.flush();

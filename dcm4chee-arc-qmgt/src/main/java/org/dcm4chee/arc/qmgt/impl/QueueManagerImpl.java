@@ -59,6 +59,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 @ApplicationScoped
@@ -214,7 +215,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public QueueMessageQuery countTasks(TaskQueryParam taskQueryParam) {
+    public long countTasks(TaskQueryParam taskQueryParam) {
         return ejb.countTasks(taskQueryParam);
     }
 
@@ -224,8 +225,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam) {
-        return ejb.listQueueMessages(taskQueryParam);
+    public Iterator<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit) {
+        return ejb.listQueueMessages(taskQueryParam, offset, limit);
     }
 
     @Override

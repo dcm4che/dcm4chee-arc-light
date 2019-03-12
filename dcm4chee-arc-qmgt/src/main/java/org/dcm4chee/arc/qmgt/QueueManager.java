@@ -47,6 +47,7 @@ import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -96,9 +97,9 @@ public interface QueueManager {
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 
-    QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam);
+    Iterator<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit);
 
-    QueueMessageQuery countTasks(TaskQueryParam taskQueryParam);
+    long countTasks(TaskQueryParam taskQueryParam);
 
     List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

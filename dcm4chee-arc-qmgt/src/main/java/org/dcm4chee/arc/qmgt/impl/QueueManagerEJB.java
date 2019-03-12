@@ -54,8 +54,10 @@ import org.dcm4chee.arc.qmgt.MessageCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.Session;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +72,14 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -84,6 +91,8 @@ import java.util.List;
 public class QueueManagerEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
+
+    private Root<QueueMessage> queueMsg;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -465,20 +474,20 @@ public class QueueManagerEJB {
         return count;
     }
 
-    public int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize) {
-        int count = 0;
-        try (QueueMessageQuery query = new QueueMessageQueryImpl(taskQueryParam, em)) {
-            query.beginTransaction();
-            query.executeQuery(0, 0, deleteTaskFetchSize);
-            while (query.hasMoreMatches()) {
-                deleteTask(query.nextMatch());
-                count++;
-            }
-        } catch (Exception e) {
-            LOG.warn(e.getMessage());
-        }
-        return count;
-    }
+//    public int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize) {
+//        int count = 0;
+//        try (QueueMessageQuery query = new QueueMessageQueryImpl(taskQueryParam, em)) {
+//            query.beginTransaction();
+//            query.executeQuery(0, 0, deleteTaskFetchSize);
+//            while (query.hasMoreMatches()) {
+//                deleteTask(query.nextMatch());
+//                count++;
+//            }
+//        } catch (Exception e) {
+//            LOG.warn(e.getMessage());
+//        }
+//        return count;
+//    }
 
     private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
@@ -527,12 +536,81 @@ public class QueueManagerEJB {
         }
     }
 
+//    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+//    public QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam) {
+//        return new QueueMessageQueryImpl(taskQueryParam, em);
+//    }
+//
+//    public QueueMessageQuery countTasks(TaskQueryParam taskQueryParam) {
+//        return new QueueMessageQueryImpl(taskQueryParam, em);
+//    }
+
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public QueueMessageQuery listQueueMessages(TaskQueryParam taskQueryParam) {
-        return new QueueMessageQueryImpl(taskQueryParam, em);
+    public Iterator<QueueMessage> listQueueMessages(
+            TaskQueryParam queueTaskQueryParam, int offset, int limit) {
+        return listQueueMessages(queueTaskQueryParam, queryFetchSize(), offset, limit);
     }
 
-    public QueueMessageQuery countTasks(TaskQueryParam taskQueryParam) {
-        return new QueueMessageQueryImpl(taskQueryParam, em);
+    private Iterator<QueueMessage> listQueueMessages(
+            TaskQueryParam queueTaskQueryParam, int fetchSize, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        TypedQuery<QueueMessage> query = em.createQuery(select(cb, matchTask, queueTaskQueryParam));
+        if (fetchSize > 0)
+            query.setHint(QueryHints.FETCH_SIZE, fetchSize);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultStream().iterator();
+    }
+
+    public long countTasks(TaskQueryParam queueTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        queueMsg = q.from(QueueMessage.class);
+
+        return em.createQuery(
+                restrict(queueTaskQueryParam, matchTask, q).select(cb.count(queueMsg)))
+                .getSingleResult();
+    }
+
+    private <T> CriteriaQuery<T> restrict(
+            TaskQueryParam queueTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.queueMsgPredicates(
+                queueMsg,
+                queueTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
+    private CriteriaQuery<QueueMessage> select(CriteriaBuilder cb,
+                                               MatchTask matchTask, TaskQueryParam queueTaskQueryParam) {
+        CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
+        queueMsg = q.from(QueueMessage.class);
+
+        q = restrict(queueTaskQueryParam, matchTask, q);
+        if (queueTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.queueMessageOrder(queueTaskQueryParam.getOrderBy(), queueMsg));
+
+        return q.select(queueMsg);
+    }
+
+    public int deleteTasks(
+            TaskQueryParam queueTaskQueryParam, int deleteTasksFetchSize) {
+        Iterator<QueueMessage> queueMsgs = listQueueMessages(queueTaskQueryParam, 0, 0, deleteTasksFetchSize);
+        int count = 0;
+        while (queueMsgs.hasNext()) {
+            deleteTask(queueMsgs.next());
+            count++;
+        }
+        return count;
     }
 }
