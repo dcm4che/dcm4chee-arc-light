@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -42,6 +42,7 @@ package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -114,7 +115,7 @@ public class StgCmtRS {
         logRequest();
         try {
             final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
-                    statusOf(status), studyUID, exporterID, batchID, msgID, parseInt(offset), parseInt(limit));
+                    stgCmtResultQueryParam(), parseInt(offset), parseInt(limit));
             return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
@@ -161,9 +162,7 @@ public class StgCmtRS {
     public String deleteStgCmts() {
         logRequest();
         try {
-        return "{\"deleted\":"
-                + mgr.deleteStgCmts(statusOf(status), parseDate(updatedBefore))
-                + '}';
+            return "{\"deleted\":" + mgr.deleteStgCmts(statusOf(status), parseDate(updatedBefore)) + '}';
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(e));
         }
@@ -199,5 +198,15 @@ public class StgCmtRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private TaskQueryParam stgCmtResultQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setStgCmtStatus(statusOf(status));
+        taskQueryParam.setStgCmtExporterID(exporterID);
+        taskQueryParam.setStudyIUID(studyUID);
+        taskQueryParam.setStudyIUID(batchID);
+        taskQueryParam.setJmsMessageID(msgID);
+        return taskQueryParam;
     }
 }

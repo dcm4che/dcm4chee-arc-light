@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.query.util;
 
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.StgCmtResult;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +56,7 @@ public class TaskQueryParam {
     private String queueName;
     private String deviceName;
     private QueueMessage.Status status;
+    private StgCmtResult.Status stgCmtStatus;
     private String batchID;
     private String jmsMessageID;
     private String createdTime;
@@ -71,6 +73,7 @@ public class TaskQueryParam {
     private String checkDifferent;
     private String compareFields;
     private List<String> exporterIDs = new ArrayList<>();
+    private String stgCmtExporterID;
 
     public String getQueueName() {
         return queueName;
@@ -223,4 +226,22 @@ public class TaskQueryParam {
     public void setCheckDifferent(String checkDifferent) {
         this.checkDifferent = checkDifferent;
     }
+
+    public StgCmtResult.Status getStgCmtStatus() {
+        return stgCmtStatus;
+    }
+
+    public void setStgCmtStatus(StgCmtResult.Status stgCmtStatus) {
+        this.stgCmtStatus = stgCmtStatus;
+    }
+
+    public String getStgCmtExporterID() {
+        return stgCmtExporterID;
+    }
+
+    public void setStgCmtExporterID(String stgCmtExporterID) {
+        this.stgCmtExporterID = stgCmtExporterID;
+    }
+
+
 }

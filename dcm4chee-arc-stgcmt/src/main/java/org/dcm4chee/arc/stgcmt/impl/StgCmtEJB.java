@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
@@ -77,10 +76,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.*;
 
 /**
@@ -95,7 +91,8 @@ public class StgCmtEJB {
 
     private Join<StorageVerificationTask, QueueMessage> queueMsg;
     private Root<StorageVerificationTask> stgVerTask;
-    
+    private Root<StgCmtResult> stgCmtResult;
+
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -201,17 +198,25 @@ public class StgCmtEJB {
         em.persist(result);
     }
 
-    public List<StgCmtResult> listStgCmts(StgCmtResult.Status status, String studyUID, String exporterID, String batchID,
-                                          String msgID, int offset, int limit) {
-        HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID, batchID, msgID);
-        if (limit > 0)
-            query.limit(limit);
+    public List<StgCmtResult> listStgCmts(TaskQueryParam stgCmtResultQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<StgCmtResult> q = cb.createQuery(StgCmtResult.class);
+        stgCmtResult = q.from(StgCmtResult.class);
+        TypedQuery<StgCmtResult> query = em.createQuery(restrict(stgCmtResultQueryParam, matchTask, q));
         if (offset > 0)
-            query.offset(offset);
-        List<StgCmtResult> results = query.fetch();
-        if (results.isEmpty())
-            return Collections.emptyList();
-        return results;
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultList();
+    }
+
+    private <T> CriteriaQuery<T> restrict(
+            TaskQueryParam stgCmtResultQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
     }
 
     public boolean deleteStgCmt(String transactionUID) {
@@ -228,45 +233,16 @@ public class StgCmtEJB {
     }
 
     public int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore) {
-        List<StgCmtResult> results = status != null
-                                    ? updatedBefore != null
-                                        ? em.createNamedQuery(StgCmtResult.FIND_BY_STATUS_AND_UPDATED_BEFORE, StgCmtResult.class)
-                                            .setParameter(1, status).setParameter(2, updatedBefore).getResultList()
-                                        : em.createNamedQuery(StgCmtResult.FIND_BY_STATUS, StgCmtResult.class)
-                                            .setParameter(1, status).getResultList()
-                                    : updatedBefore != null
-                                        ? em.createNamedQuery(StgCmtResult.FIND_BY_UPDATED_BEFORE, StgCmtResult.class)
-                                            .setParameter(1, updatedBefore).getResultList()
-                                        : em.createNamedQuery(StgCmtResult.FIND_ALL, StgCmtResult.class).getResultList();
-        if (results.isEmpty())
-            return 0;
-        for (StgCmtResult result : results)
-            em.remove(result);
-        return results.size();
-    }
-
-    private HibernateQuery<StgCmtResult> getStgCmtResults(StgCmtResult.Status status, String studyUID, String exporterId,
-                                                          String batchID, String msgID) {
-        Predicate predicate = getPredicates(status, studyUID, exporterId, batchID, msgID);
-        HibernateQuery<StgCmtResult> query = new HibernateQuery<Void>(em.unwrap(Session.class))
-                .select(QStgCmtResult.stgCmtResult).from(QStgCmtResult.stgCmtResult);
-        return query.where(predicate);
-    }
-
-    private Predicate getPredicates(StgCmtResult.Status status, String studyUID, String exporterId, String batchID,
-                                    String msgID) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (status != null)
-            predicate.and(QStgCmtResult.stgCmtResult.status.eq(status));
-        if (studyUID != null)
-            predicate.and(QStgCmtResult.stgCmtResult.studyInstanceUID.eq(studyUID));
-        if (exporterId != null)
-            predicate.and(QStgCmtResult.stgCmtResult.exporterID.eq(exporterId.toUpperCase()));
-        if (batchID != null)
-            predicate.and(QStgCmtResult.stgCmtResult.batchID.eq(batchID));
-        if (msgID != null)
-            predicate.and(QStgCmtResult.stgCmtResult.messageID.eq(msgID));
-        return predicate;
+        TaskQueryParam stgCmtResultQueryParam = new TaskQueryParam();
+        stgCmtResultQueryParam.setStgCmtStatus(status);
+        stgCmtResultQueryParam.setUpdatedBefore(updatedBefore);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaDelete<StgCmtResult> q = cb.createCriteriaDelete(StgCmtResult.class);
+        stgCmtResult = q.from(StgCmtResult.class);
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
+        q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return em.createQuery(q).executeUpdate();
     }
 
     public boolean  scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,

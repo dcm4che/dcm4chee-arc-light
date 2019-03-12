@@ -119,9 +119,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<StgCmtResult> listStgCmts(StgCmtResult.Status status, String studyUID, String exporterID, String batchID,
-                                          String msgID, int offset, int limit) {
-        return ejb.listStgCmts(status, studyUID, exporterID, batchID, msgID, offset, limit);
+    public List<StgCmtResult> listStgCmts(TaskQueryParam stgCmtResultQueryParam, int offset, int limit) {
+        return ejb.listStgCmts(stgCmtResultQueryParam, offset, limit);
     }
 
     @Override
