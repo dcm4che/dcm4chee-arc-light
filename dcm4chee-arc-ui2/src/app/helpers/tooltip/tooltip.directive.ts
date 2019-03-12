@@ -28,6 +28,14 @@ export class TooltipDirective {
         }else{
             this.showTooltip();
         }
+        console.log("this.ele",this.el.nativeElement);
+        console.log("this.ele",this.offset(this.el.nativeElement));
+    }
+    offset(el) {
+        var rect = el.getBoundingClientRect(),
+            scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+            scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
     }
     @HostListener('mouseleave') onMouseLeave() {
         if (this.placeholderSet){
@@ -77,7 +85,13 @@ export class TooltipDirective {
             // this.el.nativeElement.addEventListener("mouseup",()=>{
             //     window.prompt("Copy to clipboard: Ctrl+C, Enter4", this.tooltip);
             // });
-            this.el.nativeElement.appendChild(this.div);
+            // this.el.nativeElement.appendChild(this.div);
+            let position = this.offset(this.el.nativeElement);
+            this.div.style.position = "absolute";
+            this.div.style.left = (position.left + 15*1)+'px';
+            this.div.style.top = (position.top+30*1) +'px';
+            this.div.mouseenter = this.showTooltip();
+            document.querySelector('body').appendChild(this.div);
             this.placeholderSet = true;
         }
         let copyToClipboard = ()=>{

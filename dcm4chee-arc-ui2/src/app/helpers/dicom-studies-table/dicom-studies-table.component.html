@@ -1,14 +1,14 @@
 <h3 *ngIf="title">{{title}}</h3>
 <div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" *ngIf="patients && patients.length > 0" (mouseleave)="active_td = ''">
-    <!--Patient header 1:-->
+    <!--Headers 1:-->
         <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass">
             <div class="td"
-                 *ngFor="let patient_table of tableSchema[hover_mode]"
-                 [ngClass]="[config?.cssTdClass || '',(patient_table.type != 'value')?'empty_td':'not_empty_td', (patient_table.elementId && active_td === patient_table.elementId) ? 'active':'']"
-                 [ngStyle]="{width: patient_table.calculatedWidth}"
+                 *ngFor="let table of tableSchema[hover_mode]"
+                 [ngClass]="[config?.cssTdClass || '',(table.type != 'value')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"
+                 [ngStyle]="{width: table.calculatedWidth}"
             >
-                <ng-container *ngIf="patient_table.type === 'value'">{{patient_table.header}}</ng-container>
-                <ng-container *ngIf="patient_table.type != 'value'">&nbsp;</ng-container>
+                <ng-container *ngIf="table.type === 'value'">{{table.header}}</ng-container>
+                <ng-container *ngIf="table.type != 'value'">&nbsp;</ng-container>
             </div>
         </div>
     <!--1:END;-->
@@ -18,10 +18,11 @@
         <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'">
             <div class="td"
                  *ngFor="let patient_table of tableSchema.patient"
-                 [ngClass]="[config?.cssTdClass || '']"
+                 [ngClass]="[config?.cssTdClass || '', patient_table.type || '']"
                  [ngStyle]="{width: patient_table.calculatedWidth}"
                  [ngSwitch]="patient_table.type"
                  (mouseenter)="active_td = patient_table.elementId"
+                 tooltip="{{ patient_table.type === 'value' ? _.get(patient.attrs,patient_table.pathToValue) : ''}}"
             >
                 <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
@@ -42,10 +43,11 @@
                 <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'">
                     <div class="td"
                          *ngFor="let studies_table of tableSchema.studies"
-                         [ngClass]="[config?.cssTdClass || '']"
+                         [ngClass]="[config?.cssTdClass || '', studies_table.type || '']"
                          [ngStyle]="{width: studies_table.calculatedWidth}"
                          [ngSwitch]="studies_table.type"
                          (mouseenter)="active_td = studies_table.elementId"
+                         tooltip="{{ studies_table.type === 'value' ? _.get(study.attrs, studies_table.pathToValue) : ''}}"
                     >
                         <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -55,7 +57,7 @@
                             </a>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">{{study.attrs | dynamicPipe:studies_table.pipe}}</ng-container>
-                        <ng-container *ngSwitchCase="'value'">{{_.get(study.attrs,studies_table.pathToValue) || '&nbsp;'}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">{{_.get(study.attrs, studies_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
                     <attribute-list *ngIf="study.showAttributes" [attrs]="study.attrs"></attribute-list>
                 </div>
@@ -65,10 +67,11 @@
                         <div class="series_block table_item" (mouseenter)="hover_mode = 'series'">
                             <div class="td"
                                  *ngFor="let serie_table of tableSchema.series"
-                                 [ngClass]="[config?.cssTdClass || '']"
+                                 [ngClass]="[config?.cssTdClass || '', serie_table.type || '']"
                                  [ngStyle]="{width: serie_table.calculatedWidth}"
                                  [ngSwitch]="serie_table.type"
                                  (mouseenter)="active_td = serie_table.elementId"
+                                 tooltip="{{ serie_table.type === 'value' ? _.get(serie.attrs,serie_table.pathToValue) : ''}}"
                             >
                                 <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
@@ -78,7 +81,7 @@
                                     </a>
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'pipe'">{{serie.attrs | dynamicPipe:serie_table.pipe}}</ng-container>
-                                <ng-container *ngSwitchCase="'value'">{{_.get(serie.attrs,serie_table.pathToValue) || '&nbsp;'}}</ng-container>
+                                <ng-container *ngSwitchCase="'value'">{{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}</ng-container>
                             </div>
                             <attribute-list *ngIf="serie.showAttributes" [attrs]="serie.attrs"></attribute-list>
                         </div>
@@ -89,10 +92,11 @@
                                 <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'">
                                     <div class="td"
                                          *ngFor="let instance_table of tableSchema.instance"
-                                         [ngClass]="[config?.cssTdClass || '']"
+                                         [ngClass]="[config?.cssTdClass || '', instance_table.type || '']"
                                          [ngStyle]="{width: instance_table.calculatedWidth}"
                                          [ngSwitch]="instance_table.type"
                                          (mouseenter)="active_td = instance_table.elementId"
+                                         tooltip="{{ instance_table.type === 'value' ? _.get(instance.attrs, instance_table.pathToValue) : ''}}"
                                     >
                                         <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                         <ng-container *ngSwitchCase="'actions'">

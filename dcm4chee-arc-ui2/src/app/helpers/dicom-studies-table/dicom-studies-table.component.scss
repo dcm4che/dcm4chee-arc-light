@@ -1,4 +1,5 @@
 $hoverColor:#9fa4a9;
+$pink:rgba(82, 36, 88, 0.85);
 
 .j4care_dynamic_table{
   float: left;
@@ -12,6 +13,7 @@ $hoverColor:#9fa4a9;
     -webkit-box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
     -moz-box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
     box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
+    margin-bottom: 1px;
     &.studies{
       padding-left: 22px;
     }
@@ -34,9 +36,9 @@ $hoverColor:#9fa4a9;
       &.not_empty_td{
         border-left: 1px solid white;
       }
-      &.active{
-        background: $hoverColor;
-        color: black;
+      &.value.active{
+        background: $pink;
+        color: white;
       }
     }
   }
@@ -55,9 +57,9 @@ $hoverColor:#9fa4a9;
           position: static;
         }
       }
-      &.active, &:hover{
-        background: $hoverColor;
-        color: black;
+      &.active, &.value:hover{
+        background: $pink;
+        color: white;
       }
 
     }
