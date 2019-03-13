@@ -74,10 +74,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -299,6 +296,121 @@ public class RetrieveManagerEJB {
                 .fetch();
     }
 
+    public List<RetrieveBatch> listRetrieveBatches(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+
+        q = restrict(queueTaskQueryParam, retrieveTaskQueryParam, matchTask, q);
+        q = q.groupBy(queueMsg.get(QueueMessage_.batchID));
+        if (retrieveTaskQueryParam.getOrderBy() != null)
+            q = q.orderBy(matchTask.retrieveBatchOrder(retrieveTaskQueryParam.getOrderBy(), retrieveTask));
+        q.multiselect(
+                cb.least(queueMsg.get(QueueMessage_.processingStartTime)),
+                cb.greatest(queueMsg.get(QueueMessage_.processingStartTime)),
+                cb.least(queueMsg.get(QueueMessage_.processingEndTime)),
+                cb.greatest(queueMsg.get(QueueMessage_.processingEndTime)),
+                cb.least(queueMsg.get(QueueMessage_.scheduledTime)),
+                cb.greatest(queueMsg.get(QueueMessage_.scheduledTime)),
+                cb.least(retrieveTask.get(RetrieveTask_.createdTime)),
+                cb.greatest(retrieveTask.get(RetrieveTask_.createdTime)),
+                cb.least(retrieveTask.get(RetrieveTask_.updatedTime)),
+                cb.greatest(retrieveTask.get(RetrieveTask_.updatedTime)),
+                queueMsg.get(QueueMessage_.batchID));
+
+        TypedQuery<javax.persistence.Tuple> query = em.createQuery(q);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+
+        List<RetrieveBatch> retrieveBatches = new ArrayList<>();
+        for (javax.persistence.Tuple batch : query.getResultList()) {
+            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            RetrieveBatch retrieveBatch = new RetrieveBatch(batchID);
+            retrieveBatch.setCreatedTimeRange(
+                    batch.get(cb.least(retrieveTask.get(RetrieveTask_.createdTime))),
+                    batch.get(cb.greatest(retrieveTask.get(RetrieveTask_.createdTime))));
+            retrieveBatch.setUpdatedTimeRange(
+                    batch.get(cb.least(retrieveTask.get(RetrieveTask_.updatedTime))),
+                    batch.get(cb.greatest(retrieveTask.get(RetrieveTask_.updatedTime))));
+            retrieveBatch.setScheduledTimeRange(
+                    batch.get(cb.least(queueMsg.get(QueueMessage_.scheduledTime))),
+                    batch.get(cb.greatest(queueMsg.get(QueueMessage_.scheduledTime))));
+            retrieveBatch.setProcessingStartTimeRange(
+                    batch.get(cb.least(queueMsg.get(QueueMessage_.processingStartTime))),
+                    batch.get(cb.greatest(queueMsg.get(QueueMessage_.processingStartTime))));
+            retrieveBatch.setProcessingEndTimeRange(
+                    batch.get(cb.least(queueMsg.get(QueueMessage_.processingEndTime))),
+                    batch.get(cb.greatest(queueMsg.get(QueueMessage_.processingEndTime))));
+
+            retrieveBatch.setDeviceNames(em.createQuery(
+                    batchIDQuery1(batchID, String.class)
+                            .select(queueMsg.get(QueueMessage_.deviceName))
+                            .distinct(true)
+                            .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
+                    .getResultList());
+            retrieveBatch.setLocalAETs(em.createQuery(
+                    batchIDQuery1(batchID, String.class)
+                            .select(retrieveTask.get(RetrieveTask_.localAET))
+                            .distinct(true)
+                            .orderBy(cb.asc(retrieveTask.get(RetrieveTask_.localAET))))
+                    .getResultList());
+            retrieveBatch.setRemoteAETs(em.createQuery(
+                    batchIDQuery1(batchID, String.class)
+                            .select(retrieveTask.get(RetrieveTask_.remoteAET))
+                            .distinct(true)
+                            .orderBy(cb.asc(retrieveTask.get(RetrieveTask_.remoteAET))))
+                    .getResultList());
+            retrieveBatch.setDestinationAETs(em.createQuery(
+                    batchIDQuery1(batchID, String.class)
+                            .select(retrieveTask.get(RetrieveTask_.destinationAET))
+                            .distinct(true)
+                            .orderBy(cb.asc(retrieveTask.get(RetrieveTask_.destinationAET))))
+                    .getResultList());
+
+            retrieveBatch.setCompleted(em.createQuery(
+                    batchIDQuery1(batchID, Long.class)
+                            .select(cb.count(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))))
+                    .getSingleResult());
+            retrieveBatch.setCanceled(em.createQuery(
+                    batchIDQuery1(batchID, Long.class)
+                            .select(cb.count(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))))
+                    .getSingleResult());
+            retrieveBatch.setWarning(em.createQuery(
+                    batchIDQuery1(batchID, Long.class)
+                            .select(cb.count(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))))
+                    .getSingleResult());
+            retrieveBatch.setFailed(em.createQuery(
+                    batchIDQuery1(batchID, Long.class)
+                            .select(cb.count(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))))
+                    .getSingleResult());
+            retrieveBatch.setScheduled(em.createQuery(
+                    batchIDQuery1(batchID, Long.class)
+                            .select(cb.count(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))))
+                    .getSingleResult());
+            retrieveBatch.setInProcess(em.createQuery(
+                    batchIDQuery1(batchID, Long.class)
+                            .select(cb.count(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))))
+                    .getSingleResult());
+
+            retrieveBatches.add(retrieveBatch);
+        }
+
+        return retrieveBatches;
+    }
+
+    private <T> CriteriaQuery<T> batchIDQuery1(String batchID, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage, JoinType.LEFT);
+        return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+    }
+
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                                    OrderSpecifier<Date> order, int offset, int limit) {
         HibernateQuery<RetrieveTask> retrieveTaskQuery = createQuery(matchQueueBatch, matchRetrieveBatch);
@@ -314,10 +426,8 @@ public class RetrieveManagerEJB {
         
         List<RetrieveBatch> retrieveBatches = new ArrayList<>();
         for (Tuple batch : batches) {
-            RetrieveBatch retrieveBatch = new RetrieveBatch();
             String batchID = batch.get(QQueueMessage.queueMessage.batchID);
-            retrieveBatch.setBatchID(batchID);
-
+            RetrieveBatch retrieveBatch = new RetrieveBatch(batchID);
             retrieveBatch.setCreatedTimeRange(
                     batch.get(QRetrieveTask.retrieveTask.createdTime.min()),
                     batch.get(QRetrieveTask.retrieveTask.createdTime.max()));

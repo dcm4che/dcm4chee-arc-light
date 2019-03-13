@@ -66,6 +66,10 @@ public class RetrieveBatch {
     private long scheduled;
     private long inProcess;
 
+    public RetrieveBatch(String batchID) {
+        this.batchID = batchID;
+    }
+
     public String getBatchID() {
         return batchID;
     }

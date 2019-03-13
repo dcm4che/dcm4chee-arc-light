@@ -388,10 +388,14 @@ public class MatchTask {
     }
 
     public Order exportBatchOrder(String orderby, Path<ExportTask> exportTask) {
-        return batchOrder(orderby, exportTask.get(ExportTask_.createdTime), exportTask.get(ExportTask_.updatedTime), cb);
+        return batchOrder(orderby, exportTask.get(ExportTask_.createdTime), exportTask.get(ExportTask_.updatedTime));
     }
 
-    private Order batchOrder(String orderby, Path<Date> createdTime, Path<Date> updatedTime, CriteriaBuilder cb) {
+    public Order retrieveBatchOrder(String orderby, Path<RetrieveTask> retrieveTask) {
+        return batchOrder(orderby, retrieveTask.get(RetrieveTask_.createdTime), retrieveTask.get(RetrieveTask_.updatedTime));
+    }
+
+    private Order batchOrder(String orderby, Path<Date> createdTime, Path<Date> updatedTime) {
         switch (orderby) {
             case "createdTime":
                 cb.least(createdTime);

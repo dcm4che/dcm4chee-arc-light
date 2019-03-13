@@ -85,6 +85,9 @@ public interface RetrieveManager {
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                             OrderSpecifier<Date> order, int offset, int limit);
 
+    List<RetrieveBatch> listRetrieveBatches(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit);
+
     List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
