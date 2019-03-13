@@ -1,4 +1,4 @@
-import {Directive, ElementRef} from '@angular/core';
+import {Directive, ElementRef, OnDestroy} from '@angular/core';
 import {Input, HostListener} from '@angular/core';
 import * as _ from 'lodash';
 import {AppService} from "../../app.service";
@@ -6,7 +6,7 @@ import {AppService} from "../../app.service";
 @Directive({
     selector: '[tooltip]'
 })
-export class TooltipDirective {
+export class TooltipDirective implements OnDestroy{
     @Input() tooltip: string;
     placeholderSet = false;
     div;
@@ -79,14 +79,8 @@ export class TooltipDirective {
             }
             div2.appendChild(this.i);
             this.div.appendChild(div2);
-
-            let position = this.offset(this.el.nativeElement);
-            this.div.style.position = "absolute";
-            this.div.style.left = (position.left + 15*1)+'px';
-            this.div.style.top = (position.top+25*1) +'px';
-            this.div.addEventListener('mouseenter',(e)=>{
-                this.showTooltip();
-            });
+            this.setPositionOfDiv();
+;
             this.div.addEventListener('mouseleave',(e)=>{
                 this.hideTooltip();
             });
@@ -103,12 +97,22 @@ export class TooltipDirective {
             this.mainservice.showMsg('Text copied successfully in the clipboard');
         }
     }
+    setPositionOfDiv(){
+        let position = this.offset(this.el.nativeElement);
+        this.div.style.position = "absolute";
+        this.div.style.left = (position.left + 15*1)+'px';
+        this.div.style.top = (position.top+25*1) +'px';
+        this.div.addEventListener('mouseenter',(e)=>{
+            this.showTooltip();
+        })
+    }
     showTooltip(){
         if(this.placeholderSet){
             this.div.classList.add('openflag');
             this.div.classList.remove('closeflag');
             setTimeout(() => {
                 if (this.div.classList.contains('openflag')){
+                    this.setPositionOfDiv();
                     this.div.classList.add('show');
                     this.div.classList.remove('closeflag');
                     this.div.classList.remove('openflag');
@@ -121,11 +125,19 @@ export class TooltipDirective {
             this.div.classList.add('closeflag');
             this.div.classList.remove('openflag');
             setTimeout(() => {
-                if (this.div.classList.contains('closeflag')){
+                if (this.div && this.div.classList.contains('closeflag')){
                     this.div.classList.remove('closeflag');
                     this.div.classList.remove('show');
                 }
             }, 1000);
         }
     }
+
+    ngOnDestroy(): void {
+        let nodes = document.querySelectorAll(".tooltip_container");
+        for (let i = 0; i < nodes.length; i++) {
+            nodes[i].remove();
+        }
+    }
+
 }
