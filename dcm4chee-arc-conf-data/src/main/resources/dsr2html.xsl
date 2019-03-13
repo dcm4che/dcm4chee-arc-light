@@ -291,6 +291,7 @@
     <xsl:choose>
       <xsl:when test="$first or starts-with($text,$lf)">
         <xsl:value-of select="$first"/>
+        <xsl:text>&#xa;</xsl:text>
         <br/>
         <xsl:call-template name="replace_lf_by_br">
           <xsl:with-param name="text" select="substring($text,string-length($first)+$len)"/>

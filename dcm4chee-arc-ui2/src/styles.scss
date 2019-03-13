@@ -2621,6 +2621,20 @@ dicom-list{
 .mat-radio-button.mat-accent .mat-radio-inner-circle {
   background-color: #061d2f;
 }
+.pointer:hover{
+  cursor: pointer;
+}
+.tab_content_with_fixed_header{
+  .j4care_dynamic_table{
+    .th{
+      position: fixed;
+      z-index: 10;
+      top: 186px;
+      width: calc(100% - 80px) !important;
+    }
+  }
+
+}
 
 /* New black and white design*/
 $pink:rgba(82, 36, 88, 0.85);

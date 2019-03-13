@@ -629,9 +629,9 @@
               </div>
               <div class="thead" [ngClass]="{hide:patient._VALUE.hide}" (click)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"click")'>
                   <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
-                      <div class="th" style="width:10%" [ngClass]="{'xroad':(mainservice['xRoad'] || mainservice.global['PDQs'])}">
+                      <div class="th" style="width:10%" [ngClass]="{'xroad':(mainservice['xRoad'] || (mainservice.global['PDQs'] && mainservice.global['PDQs'].length > 0))}">
                           <!--<div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>-->
-                          <a class="table_btn hiddenbuttons"  *ngIf="mainservice['xRoad'] || mainservice.global['PDQs']"  (click)="$event.preventDefault();queryNationalPationtRegister(patient._VALUE)" href="" title="Query National Patient Registry">
+                          <a class="table_btn hiddenbuttons"  *ngIf="mainservice['xRoad'] || (mainservice.global['PDQs'] && mainservice.global['PDQs'].length > 0)"  (click)="$event.preventDefault();queryNationalPationtRegister(patient._VALUE)" href="" title="Query National Patient Registry">
                               <span class="xroad_icon"></span>
                           </a>
                           <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">

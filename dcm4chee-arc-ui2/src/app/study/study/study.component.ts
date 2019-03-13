@@ -16,6 +16,11 @@ import {PatientDicom} from "../../models/patient-dicom";
 import {StudyDicom} from "../../models/study-dicom";
 import * as _  from "lodash";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {DicomTableSchema, TableSchemaConfig} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {SeriesDicom} from "../../models/series-dicom";
+import {InstanceDicom} from "../../models/instance-dicom";
+import {WadoQueryParams} from "./wado-wuery-params";
+import {GSPSQueryParams} from "../../models/gsps-query-params";
 
 
 @Component({
@@ -59,7 +64,7 @@ export class StudyComponent implements OnInit {
 
     patientAttributes;
 
-    filter:StudyFilterConfig = {
+    private _filter:StudyFilterConfig = {
         filterSchemaMain:{
             lineLength:undefined,
             schema:[]
@@ -70,8 +75,7 @@ export class StudyComponent implements OnInit {
         },
         filterModel:{
             limit:20,
-            offset:0,
-            StudySizeInKB:'1000-'
+            offset:0
         },
         expand:false,
         quantityText:{
@@ -79,6 +83,15 @@ export class StudyComponent implements OnInit {
             size:"SIZE"
         }
     };
+
+    get filter(): StudyFilterConfig {
+        return this._filter;
+    }
+
+    set filter(value: StudyFilterConfig) {
+        this.tableParam.config.offset = value.filterModel.offset;
+        this._filter = value;
+    }
 
     applicationEntities = {
         aes:{
@@ -92,6 +105,12 @@ export class StudyComponent implements OnInit {
         aetsAreSet:false
     };
 
+    tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
+        tableSchema:Globalvar.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions),
+        config:{
+            offset:0
+        }
+    };
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -103,6 +122,7 @@ export class StudyComponent implements OnInit {
 
     ngOnInit() {
         console.log("aet",this.applicationEntities);
+        this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
           this.getApplicationEntities();
@@ -116,9 +136,10 @@ export class StudyComponent implements OnInit {
     @HostListener("window:scroll", [])
     onWindowScroll(e) {
         let html = document.documentElement;
-        if(html.scrollTop > 73){
+        if(html.scrollTop > 63){
             this.fixedHeader = true;
             this.testShow = false;
+            this.filter.expand = false;
         }else{
             this.fixedHeader = false;
             this.testShow = true;
@@ -126,18 +147,39 @@ export class StudyComponent implements OnInit {
 
     }
 
+    actions(id, model){
+        console.log("id",id);
+        console.log("model",model);
+        if(id.action === "toggle_series"){
+            if(!model.series){
+                this.getSeries(model);
+            }else{
+                model.showSeries = !model.showSeries;
+            }
+
+        }
+        if(id.action === "toggle_instances"){
+            if(!model.instances){
+                this.getInstances(model);
+            }else{
+                model.showInstances = !model.showInstances;
+            }
+
+        }
+    }
     search(e){
         console.log("e",e);
         console.log("e", e);
-        if (this.filter.filterModel.aet){
-            let callingAet = new Aet(this.filter.filterModel.aet);
-            let filters = _.clone(this.filter.filterModel);
+        if (this._filter.filterModel.aet){
+            let callingAet = new Aet(this._filter.filterModel.aet);
+            let filters = _.clone(this._filter.filterModel);
             if(filters.limit){
                 filters.limit++;
             }
             delete filters.aet;
             this.service.getStudies(callingAet, filters)
                 .subscribe(res => {
+                    this.patients = [];
                     if(res){
                         let index = 0;
                         let patient: PatientDicom;
@@ -155,13 +197,13 @@ export class StudyComponent implements OnInit {
                             patAttrs = {};
                             this.service.extractAttrs(studyAttrs, tags, patAttrs);
                             if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
-                                patient = new PatientDicom(patAttrs, []);
+                                patient = new PatientDicom(patAttrs, [], false, true);
                                 this.patients.push(patient);
                             }
-                            study = new StudyDicom(studyAttrs, patient, this.filter.filterModel.offset + index);
+                            study = new StudyDicom(studyAttrs, patient, this._filter.filterModel.offset + index);
                             patient.studies.push(study);
                         });
-                        if (this.moreStudies = (res.length > this.filter.filterModel.limit)) {
+                        if (this.moreStudies = (res.length > this._filter.filterModel.limit)) {
                             patient.studies.pop();
                             if (patient.studies.length === 0) {
                                 this.patients.pop();
@@ -174,7 +216,7 @@ export class StudyComponent implements OnInit {
                     this.cfpLoadingBar.complete();
                     console.log("this.patients", this.patients);
                 }, err => {
-                    j4care.log("Something went wrong on search", e);
+                    j4care.log("Something went wrong on search", err);
                     this.httpErrorHandler.handleError(err);
                     this.cfpLoadingBar.complete();
                 });
@@ -183,16 +225,118 @@ export class StudyComponent implements OnInit {
         }
     }
 
+    getSeries(study:StudyDicom){
+        console.log('in query sersies study=', study);
+        this.cfpLoadingBar.start();
+        if (study.offset < 0) study.offset = 0;
+        let callingAet = new Aet(this._filter.filterModel.aet);
+        let filters = _.clone(this._filter.filterModel);
+        if(filters.limit){
+            filters.limit++;
+        }
+        delete filters.aet;
+        filters["orderby"] = 'SeriesNumber';
+        this.service.getSeries(callingAet,study.attrs['0020000D'].Value[0], filters)
+            .subscribe((res)=>{
+            if (res){
+                if (res.length === 0){
+                    this.appService.setMessage( {
+                        'title': 'Info',
+                        'text': 'No matching series found!',
+                        'status': 'info'
+                    });
+                    console.log('in reslength 0');
+                }else{
+
+                    study.series = res.map((attrs, index) =>{
+                        return new SeriesDicom(study, attrs, study.offset + index);
+                    });
+                    if (study.moreSeries = (study.series.length > this._filter.filterModel.limit)) {
+                        study.series.pop();
+                    }
+                    console.log("study",study);
+                    console.log("patients",this.patients);
+                    // StudiesService.trim(this);
+                    study.showSeries = true;
+                }
+                this.cfpLoadingBar.complete();
+            }else{
+                this.appService.setMessage( {
+                    'title': 'Info',
+                    'text': 'No matching series found!',
+                    'status': 'info'
+                });
+            }
+        },(err)=>{
+                j4care.log("Something went wrong on search", err);
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+        });
+    }
+
+    getInstances(series:SeriesDicom){
+        console.log('in query Instances serie=', series);
+        this.cfpLoadingBar.start();
+        if (series.offset < 0) series.offset = 0;
+        let callingAet = new Aet(this._filter.filterModel.aet);
+        let filters = _.clone(this._filter.filterModel);
+        if(filters.limit){
+            filters.limit++;
+        }
+        delete filters.aet;
+        filters["orderby"] = 'InstanceNumber';
+        this.service.getInstances(callingAet,series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters)
+            .subscribe((res)=>{
+            if (res){
+                series.instances = res.map((attrs, index) => {
+                    let numberOfFrames = j4care.valueOf(attrs['00280008']),
+                        gspsQueryParams:GSPSQueryParams[] = this.service.createGSPSQueryParams(attrs),
+                        video = this.service.isVideo(attrs),
+                        image = this.service.isImage(attrs);
+                    return new InstanceDicom(
+                        series,
+                        series.offset + index,
+                        attrs,
+                        new WadoQueryParams(attrs['0020000D'].Value[0],attrs['0020000E'].Value[0], attrs['00080018'].Value[0]),
+                        video,
+                        image,
+                        numberOfFrames,
+                        gspsQueryParams,
+                        this.service.createArray(video || numberOfFrames || gspsQueryParams.length || 1),
+                        1
+                    )
+                });
+                console.log(series);
+                console.log(this.patients);
+                series.showInstances = true;
+            }else{
+                series.instances = [];
+                if (series.moreInstances = (series.instances.length > this._filter.filterModel.limit)) {
+                    series.instances.pop();
+                    this.appService.setMessage( {
+                        'title': 'Info',
+                        'text': 'No matching Instancess found!',
+                        'status': 'info'
+                    });
+                }
+            }
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+                j4care.log("Something went wrong on search", err);
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+        });
+    }
     filterChanged(){
 
     }
 
     setSchema(){
-        this.filter.filterSchemaMain.lineLength = undefined;
-        this.filter.filterSchemaExpand.lineLength = undefined;
+        this._filter.filterSchemaMain.lineLength = undefined;
+        this._filter.filterSchemaExpand.lineLength = undefined;
         // setTimeout(()=>{
-            this.filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this.filter.quantityText,false);
-            this.filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this.filter.quantityText,true);
+            this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,false);
+            this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,true);
         // },0);
     }
 

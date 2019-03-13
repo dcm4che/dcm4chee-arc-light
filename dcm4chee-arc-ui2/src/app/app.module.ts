@@ -100,6 +100,8 @@ import {MultiSelectModule} from "primeng/primeng";
 import {StudyTabComponent} from "./study/study-tab.component";
 import { StudyComponent } from './study/study/study.component';
 import {StudyService} from "./study/study/study.service";
+import { DicomStudiesTableComponent } from './helpers/dicom-studies-table/dicom-studies-table.component';
+import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
 
 @NgModule({
     declarations: [
@@ -155,6 +157,8 @@ import {StudyService} from "./study/study/study.service";
         ConfigTabComponent,
         StudyTabComponent,
         StudyComponent,
+        DicomStudiesTableComponent,
+        DynamicPipePipe,
     ],
     imports: [
         BrowserModule,
@@ -246,6 +250,7 @@ import {StudyService} from "./study/study/study.service";
         RangePickerService,
         StorageVerificationService,
         StudyService,
+        ContentDescriptionPipe,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]

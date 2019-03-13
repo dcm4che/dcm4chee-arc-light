@@ -2,6 +2,7 @@ import { TestBed, inject } from '@angular/core/testing';
 
 import { StudyService } from './study.service';
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 class StudyServiceDependenc{
 }
@@ -11,7 +12,8 @@ describe('StudyService', () => {
     TestBed.configureTestingModule({
       providers: [
           StudyService,
-          {provide:AeListService, useClass:StudyServiceDependenc}
+          {provide:AeListService, useClass:StudyServiceDependenc},
+          {provide:J4careHttpService, useClass:StudyServiceDependenc}
       ]
     });
   });
