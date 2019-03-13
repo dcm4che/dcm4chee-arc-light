@@ -132,6 +132,7 @@ export class StudyComponent implements OnInit {
     fixedHeader = false;
     patients:PatientDicom[] = [];
     moreStudies:boolean = false;
+    testlable = '<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>';
 
     @HostListener("window:scroll", [])
     onWindowScroll(e) {

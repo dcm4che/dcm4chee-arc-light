@@ -115,7 +115,7 @@ export class Globalvar {
             }
         ]
     }
-    public static get ORDERBY(): Array<any>{
+    public static get ORDERBY(): Array<{value:string,label:any,mode:('patient'|'study'|'mwl'|'diff'),title:string}>{
         return [
             {
                 value: 'PatientName',

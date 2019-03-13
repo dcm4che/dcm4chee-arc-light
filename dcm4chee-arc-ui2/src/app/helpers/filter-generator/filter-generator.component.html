@@ -28,7 +28,7 @@
                         <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
                         <mat-select [(ngModel)]="model[line[index].secondField.filterKey]">
                             <mat-option *ngIf="line[index].secondField.showStar" value="">*</mat-option>
-                            <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}">{{option.text}}</mat-option>
+                            <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}"  [innerHtml]="option.label || option.text"></mat-option>
                         </mat-select>
                     </div>
                   <label *ngSwitchCase="'label'">{{line[index].text}}:</label>
@@ -45,7 +45,7 @@
                     <p-multiSelect [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"  [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>
                     <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                       <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
-                      <mat-option *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description || option.title}}">{{option.text}}</mat-option>
+                      <mat-option *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description || option.title}}" [innerHtml]="option.label || option.text"></mat-option>
                     </mat-select>
                     <mat-radio-group [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'radio'">
                         <mat-radio-button *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description}}">{{option.text}}</mat-radio-button>

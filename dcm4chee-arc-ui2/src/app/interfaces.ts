@@ -24,12 +24,12 @@ export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 export class SelectDropdown {
     private _value:string;
     private _text:string;
-    private _label:string;
+    private _label:any;
     private _title?:string;
-    constructor(value:any,text:string, title?:string){
+    constructor(value:any,text:string, title?:string, label?:any){
         this._value = value;
         this._text = text;
-        this._label = text;
+        this._label = label || text;
         this._title = title;
     }
 
@@ -49,11 +49,11 @@ export class SelectDropdown {
         this._text = value;
     }
 
-    get label(): string {
+    get label(): any {
         return this._label;
     }
 
-    set label(value:string) {
+    set label(value:any) {
         this._label = value;
     }
 
