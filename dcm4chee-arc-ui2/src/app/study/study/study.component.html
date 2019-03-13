@@ -10,7 +10,7 @@
 
       <div class="filter_line">
         <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search($event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
+          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
         </div>
       </div>
       <div class="filter_line" [hidden]="!filter.expand">
@@ -51,7 +51,8 @@
         </div>
       </div>
   </div>
-
+      <div class="left_arrow arrow"  *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+      <div class="right_arrow arrow" *ngIf="patients" [ngClass]="{'active':moreStudies}" (click)="search('next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
   <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config"></dicom-studies-table>
  <!--   <div class="open-close-container">
       <p>The box is now!
