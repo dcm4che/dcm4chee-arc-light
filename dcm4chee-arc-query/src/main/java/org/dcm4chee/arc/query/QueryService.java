@@ -55,6 +55,7 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.UserTransaction;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -86,6 +87,10 @@ public interface QueryService {
     Query createInstanceQuery(QueryContext ctx);
 
     Query createMWLQuery(QueryContext ctx);
+
+    void beginTransaction();
+
+    void endTransaction();
 
     Attributes getSeriesAttributes(QueryContext context, Long seriesPk);
 

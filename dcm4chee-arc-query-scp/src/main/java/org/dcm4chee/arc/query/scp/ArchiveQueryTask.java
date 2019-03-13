@@ -157,6 +157,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
                 && query.fetchCount() > queryMaxNumberOfResults) {
             throw new DicomServiceException(Status.UnableToProcess, "Request entity too large");
         }
+        query.beginTransaction();
         query.executeQuery(queryFetchSize);
     }
 

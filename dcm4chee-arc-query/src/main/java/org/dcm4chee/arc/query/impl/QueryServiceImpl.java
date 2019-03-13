@@ -66,12 +66,15 @@ import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.*;
+import javax.transaction.Status;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
@@ -93,6 +96,9 @@ class QueryServiceImpl implements QueryService {
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
+
+    @Resource
+    private UserTransaction transaction;
 
     @Inject
     private QueryServiceEJB ejb;
@@ -177,6 +183,31 @@ class QueryServiceImpl implements QueryService {
     public Query createMWLQuery(QueryContext ctx) {
         queryEvent.fire(ctx);
         return new MWLQuery(ctx, em);
+    }
+
+    @Override
+    public void beginTransaction() {
+        try {
+            transaction.begin();
+        } catch (Exception e) {
+            LOG.warn("Failed to begin transaction:\n", e);
+        }
+    }
+
+    @Override
+    public void endTransaction() {
+        try {
+            switch (transaction.getStatus()) {
+                case Status.STATUS_ACTIVE:
+                    transaction.commit();
+                    break;
+                case Status.STATUS_MARKED_ROLLBACK:
+                    transaction.rollback();
+                    break;
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to commit/rollback transaction:\n", e);
+        }
     }
 
     @Override

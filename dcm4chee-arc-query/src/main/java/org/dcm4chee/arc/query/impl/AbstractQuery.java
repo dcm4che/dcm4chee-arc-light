@@ -87,7 +87,7 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public void beginTransaction() {
-//        em.getTransaction().begin();
+        context.getQueryService().beginTransaction();
     }
 
     @Override
@@ -165,7 +165,7 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public void close() {
-//        close(em.getTransaction());
+        context.getQueryService().endTransaction();
         close(resultStream);
         context.close();
     }
@@ -188,14 +188,6 @@ abstract class AbstractQuery implements Query {
     }
 
     protected abstract Attributes toAttributes(Tuple results);
-
-    private void close(EntityTransaction t) {
-        if (t.isActive())
-            if (t.getRollbackOnly())
-                t.rollback();
-            else
-                t.commit();
-    }
 
     static String[] splitAndAppend(String s, String append) {
         String[] ss = StringUtils.split(s, '\\');
