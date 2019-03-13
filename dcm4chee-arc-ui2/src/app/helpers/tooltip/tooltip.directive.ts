@@ -28,8 +28,6 @@ export class TooltipDirective {
         }else{
             this.showTooltip();
         }
-        console.log("this.ele",this.el.nativeElement);
-        console.log("this.ele",this.offset(this.el.nativeElement));
     }
     offset(el) {
         var rect = el.getBoundingClientRect(),

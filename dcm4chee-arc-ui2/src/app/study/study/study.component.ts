@@ -75,8 +75,7 @@ export class StudyComponent implements OnInit {
         },
         filterModel:{
             limit:20,
-            offset:0,
-            StudySizeInKB:'1000-'
+            offset:0
         },
         expand:false,
         quantityText:{
@@ -140,6 +139,7 @@ export class StudyComponent implements OnInit {
         if(html.scrollTop > 63){
             this.fixedHeader = true;
             this.testShow = false;
+            this.filter.expand = false;
         }else{
             this.fixedHeader = false;
             this.testShow = true;
