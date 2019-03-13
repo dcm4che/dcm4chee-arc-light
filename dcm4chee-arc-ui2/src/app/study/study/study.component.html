@@ -3,11 +3,6 @@
   <div class="tab-content" [ngClass]="{'tab_content_with_fixed_header':fixedHeader}">
     <div [ngClass]="{'fixed_header':fixedHeader}">
       <h2>Studies {{studyConfig.tab}}</h2>
-
-  <!--    <mat-select>
-        <mat-option *ngFor="let el of test" value="el.value"><span [innerHtml]="el.label"></span></mat-option>
-      </mat-select>-->
-
       <div class="filter_line">
         <div class="filter_block">
           <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
@@ -37,144 +32,13 @@
             <div class="line">
               <a href="" (click)="$event.preventDefault();filter.expand=true" *ngIf="!filter.expand" class="more pull-left">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
               <a href="" (click)="$event.preventDefault();filter.expand=false" *ngIf="filter.expand" class="more [hidden] pull-left">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
-  <!--            <div class="more functions" (clickOutside)="moreFunctionsButtons = false"  [clickOutsideExceptionClass]="['mainbutton','manbutton_more_icon']">
-                <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
-                  <span class="manbutton_more_icon" *ngIf="!moreFunctionsButtons" >More configurations<i class="glyphicon glyphicon-triangle-bottom"></i></span>
-                  <span class="manbutton_more_icon" *ngIf="moreFunctionsButtons">More configurations<i class="glyphicon glyphicon-triangle-top"></i></span>
-                </div>
-                <ul *ngIf="moreFunctionsButtons">
-                  <li (click)="moreFunctionsButtons = false;addRetentionPolicy()" title="Set the C-MOVE SCP and STORE-SCP AETs">Add Study Retention Policy</li>
-                </ul>
-              </div>-->
             </div>
           </div>
         </div>
       </div>
   </div>
-      <div class="left_arrow arrow"  *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-      <div class="right_arrow arrow" *ngIf="patients" [ngClass]="{'active':moreStudies}" (click)="search('next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-  <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config"></dicom-studies-table>
- <!--   <div class="open-close-container">
-      <p>The box is now!
-        The box is now
-        The box is nowThe box is nowThe box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-
-      </p>
-      <p>The box is now {{ isOpen ? 'Open' : 'Closed' }}!
-        The box is now
-        The box is nowThe box is nowThe box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-
-      </p>
-      <p>The box is now {{ isOpen ? 'Open' : 'Closed' }}!
-        The box is now
-        The box is nowThe box is nowThe box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-        The box is now
-
-      </p>
-    </div>-->
+    <div class="left_arrow arrow"  *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+    <div class="right_arrow arrow" *ngIf="patients" [ngClass]="{'active':moreStudies}" (click)="search('next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+    <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config"></dicom-studies-table>
   </div>
 </div>

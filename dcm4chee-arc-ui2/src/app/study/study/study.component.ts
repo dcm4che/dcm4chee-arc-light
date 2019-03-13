@@ -177,7 +177,6 @@ export class StudyComponent implements OnInit {
             delete filters.aet;
             if(!mode || mode === "current"){
                 filters.offset = 0;
-                this._filter.filterModel.offset = 0;
                 this.getStudies(filters, callingAet);
             }else{
                 if(mode === "next" && this.moreStudies){
@@ -188,7 +187,6 @@ export class StudyComponent implements OnInit {
                     filters.offset = filters.offset - this._filter.filterModel.offset;
                     this.getStudies(filters, callingAet);
                 }
-                this._filter.filterModel.offset = filters.offset;
             }
         }else{
             this.appService.showError("Calling AET is missing!");
@@ -233,6 +231,7 @@ export class StudyComponent implements OnInit {
                 }else{
                     this.appService.showMsg("No Studies found!");
                 }
+                this._filter.filterModel.offset = filters.offset;
                 this.cfpLoadingBar.complete();
                 console.log("this.patients", this.patients);
             }, err => {
