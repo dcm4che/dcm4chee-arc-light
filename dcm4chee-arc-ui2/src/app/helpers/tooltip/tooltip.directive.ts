@@ -82,15 +82,16 @@ export class TooltipDirective {
             div2.appendChild(this.i);
             this.div.appendChild(div2);
 
-            // this.el.nativeElement.addEventListener("mouseup",()=>{
-            //     window.prompt("Copy to clipboard: Ctrl+C, Enter4", this.tooltip);
-            // });
-            // this.el.nativeElement.appendChild(this.div);
             let position = this.offset(this.el.nativeElement);
             this.div.style.position = "absolute";
             this.div.style.left = (position.left + 15*1)+'px';
-            this.div.style.top = (position.top+30*1) +'px';
-            this.div.mouseenter = this.showTooltip();
+            this.div.style.top = (position.top+25*1) +'px';
+            this.div.addEventListener('mouseenter',(e)=>{
+                this.showTooltip();
+            });
+            this.div.addEventListener('mouseleave',(e)=>{
+                this.hideTooltip();
+            });
             document.querySelector('body').appendChild(this.div);
             this.placeholderSet = true;
         }
