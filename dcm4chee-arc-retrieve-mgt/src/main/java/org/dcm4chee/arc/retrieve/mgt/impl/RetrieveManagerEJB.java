@@ -38,10 +38,8 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -120,7 +118,7 @@ public class RetrieveManagerEJB {
             QQueueMessage.queueMessage.batchID
     };
 
-    public boolean scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID,
+    public boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID,
                                         Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
         if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter)) {
@@ -136,51 +134,60 @@ public class RetrieveManagerEJB {
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
                     Message.DEFAULT_PRIORITY, batchID, delay);
-            createRetrieveTask(device, ctx, queueMessage);
+            createRetrieveTask(ctx, queueMessage);
             return true;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
     }
 
-    private boolean isAlreadyScheduledOrRetrievedAfter(
-            EntityManager em, ExternalRetrieveContext ctx, Date retrievedAfter) {
-        Predicate statusPredicate = QRetrieveTask.retrieveTask.queueMessage.status.in(
-                QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS);
-        if (retrievedAfter != null) {
-            statusPredicate = ExpressionUtils.or(statusPredicate,
-                    QRetrieveTask.retrieveTask.updatedTime.after(retrievedAfter));
+    private boolean isAlreadyScheduledOrRetrievedAfter(EntityManager em, ExternalRetrieveContext ctx, Date retrievedAfter) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        javax.persistence.criteria.Predicate statusPredicate = queueMsg.get(QueueMessage_.status)
+                .in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS);
+        if (retrievedAfter != null)
+            statusPredicate = cb.or(
+                                statusPredicate,
+                                cb.greaterThan(retrieveTask.get(RetrieveTask_.updatedTime), retrievedAfter));
+
+        predicates.add(statusPredicate);
+        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.remoteAET), ctx.getRemoteAET()));
+        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.destinationAET), ctx.getDestinationAET()));
+        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.studyInstanceUID), ctx.getStudyInstanceUID()));
+        if (ctx.getSeriesInstanceUID() != null)
+            predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.seriesInstanceUID), ctx.getSeriesInstanceUID()));
+        else {
+            predicates.add(cb.or(
+                    retrieveTask.get(RetrieveTask_.seriesInstanceUID).isNull(),
+                    cb.equal(retrieveTask.get(RetrieveTask_.seriesInstanceUID),
+                            ctx.getSeriesInstanceUID())));
+            if (ctx.getSOPInstanceUID() == null)
+                predicates.add(retrieveTask.get(RetrieveTask_.sopInstanceUID).isNull());
+            else
+                predicates.add(cb.or(
+                        retrieveTask.get(RetrieveTask_.sopInstanceUID).isNull(),
+                        cb.equal(retrieveTask.get(RetrieveTask_.sopInstanceUID),
+                                ctx.getSOPInstanceUID())));
         }
-        BooleanBuilder predicate = new BooleanBuilder(statusPredicate);
-        predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(ctx.getRemoteAET()));
-        predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(ctx.getDestinationAET()));
-        predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(ctx.getStudyInstanceUID()));
-        if (ctx.getSeriesInstanceUID() == null) {
-            predicate.and(QRetrieveTask.retrieveTask.seriesInstanceUID.isNull());
-        } else {
-            predicate.and(ExpressionUtils.or(
-                    QRetrieveTask.retrieveTask.seriesInstanceUID.isNull(),
-                    QRetrieveTask.retrieveTask.seriesInstanceUID.eq(ctx.getSeriesInstanceUID())));
-            if (ctx.getSOPInstanceUID() == null) {
-                predicate.and(QRetrieveTask.retrieveTask.sopInstanceUID.isNull());
-            } else {
-                predicate.and(ExpressionUtils.or(
-                        QRetrieveTask.retrieveTask.sopInstanceUID.isNull(),
-                        QRetrieveTask.retrieveTask.sopInstanceUID.eq(ctx.getSOPInstanceUID())));
-            }
-        }
-        RetrieveTask prevTask = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
-                .from(QRetrieveTask.retrieveTask)
-                .where(predicate)
-                .fetchFirst();
-        if (prevTask != null) {
-            LOG.info("Previous {} found - suppress duplicate retrieve", prevTask);
+
+        Iterator<RetrieveTask> iterator = em.createQuery(q
+                .where(predicates.toArray(new javax.persistence.criteria.Predicate[0]))
+                .select(retrieveTask))
+                .getResultStream()
+                .iterator();
+        if (iterator.hasNext()) {
+            LOG.info("Previous {} found - suppress duplicate retrieve", iterator.next());
             return true;
         }
         return false;
     }
 
-    private void createRetrieveTask(Device device, ExternalRetrieveContext ctx, QueueMessage queueMessage) {
+    private void createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage) {
         RetrieveTask task = new RetrieveTask();
         task.setLocalAET(ctx.getLocalAET());
         task.setRemoteAET(ctx.getRemoteAET());

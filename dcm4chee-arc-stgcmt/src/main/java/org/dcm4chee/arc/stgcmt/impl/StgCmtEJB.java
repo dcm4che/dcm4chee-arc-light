@@ -304,12 +304,16 @@ public class StgCmtEJB {
         if (storageVerificationTask.getStorageIDsAsString() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.storageIDs),
                     storageVerificationTask.getStorageIDsAsString()));
-        return em.createQuery(q
-                    .where(predicates.toArray(new javax.persistence.criteria.Predicate[0]))
-                    .select(stgVerTask.get(StorageVerificationTask_.pk)))
+        Iterator<Long> iterator = em.createQuery(q
+                .where(predicates.toArray(new javax.persistence.criteria.Predicate[0]))
+                .select(stgVerTask.get(StorageVerificationTask_.pk)))
                 .getResultStream()
-                .iterator()
-                .hasNext();
+                .iterator();
+        if (iterator.hasNext()) {
+            LOG.info("Previous {} found - suppress duplicate storage verification", iterator.next());
+            return true;
+        }
+        return false;
     }
 
     public int updateStgVerTask(StorageVerificationTask storageVerificationTask) {
