@@ -154,8 +154,9 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit) {
-        return ejb.getDiffTaskAttributes(matchQueueBatch, matchDiffBatch, offset, limit);
+    public List<AttributesBlob> getDiffTaskAttributes(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(queueBatchQueryParam, diffBatchQueryParam, offset, limit);
     }
 
     @Override

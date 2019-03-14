@@ -91,7 +91,7 @@ import java.util.List;
 @Stateless
 public class ExportManagerEJB implements ExportManager {
 
-    static final Logger LOG = LoggerFactory.getLogger(ExportManagerEJB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExportManagerEJB.class);
     
     private Join<ExportTask, QueueMessage> queueMsg;
     private Root<ExportTask> exportTask;

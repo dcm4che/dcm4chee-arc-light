@@ -86,7 +86,7 @@ import java.util.List;
 @Stateless
 public class DiffServiceEJB {
 
-    static final Logger LOG = LoggerFactory.getLogger(DiffServiceEJB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DiffServiceEJB.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -196,7 +196,9 @@ public class DiffServiceEJB {
     }
 
     public long diffTasksOfBatch(String batchID) {
-        return batchIDQuery(batchID).fetchCount();
+        return em.createQuery(batchIDQuery(batchID, Long.class)
+                .select(em.getCriteriaBuilder().count(diffTask)))
+                .getSingleResult();
     }
 
     public boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
@@ -256,25 +258,48 @@ public class DiffServiceEJB {
                 .getResultList();
     }
 
-    public List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit) {
-        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueBatch, matchDiffBatch);
-        if (limit > 0)
-            diffTaskQuery.limit(limit);
-        if (offset > 0)
-            diffTaskQuery.offset(offset);
+//    public List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit) {
+//        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueBatch, matchDiffBatch);
+//        if (limit > 0)
+//            diffTaskQuery.limit(limit);
+//        if (offset > 0)
+//            diffTaskQuery.offset(offset);
+//
+//        return new HibernateQuery<DiffTaskAttributes>(em.unwrap(Session.class))
+//                .select(QDiffTaskAttributes.diffTaskAttributes.attributesBlob)
+//                .from(QDiffTaskAttributes.diffTaskAttributes)
+//                .where(QDiffTaskAttributes.diffTaskAttributes.diffTask.in(diffTaskQuery))
+//                .fetch();
+//    }
 
-        return new HibernateQuery<DiffTaskAttributes>(em.unwrap(Session.class))
-                .select(QDiffTaskAttributes.diffTaskAttributes.attributesBlob)
-                .from(QDiffTaskAttributes.diffTaskAttributes)
-                .where(QDiffTaskAttributes.diffTaskAttributes.diffTask.in(diffTaskQuery))
-                .fetch();
+    public List<AttributesBlob> getDiffTaskAttributes(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage);
+
+        TypedQuery<DiffTask> query = em.createQuery(restrictBatch(queueBatchQueryParam, diffBatchQueryParam, matchTask, q));
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+
+        CriteriaQuery<AttributesBlob> q1 = cb.createQuery(AttributesBlob.class);
+        Root<DiffTaskAttributes> diffTaskAttrs = q1.from(DiffTaskAttributes.class);
+        return em.createQuery(q1
+                //.where(diffTaskAttrs.get(DiffTaskAttributes_.diffTask).in(query))
+                //.select(diffTask.join(DiffTask_.diffTaskAttributes).get(DiffTaskAttributes_.attributesBlob))
+                .select(diffTaskAttrs.get(DiffTaskAttributes_.attributesBlob)))
+            .getResultList();
     }
 
     public List<DiffBatch> listDiffBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
         diffTask = q.from(DiffTask.class);
         queueMsg = diffTask.join(DiffTask_.queueMessage);
 
@@ -449,13 +474,6 @@ public class DiffServiceEJB {
         diffTask = q.from(DiffTask.class);
         queueMsg = diffTask.join(DiffTask_.queueMessage, JoinType.LEFT);
         return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-    }
-
-    private HibernateQuery<DiffTask> batchIDQuery(String batchID) {
-        return new HibernateQuery<DiffTask>(em.unwrap(Session.class))
-                .from(QDiffTask.diffTask)
-                .leftJoin(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
-                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)

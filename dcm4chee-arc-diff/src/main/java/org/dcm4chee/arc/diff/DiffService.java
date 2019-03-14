@@ -70,7 +70,8 @@ public interface DiffService {
 
     List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
 
-    List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit);
+    List<AttributesBlob> getDiffTaskAttributes(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
 
     List<DiffBatch> listDiffBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
