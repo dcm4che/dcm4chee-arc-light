@@ -61,9 +61,9 @@ public class DiffBatch {
     private String[] comparefields = {};
     private Boolean[] checkMissing = {};
     private Boolean[] checkDifferent = {};
-    private int matches;
-    private int missing;
-    private int different;
+    private long matches;
+    private long missing;
+    private long different;
     private long completed;
     private long canceled;
     private long warning;
@@ -226,26 +226,26 @@ public class DiffBatch {
     }
 
     public int getMatches() {
-        return matches;
+        return Math.toIntExact(matches);
     }
 
-    public void setMatches(int matches) {
+    public void setMatches(long matches) {
         this.matches = matches;
     }
 
     public int getMissing() {
-        return missing;
+        return Math.toIntExact(missing);
     }
 
-    public void setMissing(int missing) {
+    public void setMissing(long missing) {
         this.missing = missing;
     }
 
     public int getDifferent() {
-        return different;
+        return Math.toIntExact(different);
     }
 
-    public void setDifferent(int different) {
+    public void setDifferent(long different) {
         this.different = different;
     }
 

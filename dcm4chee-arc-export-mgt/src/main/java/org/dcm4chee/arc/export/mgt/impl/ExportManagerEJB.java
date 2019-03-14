@@ -391,7 +391,7 @@ public class ExportManagerEJB implements ExportManager {
         Expression<Date> maxCreatedTime = cb.greatest(exportTask.get(ExportTask_.createdTime));
         Expression<Date> minUpdatedTime = cb.least(exportTask.get(ExportTask_.updatedTime));
         Expression<Date> maxUpdatedTime = cb.greatest(exportTask.get(ExportTask_.updatedTime));
-
+        Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
 
         CriteriaQuery<Tuple> multiselect = orderBatch(
                 exportBatchQueryParam,
@@ -407,7 +407,7 @@ public class ExportManagerEJB implements ExportManager {
                         maxCreatedTime,
                         minUpdatedTime,
                         maxUpdatedTime,
-                        queueMsg.get(QueueMessage_.batchID));
+                        batchid);
 
         TypedQuery<Tuple> query = em.createQuery(multiselect);
         if (offset > 0)
@@ -417,7 +417,7 @@ public class ExportManagerEJB implements ExportManager {
 
         List<ExportBatch> exportBatches = new ArrayList<>();
         query.getResultList().forEach(batch -> {
-            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            String batchID = batch.get(batchid);
             ExportBatch exportBatch = new ExportBatch(batchID);
             exportBatch.setProcessingStartTimeRange(
                     batch.get(maxProcessingStartTime),

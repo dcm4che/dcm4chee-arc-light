@@ -410,7 +410,7 @@ public class StgCmtEJB {
         Expression<Date> maxCreatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.createdTime));
         Expression<Date> minUpdatedTime = cb.least(stgVerTask.get(StorageVerificationTask_.updatedTime));
         Expression<Date> maxUpdatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.updatedTime));
-
+        Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
 
         CriteriaQuery<Tuple> multiselect = orderBatch(
                 stgVerBatchQueryParam,
@@ -426,7 +426,7 @@ public class StgCmtEJB {
                         maxCreatedTime,
                         minUpdatedTime,
                         maxUpdatedTime,
-                        queueMsg.get(QueueMessage_.batchID));
+                        batchid);
 
         TypedQuery<Tuple> query = em.createQuery(multiselect);
         if (offset > 0)
@@ -436,7 +436,7 @@ public class StgCmtEJB {
 
         List<StgVerBatch> stgVerBatches = new ArrayList<>();
         query.getResultList().forEach(batch -> {
-            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            String batchID = batch.get(batchid);
             StgVerBatch stgVerBatch = new StgVerBatch(batchID);
             stgVerBatch.setProcessingStartTimeRange(
                     batch.get(maxProcessingStartTime),

@@ -288,10 +288,10 @@ public class DiffServiceEJB {
         Expression<Date> maxCreatedTime = cb.greatest(diffTask.get(DiffTask_.createdTime));
         Expression<Date> minUpdatedTime = cb.least(diffTask.get(DiffTask_.updatedTime));
         Expression<Date> maxUpdatedTime = cb.greatest(diffTask.get(DiffTask_.updatedTime));
-        Expression<Integer> matches = cb.sum(diffTask.get(DiffTask_.matches));
-        Expression<Integer> missing = cb.sum(diffTask.get(DiffTask_.missing));
-        Expression<Integer> different = cb.sum(diffTask.get(DiffTask_.different));
-
+        Expression<Long> matches = cb.sumAsLong((diffTask.get(DiffTask_.matches)));
+        Expression<Long> missing = cb.sumAsLong(diffTask.get(DiffTask_.missing));
+        Expression<Long> different = cb.sumAsLong(diffTask.get(DiffTask_.different));
+        Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
 
         CriteriaQuery<Tuple> multiselect = orderBatch(
                 diffBatchQueryParam,
@@ -310,7 +310,7 @@ public class DiffServiceEJB {
                         matches,
                         missing,
                         different,
-                        queueMsg.get(QueueMessage_.batchID));
+                        batchid);
 
         TypedQuery<Tuple> query = em.createQuery(multiselect);
         if (offset > 0)
@@ -320,7 +320,7 @@ public class DiffServiceEJB {
 
         List<DiffBatch> diffBatches = new ArrayList<>();
         query.getResultList().forEach(batch -> {
-            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            String batchID = batch.get(batchid);
             DiffBatch diffBatch = new DiffBatch(batchID);
             diffBatch.setProcessingStartTimeRange(
                     batch.get(maxProcessingStartTime),
@@ -338,9 +338,9 @@ public class DiffServiceEJB {
                     batch.get(minUpdatedTime),
                     batch.get(maxUpdatedTime));
 
-//            diffBatch.setMatches(batch.get(matches));
-//            diffBatch.setMissing(batch.get(missing));
-//            diffBatch.setDifferent(batch.get(different));
+            diffBatch.setMatches(batch.get(matches));
+            diffBatch.setMissing(batch.get(missing));
+            diffBatch.setDifferent(batch.get(different));
 
             diffBatch.setDeviceNames(em.createQuery(
                     batchIDQuery(batchID, String.class)

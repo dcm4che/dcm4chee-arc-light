@@ -296,7 +296,7 @@ public class RetrieveManagerEJB {
         Expression<Date> maxCreatedTime = cb.greatest(retrieveTask.get(RetrieveTask_.createdTime));
         Expression<Date> minUpdatedTime = cb.least(retrieveTask.get(RetrieveTask_.updatedTime));
         Expression<Date> maxUpdatedTime = cb.greatest(retrieveTask.get(RetrieveTask_.updatedTime));
-
+        Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
 
         CriteriaQuery<Tuple> multiselect = orderBatch(
                 retrieveBatchQueryParam,
@@ -312,7 +312,7 @@ public class RetrieveManagerEJB {
                         maxCreatedTime,
                         minUpdatedTime,
                         maxUpdatedTime,
-                        queueMsg.get(QueueMessage_.batchID));
+                        batchid);
 
         TypedQuery<Tuple> query = em.createQuery(multiselect);
         if (offset > 0)
@@ -322,7 +322,7 @@ public class RetrieveManagerEJB {
 
         List<RetrieveBatch> retrieveBatches = new ArrayList<>();
         query.getResultList().forEach(batch -> {
-            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            String batchID = batch.get(batchid);
             RetrieveBatch retrieveBatch = new RetrieveBatch(batchID);
             retrieveBatch.setProcessingStartTimeRange(
                     batch.get(maxProcessingStartTime),
