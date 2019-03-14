@@ -141,9 +141,8 @@ public class DiffBatchRS {
         logRequest();
         try {
             List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                    matchQueueBatch(status(), batchID),
-                    matchDiffBatch(createdTime, updatedTime),
-                    MatchTask.diffBatchOrder(orderby),
+                    queueBatchQueryParam(),
+                    diffBatchQueryParam(),
                     parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
         } catch (Exception e) {
@@ -276,7 +275,7 @@ public class DiffBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueTaskQueryParam() {
+    private TaskQueryParam queueBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status());
         taskQueryParam.setDeviceName(deviceName);
@@ -284,7 +283,7 @@ public class DiffBatchRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam diffTaskQueryParam() {
+    private TaskQueryParam diffBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setPrimaryAET(primaryAET);

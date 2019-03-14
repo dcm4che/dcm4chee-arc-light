@@ -41,9 +41,8 @@
 
 package org.dcm4chee.arc.diff.impl;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.OrderSpecifier;
+import javax.persistence.criteria.Expression;
+import javax.persistence.Tuple;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
@@ -73,10 +72,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -103,23 +99,6 @@ public class DiffServiceEJB {
 
     @Inject
     private QueueManager queueManager;
-
-    private static final Expression<?>[] SELECT = {
-            QQueueMessage.queueMessage.processingStartTime.min(),
-            QQueueMessage.queueMessage.processingStartTime.max(),
-            QQueueMessage.queueMessage.processingEndTime.min(),
-            QQueueMessage.queueMessage.processingEndTime.max(),
-            QQueueMessage.queueMessage.scheduledTime.min(),
-            QQueueMessage.queueMessage.scheduledTime.max(),
-            QDiffTask.diffTask.createdTime.min(),
-            QDiffTask.diffTask.createdTime.max(),
-            QDiffTask.diffTask.updatedTime.min(),
-            QDiffTask.diffTask.updatedTime.max(),
-            QDiffTask.diffTask.matches.sum(),
-            QDiffTask.diffTask.missing.sum(),
-            QDiffTask.diffTask.different.sum(),
-            QQueueMessage.queueMessage.batchID
-    };
 
     public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
         try {
@@ -291,114 +270,185 @@ public class DiffServiceEJB {
                 .fetch();
     }
 
-    public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
-                                           int offset, int limit) {
-        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueBatch, matchDiffBatch);
-        if (limit > 0)
-            diffTaskQuery.limit(limit);
-        if (offset > 0)
-            diffTaskQuery.offset(offset);
+    public List<DiffBatch> listDiffBatches(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage);
 
-        List<Tuple> batches = diffTaskQuery.select(SELECT)
-                                .groupBy(QQueueMessage.queueMessage.batchID)
-                                .orderBy(order)
-                                .fetch();
+        Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
+        Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
+        Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
+        Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
+        Expression<Date> minScheduledTime = cb.least(queueMsg.get(QueueMessage_.scheduledTime));
+        Expression<Date> maxScheduledTime = cb.greatest(queueMsg.get(QueueMessage_.scheduledTime));
+        Expression<Date> minCreatedTime = cb.least(diffTask.get(DiffTask_.createdTime));
+        Expression<Date> maxCreatedTime = cb.greatest(diffTask.get(DiffTask_.createdTime));
+        Expression<Date> minUpdatedTime = cb.least(diffTask.get(DiffTask_.updatedTime));
+        Expression<Date> maxUpdatedTime = cb.greatest(diffTask.get(DiffTask_.updatedTime));
+        Expression<Integer> matches = cb.sum(diffTask.get(DiffTask_.matches));
+        Expression<Integer> missing = cb.sum(diffTask.get(DiffTask_.missing));
+        Expression<Integer> different = cb.sum(diffTask.get(DiffTask_.different));
+
+
+        CriteriaQuery<Tuple> multiselect = orderBatch(
+                diffBatchQueryParam,
+                matchTask,
+                groupBy(restrictBatch(queueBatchQueryParam, diffBatchQueryParam, matchTask, q)))
+                .multiselect(minProcessingStartTime,
+                        maxProcessingStartTime,
+                        minProcessingEndTime,
+                        maxProcessingEndTime,
+                        minScheduledTime,
+                        maxScheduledTime,
+                        minCreatedTime,
+                        maxCreatedTime,
+                        minUpdatedTime,
+                        maxUpdatedTime,
+                        matches,
+                        missing,
+                        different,
+                        queueMsg.get(QueueMessage_.batchID));
+
+        TypedQuery<Tuple> query = em.createQuery(multiselect);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
 
         List<DiffBatch> diffBatches = new ArrayList<>();
-        for (Tuple batch : batches) {
-            DiffBatch diffBatch = new DiffBatch();
-            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
-            diffBatch.setBatchID(batchID);
-
-            diffBatch.setCreatedTimeRange(
-                    batch.get(QDiffTask.diffTask.createdTime.min()),
-                    batch.get(QDiffTask.diffTask.createdTime.max()));
-            diffBatch.setUpdatedTimeRange(
-                    batch.get(QDiffTask.diffTask.updatedTime.min()),
-                    batch.get(QDiffTask.diffTask.updatedTime.max()));
-            diffBatch.setScheduledTimeRange(
-                    batch.get(QQueueMessage.queueMessage.scheduledTime.min()),
-                    batch.get(QQueueMessage.queueMessage.scheduledTime.max()));
+        query.getResultList().forEach(batch -> {
+            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            DiffBatch diffBatch = new DiffBatch(batchID);
             diffBatch.setProcessingStartTimeRange(
-                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
-                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+                    batch.get(maxProcessingStartTime),
+                    batch.get(maxProcessingStartTime));
             diffBatch.setProcessingEndTimeRange(
-                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
-                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
-            diffBatch.setMatches(batch.get(QDiffTask.diffTask.matches.sum()));
-            diffBatch.setMissing(batch.get(QDiffTask.diffTask.missing.sum()));
-            diffBatch.setDifferent(batch.get(QDiffTask.diffTask.different.sum()));
+                    batch.get(minProcessingEndTime),
+                    batch.get(maxProcessingEndTime));
+            diffBatch.setScheduledTimeRange(
+                    batch.get(minScheduledTime),
+                    batch.get(maxScheduledTime));
+            diffBatch.setCreatedTimeRange(
+                    batch.get(minCreatedTime),
+                    batch.get(maxCreatedTime));
+            diffBatch.setUpdatedTimeRange(
+                    batch.get(minUpdatedTime),
+                    batch.get(maxUpdatedTime));
 
-            diffBatch.setDeviceNames(
-                    batchIDQuery(batchID)
-                        .select(QQueueMessage.queueMessage.deviceName)
-                        .distinct()
-                        .orderBy(QQueueMessage.queueMessage.deviceName.asc())
-                        .fetch());
-            diffBatch.setLocalAETs(
-                    batchIDQuery(batchID)
-                        .select(QDiffTask.diffTask.localAET)
-                        .distinct()
-                        .orderBy(QDiffTask.diffTask.localAET.asc())
-                        .fetch());
-            diffBatch.setPrimaryAETs(
-                    batchIDQuery(batchID)
-                        .select(QDiffTask.diffTask.primaryAET)
-                        .distinct()
-                        .orderBy(QDiffTask.diffTask.primaryAET.asc())
-                        .fetch());
-            diffBatch.setSecondaryAETs(
-                    batchIDQuery(batchID)
-                        .select(QDiffTask.diffTask.secondaryAET)
-                        .distinct()
-                        .orderBy(QDiffTask.diffTask.secondaryAET.asc())
-                        .fetch());
-            diffBatch.setComparefields(
-                    batchIDQuery(batchID)
-                        .select(QDiffTask.diffTask.compareFields)
-                        .where(QDiffTask.diffTask.compareFields.isNotNull())
-                        .distinct()
-                        .fetch());
-            diffBatch.setCheckMissing(
-                    batchIDQuery(batchID)
-                        .select(QDiffTask.diffTask.checkMissing)
-                        .distinct()
-                        .fetch());
-            diffBatch.setCheckDifferent(
-                    batchIDQuery(batchID)
-                        .select(QDiffTask.diffTask.checkDifferent)
-                        .distinct()
-                        .fetch());
+//            diffBatch.setMatches(batch.get(matches));
+//            diffBatch.setMissing(batch.get(missing));
+//            diffBatch.setDifferent(batch.get(different));
 
-            diffBatch.setCompleted(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
-                        .fetchCount());
-            diffBatch.setCanceled(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
-                        .fetchCount());
-            diffBatch.setWarning(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
-                        .fetchCount());
-            diffBatch.setFailed(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
-                        .fetchCount());
-            diffBatch.setScheduled(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
-                        .fetchCount());
-            diffBatch.setInProcess(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
-                        .fetchCount());
+            diffBatch.setDeviceNames(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(queueMsg.get(QueueMessage_.deviceName))
+                            .distinct(true)
+                            .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
+                    .getResultList());
+            diffBatch.setLocalAETs(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(diffTask.get(DiffTask_.localAET))
+                            .distinct(true)
+                            .orderBy(cb.asc(diffTask.get(DiffTask_.localAET))))
+                    .getResultList());
+            diffBatch.setPrimaryAETs(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(diffTask.get(DiffTask_.primaryAET))
+                            .distinct(true)
+                            .orderBy(cb.asc(diffTask.get(DiffTask_.primaryAET))))
+                    .getResultList());
+            diffBatch.setSecondaryAETs(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(diffTask.get(DiffTask_.secondaryAET))
+                            .distinct(true)
+                            .orderBy(cb.asc(diffTask.get(DiffTask_.secondaryAET))))
+                    .getResultList());
+            diffBatch.setComparefields(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .where(diffTask.get(DiffTask_.compareFields).isNotNull())
+                            .select(diffTask.get(DiffTask_.compareFields))
+                            .distinct(true))
+                    .getResultList());
+            diffBatch.setCheckMissing(em.createQuery(
+                    batchIDQuery(batchID, Boolean.class)
+                            .select(diffTask.get(DiffTask_.checkMissing))
+                            .distinct(true))
+                    .getResultList());
+            diffBatch.setCheckDifferent(em.createQuery(
+                    batchIDQuery(batchID, Boolean.class)
+                            .select(diffTask.get(DiffTask_.checkDifferent))
+                            .distinct(true))
+                    .getResultList());
+
+            diffBatch.setCompleted(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            diffBatch.setCanceled(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            diffBatch.setWarning(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            diffBatch.setFailed(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            diffBatch.setScheduled(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            diffBatch.setInProcess(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
 
             diffBatches.add(diffBatch);
-        }
+        });
 
         return diffBatches;
+    }
+
+    private <T> CriteriaQuery<T> restrictBatch(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.diffBatchPredicates(
+                queueMsg,
+                diffTask,
+                queueBatchQueryParam,
+                diffBatchQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> orderBatch(
+            TaskQueryParam diffBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        if (diffBatchQueryParam.getOrderBy() != null)
+            q = q.orderBy(matchTask.diffBatchOrder(diffBatchQueryParam.getOrderBy(), diffTask));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> groupBy(CriteriaQuery<T> q) {
+        return q.groupBy(queueMsg.get(QueueMessage_.batchID));
+    }
+
+    private <T> CriteriaQuery<T> batchIDQuery(String batchID, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage, JoinType.LEFT);
+        return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
     }
 
     private HibernateQuery<DiffTask> batchIDQuery(String batchID) {

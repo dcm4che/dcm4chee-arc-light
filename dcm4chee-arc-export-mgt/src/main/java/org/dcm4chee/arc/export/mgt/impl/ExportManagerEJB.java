@@ -40,9 +40,8 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.OrderSpecifier;
+import javax.persistence.criteria.Expression;
+import javax.persistence.Tuple;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
@@ -108,20 +107,6 @@ public class ExportManagerEJB implements ExportManager {
 
     @Inject
     private QueueManager queueManager;
-
-    private static final Expression<?>[] SELECT = {
-            QQueueMessage.queueMessage.processingStartTime.min(),
-            QQueueMessage.queueMessage.processingStartTime.max(),
-            QQueueMessage.queueMessage.processingEndTime.min(),
-            QQueueMessage.queueMessage.processingEndTime.max(),
-            QExportTask.exportTask.createdTime.min(),
-            QExportTask.exportTask.createdTime.max(),
-            QExportTask.exportTask.updatedTime.min(),
-            QExportTask.exportTask.updatedTime.max(),
-            QExportTask.exportTask.scheduledTime.min(),
-            QExportTask.exportTask.scheduledTime.max(),
-            QQueueMessage.queueMessage.batchID
-    };
 
     @Override
     public void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime) {
@@ -311,19 +296,6 @@ public class ExportManagerEJB implements ExportManager {
                 .where(matchExportTask);
     }
 
-    private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
-        return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-    }
-
-    private HibernateQuery<ExportTask> createQuery(Predicate matchQueueMessage, Predicate matchExportTask) {
-        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .from(QExportTask.exportTask)
-                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, QExportTask.exportTask.queueMessage.in(createQuery(matchQueueMessage)));
-    }
-
     @Override
     public boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent) {
         ExportTask task = em.find(ExportTask.class, pk);
@@ -399,91 +371,151 @@ public class ExportManagerEJB implements ExportManager {
                 .distinct()
                 .fetch();
     }
-
+    
     @Override
-    public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
-                                               OrderSpecifier<Date> order, int offset, int limit) {
-        HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueBatch, matchExportBatch);
-        if (limit > 0)
-            exportTaskQuery.limit(limit);
-        if (offset > 0)
-            exportTaskQuery.offset(offset);
+    public List<ExportBatch> listExportBatches(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        exportTask = q.from(ExportTask.class);
+        queueMsg = exportTask.join(ExportTask_.queueMessage);
 
-        List<Tuple> batches = exportTaskQuery.select(SELECT)
-                                .groupBy(QQueueMessage.queueMessage.batchID)
-                                .orderBy(order)
-                                .fetch();
+        Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
+        Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
+        Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
+        Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
+        Expression<Date> minScheduledTime = cb.least(exportTask.get(ExportTask_.scheduledTime));
+        Expression<Date> maxScheduledTime = cb.greatest(exportTask.get(ExportTask_.scheduledTime));
+        Expression<Date> minCreatedTime = cb.least(exportTask.get(ExportTask_.createdTime));
+        Expression<Date> maxCreatedTime = cb.greatest(exportTask.get(ExportTask_.createdTime));
+        Expression<Date> minUpdatedTime = cb.least(exportTask.get(ExportTask_.updatedTime));
+        Expression<Date> maxUpdatedTime = cb.greatest(exportTask.get(ExportTask_.updatedTime));
+
+
+        CriteriaQuery<Tuple> multiselect = orderBatch(
+                exportBatchQueryParam,
+                matchTask,
+                groupBy(restrictBatch(queueBatchQueryParam, exportBatchQueryParam, matchTask, q)))
+                .multiselect(minProcessingStartTime,
+                        maxProcessingStartTime,
+                        minProcessingEndTime,
+                        maxProcessingEndTime,
+                        minScheduledTime,
+                        maxScheduledTime,
+                        minCreatedTime,
+                        maxCreatedTime,
+                        minUpdatedTime,
+                        maxUpdatedTime,
+                        queueMsg.get(QueueMessage_.batchID));
+
+        TypedQuery<Tuple> query = em.createQuery(multiselect);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
 
         List<ExportBatch> exportBatches = new ArrayList<>();
-        for (Tuple batch : batches) {
-            ExportBatch exportBatch = new ExportBatch();
-            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
-            exportBatch.setBatchID(batchID);
-            exportBatch.setCreatedTimeRange(
-                    batch.get(QExportTask.exportTask.createdTime.min()),
-                    batch.get(QExportTask.exportTask.createdTime.max()));
-            exportBatch.setUpdatedTimeRange(
-                    batch.get(QExportTask.exportTask.updatedTime.min()),
-                    batch.get(QExportTask.exportTask.updatedTime.max()));
-            exportBatch.setScheduledTimeRange(
-                    batch.get(QExportTask.exportTask.scheduledTime.min()),
-                    batch.get(QExportTask.exportTask.scheduledTime.max()));
+        query.getResultList().forEach(batch -> {
+            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            ExportBatch exportBatch = new ExportBatch(batchID);
             exportBatch.setProcessingStartTimeRange(
-                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
-                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+                    batch.get(maxProcessingStartTime),
+                    batch.get(maxProcessingStartTime));
             exportBatch.setProcessingEndTimeRange(
-                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
-                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
+                    batch.get(minProcessingEndTime),
+                    batch.get(maxProcessingEndTime));
+            exportBatch.setScheduledTimeRange(
+                    batch.get(minScheduledTime),
+                    batch.get(maxScheduledTime));
+            exportBatch.setCreatedTimeRange(
+                    batch.get(minCreatedTime),
+                    batch.get(maxCreatedTime));
+            exportBatch.setUpdatedTimeRange(
+                    batch.get(minUpdatedTime),
+                    batch.get(maxUpdatedTime));
 
-            exportBatch.setDeviceNames(
-                    batchIDQuery(batchID)
-                        .select(QExportTask.exportTask.deviceName)
-                        .distinct()
-                        .orderBy(QExportTask.exportTask.deviceName.asc())
-                        .fetch());
-            exportBatch.setExporterIDs(
-                    batchIDQuery(batchID)
-                        .select(QExportTask.exportTask.exporterID)
-                        .distinct()
-                        .orderBy(QExportTask.exportTask.exporterID.asc())
-                        .fetch());
+            exportBatch.setDeviceNames(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(queueMsg.get(QueueMessage_.deviceName))
+                            .distinct(true)
+                            .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
+                    .getResultList());
+            exportBatch.setExporterIDs(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(exportTask.get(ExportTask_.exporterID))
+                            .distinct(true)
+                            .orderBy(cb.asc(exportTask.get(ExportTask_.exporterID))))
+                    .getResultList());
 
-            exportBatch.setCompleted(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
-                        .fetchCount());
-            exportBatch.setCanceled(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
-                        .fetchCount());
-            exportBatch.setWarning(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
-                        .fetchCount());
-            exportBatch.setFailed(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
-                        .fetchCount());
-            exportBatch.setScheduled(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
-                        .fetchCount());
-            exportBatch.setInProcess(
-                    batchIDQuery(batchID)
-                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
-                        .fetchCount());
+            exportBatch.setCompleted(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            exportBatch.setCanceled(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            exportBatch.setWarning(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            exportBatch.setFailed(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            exportBatch.setScheduled(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            exportBatch.setInProcess(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
 
             exportBatches.add(exportBatch);
-        }
+        });
+
         return exportBatches;
     }
 
-    private HibernateQuery<ExportTask> batchIDQuery(String batchID) {
-        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .from(QExportTask.exportTask)
-                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
+    private <T> CriteriaQuery<T> restrictBatch(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.exportBatchPredicates(
+                queueMsg,
+                exportTask,
+                queueBatchQueryParam,
+                exportBatchQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
     }
+
+    private <T> CriteriaQuery<T> orderBatch(
+            TaskQueryParam exportBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        if (exportBatchQueryParam.getOrderBy() != null)
+            q = q.orderBy(matchTask.exportBatchOrder(exportBatchQueryParam.getOrderBy(), exportTask));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> groupBy(CriteriaQuery<T> q) {
+        return q.groupBy(queueMsg.get(QueueMessage_.batchID));
+    }
+
+    private <T> CriteriaQuery<T> batchIDQuery(String batchID, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        exportTask = q.from(ExportTask.class);
+        queueMsg = exportTask.join(ExportTask_.queueMessage, JoinType.LEFT);
+        return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+    }
+
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Iterator<ExportTask> listExportTasks(

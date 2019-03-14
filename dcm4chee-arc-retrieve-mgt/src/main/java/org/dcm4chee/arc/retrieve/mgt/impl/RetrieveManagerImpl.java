@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -194,15 +193,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
-                                                   OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, order, offset, limit);
-    }
-
-    @Override
     public List<RetrieveBatch> listRetrieveBatches(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
-        return ejb.listRetrieveBatches(queueTaskQueryParam, retrieveTaskQueryParam, offset, limit);
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit) {
+        return ejb.listRetrieveBatches(queueBatchQueryParam, retrieveBatchQueryParam, offset, limit);
     }
 
     @Override

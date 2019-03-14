@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -64,12 +64,12 @@ public class StgVerBatch {
     private long scheduled;
     private long inProcess;
 
-    public String getBatchID() {
-        return batchID;
+    public StgVerBatch(String batchID) {
+        this.batchID = batchID;
     }
 
-    public void setBatchID(String batchID) {
-        this.batchID = batchID;
+    public String getBatchID() {
+        return batchID;
     }
 
     public Date[] getCreatedTimeRange() {

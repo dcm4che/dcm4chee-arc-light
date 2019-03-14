@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.diff;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
@@ -50,7 +49,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -74,8 +72,8 @@ public interface DiffService {
 
     List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit);
 
-    List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
-                                    int offset, int limit);
+    List<DiffBatch> listDiffBatches(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
 
     long diffTasksOfBatch(String batchID);
 

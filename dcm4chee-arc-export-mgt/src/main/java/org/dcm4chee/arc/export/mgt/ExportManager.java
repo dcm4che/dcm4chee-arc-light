@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.export.mgt;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
@@ -91,8 +90,8 @@ public interface ExportManager {
 
     List<String> listDistinctDeviceNames(Predicate matchExportTask);
 
-    List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
-                                        OrderSpecifier<Date> order, int offset, int limit);
+    List<ExportBatch> listExportBatches(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, int offset, int limit);
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
 

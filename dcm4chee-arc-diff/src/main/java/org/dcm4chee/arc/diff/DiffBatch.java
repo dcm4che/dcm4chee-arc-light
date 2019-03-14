@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -71,12 +71,12 @@ public class DiffBatch {
     private long scheduled;
     private long inProcess;
 
-    public String getBatchID() {
-        return batchID;
+    public DiffBatch(String batchID) {
+        this.batchID = batchID;
     }
 
-    public void setBatchID(String batchID) {
-        this.batchID = batchID;
+    public String getBatchID() {
+        return batchID;
     }
 
     public Date[] getCreatedTimeRange() {
@@ -214,7 +214,7 @@ public class DiffBatch {
     }
 
     public void setCheckMissing(List<Boolean> checkMissing) {
-        this.checkMissing = checkMissing.toArray(new Boolean[checkMissing.size()]);
+        this.checkMissing = checkMissing.toArray(new Boolean[0]);
     }
 
     public Boolean[] getCheckDifferent() {
@@ -222,7 +222,7 @@ public class DiffBatch {
     }
 
     public void setCheckDifferent(List<Boolean> checkDifferent) {
-        this.checkDifferent = checkDifferent.toArray(new Boolean[checkDifferent.size()]);
+        this.checkDifferent = checkDifferent.toArray(new Boolean[0]);
     }
 
     public int getMatches() {

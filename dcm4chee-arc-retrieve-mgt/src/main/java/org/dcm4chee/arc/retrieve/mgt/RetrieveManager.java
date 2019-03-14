@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
@@ -82,11 +81,8 @@ public interface RetrieveManager {
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
-    List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
-                                            OrderSpecifier<Date> order, int offset, int limit);
-
     List<RetrieveBatch> listRetrieveBatches(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit);
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit);
 
     List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 

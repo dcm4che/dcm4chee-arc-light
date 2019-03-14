@@ -42,7 +42,6 @@ package org.dcm4chee.arc.retrieve.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -129,9 +128,9 @@ public class RetrieveBatchRS {
         logRequest();
         try {
             List<RetrieveBatch> retrieveBatches = mgr.listRetrieveBatches(
-                    MatchTask.matchQueueBatch(deviceName, status(), batchID),
-                    MatchTask.matchRetrieveBatch(localAET, remoteAET, destinationAET, createdTime, updatedTime),
-                    MatchTask.retrieveBatchOrder(orderby), parseInt(offset), parseInt(limit));
+                    queueBatchQueryParam(),
+                    retrieveBatchQueryParam(),
+                    parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(retrieveBatches)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -215,7 +214,7 @@ public class RetrieveBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueTaskQueryParam() {
+    private TaskQueryParam queueBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status());
         taskQueryParam.setDeviceName(deviceName);
@@ -223,7 +222,7 @@ public class RetrieveBatchRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam retrieveTaskQueryParam() {
+    private TaskQueryParam retrieveBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setRemoteAET(remoteAET);

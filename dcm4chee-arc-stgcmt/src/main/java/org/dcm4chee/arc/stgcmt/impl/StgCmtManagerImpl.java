@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -235,9 +234,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
-                                               OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.listStgVerBatches(matchQueueBatch, matchStgCmtBatch, order, offset, limit);
+    public List<StgVerBatch> listStgVerBatches(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit) {
+        return ejb.listStgVerBatches(queueBatchQueryParam, stgVerBatchQueryParam, offset, limit);
     }
 
     @Override

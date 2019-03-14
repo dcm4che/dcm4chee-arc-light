@@ -40,9 +40,8 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.OrderSpecifier;
+import javax.persistence.criteria.Expression;
+import javax.persistence.Tuple;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
@@ -101,20 +100,6 @@ public class StgCmtEJB {
 
     @Inject
     private QueueManager queueManager;
-
-    private static final Expression<?>[] SELECT = {
-            QQueueMessage.queueMessage.processingStartTime.min(),
-            QQueueMessage.queueMessage.processingStartTime.max(),
-            QQueueMessage.queueMessage.processingEndTime.min(),
-            QQueueMessage.queueMessage.processingEndTime.max(),
-            QQueueMessage.queueMessage.scheduledTime.min(),
-            QQueueMessage.queueMessage.scheduledTime.max(),
-            QStorageVerificationTask.storageVerificationTask.createdTime.min(),
-            QStorageVerificationTask.storageVerificationTask.createdTime.max(),
-            QStorageVerificationTask.storageVerificationTask.updatedTime.min(),
-            QStorageVerificationTask.storageVerificationTask.updatedTime.max(),
-            QQueueMessage.queueMessage.batchID
-    };
 
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
@@ -407,92 +392,149 @@ public class StgCmtEJB {
         return true;
     }
 
-    public List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
-                                               OrderSpecifier<Date> order, int offset, int limit) {
-        HibernateQuery<StorageVerificationTask> stgVerTaskQuery = createQuery(matchQueueBatch, matchStgCmtBatch);
-        if (limit > 0)
-            stgVerTaskQuery.limit(limit);
-        if (offset > 0)
-            stgVerTaskQuery.offset(offset);
+    public List<StgVerBatch> listStgVerBatches(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
 
-        List<Tuple> batches = stgVerTaskQuery.select(SELECT)
-                .groupBy(QQueueMessage.queueMessage.batchID)
-                .orderBy(order)
-                .fetch();
+        Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
+        Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
+        Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
+        Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
+        Expression<Date> minScheduledTime = cb.least(queueMsg.get(QueueMessage_.scheduledTime));
+        Expression<Date> maxScheduledTime = cb.greatest(queueMsg.get(QueueMessage_.scheduledTime));
+        Expression<Date> minCreatedTime = cb.least(stgVerTask.get(StorageVerificationTask_.createdTime));
+        Expression<Date> maxCreatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.createdTime));
+        Expression<Date> minUpdatedTime = cb.least(stgVerTask.get(StorageVerificationTask_.updatedTime));
+        Expression<Date> maxUpdatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.updatedTime));
+
+
+        CriteriaQuery<Tuple> multiselect = orderBatch(
+                stgVerBatchQueryParam,
+                matchTask,
+                groupBy(restrictBatch(queueBatchQueryParam, stgVerBatchQueryParam, matchTask, q)))
+                .multiselect(minProcessingStartTime,
+                        maxProcessingStartTime,
+                        minProcessingEndTime,
+                        maxProcessingEndTime,
+                        minScheduledTime,
+                        maxScheduledTime,
+                        minCreatedTime,
+                        maxCreatedTime,
+                        minUpdatedTime,
+                        maxUpdatedTime,
+                        queueMsg.get(QueueMessage_.batchID));
+
+        TypedQuery<Tuple> query = em.createQuery(multiselect);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
 
         List<StgVerBatch> stgVerBatches = new ArrayList<>();
-        for (Tuple batch : batches) {
-            StgVerBatch stgVerBatch = new StgVerBatch();
-            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
-            stgVerBatch.setBatchID(batchID);
-
-            stgVerBatch.setCreatedTimeRange(
-                    batch.get(QStorageVerificationTask.storageVerificationTask.createdTime.min()),
-                    batch.get(QStorageVerificationTask.storageVerificationTask.createdTime.max()));
-            stgVerBatch.setUpdatedTimeRange(
-                    batch.get(QStorageVerificationTask.storageVerificationTask.updatedTime.min()),
-                    batch.get(QStorageVerificationTask.storageVerificationTask.updatedTime.max()));
-            stgVerBatch.setScheduledTimeRange(
-                    batch.get(QQueueMessage.queueMessage.scheduledTime.min()),
-                    batch.get(QQueueMessage.queueMessage.scheduledTime.max()));
+        query.getResultList().forEach(batch -> {
+            String batchID = batch.get(queueMsg.get(QueueMessage_.batchID));
+            StgVerBatch stgVerBatch = new StgVerBatch(batchID);
             stgVerBatch.setProcessingStartTimeRange(
-                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
-                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+                    batch.get(maxProcessingStartTime),
+                    batch.get(maxProcessingStartTime));
             stgVerBatch.setProcessingEndTimeRange(
-                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
-                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
+                    batch.get(minProcessingEndTime),
+                    batch.get(maxProcessingEndTime));
+            stgVerBatch.setScheduledTimeRange(
+                    batch.get(minScheduledTime),
+                    batch.get(maxScheduledTime));
+            stgVerBatch.setCreatedTimeRange(
+                    batch.get(minCreatedTime),
+                    batch.get(maxCreatedTime));
+            stgVerBatch.setUpdatedTimeRange(
+                    batch.get(minUpdatedTime),
+                    batch.get(maxUpdatedTime));
 
-            stgVerBatch.setDeviceNames(
-                    batchIDQuery(batchID)
-                            .select(QQueueMessage.queueMessage.deviceName)
-                            .distinct()
-                            .orderBy(QQueueMessage.queueMessage.deviceName.asc())
-                            .fetch());
-            stgVerBatch.setLocalAETs(
-                    batchIDQuery(batchID)
-                            .select(QStorageVerificationTask.storageVerificationTask.localAET)
-                            .distinct()
-                            .orderBy(QStorageVerificationTask.storageVerificationTask.localAET.asc())
-                            .fetch());
+            stgVerBatch.setDeviceNames(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(queueMsg.get(QueueMessage_.deviceName))
+                            .distinct(true)
+                            .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
+                    .getResultList());
+            stgVerBatch.setLocalAETs(em.createQuery(
+                    batchIDQuery(batchID, String.class)
+                            .select(stgVerTask.get(StorageVerificationTask_.localAET))
+                            .distinct(true)
+                            .orderBy(cb.asc(stgVerTask.get(StorageVerificationTask_.localAET))))
+                    .getResultList());
 
-            stgVerBatch.setCompleted(
-                    batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
-                            .fetchCount());
-            stgVerBatch.setCanceled(
-                    batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
-                            .fetchCount());
-            stgVerBatch.setWarning(
-                    batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
-                            .fetchCount());
-            stgVerBatch.setFailed(
-                    batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
-                            .fetchCount());
-            stgVerBatch.setScheduled(
-                    batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
-                            .fetchCount());
-            stgVerBatch.setInProcess(
-                    batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
-                            .fetchCount());
+            stgVerBatch.setCompleted(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            stgVerBatch.setCanceled(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            stgVerBatch.setWarning(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            stgVerBatch.setFailed(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            stgVerBatch.setScheduled(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
+            stgVerBatch.setInProcess(em.createQuery(
+                    batchIDQuery(batchID, Long.class)
+                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))
+                            .select(cb.count(queueMsg)))
+                    .getSingleResult());
 
             stgVerBatches.add(stgVerBatch);
-        }
+        });
 
         return stgVerBatches;
     }
 
-    private HibernateQuery<StorageVerificationTask> batchIDQuery(String batchID) {
-        return new HibernateQuery<StorageVerificationTask>(em.unwrap(Session.class))
-                .from(QStorageVerificationTask.storageVerificationTask)
-                .leftJoin(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
-                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
+    private <T> CriteriaQuery<T> restrictBatch(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        List<javax.persistence.criteria.Predicate> predicates = matchTask.stgVerBatchPredicates(
+                queueMsg,
+                stgVerTask,
+                queueBatchQueryParam,
+                stgVerBatchQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
     }
 
+    private <T> CriteriaQuery<T> orderBatch(
+            TaskQueryParam stgVerBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        if (stgVerBatchQueryParam.getOrderBy() != null)
+            q = q.orderBy(matchTask.stgVerBatchOrder(stgVerBatchQueryParam.getOrderBy(), stgVerTask));
+        return q;
+    }
+
+    private <T> CriteriaQuery<T> groupBy(CriteriaQuery<T> q) {
+        return q.groupBy(queueMsg.get(QueueMessage_.batchID));
+    }
+
+    private <T> CriteriaQuery<T> batchIDQuery(String batchID, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage, JoinType.LEFT);
+        return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+    }
+    
     public List<Series.StorageVerification> findSeriesForScheduledStorageVerifications(int fetchSize) {
         return em.createNamedQuery(Series.SCHEDULED_STORAGE_VERIFICATION, Series.StorageVerification.class)
                 .setMaxResults(fetchSize)

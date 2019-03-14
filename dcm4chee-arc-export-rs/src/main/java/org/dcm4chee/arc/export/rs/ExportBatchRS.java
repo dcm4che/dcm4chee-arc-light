@@ -44,7 +44,6 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -127,10 +126,10 @@ public class ExportBatchRS {
         logRequest();
         try {
             List<ExportBatch> exportBatches = mgr.listExportBatches(
-                    MatchTask.matchQueueBatch(deviceName, status(), batchID),
-                    MatchTask.matchExportBatch(exporterIDs, deviceName, createdTime,
-                            updatedTime),
-                    MatchTask.exportBatchOrder(orderby), parseInt(offset), parseInt(limit));
+                    queueBatchQueryParam(),
+                    exportBatchQueryParam(),
+                    parseInt(offset),
+                    parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -212,7 +211,7 @@ public class ExportBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueTaskQueryParam() {
+    private TaskQueryParam queueBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status());
         taskQueryParam.setBatchID(batchID);
@@ -220,10 +219,9 @@ public class ExportBatchRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam exportTaskQueryParam() {
+    private TaskQueryParam exportBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setExporterIDs(exporterIDs);
-        taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);

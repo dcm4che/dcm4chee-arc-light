@@ -42,7 +42,6 @@ package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
@@ -123,9 +122,9 @@ public class StgVerBatchRS {
         logRequest();
         try {
             List<StgVerBatch> stgVerBatches = stgCmtMgr.listStgVerBatches(
-                    MatchTask.matchQueueBatch(deviceName, status(), batchID),
-                    MatchTask.matchStgCmtBatch(localAET, createdTime, updatedTime),
-                    MatchTask.stgCmtBatchOrder(orderby), parseInt(offset), parseInt(limit));
+                    queueBatchQueryParam(),
+                    stgVerBatchQueryParam(),
+                    parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(stgVerBatches)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -212,7 +211,7 @@ public class StgVerBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueTaskQueryParam() {
+    private TaskQueryParam queueBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status());
@@ -220,7 +219,7 @@ public class StgVerBatchRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam stgVerTaskQueryParam() {
+    private TaskQueryParam stgVerBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);

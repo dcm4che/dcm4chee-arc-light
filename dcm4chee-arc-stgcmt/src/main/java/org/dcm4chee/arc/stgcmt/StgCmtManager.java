@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.stgcmt;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -107,8 +106,8 @@ public interface StgCmtManager {
 
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize);
 
-    List<StgVerBatch> listStgVerBatches(Predicate matchQueueBatch, Predicate matchStgCmtBatch,
-                                        OrderSpecifier<Date> order, int offset, int limit);
+    List<StgVerBatch> listStgVerBatches(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit);
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 

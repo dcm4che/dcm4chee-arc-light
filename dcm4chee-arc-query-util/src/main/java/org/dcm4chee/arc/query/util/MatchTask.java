@@ -42,11 +42,7 @@ package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.ComparableExpressionBase;
-import com.querydsl.core.types.dsl.DateTimeExpression;
-import com.querydsl.core.types.dsl.DateTimePath;
 import org.dcm4chee.arc.entity.*;
 
 import javax.persistence.criteria.*;
@@ -54,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -154,6 +149,42 @@ public class MatchTask {
         List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
         matchQueueMsg(predicates, queueTaskQueryParam, queueMsg);
         matchRetrieveTask(predicates, retrieveTaskQueryParam, retrieveTask);
+        return predicates;
+    }
+
+    public List<javax.persistence.criteria.Predicate> exportBatchPredicates(
+            From<ExportTask, QueueMessage> queueMsg, Root<ExportTask> exportTask,
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam) {
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
+        matchExportBatch(predicates, exportBatchQueryParam, exportTask);
+        return predicates;
+    }
+
+    public List<javax.persistence.criteria.Predicate> retrieveBatchPredicates(
+            From<RetrieveTask, QueueMessage> queueMsg, Root<RetrieveTask> retrieveTask,
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam) {
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
+        matchRetrieveBatch(predicates, retrieveBatchQueryParam, retrieveTask);
+        return predicates;
+    }
+
+    public List<javax.persistence.criteria.Predicate> stgVerBatchPredicates(
+            From<StorageVerificationTask, QueueMessage> queueMsg, Root<StorageVerificationTask> stgVerTask,
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam) {
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
+        matchStgVerBatch(predicates, stgVerBatchQueryParam, stgVerTask);
+        return predicates;
+    }
+
+    public List<javax.persistence.criteria.Predicate> diffBatchPredicates(
+            From<DiffTask, QueueMessage> queueMsg, Root<DiffTask> diffTask,
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam) {
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
+        matchDiffBatch(predicates, diffBatchQueryParam, diffTask);
         return predicates;
     }
 
@@ -315,44 +346,39 @@ public class MatchTask {
     public Order exportTaskOrder(String orderby, Path<ExportTask> exportTask) {
         return taskOrder(orderby,
                 exportTask.get(ExportTask_.createdTime),
-                exportTask.get(ExportTask_.updatedTime),
-                cb);
+                exportTask.get(ExportTask_.updatedTime));
     }
 
     public Order retrieveTaskOrder(String orderby, Path<RetrieveTask> retrieveTask) {
         return taskOrder(orderby,
                 retrieveTask.get(RetrieveTask_.createdTime),
-                retrieveTask.get(RetrieveTask_.updatedTime),
-                cb);
+                retrieveTask.get(RetrieveTask_.updatedTime));
     }
 
     public Order stgVerTaskOrder(String orderby, Path<StorageVerificationTask> stgVerTask) {
         return taskOrder(orderby,
                 stgVerTask.get(StorageVerificationTask_.createdTime),
-                stgVerTask.get(StorageVerificationTask_.updatedTime),
-                cb);
+                stgVerTask.get(StorageVerificationTask_.updatedTime));
     }
 
     public Order diffTaskOrder(String orderby, Path<DiffTask> diffTask) {
         return taskOrder(orderby,
                 diffTask.get(DiffTask_.createdTime),
-                diffTask.get(DiffTask_.updatedTime),
-                cb);
+                diffTask.get(DiffTask_.updatedTime));
     }
 
     public Order queueMessageOrder(String orderBy, Path<QueueMessage> queueMsg) {
         return taskOrder(orderBy,
                 queueMsg.get(QueueMessage_.createdTime),
-                queueMsg.get(QueueMessage_.updatedTime),
-                cb);
+                queueMsg.get(QueueMessage_.updatedTime));
     }
 
     private Order taskOrder(
-            String orderby, Path<Date> createdTime, Path<Date> updatedTime, CriteriaBuilder cb) {
-        return order(orderby, createdTime, updatedTime, cb);
+            String orderby, Path<Date> createdTime, Path<Date> updatedTime) {
+        return order(orderby, createdTime, updatedTime);
     }
 
-    private Order order(String orderby, Path<Date> createdTime, Path<Date> updatedTime, CriteriaBuilder cb) {
+    private Order order(String orderby, Path<Date> createdTime, Path<Date> updatedTime) {
         switch (orderby) {
             case "createdTime":
                 return cb.asc(createdTime);
@@ -395,67 +421,28 @@ public class MatchTask {
         return batchOrder(orderby, retrieveTask.get(RetrieveTask_.createdTime), retrieveTask.get(RetrieveTask_.updatedTime));
     }
 
+    public Order diffBatchOrder(String orderby, Path<DiffTask> diffTask) {
+        return batchOrder(orderby, diffTask.get(DiffTask_.createdTime), diffTask.get(DiffTask_.updatedTime));
+    }
+
+    public Order stgVerBatchOrder(String orderby, Path<StorageVerificationTask> stgVerTask) {
+        return batchOrder(orderby,
+                stgVerTask.get(StorageVerificationTask_.createdTime),
+                stgVerTask.get(StorageVerificationTask_.updatedTime));
+    }
+
     private Order batchOrder(String orderby, Path<Date> createdTime, Path<Date> updatedTime) {
         switch (orderby) {
             case "createdTime":
-                cb.least(createdTime);
-                return cb.asc(createdTime);
+                return cb.asc(cb.least(createdTime));
             case "updatedTime":
-                cb.least(updatedTime);
-                return cb.asc(updatedTime);
+                return cb.asc(cb.least(updatedTime));
             case "-createdTime":
-                cb.greatest(createdTime);
-                return cb.desc(createdTime);
+                return cb.desc(cb.greatest(createdTime));
             case "-updatedTime":
-                cb.greatest(updatedTime);
-                return cb.desc(updatedTime);
+                return cb.desc(cb.greatest(updatedTime));
         }
 
-        throw new IllegalArgumentException(orderby);
-    }
-
-    public static OrderSpecifier<Date> exportBatchOrder(String orderby) {
-        return batchOrder(orderby, QExportTask.exportTask.createdTime, QExportTask.exportTask.updatedTime);
-    }
-
-    public static OrderSpecifier<Date> retrieveBatchOrder(String orderby) {
-        return batchOrder(orderby, QRetrieveTask.retrieveTask.createdTime, QRetrieveTask.retrieveTask.updatedTime);
-    }
-
-    public static OrderSpecifier<Date> diffBatchOrder(String orderby) {
-        return batchOrder(orderby, QDiffTask.diffTask.createdTime, QDiffTask.diffTask.updatedTime);
-    }
-
-    public static OrderSpecifier<Date> stgCmtBatchOrder(String orderby) {
-        return batchOrder(orderby, QStorageVerificationTask.storageVerificationTask.createdTime,
-                QStorageVerificationTask.storageVerificationTask.updatedTime);
-    }
-
-    private static OrderSpecifier<Date> batchOrder(
-            String orderby, DateTimePath<Date> createdTime, DateTimePath<Date> updatedTime) {
-        return order(orderby, createdTime, updatedTime,
-                ((Function<DateTimeExpression<Date>, DateTimeExpression<Date>>) DateTimeExpression::min)
-                        .andThen(ComparableExpressionBase::asc),
-                ((Function<DateTimeExpression<Date>, DateTimeExpression<Date>>) DateTimeExpression::max)
-                        .andThen(ComparableExpressionBase::desc));
-    }
-
-    private static OrderSpecifier<Date> order(
-            String orderby,
-            DateTimePath<Date> createdTime,
-            DateTimePath<Date> updatedTime,
-            Function<DateTimeExpression<Date>, OrderSpecifier<Date>> asc,
-            Function<DateTimeExpression<Date>, OrderSpecifier<Date>> desc) {
-        switch (orderby) {
-            case "createdTime":
-                return asc.apply(createdTime);
-            case "updatedTime":
-                return asc.apply(updatedTime);
-            case "-createdTime":
-                return desc.apply(createdTime);
-            case "-updatedTime":
-                return desc.apply(updatedTime);
-        }
         throw new IllegalArgumentException(orderby);
     }
 
@@ -468,40 +455,6 @@ public class MatchTask {
             predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (batchID != null)
             predicate.and(QQueueMessage.queueMessage.batchID.eq(batchID));
-        return predicate;
-    }
-
-    public static Predicate matchExportBatch(
-            List<String> exporterIDs, String deviceName, String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (exporterIDs != null)
-            predicate.and(QExportTask.exportTask.exporterID.in(exporterIDs));
-        if (deviceName != null)
-            predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
-        if (createdTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QExportTask.exportTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
-        if (updatedTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QExportTask.exportTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
-        return predicate;
-    }
-    
-    public static Predicate matchRetrieveBatch(
-            String localAET, String remoteAET, String destinationAET, String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (createdTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
-        if (updatedTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
         return predicate;
     }
 
@@ -529,22 +482,7 @@ public class MatchTask {
         return predicate;
     }
 
-    public static Predicate matchStgCmtBatch(String localAET, String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QStorageVerificationTask.storageVerificationTask.localAET.eq(localAET));
-        if (createdTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QStorageVerificationTask.storageVerificationTask.createdTime, createdTime,
-                    MatchDateTimeRange.FormatDate.DT)));
-        if (updatedTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QStorageVerificationTask.storageVerificationTask.updatedTime, updatedTime,
-                    MatchDateTimeRange.FormatDate.DT)));
-        return predicate;
-    }
-
-    public void matchQueueBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchQueueBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
                                                Path<QueueMessage> queueMsg) {
         predicates.add(cb.isNotNull(queueMsg.get(QueueMessage_.batchID)));
         if (taskQueryParam.getStatus() != null)
@@ -555,8 +493,8 @@ public class MatchTask {
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), taskQueryParam.getBatchID()));
         
     }
-    
-    public void matchExportBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+
+    private void matchExportBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
                                                 Path<ExportTask> exportTask) {
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
@@ -571,7 +509,7 @@ public class MatchTask {
         
     }
 
-    public void matchRetrieveBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchRetrieveBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
                                                   Path<RetrieveTask> retrieveTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.localAET), taskQueryParam.getLocalAET()));
@@ -588,7 +526,7 @@ public class MatchTask {
         
     }
 
-    public void matchDiffBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchDiffBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
                                               Path<DiffTask> diffTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(diffTask.get(DiffTask_.localAET), taskQueryParam.getLocalAET()));
@@ -610,7 +548,7 @@ public class MatchTask {
                     cb, diffTask.get(DiffTask_.updatedTime), taskQueryParam.getUpdatedTime())));
     }
 
-    public void matchStgCmtBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchStgVerBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
                                                 Path<StorageVerificationTask> stgVerTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.localAET), taskQueryParam.getLocalAET()));
