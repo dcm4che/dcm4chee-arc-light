@@ -41,7 +41,6 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
@@ -57,7 +56,6 @@ import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.hibernate.Session;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,14 +200,13 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    private HibernateQuery<RetrieveTask> createQuery(
-            Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        return new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
-                .from(QRetrieveTask.retrieveTask)
-                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
+    private CriteriaQuery<String> createQuery(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+        return restrict(queueTaskQueryParam, retrieveTaskQueryParam, matchTask, q);
     }
 
     public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
@@ -264,18 +261,19 @@ public class RetrieveManagerEJB {
         queueManager.rescheduleTask(retrieveTaskQueueMsgId, RetrieveManager.QUEUE_NAME, queueEvent);
     }
 
-    public List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchRetrieveTask, int limit) {
-        return createQuery(matchQueueMsg, matchRetrieveTask)
-                .select(QQueueMessage.queueMessage.messageID)
-                .limit(limit)
-                .fetch();
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return em.createQuery(createQuery(queueTaskQueryParam, retrieveTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.deviceName))
+                .distinct(true))
+                .getResultList();
     }
 
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        return createQuery(matchQueueMessage, matchRetrieveTask)
-                .select(QQueueMessage.queueMessage.deviceName)
-                .distinct()
-                .fetch();
+    public List<String> listRetrieveTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
+        return em.createQuery(createQuery(queueTaskQueryParam, retrieveTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.messageID)))
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     public List<RetrieveBatch> listRetrieveBatches(

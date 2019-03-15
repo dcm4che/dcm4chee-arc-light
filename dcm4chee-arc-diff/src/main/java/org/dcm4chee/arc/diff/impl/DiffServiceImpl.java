@@ -192,8 +192,14 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
-        return ejb.listDiffTaskQueueMsgIDs(matchQueueMessage, matchDiffTask, limit);
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return ejb.listDistinctDeviceNames(queueTaskQueryParam, diffTaskQueryParam);
+    }
+
+    @Override
+    public List<String> listDiffTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
+        return ejb.listDiffTaskQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam, limit);
     }
 
     @Override
@@ -209,11 +215,6 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize) {
         return ejb.deleteTasks(matchQueueMessage, matchDiffTask, deleteTasksFetchSize);
-    }
-
-    @Override
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        return ejb.listDistinctDeviceNames(matchQueueMessage, matchDiffTask);
     }
 
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {

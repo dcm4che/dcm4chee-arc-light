@@ -175,7 +175,10 @@ public class DiffTaskRS {
             return Response.ok(
                     output.entity(
                             diffService.listDiffTasks(
-                                    queueTaskQueryParam(), diffTaskQueryParam(), parseInt(offset), parseInt(limit))),
+                                    queueTaskQueryParam(deviceName),
+                                    diffTaskQueryParam(updatedTime),
+                                    parseInt(offset),
+                                    parseInt(limit))),
                     output.type)
                     .build();
         } catch (Exception e) {
@@ -190,7 +193,9 @@ public class DiffTaskRS {
     public Response countDiffTasks() {
         logRequest();
         try {
-            return count(diffService.countTasks(queueTaskQueryParam(), diffTaskQueryParam()));
+            return count(diffService.countTasks(
+                    queueTaskQueryParam(deviceName),
+                    diffTaskQueryParam(updatedTime)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -302,29 +307,32 @@ public class DiffTaskRS {
             if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            Predicate matchDiffTask = matchDiffTask(updatedTime);
+            TaskQueryParam diffTaskQueryParam = diffTaskQueryParam(updatedTime);
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(status, matchDiffTask)
-                    : rescheduleTasks(matchQueueMessage(status, devName, null), matchDiffTask));
+                    ? rescheduleOnDistinctDevices(diffTaskQueryParam)
+                    : rescheduleTasks(
+                            queueTaskQueryParam(devName),
+                            diffTaskQueryParam));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(QueueMessage.Status status, Predicate matchDiffTask) throws Exception {
+    private int rescheduleOnDistinctDevices(TaskQueryParam diffTaskQueryParam) throws Exception {
         List<String> distinctDeviceNames = diffService.listDistinctDeviceNames(
-                matchQueueMessage(status, null, null),
-                matchDiffTask);
+                                                        queueTaskQueryParam(null), diffTaskQueryParam);
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(matchQueueMessage(status, devName, null), matchDiffTask)
+                    ? rescheduleTasks(
+                        queueTaskQueryParam(devName),
+                        diffTaskQueryParam)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
         return count;
     }
 
-    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
@@ -332,7 +340,9 @@ public class DiffTaskRS {
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             do {
                 List<String> diffTaskQueueMsgIDs = diffService.listDiffTaskQueueMsgIDs(
-                        matchQueueMessage, matchDiffTask, rescheduleTasksFetchSize);
+                                                                queueTaskQueryParam,
+                                                                diffTaskQueryParam,
+                                                                rescheduleTasksFetchSize);
                 for (String diffTaskQueueMsgID : diffTaskQueueMsgIDs)
                     diffService.rescheduleDiffTask(diffTaskQueueMsgID);
                 count = diffTaskQueueMsgIDs.size();
@@ -550,7 +560,7 @@ public class DiffTaskRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
-    private TaskQueryParam queueTaskQueryParam() {
+    private TaskQueryParam queueTaskQueryParam(String deviceName) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status());
         taskQueryParam.setDeviceName(deviceName);
@@ -558,7 +568,7 @@ public class DiffTaskRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam diffTaskQueryParam() {
+    private TaskQueryParam diffTaskQueryParam(String updatedTime) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setPrimaryAET(primaryAET);

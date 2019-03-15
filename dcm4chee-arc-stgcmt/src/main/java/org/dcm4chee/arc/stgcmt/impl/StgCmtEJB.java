@@ -43,7 +43,6 @@ package org.dcm4chee.arc.stgcmt.impl;
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
@@ -62,7 +61,6 @@ import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.hibernate.Session;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -317,13 +315,13 @@ public class StgCmtEJB {
                 .executeUpdate();
     }
 
-    private HibernateQuery<StorageVerificationTask> createQuery(Predicate matchQueueMessage, Predicate matchStgVerTask) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        return new HibernateQuery<StorageVerificationTask>(em.unwrap(Session.class))
-                .from(QStorageVerificationTask.storageVerificationTask)
-                .where(matchStgVerTask, QStorageVerificationTask.storageVerificationTask.queueMessage.in(queueMsgQuery));
+    private CriteriaQuery<String> createQuery(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        return restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q);
     }
 
     public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
@@ -368,18 +366,19 @@ public class StgCmtEJB {
         queueManager.rescheduleTask(stgVerTaskQueueMsgId, StgCmtManager.QUEUE_NAME, queueEvent);
     }
 
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask) {
-        return createQuery(matchQueueMessage, matchStgVerTask)
-                .select(QQueueMessage.queueMessage.deviceName)
-                .distinct()
-                .fetch();
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return em.createQuery(createQuery(queueTaskQueryParam, stgVerTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.deviceName))
+                .distinct(true))
+                .getResultList();
     }
 
-    public List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchStgVerTask, int limit) {
-        return createQuery(matchQueueMsg, matchStgVerTask)
-                .select(QQueueMessage.queueMessage.messageID)
-                .limit(limit)
-                .fetch();
+    public List<String> listStgVerTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
+        return em.createQuery(createQuery(queueTaskQueryParam, stgVerTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.messageID)))
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     public boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent) {

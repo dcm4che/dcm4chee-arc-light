@@ -188,11 +188,28 @@ public class DiffServiceEJB {
         return referencedQueueMsgIDs.size();
     }
 
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        return createQuery(matchQueueMessage, matchDiffTask)
-                .select(QQueueMessage.queueMessage.deviceName)
-                .distinct()
-                .fetch();
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return em.createQuery(createQuery(queueTaskQueryParam, diffTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.deviceName))
+                .distinct(true))
+                .getResultList();
+    }
+
+    public List<String> listDiffTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
+        return em.createQuery(createQuery(queueTaskQueryParam, diffTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.messageID)))
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    private CriteriaQuery<String> createQuery(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage);
+        return restrict(queueTaskQueryParam, diffTaskQueryParam, matchTask, q);
     }
 
     public long diffTasksOfBatch(String batchID) {
@@ -231,13 +248,6 @@ public class DiffServiceEJB {
 
     public void rescheduleDiffTask(String msgId, QueueMessageEvent queueEvent) {
         queueManager.rescheduleTask(msgId, DiffService.QUEUE_NAME, queueEvent);
-    }
-
-    public List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchDiffTask, int limit) {
-        return createQuery(matchQueueMsg, matchDiffTask)
-                .select(QQueueMessage.queueMessage.messageID)
-                .limit(limit)
-                .fetch();
     }
 
     public String findDeviceNameByPk(Long pk) {

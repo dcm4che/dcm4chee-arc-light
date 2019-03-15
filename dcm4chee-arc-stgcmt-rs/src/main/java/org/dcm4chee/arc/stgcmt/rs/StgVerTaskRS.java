@@ -155,7 +155,10 @@ public class StgVerTaskRS {
             return Response.ok(
                     output.entity(
                             stgCmtMgr.listStgVerTasks(
-                                    queueTaskQueryParam(), stgVerTaskQueryParam(), parseInt(offset), parseInt(limit))),
+                                    queueTaskQueryParam(deviceName),
+                                    stgVerTaskQueryParam(updatedTime),
+                                    parseInt(offset),
+                                    parseInt(limit))),
                     output.type)
                     .build();
         } catch (Exception e) {
@@ -170,7 +173,9 @@ public class StgVerTaskRS {
     public Response countStgVerTasks() {
         logRequest();
         try {
-            return count(stgCmtMgr.countTasks(queueTaskQueryParam(), stgVerTaskQueryParam()));
+            return count(stgCmtMgr.countTasks(
+                    queueTaskQueryParam(deviceName),
+                    stgVerTaskQueryParam(updatedTime)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -260,35 +265,41 @@ public class StgVerTaskRS {
             if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            Predicate matchStgVerTask = matchStgVerTask(updatedTime);
+            TaskQueryParam stgVerTaskQueryParam = stgVerTaskQueryParam(updatedTime);
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(status, matchStgVerTask)
-                    : rescheduleTasks(matchQueueMessage(status, devName, null), matchStgVerTask));
+                    ? rescheduleOnDistinctDevices(stgVerTaskQueryParam)
+                    : rescheduleTasks(
+                            queueTaskQueryParam(devName),
+                            stgVerTaskQueryParam));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(QueueMessage.Status status, Predicate matchStgVerTask) throws Exception {
+    private int rescheduleOnDistinctDevices(TaskQueryParam stgVerTaskQueryParam) throws Exception {
         List<String> distinctDeviceNames = stgCmtMgr.listDistinctDeviceNames(
-                matchQueueMessage(status, null, null),
-                matchStgVerTask);
+                                                        queueTaskQueryParam(null), stgVerTaskQueryParam);
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(matchQueueMessage(status, devName, null), matchStgVerTask)
+                    ? rescheduleTasks(
+                            queueTaskQueryParam(devName),
+                            stgVerTaskQueryParam)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
         return count;
     }
 
-    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
             int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             do {
-                List<String> stgVerTaskQueueMsgIDs = stgCmtMgr.listStgVerTaskQueueMsgIDs(matchQueueMessage, matchStgVerTask, rescheduleTasksFetchSize);
+                List<String> stgVerTaskQueueMsgIDs = stgCmtMgr.listStgVerTaskQueueMsgIDs(
+                                                                queueTaskQueryParam,
+                                                                stgVerTaskQueryParam,
+                                                                rescheduleTasksFetchSize);
                 for (String stgVerTaskQueueMsgID : stgVerTaskQueueMsgIDs)
                     stgCmtMgr.rescheduleStgVerTask(stgVerTaskQueueMsgID);
                 count = stgVerTaskQueueMsgIDs.size();
@@ -329,7 +340,10 @@ public class StgVerTaskRS {
             int count;
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
-                count = stgCmtMgr.deleteTasks(queueTaskQueryParam(), stgVerTaskQueryParam(), deleteTasksFetchSize);
+                count = stgCmtMgr.deleteTasks(
+                        queueTaskQueryParam(deviceName),
+                        stgVerTaskQueryParam(updatedTime),
+                        deleteTasksFetchSize);
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
@@ -486,15 +500,15 @@ public class StgVerTaskRS {
                 request.getRemoteUser(), request.getRemoteHost());
     }
 
-    private TaskQueryParam queueTaskQueryParam() {
+    private TaskQueryParam queueTaskQueryParam(String deviceName) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status());
+        taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setBatchID(batchID);
         return taskQueryParam;
     }
 
-    private TaskQueryParam stgVerTaskQueryParam() {
+    private TaskQueryParam stgVerTaskQueryParam(String updatedTime) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);

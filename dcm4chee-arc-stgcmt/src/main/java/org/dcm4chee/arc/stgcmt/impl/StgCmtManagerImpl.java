@@ -181,7 +181,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
+    public boolean scheduleStgVerTask(
+            StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
         return ejb.scheduleStgVerTask(storageVerificationTask, httpServletRequestInfo, batchID);
     }
@@ -213,13 +214,14 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask) {
-        return ejb.listDistinctDeviceNames(matchQueueMessage, matchStgVerTask);
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return ejb.listDistinctDeviceNames(queueTaskQueryParam, diffTaskQueryParam);
     }
 
     @Override
-    public List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask, int limit) {
-        return ejb.listStgVerTaskQueueMsgIDs(matchQueueMessage, matchStgVerTask, limit);
+    public List<String> listStgVerTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
+        return ejb.listStgVerTaskQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam, limit);
     }
 
     @Override

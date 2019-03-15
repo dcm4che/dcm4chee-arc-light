@@ -305,7 +305,7 @@ public class ExportTaskRS {
     }
 
     private int rescheduleOnDistinctDevices(ExporterDescriptor newExporter) throws Exception {
-        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchExportTask(null, updatedTime));
+        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(exportTaskQueryParam(null));
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())

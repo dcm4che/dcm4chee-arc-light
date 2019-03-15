@@ -88,7 +88,7 @@ public interface ExportManager {
 
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
 
-    List<String> listDistinctDeviceNames(Predicate matchExportTask);
+    List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam);
 
     List<ExportBatch> listExportBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, int offset, int limit);

@@ -98,9 +98,10 @@ public interface StgCmtManager {
 
     void rescheduleStgVerTask(String stgVerTaskQueueMsgId);
 
-    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchStgVerTask);
+    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
-    List<String> listStgVerTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask, int limit);
+    List<String> listStgVerTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
 
     boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent);
 

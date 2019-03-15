@@ -188,19 +188,20 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        return ejb.listDistinctDeviceNames(matchQueueMessage, matchRetrieveTask);
-    }
-
-    @Override
     public List<RetrieveBatch> listRetrieveBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit) {
         return ejb.listRetrieveBatches(queueBatchQueryParam, retrieveBatchQueryParam, offset, limit);
     }
 
     @Override
-    public List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
-        return ejb.listRetrieveTaskQueueMsgIDs(matchQueueMessage, matchRetrieveTask, limit);
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return ejb.listDistinctDeviceNames(queueTaskQueryParam, retrieveTaskQueryParam);
+    }
+
+    @Override
+    public List<String> listRetrieveTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
+        return ejb.listRetrieveTaskQueueMsgIDs(queueTaskQueryParam, retrieveTaskQueryParam, limit);
     }
 
     @Override

@@ -93,9 +93,10 @@ public interface DiffService {
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize);
 
-    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask);
+    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
-    List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
+    List<String> listDiffTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 

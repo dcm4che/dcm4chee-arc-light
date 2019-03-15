@@ -43,7 +43,6 @@ package org.dcm4chee.arc.export.mgt.impl;
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
@@ -61,7 +60,6 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.hibernate.Session;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,10 +288,15 @@ public class ExportManagerEJB implements ExportManager {
         return msg;
     }
 
-    private HibernateQuery<ExportTask> exportTaskQuery(Predicate matchExportTask) {
-        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .from(QExportTask.exportTask)
-                .where(matchExportTask);
+    private CriteriaQuery<String> exportTaskQuery(TaskQueryParam exportTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        exportTask = q.from(ExportTask.class);
+        List<javax.persistence.criteria.Predicate> predicates = predicates(exportTaskQueryParam, matchTask);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q;
     }
 
     @Override
@@ -365,11 +368,11 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(Predicate matchExportTask) {
-        return exportTaskQuery(matchExportTask)
-                .select(QExportTask.exportTask.deviceName)
-                .distinct()
-                .fetch();
+    public List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam) {
+        return em.createQuery(exportTaskQuery(exportTaskQueryParam)
+                .select(exportTask.get(ExportTask_.deviceName))
+                .distinct(true))
+                .getResultList();
     }
     
     @Override
