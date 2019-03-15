@@ -95,11 +95,12 @@ public interface QueueManager {
 
     int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize);
 
-    List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
-
     Iterator<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit);
 
     long countTasks(TaskQueryParam taskQueryParam);
 
-    List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit);
+    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam);
+
+    List<String> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit);
+
 }

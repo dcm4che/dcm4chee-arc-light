@@ -53,6 +53,11 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Sep 2015
+ */
 @ApplicationScoped
 public class QueueManagerImpl implements QueueManager {
 
@@ -208,17 +213,17 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
-        return ejb.listDistinctDeviceNames(matchQueueMessage);
-    }
-
-    @Override
     public Iterator<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit) {
         return ejb.listQueueMessages(taskQueryParam, offset, limit);
     }
 
     @Override
-    public List<String> listQueueMsgIDs(Predicate matchQueueMessage, int limit) {
-        return ejb.getQueueMsgIDs(matchQueueMessage, limit);
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam) {
+        return ejb.listDistinctDeviceNames(queueTaskQueryParam);
+    }
+
+    @Override
+    public List<String> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
+        return ejb.getQueueMsgIDs(queueTaskQueryParam, limit);
     }
 }

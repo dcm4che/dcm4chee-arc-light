@@ -470,6 +470,14 @@ public class QueueManagerEJB {
                 .where(matchQueueMessage);
     }
 
+    private CriteriaQuery<String> createQuery(TaskQueryParam queueTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        queueMsg = q.from(QueueMessage.class);
+        return restrict(queueTaskQueryParam, matchTask, q);
+    }
+
     public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
         HibernateQuery<String> queueMsgIDsQuery = createQuery(matchQueueMessage)
                 .select(QQueueMessage.queueMessage.messageID);
@@ -478,11 +486,18 @@ public class QueueManagerEJB {
         return queueMsgIDsQuery.fetch();
     }
 
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
-        return createQuery(matchQueueMessage)
-                .select(QQueueMessage.queueMessage.deviceName)
-                .distinct()
-                .fetch();
+    public List<String> getQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
+        return em.createQuery(createQuery(queueTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.messageID)))
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam) {
+        return em.createQuery(createQuery(queueTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.deviceName))
+                .distinct(true))
+                .getResultList();
     }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {

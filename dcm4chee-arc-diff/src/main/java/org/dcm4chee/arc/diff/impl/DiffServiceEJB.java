@@ -290,19 +290,19 @@ public class DiffServiceEJB {
         diffTask = q.from(DiffTask.class);
         queueMsg = diffTask.join(DiffTask_.queueMessage);
 
-        TypedQuery<DiffTask> query = em.createQuery(restrictBatch(queueBatchQueryParam, diffBatchQueryParam, matchTask, q));
+        CriteriaQuery<AttributesBlob> q1 = cb.createQuery(AttributesBlob.class);
+        Root<DiffTaskAttributes> diffTaskAttrs = q1.from(DiffTaskAttributes.class);
+        TypedQuery<AttributesBlob> query = em.createQuery(q1
+                .where(diffTaskAttrs.get(DiffTaskAttributes_.diffTask)
+                        .in(em.createQuery(restrictBatch(queueBatchQueryParam, diffBatchQueryParam, matchTask, q))
+                                .getResultList()))
+                //.select(diffTask.join(DiffTask_.diffTaskAttributes).get(DiffTaskAttributes_.attributesBlob))
+                .select(diffTaskAttrs.get(DiffTaskAttributes_.attributesBlob)));
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
             query.setMaxResults(limit);
-
-        CriteriaQuery<AttributesBlob> q1 = cb.createQuery(AttributesBlob.class);
-        Root<DiffTaskAttributes> diffTaskAttrs = q1.from(DiffTaskAttributes.class);
-        return em.createQuery(q1
-                //.where(diffTaskAttrs.get(DiffTaskAttributes_.diffTask).in(query))
-                //.select(diffTask.join(DiffTask_.diffTaskAttributes).get(DiffTaskAttributes_.attributesBlob))
-                .select(diffTaskAttrs.get(DiffTaskAttributes_.attributesBlob)))
-            .getResultList();
+        return query.getResultList();
     }
 
     public List<DiffBatch> listDiffBatches(

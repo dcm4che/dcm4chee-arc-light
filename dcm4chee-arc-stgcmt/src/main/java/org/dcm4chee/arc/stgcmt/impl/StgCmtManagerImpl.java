@@ -214,14 +214,14 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(queueTaskQueryParam, diffTaskQueryParam);
+    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return ejb.listDistinctDeviceNames(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 
     @Override
     public List<String> listStgVerTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        return ejb.listStgVerTaskQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam, limit);
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
+        return ejb.listStgVerTaskQueueMsgIDs(queueTaskQueryParam, stgVerTaskQueryParam, limit);
     }
 
     @Override
@@ -231,8 +231,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
 
     @Override
     public int deleteTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(queueTaskQueryParam, stgVerTaskQueryParam, deleteTasksFetchSize);
     }
 
     @Override
@@ -598,12 +598,12 @@ public class StgCmtManagerImpl implements StgCmtManager {
 
     @Override
     public Iterator<StorageVerificationTask> listStgVerTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
-        return ejb.listStgVerTasks(queueTaskQueryParam, retrieveTaskQueryParam, offset, limit);
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit) {
+        return ejb.listStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam, offset, limit);
     }
 
     @Override
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, retrieveTaskQueryParam);
+    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return ejb.countTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 }
