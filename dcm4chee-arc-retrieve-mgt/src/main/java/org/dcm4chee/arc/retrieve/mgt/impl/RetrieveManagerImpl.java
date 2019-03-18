@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
@@ -162,9 +161,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
             throws IllegalTaskStateException {
-        return ejb.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
+        return ejb.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 
     @Override

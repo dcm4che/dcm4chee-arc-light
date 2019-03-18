@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -51,7 +50,6 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.rs.client.RSClient;
@@ -161,7 +159,7 @@ public class RetrieveTaskRS {
 
         try {
             return Response.ok(output.entity(mgr.listRetrieveTasks(
-                                    queueTaskQueryParam(deviceName),
+                                    queueTaskQueryParam(deviceName, status()),
                                     retrieveTaskQueryParam(updatedTime),
                                     parseInt(offset),
                                     parseInt(limit))),
@@ -181,7 +179,7 @@ public class RetrieveTaskRS {
         logRequest();
         try {
             return count(mgr.countTasks(
-                    queueTaskQueryParam(deviceName),
+                    queueTaskQueryParam(deviceName, status()),
                     retrieveTaskQueryParam(updatedTime)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -219,10 +217,9 @@ public class RetrieveTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
-            long count = mgr.cancelRetrieveTasks(
-                    matchQueueMessage(status, deviceName, updatedTime),
-                    matchRetrieveTask(null),
-                    status);
+            TaskQueryParam queueTaskQueryParam = queueTaskQueryParam(deviceName, status);
+            queueTaskQueryParam.setUpdatedTime(updatedTime);
+            long count = mgr.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam(null));
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException e) {
@@ -274,24 +271,24 @@ public class RetrieveTaskRS {
 
             TaskQueryParam retrieveTaskQueryParam = retrieveTaskQueryParam(updatedTime);
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(retrieveTaskQueryParam)
+                    ? rescheduleOnDistinctDevices(retrieveTaskQueryParam, status)
                     : rescheduleTasks(
-                            queueTaskQueryParam(devName),
+                            queueTaskQueryParam(devName, status),
                             retrieveTaskQueryParam));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(TaskQueryParam retrieveTaskQueryParam)
+    private int rescheduleOnDistinctDevices(TaskQueryParam retrieveTaskQueryParam, QueueMessage.Status status)
             throws Exception {
         List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(
-                                                    queueTaskQueryParam(null), retrieveTaskQueryParam);
+                                                    queueTaskQueryParam(null, status), retrieveTaskQueryParam);
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
                     ? rescheduleTasks(
-                            queueTaskQueryParam(devName),
+                            queueTaskQueryParam(devName, status),
                             retrieveTaskQueryParam)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
         return count;
@@ -349,7 +346,7 @@ public class RetrieveTaskRS {
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
                 count = mgr.deleteTasks(
-                        queueTaskQueryParam(deviceName),
+                        queueTaskQueryParam(deviceName, status()),
                         retrieveTaskQueryParam(updatedTime),
                         deleteTasksFetchSize);
                 deleted += count;
@@ -473,15 +470,6 @@ public class RetrieveTaskRS {
                 .build();
     }
 
-    private Predicate matchRetrieveTask(String updatedTime) {
-        return MatchTask.matchRetrieveTask(localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
-    }
-
-    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime) {
-        return MatchTask.matchQueueMessage(
-                null, devName, status, batchID, null, null, updatedTime, null);
-    }
-
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
@@ -512,9 +500,9 @@ public class RetrieveTaskRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
-    private TaskQueryParam queueTaskQueryParam(String deviceName) {
+    private TaskQueryParam queueTaskQueryParam(String deviceName, QueueMessage.Status status) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
+        taskQueryParam.setStatus(status);
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setBatchID(batchID);
         return taskQueryParam;

@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
-import com.querydsl.jpa.hibernate.HibernateUpdateClause;
+import javax.persistence.criteria.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
@@ -52,7 +49,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.hibernate.Session;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +63,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
@@ -237,141 +234,185 @@ public class QueueManagerEJB {
             entity.getStorageVerificationTask().setUpdatedTime();
     }
 
-    public long cancelTasks(Predicate matchQueueMessage) {
+    public long cancelTasks(TaskQueryParam queueTaskQueryParam) {
         Date now = new Date();
-        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QQueueMessage.queueMessage.pk)
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        updateExportTaskUpdatedTime(queueMessageQuery, now);
-        updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
-        updateDiffTaskUpdatedTime(queueMessageQuery, now);
-        updateStgVerTaskUpdatedTime(queueMessageQuery, now);
-        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+        List<Long> queueMsgPks = em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.pk, Long.class))
+                                    .getResultList();
+
+        updateExportTaskUpdatedTime(queueMsgPks, now);
+        updateRetrieveTaskUpdatedTime(queueMsgPks, now);
+        updateDiffTaskUpdatedTime(queueMsgPks, now);
+        updateStgVerTaskUpdatedTime(queueMsgPks, now);
+        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
     }
 
-    private void updateExportTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
-        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .set(QExportTask.exportTask.updatedTime, now)
-                .where(QExportTask.exportTask.queueMessage.pk.in(queueMessageQuery))
-                .execute();
+    private void updateExportTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
+        CriteriaUpdate<ExportTask> q = em.getCriteriaBuilder().createCriteriaUpdate(ExportTask.class);
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
+        em.createQuery(q.where(exportTask.get(ExportTask_.queueMessage).in(queueMsgPks))
+                .set(exportTask.get(ExportTask_.updatedTime), now)).executeUpdate();
     }
 
-    private void updateRetrieveTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
-        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .set(QRetrieveTask.retrieveTask.updatedTime, now)
-                .where(QRetrieveTask.retrieveTask.queueMessage.pk.in(queueMessageQuery))
-                .execute();
+    private void updateRetrieveTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
+        CriteriaUpdate<RetrieveTask> q = em.getCriteriaBuilder().createCriteriaUpdate(RetrieveTask.class);
+        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
+        em.createQuery(q.where(retrieveTask.get(RetrieveTask_.queueMessage).in(queueMsgPks))
+                .set(retrieveTask.get(RetrieveTask_.updatedTime), now)).executeUpdate();
     }
 
-    private void updateDiffTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
-        new HibernateUpdateClause(em.unwrap(Session.class), QDiffTask.diffTask)
-                .set(QDiffTask.diffTask.updatedTime, now)
-                .where(QDiffTask.diffTask.queueMessage.pk.in(queueMessageQuery))
-                .execute();
+    private void updateDiffTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
+        CriteriaUpdate<DiffTask> q = em.getCriteriaBuilder().createCriteriaUpdate(DiffTask.class);
+        Root<DiffTask> diffTask = q.from(DiffTask.class);
+        em.createQuery(q.where(diffTask.get(DiffTask_.queueMessage).in(queueMsgPks))
+                .set(diffTask.get(DiffTask_.updatedTime), now)).executeUpdate();
     }
 
-    private void updateStgVerTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
-        new HibernateUpdateClause(em.unwrap(Session.class), QStorageVerificationTask.storageVerificationTask)
-                .set(QStorageVerificationTask.storageVerificationTask.updatedTime, now)
-                .where(QStorageVerificationTask.storageVerificationTask.queueMessage.pk.in(queueMessageQuery))
-                .execute();
+    private void updateStgVerTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
+        CriteriaUpdate<StorageVerificationTask> q = em.getCriteriaBuilder().createCriteriaUpdate(StorageVerificationTask.class);
+        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
+        em.createQuery(q.where(stgVerTask.get(StorageVerificationTask_.queueMessage).in(queueMsgPks))
+                .set(stgVerTask.get(StorageVerificationTask_.updatedTime), now)).executeUpdate();
+    }
+    
+    private long updateStatus(List<Long> queueMsgPks, QueueMessage.Status status, Date now) {
+        CriteriaUpdate<QueueMessage> q = em.getCriteriaBuilder().createCriteriaUpdate(QueueMessage.class);
+        Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
+        return em.createQuery(q.where(queueMsg.get(QueueMessage_.pk).in(queueMsgPks))
+                .set(queueMsg.get(QueueMessage_.updatedTime), now)
+                .set(queueMsg.get(QueueMessage_.status), status))
+                .executeUpdate();
     }
 
-    private long updateStatus(HibernateQuery<Long> queueMessageQuery, QueueMessage.Status status, Date now) {
-        return new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .set(QQueueMessage.queueMessage.status, status)
-                .set(QQueueMessage.queueMessage.updatedTime, now)
-                .where(QQueueMessage.queueMessage.pk.in(queueMessageQuery))
-                .execute();
-    }
-
-    public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
+    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
         Date now = new Date();
-        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QExportTask.exportTask.queueMessage.pk)
-                .from(QExportTask.exportTask)
-                .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchExportTask);
-        updateExportTaskUpdatedTime(queueMessageQuery, now);
-        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+        List<Long> queueMsgPks = em.createQuery(retrieveTaskQuery(
+                queueTaskQueryParam, retrieveTaskQueryParam, QueueMessage_.pk, Long.class))
+                .getResultList();
+
+        updateRetrieveTaskUpdatedTime(queueMsgPks, now);
+        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
     }
 
-    public List<String> getExportTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchExportTask) {
-        return new HibernateQuery<String>(em.unwrap(Session.class))
-                .select(QExportTask.exportTask.queueMessage.messageID)
-                .from(QExportTask.exportTask)
-                .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchExportTask)
-                .fetch();
-    }
-
-    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         Date now = new Date();
-        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QRetrieveTask.retrieveTask.queueMessage.pk)
-                .from(QRetrieveTask.retrieveTask)
-                .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchRetrieveTask);
-        updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
-        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+        List<Long> queueMsgPks = em.createQuery(stgVerTaskQuery(
+                queueTaskQueryParam, stgVerTaskQueryParam, QueueMessage_.pk, Long.class))
+                .getResultList();
+        updateStgVerTaskUpdatedTime(queueMsgPks, now);
+        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
     }
 
-    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         Date now = new Date();
-        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QDiffTask.diffTask.queueMessage.pk)
-                .from(QDiffTask.diffTask)
-                .join(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchDiffTask);
-        updateDiffTaskUpdatedTime(queueMessageQuery, now);
-        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+        List<Long> queueMsgPks = em.createQuery(diffTaskQuery(
+                queueTaskQueryParam, diffTaskQueryParam, QueueMessage_.pk, Long.class))
+                .getResultList();
+        updateDiffTaskUpdatedTime(queueMsgPks, now);
+        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
     }
 
-    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask) {
+    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
         Date now = new Date();
-        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.pk)
-                .from(QStorageVerificationTask.storageVerificationTask)
-                .join(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchStgVerTask);
-        updateStgVerTaskUpdatedTime(queueMessageQuery, now);
-        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+        List<Long> queueMsgPks = em.createQuery(exportTaskQuery(
+                                        queueTaskQueryParam, exportTaskQueryParam, QueueMessage_.pk, Long.class))
+                                    .getResultList();
+        updateExportTaskUpdatedTime(queueMsgPks, now);
+        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
     }
 
-    public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        return new HibernateQuery<String>(em.unwrap(Session.class))
-                .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
-                .from(QRetrieveTask.retrieveTask)
-                .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchRetrieveTask)
-                .fetch();
+    private <T> CriteriaQuery<T> exportTaskQuery(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam,
+            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
+        Join<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+
+        List<Predicate> predicates = matchTask.exportPredicates(
+                queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
+        return q.select(queueMsg.get(attribute));
     }
 
-    public List<String> getDiffTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        return new HibernateQuery<String>(em.unwrap(Session.class))
-                .select(QDiffTask.diffTask.queueMessage.messageID)
-                .from(QDiffTask.diffTask)
-                .join(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchDiffTask)
-                .fetch();
+    private <T> CriteriaQuery<T> retrieveTaskQuery(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
+            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
+        Join<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+
+        List<Predicate> predicates = matchTask.retrievePredicates(
+                queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
+        return q.select(queueMsg.get(attribute));
     }
 
-    public List<String> getStgVerTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchStgVerTask) {
-        return new HibernateQuery<String>(em.unwrap(Session.class))
-                .select(QStorageVerificationTask.storageVerificationTask.queueMessage.messageID)
-                .from(QStorageVerificationTask.storageVerificationTask)
-                .join(QStorageVerificationTask.storageVerificationTask.queueMessage, QQueueMessage.queueMessage)
-                .on(matchQueueMessage)
-                .where(matchStgVerTask)
-                .fetch();
+    private <T> CriteriaQuery<T> diffTaskQuery(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam,
+            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        Root<DiffTask> diffTask = q.from(DiffTask.class);
+        Join<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
+
+        List<Predicate> predicates = matchTask.diffPredicates(
+                queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q.select(queueMsg.get(attribute));
+    }
+
+    private <T> CriteriaQuery<T> stgVerTaskQuery(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam,
+            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<T> q = cb.createQuery(clazz);
+        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
+        Join<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+
+        List<Predicate> predicates = matchTask.stgVerPredicates(
+                queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
+        return q.select(queueMsg.get(attribute));
+    }
+
+    public List<String> getRetrieveTasksReferencedQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        return em.createQuery(retrieveTaskQuery(
+                queueTaskQueryParam, retrieveTaskQueryParam, QueueMessage_.messageID, String.class))
+                .getResultList();
+    }
+
+    public List<String> getStgVerTasksReferencedQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        return em.createQuery(stgVerTaskQuery(
+                queueTaskQueryParam, stgVerTaskQueryParam, QueueMessage_.messageID, String.class))
+                .getResultList();
+    }
+
+    public List<String> getDiffTasksReferencedQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        return em.createQuery(diffTaskQuery(
+                queueTaskQueryParam, diffTaskQueryParam, QueueMessage_.messageID, String.class))
+                .getResultList();
+    }
+
+    public List<String> getExportTasksReferencedQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        return em.createQuery(exportTaskQuery(
+                    queueTaskQueryParam, exportTaskQueryParam, QueueMessage_.messageID, String.class))
+                  .getResultList();
     }
 
     public String findDeviceNameByMsgId(String msgId) {
@@ -453,49 +494,23 @@ public class QueueManagerEJB {
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
-    public int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize) {
-        int count = 0;
-        try (CloseableIterator<QueueMessage> iterate = createQuery(matchQueueMessage).limit(deleteTaskFetchSize).iterate()) {
-            while (iterate.hasNext()) {
-                deleteTask(iterate.next());
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
-        return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-    }
-
-    private CriteriaQuery<String> createQuery(TaskQueryParam queueTaskQueryParam) {
+    private <T> CriteriaQuery<T> queueMsgQuery(
+            TaskQueryParam queueTaskQueryParam, SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<String> q = cb.createQuery(String.class);
+        CriteriaQuery<T> q = cb.createQuery(clazz);
         queueMsg = q.from(QueueMessage.class);
-        return restrict(queueTaskQueryParam, matchTask, q);
-    }
-
-    public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
-        HibernateQuery<String> queueMsgIDsQuery = createQuery(matchQueueMessage)
-                .select(QQueueMessage.queueMessage.messageID);
-        if (limit > 0)
-            queueMsgIDsQuery.limit(limit);
-        return queueMsgIDsQuery.fetch();
+        return restrict(queueTaskQueryParam, matchTask, q).select(queueMsg.get(attribute));
     }
 
     public List<String> getQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
-        return em.createQuery(createQuery(queueTaskQueryParam)
-                .select(queueMsg.get(QueueMessage_.messageID)))
+        return em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.messageID, String.class))
                 .setMaxResults(limit)
                 .getResultList();
     }
 
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam) {
-        return em.createQuery(createQuery(queueTaskQueryParam)
-                .select(queueMsg.get(QueueMessage_.deviceName))
+        return em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.deviceName, String.class)
                 .distinct(true))
                 .getResultList();
     }
@@ -560,11 +575,11 @@ public class QueueManagerEJB {
 
     private <T> CriteriaQuery<T> restrict(
             TaskQueryParam queueTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.queueMsgPredicates(
+        List<Predicate> predicates = matchTask.queueMsgPredicates(
                 queueMsg,
                 queueTaskQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 

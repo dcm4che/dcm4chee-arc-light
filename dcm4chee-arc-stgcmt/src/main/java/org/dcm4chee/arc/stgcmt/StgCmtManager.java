@@ -40,11 +40,9 @@
 
 package org.dcm4chee.arc.stgcmt;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -85,11 +83,12 @@ public interface StgCmtManager {
                                String batchID)
             throws QueueSizeLimitExceededException;
 
-    Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo) throws IOException;
+    Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
+            throws IOException;
 
     boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
+    long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
             throws IllegalTaskStateException;
 
     String findDeviceNameByPk(Long pk);

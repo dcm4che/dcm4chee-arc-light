@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qmgt;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -71,18 +70,18 @@ public interface QueueManager {
 
     boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelTasks(Predicate matchQueueMessage, QueueMessage.Status prev) throws IllegalTaskStateException;
+    long cancelTasks(TaskQueryParam queueTaskQueryParam) throws IllegalTaskStateException;
 
-    long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+    long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
             throws IllegalTaskStateException;
 
-    long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prevStatus)
+    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
             throws IllegalTaskStateException;
 
-    long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prevStatus)
+    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
             throws IllegalTaskStateException;
 
-    long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prevStatus)
+    long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
             throws IllegalTaskStateException;
 
     String findDeviceNameByMsgId(String msgId);
@@ -90,8 +89,6 @@ public interface QueueManager {
     void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
-
-    int deleteTasks(Predicate matchQueueMessage, int deleteTaskFetchSize);
 
     int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize);
 

@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -68,7 +67,7 @@ public interface RetrieveManager {
 
     boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+    long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
             throws IllegalTaskStateException;
 
     String findDeviceNameByPk(Long pk);

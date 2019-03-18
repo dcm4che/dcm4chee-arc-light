@@ -39,7 +39,6 @@
  */
 package org.dcm4chee.arc.export.rs;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -52,7 +51,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -160,7 +158,10 @@ public class ExportTaskRS {
             return Response.ok(
                     output.entity(
                             mgr.listExportTasks(
-                                    queueTaskQueryParam(), exportTaskQueryParam(deviceName), parseInt(offset), parseInt(limit)),
+                                    queueTaskQueryParam(status),
+                                    exportTaskQueryParam(deviceName, updatedTime),
+                                    parseInt(offset),
+                                    parseInt(limit)),
                             arcDev()),
                     output.type)
                     .build();
@@ -180,7 +181,8 @@ public class ExportTaskRS {
             return count(0);
 
         try {
-            return count(mgr.countTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName)));
+            return count(mgr.countTasks(queueTaskQueryParam(status),
+                    exportTaskQueryParam(deviceName, updatedTime)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -218,11 +220,9 @@ public class ExportTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
-            long count = mgr.cancelExportTasks(
-                    MatchTask.matchQueueMessage(null, null, status, batchID, null,
-                             null, updatedTime, null),
-                    matchExportTask(deviceName, null),
-                    status);
+            TaskQueryParam queueTaskQueryParam = queueTaskQueryParam(status);
+            queueTaskQueryParam.setUpdatedTime(updatedTime);
+            long count = mgr.cancelExportTasks(queueTaskQueryParam, exportTaskQueryParam(deviceName, null));
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException e) {
@@ -297,30 +297,30 @@ public class ExportTaskRS {
                 return rsClient.forward(request, devName, "");
 
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(newExporter)
-                    : rescheduleTasks(newExporter, exportTaskQueryParam(devName)));
+                    ? rescheduleOnDistinctDevices(newExporter, status)
+                    : rescheduleTasks(newExporter, devName, status));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(ExporterDescriptor newExporter) throws Exception {
-        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(exportTaskQueryParam(null));
+    private int rescheduleOnDistinctDevices(ExporterDescriptor newExporter, QueueMessage.Status status) throws Exception {
+        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(exportTaskQueryParam(null, updatedTime));
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(newExporter, exportTaskQueryParam(devName))
+                    ? rescheduleTasks(newExporter, devName, status)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
         return count;
     }
 
-    private int rescheduleTasks(ExporterDescriptor newExporter, TaskQueryParam exportTaskQueryParam) {
+    private int rescheduleTasks(ExporterDescriptor newExporter, String devName, QueueMessage.Status status) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count = 0;
             Iterator<ExportTask> exportTasks = mgr.listExportTasks(
-                    queueTaskQueryParam(), exportTaskQueryParam, 0, 0);
+                    queueTaskQueryParam(status), exportTaskQueryParam(devName, updatedTime), 0, 0);
             while (exportTasks.hasNext()) {
                 ExportTask task = exportTasks.next();
                 mgr.rescheduleExportTask(
@@ -369,7 +369,9 @@ public class ExportTaskRS {
             int count;
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
-                count = mgr.deleteTasks(queueTaskQueryParam(), exportTaskQueryParam(deviceName), deleteTasksFetchSize);
+                count = mgr.deleteTasks(queueTaskQueryParam(status),
+                        exportTaskQueryParam(deviceName, updatedTime),
+                        deleteTasksFetchSize);
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
@@ -497,10 +499,6 @@ public class ExportTaskRS {
         return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
-    private Predicate matchExportTask(String devName, String updatedTime) {
-        return MatchTask.matchExportTask(exporterIDs, devName, studyUID, createdTime, updatedTime);
-    }
-
     private Response notAcceptable() {
         return Response.notAcceptable(
                 Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
@@ -541,18 +539,17 @@ public class ExportTaskRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
-    private TaskQueryParam queueTaskQueryParam() {
+    private TaskQueryParam queueTaskQueryParam(QueueMessage.Status status) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
         return taskQueryParam;
     }
 
-    private TaskQueryParam exportTaskQueryParam(String deviceName) {
+    private TaskQueryParam exportTaskQueryParam(String deviceName, String updatedTime) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setExporterIDs(exporterIDs);
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setStatus(status());
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);

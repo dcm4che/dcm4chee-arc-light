@@ -40,10 +40,8 @@
 
 package org.dcm4chee.arc.export.mgt;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -77,7 +75,7 @@ public interface ExportManager {
 
     boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
             throws IllegalTaskStateException;
 
     String findDeviceNameByPk(Long pk);

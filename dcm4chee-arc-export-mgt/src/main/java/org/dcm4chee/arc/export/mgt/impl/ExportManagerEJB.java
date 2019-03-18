@@ -42,7 +42,6 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
@@ -331,9 +330,9 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
             throws IllegalTaskStateException {
-        return queueManager.cancelExportTasks(matchQueueMessage, matchExportTask, prev);
+        return queueManager.cancelExportTasks(queueTaskQueryParam, exportTaskQueryParam);
     }
 
     @Override
@@ -569,7 +568,7 @@ public class ExportManagerEJB implements ExportManager {
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
         List<javax.persistence.criteria.Predicate> predicates;
 
-        QueueMessage.Status status = exportTaskQueryParam.getStatus();
+        QueueMessage.Status status = queueTaskQueryParam.getStatus();
         if (status == QueueMessage.Status.TO_SCHEDULE) {
             predicates = predicates(exportTaskQueryParam, matchTask);
             predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
@@ -612,7 +611,7 @@ public class ExportManagerEJB implements ExportManager {
 
     public int deleteTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
-        QueueMessage.Status status = exportTaskQueryParam.getStatus();
+        QueueMessage.Status status = queueTaskQueryParam.getStatus();
         if (status == QueueMessage.Status.TO_SCHEDULE)
             return deleteToSchedule(exportTaskQueryParam);
 

@@ -232,9 +232,9 @@ public class DiffServiceEJB {
         return true;
     }
 
-    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
             throws IllegalTaskStateException {
-        return queueManager.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
+        return queueManager.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 
     public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {

@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -50,7 +49,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -196,7 +194,7 @@ public class QueueManagerRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
-            long count = mgr.cancelTasks(matchQueueMessage(status, null), status);
+            long count = mgr.cancelTasks(taskQueryParam(deviceName));
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException e) {
@@ -380,18 +378,6 @@ public class QueueManagerRS {
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
-    }
-
-    private Predicate matchQueueMessage(QueueMessage.Status status, String rescheduleOnDevice) {
-        return MatchTask.matchQueueMessage(
-                queueName,
-                rescheduleOnDevice != null ? rescheduleOnDevice : deviceName,
-                status,
-                batchID,
-                jmsMessageID,
-                createdTime,
-                updatedTime,
-                null);
     }
 
     private static int parseInt(String s) {

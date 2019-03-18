@@ -44,7 +44,6 @@ package org.dcm4chee.arc.diff;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -80,7 +79,7 @@ public interface DiffService {
 
     boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
             throws IllegalTaskStateException;
 
     void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);

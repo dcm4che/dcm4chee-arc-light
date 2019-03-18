@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
@@ -123,63 +122,67 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public long cancelTasks(Predicate matchQueueMessage, QueueMessage.Status prev)
+    public long cancelTasks(TaskQueryParam queueTaskQueryParam)
             throws IllegalTaskStateException {
-        if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getQueueMsgIDs(matchQueueMessage, 0);
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getQueueMsgIDs(queueTaskQueryParam, 0);
             for (String msgID : msgIDs)
                 cancelTask(msgID, null);
             return msgIDs.size();
         }
-        return ejb.cancelTasks(matchQueueMessage);
+        return ejb.cancelTasks(queueTaskQueryParam);
     }
 
     @Override
-    public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+    public long cancelExportTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
             throws IllegalTaskStateException {
-        if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(matchQueueMessage, matchExportTask);
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(queueTaskQueryParam, exportTaskQueryParam);
             for (String msgID : msgIDs)
                 cancelTask(msgID, null);
             return msgIDs.size();
         }
-        return ejb.cancelExportTasks(matchQueueMessage, matchExportTask);
+        return ejb.cancelExportTasks(queueTaskQueryParam, exportTaskQueryParam);
     }
 
     @Override
-    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+    public long cancelRetrieveTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
             throws IllegalTaskStateException {
-        if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(matchQueueMessage, matchRetrieveTask);
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(queueTaskQueryParam, retrieveTaskQueryParam);
             for (String msgID : msgIDs)
                 cancelTask(msgID, null);
             return msgIDs.size();
         }
-        return ejb.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask);
+        return ejb.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 
     @Override
-    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+    public long cancelDiffTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
             throws IllegalTaskStateException {
-        if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getDiffTasksReferencedQueueMsgIDs(matchQueueMessage, matchDiffTask);
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getDiffTasksReferencedQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam);
             for (String msgID : msgIDs)
                 cancelTask(msgID, null);
             return msgIDs.size();
         }
-        return ejb.cancelDiffTasks(matchQueueMessage, matchDiffTask);
+        return ejb.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 
     @Override
-    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
+    public long cancelStgVerTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
             throws IllegalTaskStateException {
-        if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getStgVerTasksReferencedQueueMsgIDs(matchQueueMessage, matchStgVerTask);
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getStgVerTasksReferencedQueueMsgIDs(queueTaskQueryParam, stgVerTaskQueryParam);
             for (String msgID : msgIDs)
                 cancelTask(msgID, null);
             return msgIDs.size();
         }
-        return ejb.cancelStgVerTasks(matchQueueMessage, matchStgVerTask);
+        return ejb.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 
     @Override
@@ -195,11 +198,6 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
         return ejb.deleteTask(msgId, queueEvent);
-    }
-
-    @Override
-    public int deleteTasks(Predicate matchQueueMessage, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(matchQueueMessage, deleteTasksFetchSize);
     }
 
     @Override

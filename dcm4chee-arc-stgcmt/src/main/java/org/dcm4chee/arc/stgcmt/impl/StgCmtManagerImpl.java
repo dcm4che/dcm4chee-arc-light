@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
@@ -193,9 +192,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
+    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
             throws IllegalTaskStateException {
-        return ejb.cancelStgVerTasks(matchQueueMessage, matchStgVerTask, prev);
+        return ejb.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 
     @Override

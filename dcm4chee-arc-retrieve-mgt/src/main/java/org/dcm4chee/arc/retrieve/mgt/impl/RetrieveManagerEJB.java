@@ -39,8 +39,8 @@
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.Tuple;
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
@@ -124,8 +124,8 @@ public class RetrieveManagerEJB {
         retrieveTask = q.from(RetrieveTask.class);
         queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
 
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
-        javax.persistence.criteria.Predicate statusPredicate = queueMsg.get(QueueMessage_.status)
+        List<Predicate> predicates = new ArrayList<>();
+        Predicate statusPredicate = queueMsg.get(QueueMessage_.status)
                 .in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS);
         if (retrievedAfter != null)
             statusPredicate = cb.or(
@@ -153,7 +153,7 @@ public class RetrieveManagerEJB {
         }
 
         Iterator<RetrieveTask> iterator = em.createQuery(q
-                .where(predicates.toArray(new javax.persistence.criteria.Predicate[0]))
+                .where(predicates.toArray(new Predicate[0]))
                 .select(retrieveTask))
                 .getResultStream()
                 .iterator();
@@ -232,10 +232,10 @@ public class RetrieveManagerEJB {
         LOG.info("Cancel {}", task);
         return true;
     }
-    
-    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+
+    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
             throws IllegalTaskStateException {
-        return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
+        return queueManager.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 
     public String findDeviceNameByPk(Long pk) {
@@ -402,13 +402,13 @@ public class RetrieveManagerEJB {
 
     private <T> CriteriaQuery<T> restrictBatch(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.retrieveBatchPredicates(
+        List<Predicate> predicates = matchTask.retrieveBatchPredicates(
                 queueMsg,
                 retrieveTask,
                 queueBatchQueryParam,
                 retrieveBatchQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 
@@ -460,13 +460,13 @@ public class RetrieveManagerEJB {
 
     private <T> CriteriaQuery<T> restrict(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.retrievePredicates(
+        List<Predicate> predicates = matchTask.retrievePredicates(
                 queueMsg,
                 retrieveTask,
                 queueTaskQueryParam,
                 retrieveTaskQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 

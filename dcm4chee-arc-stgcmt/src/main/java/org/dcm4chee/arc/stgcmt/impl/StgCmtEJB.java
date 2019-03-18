@@ -41,8 +41,8 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.Tuple;
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
@@ -196,9 +196,9 @@ public class StgCmtEJB {
 
     private <T> CriteriaQuery<T> restrict(
             TaskQueryParam stgCmtResultQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
+        List<Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 
@@ -223,8 +223,8 @@ public class StgCmtEJB {
         MatchTask matchTask = new MatchTask(cb);
         CriteriaDelete<StgCmtResult> q = cb.createCriteriaDelete(StgCmtResult.class);
         stgCmtResult = q.from(StgCmtResult.class);
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
-        q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        List<Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
+        q.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(q).executeUpdate();
     }
 
@@ -262,7 +262,7 @@ public class StgCmtEJB {
         stgVerTask = q.from(StorageVerificationTask.class);
         queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
 
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         predicates.add(queueMsg.get(QueueMessage_.status).in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
         predicates.add(cb.equal(
                 stgVerTask.get(StorageVerificationTask_.studyInstanceUID), storageVerificationTask.getStudyInstanceUID()));
@@ -288,7 +288,7 @@ public class StgCmtEJB {
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.storageIDs),
                     storageVerificationTask.getStorageIDsAsString()));
         Iterator<Long> iterator = em.createQuery(q
-                .where(predicates.toArray(new javax.persistence.criteria.Predicate[0]))
+                .where(predicates.toArray(new Predicate[0]))
                 .select(stgVerTask.get(StorageVerificationTask_.pk)))
                 .getResultStream()
                 .iterator();
@@ -338,9 +338,10 @@ public class StgCmtEJB {
         return true;
     }
 
-    public long cancelStgVerTasks(Predicate matchQueueMessage, Predicate matchStgVerTask, QueueMessage.Status prev)
+    public long cancelStgVerTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
             throws IllegalTaskStateException {
-        return queueManager.cancelStgVerTasks(matchQueueMessage, matchStgVerTask, prev);
+        return queueManager.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 
     public String findDeviceNameByPk(Long pk) {
@@ -505,13 +506,13 @@ public class StgCmtEJB {
 
     private <T> CriteriaQuery<T> restrictBatch(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.stgVerBatchPredicates(
+        List<Predicate> predicates = matchTask.stgVerBatchPredicates(
                 queueMsg,
                 stgVerTask,
                 queueBatchQueryParam,
                 stgVerBatchQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 
@@ -577,13 +578,13 @@ public class StgCmtEJB {
 
     private <T> CriteriaQuery<T> restrict(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.stgVerPredicates(
+        List<Predicate> predicates = matchTask.stgVerPredicates(
                 queueMsg,
                 stgVerTask,
                 queueTaskQueryParam,
                 stgVerTaskQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
         return q;
     }
 

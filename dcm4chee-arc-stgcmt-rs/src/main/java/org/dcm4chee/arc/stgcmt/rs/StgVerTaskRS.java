@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -51,7 +50,6 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
@@ -155,7 +153,7 @@ public class StgVerTaskRS {
             return Response.ok(
                     output.entity(
                             stgCmtMgr.listStgVerTasks(
-                                    queueTaskQueryParam(deviceName),
+                                    queueTaskQueryParam(deviceName, status()),
                                     stgVerTaskQueryParam(updatedTime),
                                     parseInt(offset),
                                     parseInt(limit))),
@@ -174,7 +172,7 @@ public class StgVerTaskRS {
         logRequest();
         try {
             return count(stgCmtMgr.countTasks(
-                    queueTaskQueryParam(deviceName),
+                    queueTaskQueryParam(deviceName, status()),
                     stgVerTaskQueryParam(updatedTime)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
@@ -212,10 +210,9 @@ public class StgVerTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Storage Verification Tasks with Status {}", status);
-            long count = stgCmtMgr.cancelStgVerTasks(
-                    matchQueueMessage(status, deviceName, updatedTime),
-                    matchStgVerTask(null),
-                    status);
+            TaskQueryParam queueTaskQueryParam = queueTaskQueryParam(deviceName, status);
+            queueTaskQueryParam.setUpdatedTime(updatedTime);
+            long count = stgCmtMgr.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam(null));
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException e) {
@@ -267,23 +264,23 @@ public class StgVerTaskRS {
 
             TaskQueryParam stgVerTaskQueryParam = stgVerTaskQueryParam(updatedTime);
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(stgVerTaskQueryParam)
+                    ? rescheduleOnDistinctDevices(stgVerTaskQueryParam, status)
                     : rescheduleTasks(
-                            queueTaskQueryParam(devName),
+                            queueTaskQueryParam(devName, status),
                             stgVerTaskQueryParam));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(TaskQueryParam stgVerTaskQueryParam) throws Exception {
+    private int rescheduleOnDistinctDevices(TaskQueryParam stgVerTaskQueryParam, QueueMessage.Status status) throws Exception {
         List<String> distinctDeviceNames = stgCmtMgr.listDistinctDeviceNames(
-                                                        queueTaskQueryParam(null), stgVerTaskQueryParam);
+                                                        queueTaskQueryParam(null, status), stgVerTaskQueryParam);
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
                     ? rescheduleTasks(
-                            queueTaskQueryParam(devName),
+                            queueTaskQueryParam(devName, status),
                             stgVerTaskQueryParam)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
         return count;
@@ -341,7 +338,7 @@ public class StgVerTaskRS {
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
                 count = stgCmtMgr.deleteTasks(
-                        queueTaskQueryParam(deviceName),
+                        queueTaskQueryParam(deviceName, status()),
                         stgVerTaskQueryParam(updatedTime),
                         deleteTasksFetchSize);
                 deleted += count;
@@ -463,15 +460,6 @@ public class StgVerTaskRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime) {
-        return MatchTask.matchQueueMessage(
-                null, devName, status, batchID, null, null, updatedTime, null);
-    }
-
-    private Predicate matchStgVerTask(String updatedTime) {
-        return MatchTask.matchStgVerTask(localAET, studyIUID, createdTime, updatedTime);
-    }
-
     private Response notAcceptable() {
         return Response.notAcceptable(
                 Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
@@ -500,9 +488,9 @@ public class StgVerTaskRS {
                 request.getRemoteUser(), request.getRemoteHost());
     }
 
-    private TaskQueryParam queueTaskQueryParam(String deviceName) {
+    private TaskQueryParam queueTaskQueryParam(String deviceName, QueueMessage.Status status) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
+        taskQueryParam.setStatus(status);
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setBatchID(batchID);
         return taskQueryParam;

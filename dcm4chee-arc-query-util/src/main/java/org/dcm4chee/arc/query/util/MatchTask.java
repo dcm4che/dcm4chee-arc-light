@@ -41,8 +41,7 @@
 package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Predicate;
+import javax.persistence.criteria.Predicate;
 import org.dcm4chee.arc.entity.*;
 
 import javax.persistence.criteria.*;
@@ -64,7 +63,7 @@ public class MatchTask {
         this.cb = Objects.requireNonNull(cb);
     }
 
-    public static Predicate matchQueueMessage(
+    public static com.querydsl.core.types.Predicate matchQueueMessage(
             String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
             String createdTime, String updatedTime, Date updatedBefore) {
         BooleanBuilder predicate = new BooleanBuilder();
@@ -88,125 +87,87 @@ public class MatchTask {
             predicate.and(QQueueMessage.queueMessage.updatedTime.before(updatedBefore));
         return predicate;
     }
-    
-    public static Predicate matchRetrieveTask(String localAET, String remoteAET, String destinationAET, String studyUID,
-                                              String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (studyUID != null)
-            predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
-        if (createdTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
-        if (updatedTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
-        return predicate;
-    }
 
-    public static Predicate matchExportTask(List<String> exporterIDs, String deviceName, String studyUID,
-                                            String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (!exporterIDs.isEmpty())
-            predicate.and(QExportTask.exportTask.exporterID.in(exporterIDs));
-        if (deviceName != null)
-            predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
-        if (studyUID != null)
-            predicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
-        if (createdTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
-        if (updatedTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
-        return predicate;
-    }
-
-    public List<javax.persistence.criteria.Predicate> queueMsgPredicates(
+    public List<Predicate> queueMsgPredicates(
             Root<QueueMessage> queueMsg, TaskQueryParam queueTaskQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueMsg(predicates, queueTaskQueryParam, queueMsg);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> exportPredicates(
+    public List<Predicate> exportPredicates(
             From<ExportTask, QueueMessage> queueMsg, Root<ExportTask> exportTask,
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueMsg(predicates, queueTaskQueryParam, queueMsg);
         matchExportTask(predicates, exportTaskQueryParam, exportTask);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> retrievePredicates(
+    public List<Predicate> retrievePredicates(
             From<RetrieveTask, QueueMessage> queueMsg, Root<RetrieveTask> retrieveTask,
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueMsg(predicates, queueTaskQueryParam, queueMsg);
         matchRetrieveTask(predicates, retrieveTaskQueryParam, retrieveTask);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> exportBatchPredicates(
+    public List<Predicate> exportBatchPredicates(
             From<ExportTask, QueueMessage> queueMsg, Root<ExportTask> exportTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
         matchExportBatch(predicates, exportBatchQueryParam, exportTask);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> retrieveBatchPredicates(
+    public List<Predicate> retrieveBatchPredicates(
             From<RetrieveTask, QueueMessage> queueMsg, Root<RetrieveTask> retrieveTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
         matchRetrieveBatch(predicates, retrieveBatchQueryParam, retrieveTask);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> stgVerBatchPredicates(
+    public List<Predicate> stgVerBatchPredicates(
             From<StorageVerificationTask, QueueMessage> queueMsg, Root<StorageVerificationTask> stgVerTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
         matchStgVerBatch(predicates, stgVerBatchQueryParam, stgVerTask);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> diffBatchPredicates(
+    public List<Predicate> diffBatchPredicates(
             From<DiffTask, QueueMessage> queueMsg, Root<DiffTask> diffTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
         matchDiffBatch(predicates, diffBatchQueryParam, diffTask);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> diffPredicates(
+    public List<Predicate> diffPredicates(
             From<DiffTask, QueueMessage> queueMsg, Root<DiffTask> diffTask,
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueMsg(predicates, queueTaskQueryParam, queueMsg);
         matchDiffTask(predicates, diffTaskQueryParam, diffTask);
         return predicates;
     }
 
-    public List<javax.persistence.criteria.Predicate> stgVerPredicates(
+    public List<Predicate> stgVerPredicates(
             From<StorageVerificationTask, QueueMessage> queueMsg, Root<StorageVerificationTask> stgVerTask,
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         matchQueueMsg(predicates, queueTaskQueryParam, queueMsg);
         matchStgVerTask(predicates, stgVerTaskQueryParam, stgVerTask);
         return predicates;
     }
 
-    private <Z> void matchQueueMsg(List<javax.persistence.criteria.Predicate> predicates,
+    private <Z> void matchQueueMsg(List<Predicate> predicates,
                                    TaskQueryParam taskQueryParam, From<Z, QueueMessage> queueMsg) {
         if (taskQueryParam == null || queueMsg == null)
             return;
@@ -231,7 +192,7 @@ public class MatchTask {
     }
 
     private void matchExportTask(
-            List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+            List<Predicate> predicates, TaskQueryParam taskQueryParam,
             Root<ExportTask> exportTask) {
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
@@ -247,7 +208,7 @@ public class MatchTask {
                     cb, exportTask.get(ExportTask_.updatedTime), taskQueryParam.getUpdatedTime()));
     }
 
-    private void matchRetrieveTask(List<javax.persistence.criteria.Predicate> predicates,
+    private void matchRetrieveTask(List<Predicate> predicates,
                                    TaskQueryParam taskQueryParam,
                                    Path<RetrieveTask> retrieveTask) {
         if (taskQueryParam.getLocalAET() != null)
@@ -267,7 +228,7 @@ public class MatchTask {
     }
 
     private void matchDiffTask(
-            List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam, Path<DiffTask> diffTask) {
+            List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<DiffTask> diffTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(diffTask.get(DiffTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getPrimaryAET() != null)
@@ -289,7 +250,7 @@ public class MatchTask {
     }
 
     private void matchStgVerTask(
-            List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+            List<Predicate> predicates, TaskQueryParam taskQueryParam,
             Root<StorageVerificationTask> stgVerTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.localAET), taskQueryParam.getLocalAET()));
@@ -303,8 +264,9 @@ public class MatchTask {
                     cb, stgVerTask.get(StorageVerificationTask_.updatedTime), taskQueryParam.getUpdatedTime()));
     }
 
-    public static Predicate matchDiffTask(String localAET, String primaryAET, String secondaryAET, String checkDifferent,
-                                          String checkMissing, String comparefields, String createdTime, String updatedTime) {
+    public static com.querydsl.core.types.Predicate matchDiffTask(
+            String localAET, String primaryAET, String secondaryAET, String checkDifferent,
+            String checkMissing, String comparefields, String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (localAET != null)
             predicate.and(QDiffTask.diffTask.localAET.eq(localAET));
@@ -324,22 +286,6 @@ public class MatchTask {
         if (updatedTime != null)
             predicate.and(MatchDateTimeRange.range(
                     QDiffTask.diffTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
-        return predicate;
-    }
-
-    public static Predicate matchStgVerTask(String localAET, String studyUID,
-                                            String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QStorageVerificationTask.storageVerificationTask.localAET.eq(localAET));
-        if (studyUID != null)
-            predicate.and(QStorageVerificationTask.storageVerificationTask.studyInstanceUID.eq(studyUID));
-        if (createdTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QStorageVerificationTask.storageVerificationTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
-        if (updatedTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QStorageVerificationTask.storageVerificationTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
         return predicate;
     }
 
@@ -393,9 +339,9 @@ public class MatchTask {
         throw new IllegalArgumentException(orderby);
     }
 
-    public List<javax.persistence.criteria.Predicate> matchStgCmtResult(
+    public List<Predicate> matchStgCmtResult(
             Root<StgCmtResult> stgCmtResult, TaskQueryParam stgCmtResultQueryParam) {
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         if (stgCmtResultQueryParam.getStgCmtStatus() != null)
             predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.status), stgCmtResultQueryParam.getStgCmtStatus()));
         if (stgCmtResultQueryParam.getStudyIUID() != null)
@@ -446,43 +392,7 @@ public class MatchTask {
         throw new IllegalArgumentException(orderby);
     }
 
-    public static Predicate matchQueueBatch(String deviceName, QueueMessage.Status status, String batchID) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QQueueMessage.queueMessage.batchID.isNotNull());
-        if (status != null)
-            predicate.and(QQueueMessage.queueMessage.status.eq(status));
-        if (deviceName != null)
-            predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
-        if (batchID != null)
-            predicate.and(QQueueMessage.queueMessage.batchID.eq(batchID));
-        return predicate;
-    }
-
-    public static Predicate matchDiffBatch(String localAET, String primaryAET, String secondaryAET, String comparefields,
-                                           String checkMissing, String checkDifferent, String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QDiffTask.diffTask.localAET.eq(localAET));
-        if (primaryAET != null)
-            predicate.and(QDiffTask.diffTask.primaryAET.eq(primaryAET));
-        if (secondaryAET != null)
-            predicate.and(QDiffTask.diffTask.secondaryAET.eq(secondaryAET));
-        if (checkDifferent != null)
-            predicate.and(QDiffTask.diffTask.checkDifferent.eq(Boolean.parseBoolean(checkDifferent)));
-        if (checkMissing != null)
-            predicate.and(QDiffTask.diffTask.checkMissing.eq(Boolean.parseBoolean(checkMissing)));
-        if (comparefields != null)
-            predicate.and(QDiffTask.diffTask.compareFields.eq(comparefields));
-        if (createdTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QDiffTask.diffTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
-        if (updatedTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QDiffTask.diffTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
-        return predicate;
-    }
-
-    private void matchQueueBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchQueueBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
                                                Path<QueueMessage> queueMsg) {
         predicates.add(cb.isNotNull(queueMsg.get(QueueMessage_.batchID)));
         if (taskQueryParam.getStatus() != null)
@@ -494,7 +404,7 @@ public class MatchTask {
         
     }
 
-    private void matchExportBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchExportBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
                                                 Path<ExportTask> exportTask) {
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
@@ -509,7 +419,7 @@ public class MatchTask {
         
     }
 
-    private void matchRetrieveBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
                                                   Path<RetrieveTask> retrieveTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.localAET), taskQueryParam.getLocalAET()));
@@ -526,7 +436,7 @@ public class MatchTask {
         
     }
 
-    private void matchDiffBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchDiffBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
                                               Path<DiffTask> diffTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(diffTask.get(DiffTask_.localAET), taskQueryParam.getLocalAET()));
@@ -548,7 +458,7 @@ public class MatchTask {
                     cb, diffTask.get(DiffTask_.updatedTime), taskQueryParam.getUpdatedTime())));
     }
 
-    private void matchStgVerBatch(List<javax.persistence.criteria.Predicate> predicates, TaskQueryParam taskQueryParam,
+    private void matchStgVerBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
                                                 Path<StorageVerificationTask> stgVerTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.localAET), taskQueryParam.getLocalAET()));
