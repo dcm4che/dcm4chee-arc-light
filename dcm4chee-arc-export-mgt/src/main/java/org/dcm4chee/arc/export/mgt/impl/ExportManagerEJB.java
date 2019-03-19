@@ -418,7 +418,7 @@ public class ExportManagerEJB implements ExportManager {
             query.setMaxResults(limit);
 
         List<ExportBatch> exportBatches = new ArrayList<>();
-        query.getResultList().forEach(batch -> {
+        query.getResultStream().forEach(batch -> {
             String batchID = batch.get(batchid);
             ExportBatch exportBatch = new ExportBatch(batchID);
             exportBatch.setProcessingStartTimeRange(
@@ -438,47 +438,35 @@ public class ExportManagerEJB implements ExportManager {
                     batch.get(maxUpdatedTime));
 
             exportBatch.setDeviceNames(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(queueMsg.get(QueueMessage_.deviceName))
                             .distinct(true)
                             .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
                     .getResultList());
             exportBatch.setExporterIDs(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(exportTask.get(ExportTask_.exporterID))
                             .distinct(true)
                             .orderBy(cb.asc(exportTask.get(ExportTask_.exporterID))))
                     .getResultList());
 
             exportBatch.setCompleted(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.COMPLETED).select(cb.count(queueMsg)))
                     .getSingleResult());
             exportBatch.setCanceled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.CANCELED).select(cb.count(queueMsg)))
                     .getSingleResult());
             exportBatch.setWarning(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.WARNING).select(cb.count(queueMsg)))
                     .getSingleResult());
             exportBatch.setFailed(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.FAILED).select(cb.count(queueMsg)))
                     .getSingleResult());
             exportBatch.setScheduled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.SCHEDULED).select(cb.count(queueMsg)))
                     .getSingleResult());
             exportBatch.setInProcess(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.IN_PROCESS).select(cb.count(queueMsg)))
                     .getSingleResult());
 
             exportBatches.add(exportBatch);
@@ -510,12 +498,22 @@ public class ExportManagerEJB implements ExportManager {
         return q.groupBy(queueMsg.get(QueueMessage_.batchID));
     }
 
-    private <T> CriteriaQuery<T> batchIDQuery(String batchID, Class<T> clazz) {
+    private CriteriaQuery<String> batchIDQuery(String batchID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> q = cb.createQuery(clazz);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
         exportTask = q.from(ExportTask.class);
         queueMsg = exportTask.join(ExportTask_.queueMessage, JoinType.LEFT);
         return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+    }
+
+    private CriteriaQuery<Long> batchIDQuery(String batchID, QueueMessage.Status status) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        exportTask = q.from(ExportTask.class);
+        queueMsg = exportTask.join(ExportTask_.queueMessage, JoinType.LEFT);
+        return q.where(
+                cb.equal(queueMsg.get(QueueMessage_.batchID), batchID),
+                cb.equal(queueMsg.get(QueueMessage_.status), status));
     }
 
 

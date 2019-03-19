@@ -167,8 +167,7 @@ public class MatchTask {
         return predicates;
     }
 
-    private <Z> void matchQueueMsg(List<Predicate> predicates,
-                                   TaskQueryParam taskQueryParam, From<Z, QueueMessage> queueMsg) {
+    private <Z> void matchQueueMsg(List<Predicate> predicates, TaskQueryParam taskQueryParam, From<Z, QueueMessage> queueMsg) {
         if (taskQueryParam == null || queueMsg == null)
             return;
 
@@ -191,9 +190,7 @@ public class MatchTask {
             predicates.add(cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), taskQueryParam.getUpdatedBefore()));
     }
 
-    private void matchExportTask(
-            List<Predicate> predicates, TaskQueryParam taskQueryParam,
-            Root<ExportTask> exportTask) {
+    private void matchExportTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Root<ExportTask> exportTask) {
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
         if (taskQueryParam.getDeviceName() != null)
@@ -208,9 +205,7 @@ public class MatchTask {
                     cb, exportTask.get(ExportTask_.updatedTime), taskQueryParam.getUpdatedTime()));
     }
 
-    private void matchRetrieveTask(List<Predicate> predicates,
-                                   TaskQueryParam taskQueryParam,
-                                   Path<RetrieveTask> retrieveTask) {
+    private void matchRetrieveTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getRemoteAET() != null)
@@ -227,8 +222,7 @@ public class MatchTask {
                     cb, retrieveTask.get(RetrieveTask_.updatedTime), taskQueryParam.getUpdatedTime()));
     }
 
-    private void matchDiffTask(
-            List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<DiffTask> diffTask) {
+    private void matchDiffTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<DiffTask> diffTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(diffTask.get(DiffTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getPrimaryAET() != null)
@@ -250,8 +244,7 @@ public class MatchTask {
     }
 
     private void matchStgVerTask(
-            List<Predicate> predicates, TaskQueryParam taskQueryParam,
-            Root<StorageVerificationTask> stgVerTask) {
+            List<Predicate> predicates, TaskQueryParam taskQueryParam, Root<StorageVerificationTask> stgVerTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getStudyIUID() != null)
@@ -319,13 +312,8 @@ public class MatchTask {
                 queueMsg.get(QueueMessage_.updatedTime));
     }
 
-    private Order taskOrder(
-            String orderby, Path<Date> createdTime, Path<Date> updatedTime) {
-        return order(orderby, createdTime, updatedTime);
-    }
-
-    private Order order(String orderby, Path<Date> createdTime, Path<Date> updatedTime) {
-        switch (orderby) {
+    private Order taskOrder(String orderBy, Path<Date> createdTime, Path<Date> updatedTime) {
+        switch (orderBy) {
             case "createdTime":
                 return cb.asc(createdTime);
             case "updatedTime":
@@ -336,11 +324,10 @@ public class MatchTask {
                 return cb.desc(updatedTime);
         }
 
-        throw new IllegalArgumentException(orderby);
+        throw new IllegalArgumentException(orderBy);
     }
 
-    public List<Predicate> matchStgCmtResult(
-            Root<StgCmtResult> stgCmtResult, TaskQueryParam stgCmtResultQueryParam) {
+    public List<Predicate> matchStgCmtResult(Root<StgCmtResult> stgCmtResult, TaskQueryParam stgCmtResultQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
         if (stgCmtResultQueryParam.getStgCmtStatus() != null)
             predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.status), stgCmtResultQueryParam.getStgCmtStatus()));
@@ -377,8 +364,8 @@ public class MatchTask {
                 stgVerTask.get(StorageVerificationTask_.updatedTime));
     }
 
-    private Order batchOrder(String orderby, Path<Date> createdTime, Path<Date> updatedTime) {
-        switch (orderby) {
+    private Order batchOrder(String orderBy, Path<Date> createdTime, Path<Date> updatedTime) {
+        switch (orderBy) {
             case "createdTime":
                 return cb.asc(cb.least(createdTime));
             case "updatedTime":
@@ -389,11 +376,10 @@ public class MatchTask {
                 return cb.desc(cb.greatest(updatedTime));
         }
 
-        throw new IllegalArgumentException(orderby);
+        throw new IllegalArgumentException(orderBy);
     }
 
-    private void matchQueueBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
-                                               Path<QueueMessage> queueMsg) {
+    private void matchQueueBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<QueueMessage> queueMsg) {
         predicates.add(cb.isNotNull(queueMsg.get(QueueMessage_.batchID)));
         if (taskQueryParam.getStatus() != null)
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.status), taskQueryParam.getStatus()));
@@ -404,8 +390,7 @@ public class MatchTask {
         
     }
 
-    private void matchExportBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
-                                                Path<ExportTask> exportTask) {
+    private void matchExportBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<ExportTask> exportTask) {
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
         if (taskQueryParam.getDeviceName() != null)
@@ -419,8 +404,7 @@ public class MatchTask {
         
     }
 
-    private void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
-                                                  Path<RetrieveTask> retrieveTask) {
+    private void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getRemoteAET() != null)
@@ -436,8 +420,7 @@ public class MatchTask {
         
     }
 
-    private void matchDiffBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
-                                              Path<DiffTask> diffTask) {
+    private void matchDiffBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<DiffTask> diffTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(diffTask.get(DiffTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getPrimaryAET() != null)
@@ -458,8 +441,8 @@ public class MatchTask {
                     cb, diffTask.get(DiffTask_.updatedTime), taskQueryParam.getUpdatedTime())));
     }
 
-    private void matchStgVerBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam,
-                                                Path<StorageVerificationTask> stgVerTask) {
+    private void matchStgVerBatch(
+            List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<StorageVerificationTask> stgVerTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getCreatedTime() != null)

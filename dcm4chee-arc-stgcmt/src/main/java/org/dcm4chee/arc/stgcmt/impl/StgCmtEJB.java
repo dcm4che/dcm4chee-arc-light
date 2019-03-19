@@ -435,7 +435,7 @@ public class StgCmtEJB {
             query.setMaxResults(limit);
 
         List<StgVerBatch> stgVerBatches = new ArrayList<>();
-        query.getResultList().forEach(batch -> {
+        query.getResultStream().forEach(batch -> {
             String batchID = batch.get(batchid);
             StgVerBatch stgVerBatch = new StgVerBatch(batchID);
             stgVerBatch.setProcessingStartTimeRange(
@@ -455,47 +455,35 @@ public class StgCmtEJB {
                     batch.get(maxUpdatedTime));
 
             stgVerBatch.setDeviceNames(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(queueMsg.get(QueueMessage_.deviceName))
                             .distinct(true)
                             .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
                     .getResultList());
             stgVerBatch.setLocalAETs(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(stgVerTask.get(StorageVerificationTask_.localAET))
                             .distinct(true)
                             .orderBy(cb.asc(stgVerTask.get(StorageVerificationTask_.localAET))))
                     .getResultList());
 
             stgVerBatch.setCompleted(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.COMPLETED).select(cb.count(queueMsg)))
                     .getSingleResult());
             stgVerBatch.setCanceled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.CANCELED).select(cb.count(queueMsg)))
                     .getSingleResult());
             stgVerBatch.setWarning(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.WARNING).select(cb.count(queueMsg)))
                     .getSingleResult());
             stgVerBatch.setFailed(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.FAILED).select(cb.count(queueMsg)))
                     .getSingleResult());
             stgVerBatch.setScheduled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.SCHEDULED).select(cb.count(queueMsg)))
                     .getSingleResult());
             stgVerBatch.setInProcess(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.IN_PROCESS).select(cb.count(queueMsg)))
                     .getSingleResult());
 
             stgVerBatches.add(stgVerBatch);
@@ -527,12 +515,22 @@ public class StgCmtEJB {
         return q.groupBy(queueMsg.get(QueueMessage_.batchID));
     }
 
-    private <T> CriteriaQuery<T> batchIDQuery(String batchID, Class<T> clazz) {
+    private CriteriaQuery<String> batchIDQuery(String batchID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> q = cb.createQuery(clazz);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
         stgVerTask = q.from(StorageVerificationTask.class);
         queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage, JoinType.LEFT);
         return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+    }
+
+    private CriteriaQuery<Long> batchIDQuery(String batchID, QueueMessage.Status status) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        stgVerTask = q.from(StorageVerificationTask.class);
+        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage, JoinType.LEFT);
+        return q.where(
+                cb.equal(queueMsg.get(QueueMessage_.batchID), batchID),
+                cb.equal(queueMsg.get(QueueMessage_.status), status));
     }
     
     public List<Series.StorageVerification> findSeriesForScheduledStorageVerifications(int fetchSize) {

@@ -319,7 +319,7 @@ public class RetrieveManagerEJB {
             query.setMaxResults(limit);
 
         List<RetrieveBatch> retrieveBatches = new ArrayList<>();
-        query.getResultList().forEach(batch -> {
+        query.getResultStream().forEach(batch -> {
             String batchID = batch.get(batchid);
             RetrieveBatch retrieveBatch = new RetrieveBatch(batchID);
             retrieveBatch.setProcessingStartTimeRange(
@@ -339,59 +339,47 @@ public class RetrieveManagerEJB {
                     batch.get(maxUpdatedTime));
 
             retrieveBatch.setDeviceNames(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(queueMsg.get(QueueMessage_.deviceName))
                             .distinct(true)
                             .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
                     .getResultList());
             retrieveBatch.setLocalAETs(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(retrieveTask.get(RetrieveTask_.localAET))
                             .distinct(true)
                             .orderBy(cb.asc(retrieveTask.get(RetrieveTask_.localAET))))
                     .getResultList());
             retrieveBatch.setRemoteAETs(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(retrieveTask.get(RetrieveTask_.remoteAET))
                             .distinct(true)
                             .orderBy(cb.asc(retrieveTask.get(RetrieveTask_.remoteAET))))
                     .getResultList());
             retrieveBatch.setDestinationAETs(em.createQuery(
-                    batchIDQuery(batchID, String.class)
+                    batchIDQuery(batchID)
                             .select(retrieveTask.get(RetrieveTask_.destinationAET))
                             .distinct(true)
                             .orderBy(cb.asc(retrieveTask.get(RetrieveTask_.destinationAET))))
                     .getResultList());
 
             retrieveBatch.setCompleted(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.COMPLETED).select(cb.count(queueMsg)))
                     .getSingleResult());
             retrieveBatch.setCanceled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.CANCELED).select(cb.count(queueMsg)))
                     .getSingleResult());
             retrieveBatch.setWarning(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.WARNING).select(cb.count(queueMsg)))
                     .getSingleResult());
             retrieveBatch.setFailed(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.FAILED).select(cb.count(queueMsg)))
                     .getSingleResult());
             retrieveBatch.setScheduled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.SCHEDULED).select(cb.count(queueMsg)))
                     .getSingleResult());
             retrieveBatch.setInProcess(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.IN_PROCESS).select(cb.count(queueMsg)))
                     .getSingleResult());
 
             retrieveBatches.add(retrieveBatch);
@@ -423,12 +411,22 @@ public class RetrieveManagerEJB {
         return q.groupBy(queueMsg.get(QueueMessage_.batchID));
     }
 
-    private <T> CriteriaQuery<T> batchIDQuery(String batchID, Class<T> clazz) {
+    private CriteriaQuery<String> batchIDQuery(String batchID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> q = cb.createQuery(clazz);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
         retrieveTask = q.from(RetrieveTask.class);
         queueMsg = retrieveTask.join(RetrieveTask_.queueMessage, JoinType.LEFT);
         return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+    }
+
+    private CriteriaQuery<Long> batchIDQuery(String batchID, QueueMessage.Status status) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        retrieveTask = q.from(RetrieveTask.class);
+        queueMsg = retrieveTask.join(RetrieveTask_.queueMessage, JoinType.LEFT);
+        return q.where(
+                cb.equal(queueMsg.get(QueueMessage_.batchID), batchID),
+                cb.equal(queueMsg.get(QueueMessage_.status), status));
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)

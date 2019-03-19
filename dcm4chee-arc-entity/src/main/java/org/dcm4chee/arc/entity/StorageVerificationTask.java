@@ -247,7 +247,7 @@ public class StorageVerificationTask {
         this.queueMessage = queueMessage;
     }
 
-    public void writeAsJSONTo(JsonGenerator gen) throws IOException {
+    public void writeAsJSONTo(JsonGenerator gen) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();

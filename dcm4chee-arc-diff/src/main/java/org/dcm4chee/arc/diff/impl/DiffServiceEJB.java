@@ -354,7 +354,7 @@ public class DiffServiceEJB {
             query.setMaxResults(limit);
 
         List<DiffBatch> diffBatches = new ArrayList<>();
-        query.getResultList().forEach(batch -> {
+        query.getResultStream().forEach(batch -> {
             String batchID = batch.get(batchid);
             DiffBatch diffBatch = new DiffBatch(batchID);
             diffBatch.setProcessingStartTimeRange(
@@ -402,8 +402,7 @@ public class DiffServiceEJB {
                             .orderBy(cb.asc(diffTask.get(DiffTask_.secondaryAET))))
                     .getResultList());
             diffBatch.setComparefields(em.createQuery(
-                    batchIDQuery(batchID, String.class)
-                            .where(diffTask.get(DiffTask_.compareFields).isNotNull())
+                    batchIDQuery(batchID)
                             .select(diffTask.get(DiffTask_.compareFields))
                             .distinct(true))
                     .getResultList());
@@ -419,34 +418,22 @@ public class DiffServiceEJB {
                     .getResultList());
 
             diffBatch.setCompleted(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.COMPLETED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.COMPLETED).select(cb.count(queueMsg)))
                     .getSingleResult());
             diffBatch.setCanceled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.CANCELED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.CANCELED).select(cb.count(queueMsg)))
                     .getSingleResult());
             diffBatch.setWarning(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.WARNING))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.WARNING).select(cb.count(queueMsg)))
                     .getSingleResult());
             diffBatch.setFailed(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.FAILED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.FAILED).select(cb.count(queueMsg)))
                     .getSingleResult());
             diffBatch.setScheduled(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.SCHEDULED))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.SCHEDULED).select(cb.count(queueMsg)))
                     .getSingleResult());
             diffBatch.setInProcess(em.createQuery(
-                    batchIDQuery(batchID, Long.class)
-                            .where(cb.equal(queueMsg.get(QueueMessage_.status), QueueMessage.Status.IN_PROCESS))
-                            .select(cb.count(queueMsg)))
+                    batchIDQuery(batchID, QueueMessage.Status.IN_PROCESS).select(cb.count(queueMsg)))
                     .getSingleResult());
 
             diffBatches.add(diffBatch);
@@ -484,6 +471,26 @@ public class DiffServiceEJB {
         diffTask = q.from(DiffTask.class);
         queueMsg = diffTask.join(DiffTask_.queueMessage, JoinType.LEFT);
         return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+    }
+
+    private CriteriaQuery<Long> batchIDQuery(String batchID, QueueMessage.Status status) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage, JoinType.LEFT);
+        return q.where(
+                cb.equal(queueMsg.get(QueueMessage_.batchID), batchID),
+                cb.equal(queueMsg.get(QueueMessage_.status), status));
+    }
+
+    private CriteriaQuery<String> batchIDQuery(String batchID) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        diffTask = q.from(DiffTask.class);
+        queueMsg = diffTask.join(DiffTask_.queueMessage, JoinType.LEFT);
+        return q.where(
+                cb.equal(queueMsg.get(QueueMessage_.batchID), batchID),
+                diffTask.get(DiffTask_.compareFields).isNotNull());
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
