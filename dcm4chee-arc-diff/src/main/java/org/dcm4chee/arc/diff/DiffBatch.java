@@ -226,7 +226,7 @@ public class DiffBatch {
     }
 
     public int getMatches() {
-        return Math.toIntExact(matches);
+        return (int) matches;
     }
 
     public void setMatches(long matches) {
@@ -234,7 +234,7 @@ public class DiffBatch {
     }
 
     public int getMissing() {
-        return Math.toIntExact(missing);
+        return (int) missing;
     }
 
     public void setMissing(long missing) {
@@ -242,7 +242,7 @@ public class DiffBatch {
     }
 
     public int getDifferent() {
-        return Math.toIntExact(different);
+        return (int) different;
     }
 
     public void setDifferent(long different) {
