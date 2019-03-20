@@ -131,10 +131,6 @@ public class MatchDateTimeRange {
         return range(field, parseDateRange(range), dt);
     }
 
-    public static Predicate range(DateTimePath field, String range, FormatDate dt) {
-        return range(field, parseDateRange(range), dt);
-    }
-
     public static Predicate range(DateTimePath field, DateRange range, FormatDate dt) {
         Date startDate = range.getStartDate();
         Date endDate = range.getEndDate();

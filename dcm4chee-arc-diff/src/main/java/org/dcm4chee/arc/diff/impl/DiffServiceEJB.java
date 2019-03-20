@@ -176,11 +176,12 @@ public class DiffServiceEJB {
         return true;
     }
 
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize) {
-        List<String> referencedQueueMsgIDs = createQuery(matchQueueMessage, matchDiffTask)
-                    .select(QDiffTask.diffTask.queueMessage.messageID)
-                    .limit(deleteTasksFetchSize)
-                    .fetch();
+    public int deleteTasks(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize) {
+        List<String> referencedQueueMsgIDs = em.createQuery(createQuery(queueTaskQueryParam, diffTaskQueryParam)
+                .select(queueMsg.get(QueueMessage_.messageID)))
+                .setMaxResults(deleteTasksFetchSize)
+                .getResultList();
 
         for (String queueMsgID : referencedQueueMsgIDs)
             queueManager.deleteTask(queueMsgID, null);

@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.diff.rs;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
@@ -55,7 +54,6 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -383,8 +381,8 @@ public class DiffTaskRS {
             int deleteTasksFetchSize = queueTasksFetchSize();
             do {
                 count = diffService.deleteTasks(
-                        matchQueueMessage(status(), deviceName, null),
-                        matchDiffTask(updatedTime),
+                        queueTaskQueryParam(deviceName, status()),
+                        diffTaskQueryParam(updatedTime),
                         deleteTasksFetchSize);
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
@@ -539,16 +537,6 @@ public class DiffTaskRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private Predicate matchDiffTask(String updatedTime) {
-        return MatchTask.matchDiffTask(
-                localAET, primaryAET, secondaryAET, checkDifferent, checkMissing, comparefields, createdTime, updatedTime);
-    }
-
-    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime) {
-        return MatchTask.matchQueueMessage(
-                null, devName, status, batchID, null, null, updatedTime, null);
     }
 
     private int queueTasksFetchSize() {

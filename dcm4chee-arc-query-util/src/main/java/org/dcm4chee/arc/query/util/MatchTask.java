@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.query.util;
 
-import com.querydsl.core.BooleanBuilder;
 import javax.persistence.criteria.Predicate;
 import org.dcm4chee.arc.entity.*;
 
@@ -61,31 +60,6 @@ public class MatchTask {
 
     public MatchTask(CriteriaBuilder cb) {
         this.cb = Objects.requireNonNull(cb);
-    }
-
-    public static com.querydsl.core.types.Predicate matchQueueMessage(
-            String queueName, String deviceName, QueueMessage.Status status, String batchID, String jmsMessageID,
-            String createdTime, String updatedTime, Date updatedBefore) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (queueName != null)
-            predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
-        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
-            predicate.and(QQueueMessage.queueMessage.status.eq(status));
-        if (deviceName != null)
-            predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
-        if (batchID != null)
-            predicate.and(QQueueMessage.queueMessage.batchID.eq(batchID));
-        if (jmsMessageID != null)
-            predicate.and(QQueueMessage.queueMessage.messageID.eq(jmsMessageID));
-        if (createdTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
-        if (updatedTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
-        if (updatedBefore != null)
-            predicate.and(QQueueMessage.queueMessage.updatedTime.before(updatedBefore));
-        return predicate;
     }
 
     public List<Predicate> queueMsgPredicates(
@@ -255,31 +229,6 @@ public class MatchTask {
         if (taskQueryParam.getUpdatedTime() != null)
             predicates.add(MatchDateTimeRange.range(
                     cb, stgVerTask.get(StorageVerificationTask_.updatedTime), taskQueryParam.getUpdatedTime()));
-    }
-
-    public static com.querydsl.core.types.Predicate matchDiffTask(
-            String localAET, String primaryAET, String secondaryAET, String checkDifferent,
-            String checkMissing, String comparefields, String createdTime, String updatedTime) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QDiffTask.diffTask.localAET.eq(localAET));
-        if (primaryAET != null)
-            predicate.and(QDiffTask.diffTask.primaryAET.eq(primaryAET));
-        if (secondaryAET != null)
-            predicate.and(QDiffTask.diffTask.secondaryAET.eq(secondaryAET));
-        if (checkDifferent != null)
-            predicate.and(QDiffTask.diffTask.checkDifferent.eq(Boolean.parseBoolean(checkDifferent)));
-        if (checkMissing != null)
-            predicate.and(QDiffTask.diffTask.checkMissing.eq(Boolean.parseBoolean(checkMissing)));
-        if (comparefields != null)
-            predicate.and(QDiffTask.diffTask.compareFields.eq(comparefields));
-        if (createdTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QDiffTask.diffTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
-        if (updatedTime != null)
-            predicate.and(MatchDateTimeRange.range(
-                    QDiffTask.diffTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
-        return predicate;
     }
 
     public Order exportTaskOrder(String orderby, Path<ExportTask> exportTask) {

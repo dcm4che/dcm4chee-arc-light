@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.diff.impl;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
@@ -213,8 +212,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(matchQueueMessage, matchDiffTask, deleteTasksFetchSize);
+    public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize) {
+        return ejb.deleteTasks(queueTaskQueryParam, diffTaskQueryParam, deleteTasksFetchSize);
     }
 
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {

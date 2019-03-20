@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.diff;
 
-import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -90,7 +89,7 @@ public interface DiffService {
 
     boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize);
+    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
