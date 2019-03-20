@@ -469,7 +469,7 @@ public class DiffTaskRS {
     }
 
     private void logRequest() {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(),
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
     }
 
