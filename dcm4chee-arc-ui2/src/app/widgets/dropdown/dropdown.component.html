@@ -1,0 +1,8 @@
+<ng-container *ngIf="selectedValue">
+    <div class="selected_value" *ngIf="!selectedValue.htmlLabel" (click)="toggleDropdown()">{{selectedValue.label || selectedValue.text}}</div>
+    <div class="selected_value" *ngIf="selectedValue && selectedValue.htmlLabel" [innerHTML]="selectedValue.htmlLabel" (click)="toggleDropdown()"></div>
+</ng-container>
+<div *ngIf="!selectedValue" class="selected_value empty_field" placeholder="Test" (click)="toggleDropdown()">Placeholder</div>
+<div class="select" *ngIf="showDropdown">
+    <ng-content></ng-content>
+</div>

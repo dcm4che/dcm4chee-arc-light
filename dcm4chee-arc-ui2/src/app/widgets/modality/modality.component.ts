@@ -2,8 +2,13 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Globalvar} from "../../constants/globalvar";
 
 @Component({
-  selector: 'modality',
-  templateUrl: './modality.component.html'
+    selector: 'modality',
+    templateUrl: './modality.component.html',
+    styles:[`
+        .input_field{
+            width:100%;
+        }
+    `]
 })
 export class ModalityComponent implements OnInit {
 
@@ -19,6 +24,9 @@ export class ModalityComponent implements OnInit {
         this.modelChange.emit(this.model);
         this.showModalitySelector = false;
     };
+    closeFromOutside(){
+        this.showModalitySelector = false;
+    }
     ngOnInit() {
     }
 

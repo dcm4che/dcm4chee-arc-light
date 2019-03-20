@@ -749,6 +749,12 @@ export class Globalvar {
                     description:"Expiration State",
                     placeholder:"Expiration State",
                 }
+                ,{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"ExpirationDate",
+                    description:"Expiration Date"
+                }
             ];
         }
         return [
@@ -778,6 +784,13 @@ export class Globalvar {
                 filterKey:"PatientID",
                 description:"Patient ID",
                 placeholder:"Patient ID"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"StudyInstanceUID",
+                description:"Study Instance UID",
+                placeholder:"Study Instance UID"
             },
             {
                 tag:"input",
@@ -858,11 +871,6 @@ export class Globalvar {
                 type:"text",
                 filterKey:"StudyAccessDateTime",
                 description:"Study Access"
-            },{
-                tag:"range-picker",
-                type:"text",
-                filterKey:"ExpirationDate",
-                description:"Expiration Date"
             },{
                 tag:"select",
                 options:[

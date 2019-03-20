@@ -102,6 +102,7 @@ import { StudyComponent } from './study/study/study.component';
 import {StudyService} from "./study/study/study.service";
 import { DicomStudiesTableComponent } from './helpers/dicom-studies-table/dicom-studies-table.component';
 import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
+import {OptionService} from "./widgets/dropdown/option.service";
 
 @NgModule({
     declarations: [
@@ -251,6 +252,7 @@ import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
         StorageVerificationService,
         StudyService,
         ContentDescriptionPipe,
+        OptionService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]
