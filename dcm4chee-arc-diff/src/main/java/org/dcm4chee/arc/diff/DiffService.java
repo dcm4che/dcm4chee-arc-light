@@ -78,8 +78,7 @@ public interface DiffService {
 
     boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
-            throws IllegalTaskStateException;
+    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
     void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
 

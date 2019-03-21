@@ -192,8 +192,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
-            throws IllegalTaskStateException {
+    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         return ejb.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 

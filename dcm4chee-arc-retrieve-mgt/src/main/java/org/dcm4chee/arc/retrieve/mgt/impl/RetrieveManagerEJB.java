@@ -233,8 +233,7 @@ public class RetrieveManagerEJB {
         return true;
     }
 
-    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
-            throws IllegalTaskStateException {
+    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
         return queueManager.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 

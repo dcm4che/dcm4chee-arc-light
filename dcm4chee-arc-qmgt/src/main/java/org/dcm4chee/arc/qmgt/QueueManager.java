@@ -70,19 +70,15 @@ public interface QueueManager {
 
     boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelTasks(TaskQueryParam queueTaskQueryParam) throws IllegalTaskStateException;
+    long cancelTasks(TaskQueryParam queueTaskQueryParam);
 
-    long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
-            throws IllegalTaskStateException;
+    long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
 
-    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
-            throws IllegalTaskStateException;
+    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
 
-    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
-            throws IllegalTaskStateException;
+    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
-    long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
-            throws IllegalTaskStateException;
+    long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
     String findDeviceNameByMsgId(String msgId);
 

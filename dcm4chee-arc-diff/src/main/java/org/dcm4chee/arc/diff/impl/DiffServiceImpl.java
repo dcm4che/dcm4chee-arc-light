@@ -175,8 +175,7 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
-            throws IllegalTaskStateException {
+    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         return ejb.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 

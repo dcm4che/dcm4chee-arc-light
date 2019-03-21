@@ -122,66 +122,27 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public long cancelTasks(TaskQueryParam queueTaskQueryParam)
-            throws IllegalTaskStateException {
-        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getQueueMsgIDs(queueTaskQueryParam, 0);
-            for (String msgID : msgIDs)
-                cancelTask(msgID, null);
-            return msgIDs.size();
-        }
+    public long cancelTasks(TaskQueryParam queueTaskQueryParam) {
         return ejb.cancelTasks(queueTaskQueryParam);
     }
 
     @Override
-    public long cancelExportTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
-            throws IllegalTaskStateException {
-        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(queueTaskQueryParam, exportTaskQueryParam);
-            for (String msgID : msgIDs)
-                cancelTask(msgID, null);
-            return msgIDs.size();
-        }
+    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
         return ejb.cancelExportTasks(queueTaskQueryParam, exportTaskQueryParam);
     }
 
     @Override
-    public long cancelRetrieveTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
-            throws IllegalTaskStateException {
-        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(queueTaskQueryParam, retrieveTaskQueryParam);
-            for (String msgID : msgIDs)
-                cancelTask(msgID, null);
-            return msgIDs.size();
-        }
+    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
         return ejb.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 
     @Override
-    public long cancelDiffTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
-            throws IllegalTaskStateException {
-        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getDiffTasksReferencedQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam);
-            for (String msgID : msgIDs)
-                cancelTask(msgID, null);
-            return msgIDs.size();
-        }
+    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         return ejb.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 
     @Override
-    public long cancelStgVerTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
-            throws IllegalTaskStateException {
-        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getStgVerTasksReferencedQueueMsgIDs(queueTaskQueryParam, stgVerTaskQueryParam);
-            for (String msgID : msgIDs)
-                cancelTask(msgID, null);
-            return msgIDs.size();
-        }
+    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         return ejb.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 

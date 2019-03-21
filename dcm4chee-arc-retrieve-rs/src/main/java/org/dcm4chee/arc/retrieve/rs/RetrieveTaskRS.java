@@ -222,9 +222,6 @@ public class RetrieveTaskRS {
             long count = mgr.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam(null));
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException e) {
-            queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(e);

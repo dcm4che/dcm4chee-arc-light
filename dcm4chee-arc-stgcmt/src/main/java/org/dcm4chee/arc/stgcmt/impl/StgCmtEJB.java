@@ -338,9 +338,7 @@ public class StgCmtEJB {
         return true;
     }
 
-    public long cancelStgVerTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam)
-            throws IllegalTaskStateException {
+    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         return queueManager.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 

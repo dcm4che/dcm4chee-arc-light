@@ -330,8 +330,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
-            throws IllegalTaskStateException {
+    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
         return queueManager.cancelExportTasks(queueTaskQueryParam, exportTaskQueryParam);
     }
 

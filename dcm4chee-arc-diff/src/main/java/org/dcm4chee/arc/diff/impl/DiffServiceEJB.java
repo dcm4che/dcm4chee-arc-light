@@ -43,8 +43,6 @@ package org.dcm4chee.arc.diff.impl;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -56,7 +54,6 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.hibernate.Session;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,15 +150,6 @@ public class DiffServiceEJB {
         }
     }
 
-    private HibernateQuery<DiffTask> createQuery(Predicate matchQueueMessage, Predicate matchDiffTask) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        return new HibernateQuery<DiffTask>(em.unwrap(Session.class))
-                .from(QDiffTask.diffTask)
-                .where(matchDiffTask, QDiffTask.diffTask.queueMessage.in(queueMsgQuery));
-    }
-
     public DiffTask getDiffTask(long taskPK) {
         return em.find(DiffTask.class, taskPK);
     }
@@ -233,8 +221,7 @@ public class DiffServiceEJB {
         return true;
     }
 
-    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam)
-            throws IllegalTaskStateException {
+    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         return queueManager.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 

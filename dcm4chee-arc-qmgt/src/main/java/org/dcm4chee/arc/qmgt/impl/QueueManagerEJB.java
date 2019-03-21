@@ -68,6 +68,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -236,183 +237,208 @@ public class QueueManagerEJB {
 
     public long cancelTasks(TaskQueryParam queueTaskQueryParam) {
         Date now = new Date();
-        List<Long> queueMsgPks = em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.pk, Long.class))
-                                    .getResultList();
+        Subquery<QueueMessage> sq = queueMsgQuery(queueTaskQueryParam);
 
-        updateExportTaskUpdatedTime(queueMsgPks, now);
-        updateRetrieveTaskUpdatedTime(queueMsgPks, now);
-        updateDiffTaskUpdatedTime(queueMsgPks, now);
-        updateStgVerTaskUpdatedTime(queueMsgPks, now);
-        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS) {
+            CriteriaQuery<QueueMessage> q = em.getCriteriaBuilder().createQuery(QueueMessage.class);
+            Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
+            AtomicInteger count = new AtomicInteger(0);
+            em.createQuery(q.where(queueMsg.in(sq)).select(queueMsg))
+                    .getResultStream()
+                    .forEach(qMsg -> {
+                        cancelTask(qMsg);
+                        count.getAndIncrement();
+                    });
+            return count.get();
+        }
+
+        updateExportTaskUpdatedTime(sq, now);
+        updateRetrieveTaskUpdatedTime(sq, now);
+        updateDiffTaskUpdatedTime(sq, now);
+        updateStgVerTaskUpdatedTime(sq, now);
+        return updateStatus(sq, QueueMessage.Status.CANCELED, now);
     }
 
-    private void updateExportTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
+    private Subquery<QueueMessage> queueMsgQuery(TaskQueryParam queueTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
+        Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
+        queueMsg = sq.from(QueueMessage.class);
+        List<Predicate> predicates = matchTask.queueMsgPredicates(
+                queueMsg,
+                queueTaskQueryParam);
+        if (!predicates.isEmpty())
+            sq.where(predicates.toArray(new Predicate[0]));
+
+        return sq.select(queueMsg);
+    }
+
+    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        Date now = new Date();
+        Subquery<QueueMessage> sq = exportTaskQuery(queueTaskQueryParam, exportTaskQueryParam);
+
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS)
+            return cancelInProcessTasks(sq, ExportTask_.queueMessage, ExportTask.class);
+
+        updateExportTaskUpdatedTime(sq, now);
+        return updateStatus(sq, QueueMessage.Status.CANCELED, now);
+    }
+
+    private <T> long cancelInProcessTasks(Subquery<QueueMessage> sq, SingularAttribute<T, QueueMessage> queueMsg,
+                                          Class<T> clazz) {
+        CriteriaQuery<QueueMessage> q = em.getCriteriaBuilder().createQuery(QueueMessage.class);
+        Root<T> task = q.from(clazz);
+        AtomicInteger count = new AtomicInteger(0);
+        em.createQuery(q.where(task.get(queueMsg).in(sq)).select(task.get(queueMsg)))
+                .getResultStream()
+                .forEach(qMsg -> {
+                    cancelTask(qMsg);
+                    count.getAndIncrement();
+                });
+        return count.get();
+    }
+
+    private void updateExportTaskUpdatedTime(Subquery<QueueMessage> sq, Date now) {
         CriteriaUpdate<ExportTask> q = em.getCriteriaBuilder().createCriteriaUpdate(ExportTask.class);
         Root<ExportTask> exportTask = q.from(ExportTask.class);
-        em.createQuery(q.where(exportTask.get(ExportTask_.queueMessage).in(queueMsgPks))
-                .set(exportTask.get(ExportTask_.updatedTime), now)).executeUpdate();
+        em.createQuery(q.where(exportTask.get(ExportTask_.queueMessage).in(sq))
+                .set(exportTask.get(ExportTask_.updatedTime), now))
+                .executeUpdate();
     }
 
-    private void updateRetrieveTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
-        CriteriaUpdate<RetrieveTask> q = em.getCriteriaBuilder().createCriteriaUpdate(RetrieveTask.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        em.createQuery(q.where(retrieveTask.get(RetrieveTask_.queueMessage).in(queueMsgPks))
-                .set(retrieveTask.get(RetrieveTask_.updatedTime), now)).executeUpdate();
-    }
-
-    private void updateDiffTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
-        CriteriaUpdate<DiffTask> q = em.getCriteriaBuilder().createCriteriaUpdate(DiffTask.class);
-        Root<DiffTask> diffTask = q.from(DiffTask.class);
-        em.createQuery(q.where(diffTask.get(DiffTask_.queueMessage).in(queueMsgPks))
-                .set(diffTask.get(DiffTask_.updatedTime), now)).executeUpdate();
-    }
-
-    private void updateStgVerTaskUpdatedTime(List<Long> queueMsgPks, Date now) {
-        CriteriaUpdate<StorageVerificationTask> q = em.getCriteriaBuilder().createCriteriaUpdate(StorageVerificationTask.class);
-        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
-        em.createQuery(q.where(stgVerTask.get(StorageVerificationTask_.queueMessage).in(queueMsgPks))
-                .set(stgVerTask.get(StorageVerificationTask_.updatedTime), now)).executeUpdate();
-    }
-    
-    private long updateStatus(List<Long> queueMsgPks, QueueMessage.Status status, Date now) {
+    private long updateStatus(Subquery<QueueMessage> sq, QueueMessage.Status status, Date now) {
         CriteriaUpdate<QueueMessage> q = em.getCriteriaBuilder().createCriteriaUpdate(QueueMessage.class);
         Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
-        return em.createQuery(q.where(queueMsg.get(QueueMessage_.pk).in(queueMsgPks))
+        return em.createQuery(q.where(queueMsg.get(QueueMessage_.pk).in(sq))
                 .set(queueMsg.get(QueueMessage_.updatedTime), now)
                 .set(queueMsg.get(QueueMessage_.status), status))
                 .executeUpdate();
     }
 
-    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        Date now = new Date();
-        List<Long> queueMsgPks = em.createQuery(retrieveTaskQuery(
-                queueTaskQueryParam, retrieveTaskQueryParam, QueueMessage_.pk, Long.class))
-                .getResultList();
-
-        updateRetrieveTaskUpdatedTime(queueMsgPks, now);
-        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
-    }
-
-    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        Date now = new Date();
-        List<Long> queueMsgPks = em.createQuery(stgVerTaskQuery(
-                queueTaskQueryParam, stgVerTaskQueryParam, QueueMessage_.pk, Long.class))
-                .getResultList();
-        updateStgVerTaskUpdatedTime(queueMsgPks, now);
-        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
-    }
-
-    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        Date now = new Date();
-        List<Long> queueMsgPks = em.createQuery(diffTaskQuery(
-                queueTaskQueryParam, diffTaskQueryParam, QueueMessage_.pk, Long.class))
-                .getResultList();
-        updateDiffTaskUpdatedTime(queueMsgPks, now);
-        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
-    }
-
-    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        Date now = new Date();
-        List<Long> queueMsgPks = em.createQuery(exportTaskQuery(
-                                        queueTaskQueryParam, exportTaskQueryParam, QueueMessage_.pk, Long.class))
-                                    .getResultList();
-        updateExportTaskUpdatedTime(queueMsgPks, now);
-        return updateStatus(queueMsgPks, QueueMessage.Status.CANCELED, now);
-    }
-
-    private <T> CriteriaQuery<T> exportTaskQuery(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam,
-            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
+    private Subquery<QueueMessage> exportTaskQuery(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<T> q = cb.createQuery(clazz);
-        Root<ExportTask> exportTask = q.from(ExportTask.class);
-        Join<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+
+        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
+        Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
+        Root<ExportTask> exportTask = sq.from(ExportTask.class);
+        Join<ExportTask, QueueMessage> queueMsg = sq.correlate(exportTask.join(ExportTask_.queueMessage));
 
         List<Predicate> predicates = matchTask.exportPredicates(
                 queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-
-        return q.select(queueMsg.get(attribute));
+            sq.where(predicates.toArray(new Predicate[0]));
+        return sq.select(exportTask.get(ExportTask_.queueMessage));
     }
 
-    private <T> CriteriaQuery<T> retrieveTaskQuery(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
-            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
+    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        Date now = new Date();
+        Subquery<QueueMessage> sq = retrieveTaskQuery(queueTaskQueryParam, retrieveTaskQueryParam);
+
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS)
+            return cancelInProcessTasks(sq, RetrieveTask_.queueMessage, RetrieveTask.class);
+
+        updateRetrieveTaskUpdatedTime(sq, now);
+        return updateStatus(sq, QueueMessage.Status.CANCELED, now);
+    }
+
+    private void updateRetrieveTaskUpdatedTime(Subquery<QueueMessage> sq, Date now) {
+        CriteriaUpdate<RetrieveTask> q = em.getCriteriaBuilder().createCriteriaUpdate(RetrieveTask.class);
+        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
+        em.createQuery(q.where(retrieveTask.get(RetrieveTask_.queueMessage).in(sq))
+                .set(retrieveTask.get(RetrieveTask_.updatedTime), now))
+                .executeUpdate();
+    }
+
+    private Subquery<QueueMessage> retrieveTaskQuery(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<T> q = cb.createQuery(clazz);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        Join<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+
+        CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
+        Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
+        Root<RetrieveTask> retrieveTask = sq.from(RetrieveTask.class);
+        Join<RetrieveTask, QueueMessage> queueMsg = sq.correlate(retrieveTask.join(RetrieveTask_.queueMessage));
 
         List<Predicate> predicates = matchTask.retrievePredicates(
                 queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-
-        return q.select(queueMsg.get(attribute));
+            sq.where(predicates.toArray(new Predicate[0]));
+        return sq.select(retrieveTask.get(RetrieveTask_.queueMessage));
     }
 
-    private <T> CriteriaQuery<T> diffTaskQuery(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam,
-            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<T> q = cb.createQuery(clazz);
-        Root<DiffTask> diffTask = q.from(DiffTask.class);
-        Join<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
+    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        Date now = new Date();
+        Subquery<QueueMessage> sq = stgVerTaskQuery(queueTaskQueryParam, stgVerTaskQueryParam);
 
-        List<Predicate> predicates = matchTask.diffPredicates(
-                queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q.select(queueMsg.get(attribute));
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS)
+            return cancelInProcessTasks(sq, StorageVerificationTask_.queueMessage, StorageVerificationTask.class);
+
+        updateStgVerTaskUpdatedTime(sq, now);
+        return updateStatus(sq, QueueMessage.Status.CANCELED, now);
     }
 
-    private <T> CriteriaQuery<T> stgVerTaskQuery(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam,
-            SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<T> q = cb.createQuery(clazz);
+    private void updateStgVerTaskUpdatedTime(Subquery<QueueMessage> sq, Date now) {
+        CriteriaUpdate<StorageVerificationTask> q = em.getCriteriaBuilder().createCriteriaUpdate(StorageVerificationTask.class);
         Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
-        Join<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        em.createQuery(q.where(stgVerTask.get(StorageVerificationTask_.queueMessage).in(sq))
+                .set(stgVerTask.get(StorageVerificationTask_.updatedTime), now))
+                .executeUpdate();
+    }
+
+    private Subquery<QueueMessage> stgVerTaskQuery(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+
+        CriteriaQuery<StorageVerificationTask> q = cb.createQuery(StorageVerificationTask.class);
+        Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
+        Root<StorageVerificationTask> stgVerTask = sq.from(StorageVerificationTask.class);
+        Join<StorageVerificationTask, QueueMessage> queueMsg = sq.correlate(stgVerTask.join(StorageVerificationTask_.queueMessage));
 
         List<Predicate> predicates = matchTask.stgVerPredicates(
                 queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-
-        return q.select(queueMsg.get(attribute));
+            sq.where(predicates.toArray(new Predicate[0]));
+        return sq.select(stgVerTask.get(StorageVerificationTask_.queueMessage));
     }
 
-    public List<String> getRetrieveTasksReferencedQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return em.createQuery(retrieveTaskQuery(
-                queueTaskQueryParam, retrieveTaskQueryParam, QueueMessage_.messageID, String.class))
-                .getResultList();
+    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+        Date now = new Date();
+        Subquery<QueueMessage> sq = diffTaskQuery(queueTaskQueryParam, diffTaskQueryParam);
+
+        if (queueTaskQueryParam.getStatus() == QueueMessage.Status.IN_PROCESS)
+            return cancelInProcessTasks(sq, DiffTask_.queueMessage, DiffTask.class);
+
+        updateDiffTaskUpdatedTime(sq, now);
+        return updateStatus(sq, QueueMessage.Status.CANCELED, now);
     }
 
-    public List<String> getStgVerTasksReferencedQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return em.createQuery(stgVerTaskQuery(
-                queueTaskQueryParam, stgVerTaskQueryParam, QueueMessage_.messageID, String.class))
-                .getResultList();
+    private void updateDiffTaskUpdatedTime(Subquery<QueueMessage> sq, Date now) {
+        CriteriaUpdate<DiffTask> q = em.getCriteriaBuilder().createCriteriaUpdate(DiffTask.class);
+        Root<DiffTask> diffTask = q.from(DiffTask.class);
+        em.createQuery(q.where(diffTask.get(DiffTask_.queueMessage).in(sq))
+                .set(diffTask.get(DiffTask_.updatedTime), now))
+                .executeUpdate();
     }
 
-    public List<String> getDiffTasksReferencedQueueMsgIDs(
+    private Subquery<QueueMessage> diffTaskQuery(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return em.createQuery(diffTaskQuery(
-                queueTaskQueryParam, diffTaskQueryParam, QueueMessage_.messageID, String.class))
-                .getResultList();
-    }
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
 
-    public List<String> getExportTasksReferencedQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        return em.createQuery(exportTaskQuery(
-                    queueTaskQueryParam, exportTaskQueryParam, QueueMessage_.messageID, String.class))
-                  .getResultList();
+        CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
+        Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
+        Root<DiffTask> diffTask = sq.from(DiffTask.class);
+        Join<DiffTask, QueueMessage> queueMsg = sq.correlate(diffTask.join(DiffTask_.queueMessage));
+
+        List<Predicate> predicates = matchTask.diffPredicates(
+                queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
+        if (!predicates.isEmpty())
+            sq.where(predicates.toArray(new Predicate[0]));
+        return sq.select(diffTask.get(DiffTask_.queueMessage));
     }
 
     public String findDeviceNameByMsgId(String msgId) {
@@ -494,23 +520,23 @@ public class QueueManagerEJB {
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
-    private <T> CriteriaQuery<T> queueMsgQuery(
-            TaskQueryParam queueTaskQueryParam, SingularAttribute<QueueMessage, T> attribute, Class<T> clazz) {
+    private CriteriaQuery<String> queueMsgQuery(
+            TaskQueryParam queueTaskQueryParam, SingularAttribute<QueueMessage, String> attribute) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<T> q = cb.createQuery(clazz);
+        CriteriaQuery<String> q = cb.createQuery(String.class);
         queueMsg = q.from(QueueMessage.class);
         return restrict(queueTaskQueryParam, matchTask, q).select(queueMsg.get(attribute));
     }
 
     public List<String> getQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
-        return em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.messageID, String.class))
+        return em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.messageID))
                 .setMaxResults(limit)
                 .getResultList();
     }
 
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam) {
-        return em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.deviceName, String.class)
+        return em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.deviceName)
                 .distinct(true))
                 .getResultList();
     }

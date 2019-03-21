@@ -161,8 +161,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam)
-            throws IllegalTaskStateException {
+    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam){
         return ejb.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 

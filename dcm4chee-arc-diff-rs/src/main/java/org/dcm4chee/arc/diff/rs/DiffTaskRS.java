@@ -257,9 +257,6 @@ public class DiffTaskRS {
             long count = diffService.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam(null));
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException e) {
-            queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(e);

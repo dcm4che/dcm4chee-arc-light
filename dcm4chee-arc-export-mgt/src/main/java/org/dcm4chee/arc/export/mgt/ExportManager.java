@@ -75,8 +75,7 @@ public interface ExportManager {
 
     boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam)
-            throws IllegalTaskStateException;
+    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
 
     String findDeviceNameByPk(Long pk);
 
