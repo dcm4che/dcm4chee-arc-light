@@ -1,8 +1,15 @@
-<ng-container *ngIf="selectedValue">
-    <div class="selected_value" *ngIf="!selectedValue.htmlLabel" (click)="toggleDropdown()">{{selectedValue.label || selectedValue.text}}</div>
-    <div class="selected_value" *ngIf="selectedValue && selectedValue.htmlLabel" [innerHTML]="selectedValue.htmlLabel" (click)="toggleDropdown()"></div>
-</ng-container>
-<div *ngIf="!selectedValue" class="selected_value empty_field" placeholder="Test" (click)="toggleDropdown()">Placeholder</div>
-<div class="select" *ngIf="showDropdown">
-    <ng-content></ng-content>
+<div class="j4care_dropdown" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
+    <div class="dropdown_input" (click)="toggleDropdown()">
+        <div class="input_part">
+            <ng-container *ngIf="selectedValue">
+                <div class="selected_value" *ngIf="!selectedValue.htmlLabel">{{selectedValue.label || selectedValue.text}}</div>
+                <div class="selected_value" *ngIf="selectedValue && selectedValue.htmlLabel" [innerHTML]="selectedValue.htmlLabel"></div>
+            </ng-container>
+            <div *ngIf="!selectedValue" class="selected_value empty_field">{{placeholder}}</div>
+        </div>
+        <span class="glyphicon glyphicon-triangle-bottom"></span>
+    </div>
+    <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
+        <ng-content></ng-content>
+    </div>
 </div>

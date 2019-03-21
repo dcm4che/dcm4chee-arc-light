@@ -1,0 +1,38 @@
+.j4care_dropdown{
+  float: left;
+  position: relative;
+  .dropdown_input{
+    min-width: 100px;
+    border-bottom: 1px solid #cccccc;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 7px;
+    &:hover{
+      cursor: pointer;
+    }
+    span.glyphicon-triangle-bottom{
+      width: 10px;
+      font-size: 9px;
+    }
+    .input_part{
+      width:calc(100% - 10px);
+      display: inline-block;
+      float: left;
+    }
+    .selected_value.empty_field{
+      font-style: italic;
+      color: #444;
+    }
+  }
+  .select{
+    -webkit-box-shadow: 2px 2px 11px 0px #333;
+    -moz-box-shadow: 2px 2px 11px 0px #333;
+    box-shadow: 2px 2px 11px 0px #333;
+    position: absolute;
+    background: white;
+    z-index: 99999;
+    min-width: 200px;
+    max-height: 250px;
+    overflow: auto;
+  }
+}

@@ -1,6 +1,13 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {AccessLocation, FilterSchema, StudyFilterConfig, StudyPageConfig, DicomMode} from "../../interfaces";
+import {
+    AccessLocation,
+    FilterSchema,
+    StudyFilterConfig,
+    StudyPageConfig,
+    DicomMode,
+    SelectDropdown
+} from "../../interfaces";
 import {StudyService} from "./study.service";
 import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
@@ -21,6 +28,8 @@ import {SeriesDicom} from "../../models/series-dicom";
 import {InstanceDicom} from "../../models/instance-dicom";
 import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
+import {DropdownList} from "../../helpers/form/dropdown-list";
+import {DropdownComponent} from "../../widgets/dropdown/dropdown.component";
 
 
 @Component({
@@ -52,7 +61,7 @@ import {GSPSQueryParams} from "../../models/gsps-query-params";
 export class StudyComponent implements OnInit {
 
     test = Globalvar.ORDERBY;
-
+    // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
     isOpen = true;
     testToggle(){
         this.isOpen = !this.isOpen;
