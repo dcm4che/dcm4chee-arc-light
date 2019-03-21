@@ -8,6 +8,32 @@ dicomSoftwareVersion: 5.16.1
 replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 
+## Use opencv based codecs provided by Weasis 3.x also for JPEG and JPEG 2000 compression #1868
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.51,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.53,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.55,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.90,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmImageReadParam
+
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 replace: dcmJavaClassName
