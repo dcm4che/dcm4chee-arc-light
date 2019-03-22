@@ -167,9 +167,7 @@ export class StudyComponent implements OnInit {
 
         }
     }
-    search(e){
-        console.log("e",e);
-        console.log("e", e);
+    search(mode?:('next'|'prev'|'current')){
         if (this._filter.filterModel.aet){
             let callingAet = new Aet(this._filter.filterModel.aet);
             let filters = _.clone(this._filter.filterModel);
@@ -177,54 +175,71 @@ export class StudyComponent implements OnInit {
                 filters.limit++;
             }
             delete filters.aet;
-            this.service.getStudies(callingAet, filters)
-                .subscribe(res => {
-                    this.patients = [];
-                    if(res){
-                        let index = 0;
-                        let patient: PatientDicom;
-                        let study: StudyDicom;
-                        let patAttrs;
-                        let tags = this.patientAttributes.dcmTag;
-
-                        while (tags && (tags[index] < '00201200')) {
-                            index++;
-                        }
-                        tags.splice(index, 0, '00201200');
-                        tags.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014');
-
-                        res.forEach((studyAttrs, index) => {
-                            patAttrs = {};
-                            this.service.extractAttrs(studyAttrs, tags, patAttrs);
-                            if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
-                                patient = new PatientDicom(patAttrs, [], false, true);
-                                this.patients.push(patient);
-                            }
-                            study = new StudyDicom(studyAttrs, patient, this._filter.filterModel.offset + index);
-                            patient.studies.push(study);
-                        });
-                        if (this.moreStudies = (res.length > this._filter.filterModel.limit)) {
-                            patient.studies.pop();
-                            if (patient.studies.length === 0) {
-                                this.patients.pop();
-                            }
-                            // this.studies.pop();
-                        }
-                    }else{
-                        this.appService.showMsg("No Studies found!");
-                    }
-                    this.cfpLoadingBar.complete();
-                    console.log("this.patients", this.patients);
-                }, err => {
-                    j4care.log("Something went wrong on search", err);
-                    this.httpErrorHandler.handleError(err);
-                    this.cfpLoadingBar.complete();
-                });
+            if(!mode || mode === "current"){
+                filters.offset = 0;
+                this.getStudies(filters, callingAet);
+            }else{
+                if(mode === "next" && this.moreStudies){
+                    filters.offset = filters.offset + this._filter.filterModel.limit;
+                    this.getStudies(filters, callingAet);
+                }
+                if(mode === "prev" && filters.offset > 0){
+                    filters.offset = filters.offset - this._filter.filterModel.offset;
+                    this.getStudies(filters, callingAet);
+                }
+            }
         }else{
             this.appService.showError("Calling AET is missing!");
         }
     }
 
+    getStudies(filters, callingAet){
+        this.cfpLoadingBar.start();
+        this.service.getStudies(callingAet, filters)
+            .subscribe(res => {
+                this.patients = [];
+                if(res){
+                    let index = 0;
+                    let patient: PatientDicom;
+                    let study: StudyDicom;
+                    let patAttrs;
+                    let tags = this.patientAttributes.dcmTag;
+
+                    while (tags && (tags[index] < '00201200')) {
+                        index++;
+                    }
+                    tags.splice(index, 0, '00201200');
+                    tags.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014');
+
+                    res.forEach((studyAttrs, index) => {
+                        patAttrs = {};
+                        this.service.extractAttrs(studyAttrs, tags, patAttrs);
+                        if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                            patient = new PatientDicom(patAttrs, [], false, true);
+                            this.patients.push(patient);
+                        }
+                        study = new StudyDicom(studyAttrs, patient, this._filter.filterModel.offset + index);
+                        patient.studies.push(study);
+                    });
+                    if (this.moreStudies = (res.length > this._filter.filterModel.limit)) {
+                        patient.studies.pop();
+                        if (patient.studies.length === 0) {
+                            this.patients.pop();
+                        }
+                        // this.studies.pop();
+                    }
+                }else{
+                    this.appService.showMsg("No Studies found!");
+                }
+                this._filter.filterModel.offset = filters.offset;
+                this.cfpLoadingBar.complete();
+                console.log("this.patients", this.patients);
+            }, err => {
+                j4care.log("Something went wrong on search", err);
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+            });
+    }
     getSeries(study:StudyDicom){
         console.log('in query sersies study=', study);
         this.cfpLoadingBar.start();

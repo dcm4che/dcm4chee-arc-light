@@ -36,6 +36,8 @@ import { DynamicFieldComponent } from './dynamic-field/dynamic-field.component';
 import { DcmSelectComponent } from './dcm-select/dcm-select.component';
 import { CsvUploadComponent } from './dialogs/csv-upload/csv-upload.component';
 import { SizeRangePickerComponent } from './size-range-picker/size-range-picker.component';
+import { DropdownComponent } from './dropdown/dropdown.component';
+import {OptionComponent} from "./dropdown/option.component";
 
 
 @NgModule({
@@ -81,5 +83,7 @@ export const WidgetsComponents = [
     DynamicFieldComponent,
     DcmSelectComponent,
     CsvUploadComponent,
-    SizeRangePickerComponent
+    SizeRangePickerComponent,
+    DropdownComponent,
+    OptionComponent
 ];

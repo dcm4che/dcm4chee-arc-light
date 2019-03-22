@@ -23,7 +23,6 @@ export class DicomStudiesTableComponent implements OnInit {
         this._config.offset = this._config.offset || 0;
     }
 
-
     get tableSchema(): DicomTableSchema {
         return this._tableSchema;
     }

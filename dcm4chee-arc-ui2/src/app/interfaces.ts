@@ -24,13 +24,15 @@ export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 export class SelectDropdown {
     private _value:string;
     private _text:string;
-    private _label:string;
+    private _label:any;
     private _title?:string;
-    constructor(value:any,text:string, title?:string){
+    private _htmlLabel:string;
+    constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string){
         this._value = value;
         this._text = text;
-        this._label = text;
+        this._label = label || text;
         this._title = title;
+        this._htmlLabel = htmlLabel;
     }
 
     get value(): string {
@@ -49,11 +51,11 @@ export class SelectDropdown {
         this._text = value;
     }
 
-    get label(): string {
+    get label(): any {
         return this._label;
     }
 
-    set label(value:string) {
+    set label(value:any) {
         this._label = value;
     }
 
@@ -63,6 +65,15 @@ export class SelectDropdown {
 
     set title(value: string) {
         this._title = value;
+    }
+
+
+    get htmlLabel(): string {
+        return this._htmlLabel;
+    }
+
+    set htmlLabel(value: string) {
+        this._htmlLabel = value;
     }
 }
 export type Quantity = "count"|"size"|string;

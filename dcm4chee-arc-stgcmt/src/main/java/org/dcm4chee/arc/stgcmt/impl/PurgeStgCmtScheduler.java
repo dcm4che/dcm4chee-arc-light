@@ -94,6 +94,8 @@ public class PurgeStgCmtScheduler extends Scheduler {
             return;
 
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        ejb.deleteStgCmts(status, before);
+        int deleted = ejb.deleteStgCmts(status, before);
+        if (deleted > 0)
+            LOG.info("Purged {} storage commitments", deleted);
     }
 }

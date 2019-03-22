@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {AccessLocation, DicomMode, DicomResponseType, FilterSchema} from "../../interfaces";
+import {AccessLocation, DicomMode, DicomResponseType, FilterSchema, SelectDropdown} from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
@@ -27,17 +27,28 @@ export class StudyService {
                 lineLength = hidden ? 1:2;
                 break;
             case "mwl":
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,hidden);
+                lineLength = hidden ? 2:3;
                 break;
             case "diff":
-                schema = [
-
-                ];
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,hidden);
+                lineLength = hidden ? 2:3;
                 break;
             default:
                 schema = Globalvar.STUDY_FILTER_SCHEMA(aets,hidden);
                 lineLength = hidden ? 2:3;
         }
         if(!hidden){
+            schema.push({
+                tag:"select",
+                options:Globalvar.ORDERBY
+                    .filter(order=>order.mode === tab)
+                    .map(order=>{
+                        return new SelectDropdown(order.value, order.label,order.title,order.label);
+                    }),
+                filterKey:'orderby',
+                text:"Order By"
+            });
             schema.push({
                     tag: "button",
                     id: "count",

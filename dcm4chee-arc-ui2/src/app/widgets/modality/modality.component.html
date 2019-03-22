@@ -1,5 +1,5 @@
-<input type="text" size="5"  [(ngModel)]="model" (keyup)="selectModality(model)" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
-<div class="modality_selector [hidden]" *ngIf="showModalitySelector">
+<input type="text" [(ngModel)]="model" (keyup)="selectModality(model)" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12 input_field"/>
+<div class="modality_selector [hidden]" *ngIf="showModalitySelector"  (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['form-group','more_block','more','input_field']">
   <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
   <div class="common">
     <a href="" *ngFor="let value of modalities.common | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
