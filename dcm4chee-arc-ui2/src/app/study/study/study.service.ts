@@ -40,16 +40,29 @@ export class StudyService {
         }
         if(!hidden){
             schema.push({
-                tag:"select",
+                tag:"html-select",
                 options:Globalvar.ORDERBY
                     .filter(order=>order.mode === tab)
                     .map(order=>{
-                        return new SelectDropdown(order.value, order.label,order.title,order.label);
+                        return new SelectDropdown(order.value, order.label,order.title,order.title,order.label);
                     }),
                 filterKey:'orderby',
-                text:"Order By"
+                text:"Order By",
+                placeholder:"Order By",
+                cssClass:'study_order'
+
+            },
+            {
+                tag: "button",
+                id: "submit",
+                text: "SUBMIT",
+                description: "Query Studies"
             });
-            schema.push({
+            schema.push(
+                {
+                    tag:"dummy"
+                },
+                {
                     tag: "button",
                     id: "count",
                     text: quantityText.count,
@@ -59,12 +72,6 @@ export class StudyService {
                     id: "size",
                     text: quantityText.size,
                     description: "QUERIE ONLY THE SIZE"
-                },
-                {
-                    tag: "button",
-                    id: "submit",
-                    text: "SUBMIT",
-                    description: "Query Studies"
                 });
         }
         return {

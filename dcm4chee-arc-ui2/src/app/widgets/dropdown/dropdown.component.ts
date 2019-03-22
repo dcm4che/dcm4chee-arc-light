@@ -1,5 +1,5 @@
 import {
-    AfterContentInit,
+    AfterContentInit, AfterViewChecked, ChangeDetectorRef,
     Component,
     ContentChild,
     ContentChildren,
@@ -39,24 +39,32 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
         ])
     ]
 })
-export class DropdownComponent implements AfterContentInit {
-    selectedValue:SelectDropdown;
+export class DropdownComponent implements AfterContentInit, AfterViewChecked {
+    selectedValue:string;
+    selectedDropdown:SelectDropdown;
     @Input() placeholder:string;
+
     @Input('model')
-    set model(model: SelectDropdown){
-        this.selectedValue = model;
-        this.service.setValue(model);
-        this.setSelectedElement();
+    set model(value){
+        this.selectedValue = value;
+        if(!(this.selectedDropdown && this.selectedDropdown.value === value)){
+            this.selectedDropdown  = this.getSelectDropdownFromValue(value);
+            this.service.setValue(this.selectedDropdown);
+            this.setSelectedElement();
+        }
     }
     @ContentChild(OptionComponent) template: OptionComponent;
     @ContentChildren(OptionComponent) children:QueryList<OptionComponent>;
 
     @Output() modelChange =  new EventEmitter();
     showDropdown:boolean = true;
-    constructor(public service:OptionService) {
+    constructor(
+        public service:OptionService
+    ) {
         this.service.valueSet$.subscribe(value=>{
-            this.selectedValue = value;
-            this.modelChange.emit(value);
+            this.selectedValue = value.value;
+            this.selectedDropdown = value;
+            this.modelChange.emit(value.value);
             this.setSelectedElement();
             this.showDropdown = false;
         })
@@ -69,17 +77,37 @@ export class DropdownComponent implements AfterContentInit {
     ngAfterContentInit(): void {
         console.log("template",this.template);
         console.log("children",this.children);
-        this.setSelectedElement();
+        if(this.selectedValue){
+            this.selectedDropdown = this.getSelectDropdownFromValue(this.selectedValue);
+        }
     }
 
-    setSelectedElement(){
-        if(this.children && this.selectedValue)
+    getSelectDropdownFromValue(value):SelectDropdown{
+        let endDropdown:any =  new SelectDropdown(value,'');
+        if(value && this.children){
             this.children.forEach(element=>{
-                if(element.value === this.selectedValue.value){
+                if(element.value === value){
+                    endDropdown = element;
+                }
+            });
+        }
+        return endDropdown;
+    }
+    setSelectedElement(){
+/*        console.log("insetselectedelement",this.children);
+        console.log("selectedValue",this.selectedValue);*/
+        if(this.children && this.selectedValue){
+            this.children.forEach(element=>{
+                if(element.value === this.selectedValue || element.value === this.selectedValue){
                     element.selected = true;
                 }else{
                     element.selected = false;
                 }
-            })
+            });
+        }
+    }
+
+    ngAfterViewChecked(): void {
+        this.setSelectedElement();
     }
 }

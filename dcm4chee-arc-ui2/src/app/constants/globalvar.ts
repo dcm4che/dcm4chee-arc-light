@@ -119,92 +119,92 @@ export class Globalvar {
         return [
             {
                 value: 'PatientName',
-                label: '<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>',
+                label: `<label class="order_label">Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
                 mode: 'patient',
                 title:'Query Patients'
             },
             {
                 value: '-PatientName',
-                label: '<label>Patient</label><span class=\"orderbynamedesc\"></span>',
+                label: `<label class="order_label">Patient</label><span class=\"orderbynamedesc\"></span>`,
                 mode: 'patient',
                 title:'Query Patients'
             },
             {
 
                 value: '-StudyDate,-StudyTime',
-                label: '<label>Study</label><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: 'StudyDate,StudyTime',
-                label: '<label>Study</label><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: 'PatientName,-StudyDate,-StudyTime',
-                label: '<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: '-PatientName,-StudyDate,-StudyTime',
-                label: '<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: 'PatientName,StudyDate,StudyTime',
-                label: '<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: '-PatientName,StudyDate,StudyTime',
-                label: '<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">MWL</label></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: 'PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: '-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: 'PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: '-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: '',
-                label: '<label>Diff </label><i class="material-icons">compare_arrows</i>',
+                label: `<label class="order_label">Diff </label><i class="material-icons">compare_arrows</i>`,
                 mode: 'diff',
                 title:'Make diff between two archives'
             }

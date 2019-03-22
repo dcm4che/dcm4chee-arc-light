@@ -17,11 +17,11 @@ import * as _ from 'lodash';
             background: #cccccc;
         }
         .option {
-            padding: 2px 10px;
+            padding: 5px 10px;
         }
         .option:hover {
             cursor: pointer;
-            background: rgba(28, 36, 43, 0.44);
+            background: rgba(28, 36, 43, 0.1);
         }
     `]
 })
@@ -36,11 +36,11 @@ export class OptionComponent implements OnInit {
     ){
     }
     ngOnInit() {
-            if(this.service.currentStateOfTheValue && this.value && _.isEqual(this.service.currentStateOfTheValue.value, this.value)){
-                this._selected = true;
-            }else{
-                this._selected = false;
-            }
+        if(this.service.currentStateOfTheValue && this.value && _.isEqual(this.service.currentStateOfTheValue.value, this.value)){
+            this._selected = true;
+        }else{
+            this._selected = false;
+        }
     }
 
     select(e){
