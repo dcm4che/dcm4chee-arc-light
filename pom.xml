@@ -69,7 +69,6 @@
     <keycloak.version>4.6.0.Final</keycloak.version>
     <jclouds.version>2.1.1</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
-    <querydsl.version>4.2.1</querydsl.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
     <glassfish-json.version>1.0.4</glassfish-json.version>
     <junit.version>4.12</junit.version>
@@ -335,13 +334,6 @@
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-multipart-provider</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.querydsl</groupId>
-      <artifactId>querydsl-jpa</artifactId>
-      <version>${querydsl.version}</version>
       <scope>provided</scope>
     </dependency>
 

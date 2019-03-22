@@ -92,12 +92,6 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
-      <artifactId>querydsl-jboss-modules</artifactId>
-      <version>${querydsl.version}-noguava</version>
-      <type>zip</type>
-    </dependency>
-     <dependency>
-      <groupId>org.dcm4che</groupId>
       <artifactId>jclouds-jboss-modules</artifactId>
       <version>${jclouds.version}-noguava</version>
       <type>zip</type>

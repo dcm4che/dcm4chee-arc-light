@@ -68,8 +68,6 @@
             <module name="org.dcm4che.xdsi" export="TRUE"/>
             <!-- apache-cxf modules -->
             <module name="org.apache.cxf.impl" export="TRUE"/>
-            <!-- querydsl modules -->
-            <module name="com.querydsl" export="TRUE"/>
             <!-- jclouds modules -->
             <module name="org.apache.jclouds.core" export="TRUE"/>
             <module name="org.apache.jclouds.blobstore" export="TRUE" services="export"/>
