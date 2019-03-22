@@ -56,7 +56,7 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 
 import javax.json.Json;
 import javax.persistence.EntityManager;

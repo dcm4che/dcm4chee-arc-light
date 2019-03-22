@@ -45,7 +45,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -83,7 +83,7 @@ public class QueryAttributesEJB {
         Root<Series> series = q.from(Series.class);
         String viewID = qrView.getViewID();
         CollectionJoin<Series, SeriesQueryAttributes> seriesQueryAttributes =
-                QueryBuilder2.joinSeriesQueryAttributes(cb, series, viewID);
+                QueryBuilder.joinSeriesQueryAttributes(cb, series, viewID);
         TypedQuery<Tuple> query = em.createQuery(q
                 .multiselect(
                         series.get(Series_.pk),
@@ -114,7 +114,7 @@ public class QueryAttributesEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
-        QueryBuilder2 queryBuilder = new QueryBuilder2(cb);
+        QueryBuilder queryBuilder = new QueryBuilder(cb);
         List<Predicate> x = new ArrayList<>();
         x.add(cb.equal(instance.get(Instance_.series).get(Series_.pk), seriesPk));
         queryBuilder.hideRejectedInstance(x, instance,

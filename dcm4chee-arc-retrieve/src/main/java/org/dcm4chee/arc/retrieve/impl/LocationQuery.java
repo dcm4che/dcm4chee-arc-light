@@ -47,7 +47,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.StudyInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -103,8 +103,8 @@ class LocationQuery {
             predicates.add((cb.equal(series.get(Series_.pk), ctx.getSeriesMetadataUpdate().seriesPk)));
             q.orderBy(cb.asc(instance.get(Instance_.instanceNumber)));
         } else {
-            QueryBuilder2 builder = new QueryBuilder2(cb);
-            if (!QueryBuilder2.isUniversalMatching(ctx.getPatientIDs())) {
+            QueryBuilder builder = new QueryBuilder(cb);
+            if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
                 builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
             }
             builder.accessControl(predicates, study, ctx.getAccessControlIDs());
@@ -119,7 +119,7 @@ class LocationQuery {
                         codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
             }
             String[] sopInstanceUIDs = ctx.getSopInstanceUIDs();
-            if (!QueryBuilder2.isUniversalMatching(sopInstanceUIDs)) {
+            if (!QueryBuilder.isUniversalMatching(sopInstanceUIDs)) {
                 // SQL Server actually does support lesser parameters than its specified limit (2100)
                 int limit = getInExpressionCountLimit() - 10;
                 if (limit > 0 && sopInstanceUIDs.length > limit) {

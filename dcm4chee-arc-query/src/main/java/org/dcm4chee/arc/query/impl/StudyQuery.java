@@ -49,7 +49,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.persistence.EntityManager;
@@ -81,7 +81,7 @@ class StudyQuery extends AbstractQuery {
         this.study = q.from(Study.class);
         this.patient = study.join(Study_.patient);
         String viewID = context.getQueryParam().getViewID();
-        this.studyQueryAttributes = QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID);
+        this.studyQueryAttributes = QueryBuilder.joinStudyQueryAttributes(cb, study, viewID);
         return order(restrict(q, patient, study)).multiselect(
                 study.get(Study_.pk),
                 patient.get(Patient_.numberOfStudies),
@@ -209,7 +209,7 @@ class StudyQuery extends AbstractQuery {
 
     private CriteriaQuery<Long> createQuery(CriteriaQuery<Long> q,
             Root<Study> study, Expression<Long> longExpression, Predicate... extra) {
-        boolean hasPatientLevelPredicates = QueryBuilder2.hasPatientLevelPredicates(
+        boolean hasPatientLevelPredicates = QueryBuilder.hasPatientLevelPredicates(
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam());

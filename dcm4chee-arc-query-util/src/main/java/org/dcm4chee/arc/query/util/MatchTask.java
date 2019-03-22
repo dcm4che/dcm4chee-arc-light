@@ -57,9 +57,11 @@ import java.util.Objects;
 public class MatchTask {
 
     private final CriteriaBuilder cb;
+    private final QueryBuilder queryBuilder;
 
     public MatchTask(CriteriaBuilder cb) {
         this.cb = Objects.requireNonNull(cb);
+        this.queryBuilder = new QueryBuilder(cb);
     }
 
     public List<Predicate> queueMsgPredicates(
@@ -157,9 +159,9 @@ public class MatchTask {
         if (taskQueryParam.getJmsMessageID() != null)
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.messageID), taskQueryParam.getJmsMessageID()));
         if (taskQueryParam.getCreatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.createdTime), taskQueryParam.getCreatedTime()));
+            queryBuilder.dateRange(predicates, queueMsg.get(QueueMessage_.createdTime), taskQueryParam.getCreatedTime());
         if (taskQueryParam.getUpdatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(cb, queueMsg.get(QueueMessage_.updatedTime), taskQueryParam.getUpdatedTime()));
+            queryBuilder.dateRange(predicates, queueMsg.get(QueueMessage_.updatedTime), taskQueryParam.getUpdatedTime());
         if (taskQueryParam.getUpdatedBefore() != null)
             predicates.add(cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), taskQueryParam.getUpdatedBefore()));
     }
@@ -172,11 +174,9 @@ public class MatchTask {
         if (taskQueryParam.getStudyIUID() != null)
             predicates.add(cb.equal(exportTask.get(ExportTask_.studyInstanceUID), taskQueryParam.getStudyIUID()));
         if (taskQueryParam.getCreatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, exportTask.get(ExportTask_.createdTime), taskQueryParam.getCreatedTime()));
+            queryBuilder.dateRange(predicates, exportTask.get(ExportTask_.createdTime), taskQueryParam.getCreatedTime());
         if (taskQueryParam.getUpdatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, exportTask.get(ExportTask_.updatedTime), taskQueryParam.getUpdatedTime()));
+            queryBuilder.dateRange(predicates, exportTask.get(ExportTask_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
     private void matchRetrieveTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
@@ -189,11 +189,11 @@ public class MatchTask {
         if (taskQueryParam.getStudyIUID() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.studyInstanceUID), taskQueryParam.getStudyIUID()));
         if (taskQueryParam.getCreatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, retrieveTask.get(RetrieveTask_.createdTime), taskQueryParam.getCreatedTime()));
+            queryBuilder.dateRange(
+                    predicates, retrieveTask.get(RetrieveTask_.createdTime), taskQueryParam.getCreatedTime());
         if (taskQueryParam.getUpdatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, retrieveTask.get(RetrieveTask_.updatedTime), taskQueryParam.getUpdatedTime()));
+            queryBuilder.dateRange(
+                    predicates, retrieveTask.get(RetrieveTask_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
     private void matchDiffTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<DiffTask> diffTask) {
@@ -206,15 +206,15 @@ public class MatchTask {
         if (taskQueryParam.getCompareFields() != null)
             predicates.add(cb.equal(diffTask.get(DiffTask_.compareFields), taskQueryParam.getCompareFields()));
         if (taskQueryParam.getCheckMissing() != null)
-            predicates.add(cb.equal(diffTask.get(DiffTask_.checkMissing), Boolean.parseBoolean(taskQueryParam.getCheckMissing())));
+            predicates.add(cb.equal(diffTask.get(DiffTask_.checkMissing),
+                    Boolean.parseBoolean(taskQueryParam.getCheckMissing())));
         if (taskQueryParam.getCheckDifferent() != null)
-            predicates.add(cb.equal(diffTask.get(DiffTask_.checkDifferent), Boolean.parseBoolean(taskQueryParam.getCheckDifferent())));
+            predicates.add(cb.equal(diffTask.get(DiffTask_.checkDifferent),
+                    Boolean.parseBoolean(taskQueryParam.getCheckDifferent())));
         if (taskQueryParam.getCreatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, diffTask.get(DiffTask_.createdTime), taskQueryParam.getCreatedTime()));
+            queryBuilder.dateRange(predicates, diffTask.get(DiffTask_.createdTime), taskQueryParam.getCreatedTime());
         if (taskQueryParam.getUpdatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, diffTask.get(DiffTask_.updatedTime), taskQueryParam.getUpdatedTime()));
+            queryBuilder.dateRange(predicates, diffTask.get(DiffTask_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
     private void matchStgVerTask(
@@ -224,11 +224,11 @@ public class MatchTask {
         if (taskQueryParam.getStudyIUID() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.studyInstanceUID), taskQueryParam.getStudyIUID()));
         if (taskQueryParam.getCreatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, stgVerTask.get(StorageVerificationTask_.createdTime), taskQueryParam.getCreatedTime()));
+            queryBuilder.dateRange(
+                    predicates, stgVerTask.get(StorageVerificationTask_.createdTime), taskQueryParam.getCreatedTime());
         if (taskQueryParam.getUpdatedTime() != null)
-            predicates.add(MatchDateTimeRange.range(
-                    cb, stgVerTask.get(StorageVerificationTask_.updatedTime), taskQueryParam.getUpdatedTime()));
+            queryBuilder.dateRange(
+                    predicates, stgVerTask.get(StorageVerificationTask_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
     public Order exportTaskOrder(String orderby, Path<ExportTask> exportTask) {
@@ -350,7 +350,7 @@ public class MatchTask {
         if (taskQueryParam.getUpdatedTime() != null)
             predicates.add(cb.or(MatchDateTimeRange.range(
                     cb, exportTask.get(ExportTask_.updatedTime), taskQueryParam.getUpdatedTime())));
-        
+
     }
 
     private void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {

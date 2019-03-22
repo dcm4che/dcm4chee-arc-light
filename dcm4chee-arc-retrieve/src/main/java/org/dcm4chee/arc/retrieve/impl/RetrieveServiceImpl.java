@@ -61,7 +61,7 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
@@ -345,8 +345,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         Join<Series, Study> study = series.join(Series_.study);
         Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
         List<Predicate> predicates = new ArrayList<>();
-        QueryBuilder2 builder = new QueryBuilder2(cb);
-        if (!QueryBuilder2.isUniversalMatching(ctx.getPatientIDs())) {
+        QueryBuilder builder = new QueryBuilder(cb);
+        if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
             builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
         }
         builder.accessControl(predicates, study, ctx.getAccessControlIDs());

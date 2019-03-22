@@ -53,7 +53,7 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -92,9 +92,9 @@ public class QueryServiceEJB {
         Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
         String viewID = context.getQueryParam().getViewID();
         CollectionJoin<Study, StudyQueryAttributes> studyQueryAttributesPath =
-                QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID);
+                QueryBuilder.joinStudyQueryAttributes(cb, study, viewID);
         CollectionJoin<Series, SeriesQueryAttributes> seriesQueryAttributesPath =
-                QueryBuilder2.joinSeriesQueryAttributes(cb, series, viewID);
+                QueryBuilder.joinSeriesQueryAttributes(cb, series, viewID);
         Path<byte[]> seriesAttrBlob = series.join(Series_.attributesBlob).get(AttributesBlob_.encodedAttributes);
         Path<byte[]> studyAttrBlob = study.join(Study_.attributesBlob).get(AttributesBlob_.encodedAttributes);
         Path<byte[]> patAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes);
@@ -250,7 +250,7 @@ public class QueryServiceEJB {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Study> study = q.from(Study.class);
         CollectionJoin<Study, StudyQueryAttributes> studyQueryAttributesPath =
-                QueryBuilder2.joinStudyQueryAttributes(cb, study, viewID);
+                QueryBuilder.joinStudyQueryAttributes(cb, study, viewID);
         Tuple result;
         try {
             result = em.createQuery(q
@@ -289,7 +289,7 @@ public class QueryServiceEJB {
         Root<Series> series = q.from(Series.class);
         Join<Series, Study> study = series.join(Series_.study);
         CollectionJoin<Series, SeriesQueryAttributes> seriesQueryAttributesPath =
-                QueryBuilder2.joinSeriesQueryAttributes(cb, series, viewID);
+                QueryBuilder.joinSeriesQueryAttributes(cb, series, viewID);
         Tuple result;
         try {
             result = em.createQuery(q
@@ -365,7 +365,7 @@ public class QueryServiceEJB {
         Join<Instance, Series> series = instance.join(Instance_.series);
         Join<Series, Study> study = series.join(Series_.study);
         List<Tuple> tuples = em.createQuery(
-                restrict(new QueryBuilder2(cb), q, study, series, instance, studyIUID, seriesUID, objectUID, qrView)
+                restrict(new QueryBuilder(cb), q, study, series, instance, studyIUID, seriesUID, objectUID, qrView)
                 .multiselect(
                         study.get(Study_.pk),
                         series.get(Series_.pk),
@@ -424,7 +424,7 @@ public class QueryServiceEJB {
         return refStudy;
     }
 
-    private CriteriaQuery<Tuple> restrict(QueryBuilder2 builder, CriteriaQuery<Tuple> q, Join<Series, Study> study,
+    private CriteriaQuery<Tuple> restrict(QueryBuilder builder, CriteriaQuery<Tuple> q, Join<Series, Study> study,
             Join<Instance, Series> series, Root<Instance> instance,
             String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView) {
         return q.where(

@@ -46,7 +46,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.hibernate.annotations.QueryHints;
 
 import javax.persistence.*;
@@ -64,7 +64,7 @@ abstract class AbstractQuery implements Query {
     protected final QueryContext context;
     protected final EntityManager em;
     protected final CriteriaBuilder cb;
-    protected final QueryBuilder2 builder;
+    protected final QueryBuilder builder;
     private Stream<Tuple> resultStream;
     private Iterator<Tuple> results;
     private int offset;
@@ -77,7 +77,7 @@ abstract class AbstractQuery implements Query {
         this.context = context;
         this.em = em;
         this.cb = em.getCriteriaBuilder();
-        this.builder = new QueryBuilder2(cb);
+        this.builder = new QueryBuilder(cb);
     }
 
     @Override

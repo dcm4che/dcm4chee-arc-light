@@ -48,7 +48,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder2;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.persistence.EntityManager;
@@ -86,9 +86,9 @@ class SeriesQuery extends AbstractQuery {
         this.study = series.join(Series_.study);
         this.patient = study.join(Study_.patient);
         this.metadata = series.join(Series_.metadata, JoinType.LEFT);
-        this.studyQueryAttributes = QueryBuilder2.joinStudyQueryAttributes(cb, study,
+        this.studyQueryAttributes = QueryBuilder.joinStudyQueryAttributes(cb, study,
                 context.getQueryParam().getViewID());
-        this.seriesQueryAttributes = QueryBuilder2.joinSeriesQueryAttributes(cb, series,
+        this.seriesQueryAttributes = QueryBuilder.joinSeriesQueryAttributes(cb, series,
                 context.getQueryParam().getViewID());
         return order(restrict(q, patient, study, series)).multiselect(
                 study.get(Study_.pk),
