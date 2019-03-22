@@ -329,7 +329,7 @@ public class MatchTask {
     }
 
     private void matchQueueBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<QueueMessage> queueMsg) {
-        predicates.add(cb.isNotNull(queueMsg.get(QueueMessage_.batchID)));
+        predicates.add(queueMsg.get(QueueMessage_.batchID).isNotNull());
         if (taskQueryParam.getStatus() != null)
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.status), taskQueryParam.getStatus()));
         if (taskQueryParam.getDeviceName() != null)

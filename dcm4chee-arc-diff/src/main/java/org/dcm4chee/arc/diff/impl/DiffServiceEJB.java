@@ -43,6 +43,7 @@ package org.dcm4chee.arc.diff.impl;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
+
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -256,41 +257,57 @@ public class DiffServiceEJB {
                 .getResultList();
     }
 
-//    public List<AttributesBlob> getDiffTaskAttributes(Predicate matchQueueBatch, Predicate matchDiffBatch, int offset, int limit) {
-//        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueBatch, matchDiffBatch);
-//        if (limit > 0)
-//            diffTaskQuery.limit(limit);
-//        if (offset > 0)
-//            diffTaskQuery.offset(offset);
-//
-//        return new HibernateQuery<DiffTaskAttributes>(em.unwrap(Session.class))
-//                .select(QDiffTaskAttributes.diffTaskAttributes.attributesBlob)
-//                .from(QDiffTaskAttributes.diffTaskAttributes)
-//                .where(QDiffTaskAttributes.diffTaskAttributes.diffTask.in(diffTaskQuery))
-//                .fetch();
-//    }
-
     public List<AttributesBlob> getDiffTaskAttributes(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
-        diffTask = q.from(DiffTask.class);
-        queueMsg = diffTask.join(DiffTask_.queueMessage);
+        Subquery<DiffTask> sq = referencedDiffTasks(referencedQueueMsgs(queueBatchQueryParam, diffBatchQueryParam));
 
-        CriteriaQuery<AttributesBlob> q1 = cb.createQuery(AttributesBlob.class);
-        Root<DiffTaskAttributes> diffTaskAttrs = q1.from(DiffTaskAttributes.class);
-        TypedQuery<AttributesBlob> query = em.createQuery(q1
-                .where(diffTaskAttrs.get(DiffTaskAttributes_.diffTask)
-                        .in(em.createQuery(restrictBatch(queueBatchQueryParam, diffBatchQueryParam, matchTask, q))
-                                .getResultList()))
-                //.select(diffTask.join(DiffTask_.diffTaskAttributes).get(DiffTaskAttributes_.attributesBlob))
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<AttributesBlob> q = cb.createQuery(AttributesBlob.class);
+        Root<DiffTaskAttributes> diffTaskAttrs = q.from(DiffTaskAttributes.class);
+        TypedQuery<AttributesBlob> query = em.createQuery(q.where(diffTaskAttrs.get(DiffTaskAttributes_.diffTask).in(sq))
                 .select(diffTaskAttrs.get(DiffTaskAttributes_.attributesBlob)));
+
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
             query.setMaxResults(limit);
         return query.getResultList();
+
+    }
+
+    private Subquery<DiffTask> referencedDiffTasks(Subquery<QueueMessage> sq) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        CriteriaQuery<DiffTaskAttributes> q1 = cb.createQuery(DiffTaskAttributes.class);
+        Subquery<DiffTask> sq1 = q1.subquery(DiffTask.class);
+        Root<DiffTaskAttributes> diffTaskAttrs = sq1.from(DiffTaskAttributes.class);
+        Join<DiffTaskAttributes, DiffTask> diffTask = sq1.correlate(diffTaskAttrs.join(DiffTaskAttributes_.diffTask));
+
+        CriteriaQuery<DiffTask> q2 = cb.createQuery(DiffTask.class);
+        Subquery<DiffTask> sq2 = q2.subquery(DiffTask.class);
+        sq2.from(DiffTask.class);
+
+        return sq1.where(diffTaskAttrs.get(DiffTaskAttributes_.diffTask)
+                    .in(sq2.where(diffTask.get(DiffTask_.queueMessage).in(sq)).select(diffTask)))
+                .select(diffTaskAttrs.get(DiffTaskAttributes_.diffTask));
+    }
+
+    private Subquery<QueueMessage> referencedQueueMsgs(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+
+        CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
+        Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
+        Root<DiffTask> diffTask = sq.from(DiffTask.class);
+        Join<DiffTask, QueueMessage> queueMsg = sq.correlate(diffTask.join(DiffTask_.queueMessage));
+
+        List<Predicate> predicates = matchTask.diffBatchPredicates(
+                queueMsg, diffTask, queueBatchQueryParam, diffBatchQueryParam);
+        if (!predicates.isEmpty())
+            sq.where(predicates.toArray(new Predicate[0]));
+
+        return sq.select(diffTask.get(DiffTask_.queueMessage));
     }
 
     public List<DiffBatch> listDiffBatches(
