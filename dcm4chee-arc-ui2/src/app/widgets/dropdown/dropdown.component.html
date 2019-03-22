@@ -2,11 +2,11 @@
 <div class="j4care_dropdown" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
     <div class="dropdown_input" (click)="toggleDropdown()">
         <div class="input_part">
-            <ng-container *ngIf="selectedDropdown">
+            <ng-container *ngIf="selectedValue && selectedDropdown">
                 <div class="selected_value" *ngIf="!selectedDropdown.htmlLabel">{{selectedDropdown.label || selectedDropdown.text}}</div>
                 <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
             </ng-container>
-            <div *ngIf="!selectedDropdown" class="selected_value empty_field">{{placeholder}}</div>
+            <div *ngIf="!(selectedValue && selectedDropdown)" class="selected_value empty_field">{{placeholder}}</div>
         </div>
         <span class="glyphicon glyphicon-triangle-bottom"></span>
     </div>
