@@ -41,7 +41,9 @@
 package org.dcm4chee.arc.code.impl;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeService;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,13 +65,29 @@ public class CodeServiceImpl implements CodeService {
     @Inject
     private CodeServiceEJB ejb;
 
+    @Inject
+    private Device device;
+
     @Override
     public CodeEntity findOrCreate(Code code) {
-        try {
-            return ejb.findOrCreate(code);
-        } catch (EJBException e) {
-            LOG.info("Failed to update DB - retry:\n", e);
-            return ejb.findOrCreate(code);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                return ejb.findOrCreate(code);
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failed to update DB - retry:\n", e);
+                } else {
+                    LOG.warn("Failed to update DB:\n", e);
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(ThreadLocalRandom.current().nextInt(arcDev.getStoreUpdateDBMaxRetryDelay()));
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry to update DB:\n", e);
+            }
         }
     }
 }
