@@ -39,19 +39,24 @@ export class StudyService {
                 lineLength = hidden ? 2:3;
         }
         if(!hidden){
-            schema.push({
-                tag:"html-select",
-                options:Globalvar.ORDERBY
-                    .filter(order=>order.mode === tab)
-                    .map(order=>{
-                        return new SelectDropdown(order.value, order.label,order.title,order.title,order.label);
-                    }),
-                filterKey:'orderby',
-                text:"Order By",
-                placeholder:"Order By",
-                cssClass:'study_order'
 
-            },
+            if(tab != 'diff'){
+                schema.push({
+                    tag:"html-select",
+                    options:Globalvar.ORDERBY_NEW
+                        .filter(order=>order.mode === tab)
+                        .map(order=>{
+                            return new SelectDropdown(order.value, order.label,order.title,order.title,order.label);
+                        }),
+                    filterKey:'orderby',
+                    text:"Order By",
+                    placeholder:"Order By",
+                    cssClass:'study_order'
+
+                });
+            }
+
+            schema.push(
             {
                 tag: "button",
                 id: "submit",

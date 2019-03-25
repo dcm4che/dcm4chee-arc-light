@@ -26,7 +26,7 @@
             >
                 <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
-                  <a class="pointer" (click)="$event.preventDefault();action.click(patient)" *ngFor="let action of patient_table.actions">
+                  <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" *ngFor="let action of patient_table.actions">
                       <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                       <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                   </a>
@@ -51,7 +51,7 @@
                     >
                         <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
-                            <a class="pointer"  (click)="$event.preventDefault();action.click(study)" *ngFor="let action of studies_table.actions">
+                            <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study)" *ngFor="let action of studies_table.actions">
                                 <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                 <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                             </a>
@@ -75,7 +75,7 @@
                             >
                                 <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
-                                    <a class="pointer"  (click)="$event.preventDefault();action.click(serie)" *ngFor="let action of serie_table.actions">
+                                    <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie)" *ngFor="let action of serie_table.actions">
                                         <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                         <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                                     </a>
@@ -100,7 +100,7 @@
                                     >
                                         <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                         <ng-container *ngSwitchCase="'actions'">
-                                            <a class="pointer"  (click)="$event.preventDefault();action.click(instance)" *ngFor="let action of instance_table.actions">
+                                            <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance)" *ngFor="let action of instance_table.actions">
                                                 <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                                 <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                                             </a>

@@ -7,6 +7,8 @@ export class TableSchemaElement {
     type:TableSchemaElementType;
     header?:string;
     headerDescription?:string;
+    description?:string;
+    title?:string;
     pathToValue?:string;/*Path or key of the value how you can find it on the data model*/
     widthWeight?:number;/*width weight of this table element in compare to the others*/
     cssClass?:string;
@@ -14,6 +16,7 @@ export class TableSchemaElement {
     actions?:TableAction[];
     calculatedWidth?:string;
     pipe?:DynamicPipe;
+    pxWidth?:number;
     private _elementId:string;
 
     constructor(
@@ -27,7 +30,10 @@ export class TableSchemaElement {
             hook?:Function,
             actions?:TableAction[],
             calculatedWidth?:string,
+            pxWidth?:number
             pipe?:DynamicPipe,
+            title?:string,
+            description?:string
         } = {}
     ){
         this.type = options.type;
@@ -40,6 +46,9 @@ export class TableSchemaElement {
         this.actions = options.actions;
         this.calculatedWidth = options.calculatedWidth;
         this.pipe = options.pipe;
+        this.pxWidth = options.pxWidth;
+        this.title = options.title;
+        this.description = options.description;
 
         this.calculateElementID();
     }

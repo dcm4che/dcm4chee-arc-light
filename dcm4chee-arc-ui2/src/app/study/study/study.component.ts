@@ -130,7 +130,6 @@ export class StudyComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        console.log("aet",this.applicationEntities);
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
@@ -159,6 +158,15 @@ export class StudyComponent implements OnInit {
     actions(id, model){
         console.log("id",id);
         console.log("model",model);
+        if(id.action === "toggle_studies"){
+            if(!model.studies){
+                // this.getStudies(model);
+                //TODO getStudies
+            }else{
+                model.showStudies = !model.showStudies;
+            }
+
+        }
         if(id.action === "toggle_series"){
             if(!model.series){
                 this.getSeries(model);
