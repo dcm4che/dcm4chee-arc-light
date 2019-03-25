@@ -218,8 +218,24 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     @Override
     public Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
-                               String sopInstanceUID, String exporterID, String messageID, String batchID,
-                               Attributes actionInfo)
+            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
+            throws Exception  {
+            DimseRSP dimseRSP = sendNActionRQ(localAET, remoteAET, studyInstanceUID, seriesInstanceUID, sopInstanceUID,
+                    exporterID, messageID, batchID, actionInfo);
+            Attributes cmd = dimseRSP.getCommand();
+            int status = cmd.getInt(Tag.Status, -1);
+            if (status != Status.Success) {
+                return new Outcome(QueueMessage.Status.WARNING,
+                        "Request Storage Commitment from AE: " + remoteAET
+                                + " failed with status: " + TagUtils.shortToHexString(status)
+                                + "H, error comment: " + cmd.getString(Tag.ErrorComment));
+            }
+            return new Outcome(QueueMessage.Status.COMPLETED, "Request Storage Commitment from AE: " + remoteAET);
+    }
+
+    @Override
+    public DimseRSP sendNActionRQ(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
+            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
             throws Exception  {
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
@@ -241,16 +257,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
                     UID.StorageCommitmentPushModelSOPInstance,
                     1, actionInfo, null);
             dimseRSP.next();
-            Attributes cmd = dimseRSP.getCommand();
-            int status = cmd.getInt(Tag.Status, -1);
-            if (status != Status.Success) {
+            if (dimseRSP.getCommand().getInt(Tag.Status, -1) != Status.Success)
                 ejb.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
-                return new Outcome(QueueMessage.Status.WARNING,
-                        "Request Storage Commitment Request from AE: " + remoteAET
-                                + " failed with status: " + TagUtils.shortToHexString(status)
-                                + "H, error comment: " + cmd.getString(Tag.ErrorComment));
-            }
-            return new Outcome(QueueMessage.Status.COMPLETED, "Request Storage Commitment Request from AE: " + remoteAET);
+            return dimseRSP;
         } catch (Exception e) {
             ejb.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
             throw e;

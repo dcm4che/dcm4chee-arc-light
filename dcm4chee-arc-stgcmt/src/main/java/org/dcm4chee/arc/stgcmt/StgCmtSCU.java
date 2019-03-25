@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.stgcmt;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.DimseRSP;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -57,8 +58,11 @@ public interface StgCmtSCU {
     void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor)
             throws QueueSizeLimitExceededException;
 
-    Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID,
-                        String seriesInstanceUID, String sopInstanceUID, String exporterID,
-                        String messageID, String batchID, Attributes actionInfo)
+    Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
+            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
+            throws Exception;
+
+    DimseRSP sendNActionRQ(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
+            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
             throws Exception;
 }

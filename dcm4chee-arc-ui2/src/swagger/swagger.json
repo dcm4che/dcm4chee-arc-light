@@ -10827,6 +10827,192 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt/dicom:{externalAET}": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Request Storage Commitment of Study from external Storage Commitment SCP",
+        "operationId": "RequestStorageCommitmentOfStudyExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP to request Storage Commitment of Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+            "schema": {
+              "$ref": "stgcmtscu.schema.json"
+            }
+          },
+          "502": {
+            "description": "Storage Commitment SCP Failure",
+            "schema": {
+              "$ref": "stgcmtscu.schema.json"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study or external AE Title"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt/dicom:{externalAET}": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Request Storage Commitment of Series from external Storage Commitment SCP",
+        "operationId": "RequestStorageCommitmentOfSeriesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP to request Storage Commitment of Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+            "schema": {
+              "$ref": "stgcmtscu.schema.json"
+            }
+          },
+          "502": {
+            "description": "Storage Commitment SCP Failure",
+            "schema": {
+              "$ref": "stgcmtscu.schema.json"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Series or external AE Title"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt/dicom:{externalAET}": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Request Storage Commitment of Instance from external Storage Commitment SCP",
+        "operationId": "RequestStorageCommitmentOfInstanceExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SOPInstanceUID",
+            "in": "path",
+            "description": "SOP Instance UID for a single SOP Instance",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP to request Storage Commitment of Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+            "schema": {
+              "$ref": "stgcmtscu.schema.json"
+            }
+          },
+          "502": {
+            "description": "Storage Commitment SCP Failure",
+            "schema": {
+              "$ref": "stgcmtscu.schema.json"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Instance or external AE Title"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
