@@ -10855,7 +10855,7 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of external Storage Commitment SCP to request Storage Commitment of Study",
+            "description": "AE Title of external Storage Commitment SCP",
             "required": true,
             "type": "string"
           }
@@ -10917,7 +10917,7 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of external Storage Commitment SCP to request Storage Commitment of Study",
+            "description": "AE Title of external Storage Commitment SCP",
             "required": true,
             "type": "string"
           }
@@ -10986,7 +10986,7 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of external Storage Commitment SCP to request Storage Commitment of Study",
+            "description": "AE Title of external Storage Commitment SCP",
             "required": true,
             "type": "string"
           }
@@ -11009,6 +11009,1180 @@
           },
           "default": {
             "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{externalAET}/studies": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Studies from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingStudiesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "Filter Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "Filter Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Filter Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "Filter Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "Filter Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "Filter Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "Filter Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "Filter Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Filter Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Filter Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Filter Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Filter Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "Filter studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "Filter Studies with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled Storage Commitment of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or external AE Title"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{externalAET}/series": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Series from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingSeriesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "Filter Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "Filter Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "Filter Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Filter Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "Filter Series of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "Filter Series of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "Filter Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "Filter Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "Filter Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "Filter Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "Filter Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Filter Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Filter Series of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Filter Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Filter Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "Filter series which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "Filter Series with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled Storage Commitment of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or external AE Title"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{externalAET}/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Series of Study from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingSeriesOfStudyExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "Filter Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "Filter Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "Filter Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Filter Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "Filter Series of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "Filter Series of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "Filter Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "Filter Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "Filter Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "Filter Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "Filter Series of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Filter Series of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Filter Series of Study which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Filter Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Filter Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "Filter series of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "Filter Series of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled Storage Commitment of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or external AE Title"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{externalAET}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Instances from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingInstancesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "Filter Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "Filter Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "Filter Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Filter Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "Filter Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "Filter Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "Filter Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "Filter Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "Filter Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Filter Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Filter Instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Filter Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Filter Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "Filter instances which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "Filter Instances of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or external AE Title"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{externalAET}/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Instances of Study from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingInstancesOfStudyExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "Filter Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "Filter Instances of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "Filter Instances of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Filter Instances of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "Filter Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "Filter Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "Filter Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "Filter Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "return only Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Filter Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Filter Instances of Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Filter Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Filter Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "Filter instances of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "Filter Instances of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or external AE Title"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Instances of Series from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingInstancesOfSeriesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of external Storage Commitment SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "Filter Instances received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "Filter Instances of Series of Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "Filter Instances of Series of Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Filter Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "Filter Instances of Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "Filter Instances of Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "Filter Instances of Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "Filter Instances of Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "Filter Instances of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Filter Instances of Series of Study have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Filter Instances of Series of Study which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Filter Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Filter Instances of Series of Study with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "Filter instances of series of study which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "Filter Instances of Series of Study with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled Storage Commitment of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or external AE Title"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
