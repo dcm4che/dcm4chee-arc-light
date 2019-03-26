@@ -7,8 +7,8 @@
                  [ngClass]="[config?.cssTdClass || '',(table.type != 'value' && table.type != 'pipe')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"
                  [ngStyle]="{width: table.calculatedWidth}"
             >
-                <ng-container *ngIf="table.type === 'value'">{{table.header}}</ng-container>
-                <ng-container *ngIf="table.type != 'value'">&nbsp;</ng-container>
+                <ng-container *ngIf="table.type === 'value' || table.type === 'pipe'">{{table.header}}</ng-container>
+                <ng-container *ngIf="!(table.type === 'value' || table.type === 'pipe')">&nbsp;</ng-container>
             </div>
         </div>
     <!--1:END;-->
