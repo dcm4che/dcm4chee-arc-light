@@ -212,6 +212,7 @@ export class StudyComponent implements OnInit {
 
     getStudies(filters, callingAet){
         this.cfpLoadingBar.start();
+        filters['includefield'] = 'all';
         this.service.getStudies(callingAet, filters)
             .subscribe(res => {
                 this.patients = [];
@@ -266,6 +267,7 @@ export class StudyComponent implements OnInit {
         if(filters.limit){
             filters.limit++;
         }
+        filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
         this.service.getSeries(callingAet,study.attrs['0020000D'].Value[0], filters)
@@ -315,6 +317,7 @@ export class StudyComponent implements OnInit {
         if(filters.limit){
             filters.limit++;
         }
+        filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'InstanceNumber';
         this.service.getInstances(callingAet,series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters)

@@ -2655,6 +2655,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                             selected: false
                         };
                     });
+                    console.log("series",series);
+                    console.log("series.instances",series.instances);
                 }else{
                     series.instances = {};
                 }
