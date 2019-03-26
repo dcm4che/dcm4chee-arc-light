@@ -4238,72 +4238,164 @@ export class StudiesComponent implements OnDestroy,OnInit{
     };
     storageCommitmen(mode, object){
         console.log('object', object);
-        this.cfpLoadingBar.start();
-        let url = '../aets/' + this.aet + '/rs/studies/';
-        switch (mode) {
-            case 'study':
-                url += object.attrs['0020000D'].Value[0] + '/stgver';
-                break;
-            case 'series':
-                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgver';
-                break;
-            default:
-            case 'instance':
-                url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgver';
-                break;
-        }
-        let $this = this;
-        let headers = {headers: new Headers({ 'Content-Type': 'application/dicom+json' })};
-            this.$http.post(
-                url,
-                {},
-                headers
-            )
-            .map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
-            .subscribe(
-            (response) => {
-                // console.log("response",response);
-                let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
-                let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
-                let msgStatus = 'Info';
-                if (failed > 0 && success > 0){
-                    msgStatus = 'Warning';
-                    this.mainservice.setMessage({
-                        'title': msgStatus,
-                        'text': failed + ' of ' + (success + failed) + ' failed!',
-                        'status': msgStatus.toLowerCase()
-                    });
-                    console.log(failed + ' of ' + (success + failed) + ' failed!');
-                }
-                if (failed > 0 && success === 0){
-                    msgStatus = 'Error';
-                    this.mainservice.setMessage( {
-                        'title': msgStatus,
-                        'text': 'all (' + failed + ') failed!',
-                        'status': msgStatus.toLowerCase()
-                    });
-                    console.log('all ' + failed + 'failed!');
-                }
-                if (failed === 0){
-                    console.log(success + ' verified successfully 0 failed!');
-                    this.mainservice.setMessage( {
-                        'title': msgStatus,
-                        'text': success + ' verified successfully\n 0 failed!',
-                        'status': msgStatus.toLowerCase()
-                    });
-                }
-                this.cfpLoadingBar.complete();
+        this.confirm({
+            content: 'Schedule Storage Verification',
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:"Failed storage verification"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationFailed"
+                        }
+                    ],[
+                    {
+                        tag:"label",
+                        text:"Verification Policy"
+                    },
+                    {
+                        tag:"select",
+                        options:[
+                            {
+                                value:"DB_RECORD_EXISTS",
+                                text:"DB_RECORD_EXISTS",
+                                title:"Check for existence of DB records"
+                            },
+                            {
+                                value:"OBJECT_EXISTS",
+                                text:"OBJECT_EXISTS",
+                                title:"check if object exists on Storage System"
+                            },
+                            {
+                                value:"OBJECT_SIZE",
+                                text:"OBJECT_SIZE",
+                                title:"check size of object on Storage System"
+                            },
+                            {
+                                value:"OBJECT_FETCH",
+                                text:"OBJECT_FETCH",
+                                title:"Fetch object from Storage System"
+                            },
+                            {
+                                value:"OBJECT_CHECKSUM",
+                                text:"OBJECT_CHECKSUM",
+                                title:"recalculate checksum of object on Storage System"
+                            },
+                            {
+                                value:"S3_MD5SUM",
+                                text:"S3_MD5SUM",
+                                title:"Check MD5 checksum of object on S3 Storage System"
+                            }
+                        ],
+                        showStar:true,
+                        filterKey:"storageVerificationPolicy",
+                        description:"Verification Policy",
+                        placeholder:"Verification Policy"
+                    }
+                ],[
+                    {
+                        tag:"label",
+                        text:"Update Location DB"
+                    },
+                    {
+                        tag:"checkbox",
+                        filterKey:"storageVerificationUpdateLocationStatus"
+                    }
+                ],[
+                    {
+                        tag:"label",
+                        text:"Batch ID"
+                    },
+                    {
+                        tag:"input",
+                        type:"text",
+                        filterKey:"batchID",
+                        description:"Batch ID",
+                        placeholder:"Batch ID"
+                    }
+                ]
+                ]
+            ],
+            result: {
+                schema_model: {}
             },
-            (response) => {
-                $this.httpErrorHandler.handleError(response);
-                this.cfpLoadingBar.complete();
+            saveButton: 'QUERY'
+        }).subscribe(ok=>{
+            this.cfpLoadingBar.start();
+            let url = '../aets/' + this.aet + '/rs/studies/';
+            switch (mode) {
+                case 'study':
+                    url += object.attrs['0020000D'].Value[0] + '/stgver';
+                    break;
+                case 'series':
+                    url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgver';
+                    break;
+                default:
+                case 'instance':
+                    url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgver';
+                    break;
             }
-        );
+            if(ok && ok.schema_model){
+                url += j4care.getUrlParams(ok.schema_model);
+            }
+            let $this = this;
+
+            let headers = {headers: new Headers({ 'Content-Type': 'application/dicom+json' })};
+                this.$http.post(
+                    url,
+                    {},
+                    headers
+                )
+                .map(res => {let resjson; try{
+                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                    if(pattern.exec(res.url)){
+                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                    }
+                    resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                .subscribe(
+                (response) => {
+                    // console.log("response",response);
+                    let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
+                    let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
+                    let msgStatus = 'Info';
+                    if (failed > 0 && success > 0){
+                        msgStatus = 'Warning';
+                        this.mainservice.setMessage({
+                            'title': msgStatus,
+                            'text': failed + ' of ' + (success + failed) + ' failed!',
+                            'status': msgStatus.toLowerCase()
+                        });
+                        console.log(failed + ' of ' + (success + failed) + ' failed!');
+                    }
+                    if (failed > 0 && success === 0){
+                        msgStatus = 'Error';
+                        this.mainservice.setMessage( {
+                            'title': msgStatus,
+                            'text': 'all (' + failed + ') failed!',
+                            'status': msgStatus.toLowerCase()
+                        });
+                        console.log('all ' + failed + 'failed!');
+                    }
+                    if (failed === 0){
+                        console.log(success + ' verified successfully 0 failed!');
+                        this.mainservice.setMessage( {
+                            'title': msgStatus,
+                            'text': success + ' verified successfully\n 0 failed!',
+                            'status': msgStatus.toLowerCase()
+                        });
+                    }
+                    this.cfpLoadingBar.complete();
+                },
+                (response) => {
+                    $this.httpErrorHandler.handleError(response);
+                    this.cfpLoadingBar.complete();
+                }
+            );
+        });
     };
     openViewer(model, mode){
         try {
