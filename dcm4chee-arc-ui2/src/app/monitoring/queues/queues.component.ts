@@ -113,7 +113,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         this.statusChange();
     }
     statusChange(){
-        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+/*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
@@ -122,7 +122,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 else
                     return o.value != 'cancel';
             }
-        });
+        });*/
     }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;

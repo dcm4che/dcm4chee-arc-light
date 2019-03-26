@@ -513,7 +513,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         });
     };
     onFormChange(filters){
-        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+ /*       this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
@@ -522,7 +522,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                 else
                     return o.value != 'cancel';
             }
-        });
+        });*/
     }
     reschedule(match) {
         let $this = this;
