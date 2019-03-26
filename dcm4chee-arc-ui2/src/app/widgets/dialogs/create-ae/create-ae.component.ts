@@ -282,15 +282,19 @@ export class CreateAeComponent implements OnInit{
         console.log('this.selctedDeviceObject=', this.selctedDeviceObject);
     }
     getDicomConnections(){
-        if(_.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference") && _.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference")){
-            return this.selctedDeviceObject.dicomNetworkConnection.filter((connection,i)=>{
-                return this.newAetModel.dicomNetworkAE["0"].dicomNetworkConnectionReference.indexOf(`/dicomNetworkConnection/${i}`) > -1 &&
-                        (
-                            !_.hasIn(connection, "dcmNetworkConnection.dcmProtocol") ||
-                            !connection.dcmNetworkConnection.dcmProtocol ||
-                            connection.dcmNetworkConnection.dcmProtocol === ""
-                        )
-            });
+        try{
+            if(_.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference") && _.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference")){
+                return this.selctedDeviceObject.dicomNetworkConnection.filter((connection,i)=>{
+                    return this.newAetModel.dicomNetworkAE["0"].dicomNetworkConnectionReference.indexOf(`/dicomNetworkConnection/${i}`) > -1 &&
+                            (
+                                !_.hasIn(connection, "dcmNetworkConnection.dcmProtocol") ||
+                                !connection.dcmNetworkConnection.dcmProtocol ||
+                                connection.dcmNetworkConnection.dcmProtocol === ""
+                            )
+                });
+            }
+        }catch (e) {
+            return [];
         }
         return [];
     }
