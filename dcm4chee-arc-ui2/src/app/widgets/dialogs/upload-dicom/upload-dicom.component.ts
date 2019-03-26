@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {StudiesService} from "../../../studies/studies.service";
+import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -34,7 +35,8 @@ export class UploadDicomComponent implements OnInit{
         private $http:J4careHttpService,
         private service: UploadDicomService,
         public mainservice:AppService,
-        private studieService:StudiesService
+        private studieService:StudiesService,
+        private httpErrorHandler:HttpErrorHandler
     ) {
         this.service.progress$.subscribe(
             data => {
@@ -145,6 +147,8 @@ export class UploadDicomComponent implements OnInit{
                                     $this.percentComplete[file.name]['showLoader'] = false;
                                     $this.percentComplete[file.name]['value'] = 0;
                                     $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                                    let jsonFormat = JSON.parse(xmlHttpRequest.response);
+                                    $this.httpErrorHandler.handleError(jsonFormat || xmlHttpRequest.response);
                                 }
                             }
                         };

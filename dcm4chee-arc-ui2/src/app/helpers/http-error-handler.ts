@@ -8,28 +8,36 @@ export class HttpErrorHandler {
     constructor(private mainservice:AppService){}
 
     public handleError(error){
-        if ((error._body && error._body != '')|| _.hasIn(error,"message")) {
+        if ((error._body && error._body != '')|| _.hasIn(error,"message") || _.hasIn(error, "[00000902].Value[0]")) {
             try{
                 let msg = "Error";
                 if(_.hasIn(error,"message")){
                     msg = error["message"];
                 }else{
-                    let msgObject = JSON.parse(error._body);
-                    if(_.hasIn(msgObject,"msa-3")){
-                        msg = msgObject["msa-3"];
-                    }
-                    if(_.hasIn(msgObject,"err-8")){
-                        msg = msgObject["err-8"];
-                    }
-                    if(_.hasIn(msgObject,"errorMessage")){
-                        msg = msgObject["errorMessage"];
+                    if(_.hasIn(error, "[00000902].Value[0]")){
+                        this.mainservice.setMessage({
+                            'title': 'Error ' + (error.status||''),
+                            'text': `${_.get(error,"[00000902].Value[0]")}<br>${(_.hasIn(error,'["00081198"].Value["0"]["00081197"].Value["0"]') ? 'Failure Reason:' + _.get(error,'["00081198"].Value["0"]["00081197"].Value["0"]'):'')}`,
+                            'status': 'error'
+                        });
+                    }else{
+                        let msgObject = JSON.parse(error._body);
+                        if(_.hasIn(msgObject,"msa-3")){
+                            msg = msgObject["msa-3"];
+                        }
+                        if(_.hasIn(msgObject,"err-8")){
+                            msg = msgObject["err-8"];
+                        }
+                        if(_.hasIn(msgObject,"errorMessage")){
+                            msg = msgObject["errorMessage"];
+                        }
+                        this.mainservice.setMessage({
+                            'title': 'Error ' + (error.status||''),
+                            'text': msg,
+                            'status': 'error'
+                        });
                     }
                 }
-                this.mainservice.setMessage({
-                    'title': 'Error ' + (error.status||''),
-                    'text': msg,
-                    'status': 'error'
-                });
 
             }catch (e){
                 if(error.status === 0 && error.statusText === ""){
