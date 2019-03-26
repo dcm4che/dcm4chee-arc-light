@@ -3355,7 +3355,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
         if(this.externalInternalAetMode === "internal"){
             url = `../aets/${this.aet}/rs`;
         }*/
-        return this.service.rsURL(this.externalInternalAetMode,this.aet,this.aetmodel.dicomAETitle,this.externalInternalAetModel.dicomAETitle);
+        let externalInternalAetModel = this.externalInternalAetModel && this.externalInternalAetModel.dicomAETitle ? this.externalInternalAetModel.dicomAETitle : undefined;
+        let aetmodel = this.aetmodel && this.aetmodel.dicomAETitle ? this.aetmodel.dicomAETitle : undefined;
+        return this.service.rsURL(this.externalInternalAetMode,this.aet,aetmodel,externalInternalAetModel);
     }
     diffUrl(){
         if(!this.aet1){
