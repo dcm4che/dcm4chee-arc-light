@@ -1333,7 +1333,7 @@ export class Globalvar {
                     header:"Modalities",
                     pathToValue:"[00080061].Value[0]",
                     headerDescription:"Modalities in Study",
-                    widthWeight:1,
+                    widthWeight:0.5,
                     calculatedWidth:"20%"
                 }),
                 new TableSchemaElement({
@@ -1341,7 +1341,7 @@ export class Globalvar {
                     header:"Study Description",
                     pathToValue:"[00081030].Value[0]",
                     headerDescription:"Study Description",
-                    widthWeight:1,
+                    widthWeight:2,
                     calculatedWidth:"20%"
                 }),
                 new TableSchemaElement({
@@ -1349,7 +1349,7 @@ export class Globalvar {
                     header:"#S",
                     pathToValue:"[00201206].Value[0]",
                     headerDescription:"Number of Study Related Series",
-                    widthWeight:1,
+                    widthWeight:0.2,
                     calculatedWidth:"20%"
                 }),
                 new TableSchemaElement({
@@ -1357,7 +1357,7 @@ export class Globalvar {
                     header:"#I",
                     pathToValue:"[00201208].Value[0]",
                     headerDescription:"Number of Study Related Instances",
-                    widthWeight:1,
+                    widthWeight:0.2,
                     calculatedWidth:"20%"
                 })
             ],
