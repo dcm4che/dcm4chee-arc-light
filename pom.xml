@@ -338,6 +338,30 @@
     </dependency>
 
     <dependency>
+      <groupId>javax.jws</groupId>
+      <artifactId>jsr181-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.xml.ws</groupId>
+      <artifactId>jboss-jaxws-api_2.3_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.xml.soap</groupId>
+      <artifactId>jboss-saaj-api_1.3_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.annotation</groupId>
+      <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.jclouds</groupId>
       <artifactId>jclouds-blobstore</artifactId>
       <version>${jclouds.version}</version>
