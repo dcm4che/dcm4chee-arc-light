@@ -516,7 +516,11 @@ export class j4care {
             }
             resjson = res.json();
         }catch (e){
-            resjson = [];
+            if(typeof res === "object"){
+                resjson = res;
+            }else{
+                resjson = [];
+            }
         }
         return resjson;
     }
