@@ -65,7 +65,6 @@ export class AppComponent implements OnInit {
         this.initGetDevicename(2);
         let currentBrowserTime = new Date().getTime();
         this.getServerTime()
-            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe(res=>{
                 if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
                     console.log("server clock res",res);
