@@ -4245,15 +4245,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
             form_schema:[
                 [
                     [
-                        {
-                            tag:"label",
-                            text:"Failed storage verification"
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"storageVerificationFailed"
-                        }
-                    ],[
                     {
                         tag:"label",
                         text:"Verification Policy"
@@ -4298,27 +4289,15 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         placeholder:"Verification Policy"
                     }
                 ],[
-                    {
-                        tag:"label",
-                        text:"Update Location DB"
-                    },
-                    {
-                        tag:"checkbox",
-                        filterKey:"storageVerificationUpdateLocationStatus"
-                    }
-                ],[
-                    {
-                        tag:"label",
-                        text:"Batch ID"
-                    },
-                    {
-                        tag:"input",
-                        type:"text",
-                        filterKey:"batchID",
-                        description:"Batch ID",
-                        placeholder:"Batch ID"
-                    }
-                ]
+                        {
+                            tag:"label",
+                            text:"Update Location DB"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationUpdateLocationStatus"
+                        }
+                    ]
                 ]
             ],
             result: {
