@@ -4325,77 +4325,87 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 schema_model: {}
             },
             saveButton: 'QUERY'
-        }).subscribe(ok=>{
-            this.cfpLoadingBar.start();
-            let url = '../aets/' + this.aet + '/rs/studies/';
-            switch (mode) {
-                case 'study':
-                    url += object.attrs['0020000D'].Value[0] + '/stgver';
-                    break;
-                case 'series':
-                    url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgver';
-                    break;
-                default:
-                case 'instance':
-                    url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgver';
-                    break;
-            }
-            if(ok && ok.schema_model){
-                url += j4care.getUrlParams(ok.schema_model);
-            }
-            let $this = this;
+        }).subscribe(ok=> {
+            console.log("ok", ok);
+            if (ok) {
+                this.cfpLoadingBar.start();
+                let url = '../aets/' + this.aet + '/rs/studies/';
+                switch (mode) {
+                    case 'study':
+                        url += object.attrs['0020000D'].Value[0] + '/stgver';
+                        break;
+                    case 'series':
+                        url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgver';
+                        break;
+                    default:
+                    case 'instance':
+                        url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgver';
+                        break;
+                }
+                if (ok && ok.schema_model) {
+                    url += j4care.getUrlParams(ok.schema_model);
+                }
+                let $this = this;
 
-            let headers = {headers: new Headers({ 'Content-Type': 'application/dicom+json' })};
+                let headers = {headers: new Headers({'Content-Type': 'application/dicom+json'})};
                 this.$http.post(
                     url,
                     {},
                     headers
                 )
-                .map(res => {let resjson; try{
-                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                    if(pattern.exec(res.url)){
-                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                    }
-                    resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
-                .subscribe(
-                (response) => {
-                    // console.log("response",response);
-                    let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
-                    let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
-                    let msgStatus = 'Info';
-                    if (failed > 0 && success > 0){
-                        msgStatus = 'Warning';
-                        this.mainservice.setMessage({
-                            'title': msgStatus,
-                            'text': failed + ' of ' + (success + failed) + ' failed!',
-                            'status': msgStatus.toLowerCase()
-                        });
-                        console.log(failed + ' of ' + (success + failed) + ' failed!');
-                    }
-                    if (failed > 0 && success === 0){
-                        msgStatus = 'Error';
-                        this.mainservice.setMessage( {
-                            'title': msgStatus,
-                            'text': 'all (' + failed + ') failed!',
-                            'status': msgStatus.toLowerCase()
-                        });
-                        console.log('all ' + failed + 'failed!');
-                    }
-                    if (failed === 0){
-                        console.log(success + ' verified successfully 0 failed!');
-                        this.mainservice.setMessage( {
-                            'title': msgStatus,
-                            'text': success + ' verified successfully\n 0 failed!',
-                            'status': msgStatus.toLowerCase()
-                        });
-                    }
-                    this.cfpLoadingBar.complete();
-                },
-                (response) => {
-                    $this.httpErrorHandler.handleError(response);
-                    this.cfpLoadingBar.complete();
-                }
-            );
+                    .map(res => {
+                        let resjson;
+                        try {
+                            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                            if (pattern.exec(res.url)) {
+                                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                            }
+                            resjson = res.json();
+                        } catch (e) {
+                            resjson = {};
+                        }
+                        return resjson;
+                    })
+                    .subscribe(
+                        (response) => {
+                            // console.log("response",response);
+                            let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
+                            let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
+                            let msgStatus = 'Info';
+                            if (failed > 0 && success > 0) {
+                                msgStatus = 'Warning';
+                                this.mainservice.setMessage({
+                                    'title': msgStatus,
+                                    'text': failed + ' of ' + (success + failed) + ' failed!',
+                                    'status': msgStatus.toLowerCase()
+                                });
+                                console.log(failed + ' of ' + (success + failed) + ' failed!');
+                            }
+                            if (failed > 0 && success === 0) {
+                                msgStatus = 'Error';
+                                this.mainservice.setMessage({
+                                    'title': msgStatus,
+                                    'text': 'all (' + failed + ') failed!',
+                                    'status': msgStatus.toLowerCase()
+                                });
+                                console.log('all ' + failed + 'failed!');
+                            }
+                            if (failed === 0) {
+                                console.log(success + ' verified successfully 0 failed!');
+                                this.mainservice.setMessage({
+                                    'title': msgStatus,
+                                    'text': success + ' verified successfully\n 0 failed!',
+                                    'status': msgStatus.toLowerCase()
+                                });
+                            }
+                            this.cfpLoadingBar.complete();
+                        },
+                        (response) => {
+                            $this.httpErrorHandler.handleError(response);
+                            this.cfpLoadingBar.complete();
+                        }
+                    );
+            }
         });
     };
     openViewer(model, mode){
