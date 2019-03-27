@@ -226,13 +226,13 @@ public class DiffBatchRS {
         abstract Object entity(final List<DiffBatch> diffBatches);
     }
 
-    private StreamingOutput entity(List<AttributesBlob> diffTaskAttributesList) {
+    private StreamingOutput entity(List<byte[]> diffTaskAttributesList) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
                 JSONWriter writer = new JSONWriter(gen);
                 gen.writeStartArray();
-                for (AttributesBlob diffTaskAttributes : diffTaskAttributesList)
-                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes.getEncodedAttributes(), null));
+                for (byte[] diffTaskAttributes : diffTaskAttributesList)
+                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes, null));
                 gen.writeEnd();
             }
         };

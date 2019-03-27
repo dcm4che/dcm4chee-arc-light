@@ -66,9 +66,9 @@ public interface DiffService {
 
     DiffTask getDiffTask(long taskPK);
 
-    List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
+    List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
 
-    List<AttributesBlob> getDiffTaskAttributes(
+    List<byte[]> getDiffTaskAttributes(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
 
     List<DiffBatch> listDiffBatches(
