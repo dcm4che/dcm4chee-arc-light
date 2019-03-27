@@ -34,6 +34,7 @@ import {ActivatedRoute} from "@angular/router";
 import {SelectDropdown} from "../interfaces";
 declare var Keycloak: any;
 declare var $: any;
+import "rxjs/add/operator/retry";
 
 @Component({
     selector: 'app-studies',
