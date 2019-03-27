@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -61,8 +61,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -91,9 +89,6 @@ public class StgCmtSCPMDB implements MessageListener {
 
     @Inject
     private StgCmtManager stgCmtMgr;
-
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
 
     @Override
     public void onMessage(Message msg) {

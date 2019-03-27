@@ -105,7 +105,7 @@ public class StgCmtEJB {
         if (result == null)
             return;
         updateExternalRetrieveAETs(eventInfo, result.getStudyInstanceUID(),
-                device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(result.getExporterID()));
+                device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptor(result.getExporterID()));
         result.setStgCmtResult(eventInfo);
     }
 
@@ -122,6 +122,9 @@ public class StgCmtEJB {
     }
 
     private void updateExternalRetrieveAETs(Attributes eventInfo, String suid, ExporterDescriptor ed) {
+        if (ed == null)
+            return;
+
         String configRetrieveAET = ed.getRetrieveAETitles().length > 0 ? ed.getRetrieveAETitles()[0] : null;
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);

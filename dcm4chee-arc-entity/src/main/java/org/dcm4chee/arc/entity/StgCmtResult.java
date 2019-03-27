@@ -101,7 +101,7 @@ public class StgCmtResult {
     @Column(name = "device_name", updatable = false)
     private String deviceName;
 
-    @Basic(optional = false)
+    @Basic
     @Column(name = "exporter_id", updatable = false)
     private String exporterID;
 

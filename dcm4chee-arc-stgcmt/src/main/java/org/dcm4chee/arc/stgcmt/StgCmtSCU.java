@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -53,7 +53,6 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
  */
 public interface StgCmtSCU {
     String QUEUE_NAME = "StgCmtSCU";
-    String JNDI_NAME = "jms/queue/StgCmtSCU";
 
     void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor)
             throws QueueSizeLimitExceededException;
