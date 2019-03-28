@@ -263,9 +263,7 @@ public class QueueManagerEJB {
         CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
         Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
         Root<QueueMessage> queueMsg = sq.from(QueueMessage.class);
-        List<Predicate> predicates = matchTask.queueMsgPredicates(
-                queueMsg,
-                queueTaskQueryParam);
+        List<Predicate> predicates = matchTask.queueMsgPredicates(queueMsg, queueTaskQueryParam);
         if (!predicates.isEmpty())
             sq.where(predicates.toArray(new Predicate[0]));
 
@@ -524,9 +522,7 @@ public class QueueManagerEJB {
         MatchTask matchTask = new MatchTask(cb);
         CriteriaQuery<String> q = cb.createQuery(String.class);
         Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
-        List<Predicate> predicates = matchTask.queueMsgPredicates(
-                queueMsg,
-                queueTaskQueryParam);
+        List<Predicate> predicates = matchTask.queueMsgPredicates(queueMsg, queueTaskQueryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         return q.select(queueMsg.get(attribute));

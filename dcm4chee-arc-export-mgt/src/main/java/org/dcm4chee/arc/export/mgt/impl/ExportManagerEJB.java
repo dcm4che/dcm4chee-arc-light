@@ -42,6 +42,8 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
+
+import javax.persistence.criteria.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
@@ -475,20 +477,9 @@ public class ExportManagerEJB implements ExportManager {
         CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
         Root<ExportTask> exportTask = q.from(ExportTask.class);
 
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
-        QueueMessage.Status status = queueTaskQueryParam.getStatus();
-        if (status == QueueMessage.Status.TO_SCHEDULE) {
-            matchTask.matchExportTask(predicates, exportTaskQueryParam, exportTask);
-            predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
-        } else {
-            From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
-                    status == null && queueTaskQueryParam.getBatchID() == null
-                            ? JoinType.LEFT : JoinType.INNER);
-            matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
-        }
-
+        List<Predicate> predicates = predicates(exportTask, matchTask, queueTaskQueryParam, exportTaskQueryParam);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
 
         if (exportTaskQueryParam.getOrderBy() != null)
             q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
@@ -506,7 +497,16 @@ public class ExportManagerEJB implements ExportManager {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<ExportTask> exportTask = q.from(ExportTask.class);
 
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = predicates(exportTask, matchTask, queueTaskQueryParam, exportTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
+        return em.createQuery(q.select(cb.count(exportTask))).getSingleResult();
+    }
+
+    private List<Predicate> predicates(Root<ExportTask> exportTask, MatchTask matchTask,
+                                       TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        List<Predicate> predicates = new ArrayList<>();
         QueueMessage.Status status = queueTaskQueryParam.getStatus();
         if (status == QueueMessage.Status.TO_SCHEDULE) {
             matchTask.matchExportTask(predicates, exportTaskQueryParam, exportTask);
@@ -514,16 +514,12 @@ public class ExportManagerEJB implements ExportManager {
         } else {
             From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
                     status == null && queueTaskQueryParam.getBatchID() == null
-                    ? JoinType.LEFT : JoinType.INNER);
+                            ? JoinType.LEFT : JoinType.INNER);
             matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
         }
-
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
-
-        return em.createQuery(q.select(cb.count(exportTask))).getSingleResult();
+        return predicates;
     }
-
+    
     public int deleteTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
         QueueMessage.Status status = queueTaskQueryParam.getStatus();
@@ -541,10 +537,10 @@ public class ExportManagerEJB implements ExportManager {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaDelete<ExportTask> q = cb.createCriteriaDelete(ExportTask.class);
         Root<ExportTask> exportTask = q.from(ExportTask.class);
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         new MatchTask(cb).matchExportTask(predicates, exportTaskQueryParam, exportTask);
         predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
-        q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        q.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(q).executeUpdate();
     }
 
@@ -564,10 +560,10 @@ public class ExportManagerEJB implements ExportManager {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<String> q = cb.createQuery(String.class);
         Root<ExportTask> exportTask = q.from(ExportTask.class);
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
         new MatchTask(cb).matchExportTask(predicates, exportTaskQueryParam, exportTask);
         if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+            q.where(predicates.toArray(new Predicate[0]));
         return q.select(exportTask.get(attribute));
     }
 
