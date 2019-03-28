@@ -80,8 +80,6 @@ public class QueueManagerEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
 
-    private Root<QueueMessage> queueMsg;
-
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -264,7 +262,7 @@ public class QueueManagerEJB {
         MatchTask matchTask = new MatchTask(cb);
         CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
         Subquery<QueueMessage> sq = q.subquery(QueueMessage.class);
-        queueMsg = sq.from(QueueMessage.class);
+        Root<QueueMessage> queueMsg = sq.from(QueueMessage.class);
         List<Predicate> predicates = matchTask.queueMsgPredicates(
                 queueMsg,
                 queueTaskQueryParam);
@@ -525,8 +523,13 @@ public class QueueManagerEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
         CriteriaQuery<String> q = cb.createQuery(String.class);
-        queueMsg = q.from(QueueMessage.class);
-        return restrict(queueTaskQueryParam, matchTask, q).select(queueMsg.get(attribute));
+        Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
+        List<Predicate> predicates = matchTask.queueMsgPredicates(
+                queueMsg,
+                queueTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q.select(queueMsg.get(attribute));
     }
 
     public List<String> getQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
@@ -592,21 +595,14 @@ public class QueueManagerEJB {
         MatchTask matchTask = new MatchTask(cb);
 
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        queueMsg = q.from(QueueMessage.class);
-
-        return em.createQuery(
-                restrict(queueTaskQueryParam, matchTask, q).select(cb.count(queueMsg)))
-                .getSingleResult();
-    }
-
-    private <T> CriteriaQuery<T> restrict(
-            TaskQueryParam queueTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
+        Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
         List<Predicate> predicates = matchTask.queueMsgPredicates(
                 queueMsg,
                 queueTaskQueryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        return q;
+
+        return em.createQuery(q.select(cb.count(queueMsg))).getSingleResult();
     }
 
     private int queryFetchSize() {
@@ -616,9 +612,14 @@ public class QueueManagerEJB {
     private CriteriaQuery<QueueMessage> select(CriteriaBuilder cb,
                                                MatchTask matchTask, TaskQueryParam queueTaskQueryParam) {
         CriteriaQuery<QueueMessage> q = cb.createQuery(QueueMessage.class);
-        queueMsg = q.from(QueueMessage.class);
+        Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
 
-        q = restrict(queueTaskQueryParam, matchTask, q);
+        List<Predicate> predicates = matchTask.queueMsgPredicates(
+                queueMsg,
+                queueTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
         if (queueTaskQueryParam.getOrderBy() != null)
             q.orderBy(matchTask.queueMessageOrder(queueTaskQueryParam.getOrderBy(), queueMsg));
 

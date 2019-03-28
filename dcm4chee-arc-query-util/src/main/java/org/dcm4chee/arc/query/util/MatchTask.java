@@ -166,7 +166,7 @@ public class MatchTask {
             predicates.add(cb.lessThan(queueMsg.get(QueueMessage_.updatedTime), taskQueryParam.getUpdatedBefore()));
     }
 
-    private void matchExportTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Root<ExportTask> exportTask) {
+    public void matchExportTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Root<ExportTask> exportTask) {
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
         if (taskQueryParam.getDeviceName() != null)

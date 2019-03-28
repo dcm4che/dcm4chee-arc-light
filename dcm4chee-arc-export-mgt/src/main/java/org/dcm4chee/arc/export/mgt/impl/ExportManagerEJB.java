@@ -59,7 +59,6 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,10 +74,12 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,9 +90,6 @@ import java.util.List;
 public class ExportManagerEJB implements ExportManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportManagerEJB.class);
-    
-    private Join<ExportTask, QueueMessage> queueMsg;
-    private Root<ExportTask> exportTask;
     
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -287,17 +285,6 @@ public class ExportManagerEJB implements ExportManager {
         return msg;
     }
 
-    private CriteriaQuery<String> exportTaskQuery(TaskQueryParam exportTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        exportTask = q.from(ExportTask.class);
-        List<javax.persistence.criteria.Predicate> predicates = predicates(exportTaskQueryParam, matchTask);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
-        return q;
-    }
-
     @Override
     public boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent) {
         ExportTask task = em.find(ExportTask.class, pk);
@@ -367,160 +354,145 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam) {
-        return em.createQuery(exportTaskQuery(exportTaskQueryParam)
-                .select(exportTask.get(ExportTask_.deviceName))
-                .distinct(true))
+        return em.createQuery(
+                select(ExportTask_.deviceName, exportTaskQueryParam).distinct(true))
                 .getResultList();
     }
-    
+
     @Override
     public List<ExportBatch> listExportBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, int offset, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
-        exportTask = q.from(ExportTask.class);
-        queueMsg = exportTask.join(ExportTask_.queueMessage);
-
-        Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
-        Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
-        Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
-        Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
-        Expression<Date> minScheduledTime = cb.least(exportTask.get(ExportTask_.scheduledTime));
-        Expression<Date> maxScheduledTime = cb.greatest(exportTask.get(ExportTask_.scheduledTime));
-        Expression<Date> minCreatedTime = cb.least(exportTask.get(ExportTask_.createdTime));
-        Expression<Date> maxCreatedTime = cb.greatest(exportTask.get(ExportTask_.createdTime));
-        Expression<Date> minUpdatedTime = cb.least(exportTask.get(ExportTask_.updatedTime));
-        Expression<Date> maxUpdatedTime = cb.greatest(exportTask.get(ExportTask_.updatedTime));
-        Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
-
-        CriteriaQuery<Tuple> multiselect = orderBatch(
-                exportBatchQueryParam,
-                matchTask,
-                groupBy(restrictBatch(queueBatchQueryParam, exportBatchQueryParam, matchTask, q)))
-                .multiselect(minProcessingStartTime,
-                        maxProcessingStartTime,
-                        minProcessingEndTime,
-                        maxProcessingEndTime,
-                        minScheduledTime,
-                        maxScheduledTime,
-                        minCreatedTime,
-                        maxCreatedTime,
-                        minUpdatedTime,
-                        maxUpdatedTime,
-                        batchid);
-
-        TypedQuery<Tuple> query = em.createQuery(multiselect);
+        ListExportBatches listExportBatches = new ListExportBatches(queueBatchQueryParam, exportBatchQueryParam);
+        TypedQuery<Tuple> query = em.createQuery(listExportBatches.query);
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
             query.setMaxResults(limit);
 
-        List<ExportBatch> exportBatches = new ArrayList<>();
-        query.getResultStream().forEach(batch -> {
-            String batchID = batch.get(batchid);
+        return query.getResultStream().map(listExportBatches::toExportBatch).collect(Collectors.toList());
+    }
+
+    private class ListExportBatches {
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<Tuple> query = cb.createTupleQuery();
+        final Root<ExportTask> exportTask = query.from(ExportTask.class);
+        final From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+        final Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
+        final Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
+        final Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
+        final Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
+        final Expression<Date> minScheduledTime = cb.least(exportTask.get(ExportTask_.scheduledTime));
+        final Expression<Date> maxScheduledTime = cb.greatest(exportTask.get(ExportTask_.scheduledTime));
+        final Expression<Date> minCreatedTime = cb.least(exportTask.get(ExportTask_.createdTime));
+        final Expression<Date> maxCreatedTime = cb.greatest(exportTask.get(ExportTask_.createdTime));
+        final Expression<Date> minUpdatedTime = cb.least(exportTask.get(ExportTask_.updatedTime));
+        final Expression<Date> maxUpdatedTime = cb.greatest(exportTask.get(ExportTask_.updatedTime));
+        final Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
+
+        ListExportBatches(TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam) {
+            query.multiselect(minProcessingStartTime, maxProcessingStartTime,
+                    minProcessingEndTime, maxProcessingEndTime,
+                    minScheduledTime, maxScheduledTime,
+                    minCreatedTime, maxCreatedTime,
+                    minUpdatedTime, maxUpdatedTime, batchid);
+            query.groupBy(queueMsg.get(QueueMessage_.batchID));
+            MatchTask matchTask = new MatchTask(cb);
+            List<Predicate> predicates = matchTask.exportBatchPredicates(
+                    queueMsg, exportTask, queueBatchQueryParam, exportBatchQueryParam);
+            if (!predicates.isEmpty())
+                query.where(predicates.toArray(new Predicate[0]));
+            if (exportBatchQueryParam.getOrderBy() != null)
+                query.orderBy(matchTask.exportBatchOrder(exportBatchQueryParam.getOrderBy(), exportTask));
+        }
+
+        ExportBatch toExportBatch(Tuple tuple) {
+            String batchID = tuple.get(batchid);
             ExportBatch exportBatch = new ExportBatch(batchID);
             exportBatch.setProcessingStartTimeRange(
-                    batch.get(maxProcessingStartTime),
-                    batch.get(maxProcessingStartTime));
+                    tuple.get(maxProcessingStartTime),
+                    tuple.get(maxProcessingStartTime));
             exportBatch.setProcessingEndTimeRange(
-                    batch.get(minProcessingEndTime),
-                    batch.get(maxProcessingEndTime));
+                    tuple.get(minProcessingEndTime),
+                    tuple.get(maxProcessingEndTime));
             exportBatch.setScheduledTimeRange(
-                    batch.get(minScheduledTime),
-                    batch.get(maxScheduledTime));
+                    tuple.get(minScheduledTime),
+                    tuple.get(maxScheduledTime));
             exportBatch.setCreatedTimeRange(
-                    batch.get(minCreatedTime),
-                    batch.get(maxCreatedTime));
+                    tuple.get(minCreatedTime),
+                    tuple.get(maxCreatedTime));
             exportBatch.setUpdatedTimeRange(
-                    batch.get(minUpdatedTime),
-                    batch.get(maxUpdatedTime));
+                    tuple.get(minUpdatedTime),
+                    tuple.get(maxUpdatedTime));
 
-            exportBatch.setDeviceNames(em.createQuery(
-                    batchIDQuery(batchID)
-                            .select(queueMsg.get(QueueMessage_.deviceName))
-                            .distinct(true)
-                            .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
-                    .getResultList());
-            exportBatch.setExporterIDs(em.createQuery(
-                    batchIDQuery(batchID)
-                            .select(exportTask.get(ExportTask_.exporterID))
-                            .distinct(true)
-                            .orderBy(cb.asc(exportTask.get(ExportTask_.exporterID))))
-                    .getResultList());
+            exportBatch.setDeviceNames(
+                    em.createNamedQuery(ExportTask.FIND_DEVICE_BY_BATCH_ID, String.class)
+                            .setParameter(1, batchID)
+                            .getResultList());
+            exportBatch.setExporterIDs(
+                    em.createNamedQuery(ExportTask.FIND_EXPORTER_IDS_BY_BATCH_ID, String.class)
+                            .setParameter(1, batchID)
+                            .getResultList());
 
-            exportBatch.setCompleted(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.COMPLETED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            exportBatch.setCanceled(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.CANCELED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            exportBatch.setWarning(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.WARNING).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            exportBatch.setFailed(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.FAILED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            exportBatch.setScheduled(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.SCHEDULED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            exportBatch.setInProcess(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.IN_PROCESS).select(cb.count(queueMsg)))
-                    .getSingleResult());
-
-            exportBatches.add(exportBatch);
-        });
-
-        return exportBatches;
+            exportBatch.setCompleted(
+                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.COMPLETED)
+                            .getSingleResult());
+            exportBatch.setCanceled(
+                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.CANCELED)
+                            .getSingleResult());
+            exportBatch.setWarning(
+                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.WARNING)
+                            .getSingleResult());
+            exportBatch.setFailed(
+                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.FAILED)
+                            .getSingleResult());
+            exportBatch.setScheduled(
+                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.SCHEDULED)
+                            .getSingleResult());
+            exportBatch.setInProcess(
+                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.IN_PROCESS)
+                            .getSingleResult());
+            return exportBatch;
+        }
     }
-
-    private <T> CriteriaQuery<T> restrictBatch(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates = matchTask.exportBatchPredicates(
-                queueMsg,
-                exportTask,
-                queueBatchQueryParam,
-                exportBatchQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
-        return q;
-    }
-
-    private <T> CriteriaQuery<T> orderBatch(
-            TaskQueryParam exportBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        if (exportBatchQueryParam.getOrderBy() != null)
-            q = q.orderBy(matchTask.exportBatchOrder(exportBatchQueryParam.getOrderBy(), exportTask));
-        return q;
-    }
-
-    private <T> CriteriaQuery<T> groupBy(CriteriaQuery<T> q) {
-        return q.groupBy(queueMsg.get(QueueMessage_.batchID));
-    }
-
-    private CriteriaQuery<String> batchIDQuery(String batchID) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        exportTask = q.from(ExportTask.class);
-        queueMsg = exportTask.join(ExportTask_.queueMessage, JoinType.LEFT);
-        return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-    }
-
-    private CriteriaQuery<Long> batchIDQuery(String batchID, QueueMessage.Status status) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        exportTask = q.from(ExportTask.class);
-        queueMsg = exportTask.join(ExportTask_.queueMessage, JoinType.LEFT);
-        return q.where(
-                cb.equal(queueMsg.get(QueueMessage_.batchID), batchID),
-                cb.equal(queueMsg.get(QueueMessage_.status), status));
-    }
-
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Iterator<ExportTask> listExportTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit) {
-        TypedQuery<ExportTask> query = em.createQuery(select(queueTaskQueryParam, exportTaskQueryParam))
-                .setHint(QueryHints.FETCH_SIZE, queryFetchSize());
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
+
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        QueueMessage.Status status = queueTaskQueryParam.getStatus();
+        if (status == QueueMessage.Status.TO_SCHEDULE) {
+            matchTask.matchExportTask(predicates, exportTaskQueryParam, exportTask);
+            predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
+        } else {
+            From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
+                    status == null && queueTaskQueryParam.getBatchID() == null
+                            ? JoinType.LEFT : JoinType.INNER);
+            matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
+        }
+
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+
+        if (exportTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
+        TypedQuery<ExportTask> query = em.createQuery(q);
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
@@ -531,79 +503,25 @@ public class ExportManagerEJB implements ExportManager {
     public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
-
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        exportTask = q.from(ExportTask.class);
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
 
-        return em.createQuery(
-                restrict(queueTaskQueryParam, exportTaskQueryParam, matchTask, q)
-                        .select(cb.count(exportTask)))
-                .getSingleResult();
-    }
-
-    private CriteriaQuery<ExportTask> select(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
-        exportTask = q.from(ExportTask.class);
-
-        return orderBy(restrict(
-                    queueTaskQueryParam, exportTaskQueryParam, matchTask, q),
-                    matchTask,
-                    exportTaskQueryParam)
-                .select(exportTask);
-    }
-
-    private <T> CriteriaQuery<T> orderBy(CriteriaQuery<T> q, MatchTask matchTask, TaskQueryParam exportTaskQueryParam) {
-        if (exportTaskQueryParam.getOrderBy() != null)
-            q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
-        return q;
-    }
-
-    private <T> CriteriaQuery<T> restrict(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<javax.persistence.criteria.Predicate> predicates;
-
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
         QueueMessage.Status status = queueTaskQueryParam.getStatus();
         if (status == QueueMessage.Status.TO_SCHEDULE) {
-            predicates = predicates(exportTaskQueryParam, matchTask);
+            matchTask.matchExportTask(predicates, exportTaskQueryParam, exportTask);
             predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
-            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
         } else {
-            if (status != null || queueTaskQueryParam.getBatchID() != null) {
-                queueMsg = exportTask.join(ExportTask_.queueMessage);
-                q.where(predicates(queueTaskQueryParam, exportTaskQueryParam, matchTask)
-                        .toArray(new javax.persistence.criteria.Predicate[0]));
-            }
-
-            if (status == null && queueTaskQueryParam.getBatchID() == null) {
-                queueMsg = exportTask.join(ExportTask_.queueMessage, JoinType.LEFT);
-                q.where(predicates(exportTaskQueryParam, matchTask).toArray(new javax.persistence.criteria.Predicate[0]));
-            }
+            From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
+                    status == null && queueTaskQueryParam.getBatchID() == null
+                    ? JoinType.LEFT : JoinType.INNER);
+            matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
         }
-        return q;
-    }
 
-    private List<javax.persistence.criteria.Predicate> predicates(TaskQueryParam exportTaskQueryParam, MatchTask matchTask) {
-        return matchTask.exportPredicates(
-                queueMsg,
-                exportTask,
-                null,
-                exportTaskQueryParam);
-    }
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
 
-    private List<javax.persistence.criteria.Predicate> predicates(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, MatchTask matchTask) {
-        return matchTask.exportPredicates(
-                queueMsg,
-                exportTask,
-                queueTaskQueryParam,
-                exportTaskQueryParam);
-    }
-
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return em.createQuery(q.select(cb.count(exportTask))).getSingleResult();
     }
 
     public int deleteTasks(
@@ -621,10 +539,10 @@ public class ExportManagerEJB implements ExportManager {
 
     private int deleteToSchedule(TaskQueryParam exportTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
         CriteriaDelete<ExportTask> q = cb.createCriteriaDelete(ExportTask.class);
-        exportTask = q.from(ExportTask.class);
-        List<javax.persistence.criteria.Predicate> predicates = predicates(exportTaskQueryParam, matchTask);
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        new MatchTask(cb).matchExportTask(predicates, exportTaskQueryParam, exportTask);
         predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
         q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
         return em.createQuery(q).executeUpdate();
@@ -632,21 +550,37 @@ public class ExportManagerEJB implements ExportManager {
 
     private int deleteReferencedTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        exportTask = q.from(ExportTask.class);
-        queueMsg = exportTask.join(ExportTask_.queueMessage);
+        List<String> referencedQueueMsgIDs = em.createQuery(
+                select(QueueMessage_.messageID, queueTaskQueryParam, exportTaskQueryParam))
+                .setMaxResults(deleteTasksFetchSize)
+                .getResultList();
 
-        q.where(predicates(queueTaskQueryParam, exportTaskQueryParam, matchTask)
-                .toArray(new javax.persistence.criteria.Predicate[0]));
-        TypedQuery<String> query = em.createQuery(q.multiselect(queueMsg.get(QueueMessage_.messageID)));
-
-        if (deleteTasksFetchSize > 0)
-            query.setMaxResults(deleteTasksFetchSize);
-
-        List<String> referencedQueueMsgIDs = query.getResultList();
         referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
         return referencedQueueMsgIDs.size();
+    }
+
+    private CriteriaQuery<String> select(
+            SingularAttribute<ExportTask, String> attribute, TaskQueryParam exportTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+        new MatchTask(cb).matchExportTask(predicates, exportTaskQueryParam, exportTask);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        return q.select(exportTask.get(attribute));
+    }
+
+    private CriteriaQuery<String> select(SingularAttribute<QueueMessage, String> attribute,
+                                         TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
+        From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+        List<Predicate> predicates = new MatchTask(cb).exportPredicates(
+                queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q.select(queueMsg.get(attribute));
     }
 }

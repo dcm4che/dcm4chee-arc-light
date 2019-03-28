@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.diff.impl;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
 
@@ -57,8 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -164,9 +164,7 @@ public class DiffServiceEJB {
                 .setMaxResults(deleteTasksFetchSize)
                 .getResultList();
 
-        for (String queueMsgID : referencedQueueMsgIDs)
-            queueManager.deleteTask(queueMsgID, null);
-
+        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
         return referencedQueueMsgIDs.size();
     }
 
@@ -348,12 +346,10 @@ public class DiffServiceEJB {
             MatchTask matchTask = new MatchTask(cb);
             List<Predicate> predicates = matchTask.diffBatchPredicates(
                     queueMsg, diffTask, queueBatchQueryParam, diffBatchQueryParam);
-            if (!predicates.isEmpty()) {
+            if (!predicates.isEmpty())
                 query.where(predicates.toArray(new Predicate[0]));
-            }
-            if (diffBatchQueryParam.getOrderBy() != null) {
+            if (diffBatchQueryParam.getOrderBy() != null)
                 query.orderBy(matchTask.diffBatchOrder(diffBatchQueryParam.getOrderBy(), diffTask));
-            }
         }
 
         DiffBatch toDiffBatch(Tuple tuple) {

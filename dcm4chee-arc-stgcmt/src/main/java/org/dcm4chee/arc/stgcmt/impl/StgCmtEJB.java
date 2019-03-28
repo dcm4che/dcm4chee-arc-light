@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.Tuple;
@@ -61,20 +63,19 @@ import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -85,10 +86,6 @@ import java.util.*;
 public class StgCmtEJB {
 
     private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
-
-    private Join<StorageVerificationTask, QueueMessage> queueMsg;
-    private Root<StorageVerificationTask> stgVerTask;
-    private Root<StgCmtResult> stgCmtResult;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -186,23 +183,17 @@ public class StgCmtEJB {
 
     public List<StgCmtResult> listStgCmts(TaskQueryParam stgCmtResultQueryParam, int offset, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
         CriteriaQuery<StgCmtResult> q = cb.createQuery(StgCmtResult.class);
-        stgCmtResult = q.from(StgCmtResult.class);
-        TypedQuery<StgCmtResult> query = em.createQuery(restrict(stgCmtResultQueryParam, matchTask, q));
+        Root<StgCmtResult> stgCmtResult = q.from(StgCmtResult.class);
+        List<Predicate> predicates = new MatchTask(cb).matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        TypedQuery<StgCmtResult> query = em.createQuery(q);
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
             query.setMaxResults(limit);
         return query.getResultList();
-    }
-
-    private <T> CriteriaQuery<T> restrict(
-            TaskQueryParam stgCmtResultQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q;
     }
 
     public boolean deleteStgCmt(String transactionUID) {
@@ -225,7 +216,7 @@ public class StgCmtEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
         CriteriaDelete<StgCmtResult> q = cb.createCriteriaDelete(StgCmtResult.class);
-        stgCmtResult = q.from(StgCmtResult.class);
+        Root<StgCmtResult> stgCmtResult = q.from(StgCmtResult.class);
         List<Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
         q.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(q).executeUpdate();
@@ -262,8 +253,8 @@ public class StgCmtEJB {
     private boolean isAlreadyScheduled(StorageVerificationTask storageVerificationTask) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
+        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(queueMsg.get(QueueMessage_.status).in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
@@ -318,15 +309,6 @@ public class StgCmtEJB {
                 .executeUpdate();
     }
 
-    private CriteriaQuery<String> createQuery(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-        return restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q);
-    }
-
     public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
         StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
         if (task == null)
@@ -369,16 +351,14 @@ public class StgCmtEJB {
     }
 
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return em.createQuery(createQuery(queueTaskQueryParam, stgVerTaskQueryParam)
-                .select(queueMsg.get(QueueMessage_.deviceName))
-                .distinct(true))
+        return em.createQuery(
+                select(QueueMessage_.deviceName, queueTaskQueryParam, stgVerTaskQueryParam).distinct(true))
                 .getResultList();
     }
 
     public List<String> listStgVerTaskQueueMsgIDs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return em.createQuery(createQuery(queueTaskQueryParam, stgVerTaskQueryParam)
-                .select(queueMsg.get(QueueMessage_.messageID)))
+        return em.createQuery(select(QueueMessage_.messageID, queueTaskQueryParam, stgVerTaskQueryParam))
                 .setMaxResults(limit)
                 .getResultList();
     }
@@ -395,143 +375,14 @@ public class StgCmtEJB {
 
     public List<StgVerBatch> listStgVerBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<Tuple> q = cb.createTupleQuery();
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-
-        Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
-        Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
-        Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
-        Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
-        Expression<Date> minScheduledTime = cb.least(queueMsg.get(QueueMessage_.scheduledTime));
-        Expression<Date> maxScheduledTime = cb.greatest(queueMsg.get(QueueMessage_.scheduledTime));
-        Expression<Date> minCreatedTime = cb.least(stgVerTask.get(StorageVerificationTask_.createdTime));
-        Expression<Date> maxCreatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.createdTime));
-        Expression<Date> minUpdatedTime = cb.least(stgVerTask.get(StorageVerificationTask_.updatedTime));
-        Expression<Date> maxUpdatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.updatedTime));
-        Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
-
-        CriteriaQuery<Tuple> multiselect = orderBatch(
-                stgVerBatchQueryParam,
-                matchTask,
-                groupBy(restrictBatch(queueBatchQueryParam, stgVerBatchQueryParam, matchTask, q)))
-                .multiselect(minProcessingStartTime,
-                        maxProcessingStartTime,
-                        minProcessingEndTime,
-                        maxProcessingEndTime,
-                        minScheduledTime,
-                        maxScheduledTime,
-                        minCreatedTime,
-                        maxCreatedTime,
-                        minUpdatedTime,
-                        maxUpdatedTime,
-                        batchid);
-
-        TypedQuery<Tuple> query = em.createQuery(multiselect);
+        ListStgVerBatches listStgVerBatches = new ListStgVerBatches(queueBatchQueryParam, stgVerBatchQueryParam);
+        TypedQuery<Tuple> query = em.createQuery(listStgVerBatches.query);
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
             query.setMaxResults(limit);
 
-        List<StgVerBatch> stgVerBatches = new ArrayList<>();
-        query.getResultStream().forEach(batch -> {
-            String batchID = batch.get(batchid);
-            StgVerBatch stgVerBatch = new StgVerBatch(batchID);
-            stgVerBatch.setProcessingStartTimeRange(
-                    batch.get(maxProcessingStartTime),
-                    batch.get(maxProcessingStartTime));
-            stgVerBatch.setProcessingEndTimeRange(
-                    batch.get(minProcessingEndTime),
-                    batch.get(maxProcessingEndTime));
-            stgVerBatch.setScheduledTimeRange(
-                    batch.get(minScheduledTime),
-                    batch.get(maxScheduledTime));
-            stgVerBatch.setCreatedTimeRange(
-                    batch.get(minCreatedTime),
-                    batch.get(maxCreatedTime));
-            stgVerBatch.setUpdatedTimeRange(
-                    batch.get(minUpdatedTime),
-                    batch.get(maxUpdatedTime));
-
-            stgVerBatch.setDeviceNames(em.createQuery(
-                    batchIDQuery(batchID)
-                            .select(queueMsg.get(QueueMessage_.deviceName))
-                            .distinct(true)
-                            .orderBy(cb.asc(queueMsg.get(QueueMessage_.deviceName))))
-                    .getResultList());
-            stgVerBatch.setLocalAETs(em.createQuery(
-                    batchIDQuery(batchID)
-                            .select(stgVerTask.get(StorageVerificationTask_.localAET))
-                            .distinct(true)
-                            .orderBy(cb.asc(stgVerTask.get(StorageVerificationTask_.localAET))))
-                    .getResultList());
-
-            stgVerBatch.setCompleted(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.COMPLETED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            stgVerBatch.setCanceled(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.CANCELED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            stgVerBatch.setWarning(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.WARNING).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            stgVerBatch.setFailed(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.FAILED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            stgVerBatch.setScheduled(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.SCHEDULED).select(cb.count(queueMsg)))
-                    .getSingleResult());
-            stgVerBatch.setInProcess(em.createQuery(
-                    batchIDQuery(batchID, QueueMessage.Status.IN_PROCESS).select(cb.count(queueMsg)))
-                    .getSingleResult());
-
-            stgVerBatches.add(stgVerBatch);
-        });
-
-        return stgVerBatches;
-    }
-
-    private <T> CriteriaQuery<T> restrictBatch(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<Predicate> predicates = matchTask.stgVerBatchPredicates(
-                queueMsg,
-                stgVerTask,
-                queueBatchQueryParam,
-                stgVerBatchQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q;
-    }
-
-    private <T> CriteriaQuery<T> orderBatch(
-            TaskQueryParam stgVerBatchQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        if (stgVerBatchQueryParam.getOrderBy() != null)
-            q = q.orderBy(matchTask.stgVerBatchOrder(stgVerBatchQueryParam.getOrderBy(), stgVerTask));
-        return q;
-    }
-
-    private <T> CriteriaQuery<T> groupBy(CriteriaQuery<T> q) {
-        return q.groupBy(queueMsg.get(QueueMessage_.batchID));
-    }
-
-    private CriteriaQuery<String> batchIDQuery(String batchID) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage, JoinType.LEFT);
-        return q.where(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-    }
-
-    private CriteriaQuery<Long> batchIDQuery(String batchID, QueueMessage.Status status) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage, JoinType.LEFT);
-        return q.where(
-                cb.equal(queueMsg.get(QueueMessage_.batchID), batchID),
-                cb.equal(queueMsg.get(QueueMessage_.status), status));
+        return query.getResultStream().map(listStgVerBatches::toStgVerBatch).collect(Collectors.toList());
     }
     
     public List<Series.StorageVerification> findSeriesForScheduledStorageVerifications(int fetchSize) {
@@ -552,9 +403,16 @@ public class StgCmtEJB {
     public Iterator<StorageVerificationTask> listStgVerTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<StorageVerificationTask> q = cb.createQuery(StorageVerificationTask.class);
+        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
+        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
         MatchTask matchTask = new MatchTask(cb);
-        TypedQuery<StorageVerificationTask> query = em.createQuery(select(cb, matchTask, queueTaskQueryParam, stgVerTaskQueryParam))
-                .setHint(QueryHints.FETCH_SIZE, queryFetchSize());
+        List<Predicate> predicates = matchTask.stgVerPredicates(queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        if (stgVerTaskQueryParam.getOrderBy() != null)
+            q.orderBy(matchTask.stgVerTaskOrder(stgVerTaskQueryParam.getOrderBy(), stgVerTask));
+        TypedQuery<StorageVerificationTask> query = em.createQuery(q);
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
@@ -564,61 +422,131 @@ public class StgCmtEJB {
 
     public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-
-        return em.createQuery(
-                restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q).select(cb.count(stgVerTask)))
-                .getSingleResult();
-    }
-
-    private <T> CriteriaQuery<T> restrict(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, MatchTask matchTask, CriteriaQuery<T> q) {
-        List<Predicate> predicates = matchTask.stgVerPredicates(
-                queueMsg,
-                stgVerTask,
-                queueTaskQueryParam,
-                stgVerTaskQueryParam);
+        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
+        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        List<Predicate> predicates = new MatchTask(cb).stgVerPredicates(
+                queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        return q;
+        return em.createQuery(q.select(cb.count(stgVerTask))).getSingleResult();
     }
 
-    private int queryFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    private class ListStgVerBatches {
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<Tuple> query = cb.createTupleQuery();
+        final Root<StorageVerificationTask> stgVerTask = query.from(StorageVerificationTask.class);
+        final From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        final Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
+        final Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
+        final Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
+        final Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
+        final Expression<Date> minScheduledTime = cb.least(queueMsg.get(QueueMessage_.scheduledTime));
+        final Expression<Date> maxScheduledTime = cb.greatest(queueMsg.get(QueueMessage_.scheduledTime));
+        final Expression<Date> minCreatedTime = cb.least(stgVerTask.get(StorageVerificationTask_.createdTime));
+        final Expression<Date> maxCreatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.createdTime));
+        final Expression<Date> minUpdatedTime = cb.least(stgVerTask.get(StorageVerificationTask_.updatedTime));
+        final Expression<Date> maxUpdatedTime = cb.greatest(stgVerTask.get(StorageVerificationTask_.updatedTime));
+        final Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
+
+        ListStgVerBatches(TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam) {
+            query.multiselect(minProcessingStartTime, maxProcessingStartTime,
+                    minProcessingEndTime, maxProcessingEndTime,
+                    minScheduledTime, maxScheduledTime,
+                    minCreatedTime, maxCreatedTime,
+                    minUpdatedTime, maxUpdatedTime, batchid);
+            query.groupBy(queueMsg.get(QueueMessage_.batchID));
+            MatchTask matchTask = new MatchTask(cb);
+            List<Predicate> predicates = matchTask.stgVerBatchPredicates(
+                    queueMsg, stgVerTask, queueBatchQueryParam, stgVerBatchQueryParam);
+            if (!predicates.isEmpty())
+                query.where(predicates.toArray(new Predicate[0]));
+            if (stgVerBatchQueryParam.getOrderBy() != null)
+                query.orderBy(matchTask.stgVerBatchOrder(stgVerBatchQueryParam.getOrderBy(), stgVerTask));
+        }
+
+        StgVerBatch toStgVerBatch(Tuple tuple) {
+            String batchID = tuple.get(batchid);
+            StgVerBatch stgVerBatch = new StgVerBatch(batchID);
+            stgVerBatch.setProcessingStartTimeRange(
+                    tuple.get(maxProcessingStartTime),
+                    tuple.get(maxProcessingStartTime));
+            stgVerBatch.setProcessingEndTimeRange(
+                    tuple.get(minProcessingEndTime),
+                    tuple.get(maxProcessingEndTime));
+            stgVerBatch.setScheduledTimeRange(
+                    tuple.get(minScheduledTime),
+                    tuple.get(maxScheduledTime));
+            stgVerBatch.setCreatedTimeRange(
+                    tuple.get(minCreatedTime),
+                    tuple.get(maxCreatedTime));
+            stgVerBatch.setUpdatedTimeRange(
+                    tuple.get(minUpdatedTime),
+                    tuple.get(maxUpdatedTime));
+
+            stgVerBatch.setDeviceNames(
+                    em.createNamedQuery(StorageVerificationTask.FIND_DEVICE_BY_BATCH_ID, String.class)
+                            .setParameter(1, batchID)
+                            .getResultList());
+            stgVerBatch.setLocalAETs(
+                    em.createNamedQuery(StorageVerificationTask.FIND_LOCAL_AET_BY_BATCH_ID, String.class)
+                            .setParameter(1, batchID)
+                            .getResultList());
+
+            stgVerBatch.setCompleted(
+                    em.createNamedQuery(StorageVerificationTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.COMPLETED)
+                            .getSingleResult());
+            stgVerBatch.setCanceled(
+                    em.createNamedQuery(StorageVerificationTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.CANCELED)
+                            .getSingleResult());
+            stgVerBatch.setWarning(
+                    em.createNamedQuery(StorageVerificationTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.WARNING)
+                            .getSingleResult());
+            stgVerBatch.setFailed(
+                    em.createNamedQuery(StorageVerificationTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.FAILED)
+                            .getSingleResult());
+            stgVerBatch.setScheduled(
+                    em.createNamedQuery(StorageVerificationTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.SCHEDULED)
+                            .getSingleResult());
+            stgVerBatch.setInProcess(
+                    em.createNamedQuery(StorageVerificationTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
+                            .setParameter(1, batchID)
+                            .setParameter(2, QueueMessage.Status.IN_PROCESS)
+                            .getSingleResult());
+            return stgVerBatch;
+        }
     }
 
-    private CriteriaQuery<StorageVerificationTask> select(CriteriaBuilder cb,
-                                               MatchTask matchTask, TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        CriteriaQuery<StorageVerificationTask> q = cb.createQuery(StorageVerificationTask.class);
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-
-        q = restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q);
-        if (stgVerTaskQueryParam.getOrderBy() != null)
-            q.orderBy(matchTask.stgVerTaskOrder(stgVerTaskQueryParam.getOrderBy(), stgVerTask));
-
-        return q.select(stgVerTask);
+    private CriteriaQuery<String> select(SingularAttribute<QueueMessage, String> attribute,
+                                         TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
+        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        List<Predicate> predicates = new MatchTask(cb).stgVerPredicates(
+                queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q.select(queueMsg.get(attribute));
     }
 
     public int deleteTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        stgVerTask = q.from(StorageVerificationTask.class);
-        queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        List<String> referencedQueueMsgIDs = em.createQuery(
+                select(QueueMessage_.messageID, queueTaskQueryParam, stgVerTaskQueryParam))
+                .setMaxResults(deleteTasksFetchSize)
+                .getResultList();
 
-        TypedQuery<String> query = em.createQuery(restrict(queueTaskQueryParam, stgVerTaskQueryParam, matchTask, q)
-                .multiselect(queueMsg.get(QueueMessage_.messageID)));
-
-        if (deleteTasksFetchSize > 0)
-            query.setMaxResults(deleteTasksFetchSize);
-
-        List<String> referencedQueueMsgIDs = query.getResultList();
         referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
         return referencedQueueMsgIDs.size();
     }
