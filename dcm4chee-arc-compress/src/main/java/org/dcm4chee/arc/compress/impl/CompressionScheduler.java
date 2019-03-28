@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -60,8 +60,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
@@ -75,9 +73,6 @@ import java.util.concurrent.Semaphore;
 public class CompressionScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompressionScheduler.class);
-
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
 
     @Inject
     private Device device;

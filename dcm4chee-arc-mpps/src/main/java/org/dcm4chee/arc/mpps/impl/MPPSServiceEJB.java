@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -54,7 +54,6 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -81,10 +80,7 @@ public class MPPSServiceEJB {
     @Inject
     private CodeCache codeCache;
 
-    @Inject
-    private IssuerService issuerService;
-
-    public MPPS createMPPS(MPPSContext ctx) throws DicomServiceException {
+    public MPPS createMPPS(MPPSContext ctx) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.MPPS);

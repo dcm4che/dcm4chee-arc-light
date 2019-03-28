@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,7 +49,6 @@ import org.dcm4chee.arc.qmgt.Outcome;
  */
 public interface IANSCU {
     String QUEUE_NAME = "IANSCU";
-    String JNDI_NAME = "jms/queue/IANSCU";
 
     Outcome sendIAN(String localAET, String remoteAET, String sopInstanceUID, Attributes attrs) throws Exception;
 }

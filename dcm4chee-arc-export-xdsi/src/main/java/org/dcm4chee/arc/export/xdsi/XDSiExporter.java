@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -56,7 +56,6 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4che3.xdsi.*;
 
-import javax.enterprise.event.Event;
 import javax.xml.bind.JAXBElement;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;

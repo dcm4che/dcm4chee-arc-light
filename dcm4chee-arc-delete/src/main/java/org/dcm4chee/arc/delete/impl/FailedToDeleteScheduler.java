@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -50,18 +50,15 @@ import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
-import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import java.io.IOException;
@@ -89,13 +86,7 @@ public class FailedToDeleteScheduler extends Scheduler {
     private DeletionServiceEJB ejb;
 
     @Inject
-    private StoreService storeService;
-
-    @Inject
     private StorageFactory storageFactory;
-
-    @Inject
-    private Event<StudyDeleteContext> studyDeletedEvent;
 
     private Set<String> inProcess = Collections.synchronizedSet(new HashSet<>());
 

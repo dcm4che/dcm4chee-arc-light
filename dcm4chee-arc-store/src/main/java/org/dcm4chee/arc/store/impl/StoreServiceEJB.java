@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -651,7 +651,7 @@ public class StoreServiceEJB {
                         session.getLocalHL7Application(), session.getSocket(), session.getUnparsedHL7Message());
         patMgtCtx.setAttributes(ctx.getAttributes());
         if (series == null) {
-            Study study = findStudy(ctx, result);
+            Study study = findStudy(ctx);
             if (study == null) {
                 if (!checkMissingPatientID(ctx))
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
@@ -901,12 +901,11 @@ public class StoreServiceEJB {
         }
     }
 
-    private Study findStudy(StoreContext ctx, UpdateDBResult result) {
+    private Study findStudy(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
         Study study = storeSession.getCachedStudy(ctx.getStudyInstanceUID());
         if (study == null)
             try {
-                ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();

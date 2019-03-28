@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -70,9 +70,6 @@ public class RetrieveManagerMDB implements MessageListener {
 
     @Inject
     private QueueManager queueManager;
-
-    @Inject
-    private RetrieveManagerEJB ejb;
 
     @Override
     public void onMessage(Message msg) {

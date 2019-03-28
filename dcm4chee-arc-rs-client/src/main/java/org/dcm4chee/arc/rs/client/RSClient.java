@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -53,7 +53,6 @@ import javax.ws.rs.core.Response;
  */
 public interface RSClient {
     String QUEUE_NAME = "RSClient";
-    String JNDI_NAME = "jms/queue/RSClient";
 
     void scheduleRequest(
             String method,

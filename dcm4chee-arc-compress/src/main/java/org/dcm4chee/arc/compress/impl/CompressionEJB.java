@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.compress.impl;
 
-import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
@@ -63,9 +62,6 @@ import java.util.List;
 public class CompressionEJB {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
-
-    @Inject
-    private Device device;
 
     @Inject
     private QuerySizeEJB querySizeEJB;

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -39,13 +39,6 @@
  */
 
 package org.dcm4chee.arc.conf;
-
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.hl7.HL7Message;
-import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4che3.util.TagUtils;
 
 import java.util.Map;
 import java.util.TreeMap;

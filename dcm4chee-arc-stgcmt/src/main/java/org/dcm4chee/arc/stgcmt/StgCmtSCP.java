@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -50,7 +50,6 @@ import org.dcm4chee.arc.qmgt.Outcome;
  */
 public interface StgCmtSCP {
     String QUEUE_NAME = "StgCmtSCP";
-    String JNDI_NAME = "jms/queue/StgCmtSCP";
 
     Outcome sendNEventReport(String localAET, ApplicationEntity remoteAE, Attributes eventInfo) throws Exception;
 }

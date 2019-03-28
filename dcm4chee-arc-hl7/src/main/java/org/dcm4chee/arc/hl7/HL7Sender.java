@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -53,7 +53,6 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
  */
 public interface HL7Sender {
     String QUEUE_NAME = "HL7Send";
-    String JNDI_NAME = "jms/queue/HL7Send";
 
     void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                          String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
