@@ -59,7 +59,6 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,9 +90,6 @@ import java.util.stream.Collectors;
 public class ExportManagerEJB implements ExportManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportManagerEJB.class);
-    
-    private Join<ExportTask, QueueMessage> queueMsg;
-    private Root<ExportTask> exportTask;
     
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -526,14 +522,6 @@ public class ExportManagerEJB implements ExportManager {
             q.where(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
 
         return em.createQuery(q.select(cb.count(exportTask))).getSingleResult();
-    }
-
-    private List<javax.persistence.criteria.Predicate> predicates(TaskQueryParam exportTaskQueryParam, MatchTask matchTask) {
-        return matchTask.exportPredicates(
-                queueMsg,
-                exportTask,
-                null,
-                exportTaskQueryParam);
     }
 
     public int deleteTasks(
