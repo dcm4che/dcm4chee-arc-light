@@ -389,8 +389,10 @@ export class StorageVerificationService {
         return this.$http.post(`../monitor/stgver/reschedule${urlParam}`, {}, this.header)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
-    reschedule(pk){
-        return this.$http.post(`../monitor/stgver/${pk}/reschedule`, {});
+    reschedule(pk, filters?){
+        let urlParam = this.mainservice.param(filters);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/stgver/${pk}/reschedule${urlParam}`, {});
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);

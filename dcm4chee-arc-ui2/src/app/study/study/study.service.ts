@@ -9,13 +9,15 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {Observable} from "rxjs/Observable";
 import * as _ from 'lodash'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
+import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 
 @Injectable()
 export class StudyService {
 
     constructor(
       private aeListService:AeListService,
-      private $http:J4careHttpService
+      private $http:J4careHttpService,
+      private storageSystems:StorageSystemsService
     ) { }
 
     getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, hidden:boolean){
@@ -256,5 +258,8 @@ export class StudyService {
         for (let i = 1; i <= n; i++)
             a.push(i);
         return a;
+    }
+    getStorageSystems(){
+        return this.storageSystems.search({},0);
     }
 }
