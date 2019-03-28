@@ -12,6 +12,7 @@ import 'rxjs/add/operator/switchMap';
 import {Globalvar} from "../constants/globalvar";
 import {HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../interfaces";
+import {StorageSystemsService} from "../monitoring/storage-systems/storage-systems.service";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -21,11 +22,13 @@ export class StudiesService {
     private _mwlIod: any;
     private _studyIod;
     integerVr = ['DS', 'FL', 'FD', 'IS', 'SL', 'SS', 'UL', 'US'];
+    storageSystemList;
 
     constructor(
         public $http: J4careHttpService,
         public datePipe: DatePipe,
         public mainservice:AppService,
+        private storageSystems:StorageSystemsService
     ) { }
 
     get studyIod() {
@@ -898,5 +901,16 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
 
     scheduleStorageVerification(param, aet){
         return this.$http.post(`../aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{})
+    }
+
+    getStorageSystems(){
+        if(this.storageSystemList){
+            return Observable.of(this.storageSystemList);
+        }else{
+            return this.storageSystems.search({},0).map(res=>{
+                this.storageSystemList = res;
+                return res;
+            });
+        }
     }
 }
