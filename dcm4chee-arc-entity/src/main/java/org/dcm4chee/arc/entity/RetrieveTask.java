@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -76,12 +76,31 @@ import java.util.Date;
                         "o.errorComment=?7 " +
                         "where o.queueMessage=?1"),
         @NamedQuery(name = RetrieveTask.FIND_DEVICE_BY_PK,
-                query = "select o.queueMessage.deviceName from RetrieveTask o where o.pk=?1")
+                query = "select o.queueMessage.deviceName from RetrieveTask o where o.pk=?1"),
+        @NamedQuery(name = RetrieveTask.FIND_LOCAL_AET_BY_BATCH_ID,
+                query = "select distinct o.localAET from RetrieveTask o where o.queueMessage.batchID=?1 " +
+                        "order by o.localAET"),
+        @NamedQuery(name = RetrieveTask.FIND_REMOTE_AET_BY_BATCH_ID,
+                query = "select distinct o.remoteAET from RetrieveTask o where o.queueMessage.batchID=?1 " +
+                        "order by o.remoteAET"),
+        @NamedQuery(name = RetrieveTask.FIND_DESTINATION_AET_BY_BATCH_ID,
+                query = "select distinct o.destinationAET from RetrieveTask o where o.queueMessage.batchID=?1 " +
+                        "order by o.destinationAET"),
+        @NamedQuery(name = RetrieveTask.FIND_DEVICE_BY_BATCH_ID,
+                query = "select distinct o.queueMessage.deviceName from RetrieveTask o where o.queueMessage.batchID=?1 " +
+                        "order by o.queueMessage.deviceName"),
+        @NamedQuery(name = RetrieveTask.COUNT_BY_BATCH_ID_AND_STATUS,
+                query = "select count(o) from RetrieveTask o where o.queueMessage.batchID=?1 and o.queueMessage.status=?2")
 })
 public class RetrieveTask {
 
     public static final String UPDATE_BY_QUEUE_MESSAGE = "RetrieveTask.UpdateByQueueMessage";
     public static final String FIND_DEVICE_BY_PK = "RetrieveTask.FindDeviceByPk";
+    public static final String FIND_LOCAL_AET_BY_BATCH_ID = "RetrieveTask.FindLocalAETByBatchId";
+    public static final String FIND_REMOTE_AET_BY_BATCH_ID = "RetrieveTask.FindRemoteAETByBatchId";
+    public static final String FIND_DESTINATION_AET_BY_BATCH_ID = "RetrieveTask.FindDestinationAETByBatchId";
+    public static final String FIND_DEVICE_BY_BATCH_ID = "RetrieveTask.FindDeviceByBatchId";
+    public static final String COUNT_BY_BATCH_ID_AND_STATUS = "RetrieveTask.CountByBatchIdAndStatus";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
