@@ -67,6 +67,7 @@
       <outputDirectory>.</outputDirectory>
       <includes>
         <include>configuration/dcm4chee-arc/key.jks</include>
+        <include>configuration/dcm4chee-arc/cacerts.jks</include>
       </includes>
       <lineEnding>keep</lineEnding>
     </fileSet>
