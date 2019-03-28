@@ -72,7 +72,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       public dialog: MatDialog,
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
-      private permissionService:PermissionService
+      private permissionService:PermissionService,
+      private j4care:j4care
   ) { }
 
     ngOnInit(){
@@ -290,9 +291,9 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             content: text
         }).subscribe((ok)=>{
             if(ok){
-                this.cfpLoadingBar.start();
                 switch (this.allAction){
                     case "cancel":
+                        this.cfpLoadingBar.start();
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
@@ -307,19 +308,27 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
                         break;
                     case "reschedule":
-                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks rescheduled successfully!',
-                                'status': 'info'
+                        this.j4care.selectDevice((res)=>{
+                            this.cfpLoadingBar.start();
+                            if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                filter["newDeviceName"] = res.schema_model.newDeviceName;
+                            }
+                            this.service.rescheduleAll(filter).subscribe((res)=>{
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': res.count + ' tasks rescheduled successfully!',
+                                    'status': 'info'
+                                });
+                                this.cfpLoadingBar.complete();
+                            }, (err) => {
+                                this.cfpLoadingBar.complete();
+                                this.httpErrorHandler.handleError(err);
                             });
-                            this.cfpLoadingBar.complete();
-                        }, (err) => {
-                            this.cfpLoadingBar.complete();
-                            this.httpErrorHandler.handleError(err);
-                        });
+                        },
+                        this.devices);
                         break;
                     case "delete":
+                        this.cfpLoadingBar.start();
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
@@ -522,22 +531,29 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 if (ok){
                     switch (mode) {
                         case 'reschedule':
-                            this.cfpLoadingBar.start();
-                            this.service.reschedule(match.pk)
-                                .subscribe(
-                                    (res) => {
-                                        this.getTasks(this.filterObject['offset'] || 0);
-                                        this.cfpLoadingBar.complete();
-                                        this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Task rescheduled successfully!',
-                                            'status': 'info'
+                            this.j4care.selectDevice((res)=>{
+                                this.cfpLoadingBar.start();
+                                let filter = {}
+                                if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                    filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                }
+                                this.service.reschedule(match.pk, filter)
+                                    .subscribe(
+                                        (res) => {
+                                            this.getTasks(this.filterObject['offset'] || 0);
+                                            this.cfpLoadingBar.complete();
+                                            this.mainservice.setMessage({
+                                                'title': 'Info',
+                                                'text': 'Task rescheduled successfully!',
+                                                'status': 'info'
+                                            });
+                                        },
+                                        (err) => {
+                                            this.cfpLoadingBar.complete();
+                                            this.httpErrorHandler.handleError(err);
                                         });
-                                    },
-                                    (err) => {
-                                        this.cfpLoadingBar.complete();
-                                        this.httpErrorHandler.handleError(err);
-                                    });
+                                },
+                                this.devices);
                             break;
                         case 'delete':
                             this.cfpLoadingBar.start();
