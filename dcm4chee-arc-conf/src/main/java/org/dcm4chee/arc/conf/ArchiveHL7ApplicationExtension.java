@@ -396,7 +396,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Map<String, String> importReportTemplateParams() {
-        return importReportTemplateParams.isEmpty()
+        return !importReportTemplateParams.isEmpty()
                 ? importReportTemplateParams
                 : getArchiveDeviceExtension().getImportReportTemplateParams();
     }

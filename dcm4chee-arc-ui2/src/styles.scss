@@ -3161,6 +3161,15 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       border-radius: 0;
     }
   }
+  .study_order{
+    .order_label{
+      width: 70%;
+      &:hover{
+        cursor: pointer;
+      }
+    }
+  }
+
 }
 /*White design color START*/
 $pink:rgba(82, 36, 88, 0.85);

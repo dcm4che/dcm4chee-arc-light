@@ -29,8 +29,8 @@ export class AeListService {
     }
     echoAe(callingAet, externalAet,data){
         return  this.$http.post(
-            `../aets/${callingAet}/dimse/${externalAet}`,
-            data
+            `../aets/${callingAet}/dimse/${externalAet}${j4care.getUrlParams(data)}`,
+            {}
         ).map(res => j4care.redirectOnAuthResponse(res));
     }
     generateEchoResponseText(response){

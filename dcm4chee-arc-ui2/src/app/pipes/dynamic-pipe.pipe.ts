@@ -17,7 +17,7 @@ export class DynamicPipePipe implements PipeTransform {
         }
         else {
             let pipe = this.injector.get(dynamicPipe.pipeToken);
-            return pipe.transform(value, ...value.pipeArgs);
+            return pipe.transform(value, ...dynamicPipe.pipeArgs);
         }
     }
 }

@@ -2,9 +2,10 @@
   <study-tab></study-tab>
   <div class="tab-content" [ngClass]="{'tab_content_with_fixed_header':fixedHeader}">
     <div [ngClass]="{'fixed_header':fixedHeader}">
-<!--        model2:{{model|json}}
-      <j4care-select [(model)]="model">
-          <j4care-option *ngFor="let el of test" [value]="el.value" [htmlLabel]="el.label"></j4care-option>
+        <!--model2:{{model|json}}-->
+<!--      <j4care-select [(model)]="model" [placeholder]="'Test placeholder'">
+          <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
+          <j4care-option *ngFor="let el of test" [value]="el.value" [htmlLabel]="el.label" [title]="'Test title'"></j4care-option>
       </j4care-select>-->
       <h2>Studies {{studyConfig.tab}}</h2>
       <div class="filter_line">

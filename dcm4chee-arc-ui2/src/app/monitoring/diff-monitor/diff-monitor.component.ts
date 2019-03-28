@@ -138,7 +138,7 @@ export class DiffMonitorComponent implements OnInit {
     }
 
     onFormChange(filters){
-        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+/*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
@@ -147,7 +147,7 @@ export class DiffMonitorComponent implements OnInit {
                 else
                     return o.value != 'cancel';
             }
-        });
+        });*/
     }
     initSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,`COUNT ${((this.count || this.count == 0)?this.count:'')}`,this.devices),3);

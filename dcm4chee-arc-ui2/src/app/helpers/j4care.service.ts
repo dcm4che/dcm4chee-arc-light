@@ -15,6 +15,7 @@ import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {DevicesService} from "../configuration/devices/devices.service";
 import {Router} from "@angular/router";
 import {J4careDateTime, J4careDateTimeMode, RangeObject} from "./j4care";
+import {TableSchemaElement} from "../models/dicom-table-schema-element";
 
 
 @Injectable()
@@ -515,7 +516,11 @@ export class j4care {
             }
             resjson = res.json();
         }catch (e){
-            resjson = [];
+            if(typeof res === "object"){
+                resjson = res;
+            }else{
+                resjson = [];
+            }
         }
         return resjson;
     }
@@ -746,14 +751,32 @@ export class j4care {
         recurse(data, "");
         return result;
     };
-    static calculateWidthOfTable(table){
-        let summ = 0;
+    static calculateWidthOfTable(table:(TableSchemaElement[]|any)){
+        let sum = 0;
+        let pxWidths = 0;
+        let check = 0;
         table.forEach((m)=>{
-            summ += m.widthWeight;
+            if(_.hasIn(m,'pxWidth') && m.pxWidth){
+                pxWidths += m.pxWidth;
+            }else{
+                sum += m.widthWeight;
+            }
         });
         table.forEach((m)=>{
-            m.calculatedWidth =  ((m.widthWeight * 100)/summ)+"%";
+            let procentualPart = (m.widthWeight * 100)/sum;
+            if(pxWidths > 0){
+                if(_.hasIn(m, "pxWidth") && m.pxWidth){
+                    m.calculatedWidth = `${m.pxWidth}px`;
+                }else{
+                    let pxPart = (procentualPart * 0.01 * pxWidths);
+                    m.calculatedWidth = `calc(${procentualPart}% - ${pxPart}px)`;
+                    check += pxPart;
+                }
+            }else{
+                m.calculatedWidth =  procentualPart + "%";
+            }
         });
+        console.log("check",check);
         return table;
     };
 

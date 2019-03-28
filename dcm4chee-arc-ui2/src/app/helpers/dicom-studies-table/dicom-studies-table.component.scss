@@ -36,7 +36,7 @@ $pink:rgba(82, 36, 88, 0.85);
       &.not_empty_td{
         border-left: 1px solid white;
       }
-      &.value.active{
+      &.value.active, &.pipe.active{
         background: $pink;
         color: white;
       }
@@ -57,11 +57,16 @@ $pink:rgba(82, 36, 88, 0.85);
           position: static;
         }
       }
-      &.active, &.value:hover{
+      &.active, &.value:hover, &.pipe:hover{
         background: $pink;
         color: white;
       }
-
+      .dicom_table_buttons{
+        width: 25px;
+        display: block;
+        float: left;
+        text-align: center;
+      }
     }
 
   }
@@ -85,7 +90,7 @@ $pink:rgba(82, 36, 88, 0.85);
       margin-left: 2px;
       width: calc(100% - 2px);
       background: rgba(235, 235, 235, 0.9);
-      padding-left: 20px;
+      padding-left: 13px;
       position: relative;
       z-index: 3;
     }
@@ -96,7 +101,7 @@ $pink:rgba(82, 36, 88, 0.85);
       margin-left: 4px;
       width: calc(100% - 4px);
       background: rgba(215, 215, 215, 0.8);
-      padding-left: 40px;
+      padding-left: 30px;
       position: relative;
       z-index: 2;
 
@@ -108,7 +113,7 @@ $pink:rgba(82, 36, 88, 0.85);
       margin-left: 6px;
       width: calc(100% - 6px);
       background: rgba(195, 195, 195, 0.7);
-      padding-left: 60px;
+      padding-left: 93px;
       position: relative;
       z-index: 1;
 

@@ -487,7 +487,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         this.getTasks(filter);
     }
     onFormChange(filters){
-        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+/*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
@@ -496,7 +496,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 else
                     return o.value != 'cancel';
             }
-        });
+        });*/
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{

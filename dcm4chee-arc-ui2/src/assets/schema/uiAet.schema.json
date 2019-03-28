@@ -4,7 +4,9 @@
   "type": "object",
   "required": [
     "dcmuiAetListName",
-    "dcmuiAets"
+    "dcmuiAets",
+    "dcmAcceptedUserRole",
+    "dcmuiMode"
   ],
   "properties": {
     "dcmuiAetListName": {

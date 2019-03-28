@@ -1,6 +1,13 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {AccessLocation, FilterSchema, StudyFilterConfig, StudyPageConfig, DicomMode} from "../../interfaces";
+import {
+    AccessLocation,
+    FilterSchema,
+    StudyFilterConfig,
+    StudyPageConfig,
+    DicomMode,
+    SelectDropdown
+} from "../../interfaces";
 import {StudyService} from "./study.service";
 import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
@@ -21,6 +28,8 @@ import {SeriesDicom} from "../../models/series-dicom";
 import {InstanceDicom} from "../../models/instance-dicom";
 import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
+import {DropdownList} from "../../helpers/form/dropdown-list";
+import {DropdownComponent} from "../../widgets/dropdown/dropdown.component";
 
 
 @Component({
@@ -52,7 +61,7 @@ import {GSPSQueryParams} from "../../models/gsps-query-params";
 export class StudyComponent implements OnInit {
 
     test = Globalvar.ORDERBY;
-
+    // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
     isOpen = true;
     testToggle(){
         this.isOpen = !this.isOpen;
@@ -121,7 +130,6 @@ export class StudyComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        console.log("aet",this.applicationEntities);
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
@@ -150,6 +158,15 @@ export class StudyComponent implements OnInit {
     actions(id, model){
         console.log("id",id);
         console.log("model",model);
+        if(id.action === "toggle_studies"){
+            if(!model.studies){
+                // this.getStudies(model);
+                //TODO getStudies
+            }else{
+                model.showStudies = !model.showStudies;
+            }
+
+        }
         if(id.action === "toggle_series"){
             if(!model.series){
                 this.getSeries(model);
@@ -195,6 +212,7 @@ export class StudyComponent implements OnInit {
 
     getStudies(filters, callingAet){
         this.cfpLoadingBar.start();
+        filters['includefield'] = 'all';
         this.service.getStudies(callingAet, filters)
             .subscribe(res => {
                 this.patients = [];
@@ -249,6 +267,7 @@ export class StudyComponent implements OnInit {
         if(filters.limit){
             filters.limit++;
         }
+        filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
         this.service.getSeries(callingAet,study.attrs['0020000D'].Value[0], filters)
@@ -298,6 +317,7 @@ export class StudyComponent implements OnInit {
         if(filters.limit){
             filters.limit++;
         }
+        filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'InstanceNumber';
         this.service.getInstances(callingAet,series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters)

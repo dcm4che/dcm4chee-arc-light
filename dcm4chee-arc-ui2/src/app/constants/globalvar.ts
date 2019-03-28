@@ -119,94 +119,184 @@ export class Globalvar {
         return [
             {
                 value: 'PatientName',
-                label: '<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>',
+                label: `<label class="order_label">Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
                 mode: 'patient',
                 title:'Query Patients'
             },
             {
                 value: '-PatientName',
-                label: '<label>Patient</label><span class=\"orderbynamedesc\"></span>',
+                label: `<label class="order_label">Patient</label><span class=\"orderbynamedesc\"></span>`,
                 mode: 'patient',
                 title:'Query Patients'
             },
             {
 
                 value: '-StudyDate,-StudyTime',
-                label: '<label>Study</label><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: 'StudyDate,StudyTime',
-                label: '<label>Study</label><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: 'PatientName,-StudyDate,-StudyTime',
-                label: '<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: '-PatientName,-StudyDate,-StudyTime',
-                label: '<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: 'PatientName,StudyDate,StudyTime',
-                label: '<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: '-PatientName,StudyDate,StudyTime',
-                label: '<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
                 title:'Query Studies'
             },
             {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">MWL</label></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: 'PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: '-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: 'PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: '-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: '<label>MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>',
+                label: `<label class="order_label">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
                 title:'Query MWL'
             },
             {
                 value: '',
-                label: '<label>Diff </label><i class="material-icons">compare_arrows</i>',
+                label: `<label class="order_label">Diff </label><i class="material-icons">compare_arrows</i>`,
                 mode: 'diff',
                 title:'Make diff between two archives'
+            }
+        ];
+
+    }
+    public static get ORDERBY_NEW(): Array<{value:string,label:any,mode:('patient'|'study'|'mwl'|'diff'),title:string}>{
+        return [
+            {
+                value: 'PatientName',
+                label: `<label class="order_label">Order A-Z</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
+                mode: 'patient',
+                title:'Query Patients'
+            },
+            {
+                value: '-PatientName',
+                label: `<label class="order_label">Z-A</label><span class=\"orderbynamedesc\"></span>`,
+                mode: 'patient',
+                title:'Query Patients'
+            },
+            {
+
+                value: '-StudyDate,-StudyTime',
+                label: `<label class="order_label">Newest first</label><span class=\"orderbydateasc\"></span>`,
+                mode: 'study',
+                title:'Query Studies'
+            },
+            {
+                value: 'StudyDate,StudyTime',
+                label: `<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
+                mode: 'study',
+                title:'Query Studies'
+            },
+            {
+                value: 'PatientName,-StudyDate,-StudyTime',
+                label: `<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'study',
+                title:'Query Studies'
+            },
+            {
+                value: '-PatientName,-StudyDate,-StudyTime',
+                label: `<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'study',
+                title:'Query Studies'
+            },
+            {
+                value: 'PatientName,StudyDate,StudyTime',
+                label: `<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'study',
+                title:'Query Studies'
+            },
+            {
+                value: '-PatientName,StudyDate,StudyTime',
+                label: `<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'study',
+                title:'Query Studies'
+            },
+            {
+                value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
+                label: `<label class="order_label">Newest first</label></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mwl',
+                title:'Query MWL'
+            },
+            {
+                value: 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
+                label: `<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mwl',
+                title:'Query MWL'
+            },
+            {
+                value: 'PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
+                label: `<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mwl',
+                title:'Query MWL'
+            },
+            {
+                value: '-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
+                label: `<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mwl',
+                title:'Query MWL'
+            },
+            {
+                value: 'PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
+                label: `<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mwl',
+                title:'Query MWL'
+            },
+            {
+                value: '-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
+                label: `<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mwl',
+                title:'Query MWL'
             }
         ];
 
@@ -1007,19 +1097,34 @@ export class Globalvar {
                         }
                     ],
                     headerDescription:"Show studies",
-                    widthWeight:0.2,
-                    calculatedWidth:"6%"
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"index",
                     header:'',
                     pathToValue:'',
-                    widthWeight:0.2
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"actions",
                     header:"",
                     actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-option-vertical',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                /*                                actions.call($this, {
+                                                                    event:"click",
+                                                                    level:"patient",
+                                                                    action:"toggle_studies"
+                                                                },e);*/
+                                // e.showAttributes = !e.showAttributes;
+                            }
+                        },
                         {
                             icon:{
                                 tag:'span',
@@ -1033,8 +1138,7 @@ export class Globalvar {
                         }
                     ],
                     headerDescription:"Actions",
-                    widthWeight:0.5,
-                    calculatedWidth:"6%"
+                    pxWidth:65
                 }),
                 new TableSchemaElement({
                     type:"value",
@@ -1133,19 +1237,35 @@ export class Globalvar {
                         }
                     ],
                     headerDescription:"Show studies",
-                    widthWeight:0.2,
+                    widthWeight:0.3,
                     calculatedWidth:"6%"
                 }),
                 new TableSchemaElement({
                     type:"index",
                     header:'',
                     pathToValue:'',
-                    widthWeight:0.2
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"actions",
                     header:"",
                     actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-option-vertical',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                /*                                actions.call($this, {
+                                                                    event:"click",
+                                                                    level:"patient",
+                                                                    action:"toggle_studies"
+                                                                },e);*/
+                                // e.showAttributes = !e.showAttributes;
+                            }
+                        },
                         {
                             icon:{
                                 tag:'span',
@@ -1159,8 +1279,7 @@ export class Globalvar {
                         }
                     ],
                     headerDescription:"Actions",
-                    widthWeight:0.2,
-                    calculatedWidth:"6%"
+                    pxWidth:65
                 }),
                 new TableSchemaElement({
                     type:"value",
@@ -1214,7 +1333,7 @@ export class Globalvar {
                     header:"Modalities",
                     pathToValue:"[00080061].Value[0]",
                     headerDescription:"Modalities in Study",
-                    widthWeight:1,
+                    widthWeight:0.5,
                     calculatedWidth:"20%"
                 }),
                 new TableSchemaElement({
@@ -1222,7 +1341,7 @@ export class Globalvar {
                     header:"Study Description",
                     pathToValue:"[00081030].Value[0]",
                     headerDescription:"Study Description",
-                    widthWeight:1,
+                    widthWeight:2,
                     calculatedWidth:"20%"
                 }),
                 new TableSchemaElement({
@@ -1230,7 +1349,7 @@ export class Globalvar {
                     header:"#S",
                     pathToValue:"[00201206].Value[0]",
                     headerDescription:"Number of Study Related Series",
-                    widthWeight:1,
+                    widthWeight:0.2,
                     calculatedWidth:"20%"
                 }),
                 new TableSchemaElement({
@@ -1238,7 +1357,7 @@ export class Globalvar {
                     header:"#I",
                     pathToValue:"[00201208].Value[0]",
                     headerDescription:"Number of Study Related Instances",
-                    widthWeight:1,
+                    widthWeight:0.2,
                     calculatedWidth:"20%"
                 })
             ],
@@ -1289,14 +1408,27 @@ export class Globalvar {
                     type:"index",
                     header:'',
                     pathToValue:'',
-                    widthWeight:0.2,
-
-                    calculatedWidth:"6%"
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"actions",
                     header:"",
-                    actions:[
+                    actions:[                        {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-option-vertical',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            /*                                actions.call($this, {
+                                                                event:"click",
+                                                                level:"patient",
+                                                                action:"toggle_studies"
+                                                            },e);*/
+                            // e.showAttributes = !e.showAttributes;
+                        }
+                    },
                         {
                             icon:{
                                 tag:'span',
@@ -1310,8 +1442,7 @@ export class Globalvar {
                         }
                     ],
                     headerDescription:"Actions",
-                    widthWeight:0.2,
-                    calculatedWidth:"6%"
+                    pxWidth:65
                 }),
                 new TableSchemaElement({
                     type:"value",
@@ -1383,13 +1514,28 @@ export class Globalvar {
                     type:"index",
                     header:'',
                     pathToValue:'',
-                    widthWeight:0.1,
-                    calculatedWidth:"6%"
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"actions",
                     header:"",
                     actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-option-vertical',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                /*                                actions.call($this, {
+                                                                    event:"click",
+                                                                    level:"patient",
+                                                                    action:"toggle_studies"
+                                                                },e);*/
+                                // e.showAttributes = !e.showAttributes;
+                            }
+                        },
                         {
                             icon:{
                                 tag:'span',
@@ -1403,8 +1549,7 @@ export class Globalvar {
                         }
                     ],
                     headerDescription:"Actions",
-                    widthWeight:0.2,
-                    calculatedWidth:"6%"
+                    pxWidth:65
                 }),
                 new TableSchemaElement({
                     type:"value",

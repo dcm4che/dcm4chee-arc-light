@@ -144,7 +144,7 @@ public class DiffRS {
     private String queue;
 
     @QueryParam("ForceQueryByStudyUID")
-    @ValidValueOf(type = Duration.class)
+    @Pattern(regexp = "true|false")
     private String forceQueryByStudyUID;
 
     @QueryParam("SplitStudyDateRange")

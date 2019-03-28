@@ -43,6 +43,10 @@
                     </div>
                     <span *ngIf="line[index].type === 'checkbox'">{{line[index].text}}</span>
                     <p-multiSelect [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"  [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>
+                    <j4care-select [(model)]="model[line[index].filterKey]" [ngStyle]="line[index].style" *ngSwitchCase="'html-select'" [placeholder]="line[index]?.placeholder" [ngClass]="line[index].cssClass">
+                      <j4care-option *ngIf="line[index].showStar" [value]="''">*</j4care-option>
+                      <j4care-option *ngFor="let option of line[index].options"  [value]="option.value" title="{{option.description || option.title}}" [htmlLabel]="option.htmlLabel || option.label || option.text"></j4care-option>
+                    </j4care-select>
                     <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                       <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
                       <mat-option *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description || option.title}}" [innerHtml]="option.label || option.text"></mat-option>
