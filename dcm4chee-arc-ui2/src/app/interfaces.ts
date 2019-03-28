@@ -107,7 +107,7 @@ export type DicomMode = "study" | "patient" | "mwl" | "diff";
 export type AccessLocation = "internal" | "external";
 
 export interface StudyFilterConfig {
-    filterSchemaEntry:{schema:FilterSchema,lineLength:number};
+    filterSchemaEntry?:{schema:FilterSchema,lineLength:number};
     filterSchemaMain:{schema:FilterSchema,lineLength:number};
     filterSchemaExpand:{schema:FilterSchema,lineLength:number};
     filterModel:any;
