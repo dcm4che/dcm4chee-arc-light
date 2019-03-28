@@ -6,7 +6,7 @@ import {
     StudyFilterConfig,
     StudyPageConfig,
     DicomMode,
-    SelectDropdown
+    SelectDropdown, StudyDevice
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {Observable} from "rxjs/Observable";
@@ -74,6 +74,10 @@ export class StudyComponent implements OnInit {
     patientAttributes;
 
     private _filter:StudyFilterConfig = {
+        filterSchemaEntry:{
+            lineLength:undefined,
+            schema:[]
+        },
         filterSchemaMain:{
             lineLength:undefined,
             schema:[]
@@ -120,6 +124,7 @@ export class StudyComponent implements OnInit {
             offset:0
         }
     };
+    studyDevice:StudyDevice;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -133,7 +138,7 @@ export class StudyComponent implements OnInit {
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
-          this.getApplicationEntities();
+          this.getDevices();
         });
     }
     testShow = true;
@@ -367,12 +372,12 @@ export class StudyComponent implements OnInit {
     }
 
     setSchema(){
+        this._filter.filterSchemaEntry.lineLength = undefined;
         this._filter.filterSchemaMain.lineLength = undefined;
         this._filter.filterSchemaExpand.lineLength = undefined;
-        // setTimeout(()=>{
-            this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,false);
-            this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,true);
-        // },0);
+        // this._filter.filterSchemaEntry  = this.service.getEntrySchema(this.devices,this.selectedDeviceWebserviceAet);
+        this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,false);
+        this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,true);
     }
 
     accessLocationChange(e){
@@ -413,4 +418,16 @@ export class StudyComponent implements OnInit {
             this.setSchema();
         }
     }
+
+    getDevices(){
+        this.service.getDevices()
+            .subscribe(devices=>{
+            this.studyDevice = new StudyDevice(devices.map(device=> new SelectDropdown(device.dicomDeviceName, device.dicomDeviceName)));
+            this.getApplicationEntities();
+        },err=>{
+            j4care.log("Something went wrong on getting Devices",err);
+            this.httpErrorHandler.handleError(err);
+        })
+    }
+
 }

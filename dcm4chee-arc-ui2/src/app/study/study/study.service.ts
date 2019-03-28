@@ -10,6 +10,7 @@ import {Observable} from "rxjs/Observable";
 import * as _ from 'lodash'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 
 @Injectable()
 export class StudyService {
@@ -17,7 +18,8 @@ export class StudyService {
     constructor(
       private aeListService:AeListService,
       private $http:J4careHttpService,
-      private storageSystems:StorageSystemsService
+      private storageSystems:StorageSystemsService,
+      private devicesService:DevicesService
     ) { }
 
     getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, hidden:boolean){
@@ -261,5 +263,9 @@ export class StudyService {
     }
     getStorageSystems(){
         return this.storageSystems.search({},0);
+    }
+
+    getDevices(){
+        return this.devicesService.getDevices();
     }
 }

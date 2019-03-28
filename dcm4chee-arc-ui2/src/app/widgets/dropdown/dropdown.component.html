@@ -3,7 +3,7 @@
     <div class="dropdown_input" (click)="toggleDropdown()">
         <div class="input_part">
             <ng-container *ngIf="selectedValue && selectedDropdown">
-                <div class="selected_value" *ngIf="!selectedDropdown.htmlLabel">{{selectedDropdown.label || selectedDropdown.text}}</div>
+                <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && (selectedDropdown.label || selectedDropdown.text)">{{selectedDropdown.label || selectedDropdown.text}}</div>
                 <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
             </ng-container>
             <div *ngIf="!(selectedValue && selectedDropdown)" class="selected_value empty_field">{{placeholder}}</div>

@@ -31,7 +31,7 @@ export class OptionComponent implements OnInit {
     @Input() title;
     private _selected:boolean;
     constructor(
-        public service:OptionService,
+        private service:OptionService,
         private element:ElementRef
     ){
     }

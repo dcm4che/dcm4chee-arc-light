@@ -1,3 +1,7 @@
+import {Aet} from "./models/aet";
+import {Device} from "./models/device";
+import {DcmWebApp} from "./models/dcm-web-app";
+
 export interface J4careDateTime {
     FullYear:string;
     Month:string;
@@ -103,6 +107,7 @@ export type DicomMode = "study" | "patient" | "mwl" | "diff";
 export type AccessLocation = "internal" | "external";
 
 export interface StudyFilterConfig {
+    filterSchemaEntry:{schema:FilterSchema,lineLength:number};
     filterSchemaMain:{schema:FilterSchema,lineLength:number};
     filterSchemaExpand:{schema:FilterSchema,lineLength:number};
     filterModel:any;
@@ -119,3 +124,62 @@ export interface StudyPageConfig {
 }
 
 export type DicomResponseType = 'object'|'count'|'size';
+
+export class StudyDevice {
+    private _devices:any[];
+    private _selectedDevice?:Device;
+    private _selectedAet?:Aet;
+    private _selectedWebApp?:DcmWebApp;
+
+
+    constructor(
+        devices:any[],
+        selectedDevice?:Device,
+        selectedAet?:Aet,
+        selectedWebApp?:DcmWebApp
+    ){
+        this.devices = devices;
+        this.selectedDevice = selectedDevice || undefined;
+        this.selectedAet = selectedAet || undefined;
+        this.selectedWebApp = selectedWebApp || undefined;
+
+    }
+    get devices(): any[] {
+        return this._devices;
+    }
+
+    set devices(value: any[]) {
+        this._devices = value;
+        this._selectedDevice = undefined;
+        this._selectedAet = undefined;
+        this._selectedWebApp = undefined;
+    }
+
+    get selectedDevice(): Device {
+        return this._selectedDevice;
+    }
+
+    set selectedDevice(value: Device) {
+        this._selectedDevice = value;
+        this._selectedAet = undefined;
+        this._selectedWebApp = undefined;
+    }
+
+    get selectedAet(): Aet {
+        return this._selectedAet;
+    }
+
+    set selectedAet(value: Aet) {
+        this._selectedAet = value;
+        this._selectedWebApp = undefined;
+    }
+
+    get selectedWebApp(): DcmWebApp {
+        return this._selectedWebApp;
+    }
+
+    set selectedWebApp(value: DcmWebApp) {
+        this._selectedWebApp = value;
+        this._selectedAet = undefined;
+    }
+}
