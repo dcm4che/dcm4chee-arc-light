@@ -7845,6 +7845,182 @@
         }
       }
     },
+    "/aets/{aet}/access/{accessControlID}/studies": {
+      "post": {
+        "tags": [
+          "ACCESS-RS"
+        ],
+        "summary": "Update Study Access Control ID of matching studies",
+        "operationId": "UpdateStudyAccessControlID",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accessControlID",
+            "in": "path",
+            "description": "Access Control ID or 'null'",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "Filter Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudyAccessDateTime",
+            "in": "query",
+            "description": "Filter Studies which were accessed between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "StudySizeInKB",
+            "in": "query",
+            "description": "Filter Studies whose size is <min>-|-<max>|<min>-<max>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "Filter Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "Filter Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "Filter Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "Filter Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageVerificationFailed",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series with Failures of Last Storage Commitment",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "compressionfailed",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "patientVerificationStatus",
+            "in": "query",
+            "description": "Filter Studies of Patients with given Verification Status",
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "NOT_FOUND",
+              "VERIFICATION_FAILED"
+            ]
+          },
+          {
+            "name": "allOfModalitiesInStudy",
+            "in": "query",
+            "description": "Filter Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy'.",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "storageID",
+            "in": "query",
+            "description": "Filter Studies which have objects on a particular Storage System",
+            "type": "string"
+          },
+          {
+            "name": "storageClustered",
+            "in": "query",
+            "description": "Filter Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "storageExported",
+            "in": "query",
+            "description": "Filter Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
+            "type": "boolean",
+            "default": null
+          },
+          {
+            "name": "ExpirationDate",
+            "in": "query",
+            "description": "Filter studies which have expiration date between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExpirationState",
+            "in": "query",
+            "description": "Filter Studies with given Expiration State",
+            "type": "string",
+            "enum": [
+              "UPDATEABLE",
+              "FROZEN",
+              "REJECTED",
+              "EXPORT_SCHEDULED",
+              "FAILED_TO_EXPORT",
+              "FAILED_TO_REJECT"
+            ]
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
       "post": {
         "tags": [
