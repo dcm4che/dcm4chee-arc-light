@@ -61,6 +61,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +83,7 @@ import java.io.StringWriter;
  */
 @RequestScoped
 @Path("aets/{AETitle}/export/{ExporterID}")
+@InvokeValidate(type = ExportMatchingRS.class)
 public class ExportMatchingRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportMatchingRS.class);

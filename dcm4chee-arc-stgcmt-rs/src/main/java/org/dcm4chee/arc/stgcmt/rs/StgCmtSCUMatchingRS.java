@@ -80,7 +80,7 @@ import java.io.StringWriter;
 @RequestScoped
 @Path("aets/{aet}/stgcmt/{externalAET}")
 @InvokeValidate(type = StgCmtSCUMatchingRS.class)
-        public class StgCmtSCUMatchingRS {
+public class StgCmtSCUMatchingRS {
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCUMatchingRS.class);
 
     @Context
