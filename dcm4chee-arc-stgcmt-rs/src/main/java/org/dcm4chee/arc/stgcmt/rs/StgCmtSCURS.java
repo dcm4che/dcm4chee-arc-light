@@ -96,7 +96,7 @@ public class StgCmtSCURS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/stgcmt/dicom:{externalAET}")
-    @Produces("application/dicom+json,application/json")
+    @Produces("application/json")
     public Response studyStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("externalAET") String externalAET) {
@@ -105,7 +105,7 @@ public class StgCmtSCURS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt/dicom:{externalAET}")
-    @Produces("application/dicom+json,application/json")
+    @Produces("application/json")
     public Response seriesStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID,
@@ -115,7 +115,7 @@ public class StgCmtSCURS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt/dicom:{externalAET}")
-    @Produces("application/dicom+json,application/json")
+    @Produces("application/json")
     public Response instanceStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID,
