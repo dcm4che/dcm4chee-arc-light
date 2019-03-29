@@ -7851,7 +7851,7 @@
           "ACCESS-RS"
         ],
         "summary": "Update Study Access Control ID of matching studies",
-        "operationId": "UpdateStudyAccessControlID",
+        "operationId": "UpdateStudyAccessControlIDOfMatchingStudies",
         "parameters": [
           {
             "name": "aet",
