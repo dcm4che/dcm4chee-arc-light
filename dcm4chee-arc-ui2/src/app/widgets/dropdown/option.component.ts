@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Input, OnInit} from "@angular/core";
 import {OptionService} from "./option.service";
 import {SelectDropdown} from "../../interfaces";
 import * as _ from 'lodash';
@@ -29,30 +29,37 @@ export class OptionComponent implements OnInit {
     @Input() value;
     @Input() htmlLabel;
     @Input() title;
-    private _selected:boolean;
+    private _selected:boolean = false;
+    selectEvent = new EventEmitter();
     constructor(
-        private service:OptionService,
-        private element:ElementRef
     ){
+        // this.uniqueId = Math.random().toString(36).substring(2, 15);
     }
     ngOnInit() {
-        if(this.service.currentStateOfTheValue && this.value && _.isEqual(this.service.currentStateOfTheValue.value, this.value)){
+/*        if(this.service.currentStateOfTheValue && this.value && _.isEqual(this.service.currentStateOfTheValue.value, this.value)){
             this._selected = true;
         }else{
             this._selected = false;
-        }
+        }*/
     }
 
     select(e){
-        if(this.value){
-            if(this.htmlLabel){
-                this.service.setValue(new SelectDropdown(this.value,'','','',this.htmlLabel));
+        this.selectEvent.emit(this);
+/*        if(this.value){
+/!*            if(this.htmlLabel){
+                this.service.setValue({
+                    id:this.uniqueId,
+                    value:new SelectDropdown(this.value,'','','',this.htmlLabel)
+                });
             }else{
-                this.service.setValue(new SelectDropdown(this.value,this.element.nativeElement.outerText));
-            }
+                this.service.setValue({
+                    id:this.uniqueId,
+                    value:new SelectDropdown(this.value,this.element.nativeElement.outerText)
+                });
+            }*!/
         }else{
             this.service.setValue(undefined);
-        }
+        }*/
     }
 
 

@@ -125,6 +125,7 @@ export class StudyComponent implements OnInit {
         }
     };
     studyDevice:StudyDevice;
+    testModel;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,

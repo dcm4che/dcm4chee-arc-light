@@ -8,13 +8,13 @@ export class OptionService {
 
 
     private _currentStateOfTheValue;
-    private setValueSource = new Subject<SelectDropdown>();
+    private setValueSource = new Subject<{id:string, value:SelectDropdown}>();
 
     valueSet$ = this.setValueSource.asObservable();
-    setValue(value: SelectDropdown) {
-        console.log('in set value', value);
-        this._currentStateOfTheValue = value;
-        this.setValueSource.next(value);
+    setValue(object:{id:string ,value:SelectDropdown}) {
+        console.log('in set value', object);
+        this._currentStateOfTheValue[object.id] = object.value;
+        this.setValueSource.next(object);
     }
 
 
@@ -25,4 +25,5 @@ export class OptionService {
     set currentStateOfTheValue(value) {
         this._currentStateOfTheValue = value;
     }
+    get
 }

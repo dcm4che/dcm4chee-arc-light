@@ -43,13 +43,12 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     selectedValue:string;
     selectedDropdown:SelectDropdown;
     @Input() placeholder:string;
-
+    uniqueId;
     @Input('model')
     set model(value){
-        this.selectedValue = value;
         if(!(this.selectedDropdown && this.selectedDropdown.value === value)){
+            this.selectedValue = value;
             this.selectedDropdown  = this.getSelectDropdownFromValue(value);
-            this.service.setValue(this.selectedDropdown);
             this.setSelectedElement();
         }
     }
@@ -57,26 +56,20 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     @ContentChildren(OptionComponent) children:QueryList<OptionComponent>;
 
     @Output() modelChange =  new EventEmitter();
-    showDropdown:boolean = true;
-    constructor(
-        public service:OptionService
-    ) {
-        this.service.valueSet$.subscribe(value=>{
-            this.selectedValue = value.value;
-            this.selectedDropdown = value;
-            this.modelChange.emit(value.value);
-            this.setSelectedElement();
-            this.showDropdown = false;
-        })
-    }
+    showDropdown:boolean = false;
+    constructor() {}
 
     toggleDropdown(){
         this.showDropdown = !this.showDropdown;
     }
 
     ngAfterContentInit(): void {
-        console.log("template",this.template);
-        console.log("children",this.children);
+        this.children.forEach(result=>{
+           result.selectEvent.subscribe(e=>{
+               this.modelChange.emit(e.value);
+               this.showDropdown = false;
+           })
+        });
         if(this.selectedValue){
             this.selectedDropdown = this.getSelectDropdownFromValue(this.selectedValue);
         }
@@ -98,6 +91,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
         console.log("selectedValue",this.selectedValue);*/
         if(this.children && this.selectedValue){
             this.children.forEach(element=>{
+                // console.log("uniqueId3",element.uniqueId);
                 if(element.value === this.selectedValue || element.value === this.selectedValue){
                     element.selected = true;
                 }else{
@@ -108,6 +102,8 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     }
 
     ngAfterViewChecked(): void {
-        this.setSelectedElement();
+        setTimeout(()=>{
+            this.setSelectedElement();
+        },100);
     }
 }
