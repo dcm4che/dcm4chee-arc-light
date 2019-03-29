@@ -512,7 +512,9 @@ export class j4care {
         try{
             let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
             if(pattern.exec(res.url)){
-                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                // WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                console.log("onredirectOnAuthResponse",res);
+                location.reload(true);
             }
             resjson = res.json();
         }catch (e){
@@ -776,7 +778,6 @@ export class j4care {
                 m.calculatedWidth =  procentualPart + "%";
             }
         });
-        console.log("check",check);
         return table;
     };
 

@@ -15,11 +15,6 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import {j4care} from "./helpers/j4care.service";
 import {PermissionService} from "./helpers/permissions/permission.service";
 import {Observable} from "../../node_modules/rxjs";
-// import {DCM4CHE} from "./constants/dcm4-che";
-// declare var $:JQueryStatic;
-// import * as vex from "vex-js";
-// declare var vex: any;
-// const vex = require("vex-js");
 declare var DCM4CHE: any;
 @Component({
   selector: 'app-root',
@@ -56,7 +51,9 @@ export class AppComponent implements OnInit {
         public mainservice: AppService,
         private $http:J4careHttpService,
         private permissionService:PermissionService
-    ){}
+    ){
+        console.log("in app.component construct", window);
+    }
 
     ngOnInit(){
         Date.prototype.toDateString = function() {
@@ -86,6 +83,7 @@ export class AppComponent implements OnInit {
             let host    = location.protocol + '//' + location.host;
             this.logoutUrl = this.mainservice.user['auth-server-url'] + `/realms/${this.mainservice.user.realm}/protocol/openid-connect/logout?redirect_uri=`
                 + encodeURIComponent(host + location.pathname);
+                // + encodeURIComponent('http://shefki-lifebook:8080/dcm4chee-arc/ui2');
         }catch(e){
             console.warn("Authentication not found",e);
         }
@@ -116,6 +114,9 @@ export class AppComponent implements OnInit {
     }
     logout(){
         window.location.href = this.logoutUrl;
+/*        setTimeout(()=>{
+            location.reload(true);
+        },100);*/
     }
     progress(){
         let changeTo = function (t) {
@@ -263,5 +264,4 @@ export class AppComponent implements OnInit {
         return this.$http.get(`${url || '..'}/devices?dicomDeviceName=${dicomDeviceName}`).map(res => j4care.redirectOnAuthResponse(res));
     }
 }
-
 
