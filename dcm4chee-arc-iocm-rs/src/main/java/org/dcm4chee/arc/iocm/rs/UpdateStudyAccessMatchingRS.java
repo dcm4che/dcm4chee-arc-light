@@ -173,30 +173,20 @@ public class UpdateStudyAccessMatchingRS {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             QueryContext qCtx = queryContext(ae);
-            String warning = null;
             int count = 0;
-            Response.Status status = Response.Status.ACCEPTED;
             try (Query query = queryService.createQuery(qCtx)) {
                 query.beginTransaction();
-                try {
-                    query.executeQuery(arcDev.getQueryFetchSize());
-                    while (query.hasMoreMatches()) {
-                        Attributes match = query.nextMatch();
-                        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
-                        ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
-                        ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
-                        studyService.updateAccessControlID(ctx);
-                        count++;
-                    }
-                } catch (Exception e) {
-                    warning = e.getMessage();
-                    status = Response.Status.INTERNAL_SERVER_ERROR;
+                query.executeQuery(arcDev.getQueryFetchSize());
+                while (query.hasMoreMatches()) {
+                    Attributes match = query.nextMatch();
+                    StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
+                    ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
+                    ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
+                    studyService.updateAccessControlID(ctx);
+                    count++;
                 }
             }
-            Response.ResponseBuilder builder = Response.status(status);
-            if (warning != null)
-                builder.header("Warning", warning);
-            return builder.entity("{\"count\":" + count + '}').build();
+            return Response.ok("{\"count\":" + count + '}').build();
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }

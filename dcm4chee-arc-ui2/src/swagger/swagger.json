@@ -8009,8 +8009,11 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Study Access Control ID successfully updated",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
           },
           "404": {
             "description": "No such Archive AE Title"
