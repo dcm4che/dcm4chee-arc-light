@@ -18,7 +18,7 @@
   ~
   ~ The Initial Developer of the Original Code is
   ~ J4Care.
-  ~ Portions created by the Initial Developer are Copyright (C) 2016
+  ~ Portions created by the Initial Developer are Copyright (C) 2016-2019
   ~ the Initial Developer. All Rights Reserved.
   ~
   ~ Contributor(s):
@@ -103,6 +103,12 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-rs-client</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-validation</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

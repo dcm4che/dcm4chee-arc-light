@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -53,10 +53,12 @@ import org.dcm4che3.net.pdu.RoleSelection;
 import org.dcm4che3.net.service.AbstractDicomService;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.exporter.DefaultExportContext;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -142,6 +144,29 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             Attributes actionInfo = createActionInfo(ctx);
             scheduleNAction(ctx.getAETitle(), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
         }
+    }
+
+    @Override
+    public void scheduleStorageCommit(
+            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel)
+            throws QueueSizeLimitExceededException {
+        ExportContext ctx = createExportContext(localAET, match, batchID, qrLevel);
+        Attributes actionInfo = createActionInfo(ctx);
+        scheduleNAction(ctx.getAETitle(), remoteAET, actionInfo, ctx, null);
+    }
+
+    private ExportContext createExportContext(String localAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel) {
+        ExportContext ctx = new DefaultExportContext(null);
+        ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
+        switch (qrLevel) {
+            case IMAGE:
+                ctx.setSopInstanceUID(match.getString(Tag.SOPInstanceUID));
+            case SERIES:
+                ctx.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
+        }
+        ctx.setAETitle(localAET);
+        ctx.setBatchID(batchID);
+        return ctx;
     }
 
     private Attributes createActionInfo(ExportContext ctx) {
