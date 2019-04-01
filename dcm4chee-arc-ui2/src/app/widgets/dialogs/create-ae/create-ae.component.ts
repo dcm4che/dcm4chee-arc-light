@@ -8,6 +8,8 @@ import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {LoadingBarService} from '@ngx-loading-bar/core';
 import {AeListService} from "../../../configuration/ae-list/ae-list.service";
+import {j4care} from "../../../helpers/j4care.service";
+import {SelectDropdown} from "../../../interfaces";
 
 @Component({
     selector: 'app-create-ae',
@@ -40,11 +42,14 @@ export class CreateAeComponent implements OnInit{
     activetab= 'createdevice';
     selctedDeviceObject;
     selectedDevice;
+    showAetList = false;
     netConnModelDevice;
     private _aes;
     selectedCallingAet;
     private _devices;
     _ = _;
+    configuredAetList = [];
+    selectedAet:string;
     constructor(
         public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateAeComponent>,
@@ -56,6 +61,21 @@ export class CreateAeComponent implements OnInit{
     }
     ngOnInit(){
         this.cfpLoadingBar.complete();
+        console.log("globalr",this.mainservice.global.uiConfig.dcmuiWidgetAets);
+        console.log("globalr",this.mainservice.global);
+        if(_.hasIn(this.mainservice.global,"uiConfig.dcmuiWidgetAets")){
+            this.configuredAetList = (<string[]>_.get(this.mainservice.global,"uiConfig.dcmuiWidgetAets")).map(ae=>{
+                return new SelectDropdown(ae,ae);
+            })
+        }else{
+            this.aeListService.getAes().subscribe(aes=>{
+                this.configuredAetList = aes.map(ae=>{
+                    return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle);
+                })
+            },err=>{
+                this.httpErrorHandler.handleError(err);
+            })
+        }
     }
 
     get dicomconn() {
@@ -114,7 +134,7 @@ export class CreateAeComponent implements OnInit{
             }else{
                 $this.cfpLoadingBar.start();
                 $this.$http.get('../devices/' + this.selectedDevice)
-                    .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                    .map(res => j4care.redirectOnAuthResponse(res))
                     .subscribe((response) => {
                         $this.selctedDeviceObject = response;
                         // $scope.selctedDeviceObject.dicomNetworkConnection;

@@ -196,6 +196,21 @@
                             </div>
                         </div>
                     </div>
+                    <div class="tab_body">
+                        <h4 (click)="showAetList=true;showae=false;showselectdevice=false;showconnselecteddevice=false;showconn=false;showdevice=false">Set AET as Accepted Calling AE Title to following AETs:</h4>
+                        <div class="content" *ngIf="showAetList">
+                            <div class="inputblock">
+                                <label class="title">AE Title</label>
+                                <div class="input_part">
+                                    <j4care-select [(model)]="selectedAet" [placeholder]="'Select Device'" [multiSelectMode]="true" [maxSelectedValueShown]="1">
+                                        <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
+                                        <j4care-option *ngFor="let el of configuredAetList" [value]="el.value" [title]="'Test title'">{{el.text}}</j4care-option>
+                                    </j4care-select>
+                                </div>
+                                <span class="description">Unique AE title for this Network AE {{selectedAet|json}}</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="test">
                         <h4 (click)="showTestBlock=!showTestBlock">Test Connection</h4>
                         <div class="content" *ngIf="showTestBlock && newAetModel.dicomNetworkAE[0].dicomAETitle && newAetModel.dicomNetworkConnection[0].dicomHostname && newAetModel.dicomNetworkConnection[0].dicomPort">

@@ -43,7 +43,9 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     selectedValue:string;
     selectedDropdown:SelectDropdown;
     @Input() placeholder:string;
+    @Input() multiSelectMode:boolean = false;
     uniqueId;
+    @Input() maxSelectedValueShown = 2;
     @Input('model')
     set model(value){
         if(!(this.selectedDropdown && this.selectedDropdown.value === value)){
@@ -57,6 +59,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
 
     @Output() modelChange =  new EventEmitter();
     showDropdown:boolean = false;
+    multiSelectValue = [];
     constructor() {}
 
     toggleDropdown(){
@@ -65,10 +68,27 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
 
     ngAfterContentInit(): void {
         this.children.forEach(result=>{
-           result.selectEvent.subscribe(e=>{
-               this.modelChange.emit(e.value);
-               this.showDropdown = false;
-           })
+            setTimeout(()=>{
+                result.multiSelectMode = this.multiSelectMode;
+            },100);
+            result.selectEvent.subscribe(e=>{
+               if(this.multiSelectMode){
+                   if(e.value === ""){
+                       this.multiSelectValue = [];
+                   }else{
+                       if(this.multiSelectValue.indexOf(e.value) > -1){
+                           this.multiSelectValue.splice(this.multiSelectValue.indexOf(e.value),1);
+                       }else{
+                           this.multiSelectValue.push(e.value);
+                       }
+                   }
+                   this.modelChange.emit(this.multiSelectValue);
+               }else{
+                   this.modelChange.emit(e.value);
+                   this.showDropdown = false;
+               }
+               console.log("multiSelectValue",this.multiSelectValue);
+            })
         });
         if(this.selectedValue){
             this.selectedDropdown = this.getSelectDropdownFromValue(this.selectedValue);
@@ -89,15 +109,28 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     setSelectedElement(){
 /*        console.log("insetselectedelement",this.children);
         console.log("selectedValue",this.selectedValue);*/
-        if(this.children && this.selectedValue){
-            this.children.forEach(element=>{
-                // console.log("uniqueId3",element.uniqueId);
-                if(element.value === this.selectedValue || element.value === this.selectedValue){
-                    element.selected = true;
-                }else{
-                    element.selected = false;
-                }
-            });
+        if(this.multiSelectMode){
+            if(this.children && this.selectedValue){
+                this.children.forEach(element=>{
+                    // console.log("uniqueId3",element.uniqueId);
+                    if(this.multiSelectValue.indexOf(element.value) > -1){
+                        element.selected = true;
+                    }else{
+                        element.selected = false;
+                    }
+                });
+            }
+        }else{
+            if(this.children && this.selectedValue){
+                this.children.forEach(element=>{
+                    // console.log("uniqueId3",element.uniqueId);
+                    if(element.value === this.selectedValue || element.value === this.selectedValue){
+                        element.selected = true;
+                    }else{
+                        element.selected = false;
+                    }
+                });
+            }
         }
     }
 

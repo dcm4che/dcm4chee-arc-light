@@ -2,15 +2,21 @@
 <div class="j4care_dropdown" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
     <div class="dropdown_input" (click)="toggleDropdown()">
         <div class="input_part">
-            <ng-container *ngIf="selectedValue && selectedDropdown">
+            <ng-container *ngIf="multiSelectMode">
+                <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue}}</div>
+                <div class="selected_value" *ngIf="multiSelectValue.length > maxSelectedValueShown">( {{multiSelectValue.length}} ) selected</div>
+                <div class="selected_value" *ngIf="multiSelectValue.length === 0">{{placeholder}}</div>
+            </ng-container>
+            <ng-container *ngIf="!multiSelectMode && (selectedValue && selectedDropdown)">
                 <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel)">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
                 <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
             </ng-container>
-            <div *ngIf="!(selectedValue && selectedDropdown)" class="selected_value empty_field">{{placeholder}}</div>
+            <div *ngIf="!(selectedValue && selectedDropdown) && !multiSelectMode" class="selected_value empty_field">{{placeholder}}</div>
         </div>
         <span class="glyphicon glyphicon-triangle-bottom"></span>
     </div>
     <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
+        <!--<input type="text" placeholder="Search">-->
         <ng-content></ng-content>
     </div>
 </div>
