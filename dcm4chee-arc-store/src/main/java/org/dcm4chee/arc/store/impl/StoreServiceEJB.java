@@ -878,9 +878,6 @@ public class StoreServiceEJB {
         int[] prevTags;
         Attributes modified;
         UpdateInfo(Attributes attrs) {
-            if (!LOG.isInfoEnabled())
-                return;
-
             prevTags = attrs.tags();
             modified = new Attributes();
         }
