@@ -109,6 +109,8 @@ public interface QueryService {
     Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID,
                          String[] retrieveAETs, String retrieveLocationUID, Availability availability);
 
+    Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID, String sopUID);
+
     Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                   String[] retrieveAETs, String retrieveLocationUID,
                                   Code conceptNameCode, int seriesNumber, int instanceNumber, Collection<Attributes> seriesAttrs);

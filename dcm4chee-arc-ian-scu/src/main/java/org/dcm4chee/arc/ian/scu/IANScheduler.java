@@ -224,6 +224,13 @@ public class IANScheduler extends Scheduler {
                 ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET);
     }
 
+    public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID)
+            throws QueueSizeLimitExceededException {
+        Attributes ian = queryService.createIAN(ae, studyUID, seriesUID, null);
+        if (ian != null)
+            ejb.scheduleMessage(ae.getAETitle(), ian, remoteAET);
+    }
+
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
         Attributes mppsAttrs = mpps.getAttributes();
         String studyInstanceUID = mpps.getStudyInstanceUID();

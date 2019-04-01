@@ -259,6 +259,14 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID, String sopUID) {
+        QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
+        return ejb.getSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, seriesUID, sopUID, qrView, null,
+                null, null, null);
+    }
+
+    @Override
     public Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                          String[] retrieveAETs, String retrieveLocationUID,
                                          Code conceptNameCode, int seriesNumber, int instanceNumber,
