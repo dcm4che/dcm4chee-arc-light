@@ -81,9 +81,7 @@ export class AppComponent implements OnInit {
             this.realm = this.mainservice.user.realm;
             this.authServerUrl = this.mainservice.user['auth-server-url'];
             let host    = location.protocol + '//' + location.host;
-            this.logoutUrl = this.mainservice.user['auth-server-url'] + `/realms/${this.mainservice.user.realm}/protocol/openid-connect/logout?redirect_uri=`
-                + encodeURIComponent(host + location.pathname);
-                // + encodeURIComponent('http://shefki-lifebook:8080/dcm4chee-arc/ui2');
+            this.logoutUrl =  `${this.mainservice.user['auth-server-url']}/realms/${this.mainservice.user.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(host + location.pathname)}`;
         }catch(e){
             console.warn("Authentication not found",e);
         }

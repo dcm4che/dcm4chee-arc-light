@@ -106,6 +106,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put("objectclass", "dcmuiConfig");
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiConfigName", uiConfig.getName(), null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiModalities", uiConfig.getModalities());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiWidgetAets", uiConfig.getWidgetAets());
         return attrs;
     }
 
@@ -363,6 +364,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         UIConfig uiConfig = new UIConfig(LdapUtils.stringValue(attrs.get("dcmuiConfigName"), null));
         String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         uiConfig.setModalities(LdapUtils.stringArray(attrs.get("dcmuiModalities")));
+        uiConfig.setWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiWidgetAets")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
@@ -634,6 +636,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
 
     private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods) throws NamingException {
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
         return mods;
     }
 
