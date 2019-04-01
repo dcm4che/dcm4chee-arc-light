@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -55,7 +55,6 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.imageio.ImageReaderExtension;
 import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.Property;
-import org.dcm4chee.arc.conf.ui.*;
 
 import java.net.URI;
 import java.time.Period;
@@ -1203,10 +1202,6 @@ class ArchiveDeviceFactory {
                 ArchiveDeviceFactory.OTHER_INST_CODES[i]);
     }
 
-    public static Device createDevice(String name, String aet, String host, int port) {
-        return createDevice(name, aet, host, port, -1);
-    }
-
     public static Device createDevice(String name, String aet, String host, int port, int tlsPort) {
         Device device = new Device(name);
         ApplicationEntity ae = new ApplicationEntity(aet);
@@ -1290,7 +1285,6 @@ class ArchiveDeviceFactory {
                     Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                     Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
             device.addConnection(https);
-            addUIConfigDeviceExtension(device, configType);
         }
         addArchiveDeviceExtension(device, configType, storescu, mppsscu, scheduledStation);
         addHL7DeviceExtension(device, configType, archiveHost);
@@ -1828,69 +1822,6 @@ class ArchiveDeviceFactory {
             storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
             ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
-    }
-
-    private static void addUIConfigDeviceExtension(Device device, ConfigType configType) {
-        UIConfigDeviceExtension ext = new UIConfigDeviceExtension();
-        UIConfig uiConfig = new UIConfig("default");
-        addDiffConfig(uiConfig);
-        ext.addUIConfig(uiConfig);
-        device.addDeviceExtension(ext);
-    }
-
-    private static void addDiffConfig(UIConfig uiConfig) {
-        UIDiffConfig diffConfig = new UIDiffConfig("default");
-        diffConfig.setCallingAET(AE_TITLE);
-        diffConfig.setPrimaryCFindSCP("DCMQRSCP");
-        diffConfig.setSecondaryCFindSCP(AE_TITLE);
-        uiConfig.addDiffConfig(diffConfig);
-        diffConfig.addCriteria(createDiffCriteria(
-                1,
-                "Study attributes",
-                "Compares only Study attributes",
-                false,
-                "study",
-                new String[] { "study-reject-export", "study-reject", "study-export" },
-                new String[] { "synchronize", "export", "reject" }
-                ));
-        diffConfig.addCriteria(createDiffCriteria(
-                2,
-                "Patient attributes",
-                "Compares only Patient attributes",
-                false,
-                "patient",
-                new String[] { "patient-update" },
-                new String[] { "synchronize" }
-        ));
-        diffConfig.addCriteria(createDiffCriteria(
-                3,
-                "Request attributes",
-                "Compares Request attributes",
-                false,
-                "accno",
-                new String[] { "study-reject-export", "study-reject", "study-export" },
-                new String[] { "synchronize", "export", "reject" }
-        ));
-        diffConfig.addCriteria(createDiffCriteria(
-                4,
-                "Missing Studies",
-                "List missing Studies",
-                true,
-                null,
-                new String[] { "study-reject", "study-export" },
-                new String[] { "export", "reject" }
-        ));
-    }
-
-    private static UIDiffCriteria createDiffCriteria(int number, String title, String desc, boolean includeMissing, String attributeSetID, String[] actions, String[] groupButtons) {
-        UIDiffCriteria criteria = new UIDiffCriteria(title);
-        criteria.setNumber(number);
-        criteria.setDescription(desc);
-        criteria.setIncludeMissing(includeMissing);
-        criteria.setAttributeSetID(attributeSetID);
-        criteria.setActions(actions);
-        criteria.setGroupButtons(groupButtons);
-        return criteria;
     }
 
     private static AttributeSet newAttributeSet(
