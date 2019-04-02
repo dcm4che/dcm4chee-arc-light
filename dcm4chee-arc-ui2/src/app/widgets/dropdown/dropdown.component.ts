@@ -101,7 +101,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     }
     searchEvent(){
         this.children.forEach(childe=>{
-            if(childe.value.toLowerCase().indexOf(this.search.toLowerCase()) > -1 || childe.htmlLabel.stringify().toLowerCase().indexOf(this.search.toLowerCase()) > -1){
+            if(childe.value.toLowerCase().indexOf(this.search.toLowerCase()) > -1 || (childe.htmlLabel && JSON.stringify(childe.htmlLabel).toLowerCase().indexOf(this.search.toLowerCase()) > -1)){
                 childe.showElement = true;
             }else{
                 childe.showElement = false;
@@ -121,8 +121,6 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
         return endDropdown;
     }
     setSelectedElement(){
-/*        console.log("insetselectedelement",this.children);
-        console.log("selectedValue",this.selectedValue);*/
         if(this.multiSelectMode){
             if(this.children && this.selectedValue){
                 this.children.forEach(element=>{
@@ -137,7 +135,6 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
         }else{
             if(this.children && this.selectedValue){
                 this.children.forEach(element=>{
-                    // console.log("uniqueId3",element.uniqueId);
                     if(element.value === this.selectedValue || element.value === this.selectedValue){
                         element.selected = true;
                     }else{

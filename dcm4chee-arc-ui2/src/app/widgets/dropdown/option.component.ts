@@ -35,39 +35,15 @@ export class OptionComponent implements OnInit {
     multiSelectMode:boolean = false;
     selectEvent = new EventEmitter();
     showElement:boolean = true;
-    // @Inject(DropdownComponent) private parent: DropdownComponent;
     constructor(
         private parent: ElementRef
     ){
-        // this.uniqueId = Math.random().toString(36).substring(2, 15);
     }
     ngOnInit() {
-        console.log("parent",this.parent);
-/*        if(this.service.currentStateOfTheValue && this.value && _.isEqual(this.service.currentStateOfTheValue.value, this.value)){
-            this._selected = true;
-        }else{
-            this._selected = false;
-        }*/
     }
 
     select(e){
-        console.log("parent2",this.parent);
         this.selectEvent.emit(this);
-/*        if(this.value){
-/!*            if(this.htmlLabel){
-                this.service.setValue({
-                    id:this.uniqueId,
-                    value:new SelectDropdown(this.value,'','','',this.htmlLabel)
-                });
-            }else{
-                this.service.setValue({
-                    id:this.uniqueId,
-                    value:new SelectDropdown(this.value,this.element.nativeElement.outerText)
-                });
-            }*!/
-        }else{
-            this.service.setValue(undefined);
-        }*/
     }
 
 
