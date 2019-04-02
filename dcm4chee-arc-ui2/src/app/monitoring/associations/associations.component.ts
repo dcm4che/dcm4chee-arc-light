@@ -80,6 +80,7 @@ export class AssociationsComponent implements OnDestroy{
         }catch (e) {
             console.groupCollapsed("associations.component timeCalculator(data)");
             console.log("this.appservices.serverTime=",this.appservices.serverTime);
+            console.log("data=",data);
             console.error(e);
             console.groupEnd();
         }
