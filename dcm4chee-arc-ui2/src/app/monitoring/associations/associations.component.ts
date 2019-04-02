@@ -69,13 +69,20 @@ export class AssociationsComponent implements OnDestroy{
         return local;
     };
     timeCalculator(data):any{
-        data.forEach((m, i) => {
-            let date: Date    = j4care.newDate(m.connectTime);
-            let today: Date   = this.appservices.serverTime;
-            data[i]['browserTime'] = j4care.formatDate(date,"yyyy-MM-dd HH:mm:ss");
-            data[i]['openSince'] = j4care.diff(date, today);
-            data[i]['openSinceOrder']   = (today.getTime() - date.getTime());
-        });
+        try{
+            data.forEach((m, i) => {
+                let date: Date    = j4care.newDate(m.connectTime);
+                let today: Date   = this.appservices.serverTime;
+                data[i]['browserTime'] = j4care.formatDate(date,"yyyy-MM-dd HH:mm:ss");
+                data[i]['openSince'] = j4care.diff(date, today);
+                data[i]['openSinceOrder']   = (today.getTime() - date.getTime());
+            });
+        }catch (e) {
+            console.groupCollapsed("associations.component timeCalculator(data)");
+            console.log("this.appservices.serverTime=",this.appservices.serverTime);
+            console.error(e);
+            console.groupEnd();
+        }
         return data;
     }
     abort(serialnr){
