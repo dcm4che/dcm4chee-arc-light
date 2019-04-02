@@ -46,8 +46,14 @@
     height: 30px;
     float: left;
     margin-left: 1%;
-    input{
-      width: 100%;
+    input[type=text]{
+      width: 80%;
+      float: left;
+    }
+    input[type=checkbox]{
+      width: 19%;
+      float: left;
+      margin-top: 9px;
     }
   }
 }

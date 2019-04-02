@@ -49,7 +49,7 @@ export class CreateAeComponent implements OnInit{
     private _devices;
     _ = _;
     configuredAetList = [];
-    selectedAet:string;
+    selectedAet:string[] = [];
     constructor(
         public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateAeComponent>,
@@ -65,6 +65,7 @@ export class CreateAeComponent implements OnInit{
         console.log("globalr",this.mainservice.global);
         if(_.hasIn(this.mainservice.global,"uiConfig.dcmuiWidgetAets")){
             this.configuredAetList = (<string[]>_.get(this.mainservice.global,"uiConfig.dcmuiWidgetAets")).map(ae=>{
+                this.selectedAet.push(ae);
                 return new SelectDropdown(ae,ae);
             })
         }else{
