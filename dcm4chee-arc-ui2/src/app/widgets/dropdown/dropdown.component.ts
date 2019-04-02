@@ -12,6 +12,7 @@ import {OptionService} from "./option.service";
 import {SelectDropdown} from "../../interfaces";
 import {OptionComponent} from "./option.component";
 import {animate, state, style, transition, trigger} from "@angular/animations";
+import {SearchPipe} from "../../pipes/search.pipe";
 
 @Component({
     selector: 'j4care-select',
@@ -44,6 +45,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     selectedDropdown:SelectDropdown;
     @Input() placeholder:string;
     @Input() multiSelectMode:boolean = false;
+    @Input() showSearchField:boolean = false;
     uniqueId;
     @Input() maxSelectedValueShown = 2;
     @Input('model')
@@ -60,7 +62,10 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     @Output() modelChange =  new EventEmitter();
     showDropdown:boolean = false;
     multiSelectValue = [];
-    constructor() {}
+    search = '';
+    searchPipe = new SearchPipe();
+    constructor(
+    ) {}
 
     toggleDropdown(){
         this.showDropdown = !this.showDropdown;
@@ -93,6 +98,15 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
         if(this.selectedValue){
             this.selectedDropdown = this.getSelectDropdownFromValue(this.selectedValue);
         }
+    }
+    searchEvent(){
+        this.children.forEach(childe=>{
+            if(childe.value.toLowerCase().indexOf(this.search.toLowerCase()) > -1 || childe.htmlLabel.stringify().toLowerCase().indexOf(this.search.toLowerCase()) > -1){
+                childe.showElement = true;
+            }else{
+                childe.showElement = false;
+            }
+        })
     }
 
     getSelectDropdownFromValue(value):SelectDropdown{

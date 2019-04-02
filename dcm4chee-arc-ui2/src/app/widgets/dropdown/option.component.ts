@@ -7,7 +7,7 @@ import {DropdownComponent} from "./dropdown.component";
 @Component({
     selector: 'j4care-option',
     template:`
-        <div class="option" (click)="select($event)" #options [ngClass]="{'active':selected}" title="{{title || ''}}">
+        <div [hidden]="!showElement" class="option" (click)="select($event)" #options [ngClass]="{'active':selected}" title="{{title || ''}}">
             <div *ngIf="htmlLabel" [innerHTML]="htmlLabel"></div>
             <input type="checkbox" *ngIf="value && value != '' && multiSelectMode" [(ngModel)]="selected">
             <ng-content *ngIf="!htmlLabel">
@@ -34,6 +34,7 @@ export class OptionComponent implements OnInit {
     private _selected:boolean = false;
     multiSelectMode:boolean = false;
     selectEvent = new EventEmitter();
+    showElement:boolean = true;
     // @Inject(DropdownComponent) private parent: DropdownComponent;
     constructor(
         private parent: ElementRef

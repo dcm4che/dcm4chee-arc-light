@@ -16,9 +16,9 @@
         <span class="glyphicon glyphicon-triangle-bottom"></span>
     </div>
     <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
-<!--        <form action="" class="search_block">
-            <input type="text" placeholder="Search">
-        </form>-->
+        <div action="" class="search_block" *ngIf="showSearchField">
+            <input type="text" placeholder="Search" [(ngModel)]="search" (keyup)="searchEvent()">
+        </div>
         <ng-content></ng-content>
     </div>
 </div>

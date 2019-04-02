@@ -33,7 +33,7 @@
     -webkit-box-shadow: 2px 2px 11px 0px #333;
     -moz-box-shadow: 2px 2px 11px 0px #333;
     box-shadow: 2px 2px 11px 0px #333;
-    position: absolute;
+    position: fixed;
     background: white;
     z-index: 99999;
     min-width: 200px;
@@ -42,9 +42,10 @@
     margin-bottom: 5px;
   }
   .search_block{
-    width: 100%;
-    height:30px;
+    width: 98%;
+    height: 30px;
     float: left;
+    margin-left: 1%;
     input{
       width: 100%;
     }
