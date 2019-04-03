@@ -341,22 +341,21 @@ export class AeListComponent implements OnInit{
                                         'text': 'Device with the AET created successfully!',
                                         'status': 'info'
                                     });
-                                    $this.$http.post('../ctrl/reload', {}, headers).subscribe((res) => {
-                                        $this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Archive reloaded successfully!',
-                                            'status': 'info'
+                                    if(re.selectedForAcceptedCallingAET && re.selectedForAcceptedCallingAET.length > 0){
+                                        this.setAetAsAcceptedCallingAet(re.newaetmodel.dicomNetworkAE[0],re.selectedForAcceptedCallingAET);
+                                    }else{
+                                        $this.$http.post('../ctrl/reload', {}, headers).subscribe((res) => {
+                                            $this.mainservice.setMessage({
+                                                'title': 'Info',
+                                                'text': 'Archive reloaded successfully!',
+                                                'status': 'info'
+                                            });
                                         });
-                                    });
-                                    this.setAetAsAcceptedCallingAet(re.newaetmodel.dicomNetworkAE[0],re.selectedForAcceptedCallingAET);
+                                    }
                                     $this.searchAes();
                                 },
                                 (err) => {
                                     $this.cfpLoadingBar.complete();
-/*                                    $this.$http.delete(
-                                        "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
-                                    ).subscribe((response) => {
-                                    });*/
                                     $this.httpErrorHandler.handleError(err);
                                 });
                     }else{
@@ -421,7 +420,6 @@ export class AeListComponent implements OnInit{
         console.log("setAetAsAcceptedCallingAet",setAetAsAcceptedCallingAet);
         this.aes.forEach(ae=>{
            if(setAetAsAcceptedCallingAet.indexOf(ae.dicomAETitle) > -1){
-               // this.devicesService.
                this.devicesService.getDevice(ae.dicomDeviceName).subscribe(device=>{
                    device.dicomNetworkAE.forEach(deviceAe=>{
                        if(deviceAe.dicomAETitle === ae.dicomAETitle){
@@ -430,22 +428,23 @@ export class AeListComponent implements OnInit{
                            }else{
                                _.set(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle",[newAet.dicomAETitle])
                            }
-
                        }
                    });
-                   console.log("device",device);
                    this.devicesService.saveDeviceChanges(ae.dicomDeviceName,device).subscribe(result=>{
                        this.mainservice.showMsg(`${newAet.dicomAETitle} was set successfully as 'Accepted Calling AE Title' to the ${ae.dicomAETitle}`)
+                       this.$http.post('../ctrl/reload', {},  new Headers({ 'Content-Type': 'application/json' })).subscribe((res) => {
+                           this.mainservice.setMessage({
+                               'title': 'Info',
+                               'text': 'Archive reloaded successfully!',
+                               'status': 'info'
+                           });
+                       });
                    },err=>{
                        this.httpErrorHandler.handleError(err);
                    })
-                    // device.dicomNetworkAE["0"].dcmNetworkAE.dcmAcceptedCallingAETitle
                },err=>{
                    this.httpErrorHandler.handleError(err);
                })
-               //TODO get device object of ae.dicomDeviceName
-               //TODO add newAet.dicomAETitle as accepted aet of ae.dicomAETitle
-               //TODO save device
            }
         });
     }

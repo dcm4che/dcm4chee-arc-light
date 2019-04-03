@@ -1002,10 +1002,11 @@ export class j4care {
         this.dialogRef.componentInstance.parameters = parameters;
         return this.dialogRef.afterClosed();
     };
-    static log(txt:string, e:any){
+    static log(txt:string, e?:any){
         console.groupCollapsed(txt);
         console.trace();
-        console.error(e);
+        if(e)
+            console.error(e);
         console.groupEnd();
     }
 

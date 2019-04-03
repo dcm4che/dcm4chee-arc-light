@@ -50,6 +50,8 @@ export class CreateAeComponent implements OnInit{
     _ = _;
     configuredAetList = [];
     selectedForAcceptedCallingAET:string[] = [];
+    dicomConnectionns = [];
+    selectedDicomConnection:any =  {};
     constructor(
         public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateAeComponent>,
@@ -319,8 +321,7 @@ export class CreateAeComponent implements OnInit{
         }
         return [];
     }
-    dicomConnectionns = [];
-    selectedDicomConnection:any =  {};
+
     testConnection(){
         if(this.selectedCallingAet && this.newAetModel.dicomNetworkAE[0].dicomAETitle && this.newAetModel.dicomNetworkConnection[0].dicomHostname && this.newAetModel.dicomNetworkConnection[0].dicomPort){
             this.cfpLoadingBar.start();
