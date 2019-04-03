@@ -515,7 +515,7 @@ public class ExportManagerEJB implements ExportManager {
             From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
                     status == null && queueTaskQueryParam.getBatchID() == null
                             ? JoinType.LEFT : JoinType.INNER);
-            matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
+            predicates = matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
         }
         return predicates;
     }
