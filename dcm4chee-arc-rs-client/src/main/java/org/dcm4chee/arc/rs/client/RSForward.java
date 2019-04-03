@@ -136,6 +136,7 @@ public class RSForward {
             case UpdatePatient:
             case UpdateStudyExpirationDate:
             case UpdateSeriesExpirationDate:
+            case UpdateStudyAccessControlID:
                 method = "PUT";
                 break;
             case ChangePatientID:
