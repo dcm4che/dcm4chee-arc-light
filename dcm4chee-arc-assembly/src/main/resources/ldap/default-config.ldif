@@ -834,6 +834,14 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomAETitle: IOCM_QUALITY
 dicomAssociationAcceptor: TRUE
 
+dn: dcmWebAppName=dcm4chee-arc,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Forward Reschedule Task(s)
+dcmWebServiceClass: DCM4CHEE_ARC
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmWebAppName: dcm4chee-arc
+dcmWebServicePath: /dcm4chee-arc
+
 dn: dcmWebAppName=DCM4CHEE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_URI
@@ -865,6 +873,16 @@ dcmIDGeneratorName: PatientID
 dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
 
+dn: dcmWebAppName=AS_RECEIVED-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Retrieve instances as received
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: AS_RECEIVED
+dcmWebAppName: AS_RECEIVED-RS
+dcmWebServicePath: /dcm4chee-arc/aets/AS_RECEIVED/rs
+
 dn: dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Only show instances rejected for Patient Safety Reasons
@@ -891,6 +909,26 @@ dcmRejectionNoteCode: (113001, DCM, "Rejected for Quality Reasons")
 dcmAcceptPreviousRejectedInstance: IGNORE
 objectClass: dcmRejectionNote
 
+dn: dcmWebAppName=IOCM_EXPIRED-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Data Retention Expired
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_EXPIRED
+dcmWebAppName: IOCM_EXPIRED-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_EXPIRED/rs
+
+dn: dcmWebAppName=IOCM_QUALITY-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_QUALITY
+dcmWebAppName: IOCM_QUALITY-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_QUALITY/rs
+
 dn: dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Show instances rejected for Quality Reasons
@@ -903,10 +941,47 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomAETitle: IOCM_REGULAR_USE
 dicomAssociationAcceptor: TRUE
 
+dn: dcmWebAppName=AS_RECEIVED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Retrieve instances as received
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: AS_RECEIVED
+dcmWebAppName: AS_RECEIVED-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/AS_RECEIVED/wado
+
 dn: dcmBulkDataDescriptorID=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmBulkDataVRLengthThreshold: DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024
 dcmBulkDataDescriptorID: default
 objectClass: dcmBulkDataDescriptor
+
+dn: dcmWebAppName=IOCM_EXPIRED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Data Retention Expired
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_EXPIRED
+dcmWebAppName: IOCM_EXPIRED-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_EXPIRED/wado
+
+dn: dcmWebAppName=IOCM_QUALITY-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_QUALITY
+dcmWebAppName: IOCM_QUALITY-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_QUALITY/wado
+
+dn: dcmWebAppName=IOCM_WRONG_MWL-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_WRONG_MWL
+dcmWebAppName: IOCM_WRONG_MWL-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_WRONG_MWL/rs
 
 dn: dcmExporterID=CalculateStudySize,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: CalculateStudySize
@@ -915,6 +990,16 @@ dcmQueueName: Export4
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE
 dcmURI: study-size:dummyPath
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Patient Safety Reasons
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_PAT_SAFETY
+dcmWebAppName: IOCM_PAT_SAFETY-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs
 
 dn: dcmQueryRetrieveViewID=regularUse,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmQueryRetrieveViewID: regularUse
@@ -931,10 +1016,28 @@ dicomAETitle: IOCM_REGULAR_USE
 dcmWebAppName: IOCM_REGULAR_USE-RS
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/rs
 
+dn: dcmWebAppName=IOCM_WRONG_MWL-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_WRONG_MWL
+dcmWebAppName: IOCM_WRONG_MWL-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_WRONG_MWL/wado
+
 dn: dcmIDGeneratorName=AccessionNumber,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: AccessionNumber
 dcmIDGeneratorFormat: A-%08d
 objectClass: dcmIDGenerator
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Only show instances rejected for Patient Safety Reasons
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_PAT_SAFETY
+dcmWebAppName: IOCM_PAT_SAFETY-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado
 
 dn: dcmQueryRetrieveViewID=hideRejected,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmHideRejectionNoteWithCode: (113039, DCM, "Data Retention Policy Expired")

@@ -73,6 +73,14 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
  */
 class ArchiveDeviceFactory {
 
+    static final String AE_TITLE_DESC = "Hide instances rejected for Quality Reasons";
+    static final String IOCM_REGULAR_USE_DESC = "Show instances rejected for Quality Reasons";
+    static final String IOCM_QUALITY_DESC = "Only show instances rejected for Quality Reasons";
+    static final String IOCM_EXPIRED_DESC = "Only show instances rejected for Data Retention Expired";
+    static final String IOCM_PAT_SAFETY_DESC = "Only show instances rejected for Patient Safety Reasons";
+    static final String IOCM_WRONG_MWL_DESC = "Only show instances rejected for Incorrect Modality Worklist Entry";
+    static final String AS_RECEIVED_DESC = "Retrieve instances as received";
+
     enum ConfigType {
         DEFAULT,
         SAMPLE,
@@ -1299,25 +1307,25 @@ class ArchiveDeviceFactory {
 
         configType.configureKeyAndTrustStore(device);
 
-        device.addApplicationEntity(createAE(AE_TITLE, "Hide instances rejected for Quality Reasons",
+        device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, null,
                 configType, USER_AND_ADMIN));
-        device.addApplicationEntity(createAE("IOCM_REGULAR_USE", "Show instances rejected for Quality Reasons",
+        device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, null,
                 configType, ONLY_ADMIN));
-        device.addApplicationEntity(createAE("IOCM_EXPIRED", "Only show instances rejected for Data Retention Expired",
+        device.addApplicationEntity(createAE("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
                 dicom, dicomTLS, IOCM_EXPIRED_VIEW, false, false, false, null,
                 configType, USER_AND_ADMIN));
-        device.addApplicationEntity(createAE("IOCM_QUALITY", "Only show instances rejected for Quality Reasons",
+        device.addApplicationEntity(createAE("IOCM_QUALITY", IOCM_QUALITY_DESC,
                 dicom, dicomTLS, IOCM_QUALITY_VIEW, false, false, false, null,
                 configType, ONLY_ADMIN));
-        device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", "Only show instances rejected for Patient Safety Reasons",
+        device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
                 dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW, false, false, false, null,
                 configType, ONLY_ADMIN));
-        device.addApplicationEntity(createAE("IOCM_WRONG_MWL", "Only show instances rejected for Incorrect Modality Worklist Entry",
+        device.addApplicationEntity(createAE("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
                 dicom, dicomTLS, IOCM_WRONG_MWL_VIEW, false, false, false, null,
                 configType, ONLY_ADMIN));
-        device.addApplicationEntity(createAE("AS_RECEIVED", "Retrieve instances as received",
+        device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false,
                 new ArchiveAttributeCoercion()
                         .setCommonName("RetrieveAsReceived")
@@ -1326,20 +1334,55 @@ class ArchiveDeviceFactory {
                         .setRetrieveAsReceived(true),
                 configType, ONLY_ADMIN));
 
-        device.addWebApplication(createWebApp("DCM4CHEE-RS", "Hide instances rejected for Quality Reasons",
+        device.addWebApplication(createWebApp("DCM4CHEE-RS", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS));
-        device.addWebApplication(createWebApp("IOCM_REGULAR_USE-RS", "Show instances rejected for Quality Reasons",
+        device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
+                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("IOCM_REGULAR_USE-RS", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS));
-        device.addWebApplication(createWebApp("DCM4CHEE-WADO", "Hide instances rejected for Quality Reasons",
-                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, http, https,
-                WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", "Show instances rejected for Quality Reasons",
+        device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("IOCM_EXPIRED-RS", IOCM_EXPIRED_DESC,
+                "/dcm4chee-arc/aets/IOCM_EXPIRED/rs", "IOCM_EXPIRED", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("IOCM_EXPIRED-WADO", IOCM_EXPIRED_DESC,
+                "/dcm4chee-arc/aets/IOCM_EXPIRED/wado", "IOCM_EXPIRED", http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("IOCM_QUALITY-RS", IOCM_QUALITY_DESC,
+                "/dcm4chee-arc/aets/IOCM_QUALITY/rs", "IOCM_QUALITY", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("IOCM_QUALITY-WADO", IOCM_QUALITY_DESC,
+                "/dcm4chee-arc/aets/IOCM_QUALITY/wado", "IOCM_QUALITY", http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-RS", IOCM_PAT_SAFETY_DESC,
+                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs", "IOCM_PAT_SAFETY", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-WADO", IOCM_PAT_SAFETY_DESC,
+                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado", "IOCM_PAT_SAFETY", http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("IOCM_WRONG_MWL-RS", IOCM_WRONG_MWL_DESC,
+                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/rs", "IOCM_WRONG_MWL", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("IOCM_WRONG_MWL-WADO", IOCM_WRONG_MWL_DESC,
+                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/wado", "IOCM_WRONG_MWL", http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("AS_RECEIVED-RS", AS_RECEIVED_DESC,
+                "/dcm4chee-arc/aets/AS_RECEIVED/rs", "AS_RECEIVED", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("AS_RECEIVED-WADO", AS_RECEIVED_DESC,
+                "/dcm4chee-arc/aets/AS_RECEIVED/wado", "AS_RECEIVED", http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("dcm4chee-arc", "Forward Reschedule Task(s)",
                 "/dcm4chee-arc", null, http, https,
