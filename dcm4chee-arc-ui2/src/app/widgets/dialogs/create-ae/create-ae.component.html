@@ -196,15 +196,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab_body">
-                        <h4 (click)="showAetList=true;showae=false;showselectdevice=false;showconnselecteddevice=false;showconn=false;showdevice=false">Set AET as Accepted Calling AE Title to following AETs:</h4>
+                    <div class="tab_body" [hidden]="!(activetab === 'createdevice')">
+                        <h4 (click)="showAetList=true;showae=false;showselectdevice=false;showconnselecteddevice=false;showconn=false;showdevice=false">Set the new Application Entity as 'Accepted Calling AE Title' to following AETs:</h4>
                         <div class="content" *ngIf="showAetList">
                             <div class="inputblock">
                                 <label class="title">AE Title</label>
                                 <div class="input_part">
-                                    <j4care-select [(model)]="selectedAet" [placeholder]="'Select Device'" [multiSelectMode]="true" [maxSelectedValueShown]="1" [showSearchField]="true">
+                                    <j4care-select [(model)]="selectedForAcceptedCallingAET" [placeholder]="'Select AET'" [multiSelectMode]="true" [maxSelectedValueShown]="1" [showSearchField]="true">
                                         <j4care-option [value]="''" [title]="'Clear selection'">Clear</j4care-option>
-                                        <j4care-option *ngFor="let el of configuredAetList" [value]="el.value" [title]="'Test title'">{{el.text}}</j4care-option>
+                                        <j4care-option *ngFor="let el of configuredAetList" [value]="el.value" [title]="el.text">{{el.text}}</j4care-option>
                                     </j4care-select>
                                 </div>
                                 <span class="description">Already available AETs</span>
@@ -244,7 +244,7 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab})" [disabled]="!validAeForm()">APPLY</button>
+            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab,selectedForAcceptedCallingAET:selectedForAcceptedCallingAET})" [disabled]="!validAeForm()">APPLY</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
         </div>
     </div>

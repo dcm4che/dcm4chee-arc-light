@@ -314,12 +314,6 @@ export class AeListComponent implements OnInit{
         this.dialogRef.afterClosed().subscribe(re => {
             if (re){
                 console.log('res', re);
-/*                $this.$http.post(
-                    "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle,
-                    {},
-                    headers
-                ).subscribe((response) => {
-                    console.log("success response",response);*/
                     if (re.mode === 'createdevice'){
                         //Create device
                         //            console.log("$scope.netAEModel",$scope.netAEModel);
@@ -352,6 +346,7 @@ export class AeListComponent implements OnInit{
                                             'status': 'info'
                                         });
                                     });
+                                    this.setAetAsAcceptedCallingAet(re.newaetmodel.dicomNetworkAE[0],re.selectedForAcceptedCallingAET);
                                     $this.searchAes();
                                 },
                                 (err) => {
@@ -419,6 +414,10 @@ export class AeListComponent implements OnInit{
             }
         });
     };
+    setAetAsAcceptedCallingAet(newAet, setAetAsAcceptedCallingAet){
+        console.log("newAet",newAet)
+        console.log("setAetAsAcceptedCallingAet",setAetAsAcceptedCallingAet)
+    }
     getAes(){
         let $this = this;
             this.service.getAes()
