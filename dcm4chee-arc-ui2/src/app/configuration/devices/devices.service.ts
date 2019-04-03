@@ -48,6 +48,11 @@ export class DevicesService {
             '../devices'
         ).map(res => j4care.redirectOnAuthResponse(res));
     }
+    getDevice(deviceName){
+       return this.$http.get(
+            `../devices/${deviceName}`
+        ).map(res => j4care.redirectOnAuthResponse(res));
+    }
     generateNewTitle(oldTitle, aes, titleName){
         let newTitle;
         if (_.endsWith(oldTitle, '_CLONE')){

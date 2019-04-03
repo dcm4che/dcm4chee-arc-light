@@ -10,6 +10,7 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {MatDialog, MatDialogRef, MatDialogConfig} from "@angular/material";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {DevicesService} from "../devices/devices.service";
 
 @Component({
   selector: 'app-ae-list',
@@ -45,7 +46,8 @@ export class AeListComponent implements OnInit{
       public dialog: MatDialog,
       public config: MatDialogConfig,
       public service: AeListService,
-      public httpErrorHandler:HttpErrorHandler
+      public httpErrorHandler:HttpErrorHandler,
+      private devicesService:DevicesService
   ){}
     ngOnInit(){
         this.initCheck(10);
@@ -415,8 +417,37 @@ export class AeListComponent implements OnInit{
         });
     };
     setAetAsAcceptedCallingAet(newAet, setAetAsAcceptedCallingAet){
-        console.log("newAet",newAet)
-        console.log("setAetAsAcceptedCallingAet",setAetAsAcceptedCallingAet)
+        console.log("newAet",newAet);
+        console.log("setAetAsAcceptedCallingAet",setAetAsAcceptedCallingAet);
+        this.aes.forEach(ae=>{
+           if(setAetAsAcceptedCallingAet.indexOf(ae.dicomAETitle) > -1){
+               // this.devicesService.
+               this.devicesService.getDevice(ae.dicomDeviceName).subscribe(device=>{
+                   device.dicomNetworkAE.forEach(deviceAe=>{
+                       if(deviceAe.dicomAETitle === ae.dicomAETitle){
+                           if(_.hasIn(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle") && deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.length > 0){
+                               deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.push(newAet.dicomAETitle)
+                           }else{
+                               _.set(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle",[newAet.dicomAETitle])
+                           }
+
+                       }
+                   });
+                   console.log("device",device);
+                   this.devicesService.saveDeviceChanges(ae.dicomDeviceName,device).subscribe(result=>{
+                       this.mainservice.showMsg(`${newAet.dicomAETitle} was set successfully as 'Accepted Calling AE Title' to the ${ae.dicomAETitle}`)
+                   },err=>{
+                       this.httpErrorHandler.handleError(err);
+                   })
+                    // device.dicomNetworkAE["0"].dcmNetworkAE.dcmAcceptedCallingAETitle
+               },err=>{
+                   this.httpErrorHandler.handleError(err);
+               })
+               //TODO get device object of ae.dicomDeviceName
+               //TODO add newAet.dicomAETitle as accepted aet of ae.dicomAETitle
+               //TODO save device
+           }
+        });
     }
     getAes(){
         let $this = this;
