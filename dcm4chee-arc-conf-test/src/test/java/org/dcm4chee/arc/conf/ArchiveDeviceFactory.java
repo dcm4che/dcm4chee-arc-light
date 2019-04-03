@@ -1341,6 +1341,9 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", "Show instances rejected for Quality Reasons",
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("dcm4chee-arc", "Forward Reschedule Task(s)",
+                "/dcm4chee-arc", null, http, https,
+                WebApplication.ServiceClass.DCM4CHEE_ARC));
         return device;
     }
 
