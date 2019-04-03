@@ -136,7 +136,7 @@ public class RSClientImpl implements RSClient {
         String authorization = request.getHeader("Authorization");
         String targetURI = null;
         String requestURI = request.getRequestURI();
-        Device device = iDeviceCache.get(deviceName);
+        Device device = iDeviceCache.findDevice(deviceName);
         for (WebApplication webApplication : device.getWebApplications()) {
             for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
                 if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
