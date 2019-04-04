@@ -115,12 +115,12 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public long fetchCount() {
-        return em.createQuery(count()).getSingleResult();
+        return QueryBuilder.unbox(em.createQuery(count()).getSingleResult(), 0L);
     }
 
     @Override
     public long fetchSize() {
-        return em.createQuery(sumStudySize()).getSingleResult();
+        return QueryBuilder.unbox(em.createQuery(sumStudySize()).getSingleResult(), 0L);
     }
 
     @Override

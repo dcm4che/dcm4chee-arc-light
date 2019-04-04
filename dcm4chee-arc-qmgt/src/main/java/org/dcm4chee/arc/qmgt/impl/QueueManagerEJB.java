@@ -48,6 +48,7 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
@@ -598,7 +599,7 @@ public class QueueManagerEJB {
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
 
-        return em.createQuery(q.select(cb.count(queueMsg))).getSingleResult();
+        return QueryBuilder.unbox(em.createQuery(q.select(cb.count(queueMsg))).getSingleResult(), 0L);
     }
 
     private int queryFetchSize() {

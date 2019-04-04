@@ -60,6 +60,7 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -501,7 +502,7 @@ public class ExportManagerEJB implements ExportManager {
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
 
-        return em.createQuery(q.select(cb.count(exportTask))).getSingleResult();
+        return QueryBuilder.unbox(em.createQuery(q.select(cb.count(exportTask))).getSingleResult(), 0L);
     }
 
     private List<Predicate> predicates(Root<ExportTask> exportTask, MatchTask matchTask,

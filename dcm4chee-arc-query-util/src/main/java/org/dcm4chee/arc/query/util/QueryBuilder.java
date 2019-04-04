@@ -389,7 +389,7 @@ public class QueryBuilder {
             x.add(values.length == 1 ? cb.equal(path, values[0]) : path.in(values));
     }
 
-    public Predicate[] splitUIDPredicates(Path<String> path, String[] values, int inExpressionCountLimit) {
+    public static Predicate[] splitUIDPredicates(Path<String> path, String[] values, int inExpressionCountLimit) {
         if (!isUniversalMatching(values))
             return new Predicate[0];
 
@@ -475,7 +475,7 @@ public class QueryBuilder {
         return predicates;
     }
 
-    public void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
+    public static void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
         if (accessControlIDs.length == 0)
             return;
 
@@ -1233,5 +1233,9 @@ public class QueryBuilder {
                 range[1] =  s.substring(delim+1);
         }
         return range;
+    }
+
+    public static long unbox(Long value, long defaultValue) {
+        return value != null ? value.longValue() : defaultValue;
     }
 }
