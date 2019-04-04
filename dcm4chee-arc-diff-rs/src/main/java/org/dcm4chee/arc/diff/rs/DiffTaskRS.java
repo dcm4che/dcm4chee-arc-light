@@ -305,7 +305,7 @@ public class DiffTaskRS {
             return count(devName == null
                     ? rescheduleOnDistinctDevices(diffTaskQueryParam, status)
                     : rescheduleTasks(
-                            queueTaskQueryParam(devName, status),
+                            queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             diffTaskQueryParam));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);

@@ -243,7 +243,7 @@ public class QueueManagerRS {
 
             return count(devName == null
                     ? rescheduleOnDistinctDevices()
-                    : rescheduleMessages(taskQueryParam(devName)));
+                    : rescheduleMessages(taskQueryParam(newDeviceName != null ? null : devName)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }

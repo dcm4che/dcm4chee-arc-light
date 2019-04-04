@@ -270,7 +270,7 @@ public class RetrieveTaskRS {
             return count(devName == null
                     ? rescheduleOnDistinctDevices(retrieveTaskQueryParam, status)
                     : rescheduleTasks(
-                            queueTaskQueryParam(devName, status),
+                            queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             retrieveTaskQueryParam));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);

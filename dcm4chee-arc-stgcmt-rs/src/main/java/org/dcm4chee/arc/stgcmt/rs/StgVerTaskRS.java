@@ -263,7 +263,7 @@ public class StgVerTaskRS {
             return count(devName == null
                     ? rescheduleOnDistinctDevices(stgVerTaskQueryParam, status)
                     : rescheduleTasks(
-                            queueTaskQueryParam(devName, status),
+                            queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             stgVerTaskQueryParam));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);

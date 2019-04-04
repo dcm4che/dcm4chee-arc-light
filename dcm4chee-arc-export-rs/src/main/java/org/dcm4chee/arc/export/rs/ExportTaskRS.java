@@ -295,7 +295,7 @@ public class ExportTaskRS {
 
             return count(devName == null
                     ? rescheduleOnDistinctDevices(newExporter, status)
-                    : rescheduleTasks(newExporter, devName, status));
+                    : rescheduleTasks(newExporter, newDeviceName != null ? null : devName, status));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
