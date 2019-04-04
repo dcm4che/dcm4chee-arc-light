@@ -472,10 +472,10 @@ public class QueueMessage {
             return;
 
         int before = messageProperties.lastIndexOf("\"ExporterID\":\"") + 14;
-        if (messageProperties.startsWith(exportTask.getExporterID(), before))
+        int after = messageProperties.indexOf('"', before);
+        if (messageProperties.substring(before, after).equals(exportTask.getExporterID()))
             return;
 
-        int after = messageProperties.indexOf('"', before);
         messageProperties = messageProperties.substring(0, before)
                 + exportTask.getExporterID()
                 + messageProperties.substring(after);
