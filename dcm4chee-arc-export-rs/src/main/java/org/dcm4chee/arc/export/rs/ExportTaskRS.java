@@ -63,6 +63,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
+import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
@@ -315,20 +316,28 @@ public class ExportTaskRS {
     private int rescheduleTasks(ExporterDescriptor newExporter, String devName, QueueMessage.Status status) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = 0;
-            Iterator<ExportTask> exportTasks = mgr.listExportTasks(
-                    queueTaskQueryParam(status), exportTaskQueryParam(devName, updatedTime), 0, 0);
-            while (exportTasks.hasNext()) {
-                ExportTask task = exportTasks.next();
-                mgr.rescheduleExportTask(
-                        task,
-                        newExporter != null ? newExporter : exporter(task.getExporterID()),
-                        null);
-                count++;
-            }
-            queueEvent.setCount(count);
-            LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
-            return count;
+            int rescheduled = 0;
+            int count;
+            int rescheduleTasksFetchSize = queueTasksFetchSize();
+            do {
+                List<Tuple> exportTasks = mgr.exportTaskPksAndExporterIDs(
+                    queueTaskQueryParam(status), exportTaskQueryParam(devName, updatedTime), rescheduleTasksFetchSize);
+                exportTasks.forEach(exportTask -> {
+                    long pk = (long) exportTask.get(0);
+                    try {
+                        mgr.rescheduleExportTask(pk,
+                                newExporter != null ? newExporter : exporter((String) exportTask.get(1)),
+                                null);
+                    } catch (IllegalTaskStateException e) {
+                        LOG.warn("Failed rescheduling of task [pk={}]\n", pk, e);
+                    }
+                });
+                count = exportTasks.size();
+                rescheduled += count;
+            } while (count >= rescheduleTasksFetchSize);
+            queueEvent.setCount(rescheduled);
+            LOG.info("Rescheduled {} tasks on device {}.", rescheduled, device.getDeviceName());
+            return rescheduled;
         } catch (Exception e) {
             queueEvent.setException(e);
             throw e;

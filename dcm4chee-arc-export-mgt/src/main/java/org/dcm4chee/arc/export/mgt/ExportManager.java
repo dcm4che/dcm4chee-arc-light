@@ -45,6 +45,8 @@ import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+
+import javax.persistence.Tuple;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -81,8 +83,6 @@ public interface ExportManager {
 
     void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
-    void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
-
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam);
@@ -94,4 +94,7 @@ public interface ExportManager {
 
     Iterator<ExportTask> listExportTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit);
+
+    List<Tuple> exportTaskPksAndExporterIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int limit);
 }

@@ -342,14 +342,9 @@ public class ExportManagerEJB implements ExportManager {
         if (task == null)
             return;
 
-        if (task.getQueueMessage() != null)
-            rescheduleExportTask(task, exporter, queueEvent);
-        else
+        if (task.getQueueMessage() == null)
             throw new IllegalTaskStateException("Cannot reschedule task[pk=" + task.getPk() + "] with status TO SCHEDULE");
-    }
 
-    @Override
-    public void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
         task.setExporterID(exporter.getExporterID());
         queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
@@ -490,6 +485,27 @@ public class ExportManagerEJB implements ExportManager {
         if (limit > 0)
             query.setMaxResults(limit);
         return query.getResultStream().iterator();
+    }
+
+    public List<Tuple> exportTaskPksAndExporterIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        Root<ExportTask> exportTask = q.from(ExportTask.class);
+        From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+
+        q.multiselect(exportTask.get(ExportTask_.pk), exportTask.get(ExportTask_.exporterID));
+
+        List<Predicate> predicates = matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
+        TypedQuery<Tuple> query = em.createQuery(q);
+        if (limit > 0)
+            query.setMaxResults(limit);
+
+        return query.getResultList();
     }
 
     public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
