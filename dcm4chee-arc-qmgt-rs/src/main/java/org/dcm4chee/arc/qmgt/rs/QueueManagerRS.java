@@ -274,7 +274,7 @@ public class QueueManagerRS {
                 rescheduled += count;
             } while (count >= rescheduleTaskFetchSize);
             queueEvent.setCount(rescheduled);
-            LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
+            LOG.info("Rescheduled {} tasks on device {}", rescheduled, device.getDeviceName());
             return count;
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -382,7 +382,7 @@ public class QueueManagerRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
                 request.getRemoteUser(), request.getRemoteHost());
     }
 

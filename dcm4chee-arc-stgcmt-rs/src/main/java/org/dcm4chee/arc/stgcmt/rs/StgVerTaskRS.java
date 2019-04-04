@@ -300,7 +300,7 @@ public class StgVerTaskRS {
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
             queueEvent.setCount(rescheduled);
-            LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
+            LOG.info("Rescheduled {} tasks on device {}", rescheduled, device.getDeviceName());
             return rescheduled;
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -481,7 +481,7 @@ public class StgVerTaskRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
                 request.getRemoteUser(), request.getRemoteHost());
     }
 

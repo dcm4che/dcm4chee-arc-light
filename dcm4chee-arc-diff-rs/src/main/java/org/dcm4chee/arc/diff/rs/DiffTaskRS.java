@@ -342,7 +342,7 @@ public class DiffTaskRS {
                 count = diffTaskQueueMsgIDs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
-            LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
+            LOG.info("Rescheduled {} tasks on device {}", rescheduled, device.getDeviceName());
             queueEvent.setCount(rescheduled);
             return rescheduled;
         } catch (Exception e) {
@@ -469,7 +469,7 @@ public class DiffTaskRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
                 request.getRemoteUser(), request.getRemoteHost());
     }
 
