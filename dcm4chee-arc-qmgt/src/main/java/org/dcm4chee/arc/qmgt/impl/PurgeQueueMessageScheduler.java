@@ -112,7 +112,7 @@ public class PurgeQueueMessageScheduler extends Scheduler {
             deleted += count;
         } while (count >= deleteTaskFetchSize);
         if (deleted > 0)
-            LOG.info("Deleted " + deleted + " " + status + " messages from queue: " + queueName);
+            LOG.info("Deleted {} {} messages from queue {}", deleted, status, queueName);
     }
 
     private TaskQueryParam taskQueryParam(String queueName, QueueMessage.Status status, Date updatedBefore) {
