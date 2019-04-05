@@ -358,10 +358,9 @@ objectclass ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   SUP top STRUCTURAL
   MUST (
     dcmuiConfigName )
-  MAY(
+  MAY (
     dcmuiModalities $
-    dcmuiWidgetAets
-  ))
+    dcmuiWidgetAets ) )
 
 objectclass ( 1.2.40.0.13.1.15.111.4.2 NAME 'dcmuiPermission'
   DESC 'Permission for UI Action'
