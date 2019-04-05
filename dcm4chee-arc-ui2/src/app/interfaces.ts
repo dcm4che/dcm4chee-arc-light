@@ -110,6 +110,7 @@ export interface StudyFilterConfig {
     filterSchemaEntry?:{schema:FilterSchema,lineLength:number};
     filterSchemaMain:{schema:FilterSchema,lineLength:number};
     filterSchemaExpand:{schema:FilterSchema,lineLength:number};
+    filterEntryModel:any;
     filterModel:any;
     expand:boolean;
     quantityText:{

@@ -86,6 +86,8 @@ export class StudyComponent implements OnInit {
             lineLength:2,
             schema:[]
         },
+        filterEntryModel:{
+        },
         filterModel:{
             limit:20,
             offset:0
@@ -126,6 +128,7 @@ export class StudyComponent implements OnInit {
     };
     studyDevice:StudyDevice;
     testModel;
+    aetWebServicesList = [];
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -136,6 +139,11 @@ export class StudyComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        console.log("this.service",this.appService);
+        this.filter.filterEntryModel["device"] = this.appService.deviceName;
+        this.aetWebServicesList = this.appService.global.myDevice.dicomNetworkAE.map((ae:Aet)=>{
+            return new SelectDropdown(ae.dicomAETitle,ae.dicomDescription);
+        });
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
@@ -160,6 +168,7 @@ export class StudyComponent implements OnInit {
         }
 
     }
+
 
     actions(id, model){
         console.log("id",id);
@@ -368,17 +377,23 @@ export class StudyComponent implements OnInit {
                 this.cfpLoadingBar.complete();
         });
     }
+    entryFilterChanged(){
+        this.studyDevice.selectedDevice = this.filter.filterEntryModel["device"];
+        // this.studyDevice.
+    }
+
     filterChanged(){
 
     }
 
     setSchema(){
-        this._filter.filterSchemaEntry.lineLength = undefined;
         this._filter.filterSchemaMain.lineLength = undefined;
         this._filter.filterSchemaExpand.lineLength = undefined;
+        this._filter.filterSchemaEntry.lineLength = undefined;
         // this._filter.filterSchemaEntry  = this.service.getEntrySchema(this.devices,this.selectedDeviceWebserviceAet);
-        this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,false);
-        this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,true);
+        this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation], this._filter.quantityText,'main');
+        this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,'expand');
+        this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyDevice.devices, this.aetWebServicesList);
     }
 
     accessLocationChange(e){

@@ -1,8 +1,8 @@
 <div class="main_content white_design" >
   <study-tab></study-tab>
-  <pre>
+<!--  <pre>
     studyDevice:{{studyDevice|json}}
-  </pre>
+  </pre>-->
   <div class="tab-content" [ngClass]="{'tab_content_with_fixed_header':fixedHeader}">
     <div [ngClass]="{'fixed_header':fixedHeader}">
         <!--model2:{{model|json}}-->
@@ -12,17 +12,22 @@
       </j4care-select>-->
       <h2>Studies {{studyConfig.tab}}</h2>
       <h4>Select Device and Access mode</h4>
-      <div class="controll_header" *ngIf="studyDevice">
+<!--      <div class="controll_header" *ngIf="studyDevice">
         <j4care-select [(model)]="studyDevice.selectedDevice" [placeholder]="'Select Device'">
           <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
           <j4care-option *ngFor="let el of studyDevice.devices" [value]="el.value" [title]="'Test title'">{{el.text}}</j4care-option>
         </j4care-select>
-      </div>
+      </div>-->
 <!--      <div class="filter_line">
         <div class="filter_block">
           <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
         </div>
       </div>-->
+      <div class="filter_line">
+        <div class="filter_block">
+          <filter-generator *ngIf="filter.filterSchemaEntry.lineLength" [schema]="filter.filterSchemaEntry.schema" [filterID]="'study-filter'" [model]="filter.filterEntryModel" [filterTreeHeight]="filter.filterSchemaEntry.lineLength" (onChange)="entryFilterChanged()"></filter-generator>
+        </div>
+      </div>
       <div class="filter_line">
         <div class="filter_block">
           <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>

@@ -22,28 +22,33 @@ export class StudyService {
       private devicesService:DevicesService
     ) { }
 
-    getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, hidden:boolean){
+    getEntrySchema(devices, aetWebService):{schema:FilterSchema, lineLength:number}{
+        return {
+            schema: j4care.prepareFlatFilterObject(Globalvar.STUDY_FILTER_ENTRY_SCHEMA(devices,aetWebService),1),
+            lineLength: 1
+        }
+    }
+    getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, filterMode:('main'| 'expand')){
         let schema:FilterSchema;
         let lineLength:number = 3;
         switch(tab){
             case "patient":
-                schema = Globalvar.PATIENT_FILTER_SCHEMA(aets,hidden);
-                lineLength = hidden ? 1:2;
+                schema = Globalvar.PATIENT_FILTER_SCHEMA(aets,filterMode === "expand");
+                lineLength = filterMode === "expand" ? 1:2;
                 break;
             case "mwl":
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,hidden);
-                lineLength = hidden ? 2:3;
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,filterMode === "expand");
+                lineLength = filterMode === "expand" ? 2:3;
                 break;
             case "diff":
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,hidden);
-                lineLength = hidden ? 2:3;
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,filterMode === "expand");
+                lineLength = filterMode === "expand" ? 2:3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,hidden);
-                lineLength = hidden ? 2:3;
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,false);
+                lineLength = filterMode === "expand" ? 2:3;
         }
-        if(!hidden){
-
+        if(filterMode === "main"){
             if(tab != 'diff'){
                 schema.push({
                     tag:"html-select",

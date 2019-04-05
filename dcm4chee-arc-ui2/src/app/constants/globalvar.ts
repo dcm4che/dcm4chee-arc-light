@@ -970,6 +970,24 @@ export class Globalvar {
         ];
     }
 
+    static STUDY_FILTER_ENTRY_SCHEMA(devices,aetWebService):FilterSchema{
+        return [
+            {
+                tag:"select",
+                options:devices,
+                filterKey:"device",
+                description:"Select Device",
+                placeholder:"Select Device"
+            },{
+                tag:"select",
+                options:aetWebService,
+                filterKey:"aetWebService",
+                description:"AET or Webservice",
+                placeholder:"AET or Webservice"
+            },
+        ]
+    }
+
     static PATIENT_FILTER_SCHEMA(aets,hidden?):FilterSchema{
         if(hidden){
             return [
