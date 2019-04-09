@@ -55,8 +55,6 @@ import java.util.List;
  * @since Oct 2017
  */
 public interface RetrieveManager {
-    String QUEUE_NAME = "CMoveSCU";
-
     Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
 
     boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID, Date notRetrievedAfter,

@@ -60,8 +60,18 @@ public class ExternalRetrieveContext {
     private String destinationAET;
     private Attributes keys;
     private Attributes response;
+    private String queueName;
 
     public ExternalRetrieveContext() {
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public ExternalRetrieveContext setQueueName(String queueName) {
+        this.queueName = queueName;
+        return this;
     }
 
     public String getRequesterUserID() {
@@ -174,6 +184,7 @@ public class ExternalRetrieveContext {
     @Override
     public String toString() {
         return "InstancesRetrieved[" + getRequesterUserID() + '@' + getRequesterHostName()
+                + ", queueName=" + queueName
                 + ", localAET=" + localAET
                 + ", remoteAET=" + remoteAET
                 + ", destinationAET=" + destinationAET
@@ -185,5 +196,4 @@ public class ExternalRetrieveContext {
                 + ", errorComment=" + getErrorComment()
                 + ']';
     }
-
 }

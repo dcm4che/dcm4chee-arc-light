@@ -100,6 +100,24 @@ public class QueryRetrieveRS {
     @QueryParam("batchID")
     private String batchID;
 
+    @DefaultValue("Retrieve1")
+    @QueryParam("dcmQueueName")
+    @Pattern(regexp =
+            "Retrieve1|" +
+            "Retrieve2|" +
+            "Retrieve3|" +
+            "Retrieve4|" +
+            "Retrieve5|" +
+            "Retrieve6|" +
+            "Retrieve7|" +
+            "Retrieve8|" +
+            "Retrieve9|" +
+            "Retrieve10|" +
+            "Retrieve11|" +
+            "Retrieve12|" +
+            "Retrieve13")
+    private String queueName;
+
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
@@ -333,6 +351,7 @@ public class QueryRetrieveRS {
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.STUDY.name());
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
         return new ExternalRetrieveContext()
+                .setQueueName(queueName)
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)

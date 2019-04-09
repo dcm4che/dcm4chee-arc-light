@@ -2228,6 +2228,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
   SUP top STRUCTURAL
   MUST (
     cn $
+    dcmQueueName $
     dicomAETitle $
     dcmPrefetchCFindSCP $
     dcmPrefetchCMoveSCP $

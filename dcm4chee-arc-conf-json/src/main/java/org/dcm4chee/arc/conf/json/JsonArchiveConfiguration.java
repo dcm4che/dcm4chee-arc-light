@@ -517,6 +517,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotNullOrDef("dicomAETitle", rule.getAETitle(), null);
+            writer.writeNotNullOrDef("dcmQueueName", rule.getQueueName(), null);
             writer.writeNotNullOrDef("dcmPrefetchCFindSCP", rule.getPrefetchCFindSCP(), null);
             writer.writeNotNullOrDef("dcmPrefetchCMoveSCP", rule.getPrefetchCMoveSCP(), null);
             writer.writeNotEmpty("dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCPs());
@@ -1873,6 +1874,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 switch (reader.getString()) {
                     case "cn":
                         rule.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmQueueName":
+                        rule.setQueueName(reader.stringValue());
                         break;
                     case "dicomAETitle":
                         rule.setAETitle(reader.stringValue());

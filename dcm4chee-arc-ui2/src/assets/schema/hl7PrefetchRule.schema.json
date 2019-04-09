@@ -4,6 +4,7 @@
   "type": "object",
   "required": [
     "cn",
+    "dcmQueueName",
     "dicomAETitle",
     "dcmPrefetchCFindSCP",
     "dcmPrefetchCMoveSCP",
@@ -15,6 +16,26 @@
       "title": "Name",
       "description": "Arbitrary/Meaningful name of the Prefetch Rule",
       "type": "string"
+    },
+    "dcmQueueName": {
+      "title": "Queue Name",
+      "description": "Name of JMS Queue used for scheduling retrieve tasks triggered by this Prefetch Rule",
+      "type": "string",
+      "enum" : [
+        "Retrieve1",
+        "Retrieve2",
+        "Retrieve3",
+        "Retrieve4",
+        "Retrieve5",
+        "Retrieve6",
+        "Retrieve7",
+        "Retrieve8",
+        "Retrieve9",
+        "Retrieve10",
+        "Retrieve11",
+        "Retrieve12",
+        "Retrieve13"
+      ]
     },
     "dicomAETitle": {
       "title": "Archive AE title",

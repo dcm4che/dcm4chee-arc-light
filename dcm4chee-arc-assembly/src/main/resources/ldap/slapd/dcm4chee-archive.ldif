@@ -660,7 +660,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.132 NAME 'dcmSeriesMetadataFetchSize
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.133 NAME 'dcmRSOperation'
-  DESC 'Name of RESTful Operation which shall be forwarded to another archive instance. Enumerated values: CreatePatient, UpdatePatient, DeletePatient, ChangePatientID, MergePatient, MergePatients, UpdateStudy, DeleteStudy, RejectStudy, RejectSeries, RejectInstance, UpdateStudyExpirationDate, UpdateSeriesExpirationDate, ApplyRetentionPolicy, CreateMWL, UpdateMWL, DeleteMWL'
+  DESC 'Name of RESTful Operation which shall be forwarded to another archive instance. Enumerated values: CreatePatient, UpdatePatient, DeletePatient, ChangePatientID, MergePatient, MergePatients, UpdateStudy, DeleteStudy, RejectStudy, RejectSeries, RejectInstance, UpdateStudyExpirationDate, UpdateSeriesExpirationDate, ApplyRetentionPolicy, CreateMWL, UpdateMWL, DeleteMWL, UpdateStudyAccessControlID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
@@ -1929,6 +1929,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
   SUP top STRUCTURAL
   MUST (
     cn $
+    dcmQueueName $
     dicomAETitle $
     dcmPrefetchCFindSCP $
     dcmPrefetchCMoveSCP $

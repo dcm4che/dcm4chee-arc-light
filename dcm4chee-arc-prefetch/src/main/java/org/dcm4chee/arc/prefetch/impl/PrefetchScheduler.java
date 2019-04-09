@@ -179,6 +179,7 @@ public class PrefetchScheduler {
                                       String destination)
             throws QueueSizeLimitExceededException {
         ExternalRetrieveContext ctx = new ExternalRetrieveContext()
+                .setQueueName(rule.getQueueName())
                 .setLocalAET(rule.getAETitle())
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
                 .setDestinationAET(destination)

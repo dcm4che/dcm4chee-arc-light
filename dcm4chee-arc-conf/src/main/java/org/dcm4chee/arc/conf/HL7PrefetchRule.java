@@ -54,6 +54,8 @@ public class HL7PrefetchRule {
 
     private String commonName;
 
+    private String queueName;
+
     private String aeTitle;
 
     private String prefetchCFindSCP;
@@ -87,6 +89,14 @@ public class HL7PrefetchRule {
 
     public void setCommonName(String commonName) {
         this.commonName = commonName;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 
     public String getAETitle() {
@@ -184,6 +194,7 @@ public class HL7PrefetchRule {
     public String toString() {
         return "HL7PrefetchRule{" +
                 "cn=" + commonName +
+                ", queueName=" + queueName +
                 ", aeTitle=" + aeTitle +
                 ", findSCP=" + prefetchCFindSCP +
                 ", moveSCP=" + prefetchCMoveSCP +

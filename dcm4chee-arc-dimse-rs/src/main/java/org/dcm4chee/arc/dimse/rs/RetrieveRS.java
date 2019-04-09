@@ -103,8 +103,23 @@ public class RetrieveRS {
     @Pattern(regexp = "0|1|2")
     private String priority;
 
-    @QueryParam("queue")
-    private boolean queue;
+    @QueryParam("dcmQueueName")
+    @Pattern(regexp =
+            "Retrieve1|" +
+            "Retrieve2|" +
+            "Retrieve3|" +
+            "Retrieve4|" +
+            "Retrieve5|" +
+            "Retrieve6|" +
+            "Retrieve7|" +
+            "Retrieve8|" +
+            "Retrieve9|" +
+            "Retrieve10|" +
+            "Retrieve11|" +
+            "Retrieve12|" +
+            "Retrieve13")
+
+    private String queueName;
 
     @QueryParam("batchID")
     private String batchID;
@@ -168,7 +183,7 @@ public class RetrieveRS {
 
         try {
             Attributes keys = toKeys(uids);
-            return queue ? queueExport(destAET, keys) : export(destAET, keys);
+            return queueName != null ? queueExport(destAET, keys) : export(destAET, keys);
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -232,6 +247,7 @@ public class RetrieveRS {
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
         return new ExternalRetrieveContext()
+                .setQueueName(queueName)
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)

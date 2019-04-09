@@ -2336,6 +2336,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                       BasicAttributes attrs) {
         attrs.put("objectclass", "hl7PrefetchRule");
         attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueueName", rule.getQueueName(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", rule.getAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchCFindSCP",
                 rule.getPrefetchCFindSCP(), null);
@@ -2361,6 +2362,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 HL7PrefetchRule rule = new HL7PrefetchRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setQueueName(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 rule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 rule.setPrefetchCFindSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCFindSCP"), null));
                 rule.setPrefetchCMoveSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCMoveSCP"), null));
@@ -2595,6 +2597,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               HL7PrefetchRule prev,
                                               HL7PrefetchRule rule,
                                               ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueueName",
+                prev.getQueueName(), rule.getQueueName(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle",
                 prev.getAETitle(), rule.getAETitle(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchCFindSCP",

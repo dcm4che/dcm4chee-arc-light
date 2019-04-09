@@ -2844,6 +2844,15 @@
             "type": "string"
           },
           {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "name of retrieve queue to filter by",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -2955,6 +2964,15 @@
             "type": "string"
           },
           {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "name of retrieve queue to filter by",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -3041,6 +3059,15 @@
             "in": "query",
             "description": "list batches with at least one retrieve task with the specified Device Name",
             "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "name of retrieve queue to filter by",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "LocalAET",
@@ -3150,6 +3177,15 @@
             "type": "string"
           },
           {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "name of retrieve queue to filter by",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -3236,6 +3272,15 @@
             "in": "query",
             "description": "Device Name to filter by",
             "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "name of retrieve queue to filter by",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "LocalAET",
@@ -3330,6 +3375,36 @@
             "in": "query",
             "description": "New Archive Device Name where tasks shall be scheduled",
             "type": "string"
+          },
+          {
+            "name": "newQueueName",
+            "in": "query",
+            "description": "name of retrieve queue where tasks shall be scheduled",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ]
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "name of retrieve queue to filter by",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "LocalAET",
@@ -3489,6 +3564,27 @@
             "in": "query",
             "description": "New Archive Device Name where task shall be scheduled",
             "type": "string"
+          },
+          {
+            "name": "newQueueName",
+            "in": "query",
+            "description": "name of retrieve queue where tasks shall be scheduled",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ]
           }
         ],
         "responses": {
@@ -5463,11 +5559,24 @@
             "type": "string"
           },
           {
-            "name": "queue",
-            "in": "query",
-            "description": "queue request",
-            "type": "boolean",
-            "default": false
+            "name": "dcmQueueName",
+            "description": "queue request in specified queue ",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ]
           }
         ],
         "responses": {
@@ -5563,11 +5672,25 @@
             "type": "string"
           },
           {
-            "name": "queue",
+            "name": "dcmQueueName",
             "in": "query",
-            "description": "queue request",
-            "type": "boolean",
-            "default": false
+            "description": "queue request in specified queue ",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ]
           }
         ],
         "responses": {
@@ -5670,11 +5793,25 @@
             "type": "string"
           },
           {
-            "name": "queue",
+            "name": "dcmQueueName",
             "in": "query",
-            "description": "queue request",
-            "type": "boolean",
-            "default": false
+            "description": "queue request in specified queue ",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ]
           }
         ],
         "responses": {
@@ -6025,6 +6162,28 @@
             "type": "string"
           },
           {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "queue request in specified queue",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
+          },
+          {
             "name": "priority",
             "in": "query",
             "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
@@ -6094,6 +6253,28 @@
             "description": "AE Title of STORE-SCP to which matching Studies are retrieved",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "queue requests in specified queue ",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           },
           {
             "name": "priority",
@@ -6200,6 +6381,28 @@
             "type": "string"
           },
           {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "queue requests in specified queue ",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
+          },
+          {
             "name": "priority",
             "in": "query",
             "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
@@ -6303,6 +6506,28 @@
             "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "queue requests in specified queue ",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           },
           {
             "name": "priority",

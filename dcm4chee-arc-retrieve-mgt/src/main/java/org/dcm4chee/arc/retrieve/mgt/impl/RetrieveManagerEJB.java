@@ -45,6 +45,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.Tuple;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -103,7 +104,7 @@ public class RetrieveManagerEJB {
             msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
             msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
-            QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
+            QueueMessage queueMessage = queueManager.scheduleMessage(ctx.getQueueName(), msg,
                     Message.DEFAULT_PRIORITY, batchID, delay);
             createRetrieveTask(ctx, queueMessage);
             return true;
@@ -242,7 +243,7 @@ public class RetrieveManagerEJB {
     }
 
     public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, QueueMessageEvent queueEvent) {
-        queueManager.rescheduleTask(retrieveTaskQueueMsgId, RetrieveManager.QUEUE_NAME, queueEvent);
+        queueManager.rescheduleTask(retrieveTaskQueueMsgId, queueEvent.getQueueMsg().getQueueName(), queueEvent);
     }
 
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
