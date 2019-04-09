@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -123,12 +123,6 @@ import java.util.*;
                 query = "select st.pk from Study st " +
                         "where st.studyInstanceUID = ?1"),
         @NamedQuery(
-                name = Study.FIND_PATIENT_ATTRS_BY_STUDY_UIDS,
-                query = "select st.patient.attributesBlob from Study st " +
-                        "join st.patient p " +
-                        "join p.attributesBlob " +
-                        "where st.studyInstanceUID in ?1"),
-        @NamedQuery(
                 name = Study.STORAGE_IDS_BY_STUDY_UID,
                 query = "select st.pk, st.storageIDs from Study st " +
                         "where st.studyInstanceUID in ?1"),
@@ -179,7 +173,6 @@ public class Study {
     public static final String GET_EXPIRED_STUDIES = "Study.getExpiredStudies";
     public static final String CLAIM_EXPIRED_STUDY = "Study.claimExpiredStudy";
     public static final String STUDY_IUIDS_BY_ACCESSION_NUMBER = "Study.studyIUIDsByAccessionNumber";
-    public static final String FIND_PATIENT_ATTRS_BY_STUDY_UIDS = "Study.findPatientAttrsByStudyUIDs";
     public static final String FIND_PK_BY_STUDY_UID = "Study.findPkByStudyUID";
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
