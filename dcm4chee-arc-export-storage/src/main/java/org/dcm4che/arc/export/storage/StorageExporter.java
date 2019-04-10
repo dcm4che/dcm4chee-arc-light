@@ -131,6 +131,7 @@ public class StorageExporter extends AbstractExporter {
                         seriesIUIDs.add(instanceLocations.getAttributes().getString(Tag.SeriesInstanceUID));
                     } catch (Exception e) {
                         LOG.warn("Failed to copy {} to {}:\n", instanceLocations, storage.getStorageDescriptor(), e);
+                        retrieveContext.incrementFailed();
                         retrieveContext.addFailedSOPInstanceUID(instanceLocations.getSopInstanceUID());
                         if (location != null)
                             try {
