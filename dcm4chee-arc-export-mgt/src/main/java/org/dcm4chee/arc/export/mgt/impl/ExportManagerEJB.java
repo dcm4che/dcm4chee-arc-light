@@ -244,6 +244,7 @@ public class ExportManagerEJB implements ExportManager {
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
                                     HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
+        LOG.info("Schedule {}", exportTask);
         QueueMessage queueMessage = queueManager.scheduleMessage(
                 exporter.getQueueName(),
                 createMessage(exportTask, httpServletRequestInfo),
