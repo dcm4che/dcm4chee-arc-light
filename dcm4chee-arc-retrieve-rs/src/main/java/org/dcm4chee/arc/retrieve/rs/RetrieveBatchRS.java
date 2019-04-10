@@ -168,7 +168,7 @@ public class RetrieveBatchRS {
                         writer.writeNotNullOrDef("batchID", retrieveBatch.getBatchID(), null);
                         writeTasks(retrieveBatch, writer);
                         writer.writeNotEmpty("dicomDeviceName", retrieveBatch.getDeviceNames());
-                        writer.writeNotEmpty("queueName", retrieveBatch.getQueueNames());
+                        writer.writeNotEmpty("dcmQueueName", retrieveBatch.getQueueNames());
                         writer.writeNotEmpty("LocalAET", retrieveBatch.getLocalAETs());
                         writer.writeNotEmpty("RemoteAET", retrieveBatch.getRemoteAETs());
                         writer.writeNotEmpty("DestinationAET", retrieveBatch.getDestinationAETs());

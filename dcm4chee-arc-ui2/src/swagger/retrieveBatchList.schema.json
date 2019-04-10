@@ -6,7 +6,7 @@
       "BatchID",
       "tasks",
       "dicomDeviceName",
-      "queueName",
+      "dcmQueueName",
       "LocalAET",
       "RemoteAET",
       "DestinationAET",
@@ -67,7 +67,7 @@
           "type": "string"
         }
       },
-      "queueName": {
+      "dcmQueueName": {
         "title": "Queue Name",
         "description": "Name of Queues performing tasks in the batch",
         "type": "array",
