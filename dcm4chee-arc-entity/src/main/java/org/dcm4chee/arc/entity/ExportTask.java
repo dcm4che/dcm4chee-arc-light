@@ -351,16 +351,11 @@ public class ExportTask {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(256)
-            .append("ExportTask[pk=").append(pk)
-            .append(", exporterID=").append(exporterID)
-            .append(", studyUID=").append(studyInstanceUID);
-        if (seriesInstanceUID != null) {
-            sb.append(", seriesUID=").append(seriesInstanceUID);
-            if (sopInstanceUID != null) {
-                sb.append(", objectUID=").append(sopInstanceUID);
-            }
-        }
-        return sb.append(']').toString();
+        return "ExportTask[pk=" + pk
+                + ", exporterID=" + exporterID
+                + ", studyUID=" + studyInstanceUID
+                + ", seriesUID=" + seriesInstanceUID
+                + ", objectUID=" + sopInstanceUID
+                + "]";
     }
 }
