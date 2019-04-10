@@ -100,8 +100,8 @@ public class QueryRetrieveRS {
     @QueryParam("batchID")
     private String batchID;
 
-    @DefaultValue("Retrieve1")
     @QueryParam("dcmQueueName")
+    @DefaultValue("Retrieve1")
     @Pattern(regexp =
             "Retrieve1|" +
             "Retrieve2|" +
@@ -339,6 +339,7 @@ public class QueryRetrieveRS {
         Attributes keys = new Attributes(dimseRSP.getDataset(),
                 Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID, Tag.SOPInstanceUID);
         return new ExternalRetrieveContext()
+                .setQueueName(queueName)
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)

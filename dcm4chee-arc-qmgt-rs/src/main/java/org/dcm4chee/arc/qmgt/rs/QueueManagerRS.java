@@ -66,6 +66,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -409,7 +410,7 @@ public class QueueManagerRS {
 
     private TaskQueryParam taskQueryParam(String deviceName) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setQueueName(queueName);
+        taskQueryParam.setQueueName(Collections.singletonList(queueName));
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status());
         taskQueryParam.setBatchID(batchID);

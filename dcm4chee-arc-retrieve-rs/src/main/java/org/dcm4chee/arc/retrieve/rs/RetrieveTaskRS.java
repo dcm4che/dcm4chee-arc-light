@@ -53,6 +53,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.rs.client.RSClient;
+import org.dcm4chee.arc.validation.constraints.ValidList;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +150,40 @@ public class RetrieveTaskRS {
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
+    @QueryParam("dcmQueueName")
+    @ValidList(regexp = "Retrieve1|" +
+            "Retrieve2|" +
+            "Retrieve3|" +
+            "Retrieve4|" +
+            "Retrieve5|" +
+            "Retrieve6|" +
+            "Retrieve7|" +
+            "Retrieve8|" +
+            "Retrieve9|" +
+            "Retrieve10|" +
+            "Retrieve11|" +
+            "Retrieve12|" +
+            "Retrieve13",
+            type = String.class, message = "Invalid Retrieve Queue selected")
+    private List<String> queueName;
+
+    @QueryParam("newQueueName")
+    @Pattern(regexp =
+            "Retrieve1|" +
+            "Retrieve2|" +
+            "Retrieve3|" +
+            "Retrieve4|" +
+            "Retrieve5|" +
+            "Retrieve6|" +
+            "Retrieve7|" +
+            "Retrieve8|" +
+            "Retrieve9|" +
+            "Retrieve10|" +
+            "Retrieve11|" +
+            "Retrieve12|" +
+            "Retrieve13")
+    private String newQueueName;
+
     @GET
     @NoCache
     public Response listRetrieveTasks(@QueryParam("accept") String accept) {
@@ -240,10 +275,13 @@ public class RetrieveTaskRS {
             if (devName == null)
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
+            if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
+                return rsp(Response.Status.NOT_FOUND, "No such Queue - " + newQueueName);
+
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            mgr.rescheduleRetrieveTask(pk, queueEvent);
+            mgr.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -260,6 +298,9 @@ public class RetrieveTaskRS {
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+
+        if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
+            return rsp(Response.Status.NOT_FOUND, "No such Queue - " + newQueueName);
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
@@ -303,7 +344,7 @@ public class RetrieveTaskRS {
                                                             retrieveTaskQueryParam,
                                                             rescheduleTasksFetchSize);
                 for (String retrieveTaskQueueMsgID : retrieveTaskQueueMsgIDs)
-                    mgr.rescheduleRetrieveTask(retrieveTaskQueueMsgID);
+                    mgr.rescheduleRetrieveTask(retrieveTaskQueueMsgID, newQueueName);
                 count = retrieveTaskQueueMsgIDs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
@@ -502,6 +543,7 @@ public class RetrieveTaskRS {
         taskQueryParam.setStatus(status);
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setQueueName(queueName);
         return taskQueryParam;
     }
 

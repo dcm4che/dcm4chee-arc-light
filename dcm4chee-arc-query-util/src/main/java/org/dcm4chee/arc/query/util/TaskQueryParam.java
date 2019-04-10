@@ -53,7 +53,7 @@ import java.util.List;
  */
 public class TaskQueryParam {
 
-    private String queueName;
+    private List<String> queueName = new ArrayList<>();
     private String deviceName;
     private QueueMessage.Status status;
     private StgCmtResult.Status stgCmtStatus;
@@ -75,11 +75,11 @@ public class TaskQueryParam {
     private List<String> exporterIDs = new ArrayList<>();
     private String stgCmtExporterID;
 
-    public String getQueueName() {
+    public List<String> getQueueName() {
         return queueName;
     }
 
-    public void setQueueName(String queueName) {
+    public void setQueueName(List<String> queueName) {
         this.queueName = queueName;
     }
 

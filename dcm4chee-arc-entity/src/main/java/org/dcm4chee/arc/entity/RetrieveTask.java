@@ -89,6 +89,9 @@ import java.util.Date;
         @NamedQuery(name = RetrieveTask.FIND_DEVICE_BY_BATCH_ID,
                 query = "select distinct o.queueMessage.deviceName from RetrieveTask o where o.queueMessage.batchID=?1 " +
                         "order by o.queueMessage.deviceName"),
+        @NamedQuery(name = RetrieveTask.FIND_QUEUE_NAMES_BY_BATCH_ID,
+                query = "select distinct o.queueMessage.queueName from RetrieveTask o where o.queueMessage.batchID=?1 " +
+                        "order by o.queueMessage.queueName"),
         @NamedQuery(name = RetrieveTask.COUNT_BY_BATCH_ID_AND_STATUS,
                 query = "select count(o) from RetrieveTask o where o.queueMessage.batchID=?1 and o.queueMessage.status=?2")
 })
@@ -100,6 +103,7 @@ public class RetrieveTask {
     public static final String FIND_REMOTE_AET_BY_BATCH_ID = "RetrieveTask.FindRemoteAETByBatchId";
     public static final String FIND_DESTINATION_AET_BY_BATCH_ID = "RetrieveTask.FindDestinationAETByBatchId";
     public static final String FIND_DEVICE_BY_BATCH_ID = "RetrieveTask.FindDeviceByBatchId";
+    public static final String FIND_QUEUE_NAMES_BY_BATCH_ID = "RetrieveTask.FindQueueNamesByBatchId";
     public static final String COUNT_BY_BATCH_ID_AND_STATUS = "RetrieveTask.CountByBatchIdAndStatus";
 
     @Id

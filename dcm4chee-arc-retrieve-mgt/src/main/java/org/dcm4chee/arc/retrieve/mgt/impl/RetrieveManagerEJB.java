@@ -233,17 +233,17 @@ public class RetrieveManagerEJB {
         }
     }
 
-    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return;
 
         LOG.info("Reschedule {}", task);
-        rescheduleRetrieveTask(task.getQueueMessage().getMessageID(), queueEvent);
+        rescheduleRetrieveTask(task.getQueueMessage().getMessageID(), newQueueName, queueEvent);
     }
 
-    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, QueueMessageEvent queueEvent) {
-        queueManager.rescheduleTask(retrieveTaskQueueMsgId, queueEvent.getQueueMsg().getQueueName(), queueEvent);
+    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, String queueName, QueueMessageEvent queueEvent) {
+        queueManager.rescheduleTask(retrieveTaskQueueMsgId, queueName, queueEvent);
     }
 
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
@@ -358,6 +358,10 @@ public class RetrieveManagerEJB {
 
             retrieveBatch.setDeviceNames(
                     em.createNamedQuery(RetrieveTask.FIND_DEVICE_BY_BATCH_ID, String.class)
+                            .setParameter(1, batchID)
+                            .getResultList());
+            retrieveBatch.setQueueNames(
+                    em.createNamedQuery(RetrieveTask.FIND_QUEUE_NAMES_BY_BATCH_ID, String.class)
                             .setParameter(1, batchID)
                             .getResultList());
             retrieveBatch.setLocalAETs(

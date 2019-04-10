@@ -6,6 +6,7 @@
       "BatchID",
       "tasks",
       "dicomDeviceName",
+      "queueName",
       "LocalAET",
       "RemoteAET",
       "DestinationAET",
@@ -60,6 +61,15 @@
       "dicomDeviceName": {
         "title": "Device Name",
         "description": "Name of Devices performing tasks in the batch",
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string"
+        }
+      },
+      "queueName": {
+        "title": "Queue Name",
+        "description": "Name of Queues performing tasks in the batch",
         "type": "array",
         "minItems": 1,
         "items": {

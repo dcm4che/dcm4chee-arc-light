@@ -147,8 +147,8 @@ public class MatchTask {
         if (taskQueryParam == null || queueMsg == null)
             return;
 
-        if (taskQueryParam.getQueueName() != null)
-            predicates.add(cb.equal(queueMsg.get(QueueMessage_.queueName), taskQueryParam.getQueueName()));
+        if (!taskQueryParam.getQueueName().isEmpty())
+            predicates.add(cb.and(queueMsg.get(QueueMessage_.queueName).in(taskQueryParam.getQueueName())));
         QueueMessage.Status status = taskQueryParam.getStatus();
         if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.status), status));
@@ -330,6 +330,8 @@ public class MatchTask {
 
     private void matchQueueBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<QueueMessage> queueMsg) {
         predicates.add(queueMsg.get(QueueMessage_.batchID).isNotNull());
+        if (!taskQueryParam.getQueueName().isEmpty())
+            predicates.add(cb.and(queueMsg.get(QueueMessage_.queueName).in(taskQueryParam.getQueueName())));
         if (taskQueryParam.getStatus() != null)
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.status), taskQueryParam.getStatus()));
         if (taskQueryParam.getDeviceName() != null)

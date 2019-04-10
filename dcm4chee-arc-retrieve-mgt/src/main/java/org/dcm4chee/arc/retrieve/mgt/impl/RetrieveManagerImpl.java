@@ -171,13 +171,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        ejb.rescheduleRetrieveTask(pk, queueEvent);
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
+        ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
     }
 
     @Override
-    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId) {
-        ejb.rescheduleRetrieveTask(retrieveTaskQueueMsgId, null);
+    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, String newQueueName) {
+        ejb.rescheduleRetrieveTask(retrieveTaskQueueMsgId, newQueueName, null);
     }
 
     @Override

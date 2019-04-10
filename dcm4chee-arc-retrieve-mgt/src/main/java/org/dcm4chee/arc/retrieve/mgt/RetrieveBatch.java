@@ -56,6 +56,7 @@ public class RetrieveBatch {
     private Date[] processingStartTimeRange = {};
     private Date[] processingEndTimeRange = {};
     private String[] deviceNames = {};
+    private String[] queueNames = {};
     private String[] localAETs = {};
     private String[] remoteAETs = {};
     private String[] destinationAETs = {};
@@ -130,6 +131,14 @@ public class RetrieveBatch {
 
     public void setDeviceNames(List<String> deviceNames) {
         this.deviceNames = deviceNames.toArray(new String[0]);
+    }
+
+    public String[] getQueueNames() {
+        return queueNames;
+    }
+
+    public void setQueueNames(List<String> queueNames) {
+        this.queueNames = queueNames.toArray(new String[0]);
     }
 
     public String[] getLocalAETs() {

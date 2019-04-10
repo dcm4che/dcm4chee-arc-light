@@ -53,10 +53,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2016
  */
 @ApplicationScoped
@@ -117,7 +119,7 @@ public class PurgeQueueMessageScheduler extends Scheduler {
 
     private TaskQueryParam taskQueryParam(String queueName, QueueMessage.Status status, Date updatedBefore) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setQueueName(queueName);
+        taskQueryParam.setQueueName(Collections.singletonList(queueName));
         taskQueryParam.setStatus(status);
         taskQueryParam.setUpdatedBefore(updatedBefore);
         return taskQueryParam;
