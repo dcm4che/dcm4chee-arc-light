@@ -129,6 +129,7 @@ public class QueryAttributes {
                 case "only-ian":
                 case "batchID":
                 case "queue":
+                case "dcmQueueName":
                 case "SplitStudyDateRange":
                 case "ForceQueryByStudyUID":
                 case "includedefaults":
