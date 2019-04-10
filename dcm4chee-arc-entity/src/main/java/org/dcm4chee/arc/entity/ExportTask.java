@@ -351,9 +351,16 @@ public class ExportTask {
 
     @Override
     public String toString() {
-        return "ExportTask[pk=" + pk
-                + ", ExporterID=" + exporterID
-                + ", StudyUID=" + studyInstanceUID
-                + "]";
+        StringBuilder sb = new StringBuilder(256)
+            .append("ExportTask[pk=").append(pk)
+            .append(", exporterID=").append(exporterID)
+            .append(", studyUID=").append(studyInstanceUID);
+        if (seriesInstanceUID != null) {
+            sb.append(", seriesUID=").append(seriesInstanceUID);
+            if (sopInstanceUID != null) {
+                sb.append(", objectUID=").append(sopInstanceUID);
+            }
+        }
+        return sb.append(']').toString();
     }
 }

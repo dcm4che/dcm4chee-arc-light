@@ -257,8 +257,7 @@ public class ExportManagerEJB implements ExportManager {
                     exportTask.getSopInstanceUID(),
                     device.getApplicationEntity(exporter.getAETitle(), true));
             if (attrs == null) {
-                LOG.info("No result found for export task with [pk={}, studyUID={}, seriesUID={}, objectUID={}]",
-                        exportTask.getPk(), exportTask.getStudyInstanceUID(), exportTask.getSeriesInstanceUID(), exportTask.getSopInstanceUID());
+                LOG.info("No Export Task Info found for {}", exportTask);
                 return;
             }
             exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
