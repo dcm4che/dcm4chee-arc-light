@@ -30,6 +30,8 @@ import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {DropdownList} from "../../helpers/form/dropdown-list";
 import {DropdownComponent} from "../../widgets/dropdown/dropdown.component";
+import {AetWebservice, AetWebserviceDropdownObject} from "../../models/AetWebservice";
+import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 
 
 @Component({
@@ -128,22 +130,25 @@ export class StudyComponent implements OnInit {
     };
     studyDevice:StudyDevice;
     testModel;
-    aetWebServicesList = [];
+    aetWebServicesList:AetWebservice;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
         private permissionService:PermissionService,
         private appService:AppService,
         private httpErrorHandler:HttpErrorHandler,
-        private cfpLoadingBar:LoadingBarService
+        private cfpLoadingBar:LoadingBarService,
+        private deviceConfigurator:DeviceConfiguratorService
     ) { }
 
     ngOnInit() {
         console.log("this.service",this.appService);
-        this.filter.filterEntryModel["device"] = this.appService.deviceName;
-        this.aetWebServicesList = this.appService.global.myDevice.dicomNetworkAE.map((ae:Aet)=>{
-            return new SelectDropdown(ae.dicomAETitle,ae.dicomDescription);
-        });
+        if(_.hasIn(this.appService,"global.myDevice") && this.appService.deviceName && this.appService.deviceName === this.appService.global.myDevice.dicomDeviceName){
+            this.filter.filterEntryModel["device"] = this.appService.deviceName;
+            this.aetWebServicesList = new AetWebservice({
+                deviceObject:this.appService.global.myDevice
+            })
+        }
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
@@ -379,7 +384,10 @@ export class StudyComponent implements OnInit {
     }
     entryFilterChanged(){
         this.studyDevice.selectedDevice = this.filter.filterEntryModel["device"];
-        // this.studyDevice.
+        this.deviceConfigurator.getDevice(this.studyDevice.selectedDevice).subscribe(device=>{
+            this.aetWebServicesList.deviceObject = device;
+            this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyDevice.devices, this.aetWebServicesList.aet);
+        });
     }
 
     filterChanged(){
@@ -393,7 +401,7 @@ export class StudyComponent implements OnInit {
         // this._filter.filterSchemaEntry  = this.service.getEntrySchema(this.devices,this.selectedDeviceWebserviceAet);
         this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes[this.studyConfig.accessLocation], this._filter.quantityText,'main');
         this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes[this.studyConfig.accessLocation],this._filter.quantityText,'expand');
-        this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyDevice.devices, this.aetWebServicesList);
+        this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyDevice.devices, this.aetWebServicesList.aet);
     }
 
     accessLocationChange(e){

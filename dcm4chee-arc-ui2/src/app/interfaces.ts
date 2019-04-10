@@ -31,12 +31,14 @@ export class SelectDropdown {
     private _label:any;
     private _title?:string;
     private _htmlLabel:string;
-    constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string){
+    private _wholeObject:any;
+    constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string, wholeObject?:any){
         this._value = value;
-        this._text = text;
-        this._label = label || text;
+        this._text = text || value;
+        this._label = label || text || value;
         this._title = title;
         this._htmlLabel = htmlLabel;
+        this._wholeObject = wholeObject;
     }
 
     get value(): string {
@@ -78,6 +80,14 @@ export class SelectDropdown {
 
     set htmlLabel(value: string) {
         this._htmlLabel = value;
+    }
+
+    get wholeObject(): any {
+        return this._wholeObject;
+    }
+
+    set wholeObject(value: any) {
+        this._wholeObject = value;
     }
 }
 export type Quantity = "count"|"size"|string;
