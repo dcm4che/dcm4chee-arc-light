@@ -214,7 +214,7 @@ public class ExportTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing multiselect parameter: status");
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
@@ -281,7 +281,7 @@ public class ExportTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing multiselect parameter: status");
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
         if (status == QueueMessage.Status.TO_SCHEDULE)
             return rsp(Response.Status.CONFLICT, "Cannot reschedule tasks with status : TO SCHEDULE");
 
