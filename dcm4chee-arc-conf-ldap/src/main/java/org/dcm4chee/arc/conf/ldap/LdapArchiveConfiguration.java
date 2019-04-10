@@ -2999,7 +2999,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 keycloakServer.setTlsAllowAnyHostname(LdapUtils.booleanValue(attrs.get("dcmTLSAllowAnyHostname"), false));
                 keycloakServer.setTlsDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmTLSDisableTrustManager"), false));
                 keycloakServer.setUserID(LdapUtils.stringValue(attrs.get("uid"), null));
-                keycloakServer.setPassword(LdapUtils.stringValue(attrs.get("userPassword"), null));
+                keycloakServer.setPassword(LdapUtils.stringValue1(attrs.get("userPassword"), null));
                 arcdev.addKeycloakServer(keycloakServer);
             }
         } finally {
