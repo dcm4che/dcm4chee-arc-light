@@ -299,10 +299,10 @@ public class IocmRS {
             throw new WebApplicationException(
                     errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
         try {
-            boolean newPatient = patientID.equals(bodyPatientID);
+            boolean patientMatch = patientID.equals(bodyPatientID);
             RSOperation rsOp = RSOperation.CreatePatient;
             String msgType = "ADT^A28^ADT_A05";
-            if (newPatient) {
+            if (patientMatch) {
                 patientService.updatePatient(ctx);
                 if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
                     rsOp = RSOperation.UpdatePatient;
