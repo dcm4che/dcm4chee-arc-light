@@ -300,13 +300,19 @@ public class IocmRS {
                     errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
         try {
             boolean newPatient = patientID.equals(bodyPatientID);
-            if (newPatient)
+            RSOperation rsOp;
+            if (newPatient) {
                 patientService.updatePatient(ctx);
+                rsOp = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? RSOperation.CreatePatient
+                        : RSOperation.UpdatePatient;
+            }
             else {
+                rsOp = RSOperation.ChangePatientID;
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
             }
-            rsForward.forward(RSOperation.UpdatePatient, arcAE, attrs, request);
+            rsForward.forward(rsOp, arcAE, attrs, request);
             String msgType = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? newPatient
                         ? "ADT^A28^ADT_A05" : "ADT^A47^ADT_A30"
