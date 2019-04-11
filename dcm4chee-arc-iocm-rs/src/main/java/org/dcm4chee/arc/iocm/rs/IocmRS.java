@@ -312,6 +312,10 @@ public class IocmRS {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
             }
+
+            if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read))
+                return;
+
             rsForward.forward(rsOp, arcAE, attrs, request);
             String msgType = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? newPatient
