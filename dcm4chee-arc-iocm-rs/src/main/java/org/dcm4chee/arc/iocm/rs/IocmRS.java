@@ -300,27 +300,26 @@ public class IocmRS {
                     errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
         try {
             boolean newPatient = patientID.equals(bodyPatientID);
-            RSOperation rsOp;
+            RSOperation rsOp = RSOperation.CreatePatient;
+            String msgType = "ADT^A28^ADT_A05";
             if (newPatient) {
                 patientService.updatePatient(ctx);
-                rsOp = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
-                        ? RSOperation.CreatePatient
-                        : RSOperation.UpdatePatient;
+                if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
+                    rsOp = RSOperation.UpdatePatient;
+                    msgType = "ADT^A31^ADT_A05";
+                }
             }
             else {
-                rsOp = RSOperation.ChangePatientID;
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
+                rsOp = RSOperation.ChangePatientID;
+                msgType = "ADT^A47^ADT_A30";
             }
 
             if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read))
                 return;
 
             rsForward.forward(rsOp, arcAE, attrs, request);
-            String msgType = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
-                    ? newPatient
-                        ? "ADT^A28^ADT_A05" : "ADT^A47^ADT_A30"
-                    : "ADT^A31^ADT_A05";
             rsHL7Sender.sendHL7Message(msgType, ctx);
         } catch (PatientTrackingNotAllowedException | CircularPatientMergeException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
