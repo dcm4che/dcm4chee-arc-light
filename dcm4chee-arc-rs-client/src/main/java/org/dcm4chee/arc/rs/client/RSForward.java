@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,12 +40,13 @@
 
 package org.dcm4chee.arc.rs.client;
 
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.RSForwardRule;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
-import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -71,51 +71,45 @@ public class RSForward {
     @Inject
     private RSClient rsClient;
 
+    @Inject
+    private IWebApplicationCache iWebAppCache;
+
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, HttpServletRequest request) {
-        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp, request);
-        for (RSForwardRule rule : rules) {
-            try {
-                String targetURI = mkForwardURI(rule.getBaseURI(), rsOp, request);
-                if (!targetURI.equals(request.getRequestURL().toString())) {
-                    if (rsOp == RSOperation.CreatePatient)
-                        targetURI += IDWithIssuer.pidOf(attrs);
-                    rsClient.scheduleRequest(
-                            getMethod(rsOp),
-                            targetURI,
-                            toContent(attrs),
-                            rule.getKeycloakServerID(),
-                            rule.isTlsAllowAnyHostname(),
-                            rule.isTlsDisableTrustManager());
-                }
-            } catch (Exception e) {
-                LOG.warn("Failed to apply {}:\n", rule, e);
-            }
-        }
+        forward(rsOp, arcAE, toContent(attrs),
+                rsOp == RSOperation.CreatePatient ? IDWithIssuer.pidOf(attrs) : null, request);
     }
 
-    public void forwardMergeMultiplePatients(RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, HttpServletRequest request) {
-        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp, request);
-        for (RSForwardRule rule : rules) {
+    public void forward(
+            RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, IDWithIssuer patientID, HttpServletRequest request) {
+        LOG.info("Restful Service Forward {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
+        String requestURI = request.getRequestURI();
+        String appendURI = requestURI.substring(requestURI.indexOf("/rs/") + 4);
+
+        arcAE.findRSForwardRules(rsOp, request).forEach(rule -> {
             try {
-                String targetURI = mkForwardURI(rule.getBaseURI(), rsOp, request);
-                if (!targetURI.equals(request.getRequestURL().toString()))
+                WebApplication webApplication = iWebAppCache.findWebApplication(rule.getWebAppName());
+                String serviceURL = webApplication.getServiceURL().toString();
+                String targetURI = serviceURL + (serviceURL.endsWith("rs/") ? "" : "/") + appendURI;
+                if (!targetURI.equals(request.getRequestURL().toString())) {
+                    if (rsOp == RSOperation.CreatePatient)
+                        targetURI += patientID;
                     rsClient.scheduleRequest(
                             getMethod(rsOp),
                             targetURI,
                             in,
-                            rule.getKeycloakServerID(),
+                            webApplication.getKeycloakClientID(),
                             rule.isTlsAllowAnyHostname(),
                             rule.isTlsDisableTrustManager());
+                    LOG.info("Forwarded {} {} from {}@{} using RSForward rule {} to device {}. Target URL is {}",
+                            request.getMethod(), request.getRequestURI(), request.getRemoteUser(),
+                            request.getRemoteHost(), rule, webApplication.getDevice().getDeviceName(), targetURI);
+                }
             } catch (Exception e) {
-                LOG.warn("Failed to apply {}:\n", rule, e);
+                LOG.warn("Failed to apply RSForwardRule {} to {} {} from {}@{} for RSOperation {} :\n",
+                        rule, request, rsOp, e);
             }
-        }
-    }
-
-    private static String mkForwardURI(String baseURI, RSOperation rsOp, HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        return baseURI + requestURI.substring(requestURI.indexOf(
-                            rsOp == RSOperation.ApplyRetentionPolicy ? "expire/series" : "rs/"));
+        });
     }
 
     private static byte[] toContent(Attributes attrs) {

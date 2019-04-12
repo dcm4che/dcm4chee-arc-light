@@ -346,7 +346,7 @@ public class IocmRS {
             for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
                 mergePatient(patientID, otherPID);
 
-            rsForward.forwardMergeMultiplePatients(RSOperation.MergePatients, arcAE, baos.toByteArray(), request);
+            rsForward.forward(RSOperation.MergePatients, arcAE, baos.toByteArray(), null, request);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage() + " at location : " + e.getLocation(),

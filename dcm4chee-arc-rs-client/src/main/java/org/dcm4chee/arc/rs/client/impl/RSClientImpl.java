@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -85,13 +85,14 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public void scheduleRequest(
-            String method, String uri, byte[] content, String keycloakServerID, boolean tlsAllowAnyHostName, boolean tlsDisableTrustManager)
+            String method, String uri, byte[] content, String keycloakClientID, boolean tlsAllowAnyHostName,
+            boolean tlsDisableTrustManager)
             throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(content);
             msg.setStringProperty("Method", method);
             msg.setStringProperty("URI", uri);
-            msg.setStringProperty("KeycloakServerID", keycloakServerID);
+            msg.setStringProperty("KeycloakClientID", keycloakClientID);
             msg.setStringProperty("TLSAllowAnyHostname", String.valueOf(tlsAllowAnyHostName));
             msg.setStringProperty("TLSDisableTrustManager", String.valueOf(tlsDisableTrustManager));
             queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
@@ -101,15 +102,15 @@ public class RSClientImpl implements RSClient {
     }
 
     @Override
-    public Outcome request(String method, String uri, String keycloakServerID, boolean allowAnyHostname,
+    public Outcome request(String method, String uri, String keycloakClientID, boolean allowAnyHostname,
             boolean disableTrustManager, byte[] content) throws Exception {
-        Response response = toResponse(method, uri, keycloakServerID, allowAnyHostname, disableTrustManager, content, null);
+        Response response = toResponse(method, uri, keycloakClientID, allowAnyHostname, disableTrustManager, content, null);
         Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
         response.close();
         return outcome;
     }
 
-    private Response toResponse(String method, String uri, String keycloakServerID, boolean allowAnyHostname,
+    private Response toResponse(String method, String uri, String keycloakClientID, boolean allowAnyHostname,
                                 boolean disableTrustManager, byte[] content, String authorization) throws Exception {
         ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, allowAnyHostname, disableTrustManager)
                 .build();
@@ -117,8 +118,10 @@ public class RSClientImpl implements RSClient {
         Invocation.Builder request = target.request();
         if (authorization != null)
             request.header("Authorization", authorization);
-        if (keycloakServerID != null)
-            request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServerID));
+        if (keycloakClientID != null)
+            request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakClientID));
+
+        LOG.info("Restful Service Forward : {} {}", method, uri);
 
         return method.equals("POST")
                 ? content != null

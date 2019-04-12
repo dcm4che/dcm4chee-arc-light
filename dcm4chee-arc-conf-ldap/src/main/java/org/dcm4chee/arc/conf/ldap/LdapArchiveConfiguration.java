@@ -2796,9 +2796,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, RSForwardRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmRSForwardRule");
         attrs.put("cn", rule.getCommonName());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", rule.getBaseURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWebAppName", rule.getWebAppName(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRSOperation", rule.getRSOperations());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakServerID", rule.getKeycloakServerID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURIPattern", rule.getRequestURLPattern(), null);
@@ -2966,9 +2965,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 RSForwardRule rule = new RSForwardRule(LdapUtils.stringValue(attrs.get("cn"), null));
-                rule.setBaseURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                rule.setWebAppName(LdapUtils.stringValue(attrs.get("dcmWebAppName"), null));
                 rule.setRSOperations(LdapUtils.enumArray(RSOperation.class, attrs.get("dcmRSOperation")));
-                rule.setKeycloakServerID(LdapUtils.stringValue(attrs.get("dcmKeycloakServerID"), null));
                 rule.setTlsAllowAnyHostname(LdapUtils.booleanValue(attrs.get("dcmTLSAllowAnyHostname"), false));
                 rule.setTlsDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmTLSDisableTrustManager"), false));
                 rule.setRequestURLPattern(LdapUtils.stringValue(attrs.get("dcmURIPattern"), null));
@@ -3375,10 +3373,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, RSForwardRule prev, RSForwardRule rule,
             ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWebAppName", prev.getWebAppName(), rule.getWebAppName(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakServerID", prev.getKeycloakServerID(),
-                rule.getKeycloakServerID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURIPattern", prev.getRequestURLPattern(),
                 rule.getRequestURLPattern(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSAllowAnyHostname",

@@ -700,9 +700,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (RSForwardRule rule : rules) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
-            writer.writeNotNullOrDef("dcmURI", rule.getBaseURI(), null);
+            writer.writeNotNullOrDef("dcmWebAppName", rule.getWebAppName(), null);
             writer.writeNotEmpty("dcmRSOperation", rule.getRSOperations());
-            writer.writeNotNullOrDef("dcmKeycloakServerID", rule.getKeycloakServerID(), null);
             writer.writeNotDef("dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
             writer.writeNotDef("dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
             writer.writeNotNullOrDef("dcmURIPattern", rule.getRequestURLPattern(), null);
@@ -2323,14 +2322,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "cn":
                         rule.setCommonName(reader.stringValue());
                         break;
-                    case "dcmURI":
-                        rule.setBaseURI(reader.stringValue());
+                    case "dcmWebAppName":
+                        rule.setWebAppName(reader.stringValue());
                         break;
                     case "dcmRSOperation":
                         rule.setRSOperations(reader.enumArray(RSOperation.class));
-                        break;
-                    case "dcmKeycloakServerID":
-                        rule.setKeycloakServerID(reader.stringValue());
                         break;
                     case "dcmTLSAllowAnyHostname":
                         rule.setTlsAllowAnyHostname(reader.booleanValue());

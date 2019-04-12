@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -54,11 +54,9 @@ public class RSForwardRule {
 
     private String commonName;
 
-    private String baseURI;
+    private String webAppName;
 
     private EnumSet<RSOperation> rsOperations = EnumSet.noneOf(RSOperation.class);
-
-    private String keycloakServerID;
 
     private boolean ifNotRequestURLPattern;
 
@@ -83,12 +81,12 @@ public class RSForwardRule {
         this.commonName = commonName;
     }
 
-    public String getBaseURI() {
-        return baseURI;
+    public String getWebAppName() {
+        return webAppName;
     }
 
-    public void setBaseURI(String baseURI) {
-        this.baseURI = baseURI;
+    public void setWebAppName(String webAppName) {
+        this.webAppName = webAppName;
     }
 
     public RSOperation[] getRSOperations() {
@@ -98,14 +96,6 @@ public class RSForwardRule {
     public void setRSOperations(RSOperation[] rsOperations) {
         this.rsOperations.clear();
         this.rsOperations.addAll(Arrays.asList(rsOperations));
-    }
-
-    public String getKeycloakServerID() {
-        return keycloakServerID;
-    }
-
-    public void setKeycloakServerID(String keycloakServerID) {
-        this.keycloakServerID = keycloakServerID;
     }
 
     public boolean isTlsAllowAnyHostname() {
@@ -159,7 +149,7 @@ public class RSForwardRule {
     public String toString() {
         return "RSForwardRule{" +
                 "cn='" + commonName + '\'' +
-                ", baseURI='" + baseURI + '\'' +
+                ", webAppName='" + webAppName + '\'' +
                 ", ops=" + rsOperations +
                 '}';
     }

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -42,8 +42,7 @@
 package org.dcm4chee.arc.keycloak;
 
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.KeycloakServer;
+import org.dcm4che3.net.KeycloakClient;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
@@ -71,8 +70,8 @@ public class AccessTokenRequestor {
             cachedKeycloak = null;
     }
 
-    public String getAccessTokenString(String keycloakServerID) throws Exception {
-        return getAccessTokenString(toCachedKeycloak(keycloakServerID));
+    public String getAccessTokenString(String keycloakClientID) throws Exception {
+        return getAccessTokenString(toCachedKeycloak(keycloakClientID));
     }
 
     private String getAccessTokenString(CachedKeycloak tmp) {
@@ -86,23 +85,25 @@ public class AccessTokenRequestor {
                 tmp.keycloak.tokenManager().getAccessToken().getExpiresIn());
     }
 
-    private CachedKeycloak toCachedKeycloak(String keycloakServerID) throws Exception {
+    private CachedKeycloak toCachedKeycloak(String keycloakClientID) throws Exception {
         CachedKeycloak tmp = cachedKeycloak;
-        if (tmp == null || !tmp.keycloakServerID.equals(keycloakServerID)) {
-            KeycloakServer server = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getKeycloakServerNotNull(keycloakServerID);
-            cachedKeycloak = tmp = new CachedKeycloak(keycloakServerID, KeycloakBuilder.builder()
-                    .serverUrl(server.getServerURL())
-                    .realm(server.getRealm())
-                    .clientId(server.getClientID())
-                    .clientSecret(server.getClientSecret())
-                    .username(server.getUserID())
-                    .password(server.getPassword())
-                    .grantType(server.getGrantType().name())
+        if (tmp == null || !tmp.keycloakClientID.equals(keycloakClientID)) {
+            KeycloakClient keycloakClient = device.getKeycloakClient(keycloakClientID);
+            if (keycloakClient == null)
+                throw new IllegalArgumentException("No Keycloak Client configured with ID:" + keycloakClientID);
+
+            cachedKeycloak = tmp = new CachedKeycloak(keycloakClientID, KeycloakBuilder.builder()
+                    .serverUrl(keycloakClient.getKeycloakServerURL())
+                    .realm(keycloakClient.getKeycloakRealm())
+                    .clientId(keycloakClient.getKeycloakClientID())
+                    .clientSecret(keycloakClient.getKeycloakClientSecret())
+                    .username(keycloakClient.getUserID())
+                    .password(keycloakClient.getPassword())
+                    .grantType(keycloakClient.getKeycloakGrantType().name())
                     .resteasyClient(resteasyClientBuilder(
-                            server.getServerURL(),
-                            server.isTlsAllowAnyHostname(),
-                            server.isTlsDisableTrustManager())
+                            keycloakClient.getKeycloakServerURL(),
+                            keycloakClient.isTLSAllowAnyHostname(),
+                            keycloakClient.isTLSDisableTrustManager())
                             .build())
                     .build());
         }
@@ -124,11 +125,11 @@ public class AccessTokenRequestor {
     }
 
     private static class CachedKeycloak {
-        final String keycloakServerID;
+        final String keycloakClientID;
         final Keycloak keycloak;
 
-        CachedKeycloak(String keycloakServerID, Keycloak keycloak) {
-            this.keycloakServerID = keycloakServerID;
+        CachedKeycloak(String keycloakClientID, Keycloak keycloak) {
+            this.keycloakClientID = keycloakClientID;
             this.keycloak = keycloak;
         }
     }

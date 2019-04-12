@@ -1314,8 +1314,6 @@
       "type": "array",
       "titleKey":"{dcmKeycloakServerID}",
       "use": [
-        "dcmRSForwardRule[*].dcmKeycloakServerID",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmRSForwardRule[*].dcmKeycloakServerID",
         "$.dcmDevice.dcmuiConfig[*].dcmuiDeviceClusterObject[*].dcmuiDeviceClusterKeycloakServer[*]",
         "$.dcmDevice.dcmuiConfig[*].dcmuiElasticsearchConfig[*].dcmuiElasticsearchURLObjects[*].dcmuiElasticsearchURLKeycloakServer[*]"
       ],

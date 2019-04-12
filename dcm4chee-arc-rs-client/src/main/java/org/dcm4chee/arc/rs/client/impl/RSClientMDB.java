@@ -85,7 +85,7 @@ public class RSClientMDB implements MessageListener {
             Outcome outcome = rsClient.request(
                     msg.getStringProperty("Method"),
                     msg.getStringProperty("URI"),
-                    msg.getStringProperty("KeycloakServerID"),
+                    msg.getStringProperty("KeycloakClientID"),
                     Boolean.valueOf(msg.getStringProperty("TLSAllowAnyHostname")),
                     Boolean.valueOf(msg.getStringProperty("TLSDisableTrustManager")),
                     content);

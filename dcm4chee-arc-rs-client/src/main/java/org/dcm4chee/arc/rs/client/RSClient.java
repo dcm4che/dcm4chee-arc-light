@@ -58,14 +58,14 @@ public interface RSClient {
             String method,
             String uri,
             byte[] content,
-            String keycloakServerID,
+            String keycloakClientID,
             boolean tlsAllowAnyHostName,
             boolean tlsDisableTrustManager) throws QueueSizeLimitExceededException;
 
     Outcome request(
             String method,
             String uri,
-            String keycloakServerID,
+            String keycloakClientID,
             boolean tlsAllowAnyHostname,
             boolean tlsDisableTrustManager,
             byte[] content) throws Exception;

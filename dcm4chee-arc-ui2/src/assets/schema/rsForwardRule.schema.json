@@ -4,7 +4,7 @@
   "type": "object",
   "required": [
     "cn",
-    "dcmURI"
+    "dcmWebAppName"
   ],
   "properties": {
     "cn": {
@@ -12,16 +12,11 @@
       "description": "Arbitrary/Meaningful name of the RESTful Forward Rule",
       "type": "string"
     },
-    "dcmURI": {
-      "title": "Target Base URL",
-      "description": "Target URL without operation specific part, eg. http://<host>:<port>/dcm4chee-arc/aets/<aet>/",
-      "type": "string"
-    },
-    "dcmKeycloakServerID": {
-      "title": "Keycloak Server ID",
-      "description": "Identifier of the Keycloak Server from which the access token shall be granted. If absent, no token will be sent.",
+    "dcmWebAppName": {
+      "title": "Web Application name",
+      "description": "Name of the Web Application",
       "type": "string",
-      "format": "dcmKeycloakServer"
+      "format": "dcmWebAppName"
     },
     "dcmTLSAllowAnyHostname": {
       "title": "TLS Allow Any Hostname",
