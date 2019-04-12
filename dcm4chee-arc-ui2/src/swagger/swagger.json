@@ -14304,7 +14304,7 @@
         }
       }
     },
-    "/aets/{aet}/expire/series": {
+    "/aets/{aet}/rs/expire/series": {
       "post": {
         "tags": [
           "IOCM-RS"

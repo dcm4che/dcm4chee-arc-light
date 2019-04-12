@@ -82,7 +82,7 @@ import java.util.Collections;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2018
  */
-@Path("aets/{AETitle}/expire")
+@Path("aets/{AETitle}/rs/expire")
 @RequestScoped
 public class ApplyRetentionPolicy {
 
