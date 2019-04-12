@@ -44,7 +44,8 @@
           "WADO_RS",
           "WADO_URI",
           "UPS_RS",
-          "DCM4CHEE_ARC"
+          "DCM4CHEE_ARC",
+          "DCM4CHEE_ARC_AET"
         ]
       }
     },
