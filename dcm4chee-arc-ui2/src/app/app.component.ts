@@ -60,6 +60,12 @@ export class AppComponent implements OnInit {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
         this.initGetDevicename(2);
+        this.setServerTime(()=>{
+            this.setLogutUrl();
+            this.initGetPDQServices();
+        });
+    }
+    setServerTime(recall?:Function){
         let currentBrowserTime = new Date().getTime();
         this.getServerTime()
             .subscribe(res=>{
@@ -70,8 +76,8 @@ export class AppComponent implements OnInit {
                     this.startClock(new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2));
                     // this.startClock(new Date(serverTimeObject.time));
                 }
-                this.setLogutUrl();
-                this.initGetPDQServices();
+                if(recall)
+                    recall.apply(this);
             });
     }
     setLogutUrl(){
@@ -93,6 +99,7 @@ export class AppComponent implements OnInit {
     startClock(serverTime){
         this.currentServerTime = new Date(serverTime);
         this.mainservice.serverTime = this.currentServerTime;
+        clearInterval(this.clockInterval);
         this.clockInterval = setInterval(() => {
             // this.currentClockTime = new Date(this.currentServerTime);
             // this.currentServerTime += 1000;

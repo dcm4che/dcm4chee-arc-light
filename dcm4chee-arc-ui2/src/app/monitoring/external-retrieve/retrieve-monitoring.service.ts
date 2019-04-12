@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 import {j4care} from "../../helpers/j4care.service";
 
 @Injectable()
-export class ExternalRetrieveService {
+export class RetrieveMonitoringService {
 
     header = new Headers({ 'Content-Type': 'application/json' });
     constructor(
@@ -98,7 +98,24 @@ export class ExternalRetrieveService {
             }
         ];
     }
-    getFilterSchema(localAET,destinationAET,remoteAET,devices, countText){
+    getFilterSchema(localAET,destinationAET,remoteAET,devices, countText, queueNames){
+        let destinationAet:any = {};
+        if(destinationAET){
+            destinationAet = {
+                tag:"select",
+                options:destinationAET,
+                showStar:true,
+                filterKey:"DestinationAET",
+                description:"Destination AE Title to filter by"
+            };
+        }else{
+            destinationAet = {
+                tag:"input",
+                type:"text",
+                filterKey:"DestinationAET",
+                description:"Destination AE Title to filter by"
+            }
+        }
     return [
         [
                 [
@@ -135,22 +152,20 @@ export class ExternalRetrieveService {
                         options:remoteAET,
                         showStar:true,
                         filterKey:"RemoteAET",
-                        description:"C-MOVE SCP AE Title to filter by"
+                        description:"C-MOVE SCP AE Title to filter by",
+                        placeholder:"RemoteAET"
                     }
                 ]
             ],[
                 [
                     {
-                        tag:"label",
-                        text:"DestinationAET"
+                        tag:"multi-select",
+                        options:queueNames,
+                        filterKey:"dcmQueueName",
+                        description:"Queue Name",
+                        placeholder:"Queue Name"
                     },
-                    {
-                        tag:"select",
-                        options:destinationAET,
-                        showStar:true,
-                        filterKey:"DestinationAET",
-                        description:"Destination AE Title to filter by"
-                    }
+                    destinationAet
                 ],
                 [
                     {
@@ -243,6 +258,10 @@ export class ExternalRetrieveService {
                 ]
             ]
     ];
+    }
+    getQueueNames(){
+        return this.$http.get('../queue')
+            .map(res => j4care.redirectOnAuthResponse(res));
     }
     getDevices(){
         return this.deviceService.getDevices()

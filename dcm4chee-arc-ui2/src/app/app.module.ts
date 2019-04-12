@@ -73,8 +73,6 @@ import {AeListService} from "./configuration/ae-list/ae-list.service";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {j4care} from "./helpers/j4care.service";
 import {J4careHttpService} from "./helpers/j4care-http.service";
-import { ExternalRetrieveComponent } from './monitoring/external-retrieve/external-retrieve.component';
-import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
@@ -103,6 +101,8 @@ import {StudyService} from "./study/study/study.service";
 import { DicomStudiesTableComponent } from './helpers/dicom-studies-table/dicom-studies-table.component';
 import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
 import {OptionService} from "./widgets/dropdown/option.service";
+import {RetrieveMonitoringComponent} from "./monitoring/external-retrieve/retrieve-monitoring.component";
+import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve-monitoring.service";
 
 @NgModule({
     declarations: [
@@ -145,7 +145,7 @@ import {OptionService} from "./widgets/dropdown/option.service";
         StorageSystemsComponent,
         MonitoringTabsComponent,
         Hl7ApplicationsComponent,
-        ExternalRetrieveComponent,
+        RetrieveMonitoringComponent,
         FilterGeneratorComponent,
         ClickOutsideDirective,
         PermissionDirective,
@@ -200,7 +200,7 @@ import {OptionService} from "./widgets/dropdown/option.service";
             { path: 'permission-denied', component: PermissionDeniedComponent},
             { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/external', component: ExternalRetrieveComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/external', component: RetrieveMonitoringComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/queues', component: QueuesComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
@@ -242,7 +242,7 @@ import {OptionService} from "./widgets/dropdown/option.service";
         AeListService,
         HttpErrorHandler,
         j4care,
-        ExternalRetrieveService,
+        RetrieveMonitoringService,
         DynamicFieldService,
         AuthGuard,
         PermissionService,

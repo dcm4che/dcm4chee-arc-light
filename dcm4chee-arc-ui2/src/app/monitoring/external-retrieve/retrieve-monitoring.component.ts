@@ -3,7 +3,6 @@ import {AppService} from "../../app.service";
 import * as _ from 'lodash';
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
-import {ExternalRetrieveService} from "./external-retrieve.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
@@ -21,12 +20,16 @@ import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {Validators} from "@angular/forms";
+import {AppComponent} from "../../app.component";
+import {DropdownList} from "../../helpers/form/dropdown-list";
+import {SelectDropdown} from "../../interfaces";
+import {RetrieveMonitoringService} from "./retrieve-monitoring.service";
 
 @Component({
-  selector: 'external-retrieve',
-  templateUrl: './external-retrieve.component.html'
+  selector: 'retrieve-monitoring',
+  templateUrl: './retrieve-monitoring.component.html'
 })
-export class ExternalRetrieveComponent implements OnInit,OnDestroy {
+export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     before;
     localAET;
     remoteAET;
@@ -69,13 +72,15 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     Object = Object;
     batchGrouped = false;
     urlParam;
+    queueNames;
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
+      private appComponent:AppComponent,
       private $http:J4careHttpService,
       private route: ActivatedRoute,
       public aeListService:AeListService,
-      public service:ExternalRetrieveService,
+      public service:RetrieveMonitoringService,
       public httpErrorHandler:HttpErrorHandler,
       public dialog: MatDialog,
       public config: MatDialogConfig,
@@ -108,7 +113,8 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     }
 
     init(){
-        let $this = this;
+        this.getQueueNames();
+        this.appComponent.setServerTime();
         this.service.statusValues().forEach(val =>{
             this.statusValues[val.value] = {
                 count: 0,
@@ -242,9 +248,10 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         return objs[0].offset + this.filterObject.limit*1;
     };
     initSchema(){
-        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
+        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`, this.queueNames);
         if(this.urlParam){
-            this.filterObject = this.urlParam;
+            // this.filterObject = this.urlParam;
+            _.extend(this.filterObject, this.urlParam);
             this.filterObject["limit"] = 20;
             // this.getTasks(0);
         }
@@ -377,7 +384,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                             this.service.cancelAll(this.filterObject).subscribe((res)=>{
                                 this.mainservice.setMessage({
                                     'title': 'Info',
-                                    'text': res.count + ' tasks deleted successfully!',
+                                    'text': res.count + ' tasks canceled successfully!',
                                     'status': 'info'
                                 });
                                 this.cfpLoadingBar.complete();
@@ -581,7 +588,6 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                             });
                     }
                 });
-                //TODO
                 setTimeout(()=>{
                     this.getTasks(this.externalRetrieveEntries[0].offset || 0);
                     this.cfpLoadingBar.complete();
@@ -591,6 +597,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     }
     onSubmit(object){
         if(_.hasIn(object,"id") && _.hasIn(object,"model")){
+            this.filterObject = object.model;
             if(object.id === "count"){
                 this.getCount();
             }else{
@@ -718,6 +725,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             }catch (e){
                 this.count = "";
             }
+            this.urlParam = {};
             this.initSchema();
             this.cfpLoadingBar.complete();
         },(err)=>{
@@ -751,6 +759,13 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             console.error("Could not get devices",err);
         });
     }*/
+    getQueueNames(){
+        this.service.getQueueNames().subscribe(names=>{
+            this.queueNames = names.filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1).map(name=> new SelectDropdown(name.name, name.description));
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        })
+    }
     ngOnDestroy(){
         if(this.timer.started){
             this.timer.started = false;
