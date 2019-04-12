@@ -1,20 +1,19 @@
 {
-  "title": "Keycloak Server",
-  "description": "Keycloak Server",
+  "title": "Keycloak Client",
+  "description": "Keycloak Client",
   "type": "object",
   "required": [
-    "dcmKeycloakServerID",
+    "dcmKeycloakClientID",
     "dcmURI",
     "dcmKeycloakRealm",
-    "dcmKeycloakClientID",
     "dcmKeycloakGrantType",
     "dcmTLSAllowAnyHostname",
     "dcmTLSDisableTrustManager"
   ],
   "properties": {
-    "dcmKeycloakServerID": {
-      "title": "Keycloak Server ID",
-      "description": "Identifier for this Keycloak Server.",
+    "dcmKeycloakClientID": {
+      "title": "Keycloak Client ID",
+      "description": "Client ID used in token requests.",
       "type": "string"
     },
     "dcmURI": {
@@ -27,14 +26,9 @@
       "description": "Name of the realm in token requests.",
       "type": "string"
     },
-    "dcmKeycloakClientID": {
-      "title": "OAuth 2.0 Client ID",
-      "description": "Client ID used in token requests.",
-      "type": "string"
-    },
     "dcmKeycloakGrantType": {
-      "title": "OAuth 2.0 grant type",
-      "description": "OAuth 2.0 grant type used in token requests.",
+      "title": "Keycloak grant type",
+      "description": "Keycloak grant type used in token requests.",
       "type": "string",
       "enum": [
         "client_credentials",
@@ -43,8 +37,8 @@
       "default": "client_credentials"
     },
     "dcmKeycloakClientSecret": {
-      "title": "OAuth Client secret",
-      "description": "OAuth client secret. Required if grant type = client_credentials.",
+      "title": "Keycloak Client secret",
+      "description": "Keycloak client secret. Required if grant type = client_credentials.",
       "type": "string"
     },
     "dcmTLSAllowAnyHostname": {
