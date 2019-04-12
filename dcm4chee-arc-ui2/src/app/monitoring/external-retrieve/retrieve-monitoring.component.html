@@ -73,6 +73,7 @@
         </th>
         <th width="3%"></th>
         <th>Batch ID</th>
+        <th>Queue Name</th>
         <th class="hideOn1200px">Remote AET</th>
         <th class="hideOn1100px">Destination AET</th>
         <th class="hideOn1100px">Scheduled Time Range</th>
@@ -112,6 +113,7 @@
           </div>
         </th>
         <th>Status</th>
+        <th>Queue Name</th>
         <th class="hideOn1000px">Study Instance UID</th>
         <th class="hideOn1200px">Remote AET</th>
         <th class="hideOn1100px">Destination AET</th>
@@ -138,6 +140,7 @@
             </a>
           </td>
           <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>
+          <td [innerHtml]="match.properties.dcmQueueName" title="{{match.properties.dcmQueueName}}"></td>
           <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
           <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
           <td [innerHtml]="match.properties.scheduledTimeRange" class="hideOn1100px"></td>
@@ -163,6 +166,7 @@
             </a>
           </td>
           <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
+          <td [innerHtml]="match.properties.queue" title="{{match.properties.queue}}"></td>
           <td [innerHtml]="match.properties.StudyInstanceUID" class="hideOn1000px"></td>
           <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
           <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>

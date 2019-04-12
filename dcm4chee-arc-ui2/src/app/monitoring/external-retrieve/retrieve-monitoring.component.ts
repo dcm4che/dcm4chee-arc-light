@@ -340,7 +340,16 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     description:"Destination AET",
                     placeholder:"Destination AET",
                     validation:Validators.required
-                },{
+                }
+                ,{
+                    tag:"select",
+                    options:this.queueNames,
+                    showStar:true,
+                    filterKey:"dcmQueueName",
+                    placeholder:"Queue Name",
+                    description:"Queue Name"
+                }
+                ,{
                     tag:"input",
                     type:"number",
                     filterKey:"priority",
@@ -359,6 +368,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 let clonedFilters = {};
                 if(filter['priority']) clonedFilters['priority'] = filter['priority'];
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
+                if(filter['dcmQueueName']) clonedFilters['dcmQueueName'] = filter['dcmQueueName'];
                 return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
