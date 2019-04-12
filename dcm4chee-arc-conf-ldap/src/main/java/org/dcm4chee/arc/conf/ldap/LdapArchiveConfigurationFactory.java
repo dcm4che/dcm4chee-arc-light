@@ -126,6 +126,12 @@ public class LdapArchiveConfigurationFactory {
 
     @Produces
     @ApplicationScoped
+    public IWebApplicationCache newWebApplicationCache(DicomConfiguration conf) {
+        return new WebApplicationCache(conf);
+    }
+
+    @Produces
+    @ApplicationScoped
     public IDeviceCache newDeviceCache(DicomConfiguration conf) {
         return new DeviceCache(conf);
     }
