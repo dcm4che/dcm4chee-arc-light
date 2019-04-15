@@ -1,0 +1,87 @@
+.dcm_dropdown{
+  float: left;
+  position: relative;
+  width: 100%;
+  .dropdown_input{
+    min-width: 100px;
+    border-bottom: 1px solid #cccccc;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 7px;
+    &:hover{
+      cursor: pointer;
+    }
+    span.glyphicon-triangle-bottom{
+      width: 10px;
+      font-size: 9px;
+    }
+    .input_part{
+      width:calc(100% - 10px);
+      display: inline-block;
+      float: left;
+      min-height: 25px;
+    }
+    .selected_value.empty_field{
+      font-style: italic;
+      color: #444;
+    }
+    .selected_value:hover, .selected_value *:hover{
+      cursor: pointer;
+    }
+  }
+  .select{
+    -webkit-box-shadow: 2px 2px 11px 0px #333;
+    -moz-box-shadow: 2px 2px 11px 0px #333;
+    box-shadow: 2px 2px 11px 0px #333;
+    position: fixed;
+    background: white;
+    z-index: 99999;
+    min-width: 200px;
+    max-height: 250px;
+    overflow: auto;
+    margin-bottom: 5px;
+    .option_block{
+      list-style:none;
+      padding-left: 0;
+      float: left;
+      width: 100%;
+      .option.active {
+        background: #cccccc;
+      }
+      .option {
+        width: 100%;
+        height: 30px;
+        input[type=checkbox]{
+          float: left;
+          width: 30px;
+        }
+        .input_value{
+          float: left;
+          width: 100%;
+          &.with_checkbox{
+            width:calc(100% - 30px);
+          }
+        }
+      }
+      .option:hover {
+        cursor: pointer;
+        background: rgba(28, 36, 43, 0.1);
+      }
+    }
+  }
+  .search_block{
+    width: 98%;
+    height: 30px;
+    float: left;
+    margin-left: 1%;
+    input[type=text]{
+      width: 80%;
+      float: left;
+    }
+    input[type=checkbox]{
+      width: 19%;
+      float: left;
+      margin-top: 9px;
+    }
+  }
+}

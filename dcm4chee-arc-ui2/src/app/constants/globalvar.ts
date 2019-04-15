@@ -973,13 +973,13 @@ export class Globalvar {
     static STUDY_FILTER_ENTRY_SCHEMA(devices,aetWebService):FilterSchema{
         return [
             {
-                tag:"select",
+                tag:"html-select",
                 options:devices,
                 filterKey:"device",
                 description:"Select Device",
                 placeholder:"Select Device"
             },{
-                tag:"select",
+                tag:"html-select",
                 options:aetWebService,
                 filterKey:"aetWebService",
                 description:"AET or Webservice",

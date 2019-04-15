@@ -1,0 +1,44 @@
+<div class="dcm_dropdown" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
+  <div class="dropdown_input" (click)="toggleDropdown()">
+    <div class="input_part">
+      <ng-container *ngIf="multiSelectMode">
+        <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue}}</div>
+        <div class="selected_value" *ngIf="multiSelectValue.length > maxSelectedValueShown">( {{multiSelectValue.length}} ) selected</div>
+        <div class="selected_value" *ngIf="multiSelectValue.length === 0">{{placeholder}}</div>
+      </ng-container>
+      <ng-container *ngIf="!multiSelectMode && (selectedValue && selectedDropdown)">
+        <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel)">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
+        <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
+      </ng-container>
+      <div *ngIf="!(selectedValue && selectedDropdown) && !multiSelectMode" class="selected_value empty_field">{{placeholder}}</div>
+    </div>
+    <span class="glyphicon glyphicon-triangle-bottom"></span>
+  </div>
+  <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
+    <div action="" class="search_block" *ngIf="showSearchField">
+      <input type="checkbox" *ngIf="multiSelectMode" [(ngModel)]="isAllCheck" (change)="allChecked($event)">
+      <input type="text" placeholder="Search" [(ngModel)]="search">
+    </div>
+      <ul *ngIf="!mixedMode" class="option_block">
+          <li *ngIf="showStar" class="option" (click)="select('')">&nbsp;</li>
+          <li class="option" (click)="select(option)" [ngClass]="{'active':option.selected}" title="{{option.title || ''}}" *ngFor="let option of options|search:search">
+              <input type="checkbox" *ngIf="option.value && option.value != '' && multiSelectMode" [(ngModel)]="option.selected">
+              <div class="input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="option.htmlLabel" [innerHTML]="option.htmlLabel"></div>
+              <div class="input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="!htmlLabel">
+                  {{option.value || option.label}}
+              </div>
+          </li>
+      </ul>
+
+<!--      <div [hidden]="!showElement" class="option" (click)="select($event)" #options [ngClass]="{'active':selected}" title="{{title || ''}}">
+          <div *ngIf="htmlLabel" [innerHTML]="htmlLabel"></div>
+          <input type="checkbox" *ngIf="value && value != '' && multiSelectMode" [(ngModel)]="selected">
+          <ng-content *ngIf="!htmlLabel">
+          </ng-content>
+      </div>-->
+
+<!--      <ul *ngIf="mixedMode">
+          <li *ngFor="let option of options"></li>
+      </ul>-->
+  </div>
+</div>

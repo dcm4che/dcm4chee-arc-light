@@ -6,7 +6,8 @@ import {
     EventEmitter,
     Input,
     Output,
-    QueryList
+    QueryList,
+    ChangeDetectionStrategy,
 } from '@angular/core';
 import {OptionService} from "./option.service";
 import {SelectDropdown} from "../../interfaces";
@@ -38,7 +39,8 @@ import {SearchPipe} from "../../pipes/search.pipe";
                 animate('0.2s cubic-bezier(.52,-0.01,.15,1)')
             ])
         ])
-    ]
+    ],
+    // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     selectedValue:string;
@@ -68,6 +70,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     search = '';
     isAllCheck:boolean = false;
     constructor(
+        // // private changeDetectorRef: ChangeDetectorRef
     ) {}
 
     toggleDropdown(){
@@ -78,6 +81,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
         this.children.forEach(result=>{
             setTimeout(()=>{
                 result.multiSelectMode = this.multiSelectMode;
+                // // this.changeDetectorRef.detectChanges();
             },100);
             result.selectEvent.subscribe(e=>{
                if(this.multiSelectMode){
@@ -92,15 +96,18 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
                        }
                    }
                    this.modelChange.emit(this.multiSelectValue);
+                    // this.changeDetectorRef.detectChanges();
                }else{
                    this.modelChange.emit(e.value);
                    this.showDropdown = false;
+                    // this.changeDetectorRef.detectChanges();
                }
                console.log("multiSelectValue",this.multiSelectValue);
             })
         });
         if(this.selectedValue){
             this.selectedDropdown = this.getSelectDropdownFromValue(this.selectedValue);
+        // this.changeDetectorRef.detectChanges();
         }
     }
     searchEvent(){
@@ -110,7 +117,8 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
             }else{
                 childe.showElement = false;
             }
-        })
+        });
+        // this.changeDetectorRef.detectChanges();
     }
     allChecked(e){
         console.log("e",e);
@@ -126,6 +134,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
                 this.multiSelectValue.push(element.value);
             }
         })
+        // this.changeDetectorRef.detectChanges();
     }
     getSelectDropdownFromValue(value):SelectDropdown{
         let endDropdown:any =  new SelectDropdown(value,'');
@@ -166,6 +175,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
                 });
             }
         }
+        // this.changeDetectorRef.detectChanges();
     }
 
     ngAfterViewChecked(): void {
