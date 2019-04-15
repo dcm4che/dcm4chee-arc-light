@@ -422,7 +422,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
-        <version>2.10.1</version>
+        <version>3.0.1</version>
         <configuration>
           <classifier>${classifier}</classifier>
           <version>7</version>
@@ -431,6 +431,8 @@
           <displayName>dcm4chee-arc</displayName>
           <earSourceDirectory>${earSourceDirectory}</earSourceDirectory>
           <workDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</workDirectory>
+          <outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+          <filtering>true</filtering>
           <modules>
             <webModule>
               <groupId>org.dcm4che.dcm4chee-arc</groupId>

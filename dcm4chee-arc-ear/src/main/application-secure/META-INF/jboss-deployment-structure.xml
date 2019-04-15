@@ -78,5 +78,13 @@
             <!-- emc-ecs modules -->
             <module name="com.emc.ecs" export="TRUE"/>
         </dependencies>
+        <exclusions>
+            <module name="org.jboss.resteasy.resteasy-json-binding-provider"/>
+        </exclusions>
     </deployment>
+    <sub-deployment name="dcm4chee-arc-war-${project.version}-${dcm4chee-arc-war-classifier}.war">
+        <exclusions>
+            <module name="org.jboss.resteasy.resteasy-json-binding-provider"/>
+        </exclusions>
+    </sub-deployment>
 </jboss-deployment-structure>
