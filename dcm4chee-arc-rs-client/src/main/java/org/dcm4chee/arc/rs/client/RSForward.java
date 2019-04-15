@@ -89,21 +89,23 @@ public class RSForward {
         arcAE.findRSForwardRules(rsOp, request).forEach(rule -> {
             try {
                 WebApplication webApplication = iWebAppCache.findWebApplication(rule.getWebAppName());
-                String serviceURL = webApplication.getServiceURL().toString();
-                String targetURI = serviceURL + (serviceURL.endsWith("rs/") ? "" : "/") + appendURI;
-                if (!targetURI.equals(request.getRequestURL().toString())) {
-                    if (rsOp == RSOperation.CreatePatient)
-                        targetURI += patientID;
-                    rsClient.scheduleRequest(
-                            getMethod(rsOp),
-                            targetURI,
-                            in,
-                            webApplication.getKeycloakClientID(),
-                            rule.isTlsAllowAnyHostname(),
-                            rule.isTlsDisableTrustManager());
-                    LOG.info("Forwarded {} {} from {}@{} using RSForward rule {} to device {}. Target URL is {}",
-                            request.getMethod(), request.getRequestURI(), request.getRemoteUser(),
-                            request.getRemoteHost(), rule, webApplication.getDevice().getDeviceName(), targetURI);
+                if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC_AET)) {
+                    String serviceURL = webApplication.getServiceURL().toString();
+                    String targetURI = serviceURL + (serviceURL.endsWith("rs/") ? "" : "/") + appendURI;
+                    if (!targetURI.equals(request.getRequestURL().toString())) {
+                        if (rsOp == RSOperation.CreatePatient)
+                            targetURI += patientID;
+                        rsClient.scheduleRequest(
+                                getMethod(rsOp),
+                                targetURI,
+                                in,
+                                webApplication.getKeycloakClientID(),
+                                rule.isTlsAllowAnyHostname(),
+                                rule.isTlsDisableTrustManager());
+                        LOG.info("Forwarded RSOperation {} {} {} from {}@{} using RSForward rule {} to device {}. Target URL is {}",
+                                rsOp, request.getMethod(), request.getRequestURI(), request.getRemoteUser(),
+                                request.getRemoteHost(), rule, webApplication.getDevice().getDeviceName(), targetURI);
+                    }
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply RSForwardRule {} to {} {} from {}@{} for RSOperation {} :\n",
