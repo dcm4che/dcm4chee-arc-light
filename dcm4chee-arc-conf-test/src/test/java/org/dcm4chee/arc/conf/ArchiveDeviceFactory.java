@@ -1350,49 +1350,56 @@ class ArchiveDeviceFactory {
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.STOW_RS,
-                WebApplication.ServiceClass.WADO_RS));
+                WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE-RS", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
-                WebApplication.ServiceClass.WADO_RS));
+                WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_EXPIRED-RS", IOCM_EXPIRED_DESC,
                 "/dcm4chee-arc/aets/IOCM_EXPIRED/rs", "IOCM_EXPIRED", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
-                WebApplication.ServiceClass.WADO_RS));
+                WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_EXPIRED-WADO", IOCM_EXPIRED_DESC,
                 "/dcm4chee-arc/aets/IOCM_EXPIRED/wado", "IOCM_EXPIRED", http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_QUALITY-RS", IOCM_QUALITY_DESC,
                 "/dcm4chee-arc/aets/IOCM_QUALITY/rs", "IOCM_QUALITY", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
-                WebApplication.ServiceClass.WADO_RS));
+                WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_QUALITY-WADO", IOCM_QUALITY_DESC,
                 "/dcm4chee-arc/aets/IOCM_QUALITY/wado", "IOCM_QUALITY", http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-RS", IOCM_PAT_SAFETY_DESC,
                 "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs", "IOCM_PAT_SAFETY", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
-                WebApplication.ServiceClass.WADO_RS));
+                WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-WADO", IOCM_PAT_SAFETY_DESC,
                 "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado", "IOCM_PAT_SAFETY", http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_WRONG_MWL-RS", IOCM_WRONG_MWL_DESC,
                 "/dcm4chee-arc/aets/IOCM_WRONG_MWL/rs", "IOCM_WRONG_MWL", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
-                WebApplication.ServiceClass.WADO_RS));
+                WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_WRONG_MWL-WADO", IOCM_WRONG_MWL_DESC,
                 "/dcm4chee-arc/aets/IOCM_WRONG_MWL/wado", "IOCM_WRONG_MWL", http, https,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("AS_RECEIVED-RS", AS_RECEIVED_DESC,
                 "/dcm4chee-arc/aets/AS_RECEIVED/rs", "AS_RECEIVED", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
-                WebApplication.ServiceClass.WADO_RS));
+                WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("AS_RECEIVED-WADO", AS_RECEIVED_DESC,
                 "/dcm4chee-arc/aets/AS_RECEIVED/wado", "AS_RECEIVED", http, https,
                 WebApplication.ServiceClass.WADO_URI));
