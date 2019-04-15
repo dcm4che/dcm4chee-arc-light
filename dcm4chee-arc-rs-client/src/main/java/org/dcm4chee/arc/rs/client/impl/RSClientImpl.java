@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.rs.client.impl;
 
 import org.dcm4che3.conf.api.IDeviceCache;
-import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -140,22 +139,12 @@ public class RSClientImpl implements RSClient {
         String targetURI = null;
         String requestURI = request.getRequestURI();
         Device device = iDeviceCache.findDevice(deviceName);
-        for (WebApplication webApplication : device.getWebApplications()) {
-            for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
-                if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
-                    for (Connection connection : webApplication.getConnections())
-                        if (connection.getProtocol() == Connection.Protocol.HTTP) {
-                            targetURI = connection.isTls() ? "https://" : "http://"
-                                    + connection.getHostname()
-                                    + ":"
-                                    + connection.getPort()
-                                    + webApplication.getServicePath()
-                                    + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1))
-                                    + "?" + request.getQueryString() + append;
-                        }
-                }
-            }
-        }
+        for (WebApplication webApplication : device.getWebApplications())
+            if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC))
+                targetURI = webApplication.getServiceURL().toString()
+                                + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1))
+                                + "?" + request.getQueryString() + append;
+
         return targetURI == null
                 ? Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Either Web Application with Service Class 'DCM4CHEE_ARC' not configured for device: "
