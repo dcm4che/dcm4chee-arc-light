@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -287,7 +287,7 @@ public class ConfigurationRS {
         try {
             ConfigurationChanges diffs = conf.persist(device, options());
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
-        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
+        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(e));
@@ -304,7 +304,7 @@ public class ConfigurationRS {
             ConfigurationChanges diffs = conf.merge(device, options());
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
-        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
+        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(e));

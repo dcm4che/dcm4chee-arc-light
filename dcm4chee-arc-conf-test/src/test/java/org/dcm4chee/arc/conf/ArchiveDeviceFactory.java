@@ -1971,7 +1971,7 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
-            if (configType == configType.SAMPLE)
+            if (configType == ConfigType.SAMPLE)
                 aeExt.setMetadataStorageIDs(METADATA_STORAGE_ID);
             aeExt.setObjectStorageIDs(STORAGE_ID);
         }
