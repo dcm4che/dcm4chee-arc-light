@@ -529,6 +529,56 @@
         }
       }
     },
+    "/token/{webAppName}": {
+      "get": {
+        "tags": [
+          "AUTH-RS"
+        ],
+        "summary": "Get Access token from Keycloak for given Web Application",
+        "operationId": "getAccessToken",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "webAppName",
+            "in": "path",
+            "description": "Identifies Web Application access parameters in Device configuration",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "title": "token",
+                  "description": "OAuth Bearer Token",
+                  "type": "string"
+                },
+                "expiration": {
+                  "title": "expiration",
+                  "description": "Access token lifetime in seconds",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Keycloak Client ID configured for Web Application"
+          },
+          "404": {
+            "description": "No such Web Application or Keycloak Client for given Web Application identifier in Device configuration"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/devices/{deviceName}/vendordata": {
       "get": {
         "tags": [
