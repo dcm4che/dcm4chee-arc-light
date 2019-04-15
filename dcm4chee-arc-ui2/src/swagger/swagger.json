@@ -866,6 +866,62 @@
         }
       }
     },
+    "/unique/webApps/{webAppName}": {
+      "post": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Register Web Application Name",
+        "operationId": "registerWebApp",
+        "parameters": [
+          {
+            "name": "webAppName",
+            "in": "path",
+            "description": "Web Application Name to register",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "Web Application Name already registered"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Unregister Web Application Name",
+        "operationId": "unregisterWebApp",
+        "parameters": [
+          {
+            "name": "webAppName",
+            "in": "path",
+            "description": "Web Application Name to unregister",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Web Application Name not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/unique/hl7apps": {
       "get": {
         "tags": [

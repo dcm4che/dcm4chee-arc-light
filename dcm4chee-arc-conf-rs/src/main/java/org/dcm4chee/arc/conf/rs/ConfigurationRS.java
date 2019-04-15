@@ -371,6 +371,35 @@ public class ConfigurationRS {
         }
     }
 
+    @POST
+    @Path("/unique/webApps/{webAppName}")
+    @Consumes("application/json")
+    public void registerWebApp(@PathParam("webAppName") String webAppName) {
+        logRequest();
+        try {
+            if (!conf.registerWebAppName(webAppName))
+                throw new WebApplicationException(errResponse(
+                        "Web Application " + webAppName + " already registered.", Response.Status.CONFLICT));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    @DELETE
+    @Path("/unique/webApps/{webAppName}")
+    public void unregisterWebApp(@PathParam("webAppName") String webAppName) {
+        logRequest();
+        try {
+            List<String> webApps = Arrays.asList(conf.listRegisteredWebAppNames());
+            if (!webApps.contains(webAppName))
+                throw new WebApplicationException(errResponse(
+                        "Web Application " + webAppName + " not registered.", Response.Status.NOT_FOUND));
+            conf.unregisterWebAppName(webAppName);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
     @DELETE
     @Path("/devices/{DeviceName}")
     public void deleteDevice(@PathParam("DeviceName") String deviceName) {
