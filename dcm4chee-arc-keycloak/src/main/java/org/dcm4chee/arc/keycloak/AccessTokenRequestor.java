@@ -43,6 +43,8 @@ package org.dcm4chee.arc.keycloak;
 
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.KeycloakServer;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
@@ -65,13 +67,15 @@ public class AccessTokenRequestor {
 
     private CachedKeycloak cachedKeycloak;
 
+    private CachedKeycloak cachedKeycloakClient;
+
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
         if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
             cachedKeycloak = null;
     }
 
     public String getAccessTokenString(String keycloakClientID) throws Exception {
-        return getAccessTokenString(toCachedKeycloak(keycloakClientID));
+        return getAccessTokenString(toCachedKeycloakClient(keycloakClientID));
     }
 
     private String getAccessTokenString(CachedKeycloak tmp) {
@@ -85,29 +89,59 @@ public class AccessTokenRequestor {
                 tmp.keycloak.tokenManager().getAccessToken().getExpiresIn());
     }
 
-    private CachedKeycloak toCachedKeycloak(String keycloakClientID) throws Exception {
+    private CachedKeycloak toCachedKeycloak(String keycloakServerID) throws Exception {
         CachedKeycloak tmp = cachedKeycloak;
-        if (tmp == null || !tmp.keycloakClientID.equals(keycloakClientID)) {
+        if (tmp == null || !tmp.keycloakID.equals(keycloakServerID)) {
+            KeycloakServer keycloakServer = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getKeycloakServerNotNull(keycloakServerID);
+            cachedKeycloak = tmp = cachedKeycloak(keycloakServerID,
+                    keycloakServer.getServerURL(),
+                    keycloakServer.getRealm(),
+                    keycloakServer.getClientID(),
+                    keycloakServer.getClientSecret(),
+                    keycloakServer.getUserID(),
+                    keycloakServer.getPassword(),
+                    keycloakServer.getGrantType().name(),
+                    keycloakServer.isTlsAllowAnyHostname(),
+                    keycloakServer.isTlsDisableTrustManager());
+        }
+        return tmp;
+    }
+
+    private CachedKeycloak toCachedKeycloakClient(String keycloakClientID) throws Exception {
+        CachedKeycloak tmp = cachedKeycloakClient;
+        if (tmp == null || !tmp.keycloakID.equals(keycloakClientID)) {
             KeycloakClient keycloakClient = device.getKeycloakClient(keycloakClientID);
             if (keycloakClient == null)
                 throw new IllegalArgumentException("No Keycloak Client configured with ID:" + keycloakClientID);
 
-            cachedKeycloak = tmp = new CachedKeycloak(keycloakClientID, KeycloakBuilder.builder()
-                    .serverUrl(keycloakClient.getKeycloakServerURL())
-                    .realm(keycloakClient.getKeycloakRealm())
-                    .clientId(keycloakClient.getKeycloakClientID())
-                    .clientSecret(keycloakClient.getKeycloakClientSecret())
-                    .username(keycloakClient.getUserID())
-                    .password(keycloakClient.getPassword())
-                    .grantType(keycloakClient.getKeycloakGrantType().name())
-                    .resteasyClient(resteasyClientBuilder(
-                            keycloakClient.getKeycloakServerURL(),
-                            keycloakClient.isTLSAllowAnyHostname(),
-                            keycloakClient.isTLSDisableTrustManager())
-                            .build())
-                    .build());
+            cachedKeycloakClient = tmp = cachedKeycloak(keycloakClientID,
+                    keycloakClient.getKeycloakServerURL(),
+                    keycloakClient.getKeycloakRealm(),
+                    keycloakClient.getKeycloakClientID(),
+                    keycloakClient.getKeycloakClientSecret(),
+                    keycloakClient.getUserID(),
+                    keycloakClient.getPassword(),
+                    keycloakClient.getKeycloakGrantType().name(),
+                    keycloakClient.isTLSAllowAnyHostname(),
+                    keycloakClient.isTLSDisableTrustManager());
         }
         return tmp;
+    }
+
+    private CachedKeycloak cachedKeycloak(String keycloakID, String serverURL, String realm, String clientID,
+                                          String clientSecret, String userID, String password, String grantType,
+                                          boolean tlsAllowAnyHost, boolean tlsDisableTrustMgr) throws Exception {
+        return new CachedKeycloak(keycloakID, KeycloakBuilder.builder()
+                .serverUrl(serverURL)
+                .realm(realm)
+                .clientId(clientID)
+                .clientSecret(clientSecret)
+                .username(userID)
+                .password(password)
+                .grantType(grantType)
+                .resteasyClient(resteasyClientBuilder(serverURL, tlsAllowAnyHost, tlsDisableTrustMgr).build())
+                .build());
     }
 
     public ResteasyClientBuilder resteasyClientBuilder(
@@ -125,11 +159,11 @@ public class AccessTokenRequestor {
     }
 
     private static class CachedKeycloak {
-        final String keycloakClientID;
+        final String keycloakID;
         final Keycloak keycloak;
 
-        CachedKeycloak(String keycloakClientID, Keycloak keycloak) {
-            this.keycloakClientID = keycloakClientID;
+        CachedKeycloak(String keycloakID, Keycloak keycloak) {
+            this.keycloakID = keycloakID;
             this.keycloak = keycloak;
         }
     }
