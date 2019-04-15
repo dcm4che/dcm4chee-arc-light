@@ -210,6 +210,9 @@ public class QueueManagerRS {
     @Path("{msgId}/reschedule")
     public Response rescheduleMessage(@PathParam("msgId") String msgId) {
         logRequest();
+        if (newDeviceName != null)
+            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByMsgId(msgId);
@@ -233,6 +236,9 @@ public class QueueManagerRS {
     @Path("/reschedule")
     public Response rescheduleMessages() {
         logRequest();
+        if (newDeviceName != null)
+            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");

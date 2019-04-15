@@ -227,6 +227,9 @@ public class StgVerTaskRS {
     @Path("{taskPK}/reschedule")
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
+        if (newDeviceName != null)
+            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : stgCmtMgr.findDeviceNameByPk(pk);
@@ -250,6 +253,9 @@ public class StgVerTaskRS {
     @Path("/reschedule")
     public Response rescheduleStgVerTasks() {
         logRequest();
+        if (newDeviceName != null)
+            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
