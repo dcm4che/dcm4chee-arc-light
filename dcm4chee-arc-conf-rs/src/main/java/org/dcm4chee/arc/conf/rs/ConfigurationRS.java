@@ -255,6 +255,19 @@ public class ConfigurationRS {
         }
     }
 
+    @GET
+    @NoCache
+    @Path("/unique/webAppNames")
+    @Produces("application/json")
+    public StreamingOutput listRegisteredWebAppNames() {
+        logRequest();
+        try {
+            return writeJsonArray(conf.listRegisteredWebAppNames());
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
     private StreamingOutput writeJsonArray(String[] values) {
         return out -> {
                 JsonGenerator gen = Json.createGenerator(out);

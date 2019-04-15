@@ -945,6 +945,29 @@
         }
       }
     },
+    "/unique/webAppNames": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Registered Web Application Names",
+        "operationId": "listRegisteredWebAppNames",
+        "responses": {
+          "200": {
+            "description": "Registered Web Application Names",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/unique/hl7apps/{appName}": {
       "post": {
         "tags": [
