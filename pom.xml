@@ -62,7 +62,7 @@
     <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     <maven-ear-plugin.version>3.0.1</maven-ear-plugin.version>
     <download-maven-plugin.version>1.4.0</download-maven-plugin.version>
-    <jaxws-tools-maven-plugin.version>1.2.2.Final</jaxws-tools-maven-plugin.version>
+    <jaxws-tools-maven-plugin.version>1.2.1.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
