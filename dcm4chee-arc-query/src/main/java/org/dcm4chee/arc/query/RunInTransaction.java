@@ -41,13 +41,13 @@
 
 package org.dcm4chee.arc.query;
 
-import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Apr 2019
  */
-@Stateful
+@Stateless
 public class RunInTransaction {
     public void execute(Runnable command) {
         command.run();
