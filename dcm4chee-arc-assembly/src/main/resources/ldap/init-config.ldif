@@ -15,3 +15,7 @@ cn: Unique AE Titles Registry
 dn: cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: hl7UniqueApplicationNamesRegistryRoot
 cn: Unique HL7 Application Names Registry
+
+dn: cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppNamesRegistryRoot
+cn: Unique Web Application Names Registry

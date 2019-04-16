@@ -13413,3 +13413,63 @@ dn: hl7ApplicationName=HL7RCV|DCM4CHEE,cn=Unique HL7 Application Names Registry,
 objectClass: hl7UniqueApplicationName
 hl7ApplicationName: HL7RCV|DCM4CHEE
 
+dn: dcmWebAppName=DCM4CHEE-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: DCM4CHEE-RS
+
+dn: dcmWebAppName=dcm4chee-arc,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: dcm4chee-arc
+
+dn: dcmWebAppName=DCM4CHEE-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: DCM4CHEE-WADO
+
+dn: dcmWebAppName=AS_RECEIVED-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: AS_RECEIVED-RS
+
+dn: dcmWebAppName=IOCM_EXPIRED-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_EXPIRED-RS
+
+dn: dcmWebAppName=IOCM_QUALITY-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_QUALITY-RS
+
+dn: dcmWebAppName=AS_RECEIVED-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: AS_RECEIVED-WADO
+
+dn: dcmWebAppName=IOCM_EXPIRED-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_EXPIRED-WADO
+
+dn: dcmWebAppName=IOCM_QUALITY-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_QUALITY-WADO
+
+dn: dcmWebAppName=IOCM_WRONG_MWL-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_WRONG_MWL-RS
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_PAT_SAFETY-RS
+
+dn: dcmWebAppName=IOCM_REGULAR_USE-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_REGULAR_USE-RS
+
+dn: dcmWebAppName=IOCM_WRONG_MWL-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_WRONG_MWL-WADO
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_PAT_SAFETY-WADO
+
+dn: dcmWebAppName=IOCM_REGULAR_USE-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: IOCM_REGULAR_USE-WADO
+
