@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,36 +41,15 @@
 
 package org.dcm4chee.arc.query;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.service.DicomServiceException;
-
-import java.io.Closeable;
-import java.util.stream.Stream;
+import javax.ejb.Stateful;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2015
+ * @since Apr 2019
  */
-public interface Query extends Closeable {
-    boolean isOptionalKeysNotSupported();
-
-    void close();
-
-    void executeQuery(int fetchSize);
-
-    void executeQuery(int fetchSize, int offset, int limit);
-
-    long fetchCount();
-
-    Stream<Long> withUnknownSize(int fetchSize);
-
-    long fetchSize();
-
-    boolean hasMoreMatches() throws DicomServiceException;
-
-    Attributes nextMatch();
-
-    Attributes adjust(Attributes match);
-
-    QueryContext getQueryContext();
+@Stateful
+public class RunInTransaction {
+    public void execute(Runnable command) {
+        command.run();
+    }
 }

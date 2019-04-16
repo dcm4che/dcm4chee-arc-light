@@ -172,7 +172,6 @@ public class DiffPatientDemographicsRS {
                     && query.fetchCount() > queryMaxNumberOfResults1)
                 return responseAsTextPlain(Response.Status.BAD_REQUEST, "Request entity too large");
 
-            query.beginTransaction();
             query.executeQuery(arcdev.getQueryFetchSize());
             try {
                 return (query.hasMoreMatches()

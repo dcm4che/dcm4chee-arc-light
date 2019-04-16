@@ -51,10 +51,12 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.QueryTask;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.OrderByTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
 import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
@@ -71,6 +73,9 @@ class CommonCFindSCP extends BasicCFindSCP {
 
     @Inject
     private QueryService queryService;
+
+    @EJB
+    private RunInTransaction runInTx;
 
     protected CommonCFindSCP(String sopClass, EnumSet<QueryRetrieveLevel2> qrLevels) {
         super(sopClass);
@@ -95,7 +100,7 @@ class CommonCFindSCP extends BasicCFindSCP {
             ctx.setOrderByTags(sortingOperationSeq.stream().map(OrderByTag::valueOf).collect(Collectors.toList()));
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        return new ArchiveQueryTask(as, pc, rq, keys, ctx);
+        return new ArchiveQueryTask(as, pc, rq, keys, ctx, runInTx);
     }
 
     private Attributes createReturnKeys(Attributes keys) {

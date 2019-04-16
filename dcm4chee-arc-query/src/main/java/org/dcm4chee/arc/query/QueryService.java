@@ -87,10 +87,6 @@ public interface QueryService {
 
     Query createMWLQuery(QueryContext ctx);
 
-    void beginTransaction();
-
-    void endTransaction();
-
     Attributes getSeriesAttributes(QueryContext context, Long seriesPk);
 
     void addLocationAttributes(Attributes attrs, Long instancePk);

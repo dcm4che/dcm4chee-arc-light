@@ -251,7 +251,6 @@ public class StgVerMatchingRS {
             int count = 0;
             Response.Status status = Response.Status.ACCEPTED;
             try (Query query = queryService.createQuery(ctx)) {
-                query.beginTransaction();
                 try {
                     query.executeQuery(arcDev.getQueryFetchSize());
                     while (query.hasMoreMatches()) {

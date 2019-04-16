@@ -47,9 +47,11 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -68,13 +70,15 @@ public class MWLCFindSCP extends BasicCFindSCP {
     @Inject
     private QueryService queryService;
 
+    @EJB
+    private RunInTransaction runInTx;
+
     public MWLCFindSCP() {
         super(UID.ModalityWorklistInformationModelFIND);
     }
 
     @Override
-    protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
-            throws DicomServiceException {
+    protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys) {
         LOG.info("{}: Process MWL C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
@@ -84,7 +88,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        return new MWLQueryTask(as, pc, rq, keys, queryService.createMWLQuery(ctx));
+        return new MWLQueryTask(as, pc, rq, keys, queryService.createMWLQuery(ctx), runInTx);
     }
 
     private Attributes createReturnKeys(Attributes keys) {

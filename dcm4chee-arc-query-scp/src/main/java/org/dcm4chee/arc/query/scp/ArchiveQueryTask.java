@@ -55,6 +55,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.SpanningCFindSCPPolicy;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveQueryTask.class);
 
     private final QueryContext ctx;
+    private final RunInTransaction runInTx;
     private final AttributesCoercion coercion;
     private final int uniqueKey;
     private final VR vrOfUniqueKey;
@@ -87,9 +89,11 @@ public class ArchiveQueryTask extends BasicQueryTask {
     private Set<String> uniqueKeys = new HashSet<>();
     private int removeUniqueKeyFromSpanningMatch;
 
-    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, QueryContext ctx) {
+    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, QueryContext ctx,
+            RunInTransaction runInTx) {
         super(as, pc, rq, keys);
         this.ctx = ctx;
+        this.runInTx = runInTx;
         this.coercion = ctx.getQueryService().getAttributesCoercion(ctx);
         uniqueKey = ctx.getQueryRetrieveLevel().uniqueKey();
         vrOfUniqueKey = ctx.getQueryRetrieveLevel().vrOfUniqueKey();
@@ -99,6 +103,11 @@ public class ArchiveQueryTask extends BasicQueryTask {
         spanningPolicy = arcAE.spanningCFindSCPPolicy();
         queryMaxNumberOfResults = arcAE.queryMaxNumberOfResults();
         queryFetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
+    }
+
+    @Override
+    public void run() {
+        runInTx.execute(super::run);
     }
 
     @Override
@@ -157,7 +166,6 @@ public class ArchiveQueryTask extends BasicQueryTask {
                 && query.fetchCount() > queryMaxNumberOfResults) {
             throw new DicomServiceException(Status.UnableToProcess, "Request entity too large");
         }
-        query.beginTransaction();
         query.executeQuery(queryFetchSize);
     }
 

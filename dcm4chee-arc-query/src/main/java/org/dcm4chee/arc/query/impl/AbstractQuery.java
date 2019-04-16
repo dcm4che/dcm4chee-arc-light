@@ -86,11 +86,6 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public void beginTransaction() {
-        context.getQueryService().beginTransaction();
-    }
-
-    @Override
     public void executeQuery(int fetchSize) {
         executeQuery(fetchSize, 0, -1);
     }
@@ -165,7 +160,6 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public void close() {
-        context.getQueryService().endTransaction();
         close(resultStream);
         context.close();
     }

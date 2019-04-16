@@ -350,7 +350,6 @@ public class QidoRS {
         }
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         try (Query query = service.createStudyQuery(ctx)) {
-            query.beginTransaction();
             try (Stream<Long> studyPkStream = query.withUnknownSize(arcdev.getQueryFetchSize())) {
                 Iterator<Long> studyPks = studyPkStream.iterator();
                 while (studyPks.hasNext())
@@ -416,7 +415,6 @@ public class QidoRS {
 
                     remaining = numResults - maxResults;
                 }
-                query.beginTransaction();
                 query.executeQuery(arcdev.getQueryFetchSize(), offsetInt, remaining > 0 ? maxResults : limitInt);
                 if (!query.hasMoreMatches())
                     return Response.noContent().build();

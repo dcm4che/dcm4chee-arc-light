@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,21 +66,26 @@ public class MWLQueryTask extends BasicQueryTask {
     private static final Logger LOG = LoggerFactory.getLogger(MWLQueryTask.class);
 
     private final Query query;
+    private final RunInTransaction runInTx;
 
-    public MWLQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query)
-            throws DicomServiceException {
+    public MWLQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query,
+            RunInTransaction runInTx) {
         super(as, pc, rq, keys);
         this.query = query;
+        this.runInTx = runInTx;
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
     }
 
     @Override
     public void run() {
+        runInTx.execute(this::run0);
+    }
+
+    private void run0() {
         try {
             QueryContext ctx = query.getQueryContext();
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
-            query.beginTransaction();
             query.executeQuery(arcdev.getQueryFetchSize());
             super.run();
         } catch (Exception e) {

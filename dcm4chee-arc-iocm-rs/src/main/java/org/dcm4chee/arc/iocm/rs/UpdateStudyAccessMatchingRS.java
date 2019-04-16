@@ -175,7 +175,6 @@ public class UpdateStudyAccessMatchingRS {
             QueryContext qCtx = queryContext(ae);
             int count = 0;
             try (Query query = queryService.createQuery(qCtx)) {
-                query.beginTransaction();
                 query.executeQuery(arcDev.getQueryFetchSize());
                 while (query.hasMoreMatches()) {
                     Attributes match = query.nextMatch();

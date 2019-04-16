@@ -251,7 +251,6 @@ public class RejectMatchingRS {
             Response.Status status = Response.Status.ACCEPTED;
             HttpServletRequestInfo httpRequestInfo = HttpServletRequestInfo.valueOf(request);
             try (Query query = queryService.createQuery(ctx)) {
-                query.beginTransaction();
                 try {
                     query.executeQuery(arcDev().getQueryFetchSize());
                     while (query.hasMoreMatches()) {

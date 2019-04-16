@@ -137,7 +137,6 @@ public class ApplyRetentionPolicy {
             int count = 0;
             QueryContext ctx = queryContext(ae);
             try (Query query = queryService.createQuery(ctx)) {
-                query.beginTransaction();
                 try {
                     query.executeQuery(queryFetchSize);
                     String prevStudyInstanceUID = null;
