@@ -136,7 +136,7 @@ public class StorageExporter extends AbstractExporter {
                         if (location != null)
                             try {
                                 storage.revokeStorage(writeCtx);
-                            } catch (IOException e2) {
+                            } catch (Exception e2) {
                                 LOG.warn("Failed to revoke storage", e2);
                             }
                     }

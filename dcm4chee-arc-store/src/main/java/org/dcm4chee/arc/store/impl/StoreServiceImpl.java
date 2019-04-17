@@ -441,7 +441,7 @@ class StoreServiceImpl implements StoreService {
                 Storage storage = writeCtx.getStorage();
                 try {
                     storage.revokeStorage(writeCtx);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     LOG.warn("Failed to revoke storage", e);
                 }
             }
