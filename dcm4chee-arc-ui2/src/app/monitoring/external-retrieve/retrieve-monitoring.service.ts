@@ -260,8 +260,7 @@ export class RetrieveMonitoringService {
     ];
     }
     getQueueNames(){
-        return this.$http.get('../queue')
-            .map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get('../queue').map(res => j4care.redirectOnAuthResponse(res));
     }
     getDevices(){
         return this.deviceService.getDevices()

@@ -116,6 +116,7 @@ export class DcmDropDownComponent implements OnInit {
         // this.changeDetectorRef.detectChanges();
     }
     select(element){
+        this.showDropdown = false;
         if(this.multiSelectMode){
             let index = this.multiSelectValue.indexOf(element.value);
             if(index> -1){
@@ -135,7 +136,6 @@ export class DcmDropDownComponent implements OnInit {
                 this.selectedDropdown = element;
                 this.selectedValue = element.value;
             }
-            this.toggleDropdown();
         }
     }
     toggleDropdown(){

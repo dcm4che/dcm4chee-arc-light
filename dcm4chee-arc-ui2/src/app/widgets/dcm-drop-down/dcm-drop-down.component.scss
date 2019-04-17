@@ -58,10 +58,15 @@
         .input_value{
           float: left;
           width: 100%;
+          height: 30px;
+          line-height: 30px;
           &.with_checkbox{
             width:calc(100% - 30px);
           }
         }
+      }
+      li.option{
+        padding-left:15px;
       }
       .option:hover {
         cursor: pointer;

@@ -18,7 +18,7 @@
           <j4care-option *ngFor="let el of studyDevice.devices" [value]="el.value" [title]="'Test title'">{{el.text}}</j4care-option>
         </j4care-select>
       </div>-->
-      <!--<dcm-drop-down *ngIf="studyDevice && studyDevice.devices" [(model)]="studyDevice.selectedDevice" [placeholder]="'Select Device'" [options]="studyDevice.devices" [showSearchField]="true" [multiSelectMode]="true" [showStar]="true"></dcm-drop-down>-->
+      <!--<dcm-drop-down *ngIf="studyDevice && studyDevice.devices" [(model)]="studyDevice.selectedDevice" [placeholder]="'Select Device'" [options]="studyDevice.devices" [showSearchField]="true" [multiSelectMode]="false" [showStar]="true"></dcm-drop-down>-->
 <!--      <div class="filter_line">
         <div class="filter_block">
           <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
