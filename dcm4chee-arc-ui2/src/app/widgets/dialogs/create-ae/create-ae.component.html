@@ -59,6 +59,22 @@
                                     <span class="description">Should be the same as the value of Institutional Department Name (0008,1040) in SOP Instances created by this device</span>
                                 </div>
                             </div>
+                            <div class="dynamicform">
+                                <div class="title">
+                                    <label>Primary Device Type</label>
+                                </div>
+                                <div class="form_content arrayelement">
+                                    <div class="inputblock array_parent">
+                                        <div class="array_single" *ngFor="let el of newAetModel.dicomPrimaryDeviceType;let i = index;trackBy:trackByFn">
+                                            <input type="text" [(ngModel)]="newAetModel.dicomPrimaryDeviceType[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomPrimaryDeviceType,i)"><i class="material-icons">clear</i></span>
+                                        </div>
+                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomPrimaryDeviceType')"><i class="material-icons">add</i> <span>Add</span></div>
+                                    </div>
+                                </div>
+                                <div class="description_parent">
+                                    <span class="description">Represents the kind of device and is most applicable for acquisition modalities</span>
+                                </div>
+                            </div>
                             <div class="inputblock">
                                 <label class="title">Installed</label>
                                 <div class="radio">

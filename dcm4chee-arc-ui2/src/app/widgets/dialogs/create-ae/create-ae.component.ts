@@ -63,8 +63,6 @@ export class CreateAeComponent implements OnInit{
     }
     ngOnInit(){
         this.cfpLoadingBar.complete();
-        console.log("globalr",this.mainservice.global.uiConfig.dcmuiWidgetAets);
-        console.log("globalr",this.mainservice.global);
         if(_.hasIn(this.mainservice.global,"uiConfig.dcmuiWidgetAets")){
             this.configuredAetList = (<string[]>_.get(this.mainservice.global,"uiConfig.dcmuiWidgetAets")).map(ae=>{
                 this.selectedForAcceptedCallingAET.push(ae);
