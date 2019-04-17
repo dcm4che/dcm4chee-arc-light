@@ -78,10 +78,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -370,6 +367,23 @@ public class ExportManagerEJB implements ExportManager {
         return query.getResultStream().map(listExportBatches::toExportBatch).collect(Collectors.toList());
     }
 
+    private Subquery<Long> statusSubquery(TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam,
+                                          From<ExportTask, QueueMessage> queueMsg, QueueMessage.Status status) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<QueueMessage> query = cb.createQuery(QueueMessage.class);
+        Subquery<Long> sq = query.subquery(Long.class);
+        Root<ExportTask> exportTask = sq.from(ExportTask.class);
+        Join<ExportTask, QueueMessage> queueMsg1 = sq.correlate(exportTask.join(ExportTask_.queueMessage));
+        MatchTask matchTask = new MatchTask(cb);
+        List<Predicate> predicates = matchTask.exportBatchPredicates(
+                queueMsg1, exportTask, queueBatchQueryParam, exportBatchQueryParam);
+        predicates.add(cb.equal(queueMsg1.get(QueueMessage_.batchID), queueMsg.get(QueueMessage_.batchID)));
+        predicates.add(cb.equal(queueMsg1.get(QueueMessage_.status), status));
+        sq.where(predicates.toArray(new Predicate[0]));
+        sq.select(cb.count(exportTask));
+        return sq;
+    }
+
     private class ListExportBatches {
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<Tuple> query = cb.createTupleQuery();
@@ -386,13 +400,40 @@ public class ExportManagerEJB implements ExportManager {
         final Expression<Date> minUpdatedTime = cb.least(exportTask.get(ExportTask_.updatedTime));
         final Expression<Date> maxUpdatedTime = cb.greatest(exportTask.get(ExportTask_.updatedTime));
         final Path<String> batchid = queueMsg.get(QueueMessage_.batchID);
+        Expression<Long> completed;
+        Expression<Long> failed;
+        Expression<Long> warning;
+        Expression<Long> canceled;
+        Expression<Long> scheduled;
+        Expression<Long> inprocess;
+        final TaskQueryParam queueBatchQueryParam;
+        final TaskQueryParam exportBatchQueryParam;
 
         ListExportBatches(TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam) {
+            this.queueBatchQueryParam = queueBatchQueryParam;
+            this.exportBatchQueryParam = exportBatchQueryParam;
+            initialize();
+        }
+
+        private void initialize() {
             query.multiselect(minProcessingStartTime, maxProcessingStartTime,
                     minProcessingEndTime, maxProcessingEndTime,
                     minScheduledTime, maxScheduledTime,
                     minCreatedTime, maxCreatedTime,
-                    minUpdatedTime, maxUpdatedTime, batchid);
+                    minUpdatedTime, maxUpdatedTime,
+                    completed = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
+                            queueMsg, QueueMessage.Status.COMPLETED).getSelection(),
+                    failed = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
+                            queueMsg, QueueMessage.Status.FAILED).getSelection(),
+                    warning = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
+                            queueMsg, QueueMessage.Status.WARNING).getSelection(),
+                    canceled = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
+                            queueMsg, QueueMessage.Status.CANCELED).getSelection(),
+                    scheduled = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
+                            queueMsg, QueueMessage.Status.SCHEDULED).getSelection(),
+                    inprocess = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
+                            queueMsg, QueueMessage.Status.IN_PROCESS).getSelection(),
+                    batchid);
             query.groupBy(queueMsg.get(QueueMessage_.batchID));
             MatchTask matchTask = new MatchTask(cb);
             List<Predicate> predicates = matchTask.exportBatchPredicates(
@@ -423,46 +464,70 @@ public class ExportManagerEJB implements ExportManager {
                     tuple.get(maxUpdatedTime));
 
             exportBatch.setDeviceNames(
-                    em.createNamedQuery(ExportTask.FIND_DEVICE_BY_BATCH_ID, String.class)
-                            .setParameter(1, batchID)
-                            .getResultList());
+                    queueMsgSelectionList(queueBatchQueryParam, exportBatchQueryParam, batchID, QueueMessage_.deviceName));
             exportBatch.setExporterIDs(
-                    em.createNamedQuery(ExportTask.FIND_EXPORTER_IDS_BY_BATCH_ID, String.class)
-                            .setParameter(1, batchID)
-                            .getResultList());
+                    exportTaskSelectionList(queueBatchQueryParam, exportBatchQueryParam, batchID, ExportTask_.exporterID));
 
-            exportBatch.setCompleted(
-                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
-                            .setParameter(1, batchID)
-                            .setParameter(2, QueueMessage.Status.COMPLETED)
-                            .getSingleResult());
-            exportBatch.setCanceled(
-                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
-                            .setParameter(1, batchID)
-                            .setParameter(2, QueueMessage.Status.CANCELED)
-                            .getSingleResult());
-            exportBatch.setWarning(
-                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
-                            .setParameter(1, batchID)
-                            .setParameter(2, QueueMessage.Status.WARNING)
-                            .getSingleResult());
-            exportBatch.setFailed(
-                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
-                            .setParameter(1, batchID)
-                            .setParameter(2, QueueMessage.Status.FAILED)
-                            .getSingleResult());
-            exportBatch.setScheduled(
-                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
-                            .setParameter(1, batchID)
-                            .setParameter(2, QueueMessage.Status.SCHEDULED)
-                            .getSingleResult());
-            exportBatch.setInProcess(
-                    em.createNamedQuery(ExportTask.COUNT_BY_BATCH_ID_AND_STATUS, Long.class)
-                            .setParameter(1, batchID)
-                            .setParameter(2, QueueMessage.Status.IN_PROCESS)
-                            .getSingleResult());
+            exportBatch.setCompleted(tuple.get(completed));
+            exportBatch.setCanceled(tuple.get(canceled));
+            exportBatch.setWarning(tuple.get(warning));
+            exportBatch.setFailed(tuple.get(failed));
+            exportBatch.setScheduled(tuple.get(scheduled));
+            exportBatch.setInProcess(tuple.get(inprocess));
             return exportBatch;
         }
+    }
+
+    private class ExportTaskSelectionList {
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<String> query = cb.createQuery(String.class);
+        final Root<ExportTask> exportTask = query.from(ExportTask.class);
+        final From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+
+        ExportTaskSelectionList(TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, String batchID,
+                                  SingularAttribute<ExportTask, String> selection) {
+            MatchTask matchTask = new MatchTask(cb);
+            List<Predicate> predicates = matchTask.exportBatchPredicates(
+                    queueMsg, exportTask, queueBatchQueryParam, exportBatchQueryParam);
+            predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+            query.where(predicates.toArray(new Predicate[0]));
+            query.select(exportTask.get(selection)).distinct(true);
+        }
+    }
+
+    private List<String> exportTaskSelectionList(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam,
+            String batchID, SingularAttribute<ExportTask, String> selection) {
+        ExportTaskSelectionList exportTaskSelectionList = new ExportTaskSelectionList(
+                queueBatchQueryParam, exportBatchQueryParam, batchID, selection);
+        TypedQuery<String> query = em.createQuery(exportTaskSelectionList.query);
+        return query.getResultList();
+    }
+
+    private class QueueMsgSelectionList {
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<String> query = cb.createQuery(String.class);
+        final Root<ExportTask> exportTask = query.from(ExportTask.class);
+        final From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+
+        QueueMsgSelectionList(TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, String batchID,
+                              SingularAttribute<QueueMessage, String> selection) {
+            MatchTask matchTask = new MatchTask(cb);
+            List<Predicate> predicates = matchTask.exportBatchPredicates(
+                    queueMsg, exportTask, queueBatchQueryParam, exportBatchQueryParam);
+            predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+            query.where(predicates.toArray(new Predicate[0]));
+            query.select(queueMsg.get(selection)).distinct(true);
+        }
+    }
+
+    private List<String> queueMsgSelectionList(
+            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam,
+            String batchID, SingularAttribute<QueueMessage, String> selection) {
+        QueueMsgSelectionList queueMsgSelectionList = new QueueMsgSelectionList(
+                queueBatchQueryParam, exportBatchQueryParam, batchID, selection);
+        TypedQuery<String> query = em.createQuery(queueMsgSelectionList.query);
+        return query.getResultList();
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)

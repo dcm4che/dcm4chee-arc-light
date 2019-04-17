@@ -74,44 +74,14 @@ import java.util.Date;
                 query = "select o.queueMessage.deviceName from DiffTask o where o.pk=?1"),
         @NamedQuery(name = DiffTask.FIND_ATTRS_BY_PK,
                 query = "select attrs.encodedAttributes from DiffTask o join o.diffTaskAttributes attrs where o.pk=?1"),
-        @NamedQuery(name = DiffTask.FIND_LOCAL_AET_BY_BATCH_ID,
-                query = "select distinct o.localAET from DiffTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.localAET"),
-        @NamedQuery(name = DiffTask.FIND_PRIMARY_AET_BY_BATCH_ID,
-                query = "select distinct o.primaryAET from DiffTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.primaryAET"),
-        @NamedQuery(name = DiffTask.FIND_SECONDARY_AET_BY_BATCH_ID,
-                query = "select distinct o.secondaryAET from DiffTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.secondaryAET"),
-        @NamedQuery(name = DiffTask.FIND_CHECK_MISSING_BY_BATCH_ID,
-                query = "select distinct o.checkMissing from DiffTask o where o.queueMessage.batchID=?1"),
-        @NamedQuery(name = DiffTask.FIND_CHECK_DIFFERENT_BY_BATCH_ID,
-                query = "select distinct o.checkDifferent from DiffTask o where o.queueMessage.batchID=?1"),
-        @NamedQuery(name = DiffTask.FIND_COMPARE_FIELDS_BY_BATCH_ID,
-                query = "select distinct o.compareFields from DiffTask o " +
-                        "where o.compareFields is not null and o.queueMessage.batchID=?1 " +
-                        "order by o.compareFields"),
-        @NamedQuery(name = DiffTask.FIND_DEVICE_BY_BATCH_ID,
-                query = "select distinct o.queueMessage.deviceName from DiffTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.queueMessage.deviceName"),
         @NamedQuery(name = DiffTask.COUNT_BY_BATCH_ID,
-                query = "select count(o) from DiffTask o where o.queueMessage.batchID=?1"),
-        @NamedQuery(name = DiffTask.COUNT_BY_BATCH_ID_AND_STATUS,
-                query = "select count(o) from DiffTask o where o.queueMessage.batchID=?1 and o.queueMessage.status=?2")
+                query = "select count(o) from DiffTask o where o.queueMessage.batchID=?1")
 })
 public class DiffTask {
 
     public static final String FIND_DEVICE_BY_PK = "DiffTask.FindDeviceByPk";
     public static final String FIND_ATTRS_BY_PK = "DiffTask.FindAttrsByPk";
-    public static final String FIND_LOCAL_AET_BY_BATCH_ID = "DiffTask.FindLocalAETByBatchId";
-    public static final String FIND_PRIMARY_AET_BY_BATCH_ID = "DiffTask.FindPrimaryAETByBatchId";
-    public static final String FIND_SECONDARY_AET_BY_BATCH_ID = "DiffTask.FindSecondaryAETByBatchId";
-    public static final String FIND_CHECK_MISSING_BY_BATCH_ID = "DiffTask.FindCheckMissingByBatchId";
-    public static final String FIND_CHECK_DIFFERENT_BY_BATCH_ID = "DiffTask.FindCheckDifferentByBatchId";
-    public static final String FIND_COMPARE_FIELDS_BY_BATCH_ID = "DiffTask.FindCompareFieldsByBatchId";
-    public static final String FIND_DEVICE_BY_BATCH_ID = "DiffTask.FindDeviceByBatchId";
     public static final String COUNT_BY_BATCH_ID = "DiffTask.CountByBatchId";
-    public static final String COUNT_BY_BATCH_ID_AND_STATUS = "DiffTask.CountByBatchIdAndStatus";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

@@ -74,22 +74,11 @@ import java.util.Date;
                         "o.failed=?3 " +
                         "where pk=?1"),
         @NamedQuery(name = StorageVerificationTask.FIND_DEVICE_BY_PK,
-                query = "select o.queueMessage.deviceName from StorageVerificationTask o where o.pk=?1"),
-        @NamedQuery(name = StorageVerificationTask.FIND_LOCAL_AET_BY_BATCH_ID,
-                query = "select distinct o.localAET from StorageVerificationTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.localAET"),
-        @NamedQuery(name = StorageVerificationTask.FIND_DEVICE_BY_BATCH_ID,
-                query = "select distinct o.queueMessage.deviceName from StorageVerificationTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.queueMessage.deviceName"),
-        @NamedQuery(name = StorageVerificationTask.COUNT_BY_BATCH_ID_AND_STATUS,
-                query = "select count(o) from StorageVerificationTask o where o.queueMessage.batchID=?1 and o.queueMessage.status=?2")
+                query = "select o.queueMessage.deviceName from StorageVerificationTask o where o.pk=?1")
 })
 public class StorageVerificationTask {
     public static final String UPDATE_RESULT_BY_PK = "StorageVerificationTask.UpdateResultByPk";
     public static final String FIND_DEVICE_BY_PK = "StorageVerificationTask.FindDeviceByPk";
-    public static final String FIND_LOCAL_AET_BY_BATCH_ID = "StorageVerificationTask.FindLocalAETByBatchId";
-    public static final String FIND_DEVICE_BY_BATCH_ID = "StorageVerificationTask.FindDeviceByBatchId";
-    public static final String COUNT_BY_BATCH_ID_AND_STATUS = "StorageVerificationTask.CountByBatchIdAndStatus";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

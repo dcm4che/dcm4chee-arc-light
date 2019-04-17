@@ -83,15 +83,7 @@ import java.util.Date;
                 query = "select o.deviceName from ExportTask o where o.pk=?1"),
         @NamedQuery(name = ExportTask.FIND_STUDY_EXPORT_AFTER,
                 query = "select o from ExportTask o where o.updatedTime > ?1 and o.exporterID=?2 " +
-                        "and o.studyInstanceUID=?3 and o.seriesInstanceUID='*'"),
-        @NamedQuery(name = ExportTask.FIND_EXPORTER_IDS_BY_BATCH_ID,
-                query = "select distinct o.exporterID from ExportTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.exporterID"),
-        @NamedQuery(name = ExportTask.FIND_DEVICE_BY_BATCH_ID,
-                query = "select distinct o.queueMessage.deviceName from ExportTask o where o.queueMessage.batchID=?1 " +
-                        "order by o.queueMessage.deviceName"),
-        @NamedQuery(name = ExportTask.COUNT_BY_BATCH_ID_AND_STATUS,
-                query = "select count(o) from ExportTask o where o.queueMessage.batchID=?1 and o.queueMessage.status=?2")
+                        "and o.studyInstanceUID=?3 and o.seriesInstanceUID='*'")
 })
 public class ExportTask {
 
@@ -105,9 +97,6 @@ public class ExportTask {
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
     public static final String FIND_DEVICE_BY_PK = "ExportTask.FindDeviceByPk";
     public static final String FIND_STUDY_EXPORT_AFTER = "ExportTask.FindStudyExportAfter";
-    public static final String FIND_EXPORTER_IDS_BY_BATCH_ID = "ExportTask.FindExporterIDsByBatchId";
-    public static final String FIND_DEVICE_BY_BATCH_ID = "ExportTask.FindDeviceByBatchId";
-    public static final String COUNT_BY_BATCH_ID_AND_STATUS = "ExportTask.CountByBatchIdAndStatus";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
