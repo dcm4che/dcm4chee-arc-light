@@ -99,7 +99,7 @@ public class MatchTask {
     }
 
     public List<Predicate> retrieveBatchPredicates(
-            From<RetrieveTask, QueueMessage> queueMsg, Root<RetrieveTask> retrieveTask,
+            Path<QueueMessage> queueMsg, Path<RetrieveTask> retrieveTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);

@@ -392,16 +392,20 @@ public class RetrieveManagerEJB {
                     tuple.get(minUpdatedTime),
                     tuple.get(maxUpdatedTime));
 
+            CriteriaQuery<String> queryDistinct = cb.createQuery(String.class).distinct(true);
+            Root<RetrieveTask> retrieveTask = queryDistinct.from(RetrieveTask.class);
+            From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+            queryDistinct.where(predicates(queueMsg, retrieveTask, batchID));
             retrieveBatch.setDeviceNames(
-                    queueMsgSelectionList(queueBatchQueryParam, retrieveBatchQueryParam, batchID, QueueMessage_.deviceName));
+                    em.createQuery(queryDistinct.select(queueMsg.get(QueueMessage_.deviceName))).getResultList());
             retrieveBatch.setQueueNames(
-                    queueMsgSelectionList(queueBatchQueryParam, retrieveBatchQueryParam, batchID, QueueMessage_.queueName));
+                    em.createQuery(queryDistinct.select(queueMsg.get(QueueMessage_.queueName))).getResultList());
             retrieveBatch.setLocalAETs(
-                    retrieveTaskSelectionList(queueBatchQueryParam, retrieveBatchQueryParam, batchID, RetrieveTask_.localAET));
+                    em.createQuery(queryDistinct.select(retrieveTask.get(RetrieveTask_.localAET))).getResultList());
             retrieveBatch.setRemoteAETs(
-                    retrieveTaskSelectionList(queueBatchQueryParam, retrieveBatchQueryParam, batchID, RetrieveTask_.remoteAET));
+                    em.createQuery(queryDistinct.select(retrieveTask.get(RetrieveTask_.remoteAET))).getResultList());
             retrieveBatch.setDestinationAETs(
-                    retrieveTaskSelectionList(queueBatchQueryParam, retrieveBatchQueryParam, batchID, RetrieveTask_.destinationAET));
+                    em.createQuery(queryDistinct.select(retrieveTask.get(RetrieveTask_.destinationAET))).getResultList());
 
             retrieveBatch.setCompleted(tuple.get(completed));
             retrieveBatch.setCanceled(tuple.get(canceled));
@@ -412,32 +416,11 @@ public class RetrieveManagerEJB {
             return retrieveBatch;
         }
 
-        private List<String> queueMsgSelectionList(
-                TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam,
-                String batchID, SingularAttribute<QueueMessage, String> selection) {
-            CriteriaQuery<String> query = cb.createQuery(String.class);
-            Root<RetrieveTask> retrieveTask = query.from(RetrieveTask.class);
-            From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+        private Predicate[] predicates(Path<QueueMessage> queueMsg, Path<RetrieveTask> retrieveTask, String batchID) {
             List<Predicate> predicates = matchTask.retrieveBatchPredicates(
                     queueMsg, retrieveTask, queueBatchQueryParam, retrieveBatchQueryParam);
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-            query.where(predicates.toArray(new Predicate[0]));
-            query.select(queueMsg.get(selection)).distinct(true);
-            return em.createQuery(query).getResultList();
-        }
-
-        private List<String> retrieveTaskSelectionList(
-                TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam,
-                String batchID, SingularAttribute<RetrieveTask, String> selection) {
-            CriteriaQuery<String> query = cb.createQuery(String.class);
-            Root<RetrieveTask> retrieveTask = query.from(RetrieveTask.class);
-            From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-            List<Predicate> predicates = matchTask.retrieveBatchPredicates(
-                    queueMsg, retrieveTask, queueBatchQueryParam, retrieveBatchQueryParam);
-            predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-            query.where(predicates.toArray(new Predicate[0]));
-            query.select(retrieveTask.get(selection)).distinct(true);
-            return em.createQuery(query).getResultList();
+            return predicates.toArray(new Predicate[0]);
         }
     }
 
