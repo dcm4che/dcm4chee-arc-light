@@ -392,15 +392,15 @@ public class RetrieveManagerEJB {
                     tuple.get(minUpdatedTime),
                     tuple.get(maxUpdatedTime));
 
-            CriteriaQuery<String> queryDistinct = cb.createQuery(String.class).distinct(true);
-            Root<RetrieveTask> retrieveTask = queryDistinct.from(RetrieveTask.class);
+            CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
+            Root<RetrieveTask> retrieveTask = distinct.from(RetrieveTask.class);
             From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-            queryDistinct.where(predicates(queueMsg, retrieveTask, batchID));
-            retrieveBatch.setDeviceNames(select(queryDistinct, queueMsg.get(QueueMessage_.deviceName)));
-            retrieveBatch.setQueueNames(select(queryDistinct, queueMsg.get(QueueMessage_.queueName)));
-            retrieveBatch.setLocalAETs(select(queryDistinct, retrieveTask.get(RetrieveTask_.localAET)));
-            retrieveBatch.setRemoteAETs(select(queryDistinct, retrieveTask.get(RetrieveTask_.remoteAET)));
-            retrieveBatch.setDestinationAETs(select(queryDistinct, retrieveTask.get(RetrieveTask_.destinationAET)));
+            distinct.where(predicates(queueMsg, retrieveTask, batchID));
+            retrieveBatch.setDeviceNames(select(distinct, queueMsg.get(QueueMessage_.deviceName)));
+            retrieveBatch.setQueueNames(select(distinct, queueMsg.get(QueueMessage_.queueName)));
+            retrieveBatch.setLocalAETs(select(distinct, retrieveTask.get(RetrieveTask_.localAET)));
+            retrieveBatch.setRemoteAETs(select(distinct, retrieveTask.get(RetrieveTask_.remoteAET)));
+            retrieveBatch.setDestinationAETs(select(distinct, retrieveTask.get(RetrieveTask_.destinationAET)));
             retrieveBatch.setCompleted(tuple.get(completed));
             retrieveBatch.setCanceled(tuple.get(canceled));
             retrieveBatch.setWarning(tuple.get(warning));
