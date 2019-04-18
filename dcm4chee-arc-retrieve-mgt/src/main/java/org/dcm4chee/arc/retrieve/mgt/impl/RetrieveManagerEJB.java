@@ -396,17 +396,11 @@ public class RetrieveManagerEJB {
             Root<RetrieveTask> retrieveTask = queryDistinct.from(RetrieveTask.class);
             From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
             queryDistinct.where(predicates(queueMsg, retrieveTask, batchID));
-            retrieveBatch.setDeviceNames(
-                    em.createQuery(queryDistinct.select(queueMsg.get(QueueMessage_.deviceName))).getResultList());
-            retrieveBatch.setQueueNames(
-                    em.createQuery(queryDistinct.select(queueMsg.get(QueueMessage_.queueName))).getResultList());
-            retrieveBatch.setLocalAETs(
-                    em.createQuery(queryDistinct.select(retrieveTask.get(RetrieveTask_.localAET))).getResultList());
-            retrieveBatch.setRemoteAETs(
-                    em.createQuery(queryDistinct.select(retrieveTask.get(RetrieveTask_.remoteAET))).getResultList());
-            retrieveBatch.setDestinationAETs(
-                    em.createQuery(queryDistinct.select(retrieveTask.get(RetrieveTask_.destinationAET))).getResultList());
-
+            retrieveBatch.setDeviceNames(select(queryDistinct, queueMsg.get(QueueMessage_.deviceName)));
+            retrieveBatch.setQueueNames(select(queryDistinct, queueMsg.get(QueueMessage_.queueName)));
+            retrieveBatch.setLocalAETs(select(queryDistinct, retrieveTask.get(RetrieveTask_.localAET)));
+            retrieveBatch.setRemoteAETs(select(queryDistinct, retrieveTask.get(RetrieveTask_.remoteAET)));
+            retrieveBatch.setDestinationAETs(select(queryDistinct, retrieveTask.get(RetrieveTask_.destinationAET)));
             retrieveBatch.setCompleted(tuple.get(completed));
             retrieveBatch.setCanceled(tuple.get(canceled));
             retrieveBatch.setWarning(tuple.get(warning));
@@ -421,6 +415,10 @@ public class RetrieveManagerEJB {
                     queueMsg, retrieveTask, queueBatchQueryParam, retrieveBatchQueryParam);
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
             return predicates.toArray(new Predicate[0]);
+        }
+
+        private List<String> select(CriteriaQuery<String> query, Path<String> path) {
+            return em.createQuery(query.select(path)).getResultList();
         }
     }
 
