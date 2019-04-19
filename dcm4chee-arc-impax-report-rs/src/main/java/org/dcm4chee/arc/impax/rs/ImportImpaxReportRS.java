@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.impax.rs;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
@@ -107,10 +106,13 @@ public class ImportImpaxReportRS {
     @Path("/studies/{studyUID}/impax/reports")
     @Produces("application/dicom+json")
     public Response importReportsOfStudy(@PathParam("studyUID") String studyUID) {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ApplicationEntity ae = getApplicationEntity();
-        Attributes studyAttrs = queryStudyAttributes(studyUID);
+        Attributes studyAttrs = queryService.getStudyAttributes(studyUID);
+        if (studyAttrs == null)
+            return errResponseAsTextPlain(
+                    errorMessage("No such Study: " + studyUID), Response.Status.NOT_FOUND);
+
         List<String> xmlReports = queryReports(studyUID);
         try {
             Map<String, String> props = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
@@ -119,49 +121,54 @@ public class ImportImpaxReportRS {
             List<Attributes> srReports = converter.convert(xmlReports);
 
             if (srReports.isEmpty())
-                return Response.status(Response.Status.CONFLICT).build();
+                return errResponseAsTextPlain(
+                        errorMessage("SR Reports not found for the study"), Response.Status.CONFLICT);
 
             Attributes response = new Attributes();
             response.setString(Tag.RetrieveURL, VR.UR, studyRetrieveURL().toString());
             try (StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request), ae, props.get("SourceAET"))) {
                 session.setImpaxReportEndpoint(converter.getEndpoint());
-                for (Attributes sr : srReports) {
+                srReports.forEach(sr -> {
                     StoreContext storeCtx = storeService.newStoreContext(session);
                     storeCtx.setImpaxReportPatientMismatch(converter.patientMismatchOf(sr));
                     storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
                     storeReport(storeCtx, sr, response);
-                }
+                });
             }
             return buildResponse(xmlReports, response);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled()) {
-            throw new WebApplicationException("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
-        }
-        return ae;
-    }
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
 
-    private Attributes queryStudyAttributes(String studyUID) {
-        Attributes studyAttrs = queryService.getStudyAttributes(studyUID);
-        if (studyAttrs == null) {
-            throw new WebApplicationException("No such Study: " + studyUID, Response.Status.NOT_FOUND);
-        }
-        return studyAttrs;
+        return ae;
     }
 
     private List<String> queryReports(String studyUID) {
         try {
             return reportService.queryReportByStudyUid(studyUID);
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
         } catch (WebServiceException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage(e.getMessage()), Response.Status.BAD_GATEWAY));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -176,21 +183,23 @@ public class ImportImpaxReportRS {
             response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
             response.ensureSequence(Tag.ReferencedSOPSequence, 1)
                     .add(mkSOPRefWithFailureReason(ctx, e));
+        } catch (Exception e) {
+            LOG.warn("Exception caught while storing the SR report. {} \n", ctx.getStoreSession(), e);
         }
     }
 
     private Response buildResponse(List<String> xmlReports, Attributes response) {
-        Response.Status status = Response.Status.ACCEPTED;
-        if (!response.contains(Tag.ReferencedSOPSequence)) {
-            status = Response.Status.CONFLICT;
-        } else if (!xmlReports.isEmpty() && !response.contains(Tag.FailedSOPSequence)) {
-            status = Response.Status.OK;
-        }
-        return Response.status(status).entity((StreamingOutput) out -> {
-            JsonGenerator gen = Json.createGenerator(out);
-            new JSONWriter(gen).write(response);
-            gen.flush();
-        }).build();
+        Response.Status status = !response.contains(Tag.ReferencedSOPSequence)
+                ? Response.Status.CONFLICT
+                : !xmlReports.isEmpty() && !response.contains(Tag.FailedSOPSequence)
+                    ? Response.Status.OK
+                    : Response.Status.ACCEPTED;
+        return Response.status(status)
+                .entity((StreamingOutput) out -> {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    new JSONWriter(gen).write(response);
+                    gen.flush();
+                }).build();
     }
 
     private StringBuffer studyRetrieveURL() {
@@ -228,13 +237,14 @@ public class ImportImpaxReportRS {
         return attrs;
     }
 
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

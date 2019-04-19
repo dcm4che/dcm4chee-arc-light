@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -73,6 +73,7 @@ import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2017
  */
 @RequestScoped
@@ -194,8 +195,8 @@ public class QueryRetrieveRS {
             checkAE(externalAET, aeCache.get(externalAET));
             Response.Status errorStatus = Response.Status.BAD_REQUEST;
             if (field < 1)
-                return Response.status(errorStatus)
-                        .entity("CSV field for Study Instance UID should be greater than or equal to 1").build();
+                return errResponseAsTextPlain(errorMessage(
+                        "CSV field for Study Instance UID should be greater than or equal to 1"), errorStatus);
 
             int count = 0;
             String warning = null;
@@ -216,36 +217,42 @@ public class QueryRetrieveRS {
                 warning = e.getMessage();
             }
 
-            if (warning == null)
-                return count > 0
-                        ? Response.accepted(count(count)).build()
-                        : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
+            if (warning == null) {
+                if (count > 0)
+                    return Response.accepted(count(count)).build();
+                else {
+                    String warn = "Empty file or Field position incorrect";
+                    LOG.warn("Response No Content caused by {}", warn);
+                    return Response.noContent().header("Warning", warn).build();
+                }
+            }
 
+            LOG.warn("Response {} caused by {}", errorStatus, warning);
             Response.ResponseBuilder builder = Response.status(errorStatus)
                     .header("Warning", warning);
             if (count > 0)
                 builder.entity(count(count));
             return builder.build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponse(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
@@ -321,18 +328,24 @@ public class QueryRetrieveRS {
             if (warning == null)
                 return Response.accepted(count(count)).build();
 
+            LOG.warn("Response {} caused by {}", errorStatus, warning);
             Response.ResponseBuilder builder = Response.status(errorStatus)
                     .header("Warning", warning);
             if (count > 0)
                 builder.entity(count(count));
             return builder.build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     private void logRequest() {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, DimseRSP dimseRSP) {

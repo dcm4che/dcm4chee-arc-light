@@ -112,13 +112,13 @@ public class DeleteRejected {
     public String delete(
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
-        LOG.info("Process DELETE {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ArchiveDeviceExtension arcDev = arcDev();
         Code code = new Code(codeValue, designator, null, "?");
         RejectionNote rjNote = arcDev.getRejectionNote(code);
         if (rjNote == null)
-            throw new WebApplicationException(
-                    errResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage("Unknown Rejection Note Code: " + code), Response.Status.NOT_FOUND));
 
         try {
             Date before = parseDate(rejectedBefore);
@@ -130,28 +130,38 @@ public class DeleteRejected {
             LOG.info("Deleted {} instances permanently", deleted);
             return "{\"deleted\":" + deleted + '}';
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private ArchiveDeviceExtension arcDev() {
         try {
             return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         } catch (IllegalStateException e) {
-            throw new WebApplicationException(
-                    errResponse("Archive Device Extension not configured for device: "
-                                    + device.getDeviceName(),
-                            Response.Status.NOT_FOUND));
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage("Archive Device Extension not configured for device: " + device.getDeviceName()),
+                    Response.Status.NOT_FOUND));
         }
     }
 
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

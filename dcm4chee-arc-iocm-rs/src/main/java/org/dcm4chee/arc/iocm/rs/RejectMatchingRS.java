@@ -164,10 +164,6 @@ public class RejectMatchingRS {
     @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
     private String expirationState;
 
-    public void validate() {
-        new QueryAttributes(uriInfo, null);
-    }
-
     @POST
     @Path("/studies")
     @Produces("application/json")
@@ -238,17 +234,19 @@ public class RejectMatchingRS {
 
     private Response rejectMatching(
             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
-        LOG.info("Process POST {}?{} from {}@{}",
-                request.getRequestURI(),
-                request.getQueryString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
+        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponseAsTextPlain(
+                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND);
 
-        Code rjNoteCode = toRejectionNote(codeValue, designator).getRejectionNoteCode();
         try {
+            Code rjNoteCode;
+            if (codeValue == null
+                    || (rjNoteCode = toRejectionNote(codeValue, designator).getRejectionNoteCode()) == null)
+                return errResponseAsTextPlain(
+                        errorMessage("No such Rejection Note : " + codeValue + "^" + designator),
+                        Response.Status.NOT_FOUND);
             QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
             String warning = null;
             int count = 0;
@@ -271,12 +269,23 @@ public class RejectMatchingRS {
                 }
             }
             Response.ResponseBuilder builder = Response.status(status);
-            if (warning != null)
+            if (warning != null) {
+                LOG.warn("Response {} caused by {}", status, warning);
                 builder.header("Warning", warning);
+            }
             return builder.entity("{\"count\":" + count + '}').build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private void rejectMatching(Code rjNoteCode, Attributes match, QueryRetrieveLevel2 qrlevel,
@@ -292,17 +301,7 @@ public class RejectMatchingRS {
     }
 
     private RejectionNote toRejectionNote(String codeValue, String designator) {
-        if (codeValue == null)
-            return null;
-
-        RejectionNote rjNote = arcDev().getRejectionNote(
-                new Code(codeValue, designator, null, ""));
-
-        if (rjNote == null)
-            throw new WebApplicationException(errResponse("Unknown Rejection Note Code: ("
-                    + codeValue + ", " + designator + ')', Response.Status.NOT_FOUND));
-
-        return rjNote;
+        return arcDev().getRejectionNote(new Code(codeValue, designator, null, ""));
     }
 
     private QueryContext queryContext(
@@ -360,25 +359,17 @@ public class RejectMatchingRS {
     }
 
     private ArchiveDeviceExtension arcDev() {
-        try {
-            return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        } catch (IllegalStateException e) {
-            throw new WebApplicationException(
-                    errResponse("Archive Device Extension not configured for device: "
-                                    + device.getDeviceName(),
-                            Response.Status.NOT_FOUND));
-        }
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
-    private static Response errResponse(String message, Response.Status status) {
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
         return Response.status(status)
-                .entity("{\"errorMessage\":\"" + message + "\"}")
-                .build();
-    }
-
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

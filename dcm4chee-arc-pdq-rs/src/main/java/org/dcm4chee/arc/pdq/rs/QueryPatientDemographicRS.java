@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -67,6 +67,7 @@ import java.io.StringWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2018
  */
 @RequestScoped
@@ -97,34 +98,43 @@ public class QueryPatientDemographicRS {
             ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
             if (descriptor == null)
-                return errResponse("No such PDQ Service: " + pdqServiceID,Response.Status.NOT_FOUND);
+                return errResponseAsTextPlain(
+                        errorMessage("No such PDQ Service: " + pdqServiceID), Response.Status.NOT_FOUND);
 
             attrs = serviceFactory.getPDQService(descriptor).query(patientID);
         } catch (PDQServiceException e) {
-            return errResponseAsTextPlain(e, Response.Status.BAD_GATEWAY);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e, Response.Status.INTERNAL_SERVER_ERROR);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return (attrs == null ? Response.status(Response.Status.NOT_FOUND) : Response.ok(toJSON(attrs))).build();
+        return attrs != null
+                ? Response.ok(toJSON(attrs)).build()
+                : errResponseAsTextPlain(
+                        errorMessage("Querying the PDQ Service returned null attributes"), Response.Status.NOT_FOUND);
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
     }
 
-    private static Response errResponseAsTextPlain(Exception e, Response.Status status) {
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {} ", status, errorMsg);
         return Response.status(status)
-                .entity(exceptionAsString(e))
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
 
-    private static String exceptionAsString(Exception e) {
+    private String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();

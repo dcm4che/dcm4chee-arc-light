@@ -81,8 +81,12 @@ public class RSForward {
 
     public void forward(
             RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, IDWithIssuer patientID, HttpServletRequest request) {
-        LOG.info("Restful Service Forward {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Restful Service Forward invoked for {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
         String requestURI = request.getRequestURI();
         String appendURI = requestURI.substring(requestURI.indexOf("/rs/") + 4);
 
@@ -102,14 +106,27 @@ public class RSForward {
                                 webApplication.getKeycloakClientID(),
                                 rule.isTlsAllowAnyHostname(),
                                 rule.isTlsDisableTrustManager());
-                        LOG.info("Forwarded RSOperation {} {} {} from {}@{} using RSForward rule {} to device {}. Target URL is {}",
-                                rsOp, request.getMethod(), request.getRequestURI(), request.getRemoteUser(),
-                                request.getRemoteHost(), rule, webApplication.getDevice().getDeviceName(), targetURI);
+                        LOG.info("Forwarded RSOperation {} {} {}?{} from {}@{} using RSForward rule {} to device {}. Target URL is {}",
+                                rsOp,
+                                request.getMethod(),
+                                request.getRequestURI(),
+                                request.getQueryString(),
+                                request.getRemoteUser(),
+                                request.getRemoteHost(),
+                                rule,
+                                webApplication.getDevice().getDeviceName(),
+                                targetURI);
                     }
                 }
             } catch (Exception e) {
-                LOG.warn("Failed to apply RSForwardRule {} to {} {} from {}@{} for RSOperation {} :\n",
-                        rule, request, rsOp, e);
+                LOG.warn("Failed to apply RSForwardRule {} to {} {}?{} from {}@{} for RSOperation {} :\n",
+                        rule,
+                        request.getMethod(),
+                        request.getRequestURI(),
+                        request.getQueryString(),
+                        request.getRemoteUser(),
+                        request.getRemoteHost(),
+                        rsOp, e);
             }
         });
     }

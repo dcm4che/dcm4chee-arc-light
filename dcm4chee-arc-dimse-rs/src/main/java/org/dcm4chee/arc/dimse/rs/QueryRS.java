@@ -237,7 +237,7 @@ public class QueryRS {
 
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                         boolean count) {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         try {
             checkAE(externalAET, aeCache.get(externalAET));
@@ -281,22 +281,28 @@ public class QueryRS {
             dimseRSP.next();
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
         } catch (ConnectException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponse(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND));
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
         return ae;
-    }
-
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private Response.ResponseBuilder responseBuilder(DimseRSP dimseRSP) {
@@ -308,7 +314,7 @@ public class QueryRS {
             case Status.PendingWarning:
                 return Response.ok(writeJSON(dimseRSP));
         }
-        return Response.status(Response.Status.BAD_GATEWAY).header("Warning", warning(status));
+        return warning(warning(status));
     }
 
     private Response.ResponseBuilder countResponse(DimseRSP dimseRSP) {
@@ -318,12 +324,17 @@ public class QueryRS {
                 count++;
             }
         } catch (Exception e) {
-            return Response.status(Response.Status.BAD_GATEWAY).header("Warning", e.getMessage());
+            return warning(e.getMessage());
         }
         int status = dimseRSP.getCommand().getInt(Tag.Status, -1);
         return status == 0
                 ? Response.ok("{\"count\":" + count + '}')
-                : Response.status(Response.Status.BAD_GATEWAY).header("Warning", warning(status));
+                : warning(warning(status));
+    }
+
+    private Response.ResponseBuilder warning(String warning) {
+        LOG.warn("Response Bad Gateway caused by {}", warning);
+        return Response.status(Response.Status.BAD_GATEWAY).header("Warning", warning);
     }
 
     private String warning(int status) {
@@ -379,9 +390,14 @@ public class QueryRS {
         };
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

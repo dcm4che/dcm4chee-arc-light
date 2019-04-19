@@ -73,6 +73,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -201,7 +202,7 @@ public class RetrieveTaskRS {
                             output.type)
                     .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -217,7 +218,7 @@ public class RetrieveTaskRS {
                     queueTaskQueryParam(deviceName, status()),
                     retrieveTaskQueryParam(updatedTime)));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -227,13 +228,13 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return rsp(mgr.cancelRetrieveTask(pk, queueEvent));
+            return rsp(mgr.cancelRetrieveTask(pk, queueEvent), pk);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -245,9 +246,11 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponseAsTextPlain(
+                    errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+            return errResponseAsTextPlain(
+                    errorMessage("Cannot cancel tasks with status: " + status), Response.Status.BAD_REQUEST);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -259,7 +262,7 @@ public class RetrieveTaskRS {
             return count(count);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -270,25 +273,28 @@ public class RetrieveTaskRS {
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponseAsTextPlain(
+                    errorMessage("newDeviceName query parameter temporarily not supported."), Response.Status.BAD_REQUEST);
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
             if (devName == null)
-                return rsp(Response.Status.NOT_FOUND, "Task not found");
+                return errResponseAsTextPlain(
+                        errorMessage("No such Retrieve Task : " + pk), Response.Status.NOT_FOUND);
 
             if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-                return rsp(Response.Status.NOT_FOUND, "No such Queue - " + newQueueName);
+                return errResponseAsTextPlain(
+                        errorMessage("No such Queue : " + newQueueName), Response.Status.NOT_FOUND);
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
             mgr.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
-            return rsp(Response.Status.NO_CONTENT);
+            return Response.noContent().build();
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -299,14 +305,17 @@ public class RetrieveTaskRS {
     public Response rescheduleRetrieveTasks() {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponseAsTextPlain(
+                    errorMessage("newDeviceName query parameter temporarily not supported."), Response.Status.BAD_REQUEST);
 
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponseAsTextPlain(
+                    errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
 
         if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-            return rsp(Response.Status.NOT_FOUND, "No such Queue - " + newQueueName);
+            return errResponseAsTextPlain(
+                    errorMessage("No such Queue : " + newQueueName), Response.Status.NOT_FOUND);
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
@@ -320,7 +329,7 @@ public class RetrieveTaskRS {
                             queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             retrieveTaskQueryParam));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -349,8 +358,8 @@ public class RetrieveTaskRS {
                                                             queueTaskQueryParam,
                                                             retrieveTaskQueryParam,
                                                             rescheduleTasksFetchSize);
-                for (String retrieveTaskQueueMsgID : retrieveTaskQueueMsgIDs)
-                    mgr.rescheduleRetrieveTask(retrieveTaskQueueMsgID, newQueueName);
+                retrieveTaskQueueMsgIDs.forEach(
+                        retrieveTaskQueueMsgID -> mgr.rescheduleRetrieveTask(retrieveTaskQueueMsgID, newQueueName));
                 count = retrieveTaskQueueMsgIDs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
@@ -371,10 +380,10 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
-            return rsp(mgr.deleteRetrieveTask(pk, queueEvent));
+            return rsp(mgr.deleteRetrieveTask(pk, queueEvent), pk);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -399,29 +408,21 @@ public class RetrieveTaskRS {
             return "{\"deleted\":" + deleted + '}';
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
     }
 
-    private static Response rsp(Response.Status status, Object entity) {
-        return Response.status(status).entity(entity).build();
-    }
-
-    private Response rsp(Response.Status status) {
-        return Response.status(status).build();
-    }
-
-    private static Response rsp(boolean result) {
-        return Response.status(result
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+    private Response rsp(boolean result, long pk) {
+        return result
+                ? Response.noContent().build()
+                : errResponseAsTextPlain(errorMessage("No such Retrieve Task : " + pk), Response.Status.NOT_FOUND);
     }
 
     private static Response count(long count) {
-        return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+        return Response.ok("{\"count\":" + count + '}').build();
     }
 
     private int count(Response response, String devName) {
@@ -459,8 +460,7 @@ public class RetrieveTaskRS {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasNext())
-                        tasks.next().writeAsJSONTo(gen);
+                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen));
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -472,10 +472,17 @@ public class RetrieveTaskRS {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     RetrieveTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasNext())
-                        tasks.next().writeAsCSVTo(writer, delimiter);
+                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task));
                     writer.flush();
                 };
+            }
+
+            private void writeTaskToCSV(Writer writer, RetrieveTask task) {
+                try {
+                    task.writeAsCSVTo(writer, delimiter);
+                } catch (IOException e) {
+                    LOG.warn("{}", e);
+                }
             }
         };
 
@@ -509,23 +516,36 @@ public class RetrieveTaskRS {
     }
 
     private Response notAcceptable() {
+        LOG.warn("Response Not Acceptable caused by Accept Media Type(s) in HTTP request : \n{}",
+                httpHeaders.getAcceptableMediaTypes().stream()
+                        .map(MediaType::toString)
+                        .collect(Collectors.joining("\n")));
         return Response.notAcceptable(
                 Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                 .build();
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}", 
+                request.getMethod(), 
+                request.getRequestURI(), 
+                request.getQueryString(),
+                request.getRemoteUser(), 
+                request.getRemoteHost());
     }
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
@@ -535,7 +555,7 @@ public class RetrieveTaskRS {
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
-
+    
     private int queueTasksFetchSize() {
         return arcDev().getQueueTasksFetchSize();
     }

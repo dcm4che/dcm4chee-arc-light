@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.impax.rs;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4chee.arc.impax.report.ReportServiceProvider;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -80,33 +79,51 @@ public class QueryImpaxReportRS {
     @Path("/studies/{studyUID}")
     @Produces("multipart/related;type=text/xml")
     public MultipartRelatedOutput queryReportByStudyUid(@PathParam("studyUID") String studyUID) {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         List<String> reports;
         try {
             reports = service.queryReportByStudyUid(studyUID);
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
         } catch (WebServiceException e) {
-            throw new WebApplicationException(e, Response.Status.BAD_GATEWAY);
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
-        if (reports.isEmpty())
-            throw new WebApplicationException(Response.Status.CONFLICT);
+
+        if (reports.isEmpty()) {
+            String errorMessage = "SR Reports not found for the study";
+            LOG.warn("Response Status : Conflict. Error message : {}", errorMessage);
+            throw new WebApplicationException(
+                    Response.status(Response.Status.CONFLICT)
+                            .entity("{\"errorMessage\":\"" + errorMessage + "\"}")
+                            .build());
+        }
 
         try {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
-            for (String report : reports)
-                output.addPart(report, MediaType.TEXT_XML_TYPE);
+            reports.forEach(report -> output.addPart(report, MediaType.TEXT_XML_TYPE));
 
             return output;
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

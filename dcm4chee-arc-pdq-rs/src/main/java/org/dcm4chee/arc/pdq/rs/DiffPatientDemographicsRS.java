@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -79,6 +79,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2019
  */
 @RequestScoped
@@ -157,54 +158,61 @@ public class DiffPatientDemographicsRS {
         logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return responseAsTextPlain(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+            return responseAsTextPlain(Response.Status.NOT_FOUND, errorMessage("No such Application Entity: " + aet));
 
-        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        if (arcdev == null)
+            return responseAsTextPlain(Response.Status.NOT_FOUND, errorMessage("Archive Device Extension not configured."));
+
         PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
         if (descriptor == null)
-            return responseAsTextPlain(Response.Status.NOT_FOUND, "No such PDQ Service: " + pdqServiceID);
+            return responseAsTextPlain(Response.Status.NOT_FOUND, errorMessage("No such PDQ Service: " + pdqServiceID));
 
-        PDQService service = serviceFactory.getPDQService(descriptor);
-        QueryContext ctx = createQueryContext(ae);
-        try (Query query = ctx.getQueryService().createQuery(ctx)) {
+        try {
+            QueryContext ctx = createQueryContext(ae);
+            Query query = ctx.getQueryService().createQuery(ctx);
+            PDQService service = serviceFactory.getPDQService(descriptor);
             int queryMaxNumberOfResults1 = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
             if (queryMaxNumberOfResults1 > 0 && !ctx.containsUniqueKey()
                     && query.fetchCount() > queryMaxNumberOfResults1)
-                return responseAsTextPlain(Response.Status.BAD_REQUEST, "Request entity too large");
+                return responseAsTextPlain(Response.Status.BAD_REQUEST, errorMessage("Request entity too large"));
 
             query.executeQuery(arcdev.getQueryFetchSize());
-            try {
-                return (query.hasMoreMatches()
-                            ? Response.ok(entity(calculateDiffs(query, service)))
-                            : Response.noContent())
-                        .build();
-            } catch (DicomServiceException e) {
-                return responseAsTextPlain(Response.Status.INTERNAL_SERVER_ERROR, exceptionAsString(e));
-            }
+            return (query.hasMoreMatches()
+                        ? Response.ok(entity(calculateDiffs(query, service)))
+                        : Response.noContent())
+                    .build();
+        } catch (Exception e) {
+            return responseAsTextPlain(Response.Status.INTERNAL_SERVER_ERROR, exceptionAsString(e));
         }
    }
 
-    private Object entity(List<Attributes> diffs) {
-        return (StreamingOutput) out -> {
+    private StreamingOutput entity(List<Attributes> diffs) {
+        return out -> {
             JsonGenerator gen = Json.createGenerator(out);
             JSONWriter writer = new JSONWriter(gen);
             gen.writeStartArray();
-            for (Attributes match : diffs)
-                writer.write(match);
+            diffs.forEach(writer::write);
             gen.writeEnd();
             gen.flush();
         };
     }
 
     private void logRequest() {
-        LOG.info("Process GET {}?{} from {}@{}",
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
                 request.getRequestURI(),
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }
 
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
+    }
+
     private static Response responseAsTextPlain(Response.Status status, String message) {
+        LOG.warn("Response {} caused by {}", status, message);
         return Response.status(status)
                 .entity(message)
                 .type("text/plain")
@@ -293,14 +301,12 @@ public class DiffPatientDemographicsRS {
             Attributes match = query.nextMatch();
             Attributes other = queryPDQService(service, match);
             if (other == null) {
-                if (missing) {
+                if (missing)
                     return addOriginalAttributesSequence(match, new Attributes(0));
-                }
             } else if (different) {
                 Attributes modified = new Attributes(match.size());
-                if (other.diff(match, tags, modified) > 0) {
+                if (other.diff(match, tags, modified) > 0)
                     return addOriginalAttributesSequence(match, modified);
-                }
             }
         }
         return null;

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -68,6 +68,7 @@ import java.io.StringWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2018
  */
 @RequestScoped
@@ -116,13 +117,13 @@ public class UpdatePatientDemographics {
             } catch (PDQServiceException e) {
                 ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
                 patientService.updatePatientStatus(ctx);
-                return errResponseAsTextPlain(e, Response.Status.BAD_GATEWAY);
+                return errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY);
             }
 
             if (attrs == null) {
                 ctx.setPatientVerificationStatus(Patient.VerificationStatus.NOT_FOUND);
                 patientService.updatePatientStatus(ctx);
-                return Response.status(Response.Status.ACCEPTED).build();
+                return Response.accepted().build();
             }
 
             ctx.setAttributes(attrs);
@@ -140,16 +141,14 @@ public class UpdatePatientDemographics {
             }
             return rsp(ctx);
         } catch(IllegalArgumentException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e, Response.Status.INTERNAL_SERVER_ERROR);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     private Response rsp(PatientMgtContext ctx) {
-        return Response.ok()
-                .entity("{\"action\":\"" + ctx.getEventActionCode() + "\"}")
-                .build();
+        return Response.ok("{\"action\":\"" + ctx.getEventActionCode() + "\"}").build();
     }
 
     private boolean adjustIssuerOfPatientID() {
@@ -157,17 +156,22 @@ public class UpdatePatientDemographics {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
     }
 
-    private Response errResponseAsTextPlain(Exception e, Response.Status status) {
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
         return Response.status(status)
-                .entity(exceptionAsString(e))
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

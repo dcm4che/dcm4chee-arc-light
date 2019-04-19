@@ -16,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  Portions created by the Initial Developer are Copyright (C) 2017-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -158,7 +158,7 @@ public class RejectRS {
     }
 
     private Response reject(String studyUID, String seriesUID, String objectUID,String codeValue, String designator) {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         try {
             ApplicationEntity remoteAE = storescp != null
@@ -168,7 +168,7 @@ public class RejectRS {
             Code code = new Code(codeValue, designator, null, "?");
             RejectionNote rjNote = arcDev.getRejectionNote(code);
             if (rjNote == null)
-                return notFound();
+                return errResponseAsTextPlain(errorMessage("No such Rejection Note : " + code), Response.Status.NOT_FOUND);
 
             List<Attributes> matches;
             try {
@@ -194,12 +194,11 @@ public class RejectRS {
                 return failed(Status.ProcessingFailure, e.getMessage(), null);
             }
             if (matches.isEmpty())
-                return notFound();
+                return errResponseAsTextPlain(errorMessage("No matches found for rejection"), Response.Status.NOT_FOUND);
 
             KOSBuilder builder = new KOSBuilder(rjNote.getRejectionNoteCode(), 999, 1);
 
-            for (Attributes match : matches)
-                builder.addInstanceRef(match);
+            matches.forEach(builder::addInstanceRef);
 
             Attributes kos = builder.getAttributes();
             try {
@@ -222,24 +221,24 @@ public class RejectRS {
                 return failed(Status.ProcessingFailure, e.getMessage(), matches);
             }
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponse(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND));
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
         return ae;
-    }
-
-    private Response notFound() {
-        return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private Response success(int status, String errorComment, List<Attributes> matches) {
@@ -247,8 +246,10 @@ public class RejectRS {
     }
 
     private Response failed(int status, String errorComment, List<Attributes> matches) {
+        String warning = warning(status);
+        LOG.warn("Response status : Bad Gateway. Warning : {}", warning);
         return Response.status(Response.Status.BAD_GATEWAY)
-                .header("Warning", warning(status))
+                .header("Warning", warning)
                 .entity(entity(status, errorComment, 0, matches != null ? matches.size() : 0))
                 .build();
     }
@@ -256,18 +257,17 @@ public class RejectRS {
     private String warning(int status) {
         return TagUtils.shortToHexString(status)
                 + (status == Status.ProcessingFailure
-                ? ": Error: Processing Failure"
-                : (status & Status.OutOfResources) == Status.OutOfResources
-                ? ": Refused: Out of Resources"
-                : (status & Status.DataSetDoesNotMatchSOPClassError) == Status.DataSetDoesNotMatchSOPClassError
-                ? ": Error: Data Set does not match SOP Class"
-                : (status & Status.CannotUnderstand) == Status.CannotUnderstand
-                ? ": Cannot Understand"
-                : ": Unexpected status code");
+                    ? ": Error: Processing Failure"
+                    : (status & Status.OutOfResources) == Status.OutOfResources
+                        ? ": Refused: Out of Resources"
+                        : (status & Status.DataSetDoesNotMatchSOPClassError) == Status.DataSetDoesNotMatchSOPClassError
+                            ? ": Error: Data Set does not match SOP Class"
+                            : (status & Status.CannotUnderstand) == Status.CannotUnderstand
+                                ? ": Cannot Understand" : ": Unexpected status code");
     }
 
-    private Object entity(int status, String error, int rejected, int failed) {
-        return (StreamingOutput) out -> {
+    private StreamingOutput entity(int status, String error, int rejected, int failed) {
+        return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 gen.writeStartObject();
@@ -280,9 +280,14 @@ public class RejectRS {
         };
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

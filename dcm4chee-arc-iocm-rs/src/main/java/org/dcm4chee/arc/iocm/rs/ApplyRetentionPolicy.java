@@ -122,14 +122,11 @@ public class ApplyRetentionPolicy {
     @Path("/series")
     @Produces("application/json")
     public Response applyRetentionPolicy() {
-        LOG.info("Process POST {}?{} from {}@{}",
-                request.getRequestURI(),
-                request.getQueryString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
+        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+            return errResponseAsTextPlain(
+                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND);
 
         try {
             ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -181,26 +178,33 @@ public class ApplyRetentionPolicy {
                                     expirationDate, ae, retentionPolicy);
                     }
                 } catch (Exception e) {
-                    LOG.warn("Unexpected exception:", e);
-                    return errResponseAsTextPlain(e);
+                    return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
                 }
             }
             rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, null, request);
             return Response.ok("{\"count\":" + count + '}').build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private static Response errResponse(Response.Status status, String message) {
-        return Response.status(status)
-                .entity("{\"errorMessage\":\"" + message + "\"}")
-                .build();
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

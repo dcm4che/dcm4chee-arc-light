@@ -147,7 +147,7 @@ public class QueueManagerRS {
                              mgr.listQueueMessages(taskQueryParam(deviceName), parseInt(offset), parseInt(limit))))
                      .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -160,7 +160,7 @@ public class QueueManagerRS {
         try {
             return count(mgr.countTasks(taskQueryParam(deviceName)));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -170,13 +170,13 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return rsp(mgr.cancelTask(msgId, queueEvent));
+            return rsp(mgr.cancelTask(msgId, queueEvent), msgId);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -188,9 +188,11 @@ public class QueueManagerRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponseAsTextPlain(
+                    errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+            return errResponseAsTextPlain(
+                    errorMessage("Cannot cancel tasks with status: " + status), Response.Status.BAD_REQUEST);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -200,7 +202,7 @@ public class QueueManagerRS {
             return count(count);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -211,22 +213,24 @@ public class QueueManagerRS {
     public Response rescheduleMessage(@PathParam("msgId") String msgId) {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponseAsTextPlain(
+                    errorMessage("newDeviceName query parameter temporarily not supported."),
+                    Response.Status.BAD_REQUEST);
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByMsgId(msgId);
             if (devName == null)
-                return rsp(Response.Status.NOT_FOUND, "Task not found");
+                return errResponseAsTextPlain(errorMessage("Task not found"), Response.Status.NOT_FOUND);
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
             mgr.rescheduleTask(msgId, null, queueEvent);
-            return rsp(Response.Status.NO_CONTENT);
+            return Response.noContent().build();
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -237,11 +241,12 @@ public class QueueManagerRS {
     public Response rescheduleMessages() {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponseAsTextPlain(
+                    errorMessage("newDeviceName query parameter temporarily not supported."), Response.Status.BAD_REQUEST);
 
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponseAsTextPlain(errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
@@ -252,7 +257,7 @@ public class QueueManagerRS {
                     ? rescheduleOnDistinctDevices()
                     : rescheduleMessages(taskQueryParam(newDeviceName != null ? null : devName)));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -297,10 +302,10 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
-            return rsp(mgr.deleteTask(msgId, queueEvent));
+            return rsp(mgr.deleteTask(msgId, queueEvent), msgId);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -323,29 +328,21 @@ public class QueueManagerRS {
             return "{\"deleted\":" + deleted + '}';
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
     }
 
-    private static Response rsp(Response.Status status, Object entity) {
-        return Response.status(status).entity(entity).build();
-    }
-
-    private Response rsp(Response.Status status) {
-        return Response.status(status).build();
-    }
-
-    private static Response rsp(boolean result) {
-        return Response.status(result
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+    private Response rsp(boolean result, String msgID) {
+        return result
+                ? Response.noContent().build()
+                : errResponseAsTextPlain(errorMessage("No such Queue Message : " + msgID), Response.Status.NOT_FOUND);
     }
 
     private static Response count(long count) {
-        return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+        return Response.ok("{\"count\":" + count + '}').build();
     }
 
     private int count(Response response, String devName) {
@@ -389,13 +386,22 @@ public class QueueManagerRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}", 
+                request.getMethod(), 
+                request.getRequestURI(), 
+                request.getQueryString(),
+                request.getRemoteUser(), 
+                request.getRemoteHost());
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

@@ -121,20 +121,20 @@ public class ConfigurationRS {
     @NoCache
     @Path("/devices/{DeviceName}")
     @Produces("application/json")
-    public StreamingOutput getDevice(@PathParam("DeviceName") String deviceName) {
+    public Response getDevice(@PathParam("DeviceName") String deviceName) {
         logRequest();
         final Device device;
         try {
             device = conf.findDevice(deviceName);
-            return out -> {
-                JsonGenerator w = Json.createGenerator(out);
-                jsonConf.writeTo(device, w, true);
-                w.flush();
-            };
+            return Response.ok((StreamingOutput) out -> {
+                    JsonGenerator w = Json.createGenerator(out);
+                    jsonConf.writeTo(device, w, true);
+                    w.flush();
+                }).build();
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -142,21 +142,21 @@ public class ConfigurationRS {
     @NoCache
     @Path("/devices")
     @Produces("application/json")
-    public StreamingOutput listDevices() {
+    public Response listDevices() {
         logRequest();
         try {
             final DeviceInfo[] deviceInfos = conf.listDeviceInfos(toDeviceInfo(uriInfo));
             Arrays.sort(deviceInfos, Comparator.comparing(DeviceInfo::getDeviceName));
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
                     for (DeviceInfo deviceInfo : deviceInfos)
                         jsonConf.writeTo(deviceInfo, gen);
                     gen.writeEnd();
                     gen.flush();
-            };
+                }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -164,21 +164,21 @@ public class ConfigurationRS {
     @NoCache
     @Path("/aes")
     @Produces("application/json")
-    public StreamingOutput listAETs() {
+    public Response listAETs() {
         logRequest();
         try {
             final ApplicationEntityInfo[] aeInfos = conf.listAETInfos(toApplicationEntityInfo(uriInfo));
             Arrays.sort(aeInfos, Comparator.comparing(ApplicationEntityInfo::getAETitle));
-            return out -> {
-                JsonGenerator gen = Json.createGenerator(out);
-                gen.writeStartArray();
-                for (ApplicationEntityInfo aeInfo : aeInfos)
-                    jsonConf.writeTo(aeInfo, gen);
-                gen.writeEnd();
-                gen.flush();
-            };
+            return Response.ok((StreamingOutput) out -> {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    for (ApplicationEntityInfo aeInfo : aeInfos)
+                        jsonConf.writeTo(aeInfo, gen);
+                    gen.writeEnd();
+                    gen.flush();
+                }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -186,21 +186,21 @@ public class ConfigurationRS {
     @NoCache
     @Path("/webapps")
     @Produces("application/json")
-    public StreamingOutput listWebApps() {
+    public Response listWebApps() {
         logRequest();
         try {
             final WebApplicationInfo[] webappInfos = conf.listWebApplicationInfos(toWebApplicationInfo(uriInfo));
             Arrays.sort(webappInfos, Comparator.comparing(WebApplicationInfo::getApplicationName));
-            return out -> {
-                JsonGenerator gen = Json.createGenerator(out);
-                gen.writeStartArray();
-                for (WebApplicationInfo webappInfo : webappInfos)
-                    jsonConf.writeTo(webappInfo, gen);
-                gen.writeEnd();
-                gen.flush();
-            };
+            return Response.ok((StreamingOutput) out -> {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    for (WebApplicationInfo webappInfo : webappInfos)
+                        jsonConf.writeTo(webappInfo, gen);
+                    gen.writeEnd();
+                    gen.flush();
+                }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -208,22 +208,22 @@ public class ConfigurationRS {
     @NoCache
     @Path("/hl7apps")
     @Produces("application/json")
-    public StreamingOutput listHL7Apps() {
+    public Response listHL7Apps() {
         logRequest();
         try {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             final HL7ApplicationInfo[] hl7AppInfos = hl7Conf.listHL7AppInfos(toHL7ApplicationInfo(uriInfo));
             Arrays.sort(hl7AppInfos, Comparator.comparing(HL7ApplicationInfo::getHl7ApplicationName));
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
                     for (HL7ApplicationInfo hl7AppInfo : hl7AppInfos)
                         jsonConf.writeTo(hl7AppInfo, gen);
                     gen.writeEnd();
                     gen.flush();
-            };
+                }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -231,12 +231,12 @@ public class ConfigurationRS {
     @NoCache
     @Path("/unique/aets")
     @Produces("application/json")
-    public StreamingOutput listRegisteredAETS() {
+    public Response listRegisteredAETS() {
         logRequest();
         try {
             return writeJsonArray(conf.listRegisteredAETitles());
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -244,14 +244,14 @@ public class ConfigurationRS {
     @NoCache
     @Path("/unique/hl7apps")
     @Produces("application/json")
-    public StreamingOutput listRegisteredHL7Apps() {
+    public Response listRegisteredHL7Apps() {
         logRequest();
         try {
             return writeJsonArray(
                     conf.getDicomConfigurationExtension(HL7Configuration.class)
                             .listRegisteredHL7ApplicationNames());
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -259,24 +259,24 @@ public class ConfigurationRS {
     @NoCache
     @Path("/unique/webAppNames")
     @Produces("application/json")
-    public StreamingOutput listRegisteredWebAppNames() {
+    public Response listRegisteredWebAppNames() {
         logRequest();
         try {
             return writeJsonArray(conf.listRegisteredWebAppNames());
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private StreamingOutput writeJsonArray(String[] values) {
-        return out -> {
+    private Response writeJsonArray(String[] values) {
+        return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (String value : values)
                     gen.write(value);
                 gen.writeEnd();
                 gen.flush();
-        };
+            }).build();
     }
 
     private EnumSet<DicomConfiguration.Option> options() {
@@ -301,9 +301,11 @@ public class ConfigurationRS {
             ConfigurationChanges diffs = conf.persist(device, options());
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -318,9 +320,11 @@ public class ConfigurationRS {
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -331,10 +335,12 @@ public class ConfigurationRS {
         logRequest();
         try {
             if (!conf.registerAETitle(aet))
-                throw new WebApplicationException(errResponse(
-                        "Application Entity Title " + aet + " already registered.", Response.Status.CONFLICT));
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        errorMessage("Application Entity Title " + aet + " already registered."),
+                        Response.Status.CONFLICT));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -345,11 +351,13 @@ public class ConfigurationRS {
         try {
             List<String> aets = Arrays.asList(conf.listRegisteredAETitles());
             if (!aets.contains(aet))
-                throw new WebApplicationException(errResponse(
-                        "Application Entity Title " + aet + " not registered.", Response.Status.NOT_FOUND));
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        errorMessage("Application Entity Title " + aet + " not registered."),
+                        Response.Status.NOT_FOUND));
             conf.unregisterAETitle(aet);
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -361,10 +369,12 @@ public class ConfigurationRS {
         try {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             if (!hl7Conf.registerHL7Application(appName))
-                throw new WebApplicationException(errResponse(
-                        "HL7 Application " + appName + " already registered.", Response.Status.CONFLICT));
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        errorMessage("HL7 Application " + appName + " already registered."),
+                        Response.Status.CONFLICT));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -376,11 +386,13 @@ public class ConfigurationRS {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             List<String> hl7apps = Arrays.asList(hl7Conf.listRegisteredHL7ApplicationNames());
             if (!hl7apps.contains(appName))
-                throw new WebApplicationException(errResponse(
-                        "HL7 Application " + appName + " not registered.", Response.Status.NOT_FOUND));
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        errorMessage("HL7 Application " + appName + " not registered."),
+                        Response.Status.NOT_FOUND));
                 hl7Conf.unregisterHL7Application(appName);
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -391,10 +403,12 @@ public class ConfigurationRS {
         logRequest();
         try {
             if (!conf.registerWebAppName(webAppName))
-                throw new WebApplicationException(errResponse(
-                        "Web Application " + webAppName + " already registered.", Response.Status.CONFLICT));
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        errorMessage("Web Application " + webAppName + " already registered."),
+                        Response.Status.CONFLICT));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -405,11 +419,13 @@ public class ConfigurationRS {
         try {
             List<String> webApps = Arrays.asList(conf.listRegisteredWebAppNames());
             if (!webApps.contains(webAppName))
-                throw new WebApplicationException(errResponse(
-                        "Web Application " + webAppName + " not registered.", Response.Status.NOT_FOUND));
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        errorMessage("Web Application " + webAppName + " not registered."),
+                        Response.Status.NOT_FOUND));
             conf.unregisterWebAppName(webAppName);
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -421,9 +437,11 @@ public class ConfigurationRS {
             ConfigurationChanges diffs = conf.removeDevice(deviceName, options());
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -442,12 +460,15 @@ public class ConfigurationRS {
                 status = Response.Status.OK;
             }
         } catch (ConfigurationNotFoundException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return Response.ok(content).status(status).type("application/zip")
-                .header("Content-Disposition", "attachment; filename=vendordata.zip").build();
+        return Response.status(status)
+                .entity(content)
+                .type("application/zip")
+                .header("Content-Disposition", "attachment; filename=vendordata.zip")
+                .build();
     }
 
     @PUT
@@ -460,11 +481,11 @@ public class ConfigurationRS {
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return Response.ok().status(Response.Status.NO_CONTENT).build();
+        return Response.noContent().build();
     }
 
     @DELETE
@@ -476,11 +497,11 @@ public class ConfigurationRS {
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return Response.ok().status(Response.Status.NO_CONTENT).build();
+        return Response.noContent().build();
     }
 
     private Device toDevice(String deviceName, Reader content) {
@@ -488,18 +509,19 @@ public class ConfigurationRS {
         try {
             device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
         } catch (JsonParsingException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage() + " at location : " + e.getLocation(),
-                            Response.Status.BAD_REQUEST));
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage(e.getMessage() + " at location : " + e.getLocation()), Response.Status.BAD_REQUEST));
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage(e.getMessage()), Response.Status.NOT_FOUND));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
 
         if (!device.getDeviceName().equals(deviceName))
-            throw new WebApplicationException(errResponse(
-                    "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    errorMessage("Device name in content[" + device.getDeviceName() + "] does not match Device name in URL"),
                     Response.Status.BAD_REQUEST));
 
         return device;
@@ -507,151 +529,152 @@ public class ConfigurationRS {
 
     private static DeviceInfo toDeviceInfo(UriInfo info) {
         DeviceInfo deviceInfo = new DeviceInfo();
-        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
-            switch (entry.getKey()) {
+        info.getQueryParameters().forEach((key, value) -> {
+            switch (key) {
                 case "dicomDeviceName":
-                    deviceInfo.setDeviceName(firstValueOf(entry));
+                    deviceInfo.setDeviceName(firstValueOf(value));
                     break;
                 case "dicomDescription":
-                    deviceInfo.setDescription(firstValueOf(entry));
+                    deviceInfo.setDescription(firstValueOf(value));
                     break;
                 case "dicomManufacturer":
-                    deviceInfo.setManufacturer(firstValueOf(entry));
+                    deviceInfo.setManufacturer(firstValueOf(value));
                     break;
                 case "dicomManufacturerModelName":
-                    deviceInfo.setManufacturerModelName(firstValueOf(entry));
+                    deviceInfo.setManufacturerModelName(firstValueOf(value));
                     break;
                 case "dicomSoftwareVersion":
-                    deviceInfo.setSoftwareVersions(toArray(entry));
+                    deviceInfo.setSoftwareVersions(toArray(value));
                     break;
                 case "dicomStationName":
-                    deviceInfo.setStationName(firstValueOf(entry));
+                    deviceInfo.setStationName(firstValueOf(value));
                     break;
                 case "dicomInstitutionName":
-                    deviceInfo.setInstitutionNames(toArray(entry));
+                    deviceInfo.setInstitutionNames(toArray(value));
                     break;
                 case "dicomInstitutionDepartmentName":
-                    deviceInfo.setInstitutionalDepartmentNames(toArray(entry));
+                    deviceInfo.setInstitutionalDepartmentNames(toArray(value));
                     break;
                 case "dicomPrimaryDeviceType":
-                    deviceInfo.setPrimaryDeviceTypes(toArray(entry));
+                    deviceInfo.setPrimaryDeviceTypes(toArray(value));
                     break;
                 case "dicomInstalled":
-                    deviceInfo.setInstalled(Boolean.parseBoolean(firstValueOf(entry)));
+                    deviceInfo.setInstalled(Boolean.parseBoolean(firstValueOf(value)));
                     break;
                 case "hasArcDevExt":
-                    deviceInfo.setArcDevExt(Boolean.parseBoolean(firstValueOf(entry)));
+                    deviceInfo.setArcDevExt(Boolean.parseBoolean(firstValueOf(value)));
                     break;
             }
-        }
+        });
         return deviceInfo;
     }
 
-    private static String firstValueOf(Map.Entry<String, List<String>> entry) {
-        return entry.getValue().get(0);
+    private static String firstValueOf(List<String> value) {
+        return value.get(0);
     }
 
-    private static String[] toArray(Map.Entry<String, List<String>> entry) {
-        return entry.getValue().toArray(StringUtils.EMPTY_STRING);
+    private static String[] toArray(List<String> value) {
+        return value.toArray(StringUtils.EMPTY_STRING);
     }
-
 
     private static ApplicationEntityInfo toApplicationEntityInfo(UriInfo info) {
         ApplicationEntityInfo aetInfo = new ApplicationEntityInfo();
-        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
-            switch (entry.getKey()) {
+        info.getQueryParameters().forEach((key, value) -> {
+            switch (key) {
                 case "dicomDeviceName":
-                    aetInfo.setDeviceName(firstValueOf(entry));
+                    aetInfo.setDeviceName(firstValueOf(value));
                     break;
                 case "dicomAETitle":
-                    aetInfo.setAETitle(firstValueOf(entry));
+                    aetInfo.setAETitle(firstValueOf(value));
                     break;
                 case "dicomAssociationInitiator":
-                    aetInfo.setAssociationInitiator(Boolean.parseBoolean(firstValueOf(entry)));
+                    aetInfo.setAssociationInitiator(Boolean.parseBoolean(firstValueOf(value)));
                     break;
                 case "dicomAssociationAcceptor":
-                    aetInfo.setAssociationAcceptor(Boolean.parseBoolean(firstValueOf(entry)));
+                    aetInfo.setAssociationAcceptor(Boolean.parseBoolean(firstValueOf(value)));
                     break;
                 case "dicomDescription":
-                    aetInfo.setDescription(firstValueOf(entry));
+                    aetInfo.setDescription(firstValueOf(value));
                     break;
                 case "dicomApplicationCluster":
-                    aetInfo.setApplicationClusters(toArray(entry));
+                    aetInfo.setApplicationClusters(toArray(value));
                     break;
             }
-        }
+        });
         return aetInfo;
     }
 
     private static WebApplicationInfo toWebApplicationInfo(UriInfo info) {
         WebApplicationInfo webappInfo = new WebApplicationInfo();
-        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
-            switch (entry.getKey()) {
+        info.getQueryParameters().forEach((key, value) -> {
+            switch (key) {
                 case "dicomDeviceName":
-                    webappInfo.setDeviceName(firstValueOf(entry));
+                    webappInfo.setDeviceName(firstValueOf(value));
                     break;
                 case "dcmWebAppName":
-                    webappInfo.setApplicationName(firstValueOf(entry));
+                    webappInfo.setApplicationName(firstValueOf(value));
                     break;
                 case "dicomDescription":
-                    webappInfo.setDescription(firstValueOf(entry));
+                    webappInfo.setDescription(firstValueOf(value));
                     break;
                 case "dcmWebServicePath":
-                    webappInfo.setServicePath(firstValueOf(entry));
+                    webappInfo.setServicePath(firstValueOf(value));
                     break;
                 case "dcmWebServiceClass":
-                    webappInfo.setServiceClasses(toServiceClasses(entry.getValue()));
+                    webappInfo.setServiceClasses(toServiceClasses(value));
                     break;
                 case "dicomAETitle":
-                    webappInfo.setAETitle(firstValueOf(entry));
+                    webappInfo.setAETitle(firstValueOf(value));
                     break;
                 case "dicomApplicationCluster":
-                    webappInfo.setApplicationClusters(toArray(entry));
+                    webappInfo.setApplicationClusters(toArray(value));
                     break;
             }
-        }
+        });
         return webappInfo;
     }
 
     private static WebApplication.ServiceClass[] toServiceClasses(List<String> values) {
-        WebApplication.ServiceClass[] serviceClasses = new WebApplication.ServiceClass[values.size()];
-        for (int i = 0; i < serviceClasses.length; i++) {
-            serviceClasses[i] = WebApplication.ServiceClass.valueOf(values.get(i));
-        }
-        return serviceClasses;
+        return values.stream()
+                .map(WebApplication.ServiceClass::valueOf)
+                .toArray(WebApplication.ServiceClass[]::new);
     }
 
     private static HL7ApplicationInfo toHL7ApplicationInfo(UriInfo info) {
         HL7ApplicationInfo hl7AppInfo = new HL7ApplicationInfo();
-        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
-            switch (entry.getKey()) {
+        info.getQueryParameters().forEach((key, value) -> {
+            switch (key) {
                 case "dicomDeviceName":
-                    hl7AppInfo.setDeviceName(firstValueOf(entry));
+                    hl7AppInfo.setDeviceName(firstValueOf(value));
                     break;
                 case "hl7ApplicationName":
-                    hl7AppInfo.setHl7ApplicationName(firstValueOf(entry));
+                    hl7AppInfo.setHl7ApplicationName(firstValueOf(value));
                     break;
                 case "dicomApplicationCluster":
-                    hl7AppInfo.setApplicationClusters(toArray(entry));
+                    hl7AppInfo.setApplicationClusters(toArray(value));
                     break;
             }
-        }
+        });
         return hl7AppInfo;
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponse(Object errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private String errorMessage(String msg) {
+        return "{\"errorMessage\":\"" + msg + "\"}";
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
