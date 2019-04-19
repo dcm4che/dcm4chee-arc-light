@@ -24,6 +24,10 @@
       "description": "Select Keycloak Server from where to get the bearer token for accessing the Elasticsearch",
       "type":  "string",
       "format": "dcmKeycloakServer"
+    },"dcmuiAuditEnterpriseSiteID": {
+      "title": "Audit Enterprise SiteID",
+      "description": "Set Audit Enterprise SiteID which should be used on Elasticsearch queries",
+      "type": "string"
     },
     "dcmuiElasticsearchIsDefault": {
       "title": "Is Default",

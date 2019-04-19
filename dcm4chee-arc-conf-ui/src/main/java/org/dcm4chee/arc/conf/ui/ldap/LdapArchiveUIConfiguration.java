@@ -327,6 +327,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURLKeycloakServer", uiElasticsearchURL.getElasticsearchURLKeycloakServer(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiAuditEnterpriseSiteID", uiElasticsearchURL.getAuditEnterpriseSiteID(), null);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchIsDefault",uiElasticsearchURL.isDefault(),false);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchInstalled",uiElasticsearchURL.isInstalled(),true);
         return attrs;
@@ -563,6 +564,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 UIElasticsearchURL uiElasticsearchURL = new UIElasticsearchURL((String) attrs.get("dcmuiElasticsearchURLName").get());
                 uiElasticsearchURL.setUrl(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchURL"), null));
                 uiElasticsearchURL.setElasticsearchURLKeycloakServer(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchURLKeycloakServer"), null));
+                uiElasticsearchURL.setAuditEnterpriseSiteID(LdapUtils.stringValue(attrs.get("dcmuiAuditEnterpriseSiteID"), null));
                 uiElasticsearchURL.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiElasticsearchIsDefault"),false));
                 uiElasticsearchURL.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiElasticsearchInstalled"),true));
                 uiElasticsearchConfig.addURL(uiElasticsearchURL);
@@ -1032,6 +1034,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURLKeycloakServer",
                 prev.getElasticsearchURLKeycloakServer(),
                 uiElasticsearchURL.getElasticsearchURLKeycloakServer(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiAuditEnterpriseSiteID",
+                prev.getAuditEnterpriseSiteID(),
+                uiElasticsearchURL.getAuditEnterpriseSiteID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiElasticsearchIsDefault",
                 prev.isDefault(),
                 uiElasticsearchURL.isDefault(), false) ;

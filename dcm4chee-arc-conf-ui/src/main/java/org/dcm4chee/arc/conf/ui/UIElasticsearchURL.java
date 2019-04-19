@@ -7,6 +7,7 @@ package org.dcm4chee.arc.conf.ui;
 public class UIElasticsearchURL {
     private String urlName;
     private String url;
+    private String auditEnterpriseSiteID;
     private String elasticsearchURLKeycloakServer;
     private boolean isDefault;
     private boolean installed = true;
@@ -31,6 +32,14 @@ public class UIElasticsearchURL {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getAuditEnterpriseSiteID() {
+        return auditEnterpriseSiteID;
+    }
+
+    public void setAuditEnterpriseSiteID(String auditEnterpriseSiteID) {
+        this.auditEnterpriseSiteID = auditEnterpriseSiteID;
     }
 
     public String getElasticsearchURLKeycloakServer() {
