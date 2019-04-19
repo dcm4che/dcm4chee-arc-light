@@ -90,7 +90,7 @@ public class MatchTask {
     }
 
     public List<Predicate> exportBatchPredicates(
-            From<ExportTask, QueueMessage> queueMsg, Root<ExportTask> exportTask,
+            Path<QueueMessage> queueMsg, Path<ExportTask> exportTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
@@ -108,7 +108,7 @@ public class MatchTask {
     }
 
     public List<Predicate> stgVerBatchPredicates(
-            From<StorageVerificationTask, QueueMessage> queueMsg, Root<StorageVerificationTask> stgVerTask,
+            Path<QueueMessage> queueMsg, Path<StorageVerificationTask> stgVerTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
@@ -117,7 +117,7 @@ public class MatchTask {
     }
 
     public List<Predicate> diffBatchPredicates(
-            From<DiffTask, QueueMessage> queueMsg, Root<DiffTask> diffTask,
+            Path<QueueMessage> queueMsg, Path<DiffTask> diffTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
         matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
