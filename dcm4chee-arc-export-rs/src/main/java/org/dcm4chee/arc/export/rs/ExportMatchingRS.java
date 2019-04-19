@@ -190,6 +190,10 @@ public class ExportMatchingRS {
         return request.getRequestURI() + '?' + request.getQueryString();
     }
 
+    public void validate() {
+        new QueryAttributes(uriInfo, null);
+    }
+
     @POST
     @Path("/studies")
     @Produces("application/json")

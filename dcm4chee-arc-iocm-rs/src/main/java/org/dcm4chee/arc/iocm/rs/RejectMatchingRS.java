@@ -164,6 +164,10 @@ public class RejectMatchingRS {
     @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
     private String expirationState;
 
+    public void validate() {
+        new QueryAttributes(uriInfo, null);
+    }
+
     @POST
     @Path("/studies")
     @Produces("application/json")
