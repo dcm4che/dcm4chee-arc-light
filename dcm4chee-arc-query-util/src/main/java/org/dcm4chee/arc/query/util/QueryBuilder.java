@@ -389,8 +389,8 @@ public class QueryBuilder {
             x.add(values.length == 1 ? cb.equal(path, values[0]) : path.in(values));
     }
 
-    public static Predicate[] splitUIDPredicates(Path<String> path, String[] values, int inExpressionCountLimit) {
-        if (!isUniversalMatching(values))
+    public Predicate[] splitUIDPredicates(Path<String> path, String[] values, int inExpressionCountLimit) {
+        if (isUniversalMatching(values))
             return new Predicate[0];
 
         if (values.length <= inExpressionCountLimit)
