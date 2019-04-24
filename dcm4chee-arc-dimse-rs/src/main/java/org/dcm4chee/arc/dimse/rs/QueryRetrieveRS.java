@@ -193,10 +193,10 @@ public class QueryRetrieveRS {
         checkAE(aet, device.getApplicationEntity(aet, true));
         try {
             checkAE(externalAET, aeCache.get(externalAET));
-            Response.Status errorStatus = Response.Status.BAD_REQUEST;
+            Response.Status status = Response.Status.BAD_REQUEST;
             if (field < 1)
                 return errResponse(
-                        "CSV field for Study Instance UID should be greater than or equal to 1", errorStatus);
+                        "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
             int count = 0;
             String warning = null;
@@ -210,25 +210,23 @@ public class QueryRetrieveRS {
                             count++;
                     }
                 }
+                if (count == 0) {
+                    warning = "Empty file or Incorrect field position or Not a CSV file.";
+                    status = Response.Status.NO_CONTENT;
+                }
             } catch (QueueSizeLimitExceededException e) {
-                errorStatus = Response.Status.SERVICE_UNAVAILABLE;
+                status = Response.Status.SERVICE_UNAVAILABLE;
                 warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
             }
 
-            if (warning == null) {
-                if (count > 0)
-                    return Response.accepted(count(count)).build();
-                else {
-                    String warn = "Empty file or Field position incorrect";
-                    LOG.warn("Response No Content caused by {}", warn);
-                    return Response.noContent().header("Warning", warn).build();
-                }
-            }
+            if (warning == null && count > 0)
+                return Response.accepted(count(count)).build();
 
-            LOG.warn("Response {} caused by {}", errorStatus, warning);
-            Response.ResponseBuilder builder = Response.status(errorStatus)
+            LOG.warn("Response {} caused by {}", status, warning);
+            Response.ResponseBuilder builder = Response.status(status)
                     .header("Warning", warning);
             if (count > 0)
                 builder.entity(count(count));

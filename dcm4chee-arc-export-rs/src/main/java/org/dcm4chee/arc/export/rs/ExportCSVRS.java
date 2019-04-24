@@ -91,58 +91,66 @@ public class ExportCSVRS {
 
     @POST
     @Path("/studies/csv:{field}")
+    @Consumes("text/csv")
     @Produces("application/json")
     public Response exportStudies(@PathParam("field") int field, InputStream in) {
         logRequest();
-        Response.Status errorStatus = Response.Status.BAD_REQUEST;
-        if (field < 1)
-            return errResponse(errorStatus,
-                    "CSV field for Study Instance UID should be greater than or equal to 1");
+        Response.Status status = Response.Status.BAD_REQUEST;
+        try {
+            if (field < 1)
+                return errResponse(status,
+                        "CSV field for Study Instance UID should be greater than or equal to 1");
 
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+            ApplicationEntity ae = device.getApplicationEntity(aet, true);
+            if (ae == null || !ae.isInstalled())
+                return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-        if (exporter == null)
-            return errResponse(Response.Status.NOT_FOUND, "No such Exporter: " + exporterID);
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+            if (exporter == null)
+                return errResponse(Response.Status.NOT_FOUND, "No such Exporter: " + exporterID);
 
-        int count = 0;
-        String warning = null;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
-                if (count > 0 || UIDUtils.isValid(studyUID)) {
-                    exportManager.scheduleExportTask(
-                            studyUID,
-                            null,
-                            null,
-                            exporter,
-                            HttpServletRequestInfo.valueOf(request),
-                            batchID);
-                    count++;
+            int count = 0;
+            String warning = null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
+                    if (count > 0 || UIDUtils.isValid(studyUID)) {
+                        exportManager.scheduleExportTask(
+                                studyUID,
+                                null,
+                                null,
+                                exporter,
+                                HttpServletRequestInfo.valueOf(request),
+                                batchID);
+                        count++;
+                    }
                 }
+                if (count == 0) {
+                    warning = "Empty file or Incorrect field position or Not a CSV file.";
+                    status = Response.Status.NO_CONTENT;
+                }
+            } catch (QueueSizeLimitExceededException e) {
+                status = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
             }
-        } catch (QueueSizeLimitExceededException e) {
-            errorStatus = Response.Status.SERVICE_UNAVAILABLE;
-            warning = e.getMessage();
+
+            if (warning == null && count > 0)
+                return Response.accepted(count(count)).build();
+
+            LOG.warn("Response {} caused by {}", status, warning);
+            Response.ResponseBuilder builder = Response.status(status)
+                    .header("Warning", warning);
+            if (count > 0)
+                builder.entity(count(count));
+            return builder.build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-
-        if (warning == null)
-            return count > 0
-                    ? Response.accepted(count(count)).build()
-                    : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
-
-        LOG.warn("Response {} caused by {}", errorStatus, warning);
-        Response.ResponseBuilder builder = Response.status(errorStatus)
-                .header("Warning", warning);
-        if (count > 0)
-            builder.entity(count(count));
-        return builder.build();
     }
 
     private void logRequest() {

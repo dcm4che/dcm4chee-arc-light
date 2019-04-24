@@ -240,10 +240,10 @@ public class DiffRS {
             @PathParam("field") int field,
             InputStream in) {
         logRequest();
-        Response.Status errorStatus = Response.Status.BAD_REQUEST;
+        Response.Status status = Response.Status.BAD_REQUEST;
         if (field < 1)
             return errResponse(
-                    "CSV field for Study Instance UID should be greater than or equal to 1", errorStatus);
+                    "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
         int count = 0;
         String warning = null;
@@ -260,20 +260,23 @@ public class DiffRS {
                     count++;
                 }
             }
+            if (count == 0) {
+                warning = "Empty file or Incorrect field position or Not a CSV file.";
+                status = Response.Status.NO_CONTENT;
+            }
         } catch (QueueSizeLimitExceededException e) {
-            errorStatus = Response.Status.SERVICE_UNAVAILABLE;
+            status = Response.Status.SERVICE_UNAVAILABLE;
             warning = e.getMessage();
         } catch (Exception e) {
             warning = e.getMessage();
+            status = Response.Status.INTERNAL_SERVER_ERROR;
         }
 
-        if (warning == null)
-            return count > 0
-                    ? Response.accepted(count(count)).build()
-                    : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
+        if (warning == null && count > 0)
+            return Response.accepted(count(count)).build();
 
-        LOG.warn(warning);
-        Response.ResponseBuilder builder = Response.status(errorStatus)
+        LOG.warn("Response {} caused by {}", status, warning);
+        Response.ResponseBuilder builder = Response.status(status)
                 .header("Warning", warning);
         if (count > 0)
             builder.entity(count(count));
