@@ -75,6 +75,11 @@
       "description": "Specifies if HL7 v2 null values (|\"\"|) are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. Overwrites value specified on Device level.",
       "type": "boolean"
     },
+    "hl7VeterinaryUsePatientName": {
+      "title": "HL7 Veterinary use Patient Name",
+      "description": "Indicates to force veterinary use of Patient Names on mapping HL7 PID fields to DICOM attributes: only use the first two components of PID.5 as DICOM Patient Name; if PID.5 only contains one component, use that value as given name, and the first component of PID.9 as family name of the DICOM Patient Name. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
     "hl7OrderMissingStudyIUIDPolicy": {
       "title": "HL7 Order Missing Study Instance UID Policy",
       "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages.",

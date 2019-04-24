@@ -1329,6 +1329,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.275 NAME 'hl7DicomCharacterSet'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.276 NAME 'hl7VeterinaryUsePatientName'
+  DESC 'Indicates to force veterinary use of Patient Names on mapping HL7 PID fields to DICOM attributes: only use the first two components of PID.5 as DICOM Patient Name; if PID.5 only contains one component, use that value as given name, and the first component of PID.9 as family name of the DICOM Patient Name. Disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1507,7 +1512,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PSUTaskFetchSize $
     hl7UseNullValue $
     hl7OrderMissingStudyIUIDPolicy $
-    hl7DicomCharacterSet ))
+    hl7DicomCharacterSet $
+    hl7VeterinaryUsePatientName ))
 objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
@@ -1614,6 +1620,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
      hl7UseNullValue $
      hl7OrderMissingStudyIUIDPolicy $
      hl7DicomCharacterSet $
+     hl7VeterinaryUsePatientName $
      dicomAETitle ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
   DESC 'Storage Descriptor'
@@ -1789,8 +1796,9 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
   SUP top STRUCTURAL
   MUST (
     cn $
-    dcmURI )
+    dcmWebAppName )
   MAY (
+    dcmURI $
     dcmKeycloakServerID $
     dcmTLSAllowAnyHostname $
     dcmTLSDisableTrustManager $
