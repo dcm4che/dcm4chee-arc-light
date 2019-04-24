@@ -78,6 +78,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -180,7 +181,7 @@ public class DiffTaskRS {
                     output.type)
                     .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -195,7 +196,7 @@ public class DiffTaskRS {
                     queueTaskQueryParam(deviceName, status()),
                     diffTaskQueryParam(updatedTime)));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -207,7 +208,7 @@ public class DiffTaskRS {
         logRequest();
         DiffTask diffTask = diffService.getDiffTask(taskPK);
         if (diffTask == null)
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return errResponse("No such Diff Task : " + taskPK, Response.Status.NOT_FOUND);
 
         if (diffTask.getMatches() == 0)
             return Response.noContent().build();
@@ -217,7 +218,7 @@ public class DiffTaskRS {
                     entity(diffService.getDiffTaskAttributes(diffTask, parseInt(offset), parseInt(limit))))
                     .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -227,13 +228,13 @@ public class DiffTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return rsp(diffService.cancelDiffTask(pk, queueEvent));
+            return rsp(diffService.cancelDiffTask(pk, queueEvent), pk);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -245,9 +246,9 @@ public class DiffTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -259,7 +260,7 @@ public class DiffTaskRS {
             return count(count);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -270,22 +271,22 @@ public class DiffTaskRS {
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : diffService.findDeviceNameByPk(pk);
             if (devName == null)
-                return rsp(Response.Status.NOT_FOUND, "Task not found");
+                return errResponse("Task not found", Response.Status.NOT_FOUND);
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
             diffService.rescheduleDiffTask(pk, queueEvent);
-            return rsp(Response.Status.NO_CONTENT);
+            return Response.noContent().build();
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -296,11 +297,11 @@ public class DiffTaskRS {
     public Response rescheduleDiffTasks() {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
 
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
@@ -314,7 +315,7 @@ public class DiffTaskRS {
                             queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             diffTaskQueryParam));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -343,8 +344,7 @@ public class DiffTaskRS {
                                                                 queueTaskQueryParam,
                                                                 diffTaskQueryParam,
                                                                 rescheduleTasksFetchSize);
-                for (String diffTaskQueueMsgID : diffTaskQueueMsgIDs)
-                    diffService.rescheduleDiffTask(diffTaskQueueMsgID);
+                diffTaskQueueMsgIDs.forEach(diffTaskQueueMsgID -> diffService.rescheduleDiffTask(diffTaskQueueMsgID));
                 count = diffTaskQueueMsgIDs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
@@ -365,10 +365,10 @@ public class DiffTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
-            return rsp(diffService.deleteDiffTask(pk, queueEvent));
+            return rsp(diffService.deleteDiffTask(pk, queueEvent), pk);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -393,7 +393,8 @@ public class DiffTaskRS {
             return "{\"deleted\":" + deleted + '}';
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -417,8 +418,7 @@ public class DiffTaskRS {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasNext())
-                        tasks.next().writeAsJSONTo(gen);
+                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen));
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -430,10 +430,17 @@ public class DiffTaskRS {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     DiffTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasNext())
-                        tasks.next().writeAsCSVTo(writer, delimiter);
+                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task));
                     writer.flush();
                 };
+            }
+
+            private void writeTaskToCSV(Writer writer, DiffTask task) {
+                try {
+                    task.writeAsCSVTo(writer, delimiter);
+                } catch (IOException e) {
+                    LOG.warn("{}", e);
+                }
             }
         };
 
@@ -467,20 +474,24 @@ public class DiffTaskRS {
             try (JsonGenerator gen = Json.createGenerator(output)) {
                 JSONWriter writer = new JSONWriter(gen);
                 gen.writeStartArray();
-                for (byte[] diffTaskAttributes : diffTaskAttributesList)
-                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes, null));
+                diffTaskAttributesList.forEach(diffTaskAttributes ->
+                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes, null)));
                 gen.writeEnd();
             }
         };
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private static Response count(long count) {
-        return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+        return Response.ok("{\"count\":" + count + '}').build();
     }
 
     private int count(Response response, String devName) {
@@ -500,22 +511,21 @@ public class DiffTaskRS {
         return count;
     }
 
-    private static Response rsp(Response.Status status, Object entity) {
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
-    private Response rsp(Response.Status status) {
-        return Response.status(status).build();
-    }
-
-    private static Response rsp(boolean result) {
-        return Response.status(result
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+    private Response rsp(boolean result, long pk) {
+        return result
+                ? Response.noContent().build()
+                : errResponse("No such Diff Task : " + pk, Response.Status.NOT_FOUND);
     }
 
     private Response notAcceptable() {
+        LOG.warn("Response Status : Not Acceptable. Accept Media Type(s) in request : \n{}",
+                httpHeaders.getAcceptableMediaTypes().stream()
+                        .map(MediaType::toString)
+                        .collect(Collectors.joining("\n")));
         return Response.notAcceptable(
                 Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                 .build();
@@ -529,9 +539,10 @@ public class DiffTaskRS {
         return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

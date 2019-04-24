@@ -121,13 +121,14 @@ public class StgVerBatchRS {
     public Response listStgVerBatches() {
         logRequest();
         try {
-            List<StgVerBatch> stgVerBatches = stgCmtMgr.listStgVerBatches(
-                    queueBatchQueryParam(),
-                    stgVerBatchQueryParam(),
-                    parseInt(offset), parseInt(limit));
-            return Response.ok().entity(Output.JSON.entity(stgVerBatches)).build();
+            return Response.ok(
+                    Output.JSON.entity(stgCmtMgr.listStgVerBatches(
+                        queueBatchQueryParam(),
+                        stgVerBatchQueryParam(),
+                        parseInt(offset), parseInt(limit))))
+                    .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -138,7 +139,7 @@ public class StgVerBatchRS {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    for (StgVerBatch stgVerBatch : stgVerBatches) {
+                    stgVerBatches.forEach(stgVerBatch -> {
                         JsonWriter writer = new JsonWriter(gen);
                         gen.writeStartObject();
                         writer.writeNotNullOrDef("batchID", stgVerBatch.getBatchID(), null);
@@ -156,7 +157,7 @@ public class StgVerBatchRS {
                         writer.writeNotEmpty("processingEndTimeRange",
                                 datesAsStrings(stgVerBatch.getProcessingEndTimeRange()));
                         gen.writeEnd();
-                    }
+                    });
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -194,13 +195,18 @@ public class StgVerBatchRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -117,8 +117,8 @@ public class DeleteRejected {
         Code code = new Code(codeValue, designator, null, "?");
         RejectionNote rjNote = arcDev.getRejectionNote(code);
         if (rjNote == null)
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("Unknown Rejection Note Code: " + code), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
 
         try {
             Date before = parseDate(rejectedBefore);
@@ -148,14 +148,14 @@ public class DeleteRejected {
         try {
             return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         } catch (IllegalStateException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("Archive Device Extension not configured for device: " + device.getDeviceName()),
+            throw new WebApplicationException(
+                    errResponse("Archive Device Extension not configured for device: " + device.getDeviceName(),
                     Response.Status.NOT_FOUND));
         }
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

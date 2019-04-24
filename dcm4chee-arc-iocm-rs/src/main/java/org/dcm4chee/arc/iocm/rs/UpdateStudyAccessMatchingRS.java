@@ -166,8 +166,7 @@ public class UpdateStudyAccessMatchingRS {
         logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND);
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -242,8 +241,8 @@ public class UpdateStudyAccessMatchingRS {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

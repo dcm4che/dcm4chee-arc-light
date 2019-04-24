@@ -158,15 +158,15 @@ public class DiffPatientDemographicsRS {
         logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return responseAsTextPlain(Response.Status.NOT_FOUND, errorMessage("No such Application Entity: " + aet));
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (arcdev == null)
-            return responseAsTextPlain(Response.Status.NOT_FOUND, errorMessage("Archive Device Extension not configured."));
+            return errResponse("Archive Device Extension not configured.", Response.Status.NOT_FOUND);
 
         PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
         if (descriptor == null)
-            return responseAsTextPlain(Response.Status.NOT_FOUND, errorMessage("No such PDQ Service: " + pdqServiceID));
+            return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
 
         try {
             QueryContext ctx = createQueryContext(ae);
@@ -175,7 +175,7 @@ public class DiffPatientDemographicsRS {
             int queryMaxNumberOfResults1 = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
             if (queryMaxNumberOfResults1 > 0 && !ctx.containsUniqueKey()
                     && query.fetchCount() > queryMaxNumberOfResults1)
-                return responseAsTextPlain(Response.Status.BAD_REQUEST, errorMessage("Request entity too large"));
+                return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
             query.executeQuery(arcdev.getQueryFetchSize());
             return (query.hasMoreMatches()
@@ -183,7 +183,7 @@ public class DiffPatientDemographicsRS {
                         : Response.noContent())
                     .build();
         } catch (Exception e) {
-            return responseAsTextPlain(Response.Status.INTERNAL_SERVER_ERROR, exceptionAsString(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
    }
 
@@ -207,11 +207,11 @@ public class DiffPatientDemographicsRS {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
-    private static Response responseAsTextPlain(Response.Status status, String message) {
+    private static Response errResponseAsTextPlain(String message, Response.Status status) {
         LOG.warn("Response {} caused by {}", status, message);
         return Response.status(status)
                 .entity(message)
@@ -316,7 +316,7 @@ public class DiffPatientDemographicsRS {
         try {
             return service.query(IDWithIssuer.pidOf(match));
         } catch (PDQServiceException e) {
-            throw new WebApplicationException(responseAsTextPlain(Response.Status.BAD_GATEWAY, exceptionAsString(e)));
+            throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY));
         }
     }
 

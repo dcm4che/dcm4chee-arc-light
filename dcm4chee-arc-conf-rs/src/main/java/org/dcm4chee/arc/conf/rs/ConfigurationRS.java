@@ -132,7 +132,7 @@ public class ConfigurationRS {
                     w.flush();
                 }).build();
         } catch (ConfigurationNotFoundException e) {
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -302,7 +302,7 @@ public class ConfigurationRS {
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
             throw new WebApplicationException(
-                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT));
+                    errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -321,7 +321,7 @@ public class ConfigurationRS {
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
             throw new WebApplicationException(
-                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT));
+                    errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -335,9 +335,9 @@ public class ConfigurationRS {
         logRequest();
         try {
             if (!conf.registerAETitle(aet))
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        errorMessage("Application Entity Title " + aet + " already registered."),
-                        Response.Status.CONFLICT));
+                throw new WebApplicationException(
+                        errResponse("Application Entity Title " + aet + " already registered.",
+                                Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -351,9 +351,9 @@ public class ConfigurationRS {
         try {
             List<String> aets = Arrays.asList(conf.listRegisteredAETitles());
             if (!aets.contains(aet))
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        errorMessage("Application Entity Title " + aet + " not registered."),
-                        Response.Status.NOT_FOUND));
+                throw new WebApplicationException(
+                        errResponse("Application Entity Title " + aet + " not registered.",
+                                Response.Status.NOT_FOUND));
             conf.unregisterAETitle(aet);
         } catch (Exception e) {
             throw new WebApplicationException(
@@ -369,8 +369,8 @@ public class ConfigurationRS {
         try {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             if (!hl7Conf.registerHL7Application(appName))
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        errorMessage("HL7 Application " + appName + " already registered."),
+                throw new WebApplicationException(
+                        errResponse("HL7 Application " + appName + " already registered.",
                         Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
@@ -386,8 +386,8 @@ public class ConfigurationRS {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             List<String> hl7apps = Arrays.asList(hl7Conf.listRegisteredHL7ApplicationNames());
             if (!hl7apps.contains(appName))
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        errorMessage("HL7 Application " + appName + " not registered."),
+                throw new WebApplicationException(
+                        errResponse("HL7 Application " + appName + " not registered.",
                         Response.Status.NOT_FOUND));
                 hl7Conf.unregisterHL7Application(appName);
         } catch (Exception e) {
@@ -403,8 +403,8 @@ public class ConfigurationRS {
         logRequest();
         try {
             if (!conf.registerWebAppName(webAppName))
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        errorMessage("Web Application " + webAppName + " already registered."),
+                throw new WebApplicationException(
+                        errResponse("Web Application " + webAppName + " already registered.",
                         Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
@@ -419,8 +419,8 @@ public class ConfigurationRS {
         try {
             List<String> webApps = Arrays.asList(conf.listRegisteredWebAppNames());
             if (!webApps.contains(webAppName))
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        errorMessage("Web Application " + webAppName + " not registered."),
+                throw new WebApplicationException(
+                        errResponse("Web Application " + webAppName + " not registered.",
                         Response.Status.NOT_FOUND));
             conf.unregisterWebAppName(webAppName);
         } catch (Exception e) {
@@ -438,7 +438,7 @@ public class ConfigurationRS {
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(
-                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND));
+                    errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -460,7 +460,7 @@ public class ConfigurationRS {
                 status = Response.Status.OK;
             }
         } catch (ConfigurationNotFoundException e) {
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -481,7 +481,7 @@ public class ConfigurationRS {
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -497,7 +497,7 @@ public class ConfigurationRS {
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -509,19 +509,19 @@ public class ConfigurationRS {
         try {
             device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
         } catch (JsonParsingException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage(e.getMessage() + " at location : " + e.getLocation()), Response.Status.BAD_REQUEST));
+            throw new WebApplicationException(
+                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage(e.getMessage()), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
 
         if (!device.getDeviceName().equals(deviceName))
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("Device name in content[" + device.getDeviceName() + "] does not match Device name in URL"),
+            throw new WebApplicationException(
+                    errResponse("Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                     Response.Status.BAD_REQUEST));
 
         return device;
@@ -667,8 +667,8 @@ public class ConfigurationRS {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

@@ -204,7 +204,7 @@ public class RetrieveRS {
             retrieveManager.scheduleRetrieveTask(
                     priority(), createExtRetrieveCtx(destAET, keys), batchID, null, 0L);
         } catch (QueueSizeLimitExceededException e) {
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.SERVICE_UNAVAILABLE);
+            return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
         }
         return Response.accepted().build();
     }
@@ -232,13 +232,13 @@ public class RetrieveRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

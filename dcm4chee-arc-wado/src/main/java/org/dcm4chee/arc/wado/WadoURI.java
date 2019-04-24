@@ -196,8 +196,7 @@ public class WadoURI {
         // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
         // s. https://issues.jboss.org/browse/RESTEASY-903
         request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
-        LOG.info("Process GET {}?{} from {}@{}",
-                request.getRequestURI(), request.getQueryString(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         try {
             checkAET();
             final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
@@ -220,6 +219,15 @@ public class WadoURI {
         } catch (Exception e) {
             ar.resume(e);
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
@@ -357,7 +365,8 @@ public class WadoURI {
         try {
             return TemplatesCache.getDefault().get(uri);
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -488,14 +497,21 @@ public class WadoURI {
         }
     }
 
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    private static Response errResponse(String errorMessage, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
+    private static Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private static String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 }

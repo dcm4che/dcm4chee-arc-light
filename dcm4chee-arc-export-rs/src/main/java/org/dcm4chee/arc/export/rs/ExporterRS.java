@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -151,10 +151,10 @@ public class ExporterRS {
     }
 
     private Response export(String studyUID, String seriesUID, String objectUID, String exporterID) {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
         boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
@@ -162,10 +162,10 @@ public class ExporterRS {
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter != null) {
             if (bOnlyIAN && exporter.getIanDestinations().length == 0)
-                return errResponse(Response.Status.NOT_FOUND, "No IAN Destinations configured");
+                return errResponse("No IAN Destinations configured", Response.Status.NOT_FOUND);
 
             if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
-                return errResponse(Response.Status.NOT_FOUND, "No Storage Commitment SCP configured");
+                return errResponse("No Storage Commitment SCP configured", Response.Status.NOT_FOUND);
 
             try {
                 if (bOnlyIAN || bOnlyStgCmt) {
@@ -178,9 +178,9 @@ public class ExporterRS {
                     exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter,
                             HttpServletRequestInfo.valueOf(request), batchID);
             } catch (QueueSizeLimitExceededException e) {
-                return errResponse(Response.Status.SERVICE_UNAVAILABLE, e.getMessage());
+                return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
             } catch (Exception e) {
-                return errResponseAsTextPlain(e);
+                return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
             }
 
             return Response.accepted().build();
@@ -188,13 +188,13 @@ public class ExporterRS {
 
         URI exportURI = toDicomURI(exporterID);
         if (exportURI == null)
-            return errResponse(Response.Status.NOT_FOUND, "Exporter not found.");
+            return errResponse("Export destination should start with dicom:", Response.Status.NOT_FOUND);
         if (bOnlyStgCmt)
-            return errResponse(Response.Status.BAD_REQUEST,
-                    "only-stgcmt=true not allowed with exporterID: " + exporterID);
+            return errResponse(
+                    "only-stgcmt=true not allowed with exporterID: " + exporterID, Response.Status.BAD_REQUEST);
         if (bOnlyIAN)
-            return errResponse(Response.Status.BAD_REQUEST,
-                    "only-ian=true not allowed with exporterID: " + exporterID);
+            return errResponse(
+                    "only-ian=true not allowed with exporterID: " + exporterID, Response.Status.BAD_REQUEST);
 
         try {
             RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(
@@ -204,10 +204,19 @@ public class ExporterRS {
                     .export(retrieveContext);
             return toResponse(retrieveContext);
         } catch (ConfigurationNotFoundException e) {
-            return errResponse(Response.Status.NOT_FOUND, e.getMessage());
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private static Response toResponse(RetrieveContext retrieveContext) {
@@ -215,10 +224,13 @@ public class ExporterRS {
     }
 
     private static Response.Status status(RetrieveContext ctx) {
-        return ctx.getException() != null ? Response.Status.BAD_GATEWAY
-            : ctx.failed() == 0 ? Response.Status.OK
-                : ctx.completed() + ctx.warning() > 0 ? Response.Status.PARTIAL_CONTENT
-                : Response.Status.BAD_GATEWAY;
+        return ctx.getException() != null
+                ? Response.Status.BAD_GATEWAY
+                : ctx.failed() == 0
+                    ? Response.Status.OK
+                    : ctx.completed() + ctx.warning() > 0
+                        ? Response.Status.PARTIAL_CONTENT
+                        : Response.Status.BAD_GATEWAY;
     }
 
     private static Object entity(final RetrieveContext ctx) {
@@ -240,20 +252,19 @@ public class ExporterRS {
             try {
                 return new URI(exporterID);
             } catch (URISyntaxException e) {
-                LOG.warn("Malformed URI");
+                LOG.warn("Malformed URI : {}", exporterID);
             }
         return null;
     }
 
-    private Response errResponse(Response.Status status, String message) {
-        return Response.status(status)
-                .entity("{\"errorMessage\":\"" + message + "\"}")
-                .build();
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

@@ -93,12 +93,7 @@ public class ExportCSVRS {
     @Path("/studies/csv:{field}")
     @Produces("application/json")
     public Response exportStudies(@PathParam("field") int field, InputStream in) {
-        LOG.info("Process POST {}?{} from {}@{}",
-                request.getRequestURI(),
-                request.getQueryString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
-
+        logRequest();
         Response.Status errorStatus = Response.Status.BAD_REQUEST;
         if (field < 1)
             return errResponse(errorStatus,
@@ -134,7 +129,7 @@ public class ExportCSVRS {
             errorStatus = Response.Status.SERVICE_UNAVAILABLE;
             warning = e.getMessage();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         if (warning == null)
@@ -142,6 +137,7 @@ public class ExportCSVRS {
                     ? Response.accepted(count(count)).build()
                     : Response.noContent().header("Warning", "Empty file or Field position incorrect").build();
 
+        LOG.warn("Response {} caused by {}", errorStatus, warning);
         Response.ResponseBuilder builder = Response.status(errorStatus)
                 .header("Warning", warning);
         if (count > 0)
@@ -149,19 +145,27 @@ public class ExportCSVRS {
         return builder.build();
     }
 
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
+    }
+
     private static String count(int count) {
         return "{\"count\":" + count + '}';
     }
 
-    private static Response errResponse(Response.Status status, String message) {
-        return Response.status(status)
-                .entity("{\"errorMessage\":\"" + message + "\"}")
-                .build();
+    private Response errResponse(Response.Status status, String msg) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

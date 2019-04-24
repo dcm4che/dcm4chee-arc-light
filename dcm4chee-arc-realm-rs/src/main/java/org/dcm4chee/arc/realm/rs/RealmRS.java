@@ -50,7 +50,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -81,10 +80,10 @@ public class RealmRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() {
+    public Response query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         try {
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                     if (request.getUserPrincipal() != null) {
                         JsonGenerator gen = Json.createGenerator(out);
                         JsonWriter writer = new JsonWriter(gen);
@@ -111,15 +110,16 @@ public class RealmRS {
                         w.write("{\"auth-server-url\":null,\"realm\":null,\"token\":null,\"user\":null,\"roles\":[]}");
                         w.flush();
                     }
-            };
+            }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

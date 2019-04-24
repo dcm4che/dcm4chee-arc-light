@@ -55,7 +55,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -82,20 +81,19 @@ public class QueryAETs {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() {
+    public Response query() {
         logRequest();
         try {
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (ApplicationEntity ae : sortedApplicationEntities())
                     writeTo(ae, gen);
                 gen.writeEnd();
                 gen.flush();
-            };
+            }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 

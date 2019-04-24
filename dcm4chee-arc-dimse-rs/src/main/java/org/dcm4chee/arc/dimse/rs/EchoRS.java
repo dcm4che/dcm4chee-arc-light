@@ -100,8 +100,8 @@ public class EchoRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 
@@ -109,15 +109,16 @@ public class EchoRS {
         try {
             return conf.findApplicationEntity(remoteAET);
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("No such Application Entity configured: " + remoteAET), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity configured: " + remoteAET, Response.Status.NOT_FOUND));
         } catch (ConfigurationException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

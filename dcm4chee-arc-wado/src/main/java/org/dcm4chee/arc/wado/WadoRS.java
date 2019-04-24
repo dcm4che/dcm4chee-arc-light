@@ -301,17 +301,12 @@ public class WadoRS {
 */
 
     private void logRequest() {
-        if (request.getQueryString() != null)
-            LOG.info("Process GET {}?{} from {}@{}",
-                    request.getRequestURI(),
-                    request.getQueryString(),
-                    request.getRemoteUser(),
-                    request.getRemoteHost());
-        else
-            LOG.info("Process GET {} from {}@{}",
-                    request.getRequestURI(),
-                    request.getRemoteUser(),
-                    request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private void initAcceptableMediaTypes() {
@@ -322,8 +317,8 @@ public class WadoRS {
         }
         acceptableMediaTypes = headers.getAcceptableMediaTypes();
         acceptableMultipartRelatedMediaTypes = acceptableMediaTypes.stream()
-                .map(m -> MediaTypes.getMultiPartRelatedType(m))
-                .filter(t -> t != null)
+                .map(MediaTypes::getMultiPartRelatedType)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         acceptableTransferSyntaxes = transferSyntaxesOf(acceptableMultipartRelatedMediaTypes.stream()
                 .filter(m -> m.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)));
@@ -394,7 +389,8 @@ public class WadoRS {
 
             Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
-                throw new WebApplicationException(errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
+                throw new WebApplicationException(
+                        errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
             if (respBuilder == null)
@@ -806,7 +802,8 @@ public class WadoRS {
                 zip.finish();
                 zip.flush();
             } catch (Exception e) {
-                throw new WebApplicationException(errResponseAsTextPlain(e));
+                throw new WebApplicationException(
+                        errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
             }
         };
     }
@@ -816,7 +813,7 @@ public class WadoRS {
             IntStream.range(0, name.length())
                     .filter(i -> name.charAt(i) == '/')
                     .mapToObj(i -> name.substring(0, i + 1))
-                    .filter(dirPath -> added.add(dirPath))
+                    .filter(added::add)
                     .forEach(dirPath -> {
                         try {
                             zip.putNextEntry(new ZipEntry(dirPath));
@@ -838,7 +835,8 @@ public class WadoRS {
                         try {
                             SAXTransformer.getSAXWriter(new StreamResult(out)).write(loadMetadata(ctx, inst));
                         } catch (Exception e) {
-                            throw new WebApplicationException(errResponseAsTextPlain(e));
+                            throw new WebApplicationException(
+                                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
                         }
                 },
                 MediaTypes.APPLICATION_DICOM_XML_TYPE);
@@ -857,7 +855,8 @@ public class WadoRS {
                     gen.writeEnd();
                     gen.flush();
                 } catch (Exception e) {
-                    throw new WebApplicationException(errResponseAsTextPlain(e));
+                    throw new WebApplicationException(
+                            errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
                 }
         };
     }
@@ -970,13 +969,20 @@ public class WadoRS {
     }
 
     private static Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
+    private static Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private static String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 }

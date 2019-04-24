@@ -268,7 +268,7 @@ public class StowRS {
     }
 
     private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws Exception {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
                 HttpServletRequestInfo.valueOf(request), getApplicationEntity(), null);
@@ -286,12 +286,17 @@ public class StowRS {
                         }
                     } catch (JsonParsingException e) {
                         throw new WebApplicationException(
-                                errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+                                errResponse(e.getMessage() + " at location : " + e.getLocation(),
+                                        Response.Status.BAD_REQUEST));
                     } catch (Exception e) {
                         if (instances.size() == 1)
-                            throw new WebApplicationException(e.getMessage());
-                        else
-                            throw new WebApplicationException("Failed to process Part #" + partNumber + headerParams, e);
+                            throw new WebApplicationException(
+                                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+                        else {
+                            LOG.warn("Failed to process Part #" + partNumber + headerParams);
+                            throw new WebApplicationException(
+                                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+                        }
                     }
                 });
         int instanceNumber = 0;
@@ -300,7 +305,19 @@ public class StowRS {
 
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
         Response.ResponseBuilder responseBuilder = Response.status(status());
-        ar.resume(responseBuilder.entity(output.entity(response)).header("Warning", response.getString(Tag.ErrorComment)).build());
+        ar.resume(responseBuilder
+                    .entity(output.entity(response))
+                    .header("Warning", response.getString(Tag.ErrorComment))
+                    .build());
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private void purgeSpoolDirectory() {
@@ -309,13 +326,13 @@ public class StowRS {
 
         try {
             try (DirectoryStream<java.nio.file.Path> dir = Files.newDirectoryStream(spoolDirectory)) {
-                for (java.nio.file.Path file : dir) {
+                dir.forEach(file -> {
                     try {
                         Files.delete(file);
                     } catch (IOException e) {
                         LOG.warn("Failed to delete bulkdata spool file {}", file, e);
                     }
-                }
+                });
             }
             Files.delete(spoolDirectory);
         } catch (IOException e) {
@@ -538,6 +555,7 @@ public class StowRS {
                     return;
             }
         } catch (Exception e) {
+            LOG.info("Failed to parse compressed pixel data {} for {}", compressedPixelData, file);
         }
         LOG.info("{}: Failed to valueOf bulkdata {} from {}", session, bulkdata.mediaType, bulkdata.bulkData.getURI());
     }
@@ -557,7 +575,8 @@ public class StowRS {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             LOG.error(sw.toString());
-            throw new WebApplicationException(errResponse("IOException caught while spooling bulkdata : " + e.getMessage(),
+            throw new WebApplicationException(
+                    errResponse("IOException caught while spooling bulkdata : " + e.getMessage(),
                     Response.Status.BAD_REQUEST));
         }
     }
@@ -630,7 +649,8 @@ public class StowRS {
                         try {
                             SAXTransformer.getSAXWriter(new StreamResult(out)).write(response);
                         } catch (Exception e) {
-                            throw new WebApplicationException(errResponseAsTextPlain(e));
+                            throw new WebApplicationException(
+                                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
                         }
                 };
             }
@@ -660,13 +680,20 @@ public class StowRS {
     }
 
     private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
     }
 
-    private static Response errResponseAsTextPlain(Exception e) {
+    private static Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private static String exceptionAsString(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+        return sw.toString();
     }
 }

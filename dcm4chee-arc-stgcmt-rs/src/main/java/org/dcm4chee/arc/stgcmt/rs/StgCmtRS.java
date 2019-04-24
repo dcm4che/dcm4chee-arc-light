@@ -111,15 +111,15 @@ public class StgCmtRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput listStgCmts() {
+    public Response listStgCmts() {
         logRequest();
         try {
             final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
                     stgCmtResultQueryParam(), parseInt(offset), parseInt(limit));
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (StgCmtResult stgCmtResult : stgCmtResults) {
+                stgCmtResults.forEach(stgCmtResult -> {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
                     writer.writeNotNullOrDef("dicomDeviceName", stgCmtResult.getDeviceName(), null);
@@ -136,12 +136,12 @@ public class StgCmtRS {
                     writer.writeNotNullOrDef("createdTime", stgCmtResult.getCreatedTime().toString(), null);
                     writer.writeNotNullOrDef("updatedTime", stgCmtResult.getUpdatedTime().toString(), null);
                     gen.writeEnd();
-                }
+                });
                 gen.writeEnd();
                 gen.flush();
-            };
+            }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -151,20 +151,24 @@ public class StgCmtRS {
         logRequest();
         try {
             if (!mgr.deleteStgCmt(transactionUID))
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
+                throw new WebApplicationException(
+                        errResponse("No such Storage Commitment Result " + transactionUID, Response.Status.NOT_FOUND));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
     @DELETE
     @Produces("application/json")
-    public String deleteStgCmts() {
+    public Response deleteStgCmts() {
         logRequest();
         try {
-            return "{\"deleted\":" + mgr.deleteStgCmts(statusOf(status), parseDate(updatedBefore)) + '}';
+            return Response.ok(
+                    "{\"deleted\":" + mgr.deleteStgCmts(statusOf(status), parseDate(updatedBefore)) + '}')
+                    .build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -183,13 +187,22 @@ public class StgCmtRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

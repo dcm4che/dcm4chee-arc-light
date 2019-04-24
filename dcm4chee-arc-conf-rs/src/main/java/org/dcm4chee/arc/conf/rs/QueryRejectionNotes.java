@@ -85,10 +85,10 @@ public class QueryRejectionNotes {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() {
+    public Response query() {
         logRequest();
         try {
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (RejectionNote rjNote : sortedRejectionNotes()) {
@@ -104,10 +104,9 @@ public class QueryRejectionNotes {
                 }
                 gen.writeEnd();
                 gen.flush();
-            };
+            }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 

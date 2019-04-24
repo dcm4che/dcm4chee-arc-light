@@ -168,7 +168,7 @@ public class RejectRS {
             Code code = new Code(codeValue, designator, null, "?");
             RejectionNote rjNote = arcDev.getRejectionNote(code);
             if (rjNote == null)
-                return errResponseAsTextPlain(errorMessage("No such Rejection Note : " + code), Response.Status.NOT_FOUND);
+                return errResponse("No such Rejection Note : " + code, Response.Status.NOT_FOUND);
 
             List<Attributes> matches;
             try {
@@ -194,7 +194,7 @@ public class RejectRS {
                 return failed(Status.ProcessingFailure, e.getMessage(), null);
             }
             if (matches.isEmpty())
-                return errResponseAsTextPlain(errorMessage("No matches found for rejection"), Response.Status.NOT_FOUND);
+                return errResponse("No matches found for rejection", Response.Status.NOT_FOUND);
 
             KOSBuilder builder = new KOSBuilder(rjNote.getRejectionNoteCode(), 999, 1);
 
@@ -236,8 +236,8 @@ public class RejectRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 
@@ -280,8 +280,8 @@ public class RejectRS {
         };
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

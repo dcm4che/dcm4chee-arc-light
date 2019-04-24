@@ -73,6 +73,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -167,7 +168,7 @@ public class ExportTaskRS {
                     output.type)
                     .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -185,7 +186,7 @@ public class ExportTaskRS {
             return count(mgr.countTasks(queueTaskQueryParam(status),
                     exportTaskQueryParam(deviceName, updatedTime)));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -196,13 +197,13 @@ public class ExportTaskRS {
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
 
         try {
-            return rsp(mgr.cancelExportTask(pk, queueEvent));
+            return rsp(mgr.cancelExportTask(pk, queueEvent), pk);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -214,9 +215,9 @@ public class ExportTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -228,7 +229,7 @@ public class ExportTaskRS {
             return count(count);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -242,24 +243,21 @@ public class ExportTaskRS {
         try {
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
             if (devName == null)
-                return rsp(Response.Status.NOT_FOUND, "Task not found");
+                return errResponse("No such Export Task : " + pk, Response.Status.NOT_FOUND);
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            ArchiveDeviceExtension arcDev = arcDev();
-            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-            if (exporter == null)
-                return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
-
-            mgr.rescheduleExportTask(pk, exporter, queueEvent);
-            return Response.status(Response.Status.NO_CONTENT).build();
+            mgr.rescheduleExportTask(pk, exporter(exporterID), queueEvent);
+            return Response.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -281,9 +279,9 @@ public class ExportTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
         if (status == QueueMessage.Status.TO_SCHEDULE)
-            return rsp(Response.Status.CONFLICT, "Cannot reschedule tasks with status : TO SCHEDULE");
+            return errResponse("Cannot reschedule tasks with status : TO SCHEDULE", Response.Status.CONFLICT);
 
         try {
             ExporterDescriptor newExporter = null;
@@ -297,8 +295,10 @@ public class ExportTaskRS {
             return count(devName == null
                     ? rescheduleOnDistinctDevices(newExporter, status)
                     : rescheduleTasks(newExporter, newDeviceName != null ? null : devName, status));
+        } catch (IllegalArgumentException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -352,10 +352,10 @@ public class ExportTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
-            return rsp(mgr.deleteExportTask(pk, queueEvent));
+            return rsp(mgr.deleteExportTask(pk, queueEvent), pk);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -384,25 +384,21 @@ public class ExportTaskRS {
             return deleted(deleted);
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
     }
 
-    private static Response rsp(Response.Status status, Object entity) {
-        return Response.status(status).entity(entity).build();
-    }
-
-    private static Response rsp(boolean result) {
-        return Response.status(result
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+    private Response rsp(boolean result, long pk) {
+        return result
+                ? Response.noContent().build()
+                : errResponse("No such Export Task : " + pk, Response.Status.NOT_FOUND);
     }
 
     private static Response count(long count) {
-        return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+        return Response.ok("{\"count\":" + count + '}').build();
     }
 
     private static String deleted(int deleted) {
@@ -444,10 +440,7 @@ public class ExportTaskRS {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasNext()) {
-                        ExportTask task = tasks.next();
-                        task.writeAsJSONTo(gen, localAETitleOf(arcDev, task));
-                    }
+                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen, localAETitleOf(arcDev, task)));
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -459,12 +452,17 @@ public class ExportTaskRS {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     ExportTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasNext()) {
-                        ExportTask task = tasks.next();
-                        task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
-                    }
+                    tasks.forEachRemaining(task -> writeTaskToCSV(arcDev, writer, task));
                     writer.flush();
                 };
+            }
+
+            private void writeTaskToCSV(ArchiveDeviceExtension arcDev, Writer writer, ExportTask task) {
+                try {
+                    task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
+                } catch (IOException e) {
+                    LOG.warn("{}", e);
+                }
             }
         };
 
@@ -506,6 +504,10 @@ public class ExportTaskRS {
     }
 
     private Response notAcceptable() {
+        LOG.warn("Response Status : Not Acceptable. Accept Media Type(s) in request : \n{}",
+                httpHeaders.getAcceptableMediaTypes().stream()
+                        .map(MediaType::toString)
+                        .collect(Collectors.joining("\n")));
         return Response.notAcceptable(
                 Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                 .build();
@@ -520,13 +522,22 @@ public class ExportTaskRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

@@ -237,16 +237,15 @@ public class RejectMatchingRS {
         logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND);
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
             Code rjNoteCode;
             if (codeValue == null
                     || (rjNoteCode = toRejectionNote(codeValue, designator).getRejectionNoteCode()) == null)
-                return errResponseAsTextPlain(
-                        errorMessage("No such Rejection Note : " + codeValue + "^" + designator),
-                        Response.Status.NOT_FOUND);
+                return errResponse(
+                        "No such Rejection Note : " + codeValue + "^" + designator, Response.Status.NOT_FOUND);
+
             QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
             String warning = null;
             int count = 0;
@@ -362,8 +361,8 @@ public class RejectMatchingRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

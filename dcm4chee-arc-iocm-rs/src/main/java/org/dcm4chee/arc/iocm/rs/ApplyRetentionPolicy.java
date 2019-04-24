@@ -125,8 +125,7 @@ public class ApplyRetentionPolicy {
         logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND);
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
             ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -197,8 +196,8 @@ public class ApplyRetentionPolicy {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

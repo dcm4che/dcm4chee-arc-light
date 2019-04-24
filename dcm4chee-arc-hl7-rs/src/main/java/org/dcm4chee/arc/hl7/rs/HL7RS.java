@@ -135,7 +135,8 @@ public class HL7RS {
                     e.getMessage() + " at location : " + e.getLocation(),
                     Response.Status.BAD_REQUEST));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -183,7 +184,7 @@ public class HL7RS {
         } catch (ConfigurationNotFoundException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -196,12 +197,12 @@ public class HL7RS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private Response response(HL7Message ack) {
@@ -209,9 +210,12 @@ public class HL7RS {
             return errResponse( "Missing MSA segment in response message", Response.Status.BAD_GATEWAY);
 
         String status = ack.getSegment("MSA").getField(1, null);
-        return HL7Exception.AA.equals(status)
-                ? Response.noContent().build()
-                : Response.status(Response.Status.CONFLICT).entity(toStreamingOutput(ack, status)).build();
+        if (!HL7Exception.AA.equals(status)) {
+            LOG.warn("Response Conflict caused by HL7 Exception Error Status {}", status);
+            return Response.status(Response.Status.CONFLICT).entity(toStreamingOutput(ack, status)).build();
+        }
+
+        return Response.noContent().build();
     }
 
     private StreamingOutput toStreamingOutput(HL7Message ack, String status) {
@@ -227,7 +231,9 @@ public class HL7RS {
                 if (err != null) {
                     writer.writeNotNullOrDef("err-3", err.getField(3, null), null);
                     writer.writeNotNullOrDef("err-7", err.getField(7, null), null);
-                    writer.writeNotNullOrDef("err-8", err.getField(8, null), null);
+                    String errComment = err.getField(8, null);
+                    LOG.warn(errComment);
+                    writer.writeNotNullOrDef("err-8", errComment, null);
                 }
                 writer.writeNotNullOrDef("message", ack.toString(), null);
                 gen.writeEnd();
@@ -235,9 +241,14 @@ public class HL7RS {
         };
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

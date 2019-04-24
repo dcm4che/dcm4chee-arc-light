@@ -144,7 +144,7 @@ public class DiffBatchRS {
                     parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -165,7 +165,7 @@ public class DiffBatchRS {
                     parseInt(limit))))
                     .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -176,7 +176,7 @@ public class DiffBatchRS {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    for (DiffBatch diffBatch : diffBatches) {
+                    diffBatches.forEach(diffBatch -> {
                         JsonWriter writer = new JsonWriter(gen);
                         gen.writeStartObject();
                         writer.writeNotNullOrDef("batchID", diffBatch.getBatchID(), null);
@@ -197,7 +197,7 @@ public class DiffBatchRS {
                         writer.writeNotEmpty("processingStartTimeRange", datesAsStrings(diffBatch.getProcessingStartTimeRange()));
                         writer.writeNotEmpty("processingEndTimeRange", datesAsStrings(diffBatch.getProcessingEndTimeRange()));
                         gen.writeEnd();
-                    }
+                    });
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -239,8 +239,12 @@ public class DiffBatchRS {
     }
 
     private void logRequest() {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private static int parseInt(String s) {
@@ -251,9 +255,10 @@ public class DiffBatchRS {
         return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

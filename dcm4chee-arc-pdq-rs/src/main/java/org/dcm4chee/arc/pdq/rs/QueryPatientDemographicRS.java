@@ -98,8 +98,7 @@ public class QueryPatientDemographicRS {
             ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
             if (descriptor == null)
-                return errResponseAsTextPlain(
-                        errorMessage("No such PDQ Service: " + pdqServiceID), Response.Status.NOT_FOUND);
+                return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
 
             attrs = serviceFactory.getPDQService(descriptor).query(patientID);
         } catch (PDQServiceException e) {
@@ -109,8 +108,7 @@ public class QueryPatientDemographicRS {
         }
         return attrs != null
                 ? Response.ok(toJSON(attrs)).build()
-                : errResponseAsTextPlain(
-                        errorMessage("Querying the PDQ Service returned null attributes"), Response.Status.NOT_FOUND);
+                : errResponse("Querying the PDQ Service returned null attributes", Response.Status.NOT_FOUND);
     }
 
     private void logRequest() {
@@ -122,8 +120,8 @@ public class QueryPatientDemographicRS {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

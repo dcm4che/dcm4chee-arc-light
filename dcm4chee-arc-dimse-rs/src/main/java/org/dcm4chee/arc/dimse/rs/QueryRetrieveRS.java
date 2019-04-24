@@ -195,8 +195,8 @@ public class QueryRetrieveRS {
             checkAE(externalAET, aeCache.get(externalAET));
             Response.Status errorStatus = Response.Status.BAD_REQUEST;
             if (field < 1)
-                return errResponseAsTextPlain(errorMessage(
-                        "CSV field for Study Instance UID should be greater than or equal to 1"), errorStatus);
+                return errResponse(
+                        "CSV field for Study Instance UID should be greater than or equal to 1", errorStatus);
 
             int count = 0;
             String warning = null;
@@ -241,12 +241,12 @@ public class QueryRetrieveRS {
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
-                    errResponseAsTextPlain(errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

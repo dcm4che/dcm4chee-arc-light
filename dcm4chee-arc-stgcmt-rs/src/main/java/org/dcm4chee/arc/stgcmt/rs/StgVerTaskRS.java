@@ -72,6 +72,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -160,7 +161,7 @@ public class StgVerTaskRS {
                     output.type)
                     .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -175,7 +176,7 @@ public class StgVerTaskRS {
                     queueTaskQueryParam(deviceName, status()),
                     stgVerTaskQueryParam(updatedTime)));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -185,13 +186,13 @@ public class StgVerTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return rsp(stgCmtMgr.cancelStgVerTask(pk, queueEvent));
+            return rsp(stgCmtMgr.cancelStgVerTask(pk, queueEvent), pk);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -203,9 +204,9 @@ public class StgVerTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -217,7 +218,7 @@ public class StgVerTaskRS {
             return count(count);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -228,22 +229,22 @@ public class StgVerTaskRS {
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : stgCmtMgr.findDeviceNameByPk(pk);
             if (devName == null)
-                return rsp(Response.Status.NOT_FOUND, "Task not found");
+                return errResponse("No such Storage Verification Task : " + pk, Response.Status.NOT_FOUND);
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
             stgCmtMgr.rescheduleStgVerTask(pk, queueEvent);
-            return rsp(Response.Status.NO_CONTENT);
+            return Response.noContent().build();
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -254,11 +255,11 @@ public class StgVerTaskRS {
     public Response rescheduleStgVerTasks() {
         logRequest();
         if (newDeviceName != null)
-            return rsp(Response.Status.BAD_REQUEST, "newDeviceName query parameter temporarily not supported.");
+            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
 
         QueueMessage.Status status = status();
         if (status == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
@@ -272,7 +273,7 @@ public class StgVerTaskRS {
                             queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             stgVerTaskQueryParam));
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -300,8 +301,7 @@ public class StgVerTaskRS {
                                                                 queueTaskQueryParam,
                                                                 stgVerTaskQueryParam,
                                                                 rescheduleTasksFetchSize);
-                for (String stgVerTaskQueueMsgID : stgVerTaskQueueMsgIDs)
-                    stgCmtMgr.rescheduleStgVerTask(stgVerTaskQueueMsgID);
+                stgVerTaskQueueMsgIDs.forEach(stgVerTaskQueueMsgID -> stgCmtMgr.rescheduleStgVerTask(stgVerTaskQueueMsgID));
                 count = stgVerTaskQueueMsgIDs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
@@ -322,17 +322,17 @@ public class StgVerTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
-            return rsp(stgCmtMgr.deleteStgVerTask(pk, queueEvent));
+            return rsp(stgCmtMgr.deleteStgVerTask(pk, queueEvent), pk);
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
     }
 
     @DELETE
-    public String deleteTasks() {
+    public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
@@ -347,10 +347,10 @@ public class StgVerTaskRS {
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
-            return "{\"deleted\":" + deleted + '}';
+            return Response.ok("{\"deleted\":" + deleted + '}').build();
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -374,8 +374,7 @@ public class StgVerTaskRS {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    while (tasks.hasNext())
-                        tasks.next().writeAsJSONTo(gen);
+                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen));
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -387,10 +386,17 @@ public class StgVerTaskRS {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     StorageVerificationTask.writeCSVHeader(writer, delimiter);
-                    while (tasks.hasNext())
-                        tasks.next().writeAsCSVTo(writer, delimiter);
+                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task));
                     writer.flush();
                 };
+            }
+
+            private void writeTaskToCSV(Writer writer, StorageVerificationTask task) {
+                try {
+                    task.writeAsCSVTo(writer, delimiter);
+                } catch (IOException e) {
+                    LOG.warn("{}", e);
+                }
             }
         };
 
@@ -437,22 +443,13 @@ public class StgVerTaskRS {
     }
 
     private static Response count(long count) {
-        return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+        return Response.ok("{\"count\":" + count + '}').build();
     }
 
-    private static Response rsp(Response.Status status, Object entity) {
-        return Response.status(status).entity(entity).build();
-    }
-
-    private static Response rsp(boolean result) {
-        return Response.status(result
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
-    }
-
-    private Response rsp(Response.Status status) {
-        return Response.status(status).build();
+    private Response rsp(boolean result, long pk) {
+        return result
+                ? Response.noContent().build()
+                : errResponse("No such Storage Verification Task : " + pk, Response.Status.NOT_FOUND);
     }
 
     private QueueMessage.Status status() {
@@ -464,14 +461,23 @@ public class StgVerTaskRS {
     }
 
     private Response notAcceptable() {
+        LOG.warn("Response Status : Not Acceptable. Accept Media Type(s) in request : \n{}",
+                httpHeaders.getAcceptableMediaTypes().stream()
+                        .map(MediaType::toString)
+                        .collect(Collectors.joining("\n")));
         return Response.notAcceptable(
                 Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                 .build();
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
@@ -487,8 +493,12 @@ public class StgVerTaskRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}", request.getMethod(), request.getRequestURI(), request.getQueryString(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private TaskQueryParam queueTaskQueryParam(String deviceName, QueueMessage.Status status) {

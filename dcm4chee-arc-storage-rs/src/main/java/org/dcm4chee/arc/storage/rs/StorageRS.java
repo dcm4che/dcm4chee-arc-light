@@ -108,13 +108,13 @@ public class StorageRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput search() {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+    public Response search() {
+        logRequest();
         try {
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (StorageSystem ss : getStorageSystems()) {
+                getStorageSystems().forEach(ss -> {
                     StorageDescriptor desc = ss.desc;
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
@@ -141,13 +141,22 @@ public class StorageRS {
                     gen.write("usableSpace", ss.usableSpace);
                     gen.write("totalSpace", ss.totalSpace);
                     gen.writeEnd();
-                }
+                });
                 gen.writeEnd();
                 gen.flush();
-            };
+            }).build();
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(e));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private String[] descriptorProperties(Map<String, ?> props) {
@@ -162,11 +171,11 @@ public class StorageRS {
         if (deleterThresholds.isEmpty())
             return;
         writer.writeStartArray("deleterThreshold");
-        for (DeleterThreshold deleterThreshold : deleterThresholds) {
+        deleterThresholds.forEach(deleterThreshold -> {
             writer.writeStartObject();
             gen.write(deleterThreshold.getPrefix(), deleterThreshold.getMinUsableDiskSpace());
             writer.writeEnd();
-        }
+        });
         writer.writeEnd();
     }
 
@@ -180,14 +189,14 @@ public class StorageRS {
         }
         List<StorageSystem> storageSystems = new ArrayList<>();
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        for (StorageDescriptor desc : arcdev.getStorageDescriptors()) {
+        arcdev.getStorageDescriptors().forEach(desc -> {
             String storageID = desc.getStorageID();
             Set<String> usages = new HashSet<>();
             Set<String> aets = new HashSet<>();
-            if (StringUtils.contains(arcdev.getSeriesMetadataStorageIDs(), storageID)) {
+            if (StringUtils.contains(arcdev.getSeriesMetadataStorageIDs(), storageID))
                 usages.add("dcmSeriesMetadataStorageID");
-            }
-            for (ApplicationEntity ae : device.getApplicationEntities()) {
+
+            device.getApplicationEntities().forEach(ae -> {
                 ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
                 if (StringUtils.contains(arcAE.getObjectStorageIDs(), desc.getStorageID())) {
                     usages.add("dcmObjectStorageID");
@@ -197,7 +206,7 @@ public class StorageRS {
                     usages.add("dcmMetadataStorageID");
                     aets.add(ae.getAETitle());
                 }
-            }
+            });
             if ((dicomAETitle == null || aets.contains(dicomAETitle))
                 && (usage == null || usages.contains(usage))
                 && (storageClusterID == null || storageClusterID.equals(desc.getStorageClusterID()))
@@ -212,8 +221,8 @@ public class StorageRS {
                     LOG.warn("Failed to access {}", desc, e);
                 }
             }
-        }
-        Collections.sort(storageSystems, Comparator.comparing(storageSystem -> storageSystem.desc.getStorageID()));
+        });
+        storageSystems.sort(Comparator.comparing(storageSystem -> storageSystem.desc.getStorageID()));
         return storageSystems;
     }
 
@@ -236,9 +245,10 @@ public class StorageRS {
         }
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

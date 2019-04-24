@@ -231,7 +231,7 @@ public class RetrieveTaskRS {
             return rsp(mgr.cancelRetrieveTask(pk, queueEvent), pk);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT);
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -246,11 +246,9 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return errResponseAsTextPlain(
-                    errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return errResponseAsTextPlain(
-                    errorMessage("Cannot cancel tasks with status: " + status), Response.Status.BAD_REQUEST);
+            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -273,19 +271,16 @@ public class RetrieveTaskRS {
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
         if (newDeviceName != null)
-            return errResponseAsTextPlain(
-                    errorMessage("newDeviceName query parameter temporarily not supported."), Response.Status.BAD_REQUEST);
+            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
             if (devName == null)
-                return errResponseAsTextPlain(
-                        errorMessage("No such Retrieve Task : " + pk), Response.Status.NOT_FOUND);
+                return errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
 
             if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-                return errResponseAsTextPlain(
-                        errorMessage("No such Queue : " + newQueueName), Response.Status.NOT_FOUND);
+                return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
@@ -305,17 +300,14 @@ public class RetrieveTaskRS {
     public Response rescheduleRetrieveTasks() {
         logRequest();
         if (newDeviceName != null)
-            return errResponseAsTextPlain(
-                    errorMessage("newDeviceName query parameter temporarily not supported."), Response.Status.BAD_REQUEST);
+            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
 
         QueueMessage.Status status = status();
         if (status == null)
-            return errResponseAsTextPlain(
-                    errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
 
         if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-            return errResponseAsTextPlain(
-                    errorMessage("No such Queue : " + newQueueName), Response.Status.NOT_FOUND);
+            return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
@@ -418,7 +410,7 @@ public class RetrieveTaskRS {
     private Response rsp(boolean result, long pk) {
         return result
                 ? Response.noContent().build()
-                : errResponseAsTextPlain(errorMessage("No such Retrieve Task : " + pk), Response.Status.NOT_FOUND);
+                : errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
     }
 
     private static Response count(long count) {
@@ -538,8 +530,8 @@ public class RetrieveTaskRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

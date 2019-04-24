@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -134,9 +134,13 @@ public class StgVerRS {
     }
 
     private Response storageCommit(String studyUID, String seriesUID, String sopUID) {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
-                .setRequest(HttpServletRequestInfo.valueOf(request));
+        logRequest();
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        StgCmtContext ctx = new StgCmtContext(ae, aet)
+                                 .setRequest(HttpServletRequestInfo.valueOf(request));
         if (storageVerificationPolicy != null)
             ctx.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(storageVerificationPolicy));
         if (storageVerificationUpdateLocationStatus != null)
@@ -149,7 +153,7 @@ public class StgVerRS {
 
         } catch (IOException e) {
             ctx.setException(e);
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             stgCmtEvent.fire(ctx);
         }
@@ -159,9 +163,19 @@ public class StgVerRS {
                 .build();
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
@@ -173,7 +187,7 @@ public class StgVerRS {
     }
 
     private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
     }
 
     private Response.Status toStatus(Attributes eventInfo) {
@@ -197,13 +211,5 @@ public class StgVerRS {
                 gen.writeEnd();
             }
         };
-    }
-
-    private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
     }
 }

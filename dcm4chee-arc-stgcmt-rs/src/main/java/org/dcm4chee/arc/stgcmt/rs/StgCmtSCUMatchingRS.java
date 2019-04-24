@@ -224,12 +224,14 @@ public class StgCmtSCUMatchingRS {
 
     private Response storageCommitMatching(String method, QueryRetrieveLevel2 qrlevel, String studyUID, String seriesUID) {
         logRequest();
-        ApplicationEntity ae = validateAE(aet, device.getApplicationEntity(aet, true));
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
-            validateAE(externalAET, aeCache.get(externalAET));
+            aeCache.findApplicationEntity(externalAET);
         } catch (ConfigurationException e) {
-            return errResponseAsTextPlain(e);
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         }
 
         try {
@@ -255,11 +257,13 @@ public class StgCmtSCUMatchingRS {
                 }
             }
             Response.ResponseBuilder builder = Response.status(status);
-            if (warning != null)
+            if (warning != null) {
+                LOG.warn("Response {} caused by {}", status, warning);
                 builder.header("Warning", warning);
+            }
             return builder.entity("{\"count\":" + count + '}').build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -317,20 +321,22 @@ public class StgCmtSCUMatchingRS {
     }
 
     private void logRequest() {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private ApplicationEntity validateAE(String aet, ApplicationEntity ae) {
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponse(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND));
-        return ae;
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
@@ -339,9 +345,5 @@ public class StgCmtSCUMatchingRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 }

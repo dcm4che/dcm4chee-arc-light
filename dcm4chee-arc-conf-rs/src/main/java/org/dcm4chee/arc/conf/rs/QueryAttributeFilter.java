@@ -84,26 +84,24 @@ public class QueryAttributeFilter {
     @NoCache
     @Path("/{Entity}")
     @Produces("application/json")
-    public StreamingOutput getAttributeFilter(@PathParam("Entity") String entityName) {
+    public Response getAttributeFilter(@PathParam("Entity") String entityName) {
         logRequest();
         final Entity entity;
         try {
             entity = Entity.valueOf(entityName);
             final AttributeFilter filter = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getAttributeFilter(entity);
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 jsonConf.getJsonConfigurationExtension(JsonArchiveConfiguration.class)
                         .writeAttributeFilter(writer, entity, filter);
                 gen.flush();
-            };
+            }).build();
         } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage(e.getMessage()), Response.Status.BAD_REQUEST));
+            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -116,8 +114,8 @@ public class QueryAttributeFilter {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

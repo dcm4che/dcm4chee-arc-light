@@ -173,7 +173,7 @@ public class QueueManagerRS {
             return rsp(mgr.cancelTask(msgId, queueEvent), msgId);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.CONFLICT);
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -188,11 +188,9 @@ public class QueueManagerRS {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
-            return errResponseAsTextPlain(
-                    errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return errResponseAsTextPlain(
-                    errorMessage("Cannot cancel tasks with status: " + status), Response.Status.BAD_REQUEST);
+            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -213,15 +211,14 @@ public class QueueManagerRS {
     public Response rescheduleMessage(@PathParam("msgId") String msgId) {
         logRequest();
         if (newDeviceName != null)
-            return errResponseAsTextPlain(
-                    errorMessage("newDeviceName query parameter temporarily not supported."),
+            return errResponse("newDeviceName query parameter temporarily not supported.",
                     Response.Status.BAD_REQUEST);
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByMsgId(msgId);
             if (devName == null)
-                return errResponseAsTextPlain(errorMessage("Task not found"), Response.Status.NOT_FOUND);
+                return errResponse("Task not found", Response.Status.NOT_FOUND);
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
@@ -241,12 +238,11 @@ public class QueueManagerRS {
     public Response rescheduleMessages() {
         logRequest();
         if (newDeviceName != null)
-            return errResponseAsTextPlain(
-                    errorMessage("newDeviceName query parameter temporarily not supported."), Response.Status.BAD_REQUEST);
+            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
 
         QueueMessage.Status status = status();
         if (status == null)
-            return errResponseAsTextPlain(errorMessage("Missing query parameter: status"), Response.Status.BAD_REQUEST);
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
@@ -338,7 +334,7 @@ public class QueueManagerRS {
     private Response rsp(boolean result, String msgID) {
         return result
                 ? Response.noContent().build()
-                : errResponseAsTextPlain(errorMessage("No such Queue Message : " + msgID), Response.Status.NOT_FOUND);
+                : errResponse("No such Queue Message : " + msgID, Response.Status.NOT_FOUND);
     }
 
     private static Response count(long count) {
@@ -394,8 +390,8 @@ public class QueueManagerRS {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

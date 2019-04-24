@@ -130,9 +130,9 @@ public class ExportBatchRS {
                     exportBatchQueryParam(),
                     parseInt(offset),
                     parseInt(limit));
-            return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
+            return Response.ok(Output.JSON.entity(exportBatches)).build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -143,7 +143,7 @@ public class ExportBatchRS {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    for (ExportBatch exportBatch : exportBatches) {
+                    exportBatches.forEach(exportBatch -> {
                         JsonWriter writer = new JsonWriter(gen);
                         gen.writeStartObject();
                         writer.writeNotNullOrDef("batchID", exportBatch.getBatchID(), null);
@@ -156,7 +156,7 @@ public class ExportBatchRS {
                         writer.writeNotEmpty("processingStartTimeRange", datesAsStrings(exportBatch.getProcessingStartTimeRange()));
                         writer.writeNotEmpty("processingEndTimeRange", datesAsStrings(exportBatch.getProcessingEndTimeRange()));
                         gen.writeEnd();
-                    }
+                    });
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -194,13 +194,18 @@ public class ExportBatchRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

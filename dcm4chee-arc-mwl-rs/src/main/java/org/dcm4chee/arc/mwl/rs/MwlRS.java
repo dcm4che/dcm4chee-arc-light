@@ -117,19 +117,19 @@ public class MwlRS {
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID == null)
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("missing Patient ID in message body"), Response.Status.BAD_REQUEST));
+            throw new WebApplicationException(
+                    errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
 
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (spsItem == null)
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("Missing or empty (0040,0100) Scheduled Procedure Step Sequence"),
+            throw new WebApplicationException(
+                    errResponse("Missing or empty (0040,0100) Scheduled Procedure Step Sequence",
                     Response.Status.BAD_REQUEST));
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("Patient[id=" + patientID + "] does not exists"), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("Patient[id=" + patientID + "] does not exists", Response.Status.NOT_FOUND));
 
         try {
             if (!attrs.containsValue(Tag.AccessionNumber))
@@ -171,9 +171,9 @@ public class MwlRS {
             ctx.setSpsID(spsID);
             procedureService.deleteProcedure(ctx);
             if (ctx.getEventActionCode() == null)
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        errorMessage("MWLItem with study instance UID : " + studyIUID + " and SPS ID : "
-                                + spsID + " not found."),
+                throw new WebApplicationException(
+                        errResponse("MWLItem with study instance UID : " + studyIUID + " and SPS ID : "
+                                + spsID + " not found.",
                         Response.Status.NOT_FOUND));
             rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
         } catch (Exception e) {
@@ -187,8 +187,8 @@ public class MwlRS {
             return new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")))
                     .readDataset(null);
         } catch (JsonParsingException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage(e.getMessage() + " at location : " + e.getLocation()),
+            throw new WebApplicationException(
+                    errResponse(e.getMessage() + " at location : " + e.getLocation(),
                     Response.Status.BAD_REQUEST));
         } catch (Exception e) {
             throw new WebApplicationException(
@@ -208,13 +208,13 @@ public class MwlRS {
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae.getAEExtension(ArchiveAEExtension.class);
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

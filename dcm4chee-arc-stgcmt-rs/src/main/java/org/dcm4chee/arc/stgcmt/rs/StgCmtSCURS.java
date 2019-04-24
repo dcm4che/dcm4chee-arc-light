@@ -126,16 +126,18 @@ public class StgCmtSCURS {
 
     private Response storageCommit(String studyUID, String seriesUID, String sopUID, String externalAET) {
         logRequest();
-        ApplicationEntity ae = validateAE(aet, device.getApplicationEntity(aet, true));
-        Response.Status rspStatus = Response.Status.BAD_GATEWAY;
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
-            validateAE(externalAET, aeCache.get(externalAET));
+            aeCache.findApplicationEntity(externalAET);
         } catch (ConfigurationException e) {
-            return errResponseAsTextPlain(e);
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         }
 
         try {
+            Response.Status rspStatus = Response.Status.BAD_GATEWAY;
             Attributes actionInfo = queryService.createActionInfo(studyUID, seriesUID, sopUID, ae);
             if (actionInfo == null || actionInfo.getSequence(Tag.ReferencedSOPSequence).isEmpty())
                 return errResponse("No matching instances", Response.Status.NOT_FOUND);
@@ -157,7 +159,7 @@ public class StgCmtSCURS {
                     .entity(entity(actionInfo, dimseRSP))
                     .build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -178,20 +180,22 @@ public class StgCmtSCURS {
     }
 
     private void logRequest() {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
-    private ApplicationEntity validateAE(String aet, ApplicationEntity ae) {
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponse(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND));
-        return ae;
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }
@@ -200,9 +204,5 @@ public class StgCmtSCURS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private Response errResponse(String errorMessage, Response.Status status) {
-        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 }

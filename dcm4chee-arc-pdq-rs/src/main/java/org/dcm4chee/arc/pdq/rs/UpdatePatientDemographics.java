@@ -141,7 +141,7 @@ public class UpdatePatientDemographics {
             }
             return rsp(ctx);
         } catch(IllegalArgumentException e) {
-            return errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.NOT_FOUND);
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -164,8 +164,8 @@ public class UpdatePatientDemographics {
                 request.getRemoteHost());
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

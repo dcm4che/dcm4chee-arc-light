@@ -282,7 +282,7 @@ public class QueryRS {
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
         } catch (ConnectException e) {
             throw new WebApplicationException(
-                    errResponseAsTextPlain(errorMessage(e.getMessage()), Response.Status.BAD_GATEWAY));
+                    errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -300,8 +300,8 @@ public class QueryRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 
@@ -390,8 +390,8 @@ public class QueryRS {
         };
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

@@ -110,8 +110,7 @@ public class ImportImpaxReportRS {
         ApplicationEntity ae = getApplicationEntity();
         Attributes studyAttrs = queryService.getStudyAttributes(studyUID);
         if (studyAttrs == null)
-            return errResponseAsTextPlain(
-                    errorMessage("No such Study: " + studyUID), Response.Status.NOT_FOUND);
+            return errResponse("No such Study: " + studyUID, Response.Status.NOT_FOUND);
 
         List<String> xmlReports = queryReports(studyUID);
         try {
@@ -121,8 +120,7 @@ public class ImportImpaxReportRS {
             List<Attributes> srReports = converter.convert(xmlReports);
 
             if (srReports.isEmpty())
-                return errResponseAsTextPlain(
-                        errorMessage("SR Reports not found for the study"), Response.Status.CONFLICT);
+                return errResponse("SR Reports not found for the study", Response.Status.CONFLICT);
 
             Attributes response = new Attributes();
             response.setString(Tag.RetrieveURL, VR.UR, studyRetrieveURL().toString());
@@ -154,8 +152,8 @@ public class ImportImpaxReportRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("No such Application Entity: " + aet), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
 
         return ae;
     }
@@ -164,8 +162,7 @@ public class ImportImpaxReportRS {
         try {
             return reportService.queryReportByStudyUid(studyUID);
         } catch (WebServiceException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage(e.getMessage()), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -237,8 +234,8 @@ public class ImportImpaxReportRS {
         return attrs;
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

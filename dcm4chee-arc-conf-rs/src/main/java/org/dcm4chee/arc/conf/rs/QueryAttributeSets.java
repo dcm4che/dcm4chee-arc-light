@@ -78,12 +78,12 @@ public class QueryAttributeSets {
     @NoCache
     @Path("/{type}")
     @Produces("application/json")
-    public StreamingOutput listAttributeSets(@PathParam("type") String type) {
+    public Response listAttributeSets(@PathParam("type") String type) {
         logRequest();
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         try {
             final AttributeSet.Type attrSetType = AttributeSet.Type.valueOf(type);
-            return out -> {
+            return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (AttributeSet attrSet : sortedAttributeSets(arcDev.getAttributeSet(attrSetType))) {
@@ -98,13 +98,11 @@ public class QueryAttributeSets {
                 }
                 gen.writeEnd();
                 gen.flush();
-            };
+            }).build();
         } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(errResponseAsTextPlain(
-                    errorMessage("Attribute Set of type : " + type + " not found."), Response.Status.NOT_FOUND));
+            return errResponse("Attribute Set of type : " + type + " not found.", Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -124,8 +122,8 @@ public class QueryAttributeSets {
                             .toArray(AttributeSet[]::new);
     }
 
-    private String errorMessage(String msg) {
-        return "{\"errorMessage\":\"" + msg + "\"}";
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
