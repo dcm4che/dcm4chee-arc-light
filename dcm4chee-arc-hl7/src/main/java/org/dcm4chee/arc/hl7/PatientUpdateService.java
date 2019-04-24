@@ -42,6 +42,7 @@ package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
@@ -115,6 +116,9 @@ class PatientUpdateService extends DefaultHL7Service {
         HL7Segment msh = msg.msh();
 
         Attributes attrs = transform(msg, arcHL7App);
+        if (arcHL7App.hl7VeterinaryUsePatientName())
+            useHL7VeterinaryPatientName(attrs);
+
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)
@@ -161,6 +165,20 @@ class PatientUpdateService extends DefaultHL7Service {
         } finally {
             archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
         }
+    }
+
+    private static void useHL7VeterinaryPatientName(Attributes attrs) {
+        String patientName = attrs.getString(Tag.PatientName);
+        String responsiblePerson = attrs.getString(Tag.ResponsiblePerson);
+        int index = patientName.indexOf('^', patientName.indexOf('^') + 1);
+        patientName = index != -1
+                ? patientName.substring(0, index)
+                : !patientName.contains("^") && responsiblePerson != null
+                    ? (responsiblePerson.contains("^")
+                        ? responsiblePerson.substring(0, responsiblePerson.indexOf('^')) : responsiblePerson)
+                        + '^' + patientName
+                    : patientName;
+        attrs.setString(Tag.PatientName, VR.PN, patientName);
     }
 
     private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {

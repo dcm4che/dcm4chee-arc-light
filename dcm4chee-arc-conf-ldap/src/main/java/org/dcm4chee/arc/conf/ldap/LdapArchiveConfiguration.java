@@ -288,6 +288,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingStudyIUIDPolicy",
                 ext.getHl7OrderMissingStudyIUIDPolicy(), HL7OrderMissingStudyIUIDPolicy.GENERATE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
+                ext.isHl7VeterinaryUsePatientName(), false);
     }
 
     @Override
@@ -509,6 +511,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.enumValue(HL7OrderMissingStudyIUIDPolicy.class,
                         attrs.get("hl7OrderMissingStudyIUIDPolicy"), HL7OrderMissingStudyIUIDPolicy.GENERATE));
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
+        ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), false));
     }
 
     @Override
@@ -895,6 +898,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7DicomCharacterSet",
                 aa.getHl7DicomCharacterSet(), bb.getHl7DicomCharacterSet(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7VeterinaryUsePatientName",
+                aa.isHl7VeterinaryUsePatientName(),
+                bb.isHl7VeterinaryUsePatientName(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1188,7 +1195,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, ApplicationEntity prev, ApplicationEntity ae, List<ModificationItem> mods) {
+    protected void storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, ApplicationEntity prev,
+                              ApplicationEntity ae, List<ModificationItem> mods) {
         ArchiveAEExtension aa = prev.getAEExtension(ArchiveAEExtension.class);
         ArchiveAEExtension bb = ae.getAEExtension(ArchiveAEExtension.class);
         if (aa == null && bb == null)
