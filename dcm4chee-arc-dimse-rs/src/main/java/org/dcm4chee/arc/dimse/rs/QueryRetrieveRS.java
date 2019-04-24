@@ -66,6 +66,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
@@ -181,6 +182,11 @@ public class QueryRetrieveRS {
         return retrieveMatching(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET);
     }
 
+    @HeaderParam("Content-Type")
+    private MediaType contentType;
+
+    private char csvDelimiter = ',';
+
     @POST
     @Path("/studies/csv:{field}/export/dicom:{destinationAET}")
     @Consumes("text/csv")
@@ -198,12 +204,15 @@ public class QueryRetrieveRS {
                 return errResponse(
                         "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
+            if ("semicolon".equals(contentType.getParameters().get("delimiter")))
+                csvDelimiter = ';';
+
             int count = 0;
             String warning = null;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
+                    String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
                     if (count > 0 || UIDUtils.isValid(studyUID)) {
                         if (retrieveManager.scheduleRetrieveTask(
                                 priority(), createExtRetrieveCtx(destAET, studyUID), batchID, null, 0L))

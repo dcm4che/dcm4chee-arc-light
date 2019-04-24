@@ -74,10 +74,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.io.*;
 
 /**
@@ -159,6 +156,11 @@ public class DiffRS {
     public void validate() {
         new QueryAttributes(uriInfo, null);
     }
+
+    @HeaderParam("Content-Type")
+    private MediaType contentType;
+
+    private char csvDelimiter = ',';
 
     @GET
     @NoCache
@@ -245,12 +247,15 @@ public class DiffRS {
             return errResponse(
                     "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
+        if ("semicolon".equals(contentType.getParameters().get("delimiter")))
+            csvDelimiter = ';';
+
         int count = 0;
         String warning = null;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
+                String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
                 DiffContext ctx = createDiffContext();
                 if (count > 0 || UIDUtils.isValid(studyUID)) {
                     ctx.setQueryString(

@@ -55,6 +55,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
@@ -89,6 +90,11 @@ public class ExportCSVRS {
     @QueryParam("batchID")
     private String batchID;
 
+    @HeaderParam("Content-Type")
+    private MediaType contentType;
+
+    private char csvDelimiter = ',';
+
     @POST
     @Path("/studies/csv:{field}")
     @Consumes("text/csv")
@@ -110,12 +116,15 @@ public class ExportCSVRS {
             if (exporter == null)
                 return errResponse(Response.Status.NOT_FOUND, "No such Exporter: " + exporterID);
 
+            if ("semicolon".equals(contentType.getParameters().get("delimiter")))
+                csvDelimiter = ';';
+
             int count = 0;
             String warning = null;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
+                    String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
                     if (count > 0 || UIDUtils.isValid(studyUID)) {
                         exportManager.scheduleExportTask(
                                 studyUID,
