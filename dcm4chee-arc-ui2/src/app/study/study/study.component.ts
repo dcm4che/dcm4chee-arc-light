@@ -382,12 +382,15 @@ export class StudyComponent implements OnInit {
                 this.cfpLoadingBar.complete();
         });
     }
-    entryFilterChanged(){
-        this.studyDevice.selectedDevice = this.filter.filterEntryModel["device"];
-        this.deviceConfigurator.getDevice(this.studyDevice.selectedDevice).subscribe(device=>{
-            this.aetWebServicesList.deviceObject = device;
-            this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyDevice.devices, this.aetWebServicesList.aet);
-        });
+    entryFilterChanged(e){
+        console.log("e",e);
+        if(this.studyDevice.selectedDevice != this.filter.filterEntryModel["device"]){
+            this.studyDevice.selectedDevice = this.filter.filterEntryModel["device"];
+            this.deviceConfigurator.getDevice(this.studyDevice.selectedDevice).subscribe(device=>{
+                this.aetWebServicesList.deviceObject = device;
+                this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyDevice.devices, this.aetWebServicesList.dcmWebAppService);
+            });
+        }
     }
 
     filterChanged(){

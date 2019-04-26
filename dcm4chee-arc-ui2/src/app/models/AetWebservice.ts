@@ -87,9 +87,10 @@ export class AetWebservice {
             this._aetWebservice = this._aetWebservice || {aets:undefined, webAppservice:undefined};
             this._aetWebservice.webAppservice = this._dcmWebAppService;
         }else{
-            if(this._aetWebservice){
-                this._aetWebservice = undefined;
+            if(this._aetWebservice && this._aetWebservice.webAppservice){
+                this._aetWebservice.webAppservice = undefined;
             }
+            this._dcmWebAppService = undefined;
         }
     }
 
