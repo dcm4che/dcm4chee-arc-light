@@ -119,7 +119,6 @@ public class RetrieveRS {
             "Retrieve11|" +
             "Retrieve12|" +
             "Retrieve13")
-
     private String queueName;
 
     @QueryParam("batchID")

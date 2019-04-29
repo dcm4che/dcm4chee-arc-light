@@ -179,7 +179,7 @@ public class MatchTask {
             queryBuilder.dateRange(predicates, exportTask.get(ExportTask_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
-    private void matchRetrieveTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
+    public void matchRetrieveTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getRemoteAET() != null)

@@ -126,7 +126,7 @@ public class RetrieveTaskRS {
     private String studyIUID;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")

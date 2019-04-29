@@ -3011,6 +3011,7 @@
             "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
+              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
@@ -3131,6 +3132,7 @@
             "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
+              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
@@ -3344,6 +3346,7 @@
             "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
+              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
