@@ -166,6 +166,36 @@ public class RetrieveRS {
         return export(destinationAET, studyUID, seriesUID, objectUID);
     }
 
+    @POST
+    @Path("/studies/{StudyUID}/mark4retrieve/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response markStudy4Retrieve(
+            @PathParam("StudyUID") String studyUID,
+            @PathParam("DestinationAET") String destinationAET) {
+        return createRetrieveTask(destinationAET, studyUID);
+    }
+
+    @POST
+    @Path("/studies/{StudyUID}/series/{SeriesUID}/mark4retrieve/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response markSeries4Retrieve(
+            @PathParam("StudyUID") String studyUID,
+            @PathParam("SeriesUID") String seriesUID,
+            @PathParam("DestinationAET") String destinationAET) {
+        return createRetrieveTask(destinationAET, studyUID, seriesUID);
+    }
+
+    @POST
+    @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/mark4retrieve/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response markInstance4Retrieve(
+            @PathParam("StudyUID") String studyUID,
+            @PathParam("SeriesUID") String seriesUID,
+            @PathParam("ObjectUID") String objectUID,
+            @PathParam("DestinationAET") String destinationAET) {
+        return createRetrieveTask(destinationAET, studyUID, seriesUID, objectUID);
+    }
+
     private int priority() {
         return parseInt(priority, 0);
     }
@@ -188,6 +218,23 @@ public class RetrieveRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response createRetrieveTask(String destAET, String... uids) {
+        logRequest();
+        try {
+            checkAE(externalAET, aeCache.get(externalAET));
+        } catch (ConfigurationException e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
+        try {
+            Attributes keys = toKeys(uids);
+            retrieveManager.createRetrieveTask(createExtRetrieveCtx(destAET, keys), batchID);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return Response.noContent().build();
     }
 
     private void logRequest() {

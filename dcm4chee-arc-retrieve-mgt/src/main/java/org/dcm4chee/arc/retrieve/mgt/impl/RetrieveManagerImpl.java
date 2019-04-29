@@ -144,6 +144,11 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
+    public void createRetrieveTask(ExternalRetrieveContext ctx, String batchID) {
+        ejb.createRetrieveTask(ctx, batchID);
+    }
+
+    @Override
     public boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID,
                                         Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {

@@ -47,7 +47,7 @@ import javax.ejb.ApplicationException;
  * @since Oct 2017
  */
 @ApplicationException(rollback = true)
-public class QueueSizeLimitExceededException extends Exception {
+public class QueueSizeLimitExceededException extends RuntimeException {
     public QueueSizeLimitExceededException(QueueDescriptor descriptor) {
         super("Maximal number (=" + descriptor.getMaxQueueSize()
                 + ") of Tasks in Queue " + descriptor.getQueueName() + " reached");

@@ -154,6 +154,10 @@ public class RetrieveManagerEJB {
         return false;
     }
 
+    public void createRetrieveTask(ExternalRetrieveContext ctx, String batchID) {
+        createRetrieveTask(ctx, null, batchID);
+    }
+
     private void createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage, String batchID) {
         RetrieveTask task = new RetrieveTask();
         task.setLocalAET(ctx.getLocalAET());
