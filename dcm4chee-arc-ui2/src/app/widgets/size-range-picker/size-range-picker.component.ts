@@ -9,7 +9,7 @@ import {SelectDropdown} from "../../interfaces";
 export class SizeRangePickerComponent implements OnInit{
 
     modelValue : string;
-    units:SelectDropdown[] = [
+    units:SelectDropdown<any>[] = [
         new SelectDropdown("GB","GB"),
         new SelectDropdown("MB","MB"),
         new SelectDropdown("KB","KB"),

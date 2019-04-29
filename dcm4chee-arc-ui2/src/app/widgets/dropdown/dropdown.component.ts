@@ -44,7 +44,7 @@ import {SearchPipe} from "../../pipes/search.pipe";
 })
 export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     selectedValue:string;
-    selectedDropdown:SelectDropdown;
+    selectedDropdown:SelectDropdown<any>;
     @Input() placeholder:string;
     @Input() multiSelectMode:boolean = false;
     @Input() showSearchField:boolean = false;
@@ -136,7 +136,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
         })
         // this.changeDetectorRef.detectChanges();
     }
-    getSelectDropdownFromValue(value):SelectDropdown{
+    getSelectDropdownFromValue(value):SelectDropdown<any>{
         let endDropdown:any =  new SelectDropdown(value,'');
         if(value && this.children){
             this.children.forEach(element=>{

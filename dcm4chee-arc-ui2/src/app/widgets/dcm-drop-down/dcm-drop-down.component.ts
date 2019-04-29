@@ -32,7 +32,7 @@ import {element} from "protractor";
 })
 export class DcmDropDownComponent implements OnInit {
     selectedValue:any;
-    selectedDropdown:SelectDropdown;
+    selectedDropdown:SelectDropdown<any>;
     isAllCheck:boolean = false;
     multiSelectValue = [];
     @Input() placeholder:string;
@@ -40,8 +40,8 @@ export class DcmDropDownComponent implements OnInit {
     @Input() showSearchField:boolean = false;
     @Input() mixedMode:boolean = false;
     @Input() maxSelectedValueShown = 2;
-    @Input() options:SelectDropdown[];
-    @Input() optionsTree:{label:string, options:SelectDropdown[]}[];
+    @Input() options:SelectDropdown<any>[];
+    @Input() optionsTree:{label:string, options:SelectDropdown<any>[]}[];
     @Input() showStar:boolean = false;
     @Input('model')
     set model(value){
@@ -69,7 +69,7 @@ export class DcmDropDownComponent implements OnInit {
 
         }
     }
-    getSelectDropdownFromValue(value):SelectDropdown{
+    getSelectDropdownFromValue(value):SelectDropdown<any>{
         if(value && this.options){
             for(let element of this.options){
                 if(element.value === value){
