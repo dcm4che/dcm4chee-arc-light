@@ -25,7 +25,7 @@
               <input type="checkbox" *ngIf="option.value && option.value != '' && multiSelectMode" [(ngModel)]="option.selected">
               <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="option.htmlLabel" [innerHTML]="option.htmlLabel"></div>
               <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="!option.htmlLabel">
-                  {{option.value || option.label}}
+                  {{option.text || option.value || option.label}}
               </div>
           </li>
           <li class="option" *ngIf="!options || options.length === 0" (click)="select('')">
