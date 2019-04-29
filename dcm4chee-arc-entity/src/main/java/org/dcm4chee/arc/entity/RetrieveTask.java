@@ -62,7 +62,8 @@ import java.util.Date;
                 @Index(columnList = "destination_aet"),
                 @Index(columnList = "created_time"),
                 @Index(columnList = "updated_time"),
-                @Index(columnList = "study_iuid") }
+                @Index(columnList = "study_iuid"),
+                @Index(columnList = "batch_id") }
 )
 @NamedQueries({
         @NamedQuery(name = RetrieveTask.UPDATE_BY_QUEUE_MESSAGE,
@@ -119,6 +120,9 @@ public class RetrieveTask {
 
     @Column(name = "sop_iuid", updatable = false)
     private String sopInstanceUID;
+
+    @Column(name = "batch_id", updatable = false)
+    private String batchID;
 
     @Basic(optional = false)
     @Column(name = "remaining")
@@ -221,6 +225,14 @@ public class RetrieveTask {
 
     public void setSOPInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
+    }
+
+    public String getBatchID() {
+        return batchID;
+    }
+
+    public void setBatchID(String batchID) {
+        this.batchID = batchID;
     }
 
     public int getNumberOfRemainingSubOperations() {

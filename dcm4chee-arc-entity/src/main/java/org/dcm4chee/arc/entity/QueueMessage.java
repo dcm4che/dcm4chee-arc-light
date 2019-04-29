@@ -68,7 +68,7 @@ import java.util.*;
         @Index(columnList = "msg_status"),
         @Index(columnList = "created_time"),
         @Index(columnList = "updated_time"),
-        @Index(columnList = "batchID")
+        @Index(columnList = "batch_id")
 })
 @NamedQueries({
         @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
@@ -167,7 +167,7 @@ public class QueueMessage {
     @Column(name = "num_failures")
     private int numberOfFailures;
 
-    @Column(name = "batchID", updatable = false)
+    @Column(name = "batch_id", updatable = false)
     private String batchID;
 
     @Column(name = "error_msg")

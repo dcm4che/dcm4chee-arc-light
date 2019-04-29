@@ -101,7 +101,7 @@ public class RetrieveManagerEJB {
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(ctx.getQueueName(), msg,
                     Message.DEFAULT_PRIORITY, batchID, delay);
-            createRetrieveTask(ctx, queueMessage);
+            createRetrieveTask(ctx, queueMessage, batchID);
             return true;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
@@ -154,7 +154,7 @@ public class RetrieveManagerEJB {
         return false;
     }
 
-    private void createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage) {
+    private void createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage, String batchID) {
         RetrieveTask task = new RetrieveTask();
         task.setLocalAET(ctx.getLocalAET());
         task.setRemoteAET(ctx.getRemoteAET());
@@ -162,6 +162,7 @@ public class RetrieveManagerEJB {
         task.setStudyInstanceUID(ctx.getStudyInstanceUID());
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
         task.setSOPInstanceUID(ctx.getSOPInstanceUID());
+        task.setBatchID(batchID);
         task.setQueueMessage(queueMessage);
         em.persist(task);
     }
