@@ -71,9 +71,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.util.EnumSet;
-import java.util.function.IntFunction;
 import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -253,7 +251,7 @@ public class QueryRetrieveRS {
                     String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
                     if (count > 0 || UIDUtils.isValid(studyUID)) {
                         if (retrieveManager.scheduleRetrieveTask(
-                                priorityAsInt, createExtRetrieveCtx(destAET, studyUID), batchID, null, 0L))
+                                priorityAsInt, createExtRetrieveCtx(destAET, studyUID), null, 0L))
                             count++;
                     }
                 }
@@ -386,11 +384,11 @@ public class QueryRetrieveRS {
     }
 
     private boolean scheduleRetrieveTask(ExternalRetrieveContext ctx) {
-        return retrieveManager.scheduleRetrieveTask(priorityAsInt, ctx, batchID, null, 0L);
+        return retrieveManager.scheduleRetrieveTask(priorityAsInt, ctx, null, 0L);
     }
 
     private boolean createRetrieveTask(ExternalRetrieveContext ctx) {
-        retrieveManager.createRetrieveTask(ctx, batchID);
+        retrieveManager.createRetrieveTask(ctx);
         return true;
     }
 
@@ -406,21 +404,21 @@ public class QueryRetrieveRS {
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, DimseRSP dimseRSP) {
         Attributes keys = new Attributes(dimseRSP.getDataset(),
                 Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID, Tag.SOPInstanceUID);
-        return new ExternalRetrieveContext()
-                .setQueueName(queueName)
-                .setLocalAET(aet)
-                .setRemoteAET(externalAET)
-                .setDestinationAET(destAET)
-                .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setKeys(keys);
+        return createExtRetrieveCtx(destAET, keys);
     }
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String studyIUID) {
         Attributes keys = new Attributes(2);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.STUDY.name());
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        return createExtRetrieveCtx(destAET, keys);
+    }
+
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
         return new ExternalRetrieveContext()
+                .setDeviceName(device.getDeviceName())
                 .setQueueName(queueName)
+                .setBatchID(batchID)
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)

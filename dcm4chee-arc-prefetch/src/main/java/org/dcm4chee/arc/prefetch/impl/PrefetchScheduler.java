@@ -179,11 +179,13 @@ public class PrefetchScheduler {
                                       String destination)
             throws QueueSizeLimitExceededException {
         ExternalRetrieveContext ctx = new ExternalRetrieveContext()
+                .setDeviceName(device.getDeviceName())
                 .setQueueName(rule.getQueueName())
+                .setBatchID(batchID)
                 .setLocalAET(rule.getAETitle())
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
                 .setDestinationAET(destination)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
-        retrieveManager.scheduleRetrieveTask(Priority.NORMAL, ctx, batchID, notRetrievedAfter, delay);
+        retrieveManager.scheduleRetrieveTask(Priority.NORMAL, ctx, notRetrievedAfter, delay);
     }
 }

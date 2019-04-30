@@ -60,9 +60,20 @@ public class ExternalRetrieveContext {
     private String destinationAET;
     private Attributes keys;
     private Attributes response;
+    private String deviceName;
     private String queueName;
+    private String batchID;
 
     public ExternalRetrieveContext() {
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public ExternalRetrieveContext setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+        return this;
     }
 
     public String getQueueName() {
@@ -71,6 +82,15 @@ public class ExternalRetrieveContext {
 
     public ExternalRetrieveContext setQueueName(String queueName) {
         this.queueName = queueName;
+        return this;
+    }
+
+    public String getBatchID() {
+        return batchID;
+    }
+
+    public ExternalRetrieveContext setBatchID(String batchID) {
+        this.batchID = batchID;
         return this;
     }
 

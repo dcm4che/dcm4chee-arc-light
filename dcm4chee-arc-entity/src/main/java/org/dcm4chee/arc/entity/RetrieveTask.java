@@ -57,6 +57,8 @@ import java.util.Date;
 @Entity
 @Table(name = "retrieve_task",
         indexes = {
+                @Index(columnList = "device_name"),
+                @Index(columnList = "queue_name"),
                 @Index(columnList = "local_aet"),
                 @Index(columnList = "remote_aet"),
                 @Index(columnList = "destination_aet"),
@@ -88,6 +90,14 @@ public class RetrieveTask {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")
     private long pk;
+
+    @Basic(optional = false)
+    @Column(name = "device_name")
+    private String deviceName;
+
+    @Basic(optional = false)
+    @Column(name = "queue_name")
+    private String queueName;
 
     @Basic(optional = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -147,8 +157,8 @@ public class RetrieveTask {
     @Column(name = "error_comment")
     private String errorComment;
 
-    @OneToOne(cascade= CascadeType.ALL, orphanRemoval = true, optional = false)
-    @JoinColumn(name = "queue_msg_fk", updatable = false)
+    @OneToOne(cascade= CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "queue_msg_fk")
     private QueueMessage queueMessage;
 
     @PrePersist
@@ -225,6 +235,22 @@ public class RetrieveTask {
 
     public void setSOPInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 
     public String getBatchID() {

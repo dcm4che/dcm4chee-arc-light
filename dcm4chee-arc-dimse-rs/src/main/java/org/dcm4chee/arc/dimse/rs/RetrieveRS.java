@@ -229,7 +229,8 @@ public class RetrieveRS {
 
         try {
             Attributes keys = toKeys(uids);
-            retrieveManager.createRetrieveTask(createExtRetrieveCtx(destAET, keys), batchID);
+            retrieveManager.createRetrieveTask(
+                    createExtRetrieveCtx(destAET, keys, queueName != null ? queueName : "Retrieve1"));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -248,7 +249,7 @@ public class RetrieveRS {
     private Response queueExport(String destAET, Attributes keys) {
         try {
             retrieveManager.scheduleRetrieveTask(
-                    priority(), createExtRetrieveCtx(destAET, keys), batchID, null, 0L);
+                    priority(), createExtRetrieveCtx(destAET, keys, queueName), null, 0L);
         } catch (QueueSizeLimitExceededException e) {
             return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
         }
@@ -263,7 +264,7 @@ public class RetrieveRS {
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
             instancesRetrievedEvent.fire(
-                    createExtRetrieveCtx(destAET, keys)
+                    createExtRetrieveCtx(destAET, keys, queueName)
                     .setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()))
                     .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
@@ -301,9 +302,11 @@ public class RetrieveRS {
         return sw.toString();
     }
 
-    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys, String queueName) {
         return new ExternalRetrieveContext()
+                .setDeviceName(device.getDeviceName())
                 .setQueueName(queueName)
+                .setBatchID(batchID)
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)

@@ -57,11 +57,10 @@ import java.util.List;
 public interface RetrieveManager {
     Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
 
-    void createRetrieveTask(ExternalRetrieveContext ctx, String batchID);
+    void createRetrieveTask(ExternalRetrieveContext ctx);
 
-    boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID, Date notRetrievedAfter,
-                                 long delay)
-            throws QueueSizeLimitExceededException;
+    boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter,
+            long delay) throws QueueSizeLimitExceededException;
 
     boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 

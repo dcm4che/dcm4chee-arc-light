@@ -85,8 +85,8 @@ public class RetrieveManagerEJB {
     @Inject
     private QueueManager queueManager;
 
-    public boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID,
-                                        Date notRetrievedAfter, long delay)
+    public boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx,
+            Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
         if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter)) {
             return false;
@@ -100,8 +100,8 @@ public class RetrieveManagerEJB {
             msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(ctx.getQueueName(), msg,
-                    Message.DEFAULT_PRIORITY, batchID, delay);
-            createRetrieveTask(ctx, queueMessage, batchID);
+                    Message.DEFAULT_PRIORITY, ctx.getBatchID(), delay);
+            createRetrieveTask(ctx, queueMessage);
             return true;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
@@ -154,11 +154,11 @@ public class RetrieveManagerEJB {
         return false;
     }
 
-    public void createRetrieveTask(ExternalRetrieveContext ctx, String batchID) {
-        createRetrieveTask(ctx, null, batchID);
+    public void createRetrieveTask(ExternalRetrieveContext ctx) {
+        createRetrieveTask(ctx, null);
     }
 
-    private void createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage, String batchID) {
+    private void createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage) {
         RetrieveTask task = new RetrieveTask();
         task.setLocalAET(ctx.getLocalAET());
         task.setRemoteAET(ctx.getRemoteAET());
@@ -166,7 +166,9 @@ public class RetrieveManagerEJB {
         task.setStudyInstanceUID(ctx.getStudyInstanceUID());
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
         task.setSOPInstanceUID(ctx.getSOPInstanceUID());
-        task.setBatchID(batchID);
+        task.setDeviceName(ctx.getDeviceName());
+        task.setQueueName(ctx.getQueueName());
+        task.setBatchID(ctx.getBatchID());
         task.setQueueMessage(queueMessage);
         em.persist(task);
     }
