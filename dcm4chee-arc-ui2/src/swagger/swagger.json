@@ -4393,7 +4393,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -4495,7 +4495,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -4568,7 +4568,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -4641,7 +4641,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -4711,7 +4711,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -4788,7 +4788,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -4824,7 +4824,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -4863,7 +4863,7 @@
           {
             "name": "queueName",
             "in": "path",
-            "description": "name of queue",
+            "description": "Name of Queue",
             "required": true,
             "type": "string"
           },
@@ -6022,6 +6022,27 @@
             "in": "query",
             "description": "Batch ID of scheduled task",
             "type": "string"
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "Name of Queue in which the Retrieve Task shall be queued",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           }
         ],
         "responses": {
@@ -6089,6 +6110,28 @@
             "in": "query",
             "description": "Batch ID of scheduled task",
             "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "Name of Queue in which the Retrieve Task shall be queued",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           }
         ],
         "responses": {
@@ -6163,6 +6206,28 @@
             "in": "query",
             "description": "Batch ID of scheduled task",
             "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "Name of Queue in which the Retrieve Task shall be queued",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           }
         ],
         "responses": {
@@ -6534,6 +6599,94 @@
         "responses": {
           "202": {
             "description": "Successfully scheduled retrieve of Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/csv:{field}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Mark Studies specified in CSV for retrieve from external C-MOVE SCP",
+        "operationId": "MarkStudiesCSVForRetrieve",
+        "consumes": [
+          "text/csv"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "description": "field which contains the Study Instance UID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "Name of Queue in which the Retrieve Task shall be queued",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "successful operation",
             "schema": {
               "$ref": "#/definitions/Count"
             }

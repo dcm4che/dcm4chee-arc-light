@@ -221,6 +221,8 @@ public class RetrieveRS {
 
     private Response createRetrieveTask(String destAET, String... uids) {
         logRequest();
+        if (queueName == null)
+            queueName = "Retrieve1";
         try {
             checkAE(externalAET, aeCache.get(externalAET));
         } catch (ConfigurationException e) {
@@ -230,7 +232,7 @@ public class RetrieveRS {
         try {
             Attributes keys = toKeys(uids);
             retrieveManager.createRetrieveTask(
-                    createExtRetrieveCtx(destAET, keys, queueName != null ? queueName : "Retrieve1"));
+                    createExtRetrieveCtx(destAET, keys));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -249,7 +251,7 @@ public class RetrieveRS {
     private Response queueExport(String destAET, Attributes keys) {
         try {
             retrieveManager.scheduleRetrieveTask(
-                    priority(), createExtRetrieveCtx(destAET, keys, queueName), null, 0L);
+                    priority(), createExtRetrieveCtx(destAET, keys), null, 0L);
         } catch (QueueSizeLimitExceededException e) {
             return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
         }
@@ -264,7 +266,7 @@ public class RetrieveRS {
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
             instancesRetrievedEvent.fire(
-                    createExtRetrieveCtx(destAET, keys, queueName)
+                    createExtRetrieveCtx(destAET, keys)
                     .setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()))
                     .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
@@ -302,7 +304,7 @@ public class RetrieveRS {
         return sw.toString();
     }
 
-    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys, String queueName) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
         return new ExternalRetrieveContext()
                 .setDeviceName(device.getDeviceName())
                 .setQueueName(queueName)
