@@ -157,7 +157,7 @@ public class RSClientImpl implements RSClient {
         if (webApp.getKeycloakClientID() == null)
             return null;
 
-        return "Bearer" + accessTokenRequestor.getAccessToken2(webApp).getToken();
+        return "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken();
     }
 
     private String targetURI(RSOperation rsOp,
