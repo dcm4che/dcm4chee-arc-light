@@ -154,6 +154,8 @@ public interface RetrieveContext extends Closeable {
 
     void setSeriesMetadataUpdate(Series.MetadataUpdate metadataUpdate);
 
+    String getSopInstanceUID();
+
     String[] getSopInstanceUIDs();
 
     void setSopInstanceUIDs(String... sopInstanceUIDs);

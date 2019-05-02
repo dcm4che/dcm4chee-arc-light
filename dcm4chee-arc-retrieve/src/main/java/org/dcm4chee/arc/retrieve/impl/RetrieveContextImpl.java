@@ -347,6 +347,11 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public String getSopInstanceUID() {
+        return sopInstanceUIDs.length > 0 ? sopInstanceUIDs[0] : null;
+    }
+
+    @Override
     public String[] getSopInstanceUIDs() {
         return sopInstanceUIDs;
     }
