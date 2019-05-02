@@ -46,7 +46,7 @@ export class RetrieveMonitoringService {
     reschedule(pk, data){
         return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, data);
     }
-     rescheduleAll(filter){
+    rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/retrieve/reschedule${urlParam}`, {}, this.header)

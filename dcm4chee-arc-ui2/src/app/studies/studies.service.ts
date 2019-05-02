@@ -785,7 +785,12 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 oldPatientID = this.getPatientId(toSavePatientObject);
             }
             if(externalInternalAetMode === 'internal'){
-                url = url + (oldPatientID || patient.attrs['00100020'].Value[0]);
+                /*if(modifyMode === 'edit'){
+                    url = url + (oldPatientID || patient.attrs['00100020'].Value[0]);
+                }else{
+                }*/
+                    url = url + encodeURIComponent((oldPatientID || patient.attrs['00100020'].Value[0]));
+                    // url = url + `P-00000001^^^tes%2Fbasd`;
             }
             if(queue){
                 url += `?queue=true`
@@ -795,7 +800,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                         save:this.$http.put(
                                 url,
                                 toSavePatientObject,
-                                {headers: headers}
+                                {headers: headers},
+                            true
                             )
                             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;}),
                         successMsg:'Patient saved successfully!'

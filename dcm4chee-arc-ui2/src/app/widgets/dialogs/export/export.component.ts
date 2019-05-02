@@ -24,6 +24,7 @@ export class ExportDialogComponent{
     private _count;
     private _subTitle;
     private _quantity;
+    queues;
     private _result = {
         exportType: 'dicom',
         selectedAet: undefined,
