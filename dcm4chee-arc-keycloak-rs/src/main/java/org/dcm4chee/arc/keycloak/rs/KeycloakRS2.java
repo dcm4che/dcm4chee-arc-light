@@ -40,8 +40,9 @@
 
 package org.dcm4chee.arc.keycloak.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -81,7 +82,7 @@ public class KeycloakRS2 {
     private AccessTokenRequestor accessTokenRequestor;
 
     @Inject
-    private Device device;
+    private IWebApplicationCache iWebAppCache;
 
     @PathParam("webAppName")
     private String webAppName;
@@ -92,14 +93,11 @@ public class KeycloakRS2 {
     public Response getAccessToken() {
         logRequest();
         try {
-            WebApplication webApplication = device.getWebApplication(webAppName);
-            if (webApplication == null)
-                return errResponse("No such Web Application : " + webAppName, Response.Status.NOT_FOUND);
-
+            WebApplication webApplication = iWebAppCache.findWebApplication(webAppName);
             if (webApplication.getKeycloakClientID() == null)
                 return Response.noContent().build();
 
-            AccessTokenRequestor.AccessToken accessToken = accessTokenRequestor.getAccessToken2(webApplication.getKeycloakClientID());
+            AccessTokenRequestor.AccessToken accessToken = accessTokenRequestor.getAccessToken2(webApplication);
             return Response.status(Response.Status.OK)
                     .entity((StreamingOutput) out -> {
                         JsonGenerator gen = Json.createGenerator(out);
@@ -110,7 +108,7 @@ public class KeycloakRS2 {
                         gen.writeEnd();
                         gen.flush();
                     }).build();
-        } catch (IllegalArgumentException e) {
+        } catch (ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

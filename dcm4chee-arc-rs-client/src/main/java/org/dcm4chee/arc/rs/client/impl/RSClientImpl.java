@@ -138,19 +138,26 @@ public class RSClientImpl implements RSClient {
         if (targetURI.equals(requestURI))
             return new Outcome(status, "Target URL same as Source Request URL!");
 
-        targetURI += "?" + requestQueryString;
+        if (requestQueryString != null)
+            targetURI += "?" + requestQueryString;
+
         Response response = toResponse(
                 getMethod(rsOperation),
                 targetURI,
-                webApplication.getKeycloakClientID(),
-                webApplication.getDevice().getDeviceName(),
                 tlsAllowAnyHostname,
                 tlsDisableTrustManager,
                 content,
-                null);
+                accessTokenFromWebApp(webApplication));
         Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
         response.close();
         return outcome;
+    }
+
+    private String accessTokenFromWebApp(WebApplication webApp) throws Exception {
+        if (webApp.getKeycloakClientID() == null)
+            return null;
+
+        return "Bearer" + accessTokenRequestor.getAccessToken2(webApp).getToken();
     }
 
     private String targetURI(RSOperation rsOp,
@@ -176,8 +183,6 @@ public class RSClientImpl implements RSClient {
 
     private Response toResponse(String method,
                                 String uri,
-                                String keycloakClientID,
-                                String deviceName,
                                 boolean allowAnyHostname,
                                 boolean disableTrustManager,
                                 byte[] content,
@@ -189,8 +194,6 @@ public class RSClientImpl implements RSClient {
         Invocation.Builder request = target.request();
         if (authorization != null)
             request.header("Authorization", authorization);
-        if (keycloakClientID != null)
-            request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakClientID, deviceName));
 
         LOG.info("Restful Service Forward : {} {}", method, uri);
 
@@ -223,8 +226,8 @@ public class RSClientImpl implements RSClient {
                             + deviceName
                             + " or HTTP connection not configured for WebApplication with Service Class 'DCM4CHEE_ARC' of this device.")
                     .build()
-                : toResponse("POST", targetURI, null,  null,true,
-                    false, null, authorization);
+                : toResponse("POST", targetURI, true, false,
+                null, authorization);
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {
