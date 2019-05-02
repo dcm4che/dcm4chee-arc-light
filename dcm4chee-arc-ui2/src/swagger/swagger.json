@@ -6022,6 +6022,7 @@
             "in": "query",
             "description": "Batch ID of scheduled task",
             "type": "string"
+          },
           {
             "name": "dcmQueueName",
             "in": "query",

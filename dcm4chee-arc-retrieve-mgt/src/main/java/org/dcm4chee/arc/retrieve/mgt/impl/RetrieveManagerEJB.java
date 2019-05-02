@@ -45,6 +45,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.Tuple;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -67,6 +69,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -210,10 +213,6 @@ public class RetrieveManagerEJB {
 
         LOG.info("Delete {}", task);
         return true;
-
-//        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent);
-//        LOG.info("Delete {}", task);
-//        return true;
     }
 
     public boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
@@ -249,8 +248,40 @@ public class RetrieveManagerEJB {
         if (task == null)
             return;
 
-        LOG.info("Reschedule {}", task);
-        rescheduleRetrieveTask(task.getQueueMessage().getMessageID(), newQueueName, queueEvent);
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage == null) {
+            LOG.info("Schedule {}", task);
+            scheduleRetrieveTask(0, createExtRetrieveCtx(task, queueEvent.getRequest()), null, 0L);
+        } else {
+            LOG.info("Reschedule {}", task);
+            rescheduleRetrieveTask(task.getQueueMessage().getMessageID(), newQueueName, queueEvent);
+        }
+    }
+
+    private ExternalRetrieveContext createExtRetrieveCtx(RetrieveTask task, HttpServletRequest request) {
+        Attributes keys = toKeys(task);
+        return new ExternalRetrieveContext()
+                .setDeviceName(task.getDeviceName())
+                .setQueueName(task.getQueueName())
+                .setBatchID(task.getBatchID())
+                .setLocalAET(task.getLocalAET())
+                .setRemoteAET(task.getRemoteAET())
+                .setDestinationAET(task.getDestinationAET())
+                .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
+                .setKeys(keys);
+    }
+
+    private static Attributes toKeys(RetrieveTask task) {
+        int n = task.getSOPInstanceUID() != null ? 3 : task.getSeriesInstanceUID() != null ? 2 : 1;
+        Attributes keys = new Attributes(n + 1);
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());
+        keys.setString(Tag.StudyInstanceUID, VR.UI, task.getStudyInstanceUID());
+        if (n > 1) {
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, task.getSeriesInstanceUID());
+            if (n > 2)
+                keys.setString(Tag.SOPInstanceUID, VR.UI, task.getSOPInstanceUID());
+        }
+        return keys;
     }
 
     public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, String queueName, QueueMessageEvent queueEvent) {
@@ -291,10 +322,6 @@ public class RetrieveManagerEJB {
         Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
 
         List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
-
-//        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-//        List<Predicate> predicates = matchTask.retrievePredicates(queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
-
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         if (retrieveTaskQueryParam.getOrderBy() != null)
@@ -330,11 +357,6 @@ public class RetrieveManagerEJB {
         Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
 
         List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
-
-//        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-//        List<Predicate> predicates = new MatchTask(cb).retrievePredicates(
-//                queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
-
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         return QueryBuilder.unbox(em.createQuery(q.select(cb.count(retrieveTask))).getSingleResult(), 0L);
