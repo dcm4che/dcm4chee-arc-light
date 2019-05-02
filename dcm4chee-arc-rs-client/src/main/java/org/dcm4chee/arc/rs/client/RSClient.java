@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.rs.client;
 
+import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
@@ -55,17 +56,21 @@ public interface RSClient {
     String QUEUE_NAME = "RSClient";
 
     void scheduleRequest(
-            String method,
-            String uri,
+            RSOperation rsOp,
+            String requestURI,
+            String requestQueryStr,
+            String webAppName,
+            String patientID,
             byte[] content,
-            String keycloakClientID,
             boolean tlsAllowAnyHostName,
             boolean tlsDisableTrustManager) throws QueueSizeLimitExceededException;
 
     Outcome request(
-            String method,
-            String uri,
-            String keycloakClientID,
+            String rsOp,
+            String requestURI,
+            String requestQueryStr,
+            String webAppName,
+            String patientID,
             boolean tlsAllowAnyHostname,
             boolean tlsDisableTrustManager,
             byte[] content) throws Exception;

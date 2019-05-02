@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.keycloak;
 
+import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -65,6 +66,9 @@ public class AccessTokenRequestor {
     @Inject
     private Device device;
 
+    @Inject
+    private IDeviceCache iDeviceCache;
+
     private CachedKeycloak cachedKeycloak;
 
     private CachedKeycloak cachedKeycloakClient;
@@ -74,8 +78,11 @@ public class AccessTokenRequestor {
             cachedKeycloak = null;
     }
 
-    public String getAccessTokenString(String keycloakClientID) throws Exception {
-        return getAccessTokenString(toCachedKeycloakClient(keycloakClientID));
+    public String getAccessTokenString(String keycloakClientID, String deviceName) throws Exception {
+        Device device = iDeviceCache.get(deviceName);
+        if (device == null)
+            throw new IllegalArgumentException("No such device: " + deviceName);
+        return getAccessTokenString(toCachedKeycloakClient(keycloakClientID, device));
     }
 
     private String getAccessTokenString(CachedKeycloak tmp) {
@@ -90,7 +97,7 @@ public class AccessTokenRequestor {
     }
 
     public AccessToken getAccessToken2(String keycloakClientID) throws Exception {
-        CachedKeycloak tmp = toCachedKeycloakClient(keycloakClientID);
+        CachedKeycloak tmp = toCachedKeycloakClient(keycloakClientID, device);
         return new AccessToken(
                 getAccessTokenString(tmp),
                 tmp.keycloak.tokenManager().getAccessToken().getExpiresIn());
@@ -115,7 +122,7 @@ public class AccessTokenRequestor {
         return tmp;
     }
 
-    private CachedKeycloak toCachedKeycloakClient(String keycloakClientID) throws Exception {
+    private CachedKeycloak toCachedKeycloakClient(String keycloakClientID, Device device) throws Exception {
         CachedKeycloak tmp = cachedKeycloakClient;
         if (tmp == null || !tmp.keycloakID.equals(keycloakClientID)) {
             KeycloakClient keycloakClient = device.getKeycloakClient(keycloakClientID);

@@ -40,14 +40,13 @@
 
 package org.dcm4chee.arc.rs.client;
 
-import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
-import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSOperation;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,16 +70,16 @@ public class RSForward {
     @Inject
     private RSClient rsClient;
 
-    @Inject
-    private IWebApplicationCache iWebAppCache;
-
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, HttpServletRequest request) {
-        forward(rsOp, arcAE, toContent(attrs),
-                rsOp == RSOperation.CreatePatient ? IDWithIssuer.pidOf(attrs) : null, request);
+        forward(rsOp,
+                arcAE,
+                toContent(attrs),
+                rsOp == RSOperation.CreatePatient ? IDWithIssuer.pidOf(attrs).toString() : null,
+                request);
     }
 
     public void forward(
-            RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, IDWithIssuer patientID, HttpServletRequest request) {
+            RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, String patientID, HttpServletRequest request) {
         LOG.info("Restful Service Forward invoked for {} {}?{} from {}@{}",
                 request.getMethod(),
                 request.getRequestURI(),
@@ -90,45 +89,23 @@ public class RSForward {
         String requestURI = request.getRequestURI();
         String appendURI = requestURI.substring(requestURI.indexOf("/rs/") + 4);
 
-        arcAE.findRSForwardRules(rsOp, request).forEach(rule -> {
-            try {
-                WebApplication webApplication = iWebAppCache.findWebApplication(rule.getWebAppName());
-                if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC_AET)) {
-                    String serviceURL = webApplication.getServiceURL().toString();
-                    String targetURI = serviceURL + (serviceURL.endsWith("rs/") ? "" : "/") + appendURI;
-                    if (!targetURI.equals(request.getRequestURL().toString())) {
-                        if (rsOp == RSOperation.CreatePatient)
-                            targetURI += patientID;
+        arcAE.findRSForwardRules(rsOp, request).forEach(
+                rule -> {
+                    try {
+                        LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
                         rsClient.scheduleRequest(
-                                getMethod(rsOp),
-                                targetURI,
-                                in,
-                                webApplication.getKeycloakClientID(),
-                                rule.isTlsAllowAnyHostname(),
-                                rule.isTlsDisableTrustManager());
-                        LOG.info("Forwarded RSOperation {} {} {}?{} from {}@{} using RSForward rule {} to device {}. Target URL is {}",
                                 rsOp,
-                                request.getMethod(),
                                 request.getRequestURI(),
                                 request.getQueryString(),
-                                request.getRemoteUser(),
-                                request.getRemoteHost(),
-                                rule,
-                                webApplication.getDevice().getDeviceName(),
-                                targetURI);
+                                rule.getWebAppName(),
+                                patientID,
+                                in,
+                                rule.isTlsAllowAnyHostname(),
+                                rule.isTlsDisableTrustManager());
+                    } catch (QueueSizeLimitExceededException e) {
+                        LOG.warn(e.getMessage());
                     }
-                }
-            } catch (Exception e) {
-                LOG.warn("Failed to apply RSForwardRule {} to {} {}?{} from {}@{} for RSOperation {} :\n",
-                        rule,
-                        request.getMethod(),
-                        request.getRequestURI(),
-                        request.getQueryString(),
-                        request.getRemoteUser(),
-                        request.getRemoteHost(),
-                        rsOp, e);
-            }
-        });
+                });
     }
 
     private static byte[] toContent(Attributes attrs) {
@@ -140,36 +117,5 @@ public class RSForward {
             new JSONWriter(gen).write(attrs);
         }
         return out.toByteArray();
-    }
-
-    private String getMethod(RSOperation rsOp) {
-        String method = null;
-        switch (rsOp) {
-            case CreatePatient:
-            case UpdatePatient:
-            case UpdateStudyExpirationDate:
-            case UpdateSeriesExpirationDate:
-            case UpdateStudyAccessControlID:
-                method = "PUT";
-                break;
-            case ChangePatientID:
-            case MergePatient:
-            case MergePatients:
-            case UpdateStudy:
-            case RejectStudy:
-            case RejectSeries:
-            case RejectInstance:
-            case CreateMWL:
-            case UpdateMWL:
-            case ApplyRetentionPolicy:
-                method = "POST";
-                break;
-            case DeletePatient:
-            case DeleteStudy:
-            case DeleteMWL:
-                method = "DELETE";
-                break;
-        }
-        return method;
     }
 }
