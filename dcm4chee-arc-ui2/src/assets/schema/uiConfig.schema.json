@@ -28,6 +28,15 @@
       },
       "format": "dcmAETitle"
     },
+    "dcmuiDefaultWidgetAets": {
+      "title": "Default Widget AETs",
+      "description": "Select the AETs that should be preselected on Widget AETs",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
     "dcmuiAetConfig": {
       "title": "AET drop-down list",
       "description": "Define which AETs should be visible in the drop-down lists in the UI",

@@ -1033,4 +1033,16 @@ export class j4care {
                 return ".";
         })}$`: '';
     }
+
+    static join(array:string[],joinString:string, lastJoinString?:string){
+        if(array.length > 1){
+            if(lastJoinString){
+                return `${array.splice(0,-1).join(joinString)}${lastJoinString}${array.splice(-1)}`;
+            }else{
+                return array.join(joinString);
+            }
+        }else{
+            return array.toString();
+        }
+    }
 }

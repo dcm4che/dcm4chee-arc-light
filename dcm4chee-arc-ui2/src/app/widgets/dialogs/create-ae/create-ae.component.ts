@@ -65,9 +65,13 @@ export class CreateAeComponent implements OnInit{
         this.cfpLoadingBar.complete();
         if(_.hasIn(this.mainservice.global,"uiConfig.dcmuiWidgetAets")){
             this.configuredAetList = (<string[]>_.get(this.mainservice.global,"uiConfig.dcmuiWidgetAets")).map(ae=>{
-                this.selectedForAcceptedCallingAET.push(ae);
+                // this.selectedForAcceptedCallingAET.push(ae);
                 return new SelectDropdown(ae,ae);
-            })
+            });
+            if(_.hasIn(this.mainservice.global,"uiConfig.dcmuiDefaultWidgetAets")){
+                this.selectedForAcceptedCallingAET = _.get(this.mainservice.global,"uiConfig.dcmuiDefaultWidgetAets");
+            }
+            //selectedForAcceptedCallingAET
         }else{
             this.aeListService.getAes().subscribe(aes=>{
                 this.configuredAetList = aes.map(ae=>{
