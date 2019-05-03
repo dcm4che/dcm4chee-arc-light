@@ -25,15 +25,15 @@ export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-p
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 
-export class SelectDropdown {
+export class SelectDropdown<T,S={}> {
     private _value:string;
     private _text:string;
     private _label:any;
     private _title?:string;
     private _htmlLabel:string;
-    private _wholeObject:any;
+    private _wholeObject:T;
     private _selected;
-    constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string, wholeObject?:any){
+    constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string, wholeObject?:T){
         this._value = value;
         this._text = text || value;
         this._label = label || text || value;
@@ -83,11 +83,11 @@ export class SelectDropdown {
         this._htmlLabel = value;
     }
 
-    get wholeObject(): any {
+    get wholeObject(): T {
         return this._wholeObject;
     }
 
-    set wholeObject(value: any) {
+    set wholeObject(value: T) {
         this._wholeObject = value;
     }
 
@@ -115,7 +115,7 @@ export interface FilterSchemaElement {
     maxSelectedLabels?:number;
     min?:number,
     title?:string,
-    options?:SelectDropdown[],
+    options?:SelectDropdown<any>[],
     firstField?:FilterSchemaElement,
     secondField?:FilterSchemaElement,
     convert?:Function;
@@ -140,66 +140,7 @@ export interface StudyFilterConfig {
 
 export interface StudyPageConfig {
     tab:DicomMode;
-    accessLocation:AccessLocation;
 }
 
 export type DicomResponseType = 'object'|'count'|'size';
 
-export class StudyDevice {
-    private _devices:any[];
-    private _selectedDevice?:Device;
-    private _selectedAet?:Aet;
-    private _selectedWebApp?:DcmWebApp;
-
-
-    constructor(
-        devices:any[],
-        selectedDevice?:Device,
-        selectedAet?:Aet,
-        selectedWebApp?:DcmWebApp
-    ){
-        this.devices = devices;
-        this.selectedDevice = selectedDevice || undefined;
-        this.selectedAet = selectedAet || undefined;
-        this.selectedWebApp = selectedWebApp || undefined;
-
-    }
-    get devices(): any[] {
-        return this._devices;
-    }
-
-    set devices(value: any[]) {
-        this._devices = value;
-        this._selectedDevice = undefined;
-        this._selectedAet = undefined;
-        this._selectedWebApp = undefined;
-    }
-
-    get selectedDevice(): Device {
-        return this._selectedDevice;
-    }
-
-    set selectedDevice(value: Device) {
-        this._selectedDevice = value;
-        this._selectedAet = undefined;
-        this._selectedWebApp = undefined;
-    }
-
-    get selectedAet(): Aet {
-        return this._selectedAet;
-    }
-
-    set selectedAet(value: Aet) {
-        this._selectedAet = value;
-        this._selectedWebApp = undefined;
-    }
-
-    get selectedWebApp(): DcmWebApp {
-        return this._selectedWebApp;
-    }
-
-    set selectedWebApp(value: DcmWebApp) {
-        this._selectedWebApp = value;
-        this._selectedAet = undefined;
-    }
-}

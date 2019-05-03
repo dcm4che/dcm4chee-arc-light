@@ -1053,7 +1053,7 @@ class ArchiveDeviceFactory {
     };
 
     static final String AE_TITLE = "DCM4CHEE";
-    static final String DCM4CHEE_ARC_VERSION = "5.16.1";
+    static final String DCM4CHEE_ARC_VERSION = "5.17.0";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String HL7_DCM2ADT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -1346,7 +1346,7 @@ class ArchiveDeviceFactory {
                         .setRetrieveAsReceived(true),
                 configType, ONLY_ADMIN));
 
-        device.addWebApplication(createWebApp("DCM4CHEE-RS", AE_TITLE_DESC,
+        device.addWebApplication(createWebApp("DCM4CHEE", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.STOW_RS,
@@ -1355,7 +1355,7 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("IOCM_REGULAR_USE-RS", IOCM_REGULAR_USE_DESC,
+        device.addWebApplication(createWebApp("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
@@ -1363,7 +1363,7 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("IOCM_EXPIRED-RS", IOCM_EXPIRED_DESC,
+        device.addWebApplication(createWebApp("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
                 "/dcm4chee-arc/aets/IOCM_EXPIRED/rs", "IOCM_EXPIRED", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
@@ -1371,7 +1371,7 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("IOCM_EXPIRED-WADO", IOCM_EXPIRED_DESC,
                 "/dcm4chee-arc/aets/IOCM_EXPIRED/wado", "IOCM_EXPIRED", http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("IOCM_QUALITY-RS", IOCM_QUALITY_DESC,
+        device.addWebApplication(createWebApp("IOCM_QUALITY", IOCM_QUALITY_DESC,
                 "/dcm4chee-arc/aets/IOCM_QUALITY/rs", "IOCM_QUALITY", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
@@ -1379,7 +1379,7 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("IOCM_QUALITY-WADO", IOCM_QUALITY_DESC,
                 "/dcm4chee-arc/aets/IOCM_QUALITY/wado", "IOCM_QUALITY", http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-RS", IOCM_PAT_SAFETY_DESC,
+        device.addWebApplication(createWebApp("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
                 "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs", "IOCM_PAT_SAFETY", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
@@ -1387,7 +1387,7 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-WADO", IOCM_PAT_SAFETY_DESC,
                 "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado", "IOCM_PAT_SAFETY", http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("IOCM_WRONG_MWL-RS", IOCM_WRONG_MWL_DESC,
+        device.addWebApplication(createWebApp("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
                 "/dcm4chee-arc/aets/IOCM_WRONG_MWL/rs", "IOCM_WRONG_MWL", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
@@ -1395,7 +1395,7 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("IOCM_WRONG_MWL-WADO", IOCM_WRONG_MWL_DESC,
                 "/dcm4chee-arc/aets/IOCM_WRONG_MWL/wado", "IOCM_WRONG_MWL", http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("AS_RECEIVED-RS", AS_RECEIVED_DESC,
+        device.addWebApplication(createWebApp("AS_RECEIVED", AS_RECEIVED_DESC,
                 "/dcm4chee-arc/aets/AS_RECEIVED/rs", "AS_RECEIVED", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,

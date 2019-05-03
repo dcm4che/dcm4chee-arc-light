@@ -16,20 +16,20 @@ export class J4careHttpService{
     ) {}
     header;
     token;
-    get(url,header?){
-       return this.request.apply(this,['get', [encodeURI(url), header]]);
+    get(url,header?, doNotEncode?){
+       return this.request.apply(this,['get', [doNotEncode ? url : encodeURI(url), header]]);
     }
-    head(url,header?){
-        return this.request.apply(this,['head', [encodeURI(url), header]]);
+    head(url,header?, doNotEncode?){
+        return this.request.apply(this,['head', [doNotEncode ? url : encodeURI(url), header]]);
     }
-    post(url,data,header?){
-        return this.request.apply(this,['post', [encodeURI(url), data, header]]);
+    post(url,data,header?, doNotEncode?){
+        return this.request.apply(this,['post', [doNotEncode ? url : encodeURI(url), data, header]]);
     }
-    put(url,data,header?){
-        return this.request.apply(this,['put', [encodeURI(url), data, header]]);
+    put(url,data,header?, doNotEncode?){
+        return this.request.apply(this,['put', [doNotEncode ? url : encodeURI(url), data, header]]);
     }
-    delete(url,header?){
-        return this.request.apply(this,['delete', [encodeURI(url), header]]);
+    delete(url,header?, doNotEncode?){
+        return this.request.apply(this,['delete', [doNotEncode ? url : encodeURI(url), header]]);
     }
     private request(requestFunctionName, param){
         let $this = this;

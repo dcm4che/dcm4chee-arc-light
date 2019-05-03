@@ -32,7 +32,7 @@ import {element} from "protractor";
 })
 export class DcmDropDownComponent implements OnInit {
     selectedValue:any;
-    selectedDropdown:SelectDropdown;
+    selectedDropdown:SelectDropdown<any>;
     isAllCheck:boolean = false;
     multiSelectValue = [];
     @Input() placeholder:string;
@@ -40,13 +40,14 @@ export class DcmDropDownComponent implements OnInit {
     @Input() showSearchField:boolean = false;
     @Input() mixedMode:boolean = false;
     @Input() maxSelectedValueShown = 2;
-    @Input() options:SelectDropdown[];
-    @Input() optionsTree:{label:string, options:SelectDropdown[]}[];
+    @Input() options:SelectDropdown<any>[];
+    @Input() optionsTree:{label:string, options:SelectDropdown<any>[]}[];
     @Input() showStar:boolean = false;
     @Input('model')
     set model(value){
         if(!(this.selectedDropdown && this.selectedDropdown.value === value) && !this.multiSelectMode){
             this.selectedValue = value;
+            console.log("this.getSelectDropdownFromValue(value);",this.getSelectDropdownFromValue(value));
             this.selectedDropdown  = this.getSelectDropdownFromValue(value);
             // this.setSelectedElement();
         }else{
@@ -61,14 +62,20 @@ export class DcmDropDownComponent implements OnInit {
 
     ngOnInit() {
     }
-    getSelectDropdownFromValue(value):SelectDropdown{
-        // let endDropdown:any =  new SelectDropdown(value,'');
+    selectOptionByValue(value:string|string[]){
+        if(this.multiSelectMode){
+
+        }else{
+
+        }
+    }
+    getSelectDropdownFromValue(value):SelectDropdown<any>{
         if(value && this.options){
-            this.options.forEach(element=>{
+            for(let element of this.options){
                 if(element.value === value){
                     return element;
                 }
-            });
+            };
         }
         return undefined;
     }
@@ -116,16 +123,25 @@ export class DcmDropDownComponent implements OnInit {
         // this.changeDetectorRef.detectChanges();
     }
     select(element){
-        this.showDropdown = false;
         if(this.multiSelectMode){
-            let index = this.multiSelectValue.indexOf(element.value);
-            if(index> -1){
-                this.multiSelectValue.splice(index, 1);
+            if(element === ""){
+                this.multiSelectValue = [];
+                this.options.forEach(option=>{
+                    option.selected = false;
+                })
             }else{
-                this.multiSelectValue.push(element.value);
+                let index = this.multiSelectValue.indexOf(element.value);
+                if(index> -1){
+                    this.multiSelectValue.splice(index, 1);
+                    element.selected = false;
+                }else{
+                    this.multiSelectValue.push(element.value);
+                    element.selected = true;
+                }
             }
+            this.modelChange.emit(this.multiSelectValue);
         }else{
-            if(!this.mixedMode){
+            if(!this.mixedMode && this.options){
                 this.options.forEach(option =>{ option.selected = false;});
             }
             if(element === ""){
@@ -136,6 +152,8 @@ export class DcmDropDownComponent implements OnInit {
                 this.selectedDropdown = element;
                 this.selectedValue = element.value;
             }
+            this.showDropdown = false;
+            this.modelChange.emit(this.selectedValue);
         }
     }
     toggleDropdown(){

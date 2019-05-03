@@ -11,14 +11,22 @@
           <j4care-option *ngFor="let el of test" [value]="el.value" [htmlLabel]="el.label" [title]="'Test title'"></j4care-option>
       </j4care-select>-->
       <h2>Studies {{studyConfig.tab}}</h2>
-      <h4>Select Device and Access mode</h4>
+      <h4>Select device and web service</h4>
 <!--      <div class="controll_header" *ngIf="studyDevice">
         <j4care-select [(model)]="studyDevice.selectedDevice" [placeholder]="'Select Device'">
           <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
           <j4care-option *ngFor="let el of studyDevice.devices" [value]="el.value" [title]="'Test title'">{{el.text}}</j4care-option>
         </j4care-select>
       </div>-->
-      <!--<dcm-drop-down *ngIf="studyDevice && studyDevice.devices" [(model)]="studyDevice.selectedDevice" [placeholder]="'Select Device'" [options]="studyDevice.devices" [showSearchField]="true" [multiSelectMode]="false" [showStar]="true"></dcm-drop-down>-->
+<!--      <dcm-drop-down
+              *ngIf="studyDevice && studyDevice.devices"
+              [(model)]="studyDevice.selectedDevice"
+              [placeholder]="'Select Device'"
+              [options]="studyDevice.devices"
+              [showSearchField]="false"
+              [multiSelectMode]="false"
+              [showStar]="false"
+      ></dcm-drop-down>-->
 <!--      <div class="filter_line">
         <div class="filter_block">
           <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
@@ -26,7 +34,7 @@
       </div>-->
       <div class="filter_line">
         <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaEntry.lineLength" [schema]="filter.filterSchemaEntry.schema" [filterID]="'study-filter'" [model]="filter.filterEntryModel" [filterTreeHeight]="filter.filterSchemaEntry.lineLength" (onChange)="entryFilterChanged()"></filter-generator>
+          <filter-generator *ngIf="filter.filterSchemaEntry.lineLength" [schema]="filter.filterSchemaEntry.schema" [filterID]="'study-filter'" [model]="filter.filterEntryModel" [filterTreeHeight]="filter.filterSchemaEntry.lineLength" (onChange)="entryFilterChanged($event)"></filter-generator>
         </div>
       </div>
       <div class="filter_line">

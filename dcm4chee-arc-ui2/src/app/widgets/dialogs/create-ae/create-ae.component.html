@@ -218,10 +218,19 @@
                             <div class="inputblock">
                                 <label class="title">AE Title</label>
                                 <div class="input_part">
-                                    <j4care-select [(model)]="selectedForAcceptedCallingAET" [placeholder]="'Select AET'" [multiSelectMode]="true" [maxSelectedValueShown]="1" [showSearchField]="true">
+<!--                                    <j4care-select [(model)]="selectedForAcceptedCallingAET" [placeholder]="'Select AET'" [multiSelectMode]="true" [maxSelectedValueShown]="1" [showSearchField]="true">
                                         <j4care-option [value]="''" [title]="'Clear selection'">Clear</j4care-option>
                                         <j4care-option *ngFor="let el of configuredAetList" [value]="el.value" [title]="el.text">{{el.text}}</j4care-option>
-                                    </j4care-select>
+                                    </j4care-select>-->
+                                    <dcm-drop-down
+                                            [(model)]="selectedForAcceptedCallingAET"
+                                            [placeholder]="'Select AET'"
+                                            [maxSelectedValueShown]="1"
+                                            [options]="configuredAetList"
+                                            [showSearchField]="true"
+                                            [multiSelectMode]="true"
+                                            [showStar]="true"
+                                    ></dcm-drop-down>
                                 </div>
                                 <span class="description">Already available AETs</span>
                             </div>

@@ -231,5 +231,14 @@ describe('j4care', () => {
         expect(j4care.arrayHasIn(arr,"key")).toBeTruthy();
         expect(j4care.arrayHasIn(arr,"key", "test1")).toBeTruthy();
         expect(j4care.arrayHasIn(arr,"key", "not in the object")).toBeFalsy();
-    })
+    });
+
+    it("Schould join array elements",()=>{
+        expect(j4care.join(["test1","test2","test3"],", ", " and ")).toEqual("test1, test2 and test3");
+        expect(j4care.join(["test1","test2","test3"],", ")).toEqual("test1, test2, test3");
+        expect(j4care.join(["test1","test2"],", ", " and ")).toEqual("test1 and test2");
+        expect(j4care.join(["test1"],", ", " and ")).toEqual("test1");
+        expect(j4care.join([],", ", " and ")).toEqual("");
+        expect(j4care.join(undefined,", ", " and ")).toEqual("");
+    });
 });

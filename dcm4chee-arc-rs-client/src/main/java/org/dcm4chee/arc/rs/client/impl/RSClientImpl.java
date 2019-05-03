@@ -41,8 +41,10 @@
 package org.dcm4chee.arc.rs.client.impl;
 
 import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -82,16 +84,27 @@ public class RSClientImpl implements RSClient {
     @Inject
     private IDeviceCache iDeviceCache;
 
+    @Inject
+    private IWebApplicationCache iWebAppCache;
+
     @Override
     public void scheduleRequest(
-            String method, String uri, byte[] content, String keycloakClientID, boolean tlsAllowAnyHostName,
+            RSOperation rsOp,
+            String requestURI,
+            String requestQueryStr,
+            String webAppName,
+            String patientID,
+            byte[] content,
+            boolean tlsAllowAnyHostName,
             boolean tlsDisableTrustManager)
             throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(content);
-            msg.setStringProperty("Method", method);
-            msg.setStringProperty("URI", uri);
-            msg.setStringProperty("KeycloakClientID", keycloakClientID);
+            msg.setStringProperty("RSOperation", rsOp.name());
+            msg.setStringProperty("RequestURI", requestURI);
+            msg.setStringProperty("RequestQueryString", requestQueryStr);
+            msg.setStringProperty("WebApplicationName", webAppName);
+            msg.setStringProperty("PatientID", patientID);
             msg.setStringProperty("TLSAllowAnyHostname", String.valueOf(tlsAllowAnyHostName));
             msg.setStringProperty("TLSDisableTrustManager", String.valueOf(tlsDisableTrustManager));
             queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
@@ -101,24 +114,86 @@ public class RSClientImpl implements RSClient {
     }
 
     @Override
-    public Outcome request(String method, String uri, String keycloakClientID, boolean allowAnyHostname,
-            boolean disableTrustManager, byte[] content) throws Exception {
-        Response response = toResponse(method, uri, keycloakClientID, allowAnyHostname, disableTrustManager, content, null);
+    public Outcome request(String rsOp,
+                           String requestURI,
+                           String requestQueryString,
+                           String webAppName,
+                           String patientID,
+                           boolean tlsAllowAnyHostname,
+                           boolean tlsDisableTrustManager,
+                           byte[] content) throws Exception {
+        RSOperation rsOperation = RSOperation.valueOf(rsOp);
+        WebApplication webApplication;
+        QueueMessage.Status status = QueueMessage.Status.WARNING;
+        try {
+            webApplication = iWebAppCache.findWebApplication(webAppName);
+        } catch (Exception e) {
+            LOG.warn(e.getMessage());
+            return new Outcome(status, "No such Web Application found: " + webAppName);
+        }
+
+        String targetURI = targetURI(rsOperation, requestURI, webApplication, patientID);
+        if (targetURI == null)
+            return new Outcome(status, "Target URL not available.");
+        if (targetURI.equals(requestURI))
+            return new Outcome(status, "Target URL same as Source Request URL!");
+
+        if (requestQueryString != null)
+            targetURI += "?" + requestQueryString;
+
+        Response response = toResponse(
+                getMethod(rsOperation),
+                targetURI,
+                tlsAllowAnyHostname,
+                tlsDisableTrustManager,
+                content,
+                accessTokenFromWebApp(webApplication));
         Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
         response.close();
         return outcome;
     }
 
-    private Response toResponse(String method, String uri, String keycloakClientID, boolean allowAnyHostname,
-                                boolean disableTrustManager, byte[] content, String authorization) throws Exception {
+    private String accessTokenFromWebApp(WebApplication webApp) throws Exception {
+        if (webApp.getKeycloakClientID() == null)
+            return null;
+
+        return "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken();
+    }
+
+    private String targetURI(RSOperation rsOp,
+                       String requestURI,
+                       WebApplication webApplication,
+                       String patientID) {
+        String targetURI = null;
+        try {
+            if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC_AET)) {
+                String serviceURL = webApplication.getServiceURL().toString();
+                targetURI = serviceURL
+                            + (serviceURL.endsWith("rs/") ? "" : "/")
+                            + requestURI.substring(requestURI.indexOf("/rs/") + 4);
+                if (rsOp == RSOperation.CreatePatient)
+                    targetURI += patientID;
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to construct Target URL. \n", e);
+        }
+        LOG.info("Target URL is {}", targetURI);
+        return targetURI;
+    }
+
+    private Response toResponse(String method,
+                                String uri,
+                                boolean allowAnyHostname,
+                                boolean disableTrustManager,
+                                byte[] content,
+                                String authorization) throws Exception {
+
         ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, allowAnyHostname, disableTrustManager)
                 .build();
         WebTarget target = client.target(uri);
         Invocation.Builder request = target.request();
         if (authorization != null)
             request.header("Authorization", authorization);
-        if (keycloakClientID != null)
-            request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakClientID));
 
         LOG.info("Restful Service Forward : {} {}", method, uri);
 
@@ -151,7 +226,8 @@ public class RSClientImpl implements RSClient {
                             + deviceName
                             + " or HTTP connection not configured for WebApplication with Service Class 'DCM4CHEE_ARC' of this device.")
                     .build()
-                : toResponse("POST", targetURI, null, true, false, null, authorization);
+                : toResponse("POST", targetURI, true, false,
+                null, authorization);
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {
@@ -170,5 +246,36 @@ public class RSClientImpl implements RSClient {
                 return new Outcome(QueueMessage.Status.FAILED, st.toString());
         }
         return new Outcome(QueueMessage.Status.WARNING, "Http Response Status from other archive is : " + status.toString());
+    }
+
+    private String getMethod(RSOperation rsOp) {
+        String method = null;
+        switch (rsOp) {
+            case CreatePatient:
+            case UpdatePatient:
+            case UpdateStudyExpirationDate:
+            case UpdateSeriesExpirationDate:
+            case UpdateStudyAccessControlID:
+                method = "PUT";
+                break;
+            case ChangePatientID:
+            case MergePatient:
+            case MergePatients:
+            case UpdateStudy:
+            case RejectStudy:
+            case RejectSeries:
+            case RejectInstance:
+            case CreateMWL:
+            case UpdateMWL:
+            case ApplyRetentionPolicy:
+                method = "POST";
+                break;
+            case DeletePatient:
+            case DeleteStudy:
+            case DeleteMWL:
+                method = "DELETE";
+                break;
+        }
+        return method;
     }
 }

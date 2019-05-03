@@ -54,19 +54,22 @@
         input[type=checkbox]{
           float: left;
           width: 30px;
+          margin: 8px 0px;
         }
-        .input_value{
+        .dcm_input_value{
           float: left;
           width: 100%;
           height: 30px;
           line-height: 30px;
+          color: black;
           &.with_checkbox{
             width:calc(100% - 30px);
           }
         }
       }
       li.option{
-        padding-left:15px;
+        //padding-left:15px;
+        border-bottom: 1px solid #ccc;
       }
       .option:hover {
         cursor: pointer;
@@ -75,18 +78,33 @@
     }
   }
   .search_block{
-    width: 98%;
+    width: 100%;
     height: 30px;
     float: left;
-    margin-left: 1%;
+    //margin-left: 1%;
+    border-bottom: 1px solid #ccc;
+    margin-top: 2px;
     input[type=text]{
-      width: 80%;
+      width: calc(100% - 32px);
       float: left;
     }
     input[type=checkbox]{
-      width: 19%;
+      width: 30px;
       float: left;
-      margin-top: 9px;
+      margin: 8px 0px;
+    }
+  }
+  &.single_mode{
+    .search_block{
+      input[type=text]{
+        width: calc(100% - 4px);
+        margin: 2px;
+      }
+    }
+    .option_block{
+      .option{
+        padding-left: 15px;
+      }
     }
   }
 }

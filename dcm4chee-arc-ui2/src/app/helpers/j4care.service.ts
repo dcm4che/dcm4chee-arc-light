@@ -1033,4 +1033,26 @@ export class j4care {
                 return ".";
         })}$`: '';
     }
+
+
+    /*
+    * Extending Array.join function so you can add to the last element a different join string
+    * example: ["test1","test2","test3"] => "test1, test2 and test3" by calling join(["test1","test2","test3"],', ', " end ")
+    * */
+    static join(array:string[],joinString:string, lastJoinString?:string){
+        try{
+            if(array.length > 1){
+                if(lastJoinString){
+                    return `${array.slice(0,-1).join(joinString)}${lastJoinString}${array.slice(-1)}`;
+                }else{
+                    return array.join(joinString);
+                }
+            }else{
+                return array.toString();
+            }
+        }catch(e){
+            this.log("Error on join",e);
+            return "";
+        }
+    }
 }

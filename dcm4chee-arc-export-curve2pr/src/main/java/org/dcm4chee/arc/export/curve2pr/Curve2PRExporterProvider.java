@@ -1,5 +1,5 @@
 /*
- * ** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2019
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,45 +35,38 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * ** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.rs.client;
+package org.dcm4chee.arc.export.curve2pr;
 
-import org.dcm4chee.arc.conf.RSOperation;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.exporter.Exporter;
+import org.dcm4chee.arc.exporter.ExporterProvider;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.StoreService;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Nov 2016
+ * @since May 2019
  */
-public interface RSClient {
-    String QUEUE_NAME = "RSClient";
+@ApplicationScoped
+@Named("curve2pr")
+public class Curve2PRExporterProvider implements ExporterProvider {
 
-    void scheduleRequest(
-            RSOperation rsOp,
-            String requestURI,
-            String requestQueryStr,
-            String webAppName,
-            String patientID,
-            byte[] content,
-            boolean tlsAllowAnyHostName,
-            boolean tlsDisableTrustManager) throws QueueSizeLimitExceededException;
+    @Inject
+    private RetrieveService retrieveService;
 
-    Outcome request(
-            String rsOp,
-            String requestURI,
-            String requestQueryStr,
-            String webAppName,
-            String patientID,
-            boolean tlsAllowAnyHostname,
-            boolean tlsDisableTrustManager,
-            byte[] content) throws Exception;
+    @Inject
+    private StoreService storeService;
 
-    Response forward(HttpServletRequest request, String deviceName, String append) throws Exception;
+    @Override
+    public Exporter getExporter(ExporterDescriptor descriptor) {
+        return new Curve2PRExporter(descriptor, retrieveService, storeService);
+    }
 }

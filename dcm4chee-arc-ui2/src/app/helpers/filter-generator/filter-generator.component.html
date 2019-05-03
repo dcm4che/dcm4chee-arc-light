@@ -42,11 +42,35 @@
                       <input [disabled]="line[index].disabled" type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
                     </div>
                     <span *ngIf="line[index].type === 'checkbox'">{{line[index].text}}</span>
-                    <p-multiSelect [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"  [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>
+                    <!--<p-multiSelect [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"  [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>--><!--
                     <j4care-select [(model)]="model[line[index].filterKey]" [ngStyle]="line[index].style" *ngSwitchCase="'html-select'" [placeholder]="line[index]?.placeholder" [ngClass]="line[index].cssClass" (modelChange)="filterChange($event)">
                       <j4care-option *ngIf="line[index].showStar" [value]="''">*</j4care-option>
                       <j4care-option *ngFor="let option of line[index].options"  [value]="option.value" title="{{option.description || option.title}}" [htmlLabel]="option.htmlLabel || option.label || option.text"></j4care-option>
-                    </j4care-select>
+                    </j4care-select>-->
+                      <dcm-drop-down
+                              [(model)]="model[line[index].filterKey]"
+                              [ngStyle]="line[index].style"
+                              *ngSwitchCase="'multi-select'"
+                              [placeholder]="line[index]?.placeholder"
+                              [ngClass]="line[index].cssClass"
+                              [options]="line[index].options"
+                              [showSearchField]="line[index].showSearchField"
+                              [multiSelectMode]="true"
+                              (modelChange)="filterChange($event)"
+                              [showStar]="line[index].showStar"
+                      ></dcm-drop-down>
+                      <dcm-drop-down
+                              [(model)]="model[line[index].filterKey]"
+                              [ngStyle]="line[index].style"
+                              *ngSwitchCase="'html-select'"
+                              [placeholder]="line[index]?.placeholder"
+                              [ngClass]="line[index].cssClass"
+                              [options]="line[index].options"
+                              [showSearchField]="line[index].showSearchField"
+                              (modelChange)="filterChange($event)"
+                              [multiSelectMode]="false"
+                              [showStar]="line[index].showStar"
+                      ></dcm-drop-down>
                     <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                       <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
                       <mat-option *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description || option.title}}" [innerHtml]="option.label || option.text"></mat-option>

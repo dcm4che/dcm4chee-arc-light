@@ -52,6 +52,7 @@ public class UIConfig {
     private String name;
     private String[] modalities = {};
     private String[] widgetAets = {};
+    private String[] defaultWidgetAets = {};
     private Map<String, UIPermission> permissions = new HashMap<>();
     private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
     private Map<String, UIDashboardConfig> dashboardConfigs = new HashMap<>();
@@ -90,6 +91,14 @@ public class UIConfig {
 
     public void setWidgetAets(String[] widgetAets) {
         this.widgetAets = widgetAets;
+    }
+
+    public String[] getDefaultWidgetAets() {
+        return defaultWidgetAets;
+    }
+
+    public void setDefaultWidgetAets(String[] defaultWidgetAets) {
+        this.defaultWidgetAets = defaultWidgetAets;
     }
 
     public UIPermission getPermission(String name) {

@@ -43,12 +43,14 @@ package org.dcm4chee.arc.keycloak;
 
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.KeycloakServer;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.token.TokenManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -73,27 +75,21 @@ public class AccessTokenRequestor {
         if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
             cachedKeycloak = null;
     }
-
-    public String getAccessTokenString(String keycloakClientID) throws Exception {
-        return getAccessTokenString(toCachedKeycloakClient(keycloakClientID));
-    }
-
-    private String getAccessTokenString(CachedKeycloak tmp) {
-        return tmp.keycloak.tokenManager().getAccessTokenString();
-    }
     
     public AccessToken getAccessToken(String keycloakServerID) throws Exception {
         CachedKeycloak tmp = toCachedKeycloak(keycloakServerID);
+        TokenManager tokenManager = tmp.keycloak.tokenManager();
         return new AccessToken(
-                getAccessTokenString(tmp), 
-                tmp.keycloak.tokenManager().getAccessToken().getExpiresIn());
+                tokenManager.getAccessTokenString(),
+                tokenManager.getAccessToken().getExpiresIn());
     }
 
-    public AccessToken getAccessToken2(String keycloakClientID) throws Exception {
-        CachedKeycloak tmp = toCachedKeycloakClient(keycloakClientID);
+    public AccessToken getAccessToken2(WebApplication webApp) throws Exception {
+        CachedKeycloak tmp = toCachedKeycloakClient(webApp);
+        TokenManager tokenManager = tmp.keycloak.tokenManager();
         return new AccessToken(
-                getAccessTokenString(tmp),
-                tmp.keycloak.tokenManager().getAccessToken().getExpiresIn());
+                tokenManager.getAccessTokenString(),
+                tokenManager.getAccessToken().getExpiresIn());
     }
 
     private CachedKeycloak toCachedKeycloak(String keycloakServerID) throws Exception {
@@ -115,14 +111,14 @@ public class AccessTokenRequestor {
         return tmp;
     }
 
-    private CachedKeycloak toCachedKeycloakClient(String keycloakClientID) throws Exception {
+    private CachedKeycloak toCachedKeycloakClient(WebApplication webApp) throws Exception {
         CachedKeycloak tmp = cachedKeycloakClient;
-        if (tmp == null || !tmp.keycloakID.equals(keycloakClientID)) {
-            KeycloakClient keycloakClient = device.getKeycloakClient(keycloakClientID);
+        if (tmp == null || !tmp.keycloakID.equals(webApp.getKeycloakClientID())) {
+            KeycloakClient keycloakClient = webApp.getKeycloakClient();
             if (keycloakClient == null)
-                throw new IllegalArgumentException("No Keycloak Client configured with ID:" + keycloakClientID);
+                throw new IllegalArgumentException("No Keycloak Client configured with ID:" + webApp.getKeycloakClientID());
 
-            cachedKeycloakClient = tmp = cachedKeycloak(keycloakClientID,
+            cachedKeycloakClient = tmp = cachedKeycloak(webApp.getKeycloakClientID(),
                     keycloakClient.getKeycloakServerURL(),
                     keycloakClient.getKeycloakRealm(),
                     keycloakClient.getKeycloakClientID(),

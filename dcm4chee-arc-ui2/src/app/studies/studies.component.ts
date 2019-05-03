@@ -36,6 +36,7 @@ declare var Keycloak: any;
 declare var $: any;
 import "rxjs/add/operator/retry";
 import {DropdownList} from "../helpers/form/dropdown-list";
+import {RetrieveMonitoringService} from "../monitoring/external-retrieve/retrieve-monitoring.service";
 
 @Component({
     selector: 'app-studies',
@@ -44,7 +45,7 @@ import {DropdownList} from "../helpers/form/dropdown-list";
 export class StudiesComponent implements OnDestroy,OnInit{
 
     // @ViewChildren(MessagingComponent) msg;
-
+    queues;
     orderby = Globalvar.ORDERBY;
     orderbyExternal = Globalvar.ORDERBY_EXTERNAL;
     limit = 20;
@@ -296,7 +297,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public httpErrorHandler:HttpErrorHandler,
         public j4care:j4care,
         public permissionService:PermissionService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private retrieveMonitoringService:RetrieveMonitoringService
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -449,6 +451,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 console.log('patient in subscribe messagecomponent ', patient);
                 this.createPatient();
             });
+            this.getQueueNames();
         });
     }
     orderByChanged(order){
@@ -2065,7 +2068,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    $this.$http.delete('../aets/' + $this.aet + '/rs/patients/' + this.service.getPatientId(patient.attrs)).subscribe(
+                    $this.$http.delete('../aets/' + $this.aet + '/rs/patients/' + encodeURIComponent(this.service.getPatientId(patient.attrs)),undefined, true).subscribe(
                         (response) => {
                             $this.mainservice.setMessage({
                                 'title': 'Info',
@@ -2365,6 +2368,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.dialogRef.componentInstance.externalInternalAetMode = this.externalInternalAetMode;
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.mode = mode;
+        this.dialogRef.componentInstance.queues = this.queues;
         this.dialogRef.componentInstance.warning = warning;
         this.dialogRef.componentInstance.count = this.count;
         if($this.externalInternalAetMode === 'external') {
@@ -2373,6 +2377,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
                 let batchID = "";
+                let params = {};
                 if(result.batchID)
                     batchID = `batchID=${result.batchID}&`;
                 $this.cfpLoadingBar.start();
@@ -2386,8 +2391,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         urlRest = `../aets/${this.aet}/export/${result.selectedExporter}/studies?${batchID}${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
                     }else{
                         if($this.externalInternalAetMode === 'external'){
-                            let param = result.queue ? `?${batchID}queue=true` : '';
-                            urlRest = `${url}/export/dicom:${result.selectedAet}${param}`;
+                            // let param = result.dcmQueueName ? `?${batchID}dcmQueueName=${result.dcmQueueName}` : '';
+                            if(result.dcmQueueName){
+                                params['dcmQueueName'] = result.dcmQueueName
+                            }
+                            urlRest = `${url}/export/dicom:${result.selectedAet}`;
                             // urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
     /*                        switch (dicomMode){
                                 case 'study':
@@ -2415,7 +2423,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }
                 $this.$http.post(
                     urlRest,
-                    {},
+                    params,
                     $this.jsonHeader
                 ).subscribe(
                     (result) => {
@@ -4717,6 +4725,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
             },(err)=>{
                 console.error("Error getting Diff Attribute Set",err);
             });
+    }
+    getQueueNames(){
+        this.retrieveMonitoringService.getQueueNames().subscribe(names=>{
+            this.queues = names.map(name=> new SelectDropdown(name.name, name.description));
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        })
     }
     ngOnDestroy() {
         // Save state of the study page in a global variable after leaving it

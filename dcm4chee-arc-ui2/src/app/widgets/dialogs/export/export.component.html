@@ -85,9 +85,16 @@
                     <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                 </mat-select>
             </div>
-            <label title="If checked the process will be queued" *ngIf="mode ==='single'">
+            <div *ngIf="mode ==='single'">
+                <p>Queue Name:</p>
+                <mat-select class="aes" [(ngModel)]="result.dcmQueueName">
+                    <mat-option value="">*</mat-option>
+                    <mat-option value="{{queue.value}}" *ngFor="let queue of queues" title="{{queue.title}}">{{queue.text}}</mat-option>
+                </mat-select>
+            </div>
+<!--            <label title="If checked the process will be queued" *ngIf="mode ==='single'">
                 <input type="checkbox" name="queue" [(ngModel)]="result['queue']"> Queued DICOM export
-            </label><br *ngIf="mode ==='single'">
+            </label><br *ngIf="mode ==='single'">-->
             <ng-container *ngIf="mode === 'multiple'">
                 <div class="dicomBlock">
                     <p>Select the query AETitle:</p>

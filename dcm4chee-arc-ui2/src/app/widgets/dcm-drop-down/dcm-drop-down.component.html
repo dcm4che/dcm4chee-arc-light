@@ -1,4 +1,4 @@
-<div class="dcm_dropdown" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
+<div class="dcm_dropdown" [ngClass]="{'single_mode':!multiSelectMode}" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
   <div class="dropdown_input" (click)="toggleDropdown()">
     <div class="input_part">
       <ng-container *ngIf="multiSelectMode">
@@ -23,10 +23,15 @@
           <li *ngIf="showStar" class="option" (click)="select('')">&nbsp;</li>
           <li class="option" (click)="select(option)" [ngClass]="{'active':option.selected}" title="{{option.title || ''}}" *ngFor="let option of options|search:search">
               <input type="checkbox" *ngIf="option.value && option.value != '' && multiSelectMode" [(ngModel)]="option.selected">
-              <div class="input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="option.htmlLabel" [innerHTML]="option.htmlLabel"></div>
-              <div class="input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="!htmlLabel">
-                  {{option.value || option.label}}
+              <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="option.htmlLabel" [innerHTML]="option.htmlLabel"></div>
+              <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="!option.htmlLabel">
+                  {{option.text || option.value || option.label}}
               </div>
+          </li>
+          <li class="option" *ngIf="!options || options.length === 0" (click)="select('')">
+             <div class="dcm_input_value">
+              No Elements found
+             </div>
           </li>
       </ul>
 

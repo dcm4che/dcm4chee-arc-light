@@ -11,6 +11,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {MatDialog, MatDialogRef, MatDialogConfig} from "@angular/material";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
   selector: 'app-ae-list',
@@ -418,34 +419,41 @@ export class AeListComponent implements OnInit{
     setAetAsAcceptedCallingAet(newAet, setAetAsAcceptedCallingAet){
         console.log("newAet",newAet);
         console.log("setAetAsAcceptedCallingAet",setAetAsAcceptedCallingAet);
+        let deviceAet = {};
         this.aes.forEach(ae=>{
-           if(setAetAsAcceptedCallingAet.indexOf(ae.dicomAETitle) > -1){
-               this.devicesService.getDevice(ae.dicomDeviceName).subscribe(device=>{
-                   device.dicomNetworkAE.forEach(deviceAe=>{
-                       if(deviceAe.dicomAETitle === ae.dicomAETitle){
-                           if(_.hasIn(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle") && deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.length > 0){
-                               deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.push(newAet.dicomAETitle)
-                           }else{
-                               _.set(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle",[newAet.dicomAETitle])
-                           }
-                       }
-                   });
-                   this.devicesService.saveDeviceChanges(ae.dicomDeviceName,device).subscribe(result=>{
-                       this.mainservice.showMsg(`${newAet.dicomAETitle} was set successfully as 'Accepted Calling AE Title' to the ${ae.dicomAETitle}`)
-                       this.$http.post('../ctrl/reload', {},  new Headers({ 'Content-Type': 'application/json' })).subscribe((res) => {
-                           this.mainservice.setMessage({
-                               'title': 'Info',
-                               'text': 'Archive reloaded successfully!',
-                               'status': 'info'
-                           });
-                       });
-                   },err=>{
-                       this.httpErrorHandler.handleError(err);
-                   })
-               },err=>{
-                   this.httpErrorHandler.handleError(err);
-               })
-           }
+            if(setAetAsAcceptedCallingAet.indexOf(ae.dicomAETitle) > -1){
+                deviceAet[ae.dicomDeviceName] = deviceAet[ae.dicomDeviceName] || [];
+                deviceAet[ae.dicomDeviceName].push(ae);
+            }
+        });
+        Object.keys(deviceAet).forEach(deviceName=>{
+            this.devicesService.getDevice(deviceName).subscribe(device=>{
+                deviceAet[deviceName].forEach(ae=>{
+                    device.dicomNetworkAE.forEach(deviceAe=>{
+                        if(deviceAe.dicomAETitle === ae.dicomAETitle){
+                            if(_.hasIn(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle") && deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.length > 0){
+                                deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.push(newAet.dicomAETitle)
+                            }else{
+                                _.set(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle",[newAet.dicomAETitle])
+                            }
+                        }
+                    });
+                });
+                this.devicesService.saveDeviceChanges(deviceName,device).subscribe(result=>{
+                    this.mainservice.showMsg(`${newAet.dicomAETitle} was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet,", ", " and ")}`);
+                    this.$http.post('../ctrl/reload', {},  new Headers({ 'Content-Type': 'application/json' })).subscribe((res) => {
+                        this.mainservice.setMessage({
+                            'title': 'Info',
+                            'text': 'Archive reloaded successfully!',
+                            'status': 'info'
+                        });
+                    });
+                },err=>{
+                    this.httpErrorHandler.handleError(err);
+                })
+            },err=>{
+                this.httpErrorHandler.handleError(err);
+            });
         });
     }
     getAes(){

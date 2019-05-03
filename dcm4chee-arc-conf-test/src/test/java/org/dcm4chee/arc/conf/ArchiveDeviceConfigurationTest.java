@@ -133,19 +133,19 @@ public class ArchiveDeviceConfigurationTest {
         config.unregisterAETitle("AS_RECEIVED");
         config.unregisterAETitle("SCHEDULEDSTATION");
         hl7Config.unregisterHL7Application("HL7RCV|DCM4CHEE");
-        config.unregisterWebAppName("DCM4CHEE-RS");
+        config.unregisterWebAppName("DCM4CHEE");
         config.unregisterWebAppName("DCM4CHEE-WADO");
-        config.unregisterWebAppName("IOCM_REGULAR_USE-RS");
+        config.unregisterWebAppName("IOCM_REGULAR_USE");
         config.unregisterWebAppName("IOCM_REGULAR_USE-WADO");
-        config.unregisterWebAppName("IOCM_EXPIRED-RS");
+        config.unregisterWebAppName("IOCM_EXPIRED");
         config.unregisterWebAppName("IOCM_EXPIRED-WADO");
-        config.unregisterWebAppName("IOCM_QUALITY-RS");
+        config.unregisterWebAppName("IOCM_QUALITY");
         config.unregisterWebAppName("IOCM_QUALITY-WADO");
-        config.unregisterWebAppName("IOCM_PAT_SAFETY-RS");
+        config.unregisterWebAppName("IOCM_PAT_SAFETY");
         config.unregisterWebAppName("IOCM_PAT_SAFETY-WADO");
-        config.unregisterWebAppName("IOCM_WRONG_MWL-RS");
+        config.unregisterWebAppName("IOCM_WRONG_MWL");
         config.unregisterWebAppName("IOCM_WRONG_MWL-WADO");
-        config.unregisterWebAppName("AS_RECEIVED-RS");
+        config.unregisterWebAppName("AS_RECEIVED");
         config.unregisterWebAppName("AS_RECEIVED-WADO");
         config.unregisterWebAppName("dcm4chee-arc");
         for (String aet : ArchiveDeviceFactory.OTHER_AES)

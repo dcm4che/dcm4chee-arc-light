@@ -48,6 +48,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -214,6 +215,8 @@ public class RetrieveRS {
         try {
             Attributes keys = toKeys(uids);
             return queueName != null ? queueExport(destAET, keys) : export(destAET, keys);
+        } catch (IllegalArgumentException e) {
+            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -316,17 +319,24 @@ public class RetrieveRS {
                 .setKeys(keys);
     }
 
-    private static Attributes toKeys(String[] iuids) {
+    private Attributes toKeys(String[] iuids) {
         int n = iuids.length;
         Attributes keys = new Attributes(n + 1);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());
-        keys.setString(Tag.StudyInstanceUID, VR.UI, iuids[0]);
+        setUID(keys, Tag.StudyInstanceUID, iuids[0]);
         if (n > 1) {
-            keys.setString(Tag.SeriesInstanceUID, VR.UI, iuids[1]);
+            setUID(keys, Tag.SeriesInstanceUID, iuids[1]);
             if (n > 2)
-                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids[2]);
+                setUID(keys, Tag.SOPInstanceUID, iuids[2]);
         }
         return keys;
+    }
+
+    private void setUID(Attributes keys, int tag, String uid) {
+        if (!UIDUtils.isValid(uid))
+            throw new IllegalArgumentException("Not a valid UID: " + uid);
+
+        keys.setString(tag, VR.UI, uid);
     }
 
     private Response.ResponseBuilder status(Attributes cmd) {
