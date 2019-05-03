@@ -198,35 +198,36 @@ export class StudyComponent implements OnInit {
         }
     }
     search(mode?:('next'|'prev'|'current')){
-        if (this._filter.filterModel.aet){
-            let callingAet = new Aet(this._filter.filterModel.aet);
-            let filters = _.clone(this._filter.filterModel);
-            if(filters.limit){
-                filters.limit++;
-            }
-            delete filters.aet;
-            if(!mode || mode === "current"){
-                filters.offset = 0;
-                this.getStudies(filters, callingAet);
-            }else{
-                if(mode === "next" && this.moreStudies){
-                    filters.offset = filters.offset + this._filter.filterModel.limit;
-                    this.getStudies(filters, callingAet);
-                }
-                if(mode === "prev" && filters.offset > 0){
-                    filters.offset = filters.offset - this._filter.filterModel.offset;
-                    this.getStudies(filters, callingAet);
-                }
-            }
-        }else{
-            this.appService.showError("Calling AET is missing!");
+        // if (this._filter.filterModel.aet){
+        // let callingAet = new Aet(this._filter.filterModel.aet);
+        console.log("this",this.filter);
+        console.log("deviceWebservice",this.deviceWebservice);
+        let filterModel =  _.clone(this._filter.filterModel);
+        if(filterModel.limit){
+            filterModel.limit++;
         }
+        if(!mode || mode === "current"){
+            filterModel.offset = 0;
+            this.getStudies(filterModel);
+        }else{
+            if(mode === "next" && this.moreStudies){
+                filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
+                this.getStudies(filterModel);
+            }
+            if(mode === "prev" && filterModel.offset > 0){
+                filterModel.offset = filterModel.filterModel.offset - this._filter.filterModel.offset;
+                this.getStudies(filterModel);
+            }
+        }
+/*        }else{
+            this.appService.showError("Calling AET is missing!");
+        }*/
     }
 
-    getStudies(filters, callingAet){
+    getStudies(filterModel){
         this.cfpLoadingBar.start();
-        filters['includefield'] = 'all';
-        this.service.getStudies(callingAet, filters)
+        filterModel['includefield'] = 'all';
+        this.service.getStudies(filterModel, this.deviceWebservice)
             .subscribe(res => {
                 this.patients = [];
                 if(res){
@@ -262,7 +263,7 @@ export class StudyComponent implements OnInit {
                 }else{
                     this.appService.showMsg("No Studies found!");
                 }
-                this._filter.filterModel.offset = filters.offset;
+                this._filter.filterModel.offset = filterModel.offset;
                 this.cfpLoadingBar.complete();
                 console.log("this.patients", this.patients);
             }, err => {
@@ -275,7 +276,7 @@ export class StudyComponent implements OnInit {
         console.log('in query sersies study=', study);
         this.cfpLoadingBar.start();
         if (study.offset < 0) study.offset = 0;
-        let callingAet = new Aet(this._filter.filterModel.aet);
+        // let callingAet = new Aet(this._filter.filterModel.aet);
         let filters = _.clone(this._filter.filterModel);
         if(filters.limit){
             filters.limit++;
@@ -283,7 +284,7 @@ export class StudyComponent implements OnInit {
         filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
-        this.service.getSeries(callingAet,study.attrs['0020000D'].Value[0], filters)
+        this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.deviceWebservice)
             .subscribe((res)=>{
             if (res){
                 if (res.length === 0){
@@ -325,7 +326,7 @@ export class StudyComponent implements OnInit {
         console.log('in query Instances serie=', series);
         this.cfpLoadingBar.start();
         if (series.offset < 0) series.offset = 0;
-        let callingAet = new Aet(this._filter.filterModel.aet);
+        // let callingAet = new Aet(this._filter.filterModel.aet);
         let filters = _.clone(this._filter.filterModel);
         if(filters.limit){
             filters.limit++;
@@ -333,7 +334,7 @@ export class StudyComponent implements OnInit {
         filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'InstanceNumber';
-        this.service.getInstances(callingAet,series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters)
+        this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this.deviceWebservice)
             .subscribe((res)=>{
             if (res){
                 series.instances = res.map((attrs, index) => {
@@ -377,13 +378,18 @@ export class StudyComponent implements OnInit {
     }
     entryFilterChanged(e){
         console.log("e",e);
-
+        console.log("this.deviceWebservice",this.deviceWebservice);
         if(this.deviceWebservice.selectedDevice != this.filter.filterEntryModel["device"]){
             this.deviceWebservice.selectedDevice = this.filter.filterEntryModel["device"];
             this.deviceConfigurator.getDevice(this.deviceWebservice.selectedDevice).subscribe(device=>{
                 this.deviceWebservice.selectedDeviceObject = device;
-                this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.dcmWebAppServicesDropdown);
+                this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.getDcmWebAppServicesDropdown(["QIDO_RS"]));
             });
+            this._filter.filterEntryModel["webService"] = undefined;
+            this.deviceWebservice.selectedWebApp = undefined;
+        }
+        if(!this.deviceWebservice.selectedWebApp || this.deviceWebservice.selectedWebApp.dcmWebAppName != this.filter.filterEntryModel["webService"]){
+            this.deviceWebservice.setSelectedWebAppByString(this.filter.filterEntryModel["webService"]);
         }
     }
 
@@ -398,7 +404,7 @@ export class StudyComponent implements OnInit {
         // this._filter.filterSchemaEntry  = this.service.getEntrySchema(this.devices,this.selectedDeviceWebserviceAet);
         this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes, this._filter.quantityText,'main');
         this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
-        this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.dcmWebAppServicesDropdown);
+        this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.getDcmWebAppServicesDropdown(["QIDO_RS"]));
     }
 
     accessLocationChange(e){
@@ -421,14 +427,15 @@ export class StudyComponent implements OnInit {
                 this.service.getAets().map(aets=> aets.map(aet => new Aet(aet))),
             )
             .subscribe((res)=>{
-                [0,1].forEach(i=>{
+/*                [0,1].forEach(i=>{
                     res[i] = j4care.extendAetObjectWithAlias(res[i]);
                     ["external","internal"].forEach(location=>{
                       this.applicationEntities.aes[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
                       this.applicationEntities.aets[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
                       this.applicationEntities.aetsAreSet = true;
                     })
-                });
+                });*/
+                console.log("filter",this.filter);
                 this.setSchema();
             },(err)=>{
                 this.appService.showError("Error getting AETs!");

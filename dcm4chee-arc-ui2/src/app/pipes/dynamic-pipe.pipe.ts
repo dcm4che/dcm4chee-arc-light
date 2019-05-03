@@ -11,7 +11,6 @@ export class DynamicPipePipe implements PipeTransform {
     }
 
     transform(value: any, dynamicPipe:DynamicPipe): any {
-        console.log("value",value);
         if (!value) {
             return value;
         }
