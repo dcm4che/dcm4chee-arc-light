@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.export.curve2pr;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -117,7 +118,6 @@ public class Curve2PRExporter extends AbstractExporter {
                 ctx.getSeriesInstanceUID(),
                 ctx.getSopInstanceUID())) {
             ae = retrieveContext.getLocalApplicationEntity();
-            retrieveContext.setObjectType(null);
             retrieveContext.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
             if (!retrieveService.calculateMatches(retrieveContext))
                 return new Outcome(QueueMessage.Status.WARNING, noMatches(ctx));
@@ -159,16 +159,24 @@ public class Curve2PRExporter extends AbstractExporter {
     }
 
     private void curve2pr(RetrieveContext ctx, InstanceLocations inst, List<Attributes> results) throws IOException {
-        Attributes metadata = ctx.getRetrieveService().loadMetadata(ctx, inst);
+        Attributes metadata = loadWithoutPixelData(ctx, inst);
         float[] pixelSpacing = metadata.getFloats(Tag.PixelSpacing);
         byte[] curveData;
         Attributes graphicAnnotationItem = null;
-        for (int offset = 0; (curveData = metadata.getBytes(Tag.CurveData | offset)) != null; offset += 0x2000) {
+        for (int offset = 0; (curveData = metadata.getBytes(Tag.CurveData | offset)) != null; offset += 0x20000) {
             if (isConvertable(curveData, metadata, offset)) {
                 if (graphicAnnotationItem == null)
                     graphicAnnotationItem = graphicAnnotationItem(ctx, inst, results, metadata);
                 addPolyline(graphicAnnotationItem, VR.FL.toFloats(curveData, false), pixelSpacing);
             }
+        }
+    }
+
+    private static Attributes loadWithoutPixelData(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+        try (DicomInputStream dis = ctx.getRetrieveService().openDicomInputStream(ctx, inst)) {
+            Attributes attrs = dis.readDataset(-1, Tag.PixelData);
+            ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(attrs, null);
+            return attrs;
         }
     }
 
@@ -213,6 +221,9 @@ public class Curve2PRExporter extends AbstractExporter {
         pr.setString(Tag.SOPInstanceUID, VR.UI, sopInstanceUID);
         pr.setString(Tag.Modality, VR.CS, "PR");
         pr.setString(Tag.Manufacturer, VR.LO, descriptor.getProperty("Manufacturer", null));
+        setNotNull(pr, Tag.StationName, VR.SH, descriptor.getProperty("StationName", null));
+        setNotNull(pr, Tag.ManufacturerModelName, VR.LO, descriptor.getProperty("ManufacturerModelName", null));
+        setNotNull(pr, Tag.SoftwareVersions, VR.LO, descriptor.getProperty("SoftwareVersions", null));
         pr.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
         pr.setString(Tag.SeriesNumber, VR.IS, descriptor.getProperty("SeriesNumber", "0"));
         pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
@@ -227,6 +238,11 @@ public class Curve2PRExporter extends AbstractExporter {
         pr.setString(Tag.ContentCreatorName, VR.PN, descriptor.getProperty("ContentCreatorName", null));
         results.add(pr);
         return pr;
+    }
+
+    private static void setNotNull(Attributes pr, int tag, VR vr, String value) {
+        if (value != null)
+            pr.setString(tag, vr, value);
     }
 
     private static String seriesInstanceUID(RetrieveContext ctx, List<Attributes> results) {
