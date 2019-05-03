@@ -5730,6 +5730,9 @@
               "$ref": "export.schema.json"
             }
           },
+          "400": {
+            "description": "Invalid Study Instance UID"
+          },
           "404": {
             "description": "External AE Title not found"
           },
@@ -5843,6 +5846,9 @@
             "schema": {
               "$ref": "export.schema.json"
             }
+          },
+          "400": {
+            "description": "Invalid Series Instance UID"
           },
           "404": {
             "description": "External AE Title not found"
@@ -5964,6 +5970,9 @@
             "schema": {
               "$ref": "export.schema.json"
             }
+          },
+          "400": {
+            "description": "Invalid SOP Instance UID"
           },
           "404": {
             "description": "External AE Title not found"
