@@ -196,7 +196,7 @@ dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
 dcmBulkDataDescriptorID: default
 dcmCompressionAETitle: DCM4CHEE
-dicomSoftwareVersion: 5.16.1
+dicomSoftwareVersion: 5.17.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectionNoteStorageAET: DCM4CHEE
 dcmRejectExpiredSeriesFetchSize: 10
