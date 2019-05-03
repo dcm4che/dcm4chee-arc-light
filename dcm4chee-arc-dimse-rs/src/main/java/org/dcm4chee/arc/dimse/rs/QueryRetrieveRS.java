@@ -225,6 +225,18 @@ public class QueryRetrieveRS {
     }
 
     @POST
+    @Path("/studies/csv:{field}/mark4retrieve/dicom:{destinationAET}")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response markMatchingStudiesFromCSVForRetrieve(
+            @PathParam("field") int field,
+            @PathParam("destinationAET") String destAET,
+            InputStream in) {
+        return processCSV(field, destAET, in, this::createRetrieveTask);
+    }
+
+
+    @POST
     @Path("/studies/csv:{field}/export/dicom:{destinationAET}")
     @Consumes("text/csv")
     @Produces("application/json")
@@ -232,6 +244,10 @@ public class QueryRetrieveRS {
             @PathParam("field") int field,
             @PathParam("destinationAET") String destAET,
             InputStream in) {
+        return processCSV(field, destAET, in, this::scheduleRetrieveTask);
+    }
+
+    private Response processCSV(int field, String destAET, InputStream in, Predicate<ExternalRetrieveContext> action) {
         logRequest();
         checkAE(aet, device.getApplicationEntity(aet, true));
         try {
@@ -242,18 +258,16 @@ public class QueryRetrieveRS {
                         "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
             char csvDelimiter = csvDelimiter();
-            int priorityAsInt = parseInt(priority, 0);
+            priorityAsInt = parseInt(priority, 0);
             int count = 0;
             String warning = null;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
-                    if (count > 0 || UIDUtils.isValid(studyUID)) {
-                        if (retrieveManager.scheduleRetrieveTask(
-                                priorityAsInt, createExtRetrieveCtx(destAET, studyUID), null, 0L))
+                    if (count > 0 || UIDUtils.isValid(studyUID))
+                        if (action.test(createExtRetrieveCtx(destAET, studyUID)))
                             count++;
-                    }
                 }
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file.";
