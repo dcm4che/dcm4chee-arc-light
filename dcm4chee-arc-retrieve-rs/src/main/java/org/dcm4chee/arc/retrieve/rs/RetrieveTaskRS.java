@@ -327,8 +327,7 @@ public class RetrieveTaskRS {
 
     private int rescheduleOnDistinctDevices(TaskQueryParam retrieveTaskQueryParam, QueueMessage.Status status)
             throws Exception {
-        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(
-                                                    queueTaskQueryParam(null, status), retrieveTaskQueryParam);
+        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(retrieveTaskQueryParam);
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
@@ -340,29 +339,29 @@ public class RetrieveTaskRS {
     }
 
     private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        BulkQueueMessageEvent bulkMsgQueueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
-            int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             do {
-                List<String> retrieveTaskQueueMsgIDs = mgr.listRetrieveTaskQueueMsgIDs(
-                                                            queueTaskQueryParam,
-                                                            retrieveTaskQueryParam,
-                                                            rescheduleTasksFetchSize);
-                retrieveTaskQueueMsgIDs.forEach(
-                        retrieveTaskQueueMsgID -> mgr.rescheduleRetrieveTask(retrieveTaskQueueMsgID, newQueueName));
-                count = retrieveTaskQueueMsgIDs.size();
-                rescheduled += count;
-            } while (count >= rescheduleTasksFetchSize);
-            queueEvent.setCount(rescheduled);
+                List<Long> retrieveTaskPks = mgr.listRetrieveTaskPks(
+                        queueTaskQueryParam, retrieveTaskQueryParam, rescheduleTasksFetchSize);
+                retrieveTaskPks.forEach(
+                        pk -> mgr.rescheduleRetrieveTask(
+                                pk,
+                                newQueueName,
+                                new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks)));
+
+                rescheduled += retrieveTaskPks.size();
+            } while (rescheduled >= rescheduleTasksFetchSize);
+            bulkMsgQueueEvent.setCount(rescheduled);
             LOG.info("Rescheduled {} tasks on device {}", rescheduled, device.getDeviceName());
             return rescheduled;
         } catch (Exception e) {
-            queueEvent.setException(e);
+            bulkMsgQueueEvent.setException(e);
             throw e;
         } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
+            bulkQueueMsgEvent.fire(bulkMsgQueueEvent);
         }
     }
 

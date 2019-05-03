@@ -72,17 +72,14 @@ public interface RetrieveManager {
 
     void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent);
 
-    void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, String newQueueName);
-
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize);
 
     List<RetrieveBatch> listRetrieveBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit);
 
-    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
+    List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam);
 
-    List<String> listRetrieveTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
+    List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
 

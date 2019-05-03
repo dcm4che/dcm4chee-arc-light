@@ -180,11 +180,6 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, String newQueueName) {
-        ejb.rescheduleRetrieveTask(retrieveTaskQueueMsgId, newQueueName, null);
-    }
-
-    @Override
     public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
         return ejb.deleteTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
     }
@@ -196,14 +191,14 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(queueTaskQueryParam, retrieveTaskQueryParam);
+    public List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam) {
+        return ejb.listDistinctDeviceNames(retrieveTaskQueryParam);
     }
 
     @Override
-    public List<String> listRetrieveTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
-        return ejb.listRetrieveTaskQueueMsgIDs(queueTaskQueryParam, retrieveTaskQueryParam, limit);
+    public List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
+                                          int limit) {
+        return ejb.listRetrieveTaskPks(queueTaskQueryParam, retrieveTaskQueryParam, limit);
     }
 
     @Override

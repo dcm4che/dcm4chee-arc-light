@@ -79,7 +79,7 @@ import java.util.Date;
                         "o.errorComment=?7 " +
                         "where o.queueMessage=?1"),
         @NamedQuery(name = RetrieveTask.FIND_DEVICE_BY_PK,
-                query = "select o.queueMessage.deviceName from RetrieveTask o where o.pk=?1")
+                query = "select o.deviceName from RetrieveTask o where o.pk=?1")
 })
 public class RetrieveTask {
 

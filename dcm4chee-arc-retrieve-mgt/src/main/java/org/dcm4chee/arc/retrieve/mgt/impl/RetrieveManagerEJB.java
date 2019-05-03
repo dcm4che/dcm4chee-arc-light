@@ -68,7 +68,6 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.SingularAttribute;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -106,6 +105,23 @@ public class RetrieveManagerEJB {
                     Message.DEFAULT_PRIORITY, ctx.getBatchID(), delay);
             createRetrieveTask(ctx, queueMessage);
             return true;
+        } catch (JMSException e) {
+            throw QueueMessage.toJMSRuntimeException(e);
+        }
+    }
+
+    public void scheduleRetrieveTask(RetrieveTask retrieveTask, HttpServletRequest request) {
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(toKeys(retrieveTask));
+            msg.setStringProperty("LocalAET", retrieveTask.getLocalAET());
+            msg.setStringProperty("RemoteAET", retrieveTask.getRemoteAET());
+            msg.setIntProperty("Priority", 0);
+            msg.setStringProperty("DestinationAET", retrieveTask.getDestinationAET());
+            msg.setStringProperty("StudyInstanceUID", retrieveTask.getStudyInstanceUID());
+            HttpServletRequestInfo.copyTo(HttpServletRequestInfo.valueOf(request), msg);
+            QueueMessage queueMessage = queueManager.scheduleMessage(retrieveTask.getQueueName(), msg,
+                    Message.DEFAULT_PRIORITY, retrieveTask.getBatchID(), 0L);
+            retrieveTask.setQueueMessage(queueMessage);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
@@ -248,27 +264,17 @@ public class RetrieveManagerEJB {
         if (task == null)
             return;
 
+        if (newQueueName != null)
+            task.setQueueName(newQueueName);
+
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage == null) {
             LOG.info("Schedule {}", task);
-            scheduleRetrieveTask(0, createExtRetrieveCtx(task, queueEvent.getRequest()), null, 0L);
+            scheduleRetrieveTask(task, queueEvent.getRequest());
         } else {
             LOG.info("Reschedule {}", task);
-            rescheduleRetrieveTask(task.getQueueMessage().getMessageID(), newQueueName, queueEvent);
+            queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), task.getQueueName(), queueEvent);
         }
-    }
-
-    private ExternalRetrieveContext createExtRetrieveCtx(RetrieveTask task, HttpServletRequest request) {
-        Attributes keys = toKeys(task);
-        return new ExternalRetrieveContext()
-                .setDeviceName(task.getDeviceName())
-                .setQueueName(task.getQueueName())
-                .setBatchID(task.getBatchID())
-                .setLocalAET(task.getLocalAET())
-                .setRemoteAET(task.getRemoteAET())
-                .setDestinationAET(task.getDestinationAET())
-                .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setKeys(keys);
     }
 
     private static Attributes toKeys(RetrieveTask task) {
@@ -284,21 +290,33 @@ public class RetrieveManagerEJB {
         return keys;
     }
 
-    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, String queueName, QueueMessageEvent queueEvent) {
-        queueManager.rescheduleTask(retrieveTaskQueueMsgId, queueName, queueEvent);
-    }
-
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+    public List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
+        List<Predicate> predicates = new ArrayList<>();
+        new MatchTask(cb).matchRetrieveTask(predicates, retrieveTaskQueryParam, retrieveTask);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(
-                select(QueueMessage_.deviceName, queueTaskQueryParam, retrieveTaskQueryParam).distinct(true))
+                q.select(retrieveTask.get(RetrieveTask_.deviceName)).distinct(true))
                 .getResultList();
     }
 
-    public List<String> listRetrieveTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
-        return em.createQuery(select(QueueMessage_.messageID, queueTaskQueryParam, retrieveTaskQueryParam))
-                .setMaxResults(limit)
-                .getResultList();
+    public List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
+                                          int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
+        List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
+        TypedQuery<Long> query = em.createQuery(q.select(retrieveTask.get(RetrieveTask_.pk)));
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultList();
     }
 
     public List<RetrieveBatch> listRetrieveBatches(
@@ -485,19 +503,6 @@ public class RetrieveManagerEJB {
         }
     }
 
-    private CriteriaQuery<String> select(SingularAttribute<QueueMessage, String> attribute,
-                                         TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).retrievePredicates(
-                queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q.select(queueMsg.get(attribute));
-    }
-
     public int deleteTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
         QueueMessage.Status status = queueTaskQueryParam.getStatus();
@@ -509,14 +514,6 @@ public class RetrieveManagerEJB {
                     + deleteToSchedule(retrieveTaskQueryParam);
 
         return deleteReferencedTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
-
-//        List<String> referencedQueueMsgIDs = em.createQuery(
-//                select(QueueMessage_.messageID, queueTaskQueryParam, retrieveTaskQueryParam))
-//                .setMaxResults(deleteTasksFetchSize)
-//                .getResultList();
-//
-//        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
-//        return referencedQueueMsgIDs.size();
     }
 
     private int deleteToSchedule(TaskQueryParam retrieveTaskQueryParam) {
@@ -532,10 +529,18 @@ public class RetrieveManagerEJB {
 
     private int deleteReferencedTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> q = cb.createQuery(String.class);
+        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
+        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+        List<Predicate> predicates = new MatchTask(cb).retrievePredicates(
+                queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
         List<String> referencedQueueMsgIDs = em.createQuery(
-                select(QueueMessage_.messageID, queueTaskQueryParam, retrieveTaskQueryParam))
-                .setMaxResults(deleteTasksFetchSize)
-                .getResultList();
+                                                q.select(queueMsg.get(QueueMessage_.messageID)))
+                                                .setMaxResults(deleteTasksFetchSize)
+                                                .getResultList();
 
         referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
         return referencedQueueMsgIDs.size();
