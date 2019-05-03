@@ -153,6 +153,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         } catch (Exception e) {
             LOG.warn("Failed to reject Expired Series[UID={}] of Study[UID={}].\n",
                     series.getSeriesInstanceUID(), series.getStudy().getStudyInstanceUID(), e);
+            ejb.claimExpiredSeriesFor(series, ExpirationState.FAILED_TO_REJECT);
         }
     }
 
@@ -200,9 +201,10 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     private void rejectExpiredStudy(Study study, ApplicationEntity ae, RejectionNote rn) {
         try {
             if (ejb.claimExpiredStudyFor(study, ExpirationState.REJECTED))
-                rejectionService.reject(ae,study.getStudyInstanceUID(), null, null, rn, null);
+                rejectionService.reject(ae, study.getStudyInstanceUID(), null, null, rn, null);
         } catch (Exception e) {
             LOG.warn("Failed to reject Expired Study[UID={}].\n", study.getStudyInstanceUID(), e);
+            ejb.claimExpiredStudyFor(study, ExpirationState.FAILED_TO_REJECT);
         }
     }
 
