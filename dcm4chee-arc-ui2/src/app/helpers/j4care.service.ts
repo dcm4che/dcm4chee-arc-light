@@ -1035,14 +1035,19 @@ export class j4care {
     }
 
     static join(array:string[],joinString:string, lastJoinString?:string){
-        if(array.length > 1){
-            if(lastJoinString){
-                return `${array.splice(0,-1).join(joinString)}${lastJoinString}${array.splice(-1)}`;
+        try{
+            if(array.length > 1){
+                if(lastJoinString){
+                    return `${array.slice(0,-1).join(joinString)}${lastJoinString}${array.slice(-1)}`;
+                }else{
+                    return array.join(joinString);
+                }
             }else{
-                return array.join(joinString);
+                return array.toString();
             }
-        }else{
-            return array.toString();
+        }catch(e){
+            this.log("Error on join",e);
+            return "";
         }
     }
 }
