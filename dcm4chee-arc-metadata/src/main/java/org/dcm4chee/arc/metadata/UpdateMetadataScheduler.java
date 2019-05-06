@@ -203,7 +203,7 @@ public class UpdateMetadataScheduler extends Scheduler {
         try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
             if (claim(metadataUpdate, storage) && retrieveService.calculateMatches(ctx)) {
                 LOG.debug("Creating/Updating Metadata for Series[pk={}] on {}",
-                        ctx.getSeriesMetadataUpdate().seriesPk,
+                        metadataUpdate.seriesPk,
                         storage.getStorageDescriptor());
                 WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
                 try {
@@ -218,16 +218,16 @@ public class UpdateMetadataScheduler extends Scheduler {
                         out.finish();
                     }
                     storage.commitStorage(writeCtx);
-                    ejb.commit(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
+                    ejb.commit(metadataUpdate.seriesPk, createMetadata(writeCtx));
                 } catch (Exception e) {
                     LOG.warn("Failed to Create/Update Metadata for Series[pk={}] on {}:\n",
-                            ctx.getSeriesMetadataUpdate().seriesPk,
+                            metadataUpdate.seriesPk,
                             storage.getStorageDescriptor(),
                             e);
                     try {
-                        ejb.setScheduledUpdateTime(
-                                ctx.getSeriesMetadataUpdate().seriesPk,
-                                nextRetry(arcDev.getSeriesMetadataRetryInterval()));
+                        ejb.incrementMetadataUpdateFailures(
+                                metadataUpdate.seriesPk,
+                                nextRetry(arcDev, metadataUpdate.updateFailures));
                     } catch (Exception e1) {
                         LOG.warn("Failed to update Metadata Update time", e1);
                     }
@@ -239,7 +239,7 @@ public class UpdateMetadataScheduler extends Scheduler {
                     return;
                 }
                 LOG.debug("Created/Updated Metadata for Series[pk={}] on {}",
-                        ctx.getSeriesMetadataUpdate().seriesPk,
+                        metadataUpdate.seriesPk,
                         storage.getStorageDescriptor());
                 success.getAndIncrement();
             } else {
@@ -250,8 +250,10 @@ public class UpdateMetadataScheduler extends Scheduler {
         }
     }
 
-    private static Date nextRetry(Duration retryInterval) {
-        return retryInterval != null
+    private static Date nextRetry(ArchiveDeviceExtension arcDev, int updateFailures) {
+        int maxRetries = arcDev.getSeriesMetadataMaxRetries();
+        Duration retryInterval = arcDev.getSeriesMetadataRetryInterval();
+        return retryInterval != null && (maxRetries < 0 || maxRetries > updateFailures)
                 ? new Date(System.currentTimeMillis() + retryInterval.getSeconds() * 1000L)
                 : null;
     }

@@ -35,6 +35,7 @@ BEGIN { FS = "[ )]" }
             && $6 != "(stgcmt_status" \
             && $6 != "(access_time" \
             && $6 != "(metadata_update_time" \
+            && $6 != "(metadata_update_failures" \
             && $6 != "(inst_purge_time" \
             && $6 != "(inst_purge_state" \
             && $6 != "(check_missing" \

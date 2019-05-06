@@ -73,8 +73,8 @@ public class UpdateMetadataEJB {
                 .executeUpdate() > 0;
     }
 
-    public void setScheduledUpdateTime(Long seriesPk, Date time) {
-        em.createNamedQuery(Series.SET_METADATA_SCHEDULED_UPDATE_TIME)
+    public void incrementMetadataUpdateFailures(Long seriesPk, Date time) {
+        em.createNamedQuery(Series.INCREMENT_METADATA_UPDATE_FAILURES)
                 .setParameter(1, seriesPk)
                 .setParameter(2, time, TemporalType.TIMESTAMP)
                 .executeUpdate();
@@ -88,5 +88,6 @@ public class UpdateMetadataEJB {
             prev.setStatus(Metadata.Status.TO_DELETE);
         series.setMetadata(metadata);
         series.setMetadataScheduledUpdateTime(null);
+        series.setMetadataUpdateFailures(0);
     }
 }

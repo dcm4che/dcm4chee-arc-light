@@ -43,6 +43,7 @@ package org.dcm4chee.arc.entity;
 import org.dcm4che3.util.TagUtils;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -88,6 +89,11 @@ public class Metadata {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")
     private long pk;
+
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_time", updatable = false)
+    private Date createdTime;
 
     @Basic(optional = false)
     @Column(name = "storage_id", updatable = false)
@@ -162,5 +168,10 @@ public class Metadata {
                 + ", size=" + size
                 + ", status=" + status
                 + "]";
+    }
+
+    @PrePersist
+    public void onPrePersist() {
+        createdTime = new Date();
     }
 }

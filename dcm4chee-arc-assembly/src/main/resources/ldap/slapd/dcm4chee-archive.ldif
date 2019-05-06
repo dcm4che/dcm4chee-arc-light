@@ -1262,7 +1262,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.261 NAME 'dcmFailedToDeleteFetchSize
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.262 NAME 'dcmSeriesMetadataRetryInterval'
-  DESC 'Interval in ISO-8601 duration format PnDTnHnMnS in which failed attempts to create/update aggregated Series Metadata will be retried. If absent, failed attempts will not be retried.'
+  DESC 'Interval in ISO-8601 duration format PnDTnHnMnS in which failed attempts to create/update aggregated Series Metadata will be retried. Only effective if dcmSeriesMetadataMaxRetries != 0. If absent, failed attempts will not be retried.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1333,6 +1333,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.276 NAME 'hl7VeterinaryUsePatientNam
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.277 NAME 'dcmSeriesMetadataMaxRetries'
+  DESC 'Maximal number of retries to create/update aggregated Series Metadata. Only effective if dcmSeriesMetadataRetryInterval is specified. -1 = forever. 0 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1352,6 +1357,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSeriesMetadataFetchSize $
     dcmSeriesMetadataThreads $
     dcmSeriesMetadataRetryInterval $
+    dcmSeriesMetadataMaxRetries $
     dcmPurgeInstanceRecords $
     dcmPurgeInstanceRecordsDelay $
     dcmPurgeInstanceRecordsPollingInterval $

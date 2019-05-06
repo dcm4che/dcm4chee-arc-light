@@ -122,12 +122,14 @@ class SeriesQuery extends AbstractQuery {
                 series.get(Series_.sourceAET),
                 series.get(Series_.externalRetrieveAET),
                 series.get(Series_.metadataScheduledUpdateTime),
+                series.get(Series_.metadataUpdateFailures),
                 series.get(Series_.instancePurgeTime),
                 series.get(Series_.instancePurgeState),
                 series.get(Series_.storageVerificationTime),
                 series.get(Series_.failuresOfLastStorageVerification),
                 series.get(Series_.compressionTime),
                 series.get(Series_.compressionFailures),
+                metadata.get(Metadata_.createdTime),
                 metadata.get(Metadata_.storageID),
                 metadata.get(Metadata_.storagePath),
                 metadata.get(Metadata_.digest),
@@ -245,6 +247,9 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(series.get(Series_.metadataScheduledUpdateTime))!= null)
             attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledMetadataUpdateDateTimeOfSeries, VR.DT,
                     results.get(series.get(Series_.metadataScheduledUpdateTime)));
+        if (results.get(series.get(Series_.metadataUpdateFailures))!= 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataUpdateFailures, VR.US,
+                    results.get(series.get(Series_.metadataUpdateFailures)));
         if (results.get(series.get(Series_.instancePurgeTime)) != null)
             attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledInstanceRecordPurgeDateTimeOfSeries, VR.DT,
                     results.get(series.get(Series_.instancePurgeTime)));
@@ -263,6 +268,8 @@ class SeriesQuery extends AbstractQuery {
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastCompressionOfSeries, VR.US,
                     results.get(series.get(Series_.compressionFailures)));
         if (results.get(metadata.get(Metadata_.storageID)) != null) {
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataCreationDateTime, VR.DT,
+                    results.get(metadata.get(Metadata_.createdTime)));
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
                     results.get(metadata.get(Metadata_.storageID)));
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStoragePath, VR.LO,

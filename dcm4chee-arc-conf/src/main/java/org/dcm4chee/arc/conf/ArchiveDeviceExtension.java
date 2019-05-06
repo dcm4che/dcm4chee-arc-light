@@ -77,6 +77,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration seriesMetadataPollingInterval;
     private volatile int seriesMetadataFetchSize = 100;
     private volatile int seriesMetadataThreads = 1;
+    private volatile int seriesMetadataMaxRetries = 0;
     private volatile Duration seriesMetadataRetryInterval;
     private volatile boolean purgeInstanceRecords;
     private volatile Duration purgeInstanceRecordsDelay;
@@ -393,6 +394,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSeriesMetadataThreads(int seriesMetadataThreads) {
         this.seriesMetadataThreads = seriesMetadataThreads;
+    }
+
+    public int getSeriesMetadataMaxRetries() {
+        return seriesMetadataMaxRetries;
+    }
+
+    public void setSeriesMetadataMaxRetries(int seriesMetadataMaxRetries) {
+        this.seriesMetadataMaxRetries = seriesMetadataMaxRetries;
     }
 
     public Duration getSeriesMetadataRetryInterval() {

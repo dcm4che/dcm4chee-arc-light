@@ -177,7 +177,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
-                "se.pk, se.metadataScheduledUpdateTime, se.instancePurgeTime, " +
+                "se.pk, se.metadataScheduledUpdateTime, se.metadataUpdateFailures, se.instancePurgeTime, " +
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "left join se.metadata metadata " +
@@ -186,7 +186,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
-                "se.pk, se.metadataScheduledUpdateTime, se.instancePurgeTime, " +
+                "se.pk, se.metadataScheduledUpdateTime, se.metadataUpdateFailures, se.instancePurgeTime, " +
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "join se.metadata metadata " +
@@ -244,8 +244,8 @@ import java.util.stream.Stream;
                 "where se.compressionTime < current_timestamp " +
                 "order by se.compressionTime"),
 @NamedQuery(
-        name=Series.SET_METADATA_SCHEDULED_UPDATE_TIME,
-        query = "update Series se set se.metadataScheduledUpdateTime = ?2 " +
+        name=Series.INCREMENT_METADATA_UPDATE_FAILURES,
+        query = "update Series se set se.metadataUpdateFailures = se.metadataUpdateFailures + 1, se.metadataScheduledUpdateTime = ?2 " +
                 "where se.pk = ?1"),
 @NamedQuery(
         name=Series.CLAIM_STORAGE_VERIFICATION,
@@ -290,6 +290,7 @@ import java.util.stream.Stream;
         @Index(columnList = "failed_retrieves"),
         @Index(columnList = "completeness"),
         @Index(columnList = "metadata_update_time"),
+        @Index(columnList = "metadata_update_failures"),
         @Index(columnList = "inst_purge_time"),
         @Index(columnList = "inst_purge_state"),
         @Index(columnList = "stgver_time"),
@@ -329,7 +330,7 @@ public class Series {
     public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
     public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";
     public static final String SCHEDULED_COMPRESSION = "Series.scheduledCompression";
-    public static final String SET_METADATA_SCHEDULED_UPDATE_TIME = "Series.setMetadataScheduledUpdateTime";
+    public static final String INCREMENT_METADATA_UPDATE_FAILURES = "Series.setMetadataScheduledUpdateTime";
     public static final String CLAIM_STORAGE_VERIFICATION = "Series.claimStorageVerification";
     public static final String CLAIM_COMPRESSION = "Series.claimCompression";
     public static final String CLAIM_UPDATE_METADATA = "Series.claimUpdateMetadata";
@@ -345,15 +346,17 @@ public class Series {
     public static class MetadataUpdate {
         public final Long seriesPk;
         public final Date scheduledUpdateTime;
+        public final int updateFailures;
         public final Date instancePurgeTime;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long seriesPk, Date scheduledUpdateTime, Date instancePurgeTime,
+        public MetadataUpdate(Long seriesPk, Date scheduledUpdateTime, int updateFailures, Date instancePurgeTime,
                               InstancePurgeState instancePurgeState, String storageID, String storagePath) {
             this.seriesPk = seriesPk;
             this.scheduledUpdateTime = scheduledUpdateTime;
+            this.updateFailures = updateFailures;
             this.instancePurgeTime = instancePurgeTime;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;
@@ -547,6 +550,10 @@ public class Series {
     @Basic
     @Column(name = "metadata_update_time")
     private Date metadataScheduledUpdateTime;
+
+    @Basic(optional = false)
+    @Column(name = "metadata_update_failures")
+    private int metadataUpdateFailures;
 
     @Basic
     @Column(name = "inst_purge_time")
@@ -801,6 +808,14 @@ public class Series {
     public void scheduleMetadataUpdate(Duration delay) {
         if (delay != null && metadataScheduledUpdateTime == null)
             metadataScheduledUpdateTime = new Date(System.currentTimeMillis() + delay.getSeconds() * 1000L);
+    }
+
+    public int getMetadataUpdateFailures() {
+        return metadataUpdateFailures;
+    }
+
+    public void setMetadataUpdateFailures(int metadataUpdateFailures) {
+        this.metadataUpdateFailures = metadataUpdateFailures;
     }
 
     public Date getInstancePurgeTime() {

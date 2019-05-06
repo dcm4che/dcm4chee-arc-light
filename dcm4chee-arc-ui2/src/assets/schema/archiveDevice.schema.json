@@ -6,6 +6,7 @@
     "dcmFuzzyAlgorithmClass",
     "dcmSeriesMetadataFetchSize",
     "dcmSeriesMetadataThreads",
+    "dcmSeriesMetadataMaxRetries",
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
     "dcmOverwritePolicy",
@@ -125,9 +126,16 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmSeriesMetadataMaxRetries": {
+      "title": "Update Series Metadata Maximum Number of Retries",
+      "description": "Maximum number of retries to create/update aggregated Series Metadata. Only effective if Update Series Metadata Retry Interval is specified. -1 = forever.",
+      "type": "integer",
+      "default": 0,
+      "minimum": -1
+    },
     "dcmSeriesMetadataRetryInterval": {
       "title": "Update Series Metadata Retry Interval",
-      "description": "Interval in ISO-8601 duration format PnDTnHnMnS in which failed attempts to create/update aggregated Series Metadata will be retried. If absent, failed attempts will not be retried.",
+      "description": "Interval in ISO-8601 duration format PnDTnHnMnS in which failed attempts to create/update aggregated Series Metadata will be retried. Only effective if Update Series Metadata Maximum Number of Retries != 0. If absent, failed attempts will not be retried.",
       "type": "string",
       "format": "dcmDuration"
     },
