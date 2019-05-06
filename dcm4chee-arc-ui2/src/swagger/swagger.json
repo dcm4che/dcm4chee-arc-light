@@ -6033,6 +6033,12 @@
             "type": "string"
           },
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on the Retrieve Task shall be performed",
+            "type": "string"
+          },
+          {
             "name": "dcmQueueName",
             "in": "query",
             "description": "Name of Queue in which the Retrieve Task shall be queued",
@@ -6119,6 +6125,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled task",
+            "type": "string"
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on the Retrieve Task shall be performed",
             "type": "string"
           },
           {
@@ -6215,6 +6227,12 @@
             "name": "batchID",
             "in": "query",
             "description": "Batch ID of scheduled task",
+            "type": "string"
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on the Retrieve Task shall be performed",
             "type": "string"
           },
           {
@@ -6663,6 +6681,12 @@
             "in": "path",
             "description": "AE Title of STORE-SCP to which Studies are retrieved",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on the Retrieve Task shall be performed",
             "type": "string"
           },
           {
@@ -7144,6 +7168,34 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on the Retrieve Task shall be performed",
+            "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "Name of Queue in which the Retrieve Task shall be queued",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           }
         ],
         "responses": {
@@ -7234,6 +7286,34 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on which the Retrieve Task shall be scheduled",
+            "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "Name of Queue in which the Retrieve Task shall be queued",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           }
         ],
         "responses": {
@@ -7331,6 +7411,34 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on which the Retrieve Task shall be scheduled",
+            "type": "string"
+          },
+          {
+            "name": "dcmQueueName",
+            "in": "query",
+            "description": "Name of Queue in which the Retrieve Task shall be queued",
+            "type": "string",
+            "enum": [
+              "Retrieve1",
+              "Retrieve2",
+              "Retrieve3",
+              "Retrieve4",
+              "Retrieve5",
+              "Retrieve6",
+              "Retrieve7",
+              "Retrieve8",
+              "Retrieve9",
+              "Retrieve10",
+              "Retrieve11",
+              "Retrieve12",
+              "Retrieve13"
+            ],
+            "default": "Retrieve1"
           }
         ],
         "responses": {
