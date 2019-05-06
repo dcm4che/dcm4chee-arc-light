@@ -587,32 +587,33 @@ public class IocmRS {
                                               InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        RejectionNote rjNote = toRejectionNote(codeValue, designator);
-        Attributes instanceRefs = parseSOPInstanceReferences(in);
-
-        ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
-        ctx.setStudyInstanceUID(studyUID);
-        ctx.setSpsID(spsID);
-
-        MWLItem mwl = procedureService.findMWLItem(ctx);
-        if (mwl == null)
-            return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
-                    Response.Status.NOT_FOUND);
-
-        ctx.setAttributes(mwl.getAttributes());
-        ctx.setPatient(mwl.getPatient());
-        ctx.setSourceInstanceRefs(instanceRefs);
-
-        StoreSession session = storeService.newStoreSession(
-                HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null)
-                .withObjectStorageID(rejectionNoteObjectStorageID());
-
-        restoreInstances(session, instanceRefs);
-        Collection<InstanceLocations> instanceLocations = toInstanceLocations(studyUID, instanceRefs, session);
-        if (instanceLocations.isEmpty())
-            return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
-
         try {
+            RejectionNote rjNote = toRejectionNote(codeValue, designator);
+            Attributes instanceRefs = parseSOPInstanceReferences(in);
+
+            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setSpsID(spsID);
+
+            MWLItem mwl = procedureService.findMWLItem(ctx);
+            if (mwl == null)
+                return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
+                        Response.Status.NOT_FOUND);
+
+            ctx.setAttributes(mwl.getAttributes());
+            ctx.setPatient(mwl.getPatient());
+            ctx.setSourceInstanceRefs(instanceRefs);
+
+            StoreSession session = storeService.newStoreSession(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null)
+                    .withObjectStorageID(rejectionNoteObjectStorageID());
+
+            restoreInstances(session, instanceRefs);
+            Collection<InstanceLocations> instanceLocations = toInstanceLocations(studyUID, instanceRefs, session);
+            if (instanceLocations.isEmpty())
+                return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
+
+
             final Attributes result;
             if (studyUID.equals(instanceRefs.getString(Tag.StudyInstanceUID))) {
                 procedureService.updateStudySeriesAttributes(ctx);
@@ -627,6 +628,8 @@ public class IocmRS {
                 rejectInstances(instanceRefs, rjNote, session, result);
             }
             return toResponse(result);
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -700,9 +703,9 @@ public class IocmRS {
                         String codeValue, String designator) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        RejectionNote rjNote = toRejectionNote(codeValue, designator);
 
         try {
+            RejectionNote rjNote = toRejectionNote(codeValue, designator);
             if (queue)
                 return queueReject(rsOp, arcAE, studyUID, seriesUID, objectUID, rjNote);
 
@@ -714,6 +717,8 @@ public class IocmRS {
             }
             rsForward.forward(rsOp, arcAE, null, request);
             return Response.ok("{\"count\":" + count + '}').build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -735,19 +740,19 @@ public class IocmRS {
     private Response copyOrMoveInstances(String studyUID, InputStream in, String codeValue, String designator) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        RejectionNote rjNote = toRejectionNote(codeValue, designator);
-        Attributes instanceRefs = parseSOPInstanceReferences(in);
-        StoreSession session = storeService.newStoreSession(
-                HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null);
-        if (rjNote != null)
-            session.withObjectStorageID(rejectionNoteObjectStorageID());
-
-        restoreInstances(session, instanceRefs);
-        Collection<InstanceLocations> instances = toInstanceLocations(studyUID, instanceRefs, session);
-        if (instances.isEmpty())
-            return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
-
         try {
+            RejectionNote rjNote = toRejectionNote(codeValue, designator);
+            Attributes instanceRefs = parseSOPInstanceReferences(in);
+            StoreSession session = storeService.newStoreSession(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null);
+            if (rjNote != null)
+                session.withObjectStorageID(rejectionNoteObjectStorageID());
+
+            restoreInstances(session, instanceRefs);
+            Collection<InstanceLocations> instances = toInstanceLocations(studyUID, instanceRefs, session);
+            if (instances.isEmpty())
+                return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
+
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity());
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
             session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
@@ -758,6 +763,8 @@ public class IocmRS {
                 rejectInstances(instanceRefs, rjNote, session, result);
 
             return toResponse(result);
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -1088,13 +1095,7 @@ public class IocmRS {
     }
 
     private ArchiveDeviceExtension arcDev() {
-        try {
-            return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        } catch (IllegalStateException e) {
-            throw new WebApplicationException(
-                    errResponse("Archive Device Extension not configured for device: " + device.getDeviceName(),
-                    Response.Status.NOT_FOUND));
-        }
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
     private Response errResponse(String msg, Response.Status status) {

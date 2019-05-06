@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
@@ -159,11 +160,13 @@ public class RejectRS {
 
     private Response reject(String studyUID, String seriesUID, String objectUID,String codeValue, String designator) {
         logRequest();
-        ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
+        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
+        if (localAE == null || !localAE.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
         try {
             ApplicationEntity remoteAE = storescp != null
-                    ? checkAE(storescp, aeCache.get(storescp))
-                    : checkAE(externalAET, aeCache.get(externalAET));
+                    ? aeCache.findApplicationEntity(storescp)
+                    : aeCache.findApplicationEntity(externalAET);
             ArchiveDeviceExtension arcDev = localAE.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             Code code = new Code(codeValue, designator, null, "?");
             RejectionNote rjNote = arcDev.getRejectionNote(code);
@@ -220,6 +223,8 @@ public class RejectRS {
             } catch (Exception e) {
                 return failed(Status.ProcessingFailure, e.getMessage(), matches);
             }
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -232,13 +237,6 @@ public class RejectRS {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
-    }
-
-    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
     }
 
     private Response success(int status, String errorComment, List<Attributes> matches) {

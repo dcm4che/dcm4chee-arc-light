@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -238,9 +239,12 @@ public class QueryRS {
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                         boolean count) {
         logRequest();
-        ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
+        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
+        if (localAE == null || !localAE.isInstalled())
+            throw new WebApplicationException(errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+
         try {
-            checkAE(externalAET, aeCache.get(externalAET));
+            aeCache.findApplicationEntity(externalAET);
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             if (!count) {
                 queryAttributes.addReturnTags(qido.includetags);
@@ -280,6 +284,8 @@ public class QueryRS {
                     1, splitStudyDateRange());
             dimseRSP.next();
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
+        } catch (IllegalStateException| ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (ConnectException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
@@ -296,13 +302,6 @@ public class QueryRS {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
-    }
-
-    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
     }
 
     private Response.ResponseBuilder responseBuilder(DimseRSP dimseRSP) {

@@ -287,6 +287,8 @@ public class RetrieveTaskRS {
 
             mgr.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
             return Response.noContent().build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -306,10 +308,10 @@ public class RetrieveTaskRS {
         if (status == null)
             return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
 
-        if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-            return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
-
         try {
+            if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
+                return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
+
             String devName = newDeviceName != null ? newDeviceName : deviceName;
             if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
@@ -320,6 +322,8 @@ public class RetrieveTaskRS {
                     : rescheduleTasks(
                             queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             retrieveTaskQueryParam));
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -381,7 +385,7 @@ public class RetrieveTaskRS {
     }
 
     @DELETE
-    public String deleteTasks() {
+    public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
@@ -396,11 +400,12 @@ public class RetrieveTaskRS {
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
-            return "{\"deleted\":" + deleted + '}';
+            return Response.ok("{\"deleted\":" + deleted + '}').build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }

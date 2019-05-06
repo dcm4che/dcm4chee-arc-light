@@ -314,6 +314,8 @@ public class DiffTaskRS {
                     : rescheduleTasks(
                             queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             diffTaskQueryParam));
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -375,7 +377,7 @@ public class DiffTaskRS {
     }
 
     @DELETE
-    public String deleteTasks() {
+    public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
@@ -390,11 +392,12 @@ public class DiffTaskRS {
                 deleted += count;
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
-            return "{\"deleted\":" + deleted + '}';
+            return Response.ok("{\"deleted\":" + deleted + '}').build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -554,11 +557,7 @@ public class DiffTaskRS {
     }
 
     private int queueTasksFetchSize() {
-        return arcDev().getQueueTasksFetchSize();
-    }
-
-    private ArchiveDeviceExtension arcDev() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
     }
 
     private TaskQueryParam queueTaskQueryParam(String deviceName, QueueMessage.Status status) {

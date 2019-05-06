@@ -188,6 +188,8 @@ public class UpdateStudyAccessMatchingRS {
                 }
             }
             return Response.ok("{\"count\":" + count + '}').build();
+        } catch(IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

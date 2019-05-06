@@ -322,6 +322,8 @@ public class ExportMatchingRS {
                 builder.header("Warning", warning);
             }
             return builder.entity("{\"count\":" + count + '}').build();
+        } catch (IllegalStateException e) {
+            return errResponse(Response.Status.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

@@ -167,6 +167,8 @@ public class ExportTaskRS {
                             arcDev()),
                     output.type)
                     .build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -250,7 +252,7 @@ public class ExportTaskRS {
 
             mgr.rescheduleExportTask(pk, exporter(exporterID), queueEvent);
             return Response.noContent().build();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
@@ -295,7 +297,7 @@ public class ExportTaskRS {
             return count(devName == null
                     ? rescheduleOnDistinctDevices(newExporter, status)
                     : rescheduleTasks(newExporter, newDeviceName != null ? null : devName, status));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -362,7 +364,7 @@ public class ExportTaskRS {
     }
 
     @DELETE
-    public String deleteTasks() {
+    public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         QueueMessage.Status status = status();
@@ -382,10 +384,11 @@ public class ExportTaskRS {
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
             return deleted(deleted);
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             queueEvent.setException(e);
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -401,8 +404,8 @@ public class ExportTaskRS {
         return Response.ok("{\"count\":" + count + '}').build();
     }
 
-    private static String deleted(int deleted) {
-        return "{\"deleted\":" + deleted + '}';
+    private static Response deleted(int deleted) {
+        return Response.ok("{\"deleted\":" + deleted + '}').build();
     }
 
     private int count(Response response, String devName) {

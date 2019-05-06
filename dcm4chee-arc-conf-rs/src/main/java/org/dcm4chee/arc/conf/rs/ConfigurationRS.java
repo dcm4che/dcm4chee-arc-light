@@ -300,6 +300,8 @@ public class ConfigurationRS {
         try {
             ConfigurationChanges diffs = conf.persist(device, options());
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
+        } catch (IllegalStateException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage(), Response.Status.CONFLICT));
@@ -319,6 +321,8 @@ public class ConfigurationRS {
             ConfigurationChanges diffs = conf.merge(device, options());
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
+        } catch (IllegalStateException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage(), Response.Status.CONFLICT));
@@ -436,7 +440,7 @@ public class ConfigurationRS {
         try {
             ConfigurationChanges diffs = conf.removeDevice(deviceName, options());
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
-        } catch (ConfigurationNotFoundException e) {
+        } catch (IllegalStateException | ConfigurationNotFoundException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {

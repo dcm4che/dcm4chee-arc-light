@@ -130,16 +130,10 @@ public class IANSCURS {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
         Response.Status rspStatus = Response.Status.BAD_GATEWAY;
-
-        ApplicationEntity remoteAE;
         try {
-            remoteAE = aeCache.findApplicationEntity(externalAET);
-        } catch (ConfigurationException e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.NOT_FOUND);
-        }
-
-        try {
+            ApplicationEntity remoteAE = aeCache.findApplicationEntity(externalAET);
             Attributes ian = queryService.createIAN(ae, studyUID, seriesUID, sopUID);
             if (ian == null)
                 return errResponse("No matching instances", Response.Status.NOT_FOUND);
@@ -152,6 +146,8 @@ public class IANSCURS {
             return Response.status(rspStatus)
                     .entity(entity(ian, dimseRSP))
                     .build();
+        } catch (ConfigurationException e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

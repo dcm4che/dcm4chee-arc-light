@@ -234,11 +234,6 @@ public class IANSCUMatchingRS {
 
         try {
             aeCache.findApplicationEntity(externalAET);
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        }
-
-        try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             QueryContext ctx = queryContext(method, qrlevel, studyUID, seriesUID, ae);
             String warning = null;
@@ -268,6 +263,8 @@ public class IANSCUMatchingRS {
                 builder.header("Warning", warning);
             }
             return builder.entity("{\"count\":" + count + '}').build();
+        } catch (IllegalStateException | ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

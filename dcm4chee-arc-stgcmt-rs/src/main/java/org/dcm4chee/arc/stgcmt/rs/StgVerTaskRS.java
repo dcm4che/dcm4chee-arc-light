@@ -272,6 +272,8 @@ public class StgVerTaskRS {
                     : rescheduleTasks(
                             queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             stgVerTaskQueryParam));
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -348,6 +350,8 @@ public class StgVerTaskRS {
             } while (count >= deleteTasksFetchSize);
             queueEvent.setCount(deleted);
             return Response.ok("{\"deleted\":" + deleted + '}').build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

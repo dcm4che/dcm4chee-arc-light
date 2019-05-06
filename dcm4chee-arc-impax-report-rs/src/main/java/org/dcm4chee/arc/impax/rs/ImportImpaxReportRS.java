@@ -135,6 +135,8 @@ public class ImportImpaxReportRS {
                 });
             }
             return buildResponse(xmlReports, response);
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

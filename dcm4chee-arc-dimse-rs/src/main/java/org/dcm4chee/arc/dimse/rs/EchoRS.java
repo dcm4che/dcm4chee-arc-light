@@ -108,12 +108,9 @@ public class EchoRS {
     private ApplicationEntity getRemoteApplicationEntity() {
         try {
             return conf.findApplicationEntity(remoteAET);
-        } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity configured: " + remoteAET, Response.Status.NOT_FOUND));
         } catch (ConfigurationException e) {
             throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+                    errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         }
     }
 

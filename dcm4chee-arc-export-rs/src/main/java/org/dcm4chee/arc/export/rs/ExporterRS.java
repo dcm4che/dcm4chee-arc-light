@@ -158,7 +158,11 @@ public class ExporterRS {
 
         boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
         boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        if (arcDev == null)
+            return errResponse("Archive Device Extension not configured for device: " + device.getDeviceName(),
+                    Response.Status.NOT_FOUND);
+
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter != null) {
             if (bOnlyIAN && exporter.getIanDestinations().length == 0)
@@ -203,8 +207,6 @@ public class ExporterRS {
             exporterFactory.getExporter(new ExporterDescriptor(exporterID, exportURI))
                     .export(retrieveContext);
             return toResponse(retrieveContext);
-        } catch (ConfigurationNotFoundException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

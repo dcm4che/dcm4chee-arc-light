@@ -206,15 +206,16 @@ public class RetrieveRS {
 
     private Response export(String destAET, String... uids) {
         logRequest();
-        try {
-            checkAE(externalAET, aeCache.get(externalAET));
-        } catch (ConfigurationException e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
+        if (localAE == null || !localAE.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
+            aeCache.findApplicationEntity(externalAET);
             Attributes keys = toKeys(uids);
-            return queueName != null ? queueExport(destAET, keys) : export(destAET, keys);
+            return queueName != null ? queueExport(destAET, keys) : export(localAE, destAET, keys);
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {
@@ -224,18 +225,19 @@ public class RetrieveRS {
 
     private Response createRetrieveTask(String destAET, String... uids) {
         logRequest();
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
         if (queueName == null)
             queueName = "Retrieve1";
-        try {
-            checkAE(externalAET, aeCache.get(externalAET));
-        } catch (ConfigurationException e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
 
         try {
+            aeCache.findApplicationEntity(externalAET);
             Attributes keys = toKeys(uids);
-            retrieveManager.createRetrieveTask(
-                    createExtRetrieveCtx(destAET, keys));
+            retrieveManager.createRetrieveTask(createExtRetrieveCtx(destAET, keys));
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -261,8 +263,7 @@ public class RetrieveRS {
         return Response.accepted().build();
     }
 
-    private Response export(String destAET, Attributes keys) throws Exception {
-        ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
+    private Response export(ApplicationEntity localAE, String destAET, Attributes keys) throws Exception {
         Association as = moveSCU.openAssociation(localAE, externalAET);
         try {
             final DimseRSP rsp = moveSCU.cmove(as, priority(), destAET, keys);
@@ -280,13 +281,6 @@ public class RetrieveRS {
                 LOG.info("{}: Failed to release association:\\n", as, e);
             }
         }
-    }
-
-    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
     }
 
     private Response errResponse(String msg, Response.Status status) {

@@ -101,6 +101,8 @@ public class QueryPatientDemographicRS {
                 return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
 
             attrs = serviceFactory.getPDQService(descriptor).query(patientID);
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (PDQServiceException e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY);
         } catch (Exception e) {

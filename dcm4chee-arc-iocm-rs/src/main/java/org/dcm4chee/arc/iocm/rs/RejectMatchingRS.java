@@ -277,6 +277,8 @@ public class RejectMatchingRS {
                 builder.header("Warning", warning);
             }
             return builder.entity("{\"count\":" + count + '}').build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -350,8 +352,8 @@ public class RejectMatchingRS {
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         if (storageID != null)
-            queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
+            queryParam.setStudyStorageIDs(
+                    arcDev().getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
         queryParam.setStudySizeRange(studySizeInKB);
         if (expirationState != null)
             queryParam.setExpirationState(ExpirationState.valueOf(expirationState));

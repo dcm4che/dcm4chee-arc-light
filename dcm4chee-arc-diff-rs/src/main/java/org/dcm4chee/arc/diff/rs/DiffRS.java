@@ -191,6 +191,8 @@ public class DiffRS {
                 ar.resume(Response.ok("[]").build());
             else
                 ar.resume(Response.ok(entity(diff1, diffSCU)).build());
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
         } catch (DicomServiceException e) {
@@ -223,6 +225,8 @@ public class DiffRS {
                             ",\"different\":" + diffSCU.different() +
                             "}")
                     .build());
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
         } catch (DicomServiceException e) {
@@ -269,6 +273,9 @@ public class DiffRS {
                 warning = "Empty file or Incorrect field position or Not a CSV file.";
                 status = Response.Status.NO_CONTENT;
             }
+        } catch (ConfigurationException e) {
+            warning = e.getMessage();
+            status = Response.Status.NOT_FOUND;
         } catch (QueueSizeLimitExceededException e) {
             status = Response.Status.SERVICE_UNAVAILABLE;
             warning = e.getMessage();

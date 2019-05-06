@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -249,9 +250,13 @@ public class QueryRetrieveRS {
 
     private Response processCSV(int field, String destAET, InputStream in, Predicate<ExternalRetrieveContext> action) {
         logRequest();
-        checkAE(aet, device.getApplicationEntity(aet, true));
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
         try {
-            checkAE(externalAET, aeCache.get(externalAET));
+
+            aeCache.findApplicationEntity(externalAET);
             Response.Status status = Response.Status.BAD_REQUEST;
             if (field < 1)
                 return errResponse(
@@ -290,16 +295,11 @@ public class QueryRetrieveRS {
             if (count > 0)
                 builder.entity(count(count));
             return builder.build();
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
     }
 
     private Response errResponse(String msg, Response.Status status) {
@@ -337,10 +337,13 @@ public class QueryRetrieveRS {
     private Response process(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
             String queryAET, String destAET, Predicate<ExternalRetrieveContext> action) {
         logRequest();
-        ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
+        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
+        if (localAE == null || !localAE.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
         try {
-            checkAE(externalAET, aeCache.get(externalAET));
-            checkAE(queryAET, aeCache.get(queryAET));
+            aeCache.findApplicationEntity(externalAET);
+            aeCache.findApplicationEntity(queryAET);
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             queryAttributes.addReturnTags(level.uniqueKey());
             Attributes keys = queryAttributes.getQueryKeys();
@@ -392,6 +395,8 @@ public class QueryRetrieveRS {
             if (count > 0)
                 builder.entity(count(count));
             return builder.build();
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
