@@ -8950,6 +8950,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Studies which includes at least Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "Filter Studies of Patients with given Verification Status",
@@ -9460,6 +9467,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "export only Studies which includes at least Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "export only Studies of Patients with given Verification Status",
@@ -9659,6 +9673,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "export only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "export only Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -9873,6 +9894,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "export only Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "export only Series of Patients with given Verification Status",
@@ -10072,6 +10100,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -10282,6 +10317,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -10499,6 +10541,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "export only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "export only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -10957,6 +11006,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "match only Studies which includes at least one Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "match only Studies of Patients with given Verification Status",
@@ -11140,6 +11196,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "match only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "match only Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -11338,6 +11401,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "match only Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "match only Series of Patients with given Verification Status",
@@ -11521,6 +11591,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -11715,6 +11792,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -11916,6 +12000,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "match only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "match only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -12300,6 +12391,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "Filter Studies of Patients with given Verification Status",
@@ -12487,6 +12585,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -12689,6 +12794,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "Filter Series of Patients with given Verification Status",
@@ -12876,6 +12988,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -13074,6 +13193,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -13279,6 +13405,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -13660,6 +13793,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Studies which includes at least one Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "Filter Studies of Patients with given Verification Status",
@@ -13847,6 +13987,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -14049,6 +14196,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "Filter Series of Patients with given Verification Status",
@@ -14236,6 +14390,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -14434,6 +14595,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -14639,6 +14807,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "Filter Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "Filter Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -15260,6 +15435,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "reject only Studies which includes at least one Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "reject only Studies of Patients with given Verification Status",
@@ -15454,6 +15636,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "reject only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "reject only Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -15663,6 +15852,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "reject only Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "reject only Series of Patients with given Verification Status",
@@ -15857,6 +16053,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "reject only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -16062,6 +16265,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "reject only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
@@ -16274,6 +16484,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "reject only Instances of Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "reject only Instances of Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },

@@ -260,6 +260,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "return only Studies which includes at least one Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "return only Studies of Patients with given Verification Status",
@@ -535,6 +542,13 @@
             "default": false
           },
           {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "return only Series with Failures to update its Metadata",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "patientVerificationStatus",
             "in": "query",
             "description": "return only Series of Patients with given Verification Status",
@@ -748,6 +762,13 @@
             "name": "compressionfailed",
             "in": "query",
             "description": "return only Series with Failures of Last Compression",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "metadataUpdateFailed",
+            "in": "query",
+            "description": "return only Series with Failures to update its Metadata",
             "type": "boolean",
             "default": false
           },
