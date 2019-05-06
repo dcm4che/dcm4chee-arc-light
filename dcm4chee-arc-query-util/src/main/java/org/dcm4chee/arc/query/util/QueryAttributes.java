@@ -118,6 +118,7 @@ public class QueryAttributes {
                 case "retrievefailed":
                 case "compressionfailed":
                 case "patientVerificationStatus":
+                case "metadataUpdateFailed":
                 case "storageVerificationFailed":
                 case "storageVerificationPolicy":
                 case "storageVerificationUpdateLocationStatus":

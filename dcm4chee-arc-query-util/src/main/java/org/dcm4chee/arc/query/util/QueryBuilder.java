@@ -529,6 +529,8 @@ public class QueryBuilder {
             predicates.add(cb.greaterThan(series.get(Series_.failedRetrieves), 0));
         if (queryParam.isStorageVerificationFailed())
             predicates.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
+        if (queryParam.isMetadataUpdateFailed())
+            predicates.add(cb.greaterThan(series.get(Series_.metadataUpdateFailures), 0));
         if (queryParam.isCompressionFailed())
             predicates.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
         anyOf(predicates, series.get(Series_.sourceAET),
@@ -838,6 +840,8 @@ public class QueryBuilder {
                     false);
             if (queryParam.isStorageVerificationFailed())
                 y.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
+            if (queryParam.isMetadataUpdateFailed())
+                y.add(cb.greaterThan(series.get(Series_.metadataUpdateFailures), 0));
             if (queryParam.isCompressionFailed())
                 y.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
         }

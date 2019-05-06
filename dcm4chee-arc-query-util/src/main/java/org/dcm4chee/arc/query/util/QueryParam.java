@@ -67,6 +67,7 @@ public class QueryParam {
     private boolean incomplete;
     private boolean retrieveFailed;
     private boolean storageVerificationFailed;
+    private boolean metadataUpdateFailed;
     private boolean compressionfailed;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
@@ -185,6 +186,14 @@ public class QueryParam {
 
     public void setStorageVerificationFailed(boolean storageVerificationFailed) {
         this.storageVerificationFailed = storageVerificationFailed;
+    }
+
+    public boolean isMetadataUpdateFailed() {
+        return metadataUpdateFailed;
+    }
+
+    public void setMetadataUpdateFailed(boolean metadataUpdateFailed) {
+        this.metadataUpdateFailed = metadataUpdateFailed;
     }
 
     public boolean isCompressionFailed() {

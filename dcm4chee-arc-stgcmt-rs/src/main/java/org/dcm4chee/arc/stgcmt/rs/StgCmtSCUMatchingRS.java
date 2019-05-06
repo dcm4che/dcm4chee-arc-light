@@ -123,6 +123,10 @@ public class StgCmtSCUMatchingRS {
     @Pattern(regexp = "true|false")
     private String storageVerificationFailed;
 
+    @QueryParam("metadataUpdateFailed")
+    @Pattern(regexp = "true|false")
+    private String metadataUpdateFailed;
+
     @QueryParam("compressionfailed")
     @Pattern(regexp = "true|false")
     private String compressionfailed;
@@ -301,6 +305,7 @@ public class StgCmtSCUMatchingRS {
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
+        queryParam.setMetadataUpdateFailed(Boolean.parseBoolean(metadataUpdateFailed));
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
