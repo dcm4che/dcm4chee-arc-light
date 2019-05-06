@@ -329,6 +329,9 @@ public class MatchTask {
     }
 
     private void matchQueueBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<QueueMessage> queueMsg) {
+        if (queueMsg == null)
+            return;
+
         predicates.add(queueMsg.get(QueueMessage_.batchID).isNotNull());
         if (!taskQueryParam.getQueueName().isEmpty())
             predicates.add(cb.and(queueMsg.get(QueueMessage_.queueName).in(taskQueryParam.getQueueName())));
@@ -352,7 +355,15 @@ public class MatchTask {
             queryBuilder.dateRange(predicates, exportTask.get(ExportTask_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
-    private void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
+    public void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
+        predicates.add(retrieveTask.get(RetrieveTask_.batchID).isNotNull());
+        if (!taskQueryParam.getQueueName().isEmpty())
+            predicates.add(cb.and(retrieveTask.get(RetrieveTask_.queueName).in(taskQueryParam.getQueueName())));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getBatchID() != null)
+            predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.batchID), taskQueryParam.getBatchID()));
+
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getRemoteAET() != null)

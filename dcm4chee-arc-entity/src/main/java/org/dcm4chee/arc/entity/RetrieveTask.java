@@ -336,8 +336,12 @@ public class RetrieveTask {
         writer.writeNotNullOrDef("warning", warning, 0);
         writer.writeNotNullOrDef("statusCode", TagUtils.shortToHexString(statusCode), -1);
         writer.writeNotNullOrDef("errorComment", errorComment, null);
-        if (queueMessage == null)
+        if (queueMessage == null) {
+            writer.writeNotNullOrDef("batchID", batchID, null);
             writer.writeNotNullOrDef("status", QueueMessage.Status.TO_SCHEDULE.toString(), null);
+            writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
+            writer.writeNotNullOrDef("queue", queueName, null);
+        }
         else
             queueMessage.writeStatusAsJSONTo(writer, df);
         gen.writeEnd();
@@ -413,9 +417,11 @@ public class RetrieveTask {
         }
         writer.write(delimiter);
         if (queueMessage == null) {
-            writer.append(delimiter);
+            writer.append(delimiter).write(queueName);
+            writer.append(delimiter).write(deviceName);
             writer.append(delimiter).write("TO SCHEDULE");
-            writer.append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter);
+            writer.append(delimiter).append(delimiter).write(batchID);
+            writer.append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter);
         } else
             queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
         writer.write('\r');

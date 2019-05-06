@@ -95,7 +95,7 @@ public class RetrieveBatchRS {
     private String destinationAET;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -186,6 +186,7 @@ public class RetrieveBatchRS {
 
             private void writeTasks(RetrieveBatch retrieveBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
+                writer.writeNotNullOrDef("to-schedule", retrieveBatch.getToSchedule(), 0);
                 writer.writeNotNullOrDef("scheduled", retrieveBatch.getScheduled(), 0);
                 writer.writeNotNullOrDef("in-process", retrieveBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", retrieveBatch.getWarning(), 0);
@@ -241,14 +242,14 @@ public class RetrieveBatchRS {
     private TaskQueryParam queueBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status());
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setQueueName(queueName);
         return taskQueryParam;
     }
 
     private TaskQueryParam retrieveBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setQueueName(queueName);
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setRemoteAET(remoteAET);
         taskQueryParam.setDestinationAET(destinationAET);
