@@ -140,7 +140,8 @@ export class StudyComponent implements OnInit {
             this.filter.filterEntryModel["device"] = this.appService.deviceName;
             this.deviceWebservice = new StudyDeviceWebservice({
                 selectedDeviceObject:this.appService.global.myDevice
-            })
+            });
+            this.entryFilterChanged();
         }
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
@@ -376,8 +377,8 @@ export class StudyComponent implements OnInit {
                 this.cfpLoadingBar.complete();
         });
     }
-    entryFilterChanged(e){
-        console.log("e",e);
+    entryFilterChanged(e?){
+        // console.log("e",e);
         console.log("this.deviceWebservice",this.deviceWebservice);
         if(this.deviceWebservice.selectedDevice != this.filter.filterEntryModel["device"]){
             this.deviceWebservice.selectedDevice = this.filter.filterEntryModel["device"];

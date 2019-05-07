@@ -1,6 +1,7 @@
 <div class="dcm_dropdown" [ngClass]="{'single_mode':!multiSelectMode}" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
   <div class="dropdown_input" (click)="toggleDropdown()">
     <div class="input_part">
+        <!--<pre style="position:fixed;right:10px;width:70%;top:40px;z-index: 9999999;">{{selectedDropdown|json}}</pre>-->
       <ng-container *ngIf="multiSelectMode">
         <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue}}</div>
         <div class="selected_value" *ngIf="multiSelectValue.length > maxSelectedValueShown">( {{multiSelectValue.length}} ) selected</div>
