@@ -17,7 +17,7 @@
     </span>
     <ul *ngIf="showUserMenu">
         <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank">Edit Account</a></li>
-        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank">Admin Realm</a></li>
+        <li *ngIf="superUser"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank">Admin Realm</a></li>
         <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="" (click)="$event.preventDefault();logout()">Logout</a></li>
         <li><a (click)="$event.preventDefault();productLabelling()">About</a></li>
     </ul>
