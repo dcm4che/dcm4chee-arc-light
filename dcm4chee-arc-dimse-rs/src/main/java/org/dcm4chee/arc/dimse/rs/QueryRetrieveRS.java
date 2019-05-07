@@ -40,6 +40,7 @@ package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
@@ -49,6 +50,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -95,6 +97,9 @@ public class QueryRetrieveRS {
     @Inject
     private Device device;
 
+    @Inject
+    private IDeviceCache deviceCache;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -103,6 +108,9 @@ public class QueryRetrieveRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("dicomDeviceName")
+    private String deviceName;
 
     @QueryParam("dcmQueueName")
     @DefaultValue("Retrieve1")
@@ -250,13 +258,8 @@ public class QueryRetrieveRS {
 
     private Response processCSV(int field, String destAET, InputStream in, Predicate<ExternalRetrieveContext> action) {
         logRequest();
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
-
         try {
-
-            aeCache.findApplicationEntity(externalAET);
+            validate(null);
             Response.Status status = Response.Status.BAD_REQUEST;
             if (field < 1)
                 return errResponse(
@@ -295,7 +298,7 @@ public class QueryRetrieveRS {
             if (count > 0)
                 builder.entity(count(count));
             return builder.build();
-        } catch (ConfigurationException e) {
+        } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -342,8 +345,7 @@ public class QueryRetrieveRS {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
-            aeCache.findApplicationEntity(externalAET);
-            aeCache.findApplicationEntity(queryAET);
+            validate(queryAET);
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             queryAttributes.addReturnTags(level.uniqueKey());
             Attributes keys = queryAttributes.getQueryKeys();
@@ -373,6 +375,9 @@ public class QueryRetrieveRS {
                     }
                 } while (dimseRSP.next());
                 warning = warning(status);
+            } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
+                errorStatus = Response.Status.NOT_FOUND;
+                warning = e.getMessage();
             } catch (QueueSizeLimitExceededException e) {
                 errorStatus = Response.Status.SERVICE_UNAVAILABLE;
                 warning = e.getMessage();
@@ -395,11 +400,31 @@ public class QueryRetrieveRS {
             if (count > 0)
                 builder.entity(count(count));
             return builder.build();
-        } catch (ConfigurationException e) {
+        } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void validate(String queryAET) throws ConfigurationException {
+        if (queryAET != null)
+            aeCache.findApplicationEntity(queryAET);
+
+        aeCache.findApplicationEntity(externalAET);
+        if (deviceName != null) {
+            Device device = deviceCache.findDevice(deviceName);
+            ApplicationEntity ae = device.getApplicationEntity(aet, true);
+            if (ae == null || !ae.isInstalled())
+                throw new ConfigurationException("No such Application Entity: " + aet + " found in device: " + deviceName);
+
+            validateQueue(device);
+        } else
+            validateQueue(device);
+    }
+
+    private void validateQueue(Device device) {
+        device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
     private boolean scheduleRetrieveTask(ExternalRetrieveContext ctx) {
@@ -435,7 +460,7 @@ public class QueryRetrieveRS {
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
         return new ExternalRetrieveContext()
-                .setDeviceName(device.getDeviceName())
+                .setDeviceName(deviceName != null ? deviceName : device.getDeviceName())
                 .setQueueName(queueName)
                 .setBatchID(batchID)
                 .setLocalAET(aet)

@@ -129,6 +129,7 @@ public class QueryAttributes {
                 case "only-stgcmt":
                 case "only-ian":
                 case "batchID":
+                case "dicomDeviceName":
                 case "queue":
                 case "dcmQueueName":
                 case "SplitStudyDateRange":
