@@ -23,14 +23,14 @@ export class StudyDeviceWebserviceModel {
             selectedWebApp?:DcmWebApp
         } = {}){
 
+            if(object.selectedDeviceObject){
+                this.selectedDeviceObject = object.selectedDeviceObject;
+            }
             if(object.devices){
                 this.devices = object.devices;
             }
             if(object.selectedDevice){
                 this._selectedDevice = object.selectedDevice;
-            }
-            if(object.selectedDeviceObject){
-                this.selectedDeviceObject = object.selectedDeviceObject;
             }
             if(object.dcmWebAppServices){
                 this.dcmWebAppServices = object.dcmWebAppServices;
@@ -56,8 +56,9 @@ export class StudyDeviceWebserviceModel {
                    device.selected = true;
                }
            })
+        }else{
+            this._selectedDevice = undefined;
         }
-        this._selectedDevice = undefined;
         this._selectedWebApp = undefined;
     }
     get selectedDeviceObject(): any {

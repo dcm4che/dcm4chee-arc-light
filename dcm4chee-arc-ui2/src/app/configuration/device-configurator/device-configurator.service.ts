@@ -213,7 +213,7 @@ export class DeviceConfiguratorService{
         _.unset(this.device, devicereff);
         console.log('this.device', this.device);
     }
-    getDevice(devicename){
+    getDevice(devicename:string){
         // return this.$http.get('./assets/dummydata/dcm4chee-arc.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
         return this.$http.get('../devices/' + devicename).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
