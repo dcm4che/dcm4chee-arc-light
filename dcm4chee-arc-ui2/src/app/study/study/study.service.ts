@@ -11,7 +11,7 @@ import * as _ from 'lodash'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
-import {StudyDeviceWebservice} from "../../models/StudyDeviceWebservice";
+import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 
 @Injectable()
 export class StudyService {
@@ -95,7 +95,7 @@ export class StudyService {
     }
 
 
-    getStudies(filterModel, deviceWebservice:StudyDeviceWebservice,  responseType?:DicomResponseType):Observable<any>{
+    getStudies(filterModel, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
@@ -111,7 +111,7 @@ export class StudyService {
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    getSeries( studyInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebservice, responseType?:DicomResponseType):Observable<any>{
+    getSeries(studyInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
@@ -127,7 +127,7 @@ export class StudyService {
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebservice, responseType?:DicomResponseType):Observable<any>{
+    getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
@@ -142,7 +142,7 @@ export class StudyService {
                 header
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
-    getDicomURL(mode:DicomMode, deviceWebservice:StudyDeviceWebservice, responseType?:DicomResponseType):string{
+    getDicomURL(mode:DicomMode, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):string{
         console.log("object",deviceWebservice);
         // let url = this.rsURL(callingAet, accessLocation,  externalAet, baseUrl);
         let url = deviceWebservice.selectedWebApp.dcmWebServicePath;

@@ -1,11 +1,11 @@
-import {DcmWebApp} from "./dcm-web-app";
+import {DcmWebApp} from "../../models/dcm-web-app";
 import * as _  from "lodash";
-import {SelectDropdown} from "../interfaces";
-import {Device} from "./device";
-import {j4care} from "../helpers/j4care.service";
+import {SelectDropdown} from "../../interfaces";
+import {Device} from "../../models/device";
+import {j4care} from "../../helpers/j4care.service";
 
 
-export class StudyDeviceWebservice {
+export class StudyDeviceWebserviceModel {
     private _devices:Device[];
     private _selectedDevice?:Device;
     private _selectedDeviceObject:any;
@@ -25,7 +25,6 @@ export class StudyDeviceWebservice {
 
             if(object.devices){
                 this.devices = object.devices;
-
             }
             if(object.selectedDevice){
                 this._selectedDevice = object.selectedDevice;
@@ -129,9 +128,14 @@ export class StudyDeviceWebservice {
     setSelectedWebAppByString(value:string){
         try{
             if(this._dcmWebAppServicesDropdown){
-                this.selectedWebApp = this._dcmWebAppServicesDropdown.filter(webAppDropdown=>{
-                    return webAppDropdown.selected;
-                })[0].wholeObject;
+                this._dcmWebAppServicesDropdown.forEach(webApp=>{
+                    if(webApp.text === value || webApp.value === value || webApp.htmlLabel === value || webApp.label === value){
+                        webApp.selected = true;
+                        this._selectedWebApp = webApp.wholeObject;
+                    }else{
+                        webApp.selected = false;
+                    }
+                });
             }
         }catch(e){
             j4care.log("Something went wrong on setting selected webapp by string",e);

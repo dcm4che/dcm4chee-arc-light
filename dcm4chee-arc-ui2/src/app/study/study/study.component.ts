@@ -30,7 +30,7 @@ import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {DropdownList} from "../../helpers/form/dropdown-list";
 import {DropdownComponent} from "../../widgets/dropdown/dropdown.component";
-import {StudyDeviceWebservice} from "../../models/StudyDeviceWebservice";
+import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 
 
@@ -123,7 +123,7 @@ export class StudyComponent implements OnInit {
     };
     // studyDevice:StudyDevice;
     testModel;
-    deviceWebservice:StudyDeviceWebservice;
+    deviceWebservice:StudyDeviceWebserviceModel;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -138,7 +138,7 @@ export class StudyComponent implements OnInit {
         console.log("this.service",this.appService);
         if(_.hasIn(this.appService,"global.myDevice") && this.appService.deviceName && this.appService.deviceName === this.appService.global.myDevice.dicomDeviceName){
             this.filter.filterEntryModel["device"] = this.appService.deviceName;
-            this.deviceWebservice = new StudyDeviceWebservice({
+            this.deviceWebservice = new StudyDeviceWebserviceModel({
                 selectedDeviceObject:this.appService.global.myDevice
             });
             this.entryFilterChanged();
@@ -455,7 +455,7 @@ export class StudyComponent implements OnInit {
                     this.deviceWebservice.devices = devices;
                     this.deviceWebservice.selectedDevice
                 }else{
-                    this.deviceWebservice = new StudyDeviceWebservice({devices:devices});
+                    this.deviceWebservice = new StudyDeviceWebserviceModel({devices:devices});
                 }
             this.getApplicationEntities();
         },err=>{
