@@ -202,6 +202,7 @@ public class QidoRS {
     }
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, attributeSetMap());
     }
 
@@ -345,7 +346,6 @@ public class QidoRS {
     @Path("/studies/size")
     @Produces("application/json")
     public Response sizeOfStudies() {
-        logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         QueryContext ctx = newQueryContext(
                 "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
@@ -366,7 +366,6 @@ public class QidoRS {
     }
 
     private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
-        logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         if (ctx.getQueryParam().noMatches()) {
@@ -384,7 +383,6 @@ public class QidoRS {
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido) {
-        logRequest();
         Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         try {

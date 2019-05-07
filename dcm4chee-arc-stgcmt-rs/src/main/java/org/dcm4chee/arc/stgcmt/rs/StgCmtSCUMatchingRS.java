@@ -171,6 +171,7 @@ public class StgCmtSCUMatchingRS {
     private String batchID;
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -227,7 +228,6 @@ public class StgCmtSCUMatchingRS {
     }
 
     private Response storageCommitMatching(String method, QueryRetrieveLevel2 qrlevel, String studyUID, String seriesUID) {
-        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);

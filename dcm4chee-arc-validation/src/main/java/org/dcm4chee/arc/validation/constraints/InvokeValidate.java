@@ -43,6 +43,7 @@ package org.dcm4chee.arc.validation.constraints;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -55,11 +56,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target(TYPE)
 @Retention(RUNTIME)
+@Documented
 @Constraint(validatedBy = InvokeValidateValidator.class)
 public @interface InvokeValidate {
     Class<?> type();
     String methodName() default "validate";
-    String message() default "{InvokeValidate.message}";
+    String message() default "Invalid Query Parameter";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 

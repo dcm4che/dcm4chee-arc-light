@@ -46,7 +46,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Payload;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -57,11 +59,13 @@ public class InvokeValidateValidator implements ConstraintValidator<InvokeValida
    private final static Logger log = LoggerFactory.getLogger(InvokeValidateValidator.class);
    private Constructor<?> init;
    private Method validate;
+   private String message;
 
    @Override
    public void initialize(InvokeValidate constraint) {
       Class<?> type = constraint.type();
       String methodName = constraint.methodName();
+      message = constraint.message();
       try {
          validate = type.getMethod(methodName);
       } catch (NoSuchMethodException e) {
@@ -74,8 +78,12 @@ public class InvokeValidateValidator implements ConstraintValidator<InvokeValida
       try {
          validate.invoke(obj);
       } catch (Exception e) {
+         if (e instanceof InvocationTargetException)
+            log.warn(message + ((InvocationTargetException) e).getTargetException().getMessage());
+
          return false;
       }
       return true;
    }
+
 }

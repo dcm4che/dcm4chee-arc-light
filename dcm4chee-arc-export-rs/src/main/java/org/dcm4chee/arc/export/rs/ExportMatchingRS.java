@@ -195,6 +195,7 @@ public class ExportMatchingRS {
     }
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -268,7 +269,6 @@ public class ExportMatchingRS {
 
     private Response exportMatching(
             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
-        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);

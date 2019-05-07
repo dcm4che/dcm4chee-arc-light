@@ -168,6 +168,11 @@ public class RejectMatchingRS {
     @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
     private String expirationState;
 
+    public void validate() {
+        logRequest();
+        new QueryAttributes(uriInfo, null);
+    }
+
     @POST
     @Path("/studies")
     @Produces("application/json")
@@ -238,7 +243,6 @@ public class RejectMatchingRS {
 
     private Response rejectMatching(
             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
-        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);

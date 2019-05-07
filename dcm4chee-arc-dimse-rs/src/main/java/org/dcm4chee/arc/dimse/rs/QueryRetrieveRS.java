@@ -160,6 +160,7 @@ public class QueryRetrieveRS {
     }
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -257,7 +258,6 @@ public class QueryRetrieveRS {
     }
 
     private Response processCSV(int field, String destAET, InputStream in, Predicate<ExternalRetrieveContext> action) {
-        logRequest();
         try {
             validate(null);
             Response.Status status = Response.Status.BAD_REQUEST;
@@ -339,7 +339,6 @@ public class QueryRetrieveRS {
 
     private Response process(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
             String queryAET, String destAET, Predicate<ExternalRetrieveContext> action) {
-        logRequest();
         ApplicationEntity localAE = device.getApplicationEntity(aet, true);
         if (localAE == null || !localAE.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);

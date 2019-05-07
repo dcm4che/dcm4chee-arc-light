@@ -154,6 +154,7 @@ public class DiffRS {
     }
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -167,7 +168,6 @@ public class DiffRS {
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
     public void compareStudies(@Suspended AsyncResponse ar) {
-        logRequest();
         try {
             DiffContext ctx = createDiffContext();
             ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
@@ -209,7 +209,6 @@ public class DiffRS {
     @Path("/studies/count")
     @Produces("application/json")
     public void countDiffs(@Suspended AsyncResponse ar) {
-        logRequest();
         try {
             DiffContext ctx = createDiffContext();
             ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
@@ -245,7 +244,6 @@ public class DiffRS {
     public Response compareStudiesFromCSV(
             @PathParam("field") int field,
             InputStream in) {
-        logRequest();
         Response.Status status = Response.Status.BAD_REQUEST;
         if (field < 1)
             return errResponse(

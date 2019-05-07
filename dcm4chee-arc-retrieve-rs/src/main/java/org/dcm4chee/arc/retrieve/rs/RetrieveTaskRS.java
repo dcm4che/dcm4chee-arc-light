@@ -166,7 +166,7 @@ public class RetrieveTaskRS {
             "Retrieve12|" +
             "Retrieve13",
             type = String.class, message = "Invalid Retrieve Queue selected")
-    private List<String> queueName;
+    private List<String> dcmQueueName;
 
     @QueryParam("newQueueName")
     @Pattern(regexp =
@@ -565,7 +565,7 @@ public class RetrieveTaskRS {
         taskQueryParam.setStatus(status);
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setQueueName(queueName);
+        taskQueryParam.setQueueName(dcmQueueName);
         return taskQueryParam;
     }
 

@@ -160,6 +160,7 @@ public class UpdateStudyAccessMatchingRS {
     private String expirationState;
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -167,7 +168,6 @@ public class UpdateStudyAccessMatchingRS {
     @Path("/access/{accessControlID}")
     public Response updateStudyAccessControlID(
             @PathParam("accessControlID") String accessControlID) {
-        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);

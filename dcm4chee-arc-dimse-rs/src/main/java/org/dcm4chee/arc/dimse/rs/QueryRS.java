@@ -139,6 +139,7 @@ public class QueryRS {
     }
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -238,7 +239,6 @@ public class QueryRS {
 
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                         boolean count) {
-        logRequest();
         ApplicationEntity localAE = device.getApplicationEntity(aet, true);
         if (localAE == null || !localAE.isInstalled())
             throw new WebApplicationException(errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));

@@ -147,6 +147,7 @@ public class DiffPatientDemographicsRS {
     }
 
     public void validate() {
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -155,7 +156,6 @@ public class DiffPatientDemographicsRS {
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
     public Response comparePatients() {
-        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
