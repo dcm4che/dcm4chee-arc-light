@@ -11,6 +11,7 @@ import * as _ from 'lodash'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
+import {StudyDeviceWebservice} from "../../models/StudyDeviceWebservice";
 
 @Injectable()
 export class StudyService {
@@ -64,7 +65,6 @@ export class StudyService {
 
                 });
             }
-
             schema.push(
             {
                 tag: "button",
@@ -95,57 +95,57 @@ export class StudyService {
     }
 
 
-    getStudies(callingAet:Aet, filters:any, responseType?:DicomResponseType, accessLocation?:AccessLocation, externalAet?:Aet, baseUrl?:string):Observable<any>{
+    getStudies(filterModel, deviceWebservice:StudyDeviceWebservice,  responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             };
         }
-        let params = j4care.objToUrlParams(filters);
+        let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
 
         return this.$http.get(
-            `${this.getDicomURL("study", callingAet, responseType ,accessLocation, externalAet,undefined, baseUrl)}${params || ''}`,
+            `${this.getDicomURL("study", deviceWebservice, responseType)}${params || ''}`,
                 header
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    getSeries(callingAet:Aet, studyInstanceUID:string, filters:any, responseType?:DicomResponseType, accessLocation?:AccessLocation, externalAet?:Aet, baseUrl?:string):Observable<any>{
+    getSeries( studyInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebservice, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             };
         }
-        let params = j4care.objToUrlParams(filters);
+        let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
 
         return this.$http.get(
-            `${this.getDicomURL("study", callingAet, responseType ,accessLocation, externalAet,undefined, baseUrl)}/${studyInstanceUID}/series${params || ''}`,
+            `${this.getDicomURL("study", deviceWebservice, responseType)}/${studyInstanceUID}/series${params || ''}`,
                 header
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    getInstances(callingAet:Aet, studyInstanceUID:string, seriesInstanceUID:string, filters:any, responseType?:DicomResponseType, accessLocation?:AccessLocation, externalAet?:Aet, baseUrl?:string):Observable<any>{
+    getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebservice, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             };
         }
-        let params = j4care.objToUrlParams(filters);
+        let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
 
         return this.$http.get(
-            `${this.getDicomURL("study", callingAet, responseType ,accessLocation, externalAet,undefined, baseUrl)}/${studyInstanceUID}/series/${seriesInstanceUID}/instances${params || ''}`,
+            `${this.getDicomURL("study", deviceWebservice, responseType)}/${studyInstanceUID}/series/${seriesInstanceUID}/instances${params || ''}`,
                 header
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
-    getDicomURL(mode:DicomMode, callingAet:Aet, responseType?:DicomResponseType, accessLocation?:AccessLocation,  externalAet?:Aet, secondExternalAet?:Aet, baseUrl?:string):string{
-
-        let url = this.rsURL(callingAet, accessLocation,  externalAet, baseUrl);
-
+    getDicomURL(mode:DicomMode, deviceWebservice:StudyDeviceWebservice, responseType?:DicomResponseType):string{
+        console.log("object",deviceWebservice);
+        // let url = this.rsURL(callingAet, accessLocation,  externalAet, baseUrl);
+        let url = deviceWebservice.selectedWebApp.dcmWebServicePath;
         switch (mode) {
             case "patient":
                 url += '/patients';
@@ -153,9 +153,9 @@ export class StudyService {
             case "mwl":
                 url += '/mwlitems';
                 break;
-            case "diff":
+/*            case "diff":
                 url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
-                break;
+                break;*/
             default:
                 url += '/studies';
         }

@@ -2,6 +2,7 @@ import {DcmWebApp} from "./dcm-web-app";
 import * as _  from "lodash";
 import {SelectDropdown} from "../interfaces";
 import {Device} from "./device";
+import {j4care} from "../helpers/j4care.service";
 
 
 export class StudyDeviceWebservice {
@@ -80,11 +81,27 @@ export class StudyDeviceWebservice {
     set dcmWebAppServicesDropdown(value: SelectDropdown<DcmWebApp>[]) {
         this._dcmWebAppServicesDropdown = value;
     }
+
+    getDcmWebAppServicesDropdown(dcmWebServiceClass:string[]){
+        if(dcmWebServiceClass){
+            return (this._dcmWebAppServicesDropdown || []).filter(webServiceDropdwon=>{
+                let check:boolean = false;
+                dcmWebServiceClass.forEach(serviceClass=>{
+                    if(webServiceDropdwon.wholeObject.dcmWebServiceClass.indexOf(serviceClass) > -1){
+                        check = true;
+                    }
+                });
+                return check;
+            });
+        }else{
+            return this._dcmWebAppServicesDropdown;
+        }
+    }
     setDcmWebAppServicesDropdown(value:DcmWebApp[]){
         if(value){
             this._dcmWebAppServices = value,
             this._dcmWebAppServicesDropdown = value.map((webApp:DcmWebApp)=>{
-                return new SelectDropdown(webApp.dcmWebAppName,webApp.dcmWebServicePath,webApp.dicomDescription,undefined,undefined,webApp)
+                return new SelectDropdown(webApp.dcmWebServicePath,webApp.dcmWebAppName,webApp.dicomDescription,undefined,undefined,webApp)
             }) || [];
         }else{
             this._dcmWebAppServicesDropdown = undefined;
@@ -97,7 +114,7 @@ export class StudyDeviceWebservice {
 
     set selectedDevice(value: Device) {
         this._selectedDevice = value;
-        this._selectedWebApp = undefined;
+        this.resetSelectedWebApp()
     }
 
 
@@ -109,6 +126,18 @@ export class StudyDeviceWebservice {
         this._selectedWebApp = value;
     }
 
+    setSelectedWebAppByString(value:string){
+        try{
+            if(this._dcmWebAppServicesDropdown){
+                this.selectedWebApp = this._dcmWebAppServicesDropdown.filter(webAppDropdown=>{
+                    return webAppDropdown.selected;
+                })[0].wholeObject;
+            }
+        }catch(e){
+            j4care.log("Something went wrong on setting selected webapp by string",e);
+            this.resetSelectedWebApp()
+        }
+    }
 
     get dcmWebAppServices(): DcmWebApp[] {
         return this._dcmWebAppServices;
@@ -127,6 +156,14 @@ export class StudyDeviceWebservice {
 
     set devicesDropdown(value: SelectDropdown<Device>[]) {
         this._devicesDropdown = value;
+    }
+    resetSelectedWebApp(){
+        this._selectedWebApp = undefined;
+        if(this._dcmWebAppServicesDropdown){
+            this._dcmWebAppServicesDropdown.forEach(service=>{
+                service.selected = false;
+            })
+        }
     }
 }
 

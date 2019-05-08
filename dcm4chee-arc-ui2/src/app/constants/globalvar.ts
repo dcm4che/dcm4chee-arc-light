@@ -849,14 +849,6 @@ export class Globalvar {
         }
         return [
             {
-                tag:"select",
-                options:aets,
-                showStar:true,
-                filterKey:"aet",
-                description:"AET",
-                placeholder:"AET"
-            },
-            {
                 tag:"input",
                 type:"text",
                 filterKey:"PatientName",
@@ -970,7 +962,7 @@ export class Globalvar {
         ];
     }
 
-    static STUDY_FILTER_ENTRY_SCHEMA(devices,aetWebService):FilterSchema{
+    static STUDY_FILTER_ENTRY_SCHEMA(devices,webService):FilterSchema{
         return [
             {
                 tag:"html-select",
@@ -980,8 +972,8 @@ export class Globalvar {
                 placeholder:"Select Device"
             },{
                 tag:"html-select",
-                options:aetWebService,
-                filterKey:"aetWebService",
+                options:webService,
+                filterKey:"webService",
                 description:"AET or Webservice",
                 placeholder:"AET or Webservice"
             },

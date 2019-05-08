@@ -51,6 +51,7 @@ export class DcmDropDownComponent implements OnInit {
             this.selectedDropdown  = this.getSelectDropdownFromValue(value);
             // this.setSelectedElement();
         }else{
+            console.log("model,element",value);
             this.multiSelectValue = value || [];
             this.setSelectedElement();
         }
