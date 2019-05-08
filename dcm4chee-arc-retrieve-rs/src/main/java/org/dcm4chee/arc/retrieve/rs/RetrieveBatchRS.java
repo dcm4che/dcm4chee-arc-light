@@ -135,7 +135,7 @@ public class RetrieveBatchRS {
             "Retrieve12",
             "Retrieve13"},
             message = "Invalid Retrieve Queue selected")
-    private List<String> queueName;
+    private List<String> dcmQueueName;
 
     @Context
     private HttpServletRequest request;
@@ -249,7 +249,7 @@ public class RetrieveBatchRS {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setQueueName(queueName);
+        taskQueryParam.setQueueName(dcmQueueName);
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setRemoteAET(remoteAET);
         taskQueryParam.setDestinationAET(destinationAET);

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -46,8 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import javax.validation.Payload;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -57,15 +55,12 @@ import java.lang.reflect.Method;
  */
 public class InvokeValidateValidator implements ConstraintValidator<InvokeValidate, Object> {
    private final static Logger log = LoggerFactory.getLogger(InvokeValidateValidator.class);
-   private Constructor<?> init;
    private Method validate;
-   private String message;
 
    @Override
    public void initialize(InvokeValidate constraint) {
       Class<?> type = constraint.type();
       String methodName = constraint.methodName();
-      message = constraint.message();
       try {
          validate = type.getMethod(methodName);
       } catch (NoSuchMethodException e) {
@@ -77,11 +72,10 @@ public class InvokeValidateValidator implements ConstraintValidator<InvokeValida
    public boolean isValid(Object obj, ConstraintValidatorContext context) {
       try {
          validate.invoke(obj);
-      } catch (Exception e) {
-         if (e instanceof InvocationTargetException)
-            log.warn(message + ((InvocationTargetException) e).getTargetException().getMessage());
-
+      } catch (InvocationTargetException e) {
          return false;
+      } catch (Exception e) {
+         log.warn("Unexpected Exception: ", e);
       }
       return true;
    }
