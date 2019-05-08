@@ -49,7 +49,6 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -214,6 +213,11 @@ public class RetrieveRS {
 
     private Response export(String destAET, String... uids) {
         logRequest();
+        if (uids[0].startsWith("csv"))
+            return errResponse("Missing Content-type Header in 'Retrieve Studies specified in CSV from external archive' service " +
+                            "causes invocation of 'Retrieve Study from external archive' service.",
+                    Response.Status.BAD_REQUEST);
+
         try {
             validate();
             Attributes keys = toKeys(uids);
@@ -341,20 +345,13 @@ public class RetrieveRS {
         int n = iuids.length;
         Attributes keys = new Attributes(n + 1);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());
-        setUID(keys, Tag.StudyInstanceUID, iuids[0]);
+        keys.setString(Tag.StudyInstanceUID, VR.UI, iuids[0]);
         if (n > 1) {
-            setUID(keys, Tag.SeriesInstanceUID, iuids[1]);
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, iuids[1]);
             if (n > 2)
-                setUID(keys, Tag.SOPInstanceUID, iuids[2]);
+                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids[2]);
         }
         return keys;
-    }
-
-    private void setUID(Attributes keys, int tag, String uid) {
-        if (!UIDUtils.isValid(uid))
-            throw new IllegalArgumentException("Not a valid UID: " + uid);
-
-        keys.setString(tag, VR.UI, uid);
     }
 
     private Response.ResponseBuilder status(Attributes cmd) {
