@@ -148,6 +148,11 @@ public class DiffRS {
     @ValidValueOf(type = Duration.class)
     private String splitStudyDateRange;
 
+    @QueryParam("validateUID")
+    @Pattern(regexp = "true|false")
+    @DefaultValue("true")
+    private String validateUID;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -252,14 +257,20 @@ public class DiffRS {
         if ("semicolon".equals(contentType.getParameters().get("delimiter")))
             csvDelimiter = ';';
 
+        boolean validate = Boolean.parseBoolean(validateUID);
         int count = 0;
         String warning = null;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
-                DiffContext ctx = createDiffContext();
-                if (count > 0 || UIDUtils.isValid(studyUID)) {
+                if (count == 0 && studyUID.chars().allMatch(Character::isLetter))
+                    continue;
+
+                if (count > 0
+                        || !validate
+                        || UIDUtils.isValid(studyUID)) {
+                    DiffContext ctx = createDiffContext();
                     ctx.setQueryString(
                             "StudyInstanceUID=" + studyUID,
                             uriInfo.getQueryParameters());
@@ -268,7 +279,7 @@ public class DiffRS {
                 }
             }
             if (count == 0) {
-                warning = "Empty file or Incorrect field position or Not a CSV file.";
+                warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                 status = Response.Status.NO_CONTENT;
             }
         } catch (ConfigurationException e) {

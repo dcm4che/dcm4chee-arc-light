@@ -142,6 +142,11 @@ public class QueryRetrieveRS {
     @ValidValueOf(type = Duration.class)
     private String splitStudyDateRange;
 
+    @QueryParam("validateUID")
+    @Pattern(regexp = "true|false")
+    @DefaultValue("true")
+    private String validateUID;
+
     @Inject
     private CFindSCU findSCU;
 
@@ -266,6 +271,7 @@ public class QueryRetrieveRS {
                         "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
             char csvDelimiter = csvDelimiter();
+            boolean validate = Boolean.parseBoolean(validateUID);
             priorityAsInt = parseInt(priority, 0);
             int count = 0;
             String warning = null;
@@ -273,12 +279,17 @@ public class QueryRetrieveRS {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
-                    if (count > 0 || UIDUtils.isValid(studyUID))
+                    if (count == 0 && studyUID.chars().allMatch(Character::isLetter))
+                        continue;
+
+                    if (count > 0
+                            || !validate
+                            || UIDUtils.isValid(studyUID))
                         if (action.test(createExtRetrieveCtx(destAET, studyUID)))
                             count++;
                 }
                 if (count == 0) {
-                    warning = "Empty file or Incorrect field position or Not a CSV file.";
+                    warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                     status = Response.Status.NO_CONTENT;
                 }
             } catch (QueueSizeLimitExceededException e) {
