@@ -11,7 +11,7 @@ export class CsvUploadService {
       public mainservice:AppService
   ) { }
 
-  uploadCSV(url, file, onloadend, onerror){
+  uploadCSV(url, file, semicolon, onloadend, onerror){
     let xmlHttpRequest = new XMLHttpRequest();
     xmlHttpRequest.open('POST', url, true);
     let token;
@@ -24,7 +24,11 @@ export class CsvUploadService {
                 token = this.mainservice.global.authentication.token;
             }
         }
-        xmlHttpRequest.setRequestHeader("Content-Type","text/csv");
+        let contentTyp = "text/csv";
+        if(semicolon){
+            contentTyp += ';delimiter=semicolon';
+        }
+        xmlHttpRequest.setRequestHeader("Content-Type",contentTyp);
         if(!this.mainservice.global.notSecure) {
             xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
         }

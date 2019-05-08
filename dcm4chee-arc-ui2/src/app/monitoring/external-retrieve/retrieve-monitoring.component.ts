@@ -315,6 +315,12 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     description:"Without Scheduling"
                 },
                 {
+                    tag:"input",
+                    type:"checkbox",
+                    filterKey:"semicolon",
+                    description:"Use semicolon as delimiter"
+                },
+                {
                     tag:"select",
                     options:this.remoteAET,
                     showStar:true,

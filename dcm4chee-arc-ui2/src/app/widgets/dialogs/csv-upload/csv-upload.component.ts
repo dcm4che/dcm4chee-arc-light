@@ -4,6 +4,7 @@ import {MatDialogRef} from "@angular/material";
 import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
 import {j4care} from "../../../helpers/j4care.service";
+import * as _ from "lodash";
 
 @Component({
   selector: 'csv-upload',
@@ -50,8 +51,12 @@ export class CsvUploadComponent implements OnInit {
     }
     submit(){
         this.showLoader = true;
-        let url = this.params.prepareUrl(this.form.value);
-        this.service.uploadCSV(url, this.csvFile, (end)=>{
+        let semicolon:boolean = false;
+        let url = this.params.prepareUrl(this.form.value)
+        if(_.hasIn(this.form.value,"semicolon") && this.form.value["semicolon"]){
+            semicolon = true;
+        }
+        this.service.uploadCSV(url, this.csvFile, semicolon, (end)=>{
             this.showLoader = false;
             if(end.status >= 199 && end.status < 300){
                 let msg = "Tasks created successfully!";

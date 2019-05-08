@@ -231,6 +231,12 @@ export class ExportComponent implements OnInit, OnDestroy {
             batchID:this.filterObject['batchID'] || '',
             formSchema:[
                 {
+                    tag:"input",
+                    type:"checkbox",
+                    filterKey:"semicolon",
+                    description:"Use semicolon as delimiter"
+                },
+                {
                     tag:"select",
                     options:this.aets,
                     showStar:true,
