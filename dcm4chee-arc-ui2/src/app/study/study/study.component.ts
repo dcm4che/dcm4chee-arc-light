@@ -166,30 +166,34 @@ export class StudyComponent implements OnInit {
     actions(id, model){
         console.log("id",id);
         console.log("model",model);
-        if(id.action === "toggle_studies"){
-            if(!model.studies){
-                // this.getStudies(model);
-                //TODO getStudies
-            }else{
-                model.showStudies = !model.showStudies;
-            }
+        if(this.deviceWebservice.selectedWebApp){
+            if(id.action === "toggle_studies"){
+                if(!model.studies){
+                    // this.getStudies(model);
+                    //TODO getStudies
+                }else{
+                    model.showStudies = !model.showStudies;
+                }
 
-        }
-        if(id.action === "toggle_series"){
-            if(!model.series){
-                this.getSeries(model);
-            }else{
-                model.showSeries = !model.showSeries;
             }
+            if(id.action === "toggle_series"){
+                if(!model.series){
+                    this.getSeries(model);
+                }else{
+                    model.showSeries = !model.showSeries;
+                }
 
-        }
-        if(id.action === "toggle_instances"){
-            if(!model.instances){
-                this.getInstances(model);
-            }else{
-                model.showInstances = !model.showInstances;
             }
+            if(id.action === "toggle_instances"){
+                if(!model.instances){
+                    this.getInstances(model);
+                }else{
+                    model.showInstances = !model.showInstances;
+                }
 
+            }
+        }else{
+            this.appService.showError("No web app service was selected!");
         }
     }
     search(mode?:('next'|'prev'|'current')){

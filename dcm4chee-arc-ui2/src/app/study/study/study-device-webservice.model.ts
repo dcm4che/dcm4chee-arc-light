@@ -1,8 +1,9 @@
 import {DcmWebApp} from "../../models/dcm-web-app";
 import * as _  from "lodash";
-import {SelectDropdown} from "../../interfaces";
+import {DicomNetworkConnection, SelectDropdown} from "../../interfaces";
 import {Device} from "../../models/device";
 import {j4care} from "../../helpers/j4care.service";
+import {NetworkInterfaceInfo} from "os";
 
 
 export class StudyDeviceWebserviceModel {
@@ -84,6 +85,7 @@ export class StudyDeviceWebserviceModel {
 
     set selectedDeviceObject(value: any) {
         this._selectedDeviceObject = value;
+        this.mapAppServicesToConnections(this._selectedDeviceObject);
         if(value && _.hasIn(value,"dicomDeviceName")){
             this.selectDeviceByName(value.dicomDeviceName)
         }else{
@@ -97,7 +99,19 @@ export class StudyDeviceWebserviceModel {
             this.setDcmWebAppServicesDropdown(undefined);
         }
     }
-
+    mapAppServicesToConnections(deviceObject:any){
+        if(_.hasIn(deviceObject,"dcmDevice.dcmWebApp") && _.hasIn(deviceObject, "dicomNetworkConnection")){
+            let deviceConnections:DicomNetworkConnection[] = [];
+            deviceObject.dicomNetworkConnection.forEach((connections:DicomNetworkConnection)=>{
+                deviceConnections.push(new DicomNetworkConnection(connections));
+            });
+            deviceObject.dcmDevice.dcmWebApp.map((webApp:DcmWebApp)=>{
+                webApp.dicomNetworkConnectionReference.forEach((refernce:string,i:number)=>{
+                    webApp.dicomNetworkConnectionReference[i] = <DicomNetworkConnection>j4care.getConnectionFromReference(webApp.dicomNetworkConnectionReference[i], deviceConnections);
+                })
+            });
+        }
+    }
     get dcmWebAppServicesDropdown(): SelectDropdown<DcmWebApp>[] {
         return this._dcmWebAppServicesDropdown;
     }

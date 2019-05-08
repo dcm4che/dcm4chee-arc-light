@@ -145,27 +145,31 @@ export class StudyService {
     getDicomURL(mode:DicomMode, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):string{
         console.log("object",deviceWebservice);
         // let url = this.rsURL(callingAet, accessLocation,  externalAet, baseUrl);
-        let url = deviceWebservice.selectedWebApp.dcmWebServicePath;
-        switch (mode) {
-            case "patient":
-                url += '/patients';
-                break;
-            case "mwl":
-                url += '/mwlitems';
-                break;
-/*            case "diff":
-                url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
-                break;*/
-            default:
-                url += '/studies';
+        try{
+            let url = deviceWebservice.selectedWebApp.dcmWebServicePath;
+            switch (mode) {
+                case "patient":
+                    url += '/patients';
+                    break;
+                case "mwl":
+                    url += '/mwlitems';
+                    break;
+    /*            case "diff":
+                    url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
+                    break;*/
+                default:
+                    url += '/studies';
+            }
+            if(mode != "diff" && responseType){
+               if(responseType === "count")
+                url += '/count';
+               if(responseType === "size")
+                url += '/size';
+            }
+            return url;
+        }catch (e) {
+            j4care.log("Error on getting dicomURL in study.service.ts",e);
         }
-        if(mode != "diff" && responseType){
-           if(responseType === "count")
-            url += '/count';
-           if(responseType === "size")
-            url += '/size';
-        }
-        return url;
     }
 
     private diffUrl(callingAet:Aet,  firstExternalAet?:Aet, secondExternalAet?:Aet, baseUrl?:string){

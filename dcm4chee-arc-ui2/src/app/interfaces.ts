@@ -145,3 +145,59 @@ export interface StudyPageConfig {
 
 export type DicomResponseType = 'object'|'count'|'size';
 
+export interface DcmNetworkConnection{
+    dcmBindAddress:string;
+    dcmClientBindAddress:string;
+    dcmProtocol:string;
+}
+export class DicomNetworkConnection{
+    private _cn:string;
+    private _dicomHostname:string;
+    private _dicomPort:number;
+    private _dcmNetworkConnection:DcmNetworkConnection
+
+    constructor(
+        connection:{
+            cn?:string;
+            dicomHostname?:string;
+            dicomPort?:number;
+            dcmNetworkConnection?:DcmNetworkConnection;
+        }={}
+    ){
+        this._cn = connection.cn;
+        this._dicomHostname = connection.dicomHostname;
+        this._dicomPort = connection.dicomPort;
+        this._dcmNetworkConnection = connection.dcmNetworkConnection;
+    }
+    get cn(): string {
+        return this._cn;
+    }
+
+    set cn(value: string) {
+        this._cn = value;
+    }
+
+    get dicomHostname(): string {
+        return this._dicomHostname;
+    }
+
+    set dicomHostname(value: string) {
+        this._dicomHostname = value;
+    }
+
+    get dicomPort(): number {
+        return this._dicomPort;
+    }
+
+    set dicomPort(value: number) {
+        this._dicomPort = value;
+    }
+
+    get dcmNetworkConnection(): DcmNetworkConnection {
+        return this._dcmNetworkConnection;
+    }
+
+    set dcmNetworkConnection(value: DcmNetworkConnection) {
+        this._dcmNetworkConnection = value;
+    }
+}

@@ -16,6 +16,8 @@ import {DevicesService} from "../configuration/devices/devices.service";
 import {Router} from "@angular/router";
 import {J4careDateTime, J4careDateTimeMode, RangeObject} from "./j4care";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
+import {DicomNetworkConnection} from "../interfaces";
+import {DcmWebApp} from "../models/dcm-web-app";
 
 
 @Injectable()
@@ -1054,5 +1056,34 @@ export class j4care {
             this.log("Error on join",e);
             return "";
         }
+    }
+
+    /*
+    * get DicomNetworkConnection from reference
+    * input:reference:string ("/dicomNetworkConnection/1"), dicomNetworkConnections[] (dicomNetworkConnections of a device)
+    * return one dicomNetworkConnection
+    * */
+    static getConnectionFromReference(reference:string, connections:DicomNetworkConnection[]):(DicomNetworkConnection|string){
+        try{
+            const regex = /\w+\/(\d*)/;
+            let match;
+            if(reference && connections && (match = regex.exec(reference)) !== null){
+                return connections[match[1]];
+            }
+            return reference;
+        }catch (e) {
+            this.log("Something went wrong on getting the connection from references",e);
+            return reference;
+        }
+    }
+
+    static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp):string{
+        let url = `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference[0])}${dcmWebApp.dcmWebServicePath}`; //TODO
+        return url;
+    }
+
+    static getBaseUrlFromDicomNetworkConnection(conn:DicomNetworkConnection){
+        //TODO add try catch and make the code more intelligent
+        return `${conn.dcmNetworkConnection.dcmProtocol}://${conn.dicomHostname}:${conn.dicomPort}`;
     }
 }
