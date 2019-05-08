@@ -57,9 +57,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Constraint(validatedBy = ValidListValidator.class)
 public @interface ValidList {
-    String regexp();
-    Class<?> type();
-    String message() default "{ValidStringsValidator.message}";
+    String[] allowed();
+    String message() default "{ValidList.message}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

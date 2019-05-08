@@ -46,34 +46,30 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2019
  */
-public class ValidListValidator implements ConstraintValidator<ValidList, Object> {
+public class ValidListValidator implements ConstraintValidator<ValidList, List<String>> {
    private final static Logger log = LoggerFactory.getLogger(ValidListValidator.class);
-   private String regexp;
+   private String[] allowed;
 
    @Override
    public void initialize(ValidList constraint) {
-      this.regexp = constraint.regexp();
+      this.allowed = constraint.allowed();
    }
 
    @Override
-   public boolean isValid(Object obj, ConstraintValidatorContext context) {
-      if (obj != null) {
-         List<String> items = (List<String>) obj;
-         if (!items.isEmpty()) {
-            for (String item : items)
-               if (!item.matches(this.regexp)) {
-                  log.warn("Unsupported list item {}", item);
-                  return false;
-               }
-         }
+   public boolean isValid(List<String> items, ConstraintValidatorContext context) {
+      try {
+         if (!Arrays.asList(allowed).containsAll(items))
+            return false;
+      } catch (Exception e) {
+         log.warn("Unexpected exception: ", e);
       }
-
       return true;
    }
 }

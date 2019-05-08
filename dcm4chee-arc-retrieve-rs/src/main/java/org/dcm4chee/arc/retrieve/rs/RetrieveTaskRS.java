@@ -152,20 +152,20 @@ public class RetrieveTaskRS {
     private String orderby;
 
     @QueryParam("dcmQueueName")
-    @ValidList(regexp = "Retrieve1|" +
-            "Retrieve2|" +
-            "Retrieve3|" +
-            "Retrieve4|" +
-            "Retrieve5|" +
-            "Retrieve6|" +
-            "Retrieve7|" +
-            "Retrieve8|" +
-            "Retrieve9|" +
-            "Retrieve10|" +
-            "Retrieve11|" +
-            "Retrieve12|" +
-            "Retrieve13",
-            type = String.class, message = "Invalid Retrieve Queue selected")
+    @ValidList(allowed = {"Retrieve1",
+            "Retrieve2",
+            "Retrieve3",
+            "Retrieve4",
+            "Retrieve5",
+            "Retrieve6",
+            "Retrieve7",
+            "Retrieve8",
+            "Retrieve9",
+            "Retrieve10",
+            "Retrieve11",
+            "Retrieve12",
+            "Retrieve13"},
+            message = "Invalid Retrieve Queue selected")
     private List<String> dcmQueueName;
 
     @QueryParam("newQueueName")
