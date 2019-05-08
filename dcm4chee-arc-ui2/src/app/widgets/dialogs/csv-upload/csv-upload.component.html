@@ -3,13 +3,13 @@
   <div class="content">
     <form [formGroup]="form" >
     <div class="form_control" *ngFor="let form of params.formSchema">
-      <label>{{form.placeholder}}</label>
+      <label>{{form.description}}</label>
       <ng-container [ngSwitch]="form.tag">
         <mat-select *ngSwitchCase="'select'" formControlName="{{form.filterKey}}" placeholder="{{form.placeholder}}" class="form-control" >
           <mat-option *ngIf="form.showStar" value="*">*</mat-option>
           <mat-option *ngFor="let ae of form.options" value="{{ae.value}}">{{ae.text}}</mat-option>
         </mat-select>
-        <input *ngSwitchCase="'input'" formControlName="{{form.filterKey}}" type="{{form.type}}" placeholder="{{form.placeholder}}" class="form-control" >
+        <input *ngSwitchCase="'input'" formControlName="{{form.filterKey}}" type="{{form.type}}" placeholder="{{form.placeholder}}" class="form-control" (change)="inputChanged(form,$event)" >
       </ng-container>
     </div>
       <div class="form_control">

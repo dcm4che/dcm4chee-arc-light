@@ -27,12 +27,24 @@ export class CsvUploadComponent implements OnInit {
         private service:CsvUploadService,
         private appService:AppService
     ){}
-
+    inputChanged(form, e){
+        console.log("form",form)
+        console.log("this.fomr",this.form)
+        console.log("e",e)
+        console.log("e",e.target.checked);
+        if(form.type === "checkbox"){
+            this.form.controls[form.filterKey].setValue(e.target.checked);
+        }
+    }
     ngOnInit() {
         console.log("formSchema",this.params);
         let formContent = {};
         this.params.formSchema.forEach(form=>{
-            formContent[form.filterKey] =[j4care.getValue(form.filterKey, this.params, form.defaultValue), form.validation]
+            if(form.type === "checkbox"){
+                formContent[form.filterKey] =  [null];
+            }else{
+                formContent[form.filterKey] =[j4care.getValue(form.filterKey, this.params, form.defaultValue), form.validation]
+            }
         });
         this.form = this._fb.group(formContent);
     }
