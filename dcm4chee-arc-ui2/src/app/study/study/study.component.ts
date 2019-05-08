@@ -30,7 +30,7 @@ import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {DropdownList} from "../../helpers/form/dropdown-list";
 import {DropdownComponent} from "../../widgets/dropdown/dropdown.component";
-import {StudyDeviceWebservice} from "../../models/StudyDeviceWebservice";
+import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 
 
@@ -123,7 +123,7 @@ export class StudyComponent implements OnInit {
     };
     // studyDevice:StudyDevice;
     testModel;
-    deviceWebservice:StudyDeviceWebservice;
+    deviceWebservice:StudyDeviceWebserviceModel;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -136,12 +136,7 @@ export class StudyComponent implements OnInit {
 
     ngOnInit() {
         console.log("this.service",this.appService);
-        if(_.hasIn(this.appService,"global.myDevice") && this.appService.deviceName && this.appService.deviceName === this.appService.global.myDevice.dicomDeviceName){
-            this.filter.filterEntryModel["device"] = this.appService.deviceName;
-            this.deviceWebservice = new StudyDeviceWebservice({
-                selectedDeviceObject:this.appService.global.myDevice
-            })
-        }
+
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
@@ -376,17 +371,16 @@ export class StudyComponent implements OnInit {
                 this.cfpLoadingBar.complete();
         });
     }
-    entryFilterChanged(e){
+    entryFilterChanged(e?){
         console.log("e",e);
         console.log("this.deviceWebservice",this.deviceWebservice);
-        if(this.deviceWebservice.selectedDevice != this.filter.filterEntryModel["device"]){
-            this.deviceWebservice.selectedDevice = this.filter.filterEntryModel["device"];
-            this.deviceConfigurator.getDevice(this.deviceWebservice.selectedDevice).subscribe(device=>{
+        if(this.deviceWebservice.selectedDevice.dicomDeviceName != this.filter.filterEntryModel["device"]){
+            this.deviceConfigurator.getDevice(this.deviceWebservice.selectedDevice.dicomDeviceName).subscribe(device=>{
                 this.deviceWebservice.selectedDeviceObject = device;
                 this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.getDcmWebAppServicesDropdown(["QIDO_RS"]));
             });
             this._filter.filterEntryModel["webService"] = undefined;
-            this.deviceWebservice.selectedWebApp = undefined;
+            this.deviceWebservice.dcmWebAppServices = undefined;
         }
         if(!this.deviceWebservice.selectedWebApp || this.deviceWebservice.selectedWebApp.dcmWebAppName != this.filter.filterEntryModel["webService"]){
             this.deviceWebservice.setSelectedWebAppByString(this.filter.filterEntryModel["webService"]);
@@ -450,11 +444,22 @@ export class StudyComponent implements OnInit {
         this.service.getDevices()
             .subscribe(devices=>{
             // this.studyDevice = new StudyDevice(devices.map(device=> new SelectDropdown(device.dicomDeviceName, device.dicomDeviceName)));
-                if(this.deviceWebservice){
+/*                if(this.deviceWebservice){
                     this.deviceWebservice.devices = devices;
                     this.deviceWebservice.selectedDevice
                 }else{
-                    this.deviceWebservice = new StudyDeviceWebservice({devices:devices});
+                }*/
+
+                if(_.hasIn(this.appService,"global.myDevice") && this.appService.deviceName && this.appService.deviceName === this.appService.global.myDevice.dicomDeviceName){
+                    this.deviceWebservice = new StudyDeviceWebserviceModel({
+                        devices:devices,
+                        selectedDeviceObject:this.appService.global.myDevice
+                    });
+                    // this.deviceWebservice.setSelectedWebAppByString(this.appService.deviceName);
+                    this.filter.filterEntryModel["device"] = this.appService.deviceName;
+                    // this.entryFilterChanged();
+                }else{
+                    this.deviceWebservice = new StudyDeviceWebserviceModel({devices:devices});
                 }
             this.getApplicationEntities();
         },err=>{

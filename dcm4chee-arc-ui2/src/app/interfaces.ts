@@ -33,13 +33,14 @@ export class SelectDropdown<T,S={}> {
     private _htmlLabel:string;
     private _wholeObject:T;
     private _selected;
-    constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string, wholeObject?:T){
+    constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string, wholeObject?:T, selected?:boolean){
         this._value = value;
         this._text = text || value;
         this._label = label || text || value;
         this._title = title;
         this._htmlLabel = htmlLabel;
         this._wholeObject = wholeObject;
+        this._selected = selected || false;
     }
 
     get value(): string {

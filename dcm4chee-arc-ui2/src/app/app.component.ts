@@ -43,6 +43,7 @@ export class AppComponent implements OnInit {
     myDeviceName = '';
     timeZone;
     sidenavopen = false;
+    superUser:boolean = false;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
@@ -85,6 +86,7 @@ export class AppComponent implements OnInit {
             this.mainservice.user = this.mainservice.user || this.mainservice.global.authentication
             this.user = this.mainservice.user;
             this.realm = this.mainservice.user.realm;
+            this.superUser = (_.hasIn(this.mainservice.user, "su") && this.mainservice.user["su"]);
             this.authServerUrl = this.mainservice.user['auth-server-url'];
             let host    = location.protocol + '//' + location.host;
             this.logoutUrl =  `${this.mainservice.user['auth-server-url']}/realms/${this.mainservice.user.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(host + location.pathname)}`;
