@@ -182,10 +182,10 @@ public class Curve2PRExporter extends AbstractExporter {
 
     private static boolean isConvertable(byte[] curveData, Attributes metadata, int offset) {
         return curveData.length == 16
-                || metadata.getInt(Tag.CurveDimensions | offset, -1) == 2
-                || metadata.getInt(Tag.NumberOfPoints | offset, -1) == 2
-                || "LINE".equals(metadata.getString(Tag.TypeOfData | offset))
-                || metadata.getInt(Tag.DataValueRepresentation | offset, -1) == 2;
+                && metadata.getInt(Tag.CurveDimensions | offset, -1) == 2
+                && metadata.getInt(Tag.NumberOfPoints | offset, -1) == 2
+                && "LINE".equals(metadata.getString(Tag.TypeOfData | offset))
+                && metadata.getInt(Tag.DataValueRepresentation | offset, -1) == 2;
     }
 
     private Attributes graphicAnnotationItem(RetrieveContext ctx, InstanceLocations inst,
