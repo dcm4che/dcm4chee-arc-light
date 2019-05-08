@@ -374,8 +374,8 @@ export class StudyComponent implements OnInit {
     entryFilterChanged(e?){
         console.log("e",e);
         console.log("this.deviceWebservice",this.deviceWebservice);
-        if(this.deviceWebservice.selectedDevice.dicomDeviceName != this.filter.filterEntryModel["device"]){
-            this.deviceConfigurator.getDevice(this.deviceWebservice.selectedDevice.dicomDeviceName).subscribe(device=>{
+        if(this.deviceWebservice.selectedDevice.dicomDeviceName != this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] != ''){
+            this.deviceConfigurator.getDevice(this.filter.filterEntryModel["device"]).subscribe(device=>{
                 this.deviceWebservice.selectedDeviceObject = device;
                 this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.getDcmWebAppServicesDropdown(["QIDO_RS"]));
             });

@@ -50,16 +50,33 @@ export class StudyDeviceWebserviceModel {
             return new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription,undefined,undefined, device);
         }) || [];
         if(this._selectedDeviceObject && _.hasIn(this._selectedDeviceObject,"dicomDeviceName")){
-           this._devicesDropdown.forEach((device:SelectDropdown<Device>)=>{
-               if(device.wholeObject.dicomDeviceName === this._selectedDeviceObject.dicomDeviceName){
-                   this._selectedDevice = device.wholeObject;
-                   device.selected = true;
-               }
-           })
+            this.selectDeviceByName(this._selectedDeviceObject.dicomDeviceName);
         }else{
             this._selectedDevice = undefined;
         }
         this._selectedWebApp = undefined;
+    }
+
+    get selectedDevice(): Device {
+        return this._selectedDevice;
+    }
+
+    set selectedDevice(value: Device) {
+        this._selectedDevice = value;
+        this.resetSelectedWebApp()
+    }
+
+    selectDeviceByName(name:string){
+        if(name && this._devicesDropdown){
+            this._devicesDropdown.forEach((device:SelectDropdown<Device>)=>{
+                if(device.wholeObject.dicomDeviceName === name){
+                    this._selectedDevice = device.wholeObject;
+                    device.selected = true;
+                }
+            })
+        }else{
+            this._selectedDevice = undefined;
+        }
     }
     get selectedDeviceObject(): any {
         return this._selectedDeviceObject;
@@ -67,9 +84,16 @@ export class StudyDeviceWebserviceModel {
 
     set selectedDeviceObject(value: any) {
         this._selectedDeviceObject = value;
+        if(value && _.hasIn(value,"dicomDeviceName")){
+            this.selectDeviceByName(value.dicomDeviceName)
+        }else{
+            this.selectDeviceByName(undefined)
+        }
         if(_.hasIn(this._selectedDeviceObject,"dcmDevice.dcmWebApp")){
+            this.dcmWebAppServices = this._selectedDeviceObject.dcmDevice.dcmWebApp;
             this.setDcmWebAppServicesDropdown(this._selectedDeviceObject.dcmDevice.dcmWebApp);
         }else{
+            this.dcmWebAppServices = undefined;
             this.setDcmWebAppServicesDropdown(undefined);
         }
     }
@@ -108,14 +132,6 @@ export class StudyDeviceWebserviceModel {
         }
     }
 
-    get selectedDevice(): Device {
-        return this._selectedDevice;
-    }
-
-    set selectedDevice(value: Device) {
-        this._selectedDevice = value;
-        this.resetSelectedWebApp()
-    }
 
 
     get selectedWebApp(): DcmWebApp {
@@ -150,9 +166,13 @@ export class StudyDeviceWebserviceModel {
 
     set dcmWebAppServices(value: DcmWebApp[]) {
         this._dcmWebAppServices = value;
-        this._dcmWebAppServicesDropdown = value.map((webApp:DcmWebApp)=>{
-            return new SelectDropdown(webApp.dcmWebAppName,webApp.dcmWebServicePath,webApp.dicomDescription,undefined,undefined,webApp)
-        }) || [];
+        if(value){
+            this._dcmWebAppServicesDropdown = value.map((webApp:DcmWebApp)=>{
+                return new SelectDropdown(webApp.dcmWebAppName,webApp.dcmWebServicePath,webApp.dicomDescription,undefined,undefined,webApp)
+            }) || [];
+        }else{
+            this._dcmWebAppServicesDropdown = undefined;
+        }
     }
 
     get devicesDropdown(): SelectDropdown<Device>[] {

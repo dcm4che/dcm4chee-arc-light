@@ -47,6 +47,10 @@ describe('Service: Auth', () => {
         }
     };
 
+    const test3 = {
+        dicomDeviceName: "TEST3"
+    };
+
     beforeEach(() => {
         service = new StudyDeviceWebserviceModel({devices:devices});
     });
@@ -84,5 +88,17 @@ describe('Service: Auth', () => {
         expect(service.dcmWebAppServicesDropdown.filter(option=>{
             option.selected
         }).length).toBe(0);
+    });
+    it("Check if setting of undefined value caused error",()=>{
+        service.selectedDeviceObject = test3;
+        // service.dcmWebAppServices = undefined;
+        expect(service.dcmWebAppServices).toBe(undefined);
+        expect(service.dcmWebAppServicesDropdown).toEqual(undefined);
+    });
+    it("Should set selected device on deviceobject set",()=>{
+        service.devices = devices;
+        service.selectedDeviceObject = dcm4cheeArcObject;
+        // service.dcmWebAppServices = undefined;
+        expect(service.selectedDevice.dicomDeviceName).toBe(dcm4cheeArcObject.dicomDeviceName);
     });
 });
