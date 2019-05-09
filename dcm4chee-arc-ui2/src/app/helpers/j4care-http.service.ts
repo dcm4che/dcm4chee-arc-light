@@ -6,29 +6,32 @@ import 'rxjs/add/operator/mergeMap';
 import * as _ from 'lodash';
 import {WindowRefService} from "./window-ref.service";
 import {HttpErrorHandler} from "./http-error-handler";
+import {DcmWebApp} from "../models/dcm-web-app";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable()
 export class J4careHttpService{
     constructor (
         public $http:Http,
+        private $httpClient:HttpClient,
         public mainservice:AppService,
         public httpErrorHandler:HttpErrorHandler,
-    ) {}
+    ){}
     header;
     token;
-    get(url,header?, doNotEncode?){
+    get(url,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
        return this.request.apply(this,['get', [doNotEncode ? url : encodeURI(url), header]]);
     }
-    head(url,header?, doNotEncode?){
+    head(url,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
         return this.request.apply(this,['head', [doNotEncode ? url : encodeURI(url), header]]);
     }
-    post(url,data,header?, doNotEncode?){
+    post(url,data,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
         return this.request.apply(this,['post', [doNotEncode ? url : encodeURI(url), data, header]]);
     }
-    put(url,data,header?, doNotEncode?){
+    put(url,data,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
         return this.request.apply(this,['put', [doNotEncode ? url : encodeURI(url), data, header]]);
     }
-    delete(url,header?, doNotEncode?){
+    delete(url,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
         return this.request.apply(this,['delete', [doNotEncode ? url : encodeURI(url), header]]);
     }
     private request(requestFunctionName, param){
