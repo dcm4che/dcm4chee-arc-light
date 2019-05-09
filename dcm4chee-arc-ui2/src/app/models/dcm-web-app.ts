@@ -1,14 +1,100 @@
 import {DicomNetworkConnection} from "../interfaces";
 
-export type WebServiceClass = "QIDO_RS" | "STOW_RS" | "WADO_RS" | "WADO_URI" | "UPS_RS" | "DCM4CHEE_ARC";
+export type WebServiceClass = "QIDO_RS" | "STOW_RS" | "WADO_RS" | "WADO_URI" | "UPS_RS" | "DCM4CHEE_ARC" | "DCM4CHEE_ARC_AET"|string;
 
-export interface DcmWebApp{
-    dcmWebAppName:string;
-    dicomNetworkConnectionReference:(any[]);
-    dicomDescription:string;
-    dcmWebServicePath:string;
-    dcmWebServiceClass:WebServiceClass;
-    dicomAETitle:string;
-    dicomApplicationCluster:any[]
-    dicomInstalled:boolean;
+export class DcmWebApp{
+    private _dcmWebAppName:string;
+    private _dicomNetworkConnectionReference:any[];
+    private _dicomDescription:string;
+    private _dcmWebServicePath:string;
+    private _dcmWebServiceClass:WebServiceClass[];
+    private _dicomAETitle:string;
+    private _dicomApplicationCluster:any[]
+    private _dicomInstalled:boolean;
+
+    constructor(
+        webApp:{
+            dcmWebAppName?:string;
+            dicomDescription?:string;
+            dcmWebServicePath?:string;
+            dcmWebServiceClass?:WebServiceClass[];
+            dicomNetworkConnectionReference?:any[];
+            dicomAETitle?:string;
+            dicomApplicationCluster?:any[];
+            dicomInstalled?:boolean;
+        } = {}
+    ){
+        this._dcmWebAppName = webApp.dcmWebAppName;
+        this._dicomNetworkConnectionReference = webApp.dicomNetworkConnectionReference;
+        this._dicomDescription = webApp.dicomDescription;
+        this._dcmWebServicePath = webApp.dcmWebServicePath;
+        this._dcmWebServiceClass = webApp.dcmWebServiceClass;
+        this._dicomAETitle = webApp.dicomAETitle;
+        this._dicomApplicationCluster = webApp.dicomApplicationCluster;
+        this._dicomInstalled = webApp.dicomInstalled;
+    }
+
+    get dcmWebAppName(): string {
+        return this._dcmWebAppName;
+    }
+
+    set dcmWebAppName(value: string) {
+        this._dcmWebAppName = value;
+    }
+
+    get dicomNetworkConnectionReference(): any[] {
+        return this._dicomNetworkConnectionReference;
+    }
+
+    set dicomNetworkConnectionReference(value: any[]) {
+        this._dicomNetworkConnectionReference = value;
+    }
+
+    get dicomDescription(): string {
+        return this._dicomDescription;
+    }
+
+    set dicomDescription(value: string) {
+        this._dicomDescription = value;
+    }
+
+    get dcmWebServicePath(): string {
+        return this._dcmWebServicePath;
+    }
+
+    set dcmWebServicePath(value: string) {
+        this._dcmWebServicePath = value;
+    }
+
+    get dcmWebServiceClass(): WebServiceClass[] {
+        return this._dcmWebServiceClass;
+    }
+
+    set dcmWebServiceClass(value: WebServiceClass[]) {
+        this._dcmWebServiceClass = value;
+    }
+
+    get dicomAETitle(): string {
+        return this._dicomAETitle;
+    }
+
+    set dicomAETitle(value: string) {
+        this._dicomAETitle = value;
+    }
+
+    get dicomApplicationCluster(): any[] {
+        return this._dicomApplicationCluster;
+    }
+
+    set dicomApplicationCluster(value: any[]) {
+        this._dicomApplicationCluster = value;
+    }
+
+    get dicomInstalled(): boolean {
+        return this._dicomInstalled;
+    }
+
+    set dicomInstalled(value: boolean) {
+        this._dicomInstalled = value;
+    }
 }

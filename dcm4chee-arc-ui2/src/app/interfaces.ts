@@ -146,15 +146,17 @@ export interface StudyPageConfig {
 export type DicomResponseType = 'object'|'count'|'size';
 
 export interface DcmNetworkConnection{
-    dcmBindAddress:string;
-    dcmClientBindAddress:string;
-    dcmProtocol:string;
+    dcmBindAddress?:string;
+    dcmClientBindAddress?:string;
+    dcmProtocol?:string;
 }
 export class DicomNetworkConnection{
     private _cn:string;
     private _dicomHostname:string;
     private _dicomPort:number;
-    private _dcmNetworkConnection:DcmNetworkConnection
+    private _dcmNetworkConnection:DcmNetworkConnection;
+    private _dicomInstalled:boolean;
+    private _dicomTLSCipherSuite:string[];
 
     constructor(
         connection:{
@@ -162,12 +164,16 @@ export class DicomNetworkConnection{
             dicomHostname?:string;
             dicomPort?:number;
             dcmNetworkConnection?:DcmNetworkConnection;
+            dicomInstalled?:boolean;
+            dicomTLSCipherSuite?:string[];
         }={}
     ){
         this._cn = connection.cn;
         this._dicomHostname = connection.dicomHostname;
         this._dicomPort = connection.dicomPort;
         this._dcmNetworkConnection = connection.dcmNetworkConnection;
+        this._dicomInstalled = connection.dicomInstalled;
+        this._dicomTLSCipherSuite = connection.dicomTLSCipherSuite;
     }
     get cn(): string {
         return this._cn;
@@ -199,5 +205,21 @@ export class DicomNetworkConnection{
 
     set dcmNetworkConnection(value: DcmNetworkConnection) {
         this._dcmNetworkConnection = value;
+    }
+
+    get dicomInstalled():boolean {
+        return this._dicomInstalled;
+    }
+
+    set dicomInstalled(value:boolean) {
+        this._dicomInstalled = value;
+    }
+
+    get dicomTLSCipherSuite(): string[] {
+        return this._dicomTLSCipherSuite;
+    }
+
+    set dicomTLSCipherSuite(value: string[]) {
+        this._dicomTLSCipherSuite = value;
     }
 }

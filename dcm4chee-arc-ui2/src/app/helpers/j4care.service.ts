@@ -1077,13 +1077,66 @@ export class j4care {
         }
     }
 
+    /*
+    * Return the whole url from passed DcmWebApp
+    * */
     static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp):string{
-        let url = `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference[0])}${dcmWebApp.dcmWebServicePath}`; //TODO
-        return url;
+        try{
+            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference) || ''}${dcmWebApp.dcmWebServicePath}`;
+        }catch (e) {
+            this.log("Error on getting Url from DcmWebApplication",e);
+        }
     }
 
-    static getBaseUrlFromDicomNetworkConnection(conn:DicomNetworkConnection){
-        //TODO add try catch and make the code more intelligent
-        return `${conn.dcmNetworkConnection.dcmProtocol}://${conn.dicomHostname}:${conn.dicomPort}`;
+    /*
+    *Select one connection from the array of dicomnetowrkconnections and generate base url from that (http://localhost:8080)
+    * */
+    static getBaseUrlFromDicomNetworkConnection(conns:DicomNetworkConnection[]){
+        try{
+            let selectedConnection:DicomNetworkConnection;
+            let filteredConnections:DicomNetworkConnection[];
+
+            //Get only connections with the protocol HTTP
+            filteredConnections = conns.filter(conn=>{
+                return this.getHTTPProtocolFromDicomNetworkConnection(conn) != '';
+            });
+            //If there are more than 1 than check if there is one with https protocol and return the first what you find.
+            if(filteredConnections.length > 1){
+                selectedConnection = filteredConnections.filter(conn=>{
+                    return this.getHTTPProtocolFromDicomNetworkConnection(conn) === "https";
+                })[0];
+            }
+            selectedConnection = selectedConnection || filteredConnections[0];
+            if(selectedConnection){
+                return `${this.getHTTPProtocolFromDicomNetworkConnection(selectedConnection)}://${selectedConnection.dicomHostname}:${selectedConnection.dicomPort}`;
+            }else{
+                return window.location.origin;
+            }
+        }catch (e) {
+            this.log("Something went wrong on getting base url from a dicom network connections",e);
+            return window.location.origin;
+        }
+    }
+
+    /*
+    * If the passed connection has the protocol HTTP then return http or https otherwise return ''.
+    * */
+    static getHTTPProtocolFromDicomNetworkConnection(conn:DicomNetworkConnection):string{
+        try{
+            if(_.hasIn(conn,"dcmNetworkConnection.dcmProtocol")){
+                if(conn.dcmNetworkConnection.dcmProtocol === "HTTP"){
+                    if(_.hasIn(conn, "dicomTLSCipherSuite") && conn.dicomTLSCipherSuite && conn.dicomTLSCipherSuite.length > 0){
+                        return "https";
+                    }else{
+                        return "http";
+                    }
+                }else{
+                    return '';
+                }
+            }
+            return '';
+        }catch (e) {
+            this.log("Something went wrong on getting the protocol from a connection",e);
+        }
     }
 }

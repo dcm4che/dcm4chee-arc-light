@@ -122,10 +122,10 @@ export class StudyDeviceWebserviceModel {
 
     getDcmWebAppServicesDropdown(dcmWebServiceClass:string[]){
         if(dcmWebServiceClass){
-            return (this._dcmWebAppServicesDropdown || []).filter(webServiceDropdwon=>{
+            return (this._dcmWebAppServicesDropdown || []).filter(webServiceDropdown=>{
                 let check:boolean = false;
-                dcmWebServiceClass.forEach(serviceClass=>{
-                    if(webServiceDropdwon.wholeObject.dcmWebServiceClass.indexOf(serviceClass) > -1){
+                dcmWebServiceClass.forEach((serviceClass)=>{
+                    if(webServiceDropdown.wholeObject.dcmWebServiceClass.indexOf(serviceClass) > -1){
                         check = true;
                     }
                 });

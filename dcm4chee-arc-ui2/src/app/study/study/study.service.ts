@@ -144,9 +144,8 @@ export class StudyService {
     }
     getDicomURL(mode:DicomMode, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):string{
         console.log("object",deviceWebservice);
-        // let url = this.rsURL(callingAet, accessLocation,  externalAet, baseUrl);
         try{
-            let url = deviceWebservice.selectedWebApp.dcmWebServicePath;
+            let url = j4care.getUrlFromDcmWebApplication(deviceWebservice.selectedWebApp);
             switch (mode) {
                 case "patient":
                     url += '/patients';

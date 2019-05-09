@@ -1,4 +1,6 @@
 import {j4care} from "./j4care.service";
+import {DicomNetworkConnection} from "../interfaces";
+import {DcmWebApp} from "../models/dcm-web-app";
 
 const AETS1 = [{
         "dicomAETitle": "DCM4CHEE",
@@ -240,5 +242,183 @@ describe('j4care', () => {
         expect(j4care.join(["test1"],", ", " and ")).toEqual("test1");
         expect(j4care.join([],", ", " and ")).toEqual("");
         expect(j4care.join(undefined,", ", " and ")).toEqual("");
+    });
+
+    it("Should return protocol from dicomNetworkConnection",()=>{
+        expect(
+            j4care.getHTTPProtocolFromDicomNetworkConnection(
+                new DicomNetworkConnection({
+                    cn: "test",
+                    dicomHostname: "shefki-lifebook",
+                    dicomPort: 8080,
+                    dicomTLSCipherSuite: [
+                        "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+                    ],
+                    dicomInstalled: true,
+                    dcmNetworkConnection: {
+                        "dcmProtocol": "HTTP"
+                    }
+                })
+            )
+        ).toEqual("https");
+
+        expect(
+            j4care.getHTTPProtocolFromDicomNetworkConnection(
+                new DicomNetworkConnection({
+                    "cn": "syslog",
+                    "dicomHostname": "127.0.0.1",
+                    "dcmNetworkConnection": {
+                        "dcmProtocol": "SYSLOG_TLS",
+                        "dcmClientBindAddress": "0.0.0.0"
+                    }
+                })
+            )
+        ).toEqual("");
+
+        expect(
+            j4care.getHTTPProtocolFromDicomNetworkConnection(
+                new DicomNetworkConnection({
+                    cn: "test",
+                    dicomHostname: "shefki-lifebook",
+                    dicomPort: 8080,
+                    dicomInstalled: true,
+                    dcmNetworkConnection: {
+                        "dcmProtocol": "HTTP"
+                    }
+                })
+            )
+        ).toEqual("http");
+
+        expect(
+            j4care.getHTTPProtocolFromDicomNetworkConnection(
+                new DicomNetworkConnection({
+                    "cn": "hl7",
+                    "dicomHostname": "127.0.0.1",
+                    "dicomPort": 2575,
+                    "dcmNetworkConnection": {
+                        "dcmProtocol": "HL7",
+                        "dcmBindAddress": "0.0.0.0",
+                        "dcmClientBindAddress": "0.0.0.0"
+                    }
+                })
+            )
+        ).toEqual("");
+    });
+
+    it("Should base url from DicomNetworkConnection",()=>{
+        expect(
+            j4care.getBaseUrlFromDicomNetworkConnection(
+                [
+                    new DicomNetworkConnection({
+                        cn: "test1",
+                        dicomHostname: "test1",
+                        dicomPort: 8080,
+                        dicomTLSCipherSuite: [
+                            "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+                        ],
+                        dicomInstalled: true,
+                        dcmNetworkConnection: {
+                            "dcmProtocol": "HTTP"
+                        }
+                    }),
+                    new DicomNetworkConnection({
+                        cn: "test2",
+                        dicomHostname: "test2",
+                        dicomPort: 8080,
+                        dicomInstalled: true,
+                        dcmNetworkConnection: {
+                            "dcmProtocol": "HTTP"
+                        }
+                    })
+                ]
+            )
+        ).toEqual("https://test1:8080");
+
+        expect(
+            j4care.getBaseUrlFromDicomNetworkConnection(
+                [
+                    new DicomNetworkConnection({
+                        cn: "test1",
+                        dicomHostname: "test1",
+                        dicomPort: 8080,
+                        dicomInstalled: true,
+                        dcmNetworkConnection: {
+                            "dcmProtocol": "HTTP"
+                        }
+                    }),
+                    new DicomNetworkConnection({
+                        cn: "test2",
+                        dicomHostname: "test2",
+                        dicomPort: 8080,
+                        dicomInstalled: true,
+                        dcmNetworkConnection: {
+                            "dcmProtocol": "HTTP"
+                        }
+                    })
+                ]
+            )
+        ).toEqual("http://test1:8080");
+
+        expect(
+            j4care.getBaseUrlFromDicomNetworkConnection(
+                []
+            )
+        ).toEqual(window.location.origin);
+    });
+
+    it("Should return whole URL from DcmWebApp",()=>{
+        expect(
+            j4care.getUrlFromDcmWebApplication(
+                new DcmWebApp(
+                    {
+                        dcmWebAppName: "DCM4CHEE",
+                        dicomDescription: "Hide instances rejected for Quality Reasons",
+                        dcmWebServicePath: "/dcm4chee-arc/aets/DCM4CHEE/rs",
+                        dcmWebServiceClass: [
+                            "WADO_RS",
+                            "STOW_RS",
+                            "QIDO_RS",
+                            "DCM4CHEE_ARC_AET"
+                        ],
+                        dicomAETitle: "DCM4CHEE",
+                        dicomNetworkConnectionReference: [
+                            "/dicomNetworkConnection/1"
+                        ]
+                    }
+                )
+            )
+        ).toEqual(`${window.location.origin}/dcm4chee-arc/aets/DCM4CHEE/rs`);
+
+        expect(
+            j4care.getUrlFromDcmWebApplication(
+                new DcmWebApp(
+                    {
+                        dcmWebAppName: "DCM4CHEE",
+                        dicomDescription: "Hide instances rejected for Quality Reasons",
+                        dcmWebServicePath: "/dcm4chee-arc/aets/DCM4CHEE/rs",
+                        dcmWebServiceClass: [
+                            "WADO_RS",
+                            "STOW_RS",
+                            "QIDO_RS",
+                            "DCM4CHEE_ARC_AET"
+                        ],
+                        dicomAETitle: "DCM4CHEE",
+                        dicomNetworkConnectionReference: [
+                            new DicomNetworkConnection({
+                                "cn": "http",
+                                "dicomHostname": "127.0.0.1",
+                                "dicomPort": 2575,
+                                "dcmNetworkConnection": {
+                                    "dcmProtocol": "HTTP",
+                                    "dcmBindAddress": "0.0.0.0",
+                                    "dcmClientBindAddress": "0.0.0.0"
+                                }
+                            })
+                        ]
+                    }
+                )
+            )
+        ).toEqual(`http://127.0.0.1:2575/dcm4chee-arc/aets/DCM4CHEE/rs`);
+
     });
 });
