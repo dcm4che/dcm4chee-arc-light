@@ -107,7 +107,7 @@ enum ObjectType {
         }
     },
     MPEG2Video(
-            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.VIDEO_MPEG_TYPE },
+            new MediaType[] { MediaTypes.VIDEO_MPEG_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
             new MediaType[] { MediaTypes.VIDEO_MPEG_TYPE }) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
@@ -115,7 +115,7 @@ enum ObjectType {
         }
     },
     MPEG4Video(
-            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.VIDEO_MP4_TYPE },
+            new MediaType[] { MediaTypes.VIDEO_MP4_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
             new MediaType[] { MediaTypes.VIDEO_MP4_TYPE }) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
