@@ -60,6 +60,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -128,30 +130,39 @@ public class ExportCSVRS {
             boolean validate = Boolean.parseBoolean(validateUID);
             int count = 0;
             String warning = null;
+            int csvUploadChunkSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getCSVUploadChunkSize();
+            List<String> studyUIDs = new ArrayList<>();
+
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
+                String line = reader.readLine();
+                while (line  != null) {
                     String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
+                    line = reader.readLine();
                     if (count == 0 && studyUID.chars().allMatch(Character::isLetter))
                         continue;
 
                     if (count > 0
                             || !validate
-                            || UIDUtils.isValid(studyUID)) {
+                            || UIDUtils.isValid(studyUID))
+                        studyUIDs.add(studyUID);
+
+                    if (studyUIDs.size() == csvUploadChunkSize || line == null) {
                         exportManager.scheduleExportTask(
-                                studyUID,
                                 null,
                                 null,
                                 exporter,
                                 HttpServletRequestInfo.valueOf(request),
-                                batchID);
-                        count++;
+                                batchID,
+                                studyUIDs.toArray(new String[0]));
+                        count += studyUIDs.size();
+                        studyUIDs.clear();
                     }
                 }
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                     status = Response.Status.NO_CONTENT;
                 }
+
             } catch (QueueSizeLimitExceededException e) {
                 status = Response.Status.SERVICE_UNAVAILABLE;
                 warning = e.getMessage();

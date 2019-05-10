@@ -95,6 +95,11 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
+    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException {
+        ejb.scheduleDiffTasks(ctx, studyUIDs);
+    }
+
+    @Override
     public Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
         ejb.resetDiffTask(diffTask);

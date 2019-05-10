@@ -286,6 +286,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPatientVerificationMaxRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPatientVerificationMaxStaleness",
                 ext.getPatientVerificationMaxStaleness(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCSVUploadChunkSize", ext.getCSVUploadChunkSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingStudyIUIDPolicy",
                 ext.getHl7OrderMissingStudyIUIDPolicy(), HL7OrderMissingStudyIUIDPolicy.GENERATE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
@@ -509,6 +510,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.intValue(attrs.get("dcmPatientVerificationMaxRetries"), 0));
         ext.setPatientVerificationMaxStaleness(
                 toDuration(attrs.get("dcmPatientVerificationMaxStaleness"), null));
+        ext.setCSVUploadChunkSize(LdapUtils.intValue(attrs.get("dcmCSVUploadChunkSize"), 100));
         ext.setHl7OrderMissingStudyIUIDPolicy(
                 LdapUtils.enumValue(HL7OrderMissingStudyIUIDPolicy.class,
                         attrs.get("hl7OrderMissingStudyIUIDPolicy"), HL7OrderMissingStudyIUIDPolicy.GENERATE));
@@ -899,6 +901,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPatientVerificationMaxStaleness(),
                 bb.getPatientVerificationMaxStaleness(),
                 null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCSVUploadChunkSize",
+                aa.getCSVUploadChunkSize(),
+                bb.getCSVUploadChunkSize(),
+                100);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingStudyIUIDPolicy",
                 aa.getHl7OrderMissingStudyIUIDPolicy(), bb.getHl7OrderMissingStudyIUIDPolicy(),
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);

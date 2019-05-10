@@ -70,7 +70,9 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -87,23 +89,33 @@ public class RetrieveManagerEJB {
     @Inject
     private QueueManager queueManager;
 
-    public boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx,
+    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx,
             Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
-        if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter)) {
+        int count = 0;
+        for (String studyUID : ctx.getKeys().getStrings(Tag.StudyInstanceUID))
+            if (scheduleRetrieveTask(priority, ctx, notRetrievedAfter, delay, studyUID))
+                count++;
+
+        return count;
+    }
+
+    private boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay,
+                                         String studyUID) throws QueueSizeLimitExceededException {
+        if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter, studyUID))
             return false;
-        }
+
         try {
             ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
             msg.setStringProperty("LocalAET", ctx.getLocalAET());
             msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
             msg.setIntProperty("Priority", priority);
             msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
-            msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
+            msg.setStringProperty("StudyInstanceUID", studyUID);
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(ctx.getQueueName(), msg,
                     Message.DEFAULT_PRIORITY, ctx.getBatchID(), delay);
-            createRetrieveTask(ctx, queueMessage);
+            persist(createRetrieveTask(ctx, queueMessage), studyUID);
             return true;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
@@ -127,7 +139,8 @@ public class RetrieveManagerEJB {
         }
     }
 
-    private boolean isAlreadyScheduledOrRetrievedAfter(EntityManager em, ExternalRetrieveContext ctx, Date retrievedAfter) {
+    private boolean isAlreadyScheduledOrRetrievedAfter(EntityManager em, ExternalRetrieveContext ctx, Date retrievedAfter,
+                                                       String studyUID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
         Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
@@ -144,7 +157,7 @@ public class RetrieveManagerEJB {
         predicates.add(statusPredicate);
         predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.remoteAET), ctx.getRemoteAET()));
         predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.destinationAET), ctx.getDestinationAET()));
-        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.studyInstanceUID), ctx.getStudyInstanceUID()));
+        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.studyInstanceUID), studyUID));
         if (ctx.getSeriesInstanceUID() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.seriesInstanceUID), ctx.getSeriesInstanceUID()));
         else {
@@ -173,23 +186,32 @@ public class RetrieveManagerEJB {
         return false;
     }
 
-    public void createRetrieveTask(ExternalRetrieveContext ctx) {
-        createRetrieveTask(ctx, null);
+    public int createRetrieveTask(ExternalRetrieveContext ctx) {
+        int count = 0;
+        for (String studyUID : ctx.getKeys().getStrings(Tag.StudyInstanceUID)) {
+            persist(createRetrieveTask(ctx, null), studyUID);
+            count++;
+        }
+        return count;
     }
 
-    private void createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage) {
+    private void persist(RetrieveTask task, String studyUID) {
+        task.setStudyInstanceUID(studyUID);
+        em.persist(task);
+    }
+
+    private RetrieveTask createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage) {
         RetrieveTask task = new RetrieveTask();
         task.setLocalAET(ctx.getLocalAET());
         task.setRemoteAET(ctx.getRemoteAET());
         task.setDestinationAET(ctx.getDestinationAET());
-        task.setStudyInstanceUID(ctx.getStudyInstanceUID());
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
         task.setSOPInstanceUID(ctx.getSOPInstanceUID());
         task.setDeviceName(ctx.getDeviceName());
         task.setQueueName(ctx.getQueueName());
         task.setBatchID(ctx.getBatchID());
         task.setQueueMessage(queueMessage);
-        em.persist(task);
+        return task;
     }
 
     public void updateRetrieveTask(QueueMessage queueMessage, Attributes cmd) {

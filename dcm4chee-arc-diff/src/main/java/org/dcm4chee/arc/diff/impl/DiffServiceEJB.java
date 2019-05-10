@@ -90,29 +90,37 @@ public class DiffServiceEJB {
     private QueueManager queueManager;
 
     public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
+        scheduleDiffTask(ctx, ctx.getQueryString());
+    }
+
+    private void scheduleDiffTask(DiffContext ctx, String queryString) throws QueueSizeLimitExceededException{
         try {
             ObjectMessage msg = queueManager.createObjectMessage(0);
             msg.setStringProperty("LocalAET", ctx.getLocalAE().getAETitle());
             msg.setStringProperty("PrimaryAET", ctx.getPrimaryAE().getAETitle());
             msg.setStringProperty("SecondaryAET", ctx.getSecondaryAE().getAETitle());
             msg.setIntProperty("Priority", ctx.priority());
-            msg.setStringProperty("QueryString", ctx.getQueryString());
+            msg.setStringProperty("QueryString", queryString);
             if (ctx.getHttpServletRequestInfo() != null)
                 ctx.getHttpServletRequestInfo().copyTo(msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(DiffService.QUEUE_NAME, msg,
                     Message.DEFAULT_PRIORITY, ctx.getBatchID(), 0L);
-            createDiffTask(ctx, queueMessage);
+            createDiffTask(ctx, queueMessage, queryString);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
     }
 
-    private void createDiffTask(DiffContext ctx, QueueMessage queueMessage) {
+    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException {
+        studyUIDs.forEach(studyUID -> scheduleDiffTask(ctx, ctx.getQueryString() + studyUID));
+    }
+
+    private void createDiffTask(DiffContext ctx, QueueMessage queueMessage, String queryString) {
         DiffTask task = new DiffTask();
         task.setLocalAET(ctx.getLocalAE().getAETitle());
         task.setPrimaryAET(ctx.getPrimaryAE().getAETitle());
         task.setSecondaryAET(ctx.getSecondaryAE().getAETitle());
-        task.setQueryString(ctx.getQueryString());
+        task.setQueryString(queryString);
         task.setCheckMissing(ctx.isCheckMissing());
         task.setCheckDifferent(ctx.isCheckDifferent());
         task.setCompareFields(ctx.getCompareFields());

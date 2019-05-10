@@ -60,6 +60,7 @@
     "dcmQueueTasksFetchSize",
     "dcmCopyMoveUpdatePolicy",
     "dcmLinkMWLEntryUpdatePolicy",
+    "dcmCSVUploadChunkSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
@@ -1195,6 +1196,13 @@
       "description": "Specifies the device name containing the Archive UI Configuration.",
       "type": "string",
       "format": "dicomDeviceName"
+    },
+    "dcmCSVUploadChunkSize": {
+      "title": "CSV Upload Chunk Size",
+      "description": "Number of CSV file upload tasks to be processed in one transaction.",
+      "type": "integer",
+      "default": 100,
+      "minimum": 1
     },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",

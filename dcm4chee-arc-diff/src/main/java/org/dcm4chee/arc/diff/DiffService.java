@@ -61,6 +61,8 @@ public interface DiffService {
 
     void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException;
 
+    void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException;
+
     Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
 
     DiffTask getDiffTask(long taskPK);

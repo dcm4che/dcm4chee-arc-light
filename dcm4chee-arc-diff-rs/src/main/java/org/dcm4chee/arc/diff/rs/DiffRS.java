@@ -51,6 +51,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
@@ -76,9 +77,12 @@ import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2017
  */
 @RequestScoped
@@ -260,28 +264,37 @@ public class DiffRS {
         boolean validate = Boolean.parseBoolean(validateUID);
         int count = 0;
         String warning = null;
+        int csvUploadChunkSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getCSVUploadChunkSize();
+        List<String> studyUIDs = new ArrayList<>();
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+            String line = reader.readLine();
+            while (line != null) {
                 String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
+                line = reader.readLine();
                 if (count == 0 && studyUID.chars().allMatch(Character::isLetter))
                     continue;
 
                 if (count > 0
                         || !validate
-                        || UIDUtils.isValid(studyUID)) {
+                        || UIDUtils.isValid(studyUID))
+                    studyUIDs.add(studyUID);
+
+                if (studyUIDs.size() == csvUploadChunkSize || line == null) {
                     DiffContext ctx = createDiffContext();
                     ctx.setQueryString(
-                            "StudyInstanceUID=" + studyUID,
+                            "StudyInstanceUID=",
                             uriInfo.getQueryParameters());
-                    diffService.scheduleDiffTask(ctx);
-                    count++;
+                    diffService.scheduleDiffTasks(ctx, studyUIDs);
+                    count += studyUIDs.size();
+                    studyUIDs.clear();
                 }
             }
             if (count == 0) {
                 warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                 status = Response.Status.NO_CONTENT;
             }
+
         } catch (ConfigurationException e) {
             warning = e.getMessage();
             status = Response.Status.NOT_FOUND;

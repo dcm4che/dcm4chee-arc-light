@@ -73,8 +73,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.function.Predicate;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -262,7 +264,7 @@ public class QueryRetrieveRS {
         return processCSV(field, destAET, in, this::scheduleRetrieveTask);
     }
 
-    private Response processCSV(int field, String destAET, InputStream in, Predicate<ExternalRetrieveContext> action) {
+    private Response processCSV(int field, String destAET, InputStream in, Function<ExternalRetrieveContext, Integer> action) {
         try {
             validate(null);
             Response.Status status = Response.Status.BAD_REQUEST;
@@ -275,23 +277,33 @@ public class QueryRetrieveRS {
             priorityAsInt = parseInt(priority, 0);
             int count = 0;
             String warning = null;
+            int csvUploadChunkSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getCSVUploadChunkSize();
+            List<String> studyUIDs = new ArrayList<>();
+
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
+                String line = reader.readLine();
+                while (line != null) {
                     String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
+                    line = reader.readLine();
                     if (count == 0 && studyUID.chars().allMatch(Character::isLetter))
                         continue;
 
                     if (count > 0
                             || !validate
                             || UIDUtils.isValid(studyUID))
-                        if (action.test(createExtRetrieveCtx(destAET, studyUID)))
-                            count++;
+                        studyUIDs.add(studyUID);
+
+                    if (studyUIDs.size() == csvUploadChunkSize || line == null) {
+                        count += action.apply(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
+                        studyUIDs.clear();
+                    }
                 }
+
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                     status = Response.Status.NO_CONTENT;
                 }
+
             } catch (QueueSizeLimitExceededException e) {
                 status = Response.Status.SERVICE_UNAVAILABLE;
                 warning = e.getMessage();
@@ -308,6 +320,7 @@ public class QueryRetrieveRS {
                     .header("Warning", warning);
             if (count > 0)
                 builder.entity(count(count));
+
             return builder.build();
         } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -349,7 +362,7 @@ public class QueryRetrieveRS {
     }
 
     private Response process(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
-            String queryAET, String destAET, Predicate<ExternalRetrieveContext> action) {
+            String queryAET, String destAET, Function<ExternalRetrieveContext, Integer> action) {
         ApplicationEntity localAE = device.getApplicationEntity(aet, true);
         if (localAE == null || !localAE.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -379,10 +392,8 @@ public class QueryRetrieveRS {
                 int status;
                 do {
                     status = dimseRSP.getCommand().getInt(Tag.Status, -1);
-                    if (Status.isPending(status)) {
-                        if (action.test(createExtRetrieveCtx(destAET, dimseRSP)))
-                            count++;
-                    }
+                    if (Status.isPending(status))
+                        count += action.apply(createExtRetrieveCtx(destAET, dimseRSP));
                 } while (dimseRSP.next());
                 warning = warning(status);
             } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
@@ -437,13 +448,12 @@ public class QueryRetrieveRS {
         device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
-    private boolean scheduleRetrieveTask(ExternalRetrieveContext ctx) {
+    private int scheduleRetrieveTask(ExternalRetrieveContext ctx) {
         return retrieveManager.scheduleRetrieveTask(priorityAsInt, ctx, null, 0L);
     }
 
-    private boolean createRetrieveTask(ExternalRetrieveContext ctx) {
-        retrieveManager.createRetrieveTask(ctx);
-        return true;
+    private int createRetrieveTask(ExternalRetrieveContext ctx) {
+        return retrieveManager.createRetrieveTask(ctx);
     }
 
     private void logRequest() {
@@ -461,7 +471,7 @@ public class QueryRetrieveRS {
         return createExtRetrieveCtx(destAET, keys);
     }
 
-    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String studyIUID) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String... studyIUID) {
         Attributes keys = new Attributes(2);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.STUDY.name());
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);

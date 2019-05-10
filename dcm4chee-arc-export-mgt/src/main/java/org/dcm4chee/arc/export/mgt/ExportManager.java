@@ -67,9 +67,9 @@ public interface ExportManager {
 
     int scheduleExportTasks(int fetchSize);
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo, String batchID)
-            throws QueueSizeLimitExceededException;
+    void scheduleExportTask(String seriesUID, String objectUID, ExporterDescriptor exporter,
+                            HttpServletRequestInfo httpServletRequestInfo, String batchID, String... studyUID)
+        throws QueueSizeLimitExceededException;
 
     boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID);
 
