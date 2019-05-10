@@ -78,6 +78,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -244,9 +245,8 @@ public class WadoURI {
             lastModified = service.getLastModifiedFromMatches(ctx);
 
         ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
-        MediaType mimeType = selectMimeType(objectType);
-        if (mimeType == null)
-            throw new WebApplicationException(errResponse("Mime type is null.", Response.Status.NOT_ACCEPTABLE));
+        MediaType mimeType = selectMimeType(objectType).orElseThrow(() ->
+            new WebApplicationException(errResponse("Mime type is null.", Response.Status.NOT_ACCEPTABLE)));
 
         StreamingOutput entity;
         if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
@@ -441,15 +441,15 @@ public class WadoURI {
         }
     }
 
-    private MediaType selectMimeType(ObjectType objectType) {
+    private Optional<MediaType> selectMimeType(ObjectType objectType) {
         if (contentType == null)
-            return objectType.getDefaultMimeType();
+            return Optional.of(objectType.getDefaultMimeType());
 
-        for (MediaType mimeType : new ContentTypes(contentType).values) {
-            if (objectType.isCompatibleMimeType(mimeType))
-                return mimeType;
-        }
-        return null;
+        return Stream.of(new ContentTypes(contentType).values)
+                .map(mediaType -> objectType.getCompatibleMimeType(mediaType))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     private Collection<String> tsuids() {

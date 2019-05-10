@@ -49,6 +49,8 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.ws.rs.core.MediaType;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -188,12 +190,8 @@ enum ObjectType {
         return mimeTypes[0];
     }
 
-    public boolean isCompatibleMimeType(MediaType other) {
-        for (MediaType type : mimeTypes) {
-            if (type.isCompatible(other))
-                return true;
-        }
-        return false;
+    public Optional<MediaType> getCompatibleMimeType(MediaType other) {
+        return Stream.of(mimeTypes).filter(other::isCompatible).findFirst();
     }
 
     public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
