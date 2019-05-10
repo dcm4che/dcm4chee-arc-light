@@ -285,7 +285,7 @@ public class QueryRetrieveRS {
 
                     if (count > 0
                             || !arcDev.isValidateUID()
-                            || UIDUtils.isValid(studyUID))
+                            || validateUID(studyUID))
                         studyUIDs.add(studyUID);
 
                     if (studyUIDs.size() == csvUploadChunkSize || line == null) {
@@ -322,6 +322,13 @@ public class QueryRetrieveRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean validateUID(String studyUID) {
+        boolean valid = UIDUtils.isValid(studyUID);
+        if (!valid)
+            LOG.warn("Invalid UID in CSV file: " + studyUID);
+        return valid;
     }
 
     private Response errResponse(String msg, Response.Status status) {

@@ -137,7 +137,7 @@ public class ExportCSVRS {
 
                     if (count > 0
                             || !arcDev.isValidateUID()
-                            || UIDUtils.isValid(studyUID))
+                            || validateUID(studyUID))
                         studyUIDs.add(studyUID);
 
                     if (studyUIDs.size() == csvUploadChunkSize || line == null) {
@@ -177,6 +177,13 @@ public class ExportCSVRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean validateUID(String studyUID) {
+        boolean valid = UIDUtils.isValid(studyUID);
+        if (!valid)
+            LOG.warn("Invalid UID in CSV file: " + studyUID);
+        return valid;
     }
 
     private void logRequest() {
