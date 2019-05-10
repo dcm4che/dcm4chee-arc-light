@@ -1339,6 +1339,21 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.277 NAME 'dcmSeriesMetadataMaxRetrie
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.278 NAME 'dcmCSVUploadChunkSize'
+  DESC 'Number of CSV file upload tasks to be processed in one transaction; 100 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.279 NAME 'dcmValidateUID'
+  DESC 'Indicates if UIDs shall be validated or not. Enabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.280 NAME 'dcmExportReoccurredInstances'
+  DESC 'Indicates if the entity shall be exported on subsequent occurrence of instances. Enumerated values: NEVER, ALWAYS, REPLACE. If absent, REPLACE will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1508,6 +1523,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmXRoadProperty $
     dcmImpaxReportProperty $
     dcmUIConfigurationDeviceName $
+    dcmCSVUploadChunkSize $
+    dcmValidateUID $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -1707,6 +1724,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.16 NAME 'dcmExportRule'
     dcmEntity $
     dcmExporterID )
   MAY (
+    dcmExportReoccurredInstances $
     dcmExportPreviousEntity $
     dcmProperty $
     dcmSchedule $
