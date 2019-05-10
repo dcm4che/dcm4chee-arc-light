@@ -73,6 +73,9 @@ export class RetrieveMonitoringService {
     statusValues(){
         return [
             {
+                value:"TO SCHEDULE",
+                text:"TO SCHEDULE"
+            },{
                 value:"SCHEDULED",
                 text:"SCHEDULED"
             },
