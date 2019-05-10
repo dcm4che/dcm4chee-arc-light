@@ -70,9 +70,7 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
