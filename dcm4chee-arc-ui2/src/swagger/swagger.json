@@ -6622,13 +6622,6 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
-          },
-          {
-            "name": "validateUID",
-            "in": "query",
-            "description": "Validate Study Instance UIDs in CSV file",
-            "type": "boolean",
-            "default": true
           }
         ],
         "responses": {
@@ -6723,13 +6716,6 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
-          },
-          {
-            "name": "validateUID",
-            "in": "query",
-            "description": "Validate Study Instance UIDs in CSV file",
-            "type": "boolean",
-            "default": true
           }
         ],
         "responses": {
@@ -7856,13 +7842,6 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
-          },
-          {
-            "name": "validateUID",
-            "in": "query",
-            "description": "Validate Study Instance UIDs in CSV file",
-            "type": "boolean",
-            "default": true
           }
         ],
         "responses": {
@@ -9456,13 +9435,6 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
-          },
-          {
-            "name": "validateUID",
-            "in": "query",
-            "description": "Validate Study Instance UIDs in CSV file",
-            "type": "boolean",
-            "default": true
           }
         ],
         "responses": {

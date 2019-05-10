@@ -142,7 +142,6 @@ public class QueryAttributes {
                 case "allOfModalitiesInStudy":
                 case "StudySizeInKB":
                 case "ExpirationState":
-                case "validateUID":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,

@@ -232,6 +232,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String hl7DicomCharacterSet;
     private volatile boolean hl7VeterinaryUsePatientName;
     private volatile int csvUploadChunkSize = 100;
+    private volatile boolean validateUID = true;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2265,6 +2266,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.csvUploadChunkSize = csvUploadChunkSize;
     }
 
+    public boolean isValidateUID() {
+        return validateUID;
+    }
+
+    public void setValidateUID(boolean validateUID) {
+        this.validateUID = validateUID;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2429,6 +2438,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
+        validateUID = arcdev.validateUID;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;

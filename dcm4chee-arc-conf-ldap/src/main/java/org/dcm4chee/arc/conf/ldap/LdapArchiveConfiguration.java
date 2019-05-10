@@ -292,6 +292,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
                 ext.isHl7VeterinaryUsePatientName(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmValidateUID", ext.isValidateUID(), true);
     }
 
     @Override
@@ -516,6 +517,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         attrs.get("hl7OrderMissingStudyIUIDPolicy"), HL7OrderMissingStudyIUIDPolicy.GENERATE));
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
         ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), false));
+        ext.setValidateUID(LdapUtils.booleanValue(attrs.get("dcmValidateUID"), true));
     }
 
     @Override
@@ -914,6 +916,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isHl7VeterinaryUsePatientName(),
                 bb.isHl7VeterinaryUsePatientName(),
                 false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmValidateUID",
+                aa.isValidateUID(),
+                bb.isValidateUID(),
+                true);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

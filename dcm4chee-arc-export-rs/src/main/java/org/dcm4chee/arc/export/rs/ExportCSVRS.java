@@ -93,11 +93,6 @@ public class ExportCSVRS {
     @QueryParam("batchID")
     private String batchID;
 
-    @QueryParam("validateUID")
-    @Pattern(regexp = "true|false")
-    @DefaultValue("true")
-    private String validateUID;
-
     @HeaderParam("Content-Type")
     private MediaType contentType;
 
@@ -127,10 +122,9 @@ public class ExportCSVRS {
             if ("semicolon".equals(contentType.getParameters().get("delimiter")))
                 csvDelimiter = ';';
 
-            boolean validate = Boolean.parseBoolean(validateUID);
             int count = 0;
             String warning = null;
-            int csvUploadChunkSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getCSVUploadChunkSize();
+            int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
             List<String> studyUIDs = new ArrayList<>();
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
@@ -142,7 +136,7 @@ public class ExportCSVRS {
                         continue;
 
                     if (count > 0
-                            || !validate
+                            || !arcDev.isValidateUID()
                             || UIDUtils.isValid(studyUID))
                         studyUIDs.add(studyUID);
 

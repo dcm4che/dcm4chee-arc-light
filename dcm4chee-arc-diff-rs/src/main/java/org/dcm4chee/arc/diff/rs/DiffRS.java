@@ -152,11 +152,6 @@ public class DiffRS {
     @ValidValueOf(type = Duration.class)
     private String splitStudyDateRange;
 
-    @QueryParam("validateUID")
-    @Pattern(regexp = "true|false")
-    @DefaultValue("true")
-    private String validateUID;
-
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -261,10 +256,10 @@ public class DiffRS {
         if ("semicolon".equals(contentType.getParameters().get("delimiter")))
             csvDelimiter = ';';
 
-        boolean validate = Boolean.parseBoolean(validateUID);
         int count = 0;
         String warning = null;
-        int csvUploadChunkSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getCSVUploadChunkSize();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
         List<String> studyUIDs = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
@@ -276,7 +271,7 @@ public class DiffRS {
                     continue;
 
                 if (count > 0
-                        || !validate
+                        || !arcDev.isValidateUID()
                         || UIDUtils.isValid(studyUID))
                     studyUIDs.add(studyUID);
 

@@ -61,6 +61,7 @@
     "dcmCopyMoveUpdatePolicy",
     "dcmLinkMWLEntryUpdatePolicy",
     "dcmCSVUploadChunkSize",
+    "dcmValidateUID",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
@@ -1203,6 +1204,12 @@
       "type": "integer",
       "default": 100,
       "minimum": 1
+    },
+    "dcmValidateUID": {
+      "title": "Validate UID",
+      "description": "Indicates if UIDs shall be validated or not.",
+      "type": "boolean",
+      "default": true
     },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",

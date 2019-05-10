@@ -144,11 +144,6 @@ public class QueryRetrieveRS {
     @ValidValueOf(type = Duration.class)
     private String splitStudyDateRange;
 
-    @QueryParam("validateUID")
-    @Pattern(regexp = "true|false")
-    @DefaultValue("true")
-    private String validateUID;
-
     @Inject
     private CFindSCU findSCU;
 
@@ -273,11 +268,11 @@ public class QueryRetrieveRS {
                         "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
             char csvDelimiter = csvDelimiter();
-            boolean validate = Boolean.parseBoolean(validateUID);
             priorityAsInt = parseInt(priority, 0);
             int count = 0;
             String warning = null;
-            int csvUploadChunkSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getCSVUploadChunkSize();
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
             List<String> studyUIDs = new ArrayList<>();
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
@@ -289,7 +284,7 @@ public class QueryRetrieveRS {
                         continue;
 
                     if (count > 0
-                            || !validate
+                            || !arcDev.isValidateUID()
                             || UIDUtils.isValid(studyUID))
                         studyUIDs.add(studyUID);
 
