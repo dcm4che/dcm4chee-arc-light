@@ -2961,13 +2961,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if (inst.gspsQueryParams.length){
                     url =  this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
                 }
-                if (inst.numberOfFrames || inst.image){
+                if (inst.video){
+                    contentType = 'video/*';
+                    url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'video/*' });
+                }
+                if (inst.numberOfFrames || (inst.image && !inst.video)){
                     contentType = 'image/jpeg';
                     url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg'});
-                }
-                if (inst.video){
-                    contentType = 'video/mpeg';
-                    url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
                 }
             }else{
                 url = this.wadoURL(inst.wadoQueryParams);
