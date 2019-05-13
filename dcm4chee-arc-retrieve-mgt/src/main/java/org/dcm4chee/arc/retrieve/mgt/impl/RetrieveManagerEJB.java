@@ -91,20 +91,25 @@ public class RetrieveManagerEJB {
             Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
         int count = 0;
-        for (String studyUID : ctx.getKeys().getStrings(Tag.StudyInstanceUID))
-            if (scheduleRetrieveTask(priority, ctx, notRetrievedAfter, delay, studyUID))
+        Attributes keys = ctx.getKeys();
+        String[] studyUIDs = keys.getStrings(Tag.StudyInstanceUID);
+        for (String studyUID : studyUIDs) {
+            keys.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+            if (scheduleRetrieveTask(priority, ctx, notRetrievedAfter, delay, keys))
                 count++;
+        }
 
         return count;
     }
 
     private boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay,
-                                         String studyUID) throws QueueSizeLimitExceededException {
+                                         Attributes keys) throws QueueSizeLimitExceededException {
+        String studyUID = keys.getString(Tag.StudyInstanceUID);
         if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter, studyUID))
             return false;
 
         try {
-            ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
+            ObjectMessage msg = queueManager.createObjectMessage(keys);
             msg.setStringProperty("LocalAET", ctx.getLocalAET());
             msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
             msg.setIntProperty("Priority", priority);
