@@ -265,6 +265,11 @@ public class DiffRS {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line = reader.readLine();
             while (line != null) {
+                if (line.chars().allMatch(Character::isWhitespace)) {
+                    line = reader.readLine();
+                    continue;
+                }
+
                 String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
                 line = reader.readLine();
                 if (count == 0 && studyUID.chars().allMatch(Character::isLetter))
