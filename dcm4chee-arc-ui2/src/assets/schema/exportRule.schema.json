@@ -6,7 +6,8 @@
     "cn",
     "dcmEntity",
     "dcmExporterID",
-    "dcmExportPreviousEntity"
+    "dcmExportPreviousEntity",
+    "dcmExportReoccurredInstances"
   ],
   "properties": {
     "cn": {
@@ -59,6 +60,17 @@
       "description": "Delay export of entities to accumulate multiple trigger events to one export task.",
       "type": "string",
       "format": "dcmDuration"
+    },
+    "dcmExportReoccurredInstances": {
+      "title": "Export Reoccurred Instances",
+      "description": "Indicates if the entity shall be exported on subsequent occurrence of instances",
+      "type": "string",
+      "default": "REPLACE",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "REPLACE"
+      ]
     }
   }
 }

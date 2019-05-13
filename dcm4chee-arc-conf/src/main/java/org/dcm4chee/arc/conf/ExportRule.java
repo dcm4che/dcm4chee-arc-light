@@ -66,6 +66,8 @@ public class ExportRule {
 
     private boolean exportPreviousEntity;
 
+    private ExportReoccurredInstances exportReoccurredInstances = ExportReoccurredInstances.REPLACE;
+
     public ExportRule() {
     }
 
@@ -142,6 +144,14 @@ public class ExportRule {
         this.exportPreviousEntity = exportPreviousEntity;
     }
 
+    public ExportReoccurredInstances getExportReoccurredInstances() {
+        return exportReoccurredInstances;
+    }
+
+    public void setExportReoccurredInstances(ExportReoccurredInstances exportReoccurredInstances) {
+        this.exportReoccurredInstances = exportReoccurredInstances;
+    }
+
     @Override
     public String toString() {
         return "ExportRule{" +
@@ -151,6 +161,8 @@ public class ExportRule {
                 ", exporterIDs=" + Arrays.toString(exporterIDs) +
                 ", entity=" + entity +
                 ", exporterDelay=" + exportDelay +
+                ", exportPreviousEntity=" + exportPreviousEntity +
+                ", exportReoccurredInstances=" + exportReoccurredInstances +
                 '}';
     }
 }

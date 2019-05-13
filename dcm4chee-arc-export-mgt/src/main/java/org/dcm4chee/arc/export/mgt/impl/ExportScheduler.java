@@ -57,7 +57,7 @@ public class ExportScheduler extends Scheduler {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getLocations().isEmpty() || ctx.getException() != null)
+        if (ctx.getException() != null)
             return;
 
         StoreSession session = ctx.getStoreSession();
@@ -71,12 +71,22 @@ public class ExportScheduler extends Scheduler {
                 : arcAE.findExportRules(hostname, sendingAET, receivingAET, ctx.getAttributes(), now).entrySet()) {
             String exporterID = entry.getKey();
             ExportRule rule = entry.getValue();
+
             ExporterDescriptor desc = arcDev.getExporterDescriptor(exporterID);
             if (desc == null) {
                 LOG.warn("{}: No Exporter configured with ID:{} - cannot schedule Export Task triggered by {}",
                         session, exporterID, rule);
                 continue;
             }
+
+            ExportReoccurredInstances exportReoccurredInstances = rule.getExportReoccurredInstances();
+            if ((exportReoccurredInstances != ExportReoccurredInstances.ALWAYS && ctx.getLocations().isEmpty())
+                    || (exportReoccurredInstances == ExportReoccurredInstances.NEVER && ctx.getPreviousInstance() != null)) {
+                LOG.warn("Export Reoccurred Instances not allowed. [LocationsSize={}, PreviousInstance={}] - cannot schedule Export Task triggered by {}",
+                        ctx.getLocations().size(), ctx.getPreviousInstance(), rule);
+                continue;
+            }
+
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
             switch (rule.getEntity()) {
                 case Study:
