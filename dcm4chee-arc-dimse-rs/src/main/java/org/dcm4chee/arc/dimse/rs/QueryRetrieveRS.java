@@ -295,7 +295,7 @@ public class QueryRetrieveRS {
                 }
 
                 if (count == 0) {
-                    warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
+                    warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed.";
                     status = Response.Status.NO_CONTENT;
                 }
 
