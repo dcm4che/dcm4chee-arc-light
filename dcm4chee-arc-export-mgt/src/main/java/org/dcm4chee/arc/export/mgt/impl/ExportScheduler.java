@@ -82,8 +82,8 @@ public class ExportScheduler extends Scheduler {
             ExportReoccurredInstances exportReoccurredInstances = rule.getExportReoccurredInstances();
             if ((exportReoccurredInstances != ExportReoccurredInstances.ALWAYS && ctx.getLocations().isEmpty())
                     || (exportReoccurredInstances == ExportReoccurredInstances.NEVER && ctx.getPreviousInstance() != null)) {
-                LOG.warn("Export Reoccurred Instances not allowed. [LocationsSize={}, PreviousInstance={}] - cannot schedule Export Task triggered by {}",
-                        ctx.getLocations().size(), ctx.getPreviousInstance(), rule);
+                LOG.warn("Cannot schedule Export Task triggered by {} for Export of Reoccurred Instances [LocationsSize={}, PreviousInstance={}]",
+                        rule, ctx.getLocations().size(), ctx.getPreviousInstance());
                 continue;
             }
 
