@@ -90,7 +90,7 @@ public class KeycloakRS {
                 JsonWriter writer = new JsonWriter(gen);
                 gen.writeStartObject();
                 writer.writeNotNullOrDef("token", accessToken.getToken(), null);
-                writer.write("expiration", (int) accessToken.getExpiration());
+                writer.writeNotDef("expiration", (int) accessToken.getExpiration(), 0);
                 gen.writeEnd();
                 gen.flush();
             };
