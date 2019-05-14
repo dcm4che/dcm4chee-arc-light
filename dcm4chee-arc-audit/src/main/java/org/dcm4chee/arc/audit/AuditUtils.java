@@ -358,6 +358,9 @@ class AuditUtils {
             case "A778":
                 errorEventTypeCode = AuditMessages.EventTypeCode.A778;
                 break;
+            case "A779":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A779;
+                break;
             case "A900":
                 errorEventTypeCode = AuditMessages.EventTypeCode.A900;
                 break;

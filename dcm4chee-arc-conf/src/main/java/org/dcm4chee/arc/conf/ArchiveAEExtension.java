@@ -126,6 +126,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Period storageVerificationInitialDelay;
     private Boolean updateLocationStatusOnRetrieve;
     private Boolean storageVerificationOnRetrieve;
+    private int[] rejectConflictingPatientAttribute = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1192,6 +1193,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStorageVerificationOnRetrieve();
     }
 
+    public int[] getRejectConflictingPatientAttribute() {
+        return rejectConflictingPatientAttribute;
+    }
+
+    public void setRejectConflictingPatientAttribute(int[] rejectConflictingPatientAttribute) {
+        Arrays.sort(this.rejectConflictingPatientAttribute = rejectConflictingPatientAttribute);
+    }
+
+    public int[] rejectConflictingPatientAttribute() {
+        return rejectConflictingPatientAttribute.length > 0
+                ? rejectConflictingPatientAttribute
+                : getArchiveDeviceExtension().getRejectConflictingPatientAttribute();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1259,6 +1274,7 @@ public class ArchiveAEExtension extends AEExtension {
         storageVerificationInitialDelay = aeExt.storageVerificationInitialDelay;
         updateLocationStatusOnRetrieve = aeExt.updateLocationStatusOnRetrieve;
         storageVerificationOnRetrieve = aeExt.storageVerificationOnRetrieve;
+        rejectConflictingPatientAttribute = aeExt.rejectConflictingPatientAttribute;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

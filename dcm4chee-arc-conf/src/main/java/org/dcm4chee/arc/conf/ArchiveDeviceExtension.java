@@ -233,6 +233,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7VeterinaryUsePatientName;
     private volatile int csvUploadChunkSize = 100;
     private volatile boolean validateUID = true;
+    private volatile int[] rejectConflictingPatientAttribute = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2274,6 +2275,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.validateUID = validateUID;
     }
 
+    public int[] getRejectConflictingPatientAttribute() {
+        return rejectConflictingPatientAttribute;
+    }
+
+    public void setRejectConflictingPatientAttribute(int[] rejectConflictingPatientAttribute) {
+        Arrays.sort(this.rejectConflictingPatientAttribute = rejectConflictingPatientAttribute);
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2442,6 +2451,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;
+        rejectConflictingPatientAttribute = arcdev.rejectConflictingPatientAttribute;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

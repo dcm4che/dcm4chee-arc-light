@@ -288,6 +288,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("hl7VeterinaryUsePatientName", arcDev.isHl7VeterinaryUsePatientName(), false);
         writer.writeNotDef("dcmCSVUploadChunkSize", arcDev.getCSVUploadChunkSize(), 100);
         writer.writeNotDef("dcmValidateUID", arcDev.isValidateUID(), true);
+        writer.writeNotEmpty("dcmRejectConflictingPatientAttribute", TagUtils.toHexStrings(arcDev.getRejectConflictingPatientAttribute()));
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -836,6 +837,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getUpdateLocationStatusOnRetrieve());
         writer.writeNotNull("dcmStorageVerificationOnRetrieve",
                 arcAE.getStorageVerificationOnRetrieve());
+        writer.writeNotEmpty("dcmRejectConflictingPatientAttribute", TagUtils.toHexStrings(arcAE.getRejectConflictingPatientAttribute()));
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1361,6 +1363,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7VeterinaryUsePatientName":
                     arcDev.setHl7VeterinaryUsePatientName(reader.booleanValue());
+                    break;
+                case "dcmRejectConflictingPatientAttribute":
+                    arcDev.setRejectConflictingPatientAttribute(TagUtils.fromHexStrings(reader.stringArray()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -2666,6 +2671,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmInvokeImageDisplayStudyURL":
                     arcAE.setInvokeImageDisplayStudyURL(reader.stringValue());
+                    break;
+                case "dcmRejectConflictingPatientAttribute":
+                    arcAE.setRejectConflictingPatientAttribute(TagUtils.fromHexStrings(reader.stringArray()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

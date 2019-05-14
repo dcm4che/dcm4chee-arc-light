@@ -1211,6 +1211,13 @@
       "type": "boolean",
       "default": true
     },
+    "dcmRejectConflictingPatientAttribute": {
+      "title": "Reject Conflicting Patient Attribute",
+      "description": "DICOM Tag of Patient Attribute which have to match in received objects with the value in previous received objects with equal Patient ID to be accepted.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",

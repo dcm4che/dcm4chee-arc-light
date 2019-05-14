@@ -293,6 +293,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
                 ext.isHl7VeterinaryUsePatientName(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmValidateUID", ext.isValidateUID(), true);
+        storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
 
     @Override
@@ -518,6 +519,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
         ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), false));
         ext.setValidateUID(LdapUtils.booleanValue(attrs.get("dcmValidateUID"), true));
+        ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
     }
 
     @Override
@@ -920,6 +922,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isValidateUID(),
                 bb.isValidateUID(),
                 true);
+        storeDiffTags(mods, "dcmRejectConflictingPatientAttribute",
+                aa.getRejectConflictingPatientAttribute(),
+                bb.getRejectConflictingPatientAttribute());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1121,6 +1126,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL",
                 ext.getInvokeImageDisplayStudyURL(), null);
+        storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
 
     @Override
@@ -1210,6 +1216,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmStorageVerificationOnRetrieve"), null));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
+        ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
     }
 
     @Override
@@ -1376,6 +1383,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayStudyURL",
                 aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);
+        storeDiffTags(mods, "dcmRejectConflictingPatientAttribute",
+                aa.getRejectConflictingPatientAttribute(),
+                bb.getRejectConflictingPatientAttribute());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

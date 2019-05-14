@@ -474,6 +474,13 @@
       "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded. Overwrites value specified on Device level.",
       "type": "boolean"
     },
+    "dcmRejectConflictingPatientAttribute": {
+      "title": "Reject Conflicting Patient Attribute",
+      "description": "DICOM Tag of Patient Attribute which have to match in received objects with the value in previous received objects with equal Patient ID to be accepted.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rules applied to DICOM objects received by this AE. Supplements Export Rules specified on Device level.",
