@@ -11,6 +11,7 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {ActivatedRoute} from "@angular/router";
 import {j4care} from "../../helpers/j4care.service";
 import {ReplaySubject} from "rxjs/ReplaySubject";
+import {DevicesService} from "../../configuration/devices/devices.service";
 
 
 @Component({
@@ -79,7 +80,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler,
         private route: ActivatedRoute,
-        private j4care:j4care
+        private deviceService:DevicesService
     ) {};
     ngOnInit(){
         this.initCheck(10);
@@ -160,7 +161,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     content: text
                 }).subscribe((ok)=>{
                     if(ok){
-                        this.j4care.selectDevice((res)=>{
+                        this.deviceService.selectDevice((res)=>{
                             if(res){
                                 this.cfpLoadingBar.start();
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
@@ -215,7 +216,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         }
     }
     test(){
-        this.j4care.selectDevice((res)=>{
+        this.deviceService.selectDevice((res)=>{
             console.log("j4carehelper select deviceres",res);
             if(res){
 
@@ -394,7 +395,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     };
     reschedule(match) {
         let $this = this;
-        this.j4care.selectDevice((res)=>{
+        this.deviceService.selectDevice((res)=>{
                 if(res){
                     $this.cfpLoadingBar.start();
                     let filter = {};

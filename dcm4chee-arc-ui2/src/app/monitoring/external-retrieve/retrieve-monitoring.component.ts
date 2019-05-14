@@ -24,6 +24,7 @@ import {AppComponent} from "../../app.component";
 import {DropdownList} from "../../helpers/form/dropdown-list";
 import {SelectDropdown} from "../../interfaces";
 import {RetrieveMonitoringService} from "./retrieve-monitoring.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 
 @Component({
   selector: 'retrieve-monitoring',
@@ -86,7 +87,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
       private permissionService:PermissionService,
-      private j4care:j4care
+      private deviceService:DevicesService
     ) { }
 
     ngOnInit(){
@@ -421,7 +422,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
 
                     break;
                 case "reschedule":
-                    this.j4care.selectDevice((res)=>{
+                    this.deviceService.selectDevice((res)=>{
                             if(res){
                                 let filter = Object.assign({},this.filterObject);
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
@@ -564,7 +565,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         };
         this.confirm(parameters).subscribe(result => {
             if (result){
-                this.j4care.selectDevice((res)=>{
+                this.deviceService.selectDevice((res)=>{
                         if(res){
                             let filter = {};
                             if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){

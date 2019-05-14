@@ -7,7 +7,9 @@ import * as _ from 'lodash';
 import {WindowRefService} from "./window-ref.service";
 import {HttpErrorHandler} from "./http-error-handler";
 import {DcmWebApp} from "../models/dcm-web-app";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {DcmWebAppRequestParam, HttpMethod} from "../interfaces";
+import {j4care} from "./j4care.service";
 
 @Injectable()
 export class J4careHttpService{
@@ -18,29 +20,81 @@ export class J4careHttpService{
         public httpErrorHandler:HttpErrorHandler,
     ){}
     header;
-    token;
-    get(url,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
-       return this.request.apply(this,['get', [doNotEncode ? url : encodeURI(url), header]]);
+    token = {};
+    get(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
+        if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
+            return this.dcmWebAppRequest.apply(this,['get', {doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+        }else{
+            if(dcmWebApp){
+                url = this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
+            }
+            return this.request.apply(this,['get', {url:(doNotEncode ? url : encodeURI(url)), header:header}]);
+        }
     }
-    head(url,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
-        return this.request.apply(this,['head', [doNotEncode ? url : encodeURI(url), header]]);
+    head(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
+        if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
+            return this.dcmWebAppRequest.apply(this,['get', {doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+        }else{
+            if(dcmWebApp){
+                url = this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
+            }
+            return this.request.apply(this,['head', {url:(doNotEncode ? url : encodeURI(url)), header:header}]);
+        }
     }
-    post(url,data,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
-        return this.request.apply(this,['post', [doNotEncode ? url : encodeURI(url), data, header]]);
+    post(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
+        if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
+            return this.dcmWebAppRequest.apply(this,['get', {doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+        }else{
+            if(dcmWebApp){
+                url = this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
+            }
+            return this.request.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), data:data, header:header}]);
+        }
     }
-    put(url,data,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
-        return this.request.apply(this,['put', [doNotEncode ? url : encodeURI(url), data, header]]);
+    put(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
+        if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
+            return this.dcmWebAppRequest.apply(this,['get', {doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params, data:data}]);
+        }else{
+            if(dcmWebApp){
+                url = this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
+            }
+            return this.request.apply(this,['put', {url:(doNotEncode ? url : encodeURI(url)), data:data, header:header}]);
+        }
     }
-    delete(url,header?, doNotEncode?, dcmWebApp?:DcmWebApp){
-        return this.request.apply(this,['delete', [doNotEncode ? url : encodeURI(url), header]]);
+    delete(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
+        if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
+            return this.dcmWebAppRequest.apply(this,['get', {doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+        }else{
+            if(dcmWebApp){
+                url = this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
+            }
+            return this.request.apply(this,['delete', {url:(doNotEncode ? url : encodeURI(url)), header:header}]);
+        }
     }
-    private request(requestFunctionName, param){
+    private getUrlFromDcmWebAppAndParams(dcmWebApp:DcmWebApp, params:any){
+        let url = j4care.getUrlFromDcmWebApplication(dcmWebApp);
+        if(params)
+            return `${url}?${j4care.objToUrlParams(params)}`;
+        return url;
+    }
+    private dcmWebAppRequest(requestFunctionName:HttpMethod, param:DcmWebAppRequestParam){
+        console.log("requestFunction",requestFunctionName);
+        console.log("param",param);
+        let url = j4care.getUrlFromDcmWebApplication(param.dcmWebApp);
+        //TODO
+        // this.request(requestFunctionName,param, param.dcmWebApp);
+        this.getRealm(param.dcmWebApp).subscribe(res=>{
+            console.log("res",res);
+        })
+    }
+    private request(requestFunctionName, param, dcmWebApp?:DcmWebApp){
         let $this = this;
-        let headerIndex = (param.length === 3) ? 2:1;
-        $this.setHeader(param[headerIndex]);
+        $this.setHeader(param.header, dcmWebApp);
+
+        // let headerIndex = (param.length === 3) ? 2:1;
         return $this.refreshToken().flatMap((response)=>{
-                this.setGlobalToken(response,param,headerIndex);
-                return $this.$http[requestFunctionName].apply($this.$http , param);
+                this.setGlobalToken(response,param);
+                return $this.$http[requestFunctionName].apply($this.$http , this.getParamAsArray(param));
             }).catch(res=>{
                 if(res.ok === false && res.status === 0 && res.type === 3){
                     if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
@@ -48,12 +102,26 @@ export class J4careHttpService{
                 }
                 if(res.statusText === "Unauthorized"){
                     return $this.getRealm().flatMap((resp)=>{
-                        this.setGlobalToken(resp,param,headerIndex);
-                        return $this.$http[requestFunctionName].apply($this.$http , param);
+                        this.setGlobalToken(resp,param);
+                        return $this.$http[requestFunctionName].apply($this.$http , this.getParamAsArray(param));
                     });
                 }
                 return Observable.throw(res);
         });
+    }
+    getParamAsArray(param:any){
+        let httpParam = [];
+        [
+            "url",
+            "data",
+            "header",
+            "params"
+        ].forEach(key=>{
+            if(_.hasIn(param,key)){
+                httpParam.push(param[key]);
+            }
+        });
+        return httpParam;
     }
     resetAuthenticationInfo(response){
         let browserTime = Math.floor(Date.now() / 1000);
@@ -63,27 +131,30 @@ export class J4careHttpService{
         }
         this.setValueInGlobal('authentication',response);
     }
-    setGlobalToken(response, param, headerIndex){
+    setGlobalToken(response, param){
         if(response && response.length != 0){
             if(response['token'] === null){
                 this.setValueInGlobal('notSecure',true);
-
             }else{
                 this.setValueInGlobal('notSecure',false);
                 this.resetAuthenticationInfo(response);
-                this.token = response['token'];
+                this.token["UI"] = response['token'];
                 // this.setHeader(param[headerIndex]);
                 this.mainservice.global.getRealmStateActive = true;
             }
         }
         if(!this.mainservice.global.notSecure){
-            this.setHeader(param[headerIndex]);
-            param[headerIndex] = {"headers":this.header};
+            this.setHeader(param.header);
+            param.header = {"headers":this.header};
         }
         this.setValueInGlobal('getRealmStateActive',false);
     }
-    getRealm(){
-        return this.$http.get('rs/realm').map(res => {
+    getRealm(dcmWebApp?:DcmWebApp){
+        let service = this.$http.get('rs/realm');
+        if(dcmWebApp){
+            service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
+        }
+        return service.map(res => {
             let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
                     if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
@@ -95,20 +166,24 @@ export class J4careHttpService{
             } return resjson;
         })
     }
-    refreshToken():Observable<any>{
-        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
-            this.setValueInGlobal('getRealmStateActive',true);
-            return this.getRealm();
+    refreshToken(dcmWebApp?:DcmWebApp):Observable<any>{
+        if(dcmWebApp){
+
         }else{
-            if(!this.mainservice.global.notSecure){
-                if(_.hasIn(this.mainservice, "global.authentication.token")){
-                    this.token = this.mainservice.global.authentication.token;
-                }else{
-                    this.setValueInGlobal('getRealmStateActive',true);
-                    return this.getRealm();
+            if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
+                this.setValueInGlobal('getRealmStateActive',true);
+                return this.getRealm();
+            }else{
+                if(!this.mainservice.global.notSecure){
+                    if(_.hasIn(this.mainservice, "global.authentication.token")){
+                        this.token["UI"] = this.mainservice.global.authentication.token;
+                    }else{
+                        this.setValueInGlobal('getRealmStateActive',true);
+                        return this.getRealm();
+                    }
                 }
+                return Observable.of([]);
             }
-            return Observable.of([]);
         }
     }
     tokenValid(){
@@ -133,22 +208,28 @@ export class J4careHttpService{
             }
         }
     }
-    setHeader(header){
+    setHeader(header, dcmWebApp?:DcmWebApp){
+        let token;
+        if(dcmWebApp && dcmWebApp.dcmKeycloakClientID){
+            token = this.token[dcmWebApp.dcmWebAppName];
+        }else{
+            token = this.token["UI"];
+        }
         if(header){
-            if(this.token){
+            if(token){
                 console.log("header",header);
                 if(_.hasIn(header,"headers")){
-                    header.headers.set('Authorization', `Bearer ${this.token}`);
+                    header.headers.set('Authorization', `Bearer ${token}`);
                     this.header = header.headers;
                 }else{
-                    header.set('Authorization', `Bearer ${this.token}`);
+                    header.set('Authorization', `Bearer ${token}`);
                     this.header = header;
                 }
             }
         }else{
             this.header = new Headers();
-            if(this.token){
-                this.header.append('Authorization', `Bearer ${this.token}`);
+            if(token){
+                this.header.append('Authorization', `Bearer ${token}`);
             }
         }
     }

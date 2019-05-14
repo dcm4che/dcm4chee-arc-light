@@ -14,6 +14,7 @@ import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component"
 import {MatDialogConfig, MatDialog, MatDialogRef} from "@angular/material";
 import {Globalvar} from "../../constants/globalvar";
 import {PermissionService} from "../../helpers/permissions/permission.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 
 @Component({
     selector: 'diff-monitor',
@@ -71,7 +72,7 @@ export class DiffMonitorComponent implements OnInit {
         public dialog: MatDialog,
         public dialogConfig: MatDialogConfig,
         private permissionService:PermissionService,
-        private j4care:j4care
+        private deviceService:DevicesService
     ){}
 
     ngOnInit(){
@@ -179,7 +180,7 @@ export class DiffMonitorComponent implements OnInit {
                         break;
                     case "reschedule":
                         this.cfpLoadingBar.complete();
-                        this.j4care.selectDevice((res)=>{
+                        this.deviceService.selectDevice((res)=>{
                                 if(res){
                                     this.cfpLoadingBar.start();
                                     let filter = Object.assign({},this.filterObject);
@@ -322,7 +323,7 @@ export class DiffMonitorComponent implements OnInit {
                 if (ok){
                     switch (mode) {
                         case 'reschedule':
-                            this.j4care.selectDevice((res)=>{
+                            this.deviceService.selectDevice((res)=>{
                                     if(res){
                                         this.cfpLoadingBar.start();
                                         let filter = {};

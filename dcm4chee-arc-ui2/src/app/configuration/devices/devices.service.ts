@@ -4,12 +4,19 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {Headers, Http} from "@angular/http";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
+import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
+import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 
 @Injectable()
 export class DevicesService {
     headers = new Headers({ 'Content-Type': 'application/json' });
+    dialogRef: MatDialogRef<any>;
 
-    constructor(private $http:J4careHttpService) { }
+    constructor(
+        private $http:J4careHttpService,
+        public dialog: MatDialog,
+        public config: MatDialogConfig
+    ) { }
 
     removeEmptyFieldsFromExporter(exporter){
         _.forEach(exporter,(m,i)=>{
@@ -75,4 +82,63 @@ export class DevicesService {
             return newTitle;
         }
     }
+
+    selectDevice(callBack, devices? ){
+        let setParams = function(tempDevices){
+            return {
+                content: 'Select device if you wan\'t to reschedule to an other device',
+                doNotSave:true,
+                form_schema:[
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:"Device"
+                            },
+                            {
+                                tag:"select",
+                                options:tempDevices,
+                                showStar:true,
+                                filterKey:"newDeviceName",
+                                description:"Device",
+                                placeholder:"Device"
+                            }
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {
+                        newDeviceName:''
+                    }
+                },
+                saveButton: 'SUBMIT'
+            }
+        };
+
+        if(devices){
+            this.openDialog(setParams(devices)).subscribe(callBack);
+        }else{
+            this.getDevices().subscribe((devices)=>{
+                devices = devices.map(device=>{
+                    return {
+                        text:device.dicomDeviceName,
+                        value:device.dicomDeviceName
+                    }
+                });
+                this.openDialog(setParams(devices)).subscribe(callBack);
+            },(err)=>{
+
+            });
+        }
+
+    }
+
+    openDialog(parameters, width?, height?){
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: height || 'auto',
+            width: width || '500px'
+        });
+        this.dialogRef.componentInstance.parameters = parameters;
+        return this.dialogRef.afterClosed();
+    };
 }

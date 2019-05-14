@@ -11,6 +11,7 @@ export class DcmWebApp{
     private _dicomAETitle:string;
     private _dicomApplicationCluster:any[]
     private _dicomInstalled:boolean;
+    private _dcmKeycloakClientID:string;
 
     constructor(
         webApp:{
@@ -22,6 +23,7 @@ export class DcmWebApp{
             dicomAETitle?:string;
             dicomApplicationCluster?:any[];
             dicomInstalled?:boolean;
+            dcmKeycloakClientID?:string;
         } = {}
     ){
         this._dcmWebAppName = webApp.dcmWebAppName;
@@ -32,6 +34,7 @@ export class DcmWebApp{
         this._dicomAETitle = webApp.dicomAETitle;
         this._dicomApplicationCluster = webApp.dicomApplicationCluster;
         this._dicomInstalled = webApp.dicomInstalled;
+        this._dcmKeycloakClientID = webApp.dcmKeycloakClientID;
     }
 
     get dcmWebAppName(): string {
@@ -96,5 +99,13 @@ export class DcmWebApp{
 
     set dicomInstalled(value: boolean) {
         this._dicomInstalled = value;
+    }
+
+    get dcmKeycloakClientID(): string {
+        return this._dcmKeycloakClientID;
+    }
+
+    set dcmKeycloakClientID(value: string) {
+        this._dcmKeycloakClientID = value;
     }
 }

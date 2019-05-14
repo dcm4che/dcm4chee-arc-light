@@ -472,4 +472,8 @@ export class StudyComponent implements OnInit {
         })
     }
 
+    testRequest(){
+        this.service.test(this.deviceWebservice.selectedWebApp);
+    }
+
 }

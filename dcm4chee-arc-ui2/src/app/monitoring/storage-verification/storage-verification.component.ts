@@ -13,6 +13,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {PermissionService} from "../../helpers/permissions/permission.service";
+import {DevicesService} from "../../configuration/devices/devices.service";
 
 @Component({
   selector: 'app-storage-verification',
@@ -73,7 +74,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
       private permissionService:PermissionService,
-      private j4care:j4care
+      private deviceService:DevicesService
   ) { }
 
     ngOnInit(){
@@ -308,7 +309,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
                         break;
                     case "reschedule":
-                        this.j4care.selectDevice((res)=>{
+                        this.deviceService.selectDevice((res)=>{
                             this.cfpLoadingBar.start();
                             if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                 filter["newDeviceName"] = res.schema_model.newDeviceName;
@@ -531,7 +532,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 if (ok){
                     switch (mode) {
                         case 'reschedule':
-                            this.j4care.selectDevice((res)=>{
+                            this.deviceService.selectDevice((res)=>{
                                 this.cfpLoadingBar.start();
                                 let filter = {}
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){

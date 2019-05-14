@@ -12,6 +12,7 @@ import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
+import {DcmWebApp} from "../../models/dcm-web-app";
 
 @Injectable()
 export class StudyService {
@@ -275,5 +276,9 @@ export class StudyService {
 
     getDevices(){
         return this.devicesService.getDevices();
+    }
+
+    test(dcmWebApp:DcmWebApp){
+        this.$http.get("",undefined,false,dcmWebApp);
     }
 }

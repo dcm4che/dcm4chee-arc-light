@@ -1,6 +1,7 @@
 import {Aet} from "./models/aet";
 import {Device} from "./models/device";
 import {DcmWebApp} from "./models/dcm-web-app";
+import {HttpHeaders} from "@angular/common/http";
 
 export interface J4careDateTime {
     FullYear:string;
@@ -222,4 +223,14 @@ export class DicomNetworkConnection{
     set dicomTLSCipherSuite(value: string[]) {
         this._dicomTLSCipherSuite = value;
     }
+}
+
+export type HttpMethod = "get"|"head"|"post"|"put"|"delete";
+
+export interface DcmWebAppRequestParam {
+    doNotEncode:boolean;
+    header:HttpHeaders;
+    dcmWebApp:DcmWebApp;
+    params:any;
+    data:any;
 }

@@ -26,7 +26,6 @@ export class j4care {
     dialogRef: MatDialogRef<any>;
     constructor(
         public mainservice:AppService,
-        public httpJ4car:J4careHttpService,
         public ngHttp:Http,
         public dialog: MatDialog,
         public config: MatDialogConfig,
@@ -592,7 +591,7 @@ export class j4care {
         else
             return defaultVal || '';
     }
-    download(url){
+/*    download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
             let token;
             let a = document.createElement('a');
@@ -624,7 +623,7 @@ export class j4care {
                 a.remove();
             });
         });
-    }
+    }*/
     static convertBtoHumanReadable(value,mantissa?){
         let mantissaValue = 1000;
         if(mantissa == 0){
@@ -945,56 +944,8 @@ export class j4care {
         }
     }
 
-    selectDevice(callBack, devices? ){
-        let setParams = function(tempDevices){
-            return {
-                content: 'Select device if you wan\'t to reschedule to an other device',
-                doNotSave:true,
-                form_schema:[
-                    [
-                        [
-                            {
-                                tag:"label",
-                                text:"Device"
-                            },
-                            {
-                                tag:"select",
-                                options:tempDevices,
-                                showStar:true,
-                                filterKey:"newDeviceName",
-                                description:"Device",
-                                placeholder:"Device"
-                            }
-                        ]
-                    ]
-                ],
-                result: {
-                    schema_model: {
-                        newDeviceName:''
-                    }
-                },
-                saveButton: 'SUBMIT'
-            }
-        };
 
-        if(devices){
-            this.openDialog(setParams(devices)).subscribe(callBack);
-        }else{
-            this.getDevices().subscribe((devices)=>{
-                devices = devices.map(device=>{
-                    return {
-                        text:device.dicomDeviceName,
-                        value:device.dicomDeviceName
-                    }
-                });
-                this.openDialog(setParams(devices)).subscribe(callBack);
-            },(err)=>{
-
-            });
-        }
-
-    }
-    getDevices = ()=>this.httpJ4car.get('../devices').map(res => j4care.redirectOnAuthResponse(res));
+    // getDevices = ()=>this.httpJ4car.get('../devices').map(res => j4care.redirectOnAuthResponse(res));
 
     openDialog(parameters, width?, height?){
         this.dialogRef = this.dialog.open(ConfirmComponent, {

@@ -16,7 +16,7 @@ export class AppService implements OnInit, OnDestroy{
     subscription: Subscription;
 
     constructor(
-        public ngHttp:Http,
+        public ngHttp:Http
     ) {
         this.subscription = this.globalSet$.subscribe(obj => {
             this._global = obj;
@@ -181,5 +181,4 @@ export class AppService implements OnInit, OnDestroy{
         let newDate = new Date(this.serverTime);
         return `${newDate.getFullYear().toString().substr(-2)}${newDate.getMonth()}${newDate.getDate()}${newDate.getHours()}${newDate.getMinutes()}${newDate.getSeconds()}`;
     }
-
 }
