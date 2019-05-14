@@ -40,7 +40,9 @@
 
 package org.dcm4chee.arc.wado;
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.TemplatesCache;
@@ -49,8 +51,10 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.RetrieveWADO;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.*;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -65,7 +69,10 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
@@ -76,8 +83,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -246,19 +253,15 @@ public class WadoURI {
 
         ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
         MediaType mimeType = selectMimeType(objectType).orElseThrow(() ->
-            new WebApplicationException(errResponse("Mime type is null.", Response.Status.NOT_ACCEPTABLE)));
+            new WebApplicationException(errResponse(
+                    "Supported Media Types for " + objectType + " not acceptable",
+                    Response.Status.NOT_ACCEPTABLE)));
 
-        StreamingOutput entity;
-        if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
-            mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
-            entity = new DicomObjectOutput(ctx, inst, tsuids());
-        } else {
-            entity = entityOf(ctx, inst, objectType, mimeType);
-        }
+        StreamingOutput entity = entityOf(ctx, inst, objectType, mimeType);
         ar.register((CompletionCallback) throwable -> {
             ctx.getRetrieveService().updateLocations(ctx);
             ctx.setException(throwable);
-                retrieveWado.fire(ctx);
+            retrieveWado.fire(ctx);
         });
         ar.resume(Response.ok(entity, mimeType).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).build());
     }
@@ -278,6 +281,9 @@ public class WadoURI {
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
                             MediaType mimeType)
             throws IOException {
+        if (mimeType == MediaTypes.APPLICATION_DICOM_TYPE)
+                return new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes(objectType, inst));
+
         int imageIndex = -1;
         switch (objectType) {
             case CompressedSingleFrameImage:
@@ -452,10 +458,33 @@ public class WadoURI {
                 .findFirst();
     }
 
-    private Collection<String> tsuids() {
-        if (transferSyntax == null)
-            return Collections.singleton(UID.ExplicitVRLittleEndian);
-        return Arrays.asList(StringUtils.split(transferSyntax, ','));
+    private Collection<String> acceptableTransferSyntaxes(ObjectType objectType, InstanceLocations inst) {
+        Collection<String> tsuids = new ArrayList<>(transferSyntax == null
+                ? Collections.singleton(UID.ExplicitVRLittleEndian)
+                : Arrays.asList(StringUtils.split(transferSyntax, ',')));
+        tsuids.removeIf(tsuid -> !transcodeableTo(objectType, inst, tsuid));
+        if (tsuids.isEmpty())
+            throw new WebApplicationException(errResponse(
+                    "Supported Transfer Syntaxes for " + objectType + " not acceptable",
+                    Response.Status.NOT_ACCEPTABLE));
+        return tsuids;
+    }
+
+    private static boolean transcodeableTo(ObjectType objectType, InstanceLocations inst, String accepted) {
+        return accepted.equals("*")
+                || !objectType.isVideo() && isUncompressed(accepted)
+                || inst.getLocations().stream().anyMatch(l -> accepted.equals(l.getTransferSyntaxUID()));
+    }
+
+    private static boolean isUncompressed(String tsuid) {
+        switch (tsuid) {
+            case UID.ImplicitVRLittleEndian:
+            case UID.ExplicitVRLittleEndian:
+            case UID.ExplicitVRBigEndianRetired:
+            case UID.DeflatedExplicitVRLittleEndian:
+                return true;
+        }
+        return false;
     }
 
     public static final class ContentTypes {

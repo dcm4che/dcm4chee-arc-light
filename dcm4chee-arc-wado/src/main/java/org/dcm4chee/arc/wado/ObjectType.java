@@ -65,7 +65,7 @@ enum ObjectType {
                 MediaTypes.IMAGE_GIF_TYPE,
                 MediaTypes.IMAGE_PNG_TYPE
             },
-            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }) {
+            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }, false) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
             return super.getBulkdataContentTypes(inst);
@@ -78,7 +78,7 @@ enum ObjectType {
                     MediaTypes.IMAGE_GIF_TYPE,
                     MediaTypes.IMAGE_PNG_TYPE
             },
-            null) {
+            null, false) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
             return super.calcPixelDataContentTypes(inst);
@@ -90,7 +90,7 @@ enum ObjectType {
     },
     UncompressedMultiFrameImage(
             new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE },
-            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }) {
+            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }, false) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
             return super.getBulkdataContentTypes(inst);
@@ -98,7 +98,7 @@ enum ObjectType {
     },
     CompressedMultiFrameImage(
             new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE },
-            null) {
+            null, false) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
             return super.calcPixelDataContentTypes(inst);
@@ -110,7 +110,7 @@ enum ObjectType {
     },
     MPEG2Video(
             new MediaType[] { MediaTypes.VIDEO_MPEG_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.VIDEO_MPEG_TYPE }) {
+            new MediaType[] { MediaTypes.VIDEO_MPEG_TYPE }, true) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
             return super.getBulkdataContentTypes(inst);
@@ -118,7 +118,7 @@ enum ObjectType {
     },
     MPEG4Video(
             new MediaType[] { MediaTypes.VIDEO_MP4_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.VIDEO_MP4_TYPE }) {
+            new MediaType[] { MediaTypes.VIDEO_MP4_TYPE }, true) {
         @Override
         public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
             return super.getBulkdataContentTypes(inst);
@@ -130,21 +130,23 @@ enum ObjectType {
                     MediaType.TEXT_PLAIN_TYPE,
                     MediaTypes.APPLICATION_DICOM_TYPE
             },
-            null),
+            null, false),
     EncapsulatedPDF(
             new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE }),
+            new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE }, false),
     EncapsulatedCDA(
             new MediaType[] { MediaType.TEXT_XML_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaType.TEXT_XML_TYPE }),
-    Other(new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE }, null);
+            new MediaType[] { MediaType.TEXT_XML_TYPE }, false),
+    Other(new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE }, null, false);
 
     private final MediaType[] mimeTypes;
     private final MediaType[] bulkdataContentTypes;
+    private final boolean video;
 
-    ObjectType(MediaType[] mimeTypes, MediaType[] bulkdataContentTypes) {
+    ObjectType(MediaType[] mimeTypes, MediaType[] bulkdataContentTypes, boolean video) {
         this.mimeTypes = mimeTypes;
         this.bulkdataContentTypes = bulkdataContentTypes;
+        this.video = video;
     }
 
     public static ObjectType objectTypeOf(RetrieveContext ctx, InstanceLocations inst, String frameNumber) {
@@ -200,6 +202,10 @@ enum ObjectType {
 
     public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
         return null;
+    }
+
+    public boolean isVideo() {
+        return video;
     }
 
     protected MediaType[] calcPixelDataContentTypes(InstanceLocations inst) {
