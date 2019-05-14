@@ -1630,6 +1630,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.281 NAME 'dcmRejectConflictingPatientAttr
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.282 NAME 'dcmIssuerOfPatientIDFormat'
+  DESC 'Format of Issuer of Patient ID (0010,0021) derived from other attributes. E.g. "{00100010,hash}-{00100030}": use hash value of Patient Name and Birth Date separated by "-". For coercion of existing values of Issuer of Patient ID in received objects also dcmNullifyIssuerOfPatientID must be set accordingly.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2050,6 +2056,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmNullifyTag $
     dcmNullifyIssuerOfPatientID $
     dcmIssuerOfPatientID $
+    dcmIssuerOfPatientIDFormat $
     dcmSupplementFromDeviceReference ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'
