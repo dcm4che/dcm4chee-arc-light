@@ -108,7 +108,9 @@ export class StudyService {
 
         return this.$http.get(
             `${this.getDicomURL("study", deviceWebservice, responseType)}${params || ''}`,
-                header
+                header,
+                false,
+                deviceWebservice.selectedWebApp
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
@@ -124,7 +126,9 @@ export class StudyService {
 
         return this.$http.get(
             `${this.getDicomURL("study", deviceWebservice, responseType)}/${studyInstanceUID}/series${params || ''}`,
-                header
+                header,
+            false,
+            deviceWebservice.selectedWebApp
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
@@ -140,7 +144,9 @@ export class StudyService {
 
         return this.$http.get(
             `${this.getDicomURL("study", deviceWebservice, responseType)}/${studyInstanceUID}/series/${seriesInstanceUID}/instances${params || ''}`,
-                header
+                header,
+            false,
+            deviceWebservice.selectedWebApp
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
     getDicomURL(mode:DicomMode, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):string{
@@ -279,6 +285,8 @@ export class StudyService {
     }
 
     test(dcmWebApp:DcmWebApp){
-        this.$http.get("",undefined,false,dcmWebApp);
+        this.$http.get("",undefined,false,dcmWebApp).subscribe(res=>{
+            console.log("res",res);
+        })
     }
 }

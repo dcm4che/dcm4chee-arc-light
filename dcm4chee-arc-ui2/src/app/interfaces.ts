@@ -229,7 +229,7 @@ export type HttpMethod = "get"|"head"|"post"|"put"|"delete";
 
 export interface DcmWebAppRequestParam {
     doNotEncode:boolean;
-    header:HttpHeaders;
+    header:any;
     dcmWebApp:DcmWebApp;
     params:any;
     data:any;
