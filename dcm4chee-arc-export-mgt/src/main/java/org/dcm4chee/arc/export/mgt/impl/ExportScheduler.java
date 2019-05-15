@@ -79,12 +79,13 @@ public class ExportScheduler extends Scheduler {
                 continue;
             }
 
-            ExportReoccurredInstances exportReoccurredInstances = rule.getExportReoccurredInstances();
-            if ((exportReoccurredInstances != ExportReoccurredInstances.ALWAYS && ctx.getLocations().isEmpty())
-                    || (exportReoccurredInstances == ExportReoccurredInstances.NEVER && ctx.getPreviousInstance() != null)) {
-                LOG.warn("Cannot schedule Export Task triggered by {} for Export of Reoccurred Instances [LocationsSize={}, PreviousInstance={}]",
-                        rule, ctx.getLocations().size(), ctx.getPreviousInstance());
-                continue;
+            switch(rule.getExportReoccurredInstances()) {
+                case NEVER:
+                    if (ctx.getPreviousInstance() != null)
+                        continue;
+                case REPLACE:
+                    if (ctx.getLocations().isEmpty())
+                        continue;
             }
 
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
