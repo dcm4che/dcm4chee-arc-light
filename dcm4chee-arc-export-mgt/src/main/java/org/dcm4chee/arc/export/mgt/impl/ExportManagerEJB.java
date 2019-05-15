@@ -203,18 +203,24 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void scheduleExportTask(String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   HttpServletRequestInfo httpServletRequestInfo, String batchID, String... studyUIDs)
+    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
+                                   HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
-        for (String studyUID : studyUIDs) {
-            ExportTask task = createExportTask(
-                    exporter.getExporterID(),
-                    studyUID,
-                    StringUtils.maskNull(seriesUID, "*"),
-                    StringUtils.maskNull(objectUID, "*"),
-                    new Date());
-            scheduleExportTask(task, exporter, httpServletRequestInfo, batchID);
-        }
+        ExportTask task = createExportTask(
+                exporter.getExporterID(),
+                studyUID,
+                StringUtils.maskNull(seriesUID, "*"),
+                StringUtils.maskNull(objectUID, "*"),
+                new Date());
+        scheduleExportTask(task, exporter, httpServletRequestInfo, batchID);
+    }
+
+    @Override
+    public void scheduleStudyExportTasks(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
+                                         String batchID, String... studyUIDs)
+            throws QueueSizeLimitExceededException {
+        for (String studyUID : studyUIDs)
+            scheduleExportTask(studyUID, null, null, exporter, httpServletRequestInfo, batchID);
     }
 
     @Override

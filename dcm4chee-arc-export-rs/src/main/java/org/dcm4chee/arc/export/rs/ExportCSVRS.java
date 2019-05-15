@@ -146,9 +146,7 @@ public class ExportCSVRS {
                         studyUIDs.add(studyUID);
 
                     if (studyUIDs.size() == csvUploadChunkSize || line == null) {
-                        exportManager.scheduleExportTask(
-                                null,
-                                null,
+                        exportManager.scheduleStudyExportTasks(
                                 exporter,
                                 HttpServletRequestInfo.valueOf(request),
                                 batchID,
