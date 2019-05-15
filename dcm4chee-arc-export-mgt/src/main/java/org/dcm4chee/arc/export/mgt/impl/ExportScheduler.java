@@ -69,17 +69,19 @@ public class ExportScheduler extends Scheduler {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         for (Map.Entry<String, ExportRule> entry
                 : arcAE.findExportRules(hostname, sendingAET, receivingAET, ctx.getAttributes(), now).entrySet()) {
+            String exporterID = entry.getKey();
             ExportRule rule = entry.getValue();
             switch(rule.getExportReoccurredInstances()) {
                 case NEVER:
-                    if (ctx.getPreviousInstance() != null)
+                    if (ctx.getPreviousInstance() != null) {
                         continue;
+                    }
                 case REPLACE:
-                    if (ctx.getLocations().isEmpty())
+                    if (ctx.getLocations().isEmpty()) {
                         continue;
+                    }
             }
 
-            String exporterID = entry.getKey();
             ExporterDescriptor desc = arcDev.getExporterDescriptor(exporterID);
             if (desc == null) {
                 LOG.warn("{}: No Exporter configured with ID:{} - cannot schedule Export Task triggered by {}",
