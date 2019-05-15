@@ -81,14 +81,12 @@ public class ExportScheduler extends Scheduler {
                         continue;
                     }
             }
-
             ExporterDescriptor desc = arcDev.getExporterDescriptor(exporterID);
             if (desc == null) {
                 LOG.warn("{}: No Exporter configured with ID:{} - cannot schedule Export Task triggered by {}",
                         session, exporterID, rule);
                 continue;
             }
-
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
             switch (rule.getEntity()) {
                 case Study:
