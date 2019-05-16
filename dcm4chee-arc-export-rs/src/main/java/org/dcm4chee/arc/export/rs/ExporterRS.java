@@ -179,8 +179,8 @@ public class ExporterRS {
                     if (bOnlyStgCmt)
                         stgCmtSCU.scheduleStorageCommit(ctx, exporter);
                 } else
-                    exportManager.scheduleExportTask(seriesUID, objectUID, exporter,
-                            HttpServletRequestInfo.valueOf(request), batchID, studyUID);
+                    exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter,
+                            HttpServletRequestInfo.valueOf(request), batchID);
             } catch (QueueSizeLimitExceededException e) {
                 return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
             } catch (Exception e) {
