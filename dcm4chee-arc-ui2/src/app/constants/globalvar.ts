@@ -849,6 +849,14 @@ export class Globalvar {
         }
         return [
             {
+                tag:"select",
+                options:aets,
+                showStar:true,
+                filterKey:"aet",
+                description:"AET",
+                placeholder:"AET"
+            },
+            {
                 tag:"input",
                 type:"text",
                 filterKey:"PatientName",

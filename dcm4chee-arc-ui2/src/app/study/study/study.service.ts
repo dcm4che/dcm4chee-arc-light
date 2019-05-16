@@ -48,7 +48,9 @@ export class StudyService {
                 lineLength = filterMode === "expand" ? 2:3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,false);
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,false).filter(filter=>{
+                    return filter.filterKey != "aet";
+                });
                 lineLength = filterMode === "expand" ? 2:3;
         }
         if(filterMode === "main"){
