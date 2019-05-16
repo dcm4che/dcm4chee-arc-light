@@ -1898,6 +1898,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.31 NAME 'dcmExportPriorsRule'
     cn $
     dcmExporterID )
   MAY (
+    dcmExportReoccurredInstances $
     dcmEntitySelector $
     dcmProperty $
     dcmSchedule $
