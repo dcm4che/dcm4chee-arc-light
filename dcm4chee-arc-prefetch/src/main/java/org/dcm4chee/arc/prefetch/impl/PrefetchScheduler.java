@@ -61,9 +61,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.EnumSet;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -120,10 +118,12 @@ public class PrefetchScheduler {
             IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(new IDWithIssuer(cx));
             String batchID = rule.getCommonName() + '[' + pid + ']';
             if (rule.getEntitySelectors().length == 0) {
-                prefetch(pid, batchID, new Attributes(0), rule, arcdev, notRetrievedAfter, delay);
+                prefetch(pid, batchID, new Attributes(0), -1,
+                        rule, arcdev, notRetrievedAfter, delay);
             } else {
                 for (EntitySelector selector : rule.getEntitySelectors()) {
-                    prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), rule, arcdev, notRetrievedAfter, delay);
+                    prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), selector.getNumberOfPriors(),
+                            rule, arcdev, notRetrievedAfter, delay);
                 }
             }
         } catch (Exception e) {
@@ -131,8 +131,8 @@ public class PrefetchScheduler {
         }
     }
 
-    private void prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys,
-                          HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date notRetrievedAfter, long delay)
+    private void prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys, int numberOfPriors,
+            HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date notRetrievedAfter, long delay)
             throws Exception {
         Attributes keys = new Attributes(queryKeys.size() + 4);
         keys.addAll(queryKeys);
@@ -145,26 +145,20 @@ public class PrefetchScheduler {
         Issuer issuer = pid.getIssuer();
         if (issuer != null)
             issuer.toIssuerOfPatientID(keys);
+        if (!keys.contains(Tag.StudyDate))
+            keys.setNull(Tag.StudyDate, VR.DA);
         keys.setNull(Tag.StudyInstanceUID, VR.UI);
         ApplicationEntity localAE = arcdev.getDevice().getApplicationEntity(rule.getAETitle(), true);
-        EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
-        Association as = findSCU.openAssociation(
-                localAE, rule.getPrefetchCFindSCP(), UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-        try {
-            DimseRSP dimseRSP = findSCU.query(as, Priority.NORMAL, keys, 0, 1, null);
-            dimseRSP.next();
+        List<Attributes> matches = findSCU.find(localAE, rule.getPrefetchCFindSCP(),
+                EnumSet.of(QueryOption.DATETIME), Priority.NORMAL, keys);
+        if (numberOfPriors > 0 && matches.size() > numberOfPriors) {
+            matches.sort(Comparator.comparing(match -> match.getString(Tag.StudyDate, "")));
             do {
-                if (Status.isPending(dimseRSP.getCommand().getInt(Tag.Status, -1))) {
-                    scheduleRetrieveTasks(dimseRSP.getDataset(), rule, batchID, notRetrievedAfter, delay);
-                }
-            } while (dimseRSP.next()) ;
-        } finally {
-            if (as != null)
-                try {
-                    as.release();
-                } catch (IOException e) {
-                    LOG.info("{}: Failed to release association:\\n", as, e);
-                }
+                matches.remove(0);
+            } while (matches.size() > numberOfPriors);
+        }
+        for (Attributes match : matches) {
+            scheduleRetrieveTasks(match, rule, batchID, notRetrievedAfter, delay);
         }
     }
 

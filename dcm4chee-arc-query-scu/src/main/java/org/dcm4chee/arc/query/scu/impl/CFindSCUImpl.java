@@ -99,13 +99,18 @@ public class CFindSCUImpl implements CFindSCU {
     public List<Attributes> findStudiesOfPatient(
             ApplicationEntity localAE, String calledAET, int priority, IDWithIssuer pid, int... returnKeys)
             throws Exception {
+        return find(localAE, calledAET, queryOptions(false), priority,
+                pid.exportPatientIDWithIssuer(withQueryLevelAndReturnKeys("STUDY", returnKeys,
+                        new Attributes(3 + returnKeys.length))));
+    }
+
+    @Override
+    public List<Attributes> find(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
+            int priority, Attributes keys) throws Exception {
         Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
-                queryOptions(false));
+                queryOptions);
         try {
-            return find(as, priority,
-                    pid.exportPatientIDWithIssuer(
-                            withQueryLevelAndReturnKeys("STUDY", returnKeys,
-                                    new Attributes(3 + returnKeys.length))));
+            return find(as, priority, keys);
         } finally {
             as.waitForOutstandingRSP();
             as.release();

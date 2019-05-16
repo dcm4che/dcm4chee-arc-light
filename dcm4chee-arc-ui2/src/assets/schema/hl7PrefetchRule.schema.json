@@ -70,7 +70,7 @@
     },
     "dcmEntitySelector": {
       "title": "Entity Selector",
-      "description": "Specifies matching keys used to select Studies to prefetch. Format: {key}={value}[&{key}={value)]..., with {key} = 'StudyAge' | {attributeID}. {value} in the format '$'{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]] are replaced by the value of the specified HL7 field from the received HL7 message which triggered the prefetch. If no Entity Selector is specified, all Studies for the Patient will be pre-fetched. Example: 'StudyInstanceUID=$ZDS-1.1' => select the Study with the Study Instance UID from ZDS-1.1.",
+      "description": "Specifies matching keys used to select Studies to prefetch. Format: {key}={value}[&{key}={value)]..., with {key} = 'priors' | 'StudyAge' | {attributeID}. {value} in the format '$'{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]] are replaced by the value of the specified HL7 field from the received HL7 message which triggered the prefetch. If no Entity Selector is specified, all Studies for the Patient will be pre-fetched. Example: 'priors=2&StudyAge=-5Y&ModalitiesInStudy=$OBR-24' => select at most 2 prior Studies not older than 5 years containing at least one Series with Modality from OBR-24.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmEntitySelector"
