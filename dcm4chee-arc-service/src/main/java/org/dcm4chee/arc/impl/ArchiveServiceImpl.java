@@ -42,6 +42,7 @@ package org.dcm4chee.arc.impl;
 
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.net.AssociationHandler;
 import org.dcm4che3.net.Device;
@@ -93,6 +94,9 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Inject
     private IApplicationEntityCache aeCache;
+
+    @Inject
+    private IWebApplicationCache webAppCache;
 
     @Inject
     private IHL7ApplicationCache hl7AppCache;
@@ -211,6 +215,7 @@ public class ArchiveServiceImpl implements ArchiveService {
         device.rebindConnections();
         deviceCache.clear();
         aeCache.clear();
+        webAppCache.clear();
         hl7AppCache.clear();
         configure();
         archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.RELOADED, request));
@@ -220,6 +225,7 @@ public class ArchiveServiceImpl implements ArchiveService {
         ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         deviceCache.setStaleTimeout(arcdev.getAECacheStaleTimeoutSeconds());
         aeCache.setStaleTimeout(arcdev.getAECacheStaleTimeoutSeconds());
+        webAppCache.setStaleTimeout(arcdev.getAECacheStaleTimeoutSeconds());
         hl7AppCache.setStaleTimeout(arcdev.getAECacheStaleTimeoutSeconds());
         leadingCFindSCPQueryCache.setStaleTimeout(
                 arcdev.getLeadingCFindSCPQueryCacheStaleTimeoutSeconds() * 1000L);
