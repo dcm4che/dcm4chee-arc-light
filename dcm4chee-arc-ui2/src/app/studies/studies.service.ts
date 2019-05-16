@@ -335,7 +335,7 @@ export class StudiesService {
         return this.$http.get(
             url + '/patients' + this._config(params),
             {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             }).map(res => j4care.redirectOnAuthResponse(res));
     };
     queryDiffs = function(url, params) {
@@ -343,7 +343,7 @@ export class StudiesService {
         return this.$http.get(
             url + this._config(params),
             {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             }
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -352,7 +352,7 @@ export class StudiesService {
         return this.$http.get(
             `${url}/${mode}/count${this._config(params)}`,
             {
-                headers:  new Headers({'Accept': 'application/json'})
+                headers:  new HttpHeaders({'Accept': 'application/json'})
             }
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -360,7 +360,7 @@ export class StudiesService {
         return this.$http.get(
             `${url}/studies/size${this._config(params)}`,
             {
-                headers:  new Headers({'Accept': 'application/json'})
+                headers:  new HttpHeaders({'Accept': 'application/json'})
             }
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -369,7 +369,7 @@ export class StudiesService {
         return this.$http.get(
             url + '/studies' + this._config(params),
             {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             }
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -420,21 +420,21 @@ export class StudiesService {
         return this.$http.get(
             url + '/mwlitems' + this._config(params),
             {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             }
         ).map(res => {let resjson; try{
             let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
             if(pattern.exec(res.url)){
                 WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
             }
-            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            resjson = res; }catch (e){resjson = {}; } return resjson; });
     };
 
     querySeries = function(url, studyIUID, params) {
         return this.$http.get(
             url + '/studies/' + studyIUID + '/series' + this._config(params),
             {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             }
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -446,7 +446,7 @@ export class StudiesService {
             + '/instances' +
             this._config(params),
             {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             }
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -687,7 +687,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
     changeExternalPatientID(patient, internalAppName, externalAppName, oldPatientID){
         let url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients/${oldPatientID}/changeid`;
-        let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
+        let headers = new HttpHeaders({ 'Content-Type': 'application/dicom+json' });
         let object;
         if(_.hasIn(patient,"attrs")){
             object = patient.attrs;
@@ -719,13 +719,13 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 return this.$http.post(
                     `../aets/${aet}/rs/patients/${oldPatientID}/changeid/${newPatientID}`,
                     patientData,
-                    {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+                    {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
                 );
             }else{
                 return this.$http.post(
                     `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients/${oldPatientID}/changeid`,
                     patientData,
-                    {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+                    {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
                 );
             }
         }
@@ -745,7 +745,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         return this.$http.post(
             url,
             patientData,
-            {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+            {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
         );
     }
     modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode, queue?){
@@ -764,7 +764,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }else{
             url = `../aets/${aet}/rs/patients/`;
         }
-        let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
+        let headers = new HttpHeaders({ 'Content-Type': 'application/dicom+json' });
         this.clearPatientObject(patient.attrs);
         this.convertStringToNumber(patient.attrs);
         let toSavePatientObject;
@@ -803,7 +803,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                                 {headers: headers},
                             true
                             )
-                            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;}),
+                            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;}),
                         successMsg:'Patient saved successfully!'
                     };
             }else{
@@ -813,7 +813,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                            url,
                            toSavePatientObject,
                            {headers: headers}
-                       ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                       ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                        ,
                        successMsg:'Patient created successfully!'
                    };
@@ -836,7 +836,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                         url,
                         toSavePatientObject,
                         {headers: headers}
-                    ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                    ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                     ,
                         successMsg:'Patient created successfully!'
                 };

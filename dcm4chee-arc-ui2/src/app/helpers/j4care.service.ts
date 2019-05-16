@@ -18,15 +18,17 @@ import {J4careDateTime, J4careDateTimeMode, RangeObject} from "./j4care";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 
 
 @Injectable()
 export class j4care {
-    header = new Headers();
+    header = new HttpHeaders();
     dialogRef: MatDialogRef<any>;
     constructor(
-        public mainservice:AppService,
+        // public mainservice:AppService,
         public ngHttp:Http,
+        private $httpClient:HttpClient,
         public dialog: MatDialog,
         public config: MatDialogConfig,
         private router: Router
@@ -517,7 +519,9 @@ export class j4care {
                 console.log("onredirectOnAuthResponse",res);
                 location.reload(true);
             }
-            resjson = res.json();
+            // resjson = res.json();
+            resjson = res;
+            resjson = res
         }catch (e){
             if(typeof res === "object"){
                 resjson = res;
@@ -673,13 +677,13 @@ export class j4care {
     get(url: string): Observable<any> {
         return new Observable((observer: Subscriber<any>) => {
             let objectUrl: string = null;
-            this.ngHttp
+            this.$httpClient
                 .get(url, {
                     headers:this.header,
-                    responseType: ResponseContentType.Blob
+                    responseType: "blob"
                 })
                 .subscribe(m => {
-                    objectUrl = URL.createObjectURL(m.blob());
+                    objectUrl = URL.createObjectURL(m);
                     observer.next(objectUrl);
                 });
 

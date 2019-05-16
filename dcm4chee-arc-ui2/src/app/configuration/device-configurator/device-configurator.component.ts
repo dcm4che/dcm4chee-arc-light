@@ -364,7 +364,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         $this.service.pagination.push(newPaginationObject);
                     }
                         if (params['device'] == '[new_device]') {
-                            $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;}).subscribe((schema) => {
+                            $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;}).subscribe((schema) => {
                                 $this.showform = false;
                                 $this.device = {};
                                 $this.service.device = {};
@@ -382,7 +382,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
                             Observable.combineLatest(
                                 $this.service.getDevice(params['device']),
-                                $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                                $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                             ).subscribe(deviceschema => {
                                 $this.service.device = deviceschema[0];
                                 $this.service.schema = deviceschema[1];

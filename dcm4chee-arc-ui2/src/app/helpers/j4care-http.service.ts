@@ -100,7 +100,7 @@ export class J4careHttpService{
         // let headerIndex = (param.length === 3) ? 2:1;
         return $this.refreshToken().flatMap((response)=>{
                 this.setGlobalToken(response,param);
-                return $this.$http[requestFunctionName].apply($this.$http , this.getParamAsArray(param));
+                return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
             }).catch(res=>{
                 if(res.ok === false && res.status === 0 && res.type === 3){
                     if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
@@ -109,7 +109,7 @@ export class J4careHttpService{
                 if(res.statusText === "Unauthorized"){
                     return $this.getRealm().flatMap((resp)=>{
                         this.setGlobalToken(resp,param);
-                        return $this.$http[requestFunctionName].apply($this.$http , this.getParamAsArray(param));
+                        return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
                     });
                 }
                 return Observable.throw(res);
@@ -156,17 +156,19 @@ export class J4careHttpService{
         this.setValueInGlobal('getRealmStateActive',false);
     }
     getRealm(dcmWebApp?:DcmWebApp){
-        let service = this.$http.get('rs/realm');
+        let service = this.$httpClient.get('rs/realm');
         if(dcmWebApp){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
         return service.map(res => {
             let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
+                if(pattern.exec(res["url"])){
                     if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                resjson = res.json();
+                // resjson = res.json();
+                resjson = res;
+                resjson = res;
             }catch (e){
                 resjson = [];
             } return resjson;
@@ -225,17 +227,15 @@ export class J4careHttpService{
             if(token){
                 console.log("header",header);
                 if(_.hasIn(header,"headers")){
-                    header.headers.set('Authorization', `Bearer ${token}`);
-                    this.header = header.headers;
+                    this.header = header.headers.set('Authorization', `Bearer ${token}`);
                 }else{
-                    header.set('Authorization', `Bearer ${token}`);
-                    this.header = header;
+                    this.header = header.set('Authorization', `Bearer ${token}`);
                 }
             }
         }else{
-            this.header = new Headers();
+            this.header = new HttpHeaders();
             if(token){
-                this.header.append('Authorization', `Bearer ${token}`);
+                this.header = new HttpHeaders().append('Authorization', `Bearer ${token}`);
             }
         }
     }

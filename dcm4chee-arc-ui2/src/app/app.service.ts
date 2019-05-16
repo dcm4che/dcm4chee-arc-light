@@ -16,7 +16,8 @@ export class AppService implements OnInit, OnDestroy{
     subscription: Subscription;
 
     constructor(
-        public ngHttp:Http
+        public ngHttp:Http,
+        public $httpClient:HttpClient
     ) {
         this.subscription = this.globalSet$.subscribe(obj => {
             this._global = obj;
@@ -132,8 +133,8 @@ export class AppService implements OnInit, OnDestroy{
     }
 
     getUserInfo(): Observable<User>{
-        return this.ngHttp.get('rs/realm')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+        return this.$httpClient.get('rs/realm')
+            .map(res => j4care.redirectOnAuthResponse(res))
     }
     get user(): any {
         return this._user;

@@ -13,6 +13,7 @@ import {StorageSystemsService} from "../../monitoring/storage-systems/storage-sy
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DcmWebApp} from "../../models/dcm-web-app";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
 export class StudyService {
@@ -100,7 +101,7 @@ export class StudyService {
         let header;
         if(!responseType || responseType === "object"){
             header = {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             };
         }
         let params = j4care.objToUrlParams(filterModel);
@@ -118,7 +119,7 @@ export class StudyService {
         let header;
         if(!responseType || responseType === "object"){
             header = {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             };
         }
         let params = j4care.objToUrlParams(filterModel);
@@ -136,7 +137,7 @@ export class StudyService {
         let header;
         if(!responseType || responseType === "object"){
             header = {
-                headers:  new Headers({'Accept': 'application/dicom+json'})
+                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
             };
         }
         let params = j4care.objToUrlParams(filterModel);

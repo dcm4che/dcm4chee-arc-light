@@ -47,7 +47,6 @@ export class PermissionService {
                     archiveDeviceName = res.dicomDeviceName;
                     return this.$http.get('../devices/' + deviceName)
                 })
-                .map(res => res.json())
                 .map((res)=>{
                     try{
                         this.configChecked = true;
@@ -164,7 +163,7 @@ export class PermissionService {
             let check = false;
             if(object[0])
                 object[0].dcmAcceptedUserRole.forEach(role =>{
-                    if(this.mainservice.user.roles.indexOf(role) > -1)
+                    if(this.mainservice.user.roles && this.mainservice.user.roles.indexOf(role) > -1)
                         check = true;
                 });
             return check;

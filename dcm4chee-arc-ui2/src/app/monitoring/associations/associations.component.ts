@@ -112,7 +112,7 @@ export class AssociationsComponent implements OnDestroy{
         // this.myValue = 10;
         // this.cfpLoadingBar.progress = this.cfpLoadingBar.progress + 10;
         this.$http.get('/dcm4chee-arc/monitor/associations')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe(res => {
                 if (res && res[0] && res[0] != ''){
                     res = this.modifyObject(res);
@@ -138,7 +138,7 @@ export class AssociationsComponent implements OnDestroy{
         // cfpLoadingBar.start();
         this.stopLoop = false;
         this.$http.get('/dcm4chee-arc/monitor/associations')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe(res => {
                 let data = res;
                 if (data && data[0] && data[0] != ''){

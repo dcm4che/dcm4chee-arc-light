@@ -1195,7 +1195,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 $this.$http.delete(
                     '../reject/' + re.reject + '?' + $this.mainservice.param(params)
                 )
-                    .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                    // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe(
                     (res) => {
                         console.log('in res', res);
@@ -2538,7 +2538,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         if (this.aetmodel.dcmHideNotRejectedInstances === true){
             if (this.rjcode === null){
                 this.$http.get('../reject?dcmRevokeRejection=true')
-                    .map((res) => res.json())
+                    // .map((res) => res.json())
                     .subscribe(function (res) {
                         $this.rjcode = res[0];
                     });
@@ -3717,7 +3717,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                             if(pattern.exec(res.url)){
                                                 WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                             }
-                                            resjson = res.json();
+                                            // resjson = res.json();
+                                            resjson = res;
                                         } catch (e) {
                                             resjson = {};
                                         }
@@ -3741,7 +3742,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                                 if(pattern.exec(res.url)){
                                                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                                                 }
-                                                                resjson = res.json();
+                                                                // resjson = res.json();
+                                                                resjson = res;
                                                             } catch (e) {
                                                                 resjson = {};
                                                             }
@@ -3790,7 +3792,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                     if(pattern.exec(res.url)){
                                                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                                     }
-                                                    resjson = res.json();
+                                                    // resjson = res.json();
+                                                    resjson = res;
                                                 } catch (e) {
                                                     resjson = {};
                                                 }
@@ -3837,7 +3840,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                 if(pattern.exec(res.url)){
                                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                                 }
-                                                resjson = res.json();
+                                                // resjson = res.json();
+                                                resjson = res;
                                             } catch (e) {
                                                 resjson = {};
                                             }
@@ -3858,7 +3862,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                                 if(pattern.exec(res.url)){
                                                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                                                 }
-                                                                resjson = res.json();
+                                                                // resjson = res.json();
+                                                                resjson = res;
                                                             } catch (e) {
                                                                 resjson = {};
                                                             }
@@ -3912,7 +3917,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                     if (pattern.exec(res.url)) {
                                                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                                     }
-                                                    resjson = res.json();
+                                                    // resjson = res.json();
+                                                    resjson = res;
                                                 } catch (e) {
                                                     resjson = {};
                                                 }
@@ -4230,7 +4236,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     if (entity === 'Patient' && res.dcmTag){
@@ -4360,7 +4366,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                 if (pattern.exec(res.url)) {
                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                 }
-                                resjson = res.json();
+                                resjson = res;
                             } catch (e) {
                                 resjson = {};
                             }
@@ -4539,7 +4545,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     $this.exporters = res;
@@ -4568,7 +4574,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     let rjnotes = res;
@@ -4604,7 +4610,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe((res)=>{
                 console.log("testres",res);
             },(err)=>{

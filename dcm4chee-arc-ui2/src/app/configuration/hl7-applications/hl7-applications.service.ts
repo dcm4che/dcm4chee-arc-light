@@ -21,7 +21,7 @@ export class Hl7ApplicationsService {
               if(pattern.exec(res.url)){
                   WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
               }
-              resjson = res.json();
+              resjson = res;
           } catch (e) {
               resjson = {};
           }
