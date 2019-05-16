@@ -73,7 +73,7 @@ public class ExportScheduler extends Scheduler {
             ExportRule rule = entry.getValue();
             switch(rule.getExportReoccurredInstances()) {
                 case NEVER:
-                    if (ctx.getPreviousInstance() != null) {
+                    if (ctx.getPreviousInstance() != null || ctx.getLocations().isEmpty()) {
                         continue;
                     }
                 case REPLACE:
