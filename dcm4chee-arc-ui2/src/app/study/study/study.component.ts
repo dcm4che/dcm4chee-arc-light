@@ -226,7 +226,7 @@ export class StudyComponent implements OnInit {
     getStudies(filterModel){
         this.cfpLoadingBar.start();
         filterModel['includefield'] = 'all';
-        this.service.getStudies(filterModel, this.deviceWebservice)
+        this.service.getStudies(filterModel, this.deviceWebservice.selectedWebApp)
             .subscribe(res => {
                 this.patients = [];
                 if(res){
@@ -283,7 +283,7 @@ export class StudyComponent implements OnInit {
         filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
-        this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.deviceWebservice)
+        this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.deviceWebservice.selectedWebApp)
             .subscribe((res)=>{
             if (res){
                 if (res.length === 0){
@@ -333,7 +333,7 @@ export class StudyComponent implements OnInit {
         filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'InstanceNumber';
-        this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this.deviceWebservice)
+        this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this.deviceWebservice.selectedWebApp)
             .subscribe((res)=>{
             if (res){
                 series.instances = res.map((attrs, index) => {

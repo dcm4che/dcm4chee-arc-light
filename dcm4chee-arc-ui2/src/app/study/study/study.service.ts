@@ -99,7 +99,7 @@ export class StudyService {
     }
 
 
-    getStudies(filterModel, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):Observable<any>{
+    getStudies(filterModel, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
@@ -110,14 +110,14 @@ export class StudyService {
         params = params ? `?${params}`:params;
 
         return this.$http.get(
-            `${this.getDicomURL("study", deviceWebservice, responseType)}${params || ''}`,
+            `${this.getDicomURL("study", dcmWebApp, responseType)}${params || ''}`,
                 header,
                 false,
-                deviceWebservice.selectedWebApp
+                dcmWebApp
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    getSeries(studyInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):Observable<any>{
+    getSeries(studyInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
@@ -128,14 +128,14 @@ export class StudyService {
         params = params ? `?${params}`:params;
 
         return this.$http.get(
-            `${this.getDicomURL("study", deviceWebservice, responseType)}/${studyInstanceUID}/series${params || ''}`,
+            `${this.getDicomURL("study", dcmWebApp, responseType)}/${studyInstanceUID}/series${params || ''}`,
                 header,
             false,
-            deviceWebservice.selectedWebApp
+            dcmWebApp
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):Observable<any>{
+    getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
             header = {
@@ -146,16 +146,16 @@ export class StudyService {
         params = params ? `?${params}`:params;
 
         return this.$http.get(
-            `${this.getDicomURL("study", deviceWebservice, responseType)}/${studyInstanceUID}/series/${seriesInstanceUID}/instances${params || ''}`,
+            `${this.getDicomURL("study", dcmWebApp, responseType)}/${studyInstanceUID}/series/${seriesInstanceUID}/instances${params || ''}`,
                 header,
             false,
-            deviceWebservice.selectedWebApp
+            dcmWebApp
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
-    getDicomURL(mode:DicomMode, deviceWebservice:StudyDeviceWebserviceModel, responseType?:DicomResponseType):string{
-        console.log("object",deviceWebservice);
+    getDicomURL(mode:DicomMode, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):string{
+        console.log("object",dcmWebApp);
         try{
-            let url = j4care.getUrlFromDcmWebApplication(deviceWebservice.selectedWebApp);
+            let url = j4care.getUrlFromDcmWebApplication(dcmWebApp);
             switch (mode) {
                 case "patient":
                     url += '/patients';
