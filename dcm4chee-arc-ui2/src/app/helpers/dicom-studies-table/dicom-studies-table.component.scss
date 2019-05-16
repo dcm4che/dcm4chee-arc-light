@@ -49,6 +49,8 @@ $pink:rgba(82, 36, 88, 0.85);
       float: left;
       padding: 5px 7px;
       border-right: 1px solid rgba(0, 0, 0, 0.19);
+      overflow: hidden;
+      height: 30px;
       &:last-child{
         border:none;
       }

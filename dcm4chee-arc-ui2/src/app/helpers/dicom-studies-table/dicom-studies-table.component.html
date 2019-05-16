@@ -31,6 +31,21 @@
                       <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                   </a>
                 </ng-container>
+                <ng-container *ngSwitchCase="'actions-menu'">
+                    <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();patient_table.menu.toggle(patient)">
+                        <span class="glyphicon glyphicon-option-vertical"></span>
+                    </a>
+                    <div class="actions-menu" *ngIf="patient.showMenu">
+                        <ul>
+                            <li *ngFor="let action of patient_table.menu.actions">
+                                <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)">
+                                    <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                    <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-container>
                 <ng-container *ngSwitchCase="'pipe'">{{patient.attrs | dynamicPipe:patient_table.pipe}}</ng-container>
                 <ng-container *ngSwitchCase="'value'">{{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}</ng-container>
             </div>

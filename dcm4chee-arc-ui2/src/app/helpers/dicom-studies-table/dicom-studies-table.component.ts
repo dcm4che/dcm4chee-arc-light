@@ -29,7 +29,6 @@ export class DicomStudiesTableComponent implements OnInit {
 
     @Input('tableSchema')
     set tableSchema(value: DicomTableSchema) {
-        console.log("in set tableschema");
         value.patient = j4care.calculateWidthOfTable(value.patient);
         value.studies = j4care.calculateWidthOfTable(value.studies);
         value.series = j4care.calculateWidthOfTable(value.series);

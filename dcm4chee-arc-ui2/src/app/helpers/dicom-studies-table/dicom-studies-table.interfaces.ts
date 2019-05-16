@@ -1,6 +1,6 @@
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 
-export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"
+export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu";
 
 export interface DicomTableSchema{
     patient:TableSchemaElement[];
@@ -33,6 +33,11 @@ export interface TableAction{
     icon:Icon;
     click:Function;
     title?:string;
+}
+
+export interface ActionsMenu{
+    toggle:Function;
+    actions:TableAction[];
 }
 
 export interface TableSchemaConfig {

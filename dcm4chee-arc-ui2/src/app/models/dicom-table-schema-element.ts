@@ -1,7 +1,10 @@
 import {
+    ActionsMenu,
     DynamicPipe,
     TableAction, TableSchemaElementType,
 } from "../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+
+
 
 export class TableSchemaElement {
     type:TableSchemaElementType;
@@ -17,6 +20,7 @@ export class TableSchemaElement {
     calculatedWidth?:string;
     pipe?:DynamicPipe;
     pxWidth?:number;
+    menu?:ActionsMenu;
     private _elementId:string;
 
     constructor(
@@ -33,6 +37,7 @@ export class TableSchemaElement {
             pxWidth?:number
             pipe?:DynamicPipe,
             title?:string,
+            menu?:ActionsMenu,
             description?:string
         } = {}
     ){
@@ -48,6 +53,7 @@ export class TableSchemaElement {
         this.pipe = options.pipe;
         this.pxWidth = options.pxWidth;
         this.title = options.title;
+        this.menu = options.menu;
         this.description = options.description;
 
         this.calculateElementID();

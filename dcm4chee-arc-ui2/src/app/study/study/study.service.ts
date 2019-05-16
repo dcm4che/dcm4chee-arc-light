@@ -14,6 +14,9 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {HttpHeaders} from "@angular/common/http";
+import {DicomTableSchema, DynamicPipe} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
+import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 
 @Injectable()
 export class StudyService {
@@ -84,12 +87,12 @@ export class StudyService {
                     tag: "button",
                     id: "count",
                     text: quantityText.count,
-                    description: "QUERIE ONLY THE COUNT"
+                    description: "QUERY ONLY THE COUNT"
                 },{
                     tag: "button",
                     id: "size",
                     text: quantityText.size,
-                    description: "QUERIE ONLY THE SIZE"
+                    description: "QUERY ONLY THE SIZE"
                 });
         }
         return {
@@ -291,5 +294,587 @@ export class StudyService {
         this.$http.get("",undefined,false,dcmWebApp).subscribe(res=>{
             console.log("res",res);
         })
+    }
+
+    PATIENT_STUDIES_TABLE_SCHEMA($this, actions):DicomTableSchema{
+        return {
+            patient:[
+                new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-down',
+                                text:'',
+                                showIf:(e)=>{
+                                    return e.showStudies
+                                }
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"patient",
+                                    action:"toggle_studies"
+                                },e);
+                                // e.showStudies = !e.showStudies;
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-right',
+                                text:'',
+                                showIf:(e)=>{
+                                    return !e.showStudies
+                                }
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                // e.showStudies = !e.showStudies;
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"patient",
+                                    action:"toggle_studies"
+                                },e);
+                                // actions.call(this, 'study_arrow',e);
+                            }
+                        }
+                    ],
+                    headerDescription:"Show studies",
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
+                    type:"actions-menu",
+                    header:"",
+                    menu:{
+                            toggle:(e)=>{
+                                console.log("e",e);
+                                e.showMenu = !e.showMenu;
+                            },
+                            actions:[
+                                {
+                                    icon:{
+                                        tag:'span',
+                                        cssClass:'glyphicon glyphicon-pencil',
+                                        text:''
+                                    },
+                                    click:(e)=>{
+                                        console.log("e",e);
+                                        //TODO edit patient
+                                    }
+                                },{
+                                    icon:{
+                                        tag:'span',
+                                        cssClass:'glyphicon glyphicon-plus',
+                                        text:''
+                                    },
+                                    click:(e)=>{
+                                        console.log("e",e);
+                                        //TODO create mwl
+                                    }
+                                },{
+                                    icon:{
+                                        tag:'span',
+                                        cssClass:'custom_icon csv_icon_black',
+                                        text:''
+                                    },
+                                    click:(e)=>{
+                                        console.log("e",e);
+                                        //TODO download csv
+                                    }
+                                }
+                            ]
+                    },
+                    headerDescription:"Actions",
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Patient's Name",
+                    pathToValue:"00100010.Value[0].Alphabetic",
+                    headerDescription:"Patient's Name",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Patient ID",
+                    pathToValue:"00100020.Value[0]",
+                    headerDescription:"Patient ID",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Issuer of Patient",
+                    pathToValue:"00100021.Value[0]",
+                    headerDescription:"Issuer of Patient ID",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Birth Date",
+                    pathToValue:"00100030.Value[0]",
+                    headerDescription:"Patient's Birth Date",
+                    widthWeight:0.5,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Sex",
+                    pathToValue:"00100040.Value[0]",
+                    headerDescription:"Patient's Sex",
+                    widthWeight:0.2,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Patient Comments",
+                    pathToValue:"00104000.Value[0]",
+                    headerDescription:"Patient Comments",
+                    widthWeight:3,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"#S",
+                    pathToValue:"00201200.Value[0]",
+                    headerDescription:"Number of Patient Related Studies",
+                    widthWeight:0.2,
+                    calculatedWidth:"20%"
+                })
+            ],
+            studies:[
+                new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-down',
+                                text:'',
+                                showIf:(e)=>{
+                                    return e.showSeries
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"studies",
+                                    action:"toggle_series"
+                                },e);
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-right',
+                                text:'',
+                                showIf:(e)=>{
+                                    return !e.showSeries
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"studies",
+                                    action:"toggle_series"
+                                },e);
+                            }
+                        }
+                    ],
+                    headerDescription:"Show studies",
+                    widthWeight:0.3,
+                    calculatedWidth:"6%"
+                }),
+                new TableSchemaElement({
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-option-vertical',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                /*                                actions.call($this, {
+                                                                    event:"click",
+                                                                    level:"patient",
+                                                                    action:"toggle_studies"
+                                                                },e);*/
+                                // e.showAttributes = !e.showAttributes;
+                            }
+                        },
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    pxWidth:65
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Study ID",
+                    pathToValue:"[00200010].Value[0]",
+                    headerDescription:"Study ID",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),new TableSchemaElement({
+                    type:"value",
+                    header:"Study Instance UID",
+                    pathToValue:"[0020000D].Value[0]",
+                    headerDescription:"Study Instance UID",
+                    widthWeight:3,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Study Date",
+                    pathToValue:"[00080020].Value[0]",
+                    headerDescription:"Study Date",
+                    widthWeight:0.6,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Study Time",
+                    pathToValue:"[00080030].Value[0]",
+                    headerDescription:"Study Time",
+                    widthWeight:0.6,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"R. Physician's Name",
+                    pathToValue:"[00080090].Value[0].Alphabetic",
+                    headerDescription:"Referring Physician's Name",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Accession Number",
+                    pathToValue:"[00080050].Value[0]",
+                    headerDescription:"Accession Number",
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Modalities",
+                    pathToValue:"[00080061].Value[0]",
+                    headerDescription:"Modalities in Study",
+                    widthWeight:0.5,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Study Description",
+                    pathToValue:"[00081030].Value[0]",
+                    headerDescription:"Study Description",
+                    widthWeight:2,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"#S",
+                    pathToValue:"[00201206].Value[0]",
+                    headerDescription:"Number of Study Related Series",
+                    widthWeight:0.2,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"#I",
+                    pathToValue:"[00201208].Value[0]",
+                    headerDescription:"Number of Study Related Instances",
+                    widthWeight:0.2,
+                    calculatedWidth:"20%"
+                })
+            ],
+            series:[
+                new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-down',
+                                text:'',
+                                showIf:(e)=>{
+                                    return e.showInstances
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"series",
+                                    action:"toggle_instances"
+                                },e);
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-chevron-right',
+                                text:'',
+                                showIf:(e)=>{
+                                    return !e.showInstances
+                                }
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"series",
+                                    action:"toggle_instances"
+                                },e);
+                            }
+                        }
+                    ],
+                    headerDescription:"Show Instances",
+                    widthWeight:0.2,
+                    calculatedWidth:"6%"
+                }),
+                new TableSchemaElement({
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[                        {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-option-vertical',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            /*                                actions.call($this, {
+                                                                event:"click",
+                                                                level:"patient",
+                                                                action:"toggle_studies"
+                                                            },e);*/
+                            // e.showAttributes = !e.showAttributes;
+                        }
+                    },
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    pxWidth:65
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Station Name",
+                    pathToValue:"00081010.Value[0]",
+                    headerDescription:"Station Name",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Series Number",
+                    pathToValue:"00200011.Value[0]",
+                    headerDescription:"Series Number",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"PPS Start Date",
+                    pathToValue:"00400244.Value[0]",
+                    headerDescription:"Performed Procedure Step Start Date",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"PPS Start Time",
+                    pathToValue:"00400245.Value[0]",
+                    headerDescription:"Performed Procedure Step Start Time",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Body Part",
+                    pathToValue:"00180015.Value[0]",
+                    headerDescription:"Body Part Examined",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Modality",
+                    pathToValue:"00080060.Value[0]",
+                    headerDescription:"Modality",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Series Description",
+                    pathToValue:"0008103E.Value[0]",
+                    headerDescription:"Series Description",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"#I",
+                    pathToValue:"00201209.Value[0]",
+                    headerDescription:"Number of Series Related Instances",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                })
+            ],
+            instance:[
+                new TableSchemaElement({
+                    type:"index",
+                    header:'',
+                    pathToValue:'',
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-option-vertical',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                /*                                actions.call($this, {
+                                                                    event:"click",
+                                                                    level:"patient",
+                                                                    action:"toggle_studies"
+                                                                },e);*/
+                                // e.showAttributes = !e.showAttributes;
+                            }
+                        },
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    pxWidth:65
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"SOP Class UID",
+                    pathToValue:"00080016.Value[0]",
+                    headerDescription:"SOP Class UID",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Instance Number",
+                    pathToValue:"00200013.Value[0]",
+                    headerDescription:"Instance Number",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Content Date",
+                    pathToValue:"00080023.Value[0]",
+                    headerDescription:"Content Date",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"Content Time",
+                    pathToValue:"00080033.Value[0]",
+                    headerDescription:"Content Time",
+                    widthWeight:0.9,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"pipe",
+                    header:"Content Description",
+                    headerDescription:"Content Description",
+                    widthWeight:1.5,
+                    calculatedWidth:"20%",
+                    pipe:new DynamicPipe(ContentDescriptionPipe,undefined)
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    header:"#F",
+                    pathToValue:"00280008.Value[0]",
+                    headerDescription:"Number of Frames",
+                    widthWeight:0.3,
+                    calculatedWidth:"20%"
+                })
+            ]
+        }
     }
 }

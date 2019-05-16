@@ -116,7 +116,7 @@ export class StudyComponent implements OnInit {
     };
 
     tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
-        tableSchema:Globalvar.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions),
+        tableSchema:this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions),
         config:{
             offset:0
         }
@@ -193,34 +193,38 @@ export class StudyComponent implements OnInit {
 
             }
         }else{
-            this.appService.showError("No web app service was selected!");
+            this.appService.showError("No Web Application Service was selected!");
         }
     }
     search(mode?:('next'|'prev'|'current')){
-        // if (this._filter.filterModel.aet){
-        // let callingAet = new Aet(this._filter.filterModel.aet);
-        console.log("this",this.filter);
-        console.log("deviceWebservice",this.deviceWebservice);
-        let filterModel =  _.clone(this._filter.filterModel);
-        if(filterModel.limit){
-            filterModel.limit++;
-        }
-        if(!mode || mode === "current"){
-            filterModel.offset = 0;
-            this.getStudies(filterModel);
+        if(this.deviceWebservice.selectedWebApp){
+            // if (this._filter.filterModel.aet){
+            // let callingAet = new Aet(this._filter.filterModel.aet);
+            console.log("this",this.filter);
+            console.log("deviceWebservice",this.deviceWebservice);
+            let filterModel =  _.clone(this._filter.filterModel);
+            if(filterModel.limit){
+                filterModel.limit++;
+            }
+            if(!mode || mode === "current"){
+                filterModel.offset = 0;
+                this.getStudies(filterModel);
+            }else{
+                if(mode === "next" && this.moreStudies){
+                    filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
+                    this.getStudies(filterModel);
+                }
+                if(mode === "prev" && filterModel.offset > 0){
+                    filterModel.offset = filterModel.filterModel.offset - this._filter.filterModel.offset;
+                    this.getStudies(filterModel);
+                }
+            }
+    /*        }else{
+                this.appService.showError("Calling AET is missing!");
+            }*/
         }else{
-            if(mode === "next" && this.moreStudies){
-                filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
-                this.getStudies(filterModel);
-            }
-            if(mode === "prev" && filterModel.offset > 0){
-                filterModel.offset = filterModel.filterModel.offset - this._filter.filterModel.offset;
-                this.getStudies(filterModel);
-            }
+            this.appService.showError("No web app service was selected!");
         }
-/*        }else{
-            this.appService.showError("Calling AET is missing!");
-        }*/
     }
 
     getStudies(filterModel){
