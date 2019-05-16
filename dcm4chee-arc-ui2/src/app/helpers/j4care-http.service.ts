@@ -157,7 +157,7 @@ export class J4careHttpService{
     }
     getRealm(dcmWebApp?:DcmWebApp){
         let service = this.$httpClient.get('rs/realm');
-        if(dcmWebApp){
+        if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
         return service.map(res => {
@@ -167,7 +167,7 @@ export class J4careHttpService{
                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
                 // resjson = res.json();
-                resjson = res;
+                // resjson = res;
                 resjson = res;
             }catch (e){
                 resjson = [];
