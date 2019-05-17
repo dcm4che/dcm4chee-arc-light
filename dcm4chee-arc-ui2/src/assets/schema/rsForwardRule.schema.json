@@ -4,7 +4,9 @@
   "type": "object",
   "required": [
     "cn",
-    "dcmWebAppName"
+    "dcmWebAppName",
+    "dcmTLSAllowAnyHostname",
+    "dcmTLSDisableTrustManager"
   ],
   "properties": {
     "cn": {
