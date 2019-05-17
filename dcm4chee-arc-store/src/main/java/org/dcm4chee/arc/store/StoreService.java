@@ -88,7 +88,7 @@ public interface StoreService {
     String NOT_AUTHORIZED = "Storage denied.";
     String FAILED_TO_QUERY_STORE_PERMISSION_SERVICE = "Failed to query Store Permission Service";
     String CONFLICTING_PID_NOT_ACCEPTED_MSG = "Patient ID {0} differs from Patient ID {1} in previous received object of Study[uid={2}].";
-    String CONFLICTING_PATIENT_ATTRS_REJECTED_MSG = "Patient [ID={0}] differs from previous received object in {1}";
+    String CONFLICTING_PATIENT_ATTRS_REJECTED_MSG = "Patient with {0} differs from previous received object in attribute {1} {2}";
 
     StoreSession newStoreSession(Association as);
 

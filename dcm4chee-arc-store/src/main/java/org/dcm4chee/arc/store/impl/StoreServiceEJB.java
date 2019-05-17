@@ -665,6 +665,7 @@ public class StoreServiceEJB {
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
                 } else {
+                    checkConflictingPatientAttrs(session, ctx, pat);
                     pat = updatePatient(ctx, pat, now, reasonForTheAttributeModification);
                 }
                 study = createStudy(ctx, pat);
@@ -753,6 +754,22 @@ public class StoreServiceEJB {
         LOG.warn(errorMsg);
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED, errorMsg);
     }
+
+    private void checkConflictingPatientAttrs(StoreSession session, StoreContext ctx, Patient pat)
+            throws DicomServiceException {
+        int[] rejectConflictingPatientAttribute = session.getArchiveAEExtension().rejectConflictingPatientAttribute();
+        if (rejectConflictingPatientAttribute.length == 0)
+            return;
+
+        for (int tag : rejectConflictingPatientAttribute)
+            if (!ctx.getAttributes().getString(tag).equals(pat.getAttributes().getString(tag)))
+                throw new DicomServiceException(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED,
+                        MessageFormat.format(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED_MSG,
+                                pat.getPatientID(),
+                                Keyword.valueOf(tag),
+                                TagUtils.toString(tag)));
+    }
+
 
     private Patient updatePatient(StoreContext ctx, Patient pat, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
