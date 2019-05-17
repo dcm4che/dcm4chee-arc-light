@@ -762,7 +762,7 @@ public class StoreServiceEJB {
             return;
 
         for (int tag : rejectConflictingPatientAttribute)
-            if (!ctx.getAttributes().getString(tag).equals(pat.getAttributes().getString(tag)))
+            if (!Objects.equals(ctx.getAttributes().getString(tag), pat.getAttributes().getString(tag)))
                 throw new DicomServiceException(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED,
                         MessageFormat.format(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED_MSG,
                                 pat.getPatientID(),
