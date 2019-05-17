@@ -1363,6 +1363,18 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.282 NAME 'dcmIssuerOfPatientIDFormat
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.283 NAME 'dcmDeleteStudiesOlderThan'
+  DESC 'Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if their Study Date is longer ago than the specified value in ISO-8601 period format. Format [nn"["<schedule>"]"](PnYnMnD|PnW).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.284 NAME 'dcmDeleteStudiesReceivedBefore'
+  DESC 'Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if they were received longer ago than the specified value in ISO-8601 period format. Format [nn"["<schedule>"]"](PnYnMnD|PnW).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.285 NAME 'dcmDeleteStudiesNotUsedSince'
+  DESC 'Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if they were last accessed longer ago than the specified value in ISO-8601 period format. Format [nn"["<schedule>"]"](PnYnMnD|PnW).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1671,6 +1683,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmStorageClusterID $
     dcmStorageThreshold $
     dcmDeleterThreshold $
+    dcmDeleteStudiesOlderThan $
+    dcmDeleteStudiesReceivedBefore $
+    dcmDeleteStudiesNotUsedSince $
     dcmDeleterThreads $
     dcmExternalRetrieveAET $
     dcmExportStorageID $
