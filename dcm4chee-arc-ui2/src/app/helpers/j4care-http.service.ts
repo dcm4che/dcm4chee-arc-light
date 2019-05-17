@@ -156,19 +156,30 @@ export class J4careHttpService{
         this.setValueInGlobal('getRealmStateActive',false);
     }
     getRealm(dcmWebApp?:DcmWebApp){
-        let service = this.$httpClient.get('rs/realm');
+        let service = this.$http.get('rs/realm');
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
-        return service.map(res => {
+  /*      service.toPromise()
+            .then(res => {
+                var data = res.headers.get('X-Custom-header');
+                console.log(res);
+                console.log(data);
+                return res;
+            },err=>{
+                console.log("err",err);
+            })*/
+        return service
+            .map(res => {
             let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res["url"])){
                     if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                // resjson = res.json();
+                resjson = res.json();
                 // resjson = res;
-                resjson = res;
+                console.log("getRealm Response:",res);
+                // resjson = res.body;
             }catch (e){
                 resjson = [];
             } return resjson;
