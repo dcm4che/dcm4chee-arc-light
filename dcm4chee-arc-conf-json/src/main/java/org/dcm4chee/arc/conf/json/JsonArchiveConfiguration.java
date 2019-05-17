@@ -497,6 +497,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmSchedule", rule.getSchedules());
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateExportInterval(), null);
+            writer.writeNotNullOrDef("dcmExportReoccurredInstances", rule.getExportReoccurredInstances(),
+                    ExportReoccurredInstances.REPLACE);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1840,6 +1842,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateExportInterval(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmExportReoccurredInstances":
+                        rule.setExportReoccurredInstances(ExportReoccurredInstances.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();

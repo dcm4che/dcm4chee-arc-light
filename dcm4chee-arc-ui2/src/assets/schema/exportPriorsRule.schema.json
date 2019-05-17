@@ -5,7 +5,8 @@
   "required": [
     "cn",
     "dcmExporterID",
-    "dcmDuration"
+    "dcmDuration",
+    "dcmExportReoccurredInstances"
   ],
   "properties": {
     "cn": {
@@ -49,6 +50,17 @@
       "description": "Suppress Export of Studies already exported not earlier than the specified interval to avoid duplicate exports.",
       "type": "string",
       "format": "dcmDuration"
+    },
+    "dcmExportReoccurredInstances": {
+      "title": "Export Reoccurred Instances",
+      "description": "Indicates if the entity shall be exported on subsequent occurrence of instances",
+      "type": "string",
+      "default": "REPLACE",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "REPLACE"
+      ]
     }
   }
 }

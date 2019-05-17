@@ -93,7 +93,7 @@ public class ExportPriorsScheduler {
     private ExportManager exportManager;
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getLocations().isEmpty() || ctx.getException() != null)
+        if (ctx.getException() != null)
             return;
 
         Calendar now = Calendar.getInstance();
@@ -102,6 +102,7 @@ public class ExportPriorsScheduler {
         ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
         arcAE.prefetchRules()
                 .filter(((Predicate<ExportPriorsRule>) session::isNotProcessed)
+                        .and(ctx::isExportReoccurredInstances)
                         .and(rule -> rule.match(
                                 session.getRemoteHostName(),
                                 session.getCallingAET(),

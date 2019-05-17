@@ -64,6 +64,8 @@ public class ExportPriorsRule {
 
     private EntitySelector[] entitySelectors = {};
 
+    private ExportReoccurredInstances exportReoccurredInstances = ExportReoccurredInstances.REPLACE;
+
     public ExportPriorsRule() {
     }
 
@@ -124,6 +126,14 @@ public class ExportPriorsRule {
                 && conditions.match(hostName, sendingAET, receivingAET, attrs);
     }
 
+    public ExportReoccurredInstances getExportReoccurredInstances() {
+        return exportReoccurredInstances;
+    }
+
+    public void setExportReoccurredInstances(ExportReoccurredInstances exportReoccurredInstances) {
+        this.exportReoccurredInstances = exportReoccurredInstances;
+    }
+
     @Override
     public String toString() {
         return "ExportPriorsRule{" +
@@ -133,6 +143,7 @@ public class ExportPriorsRule {
                 ", exporterIDs=" + Arrays.toString(exporterIDs) +
                 ", suppressDups=" + suppressDuplicateExportInterval +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
+                ", exportReoccurredInstances=" + exportReoccurredInstances +
                 '}';
     }
 }

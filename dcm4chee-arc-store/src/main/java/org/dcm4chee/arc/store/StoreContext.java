@@ -4,6 +4,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.conf.ArchiveCompressionRule;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.ExportPriorsRule;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
@@ -111,4 +112,6 @@ public interface StoreContext {
     Code getImpaxReportPatientMismatch();
 
     void setImpaxReportPatientMismatch(Code impaxReportPatientMismatch);
+
+    boolean isExportReoccurredInstances(ExportPriorsRule rule);
 }

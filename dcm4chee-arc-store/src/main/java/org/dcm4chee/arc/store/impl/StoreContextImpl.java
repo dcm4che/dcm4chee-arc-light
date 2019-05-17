@@ -45,9 +45,7 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveCompressionRule;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -348,5 +346,13 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setImpaxReportPatientMismatch(Code impaxReportPatientMismatch) {
         this.impaxReportPatientMismatch = impaxReportPatientMismatch;
+    }
+
+    @Override
+    public boolean isExportReoccurredInstances(ExportPriorsRule rule) {
+        ExportReoccurredInstances exportReoccurredInstances = rule.getExportReoccurredInstances();
+        return exportReoccurredInstances == ExportReoccurredInstances.ALWAYS
+                || (exportReoccurredInstances == ExportReoccurredInstances.NEVER && previousInstance == null)
+                || !locations.isEmpty();
     }
 }
