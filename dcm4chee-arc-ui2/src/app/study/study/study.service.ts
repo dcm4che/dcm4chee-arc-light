@@ -364,7 +364,8 @@ export class StudyService {
                                     icon:{
                                         tag:'span',
                                         cssClass:'glyphicon glyphicon-pencil',
-                                        text:''
+                                        text:'',
+                                        description:'Edit this Patient',
                                     },
                                     click:(e)=>{
                                         console.log("e",e);
@@ -374,7 +375,8 @@ export class StudyService {
                                     icon:{
                                         tag:'span',
                                         cssClass:'glyphicon glyphicon-plus',
-                                        text:''
+                                        text:'',
+                                        description:'Add new MWL',
                                     },
                                     click:(e)=>{
                                         console.log("e",e);
@@ -384,7 +386,8 @@ export class StudyService {
                                     icon:{
                                         tag:'span',
                                         cssClass:'custom_icon csv_icon_black',
-                                        text:''
+                                        text:'',
+                                        description:'Download as CSV',
                                     },
                                     click:(e)=>{
                                         console.log("e",e);

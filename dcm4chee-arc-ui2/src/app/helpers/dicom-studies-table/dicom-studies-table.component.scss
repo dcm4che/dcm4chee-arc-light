@@ -63,10 +63,45 @@ $pink:rgba(82, 36, 88, 0.85);
         background: $pink;
         color: white;
       }
+
+      .actions_menu{
+        background: white;
+        display: block;
+        max-width: 90px;
+        z-index: 9999;
+        position: fixed;
+        -webkit-box-shadow: 2px 2px 2px #444;
+        -moz-box-shadow: 2px 2px 2px #444;
+        box-shadow: 2px 2px 2px #444;
+        margin-top: 40px;
+        ul{
+          list-style: none;
+          padding: 0;
+          li{
+            display: block;
+            width: 30px;
+            height: 25px;
+            float: left;
+            a{
+              width: 100%;
+              height: 100%;
+            }
+          }
+        }
+      }
+      &.actions-menu,&.actions{
+        .dicom_table_buttons{
+          text-align: center;
+          float: left;
+        }
+      }
+      &.index{
+        text-align: center;
+
+      }
       .dicom_table_buttons{
         width: 25px;
         display: block;
-        float: left;
         text-align: center;
       }
     }

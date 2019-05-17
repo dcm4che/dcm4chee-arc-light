@@ -14,7 +14,7 @@ import {
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    MatRadioModule,
+    MatRadioModule, MatMenuModule,
 } from '@angular/material';
 import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
@@ -175,6 +175,7 @@ import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve
         MatProgressSpinnerModule,
         MatCheckboxModule,
         MatRadioModule,
+        MatMenuModule,
         WidgetsModule,
         CommonModule,
         CalendarModule,

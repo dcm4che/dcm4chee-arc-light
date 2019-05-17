@@ -32,10 +32,10 @@
                   </a>
                 </ng-container>
                 <ng-container *ngSwitchCase="'actions-menu'">
-                    <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();patient_table.menu.toggle(patient)">
+<!--                    <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" (click)="$event.preventDefault();patient_table.menu.toggle(patient)">
                         <span class="glyphicon glyphicon-option-vertical"></span>
                     </a>
-                    <div class="actions-menu" *ngIf="patient.showMenu">
+                    <div class="actions_menu" *ngIf="patient.showMenu">
                         <ul>
                             <li *ngFor="let action of patient_table.menu.actions">
                                 <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)">
@@ -44,7 +44,14 @@
                                 </a>
                             </li>
                         </ul>
-                    </div>
+                    </div>-->
+                    <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
+                    <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                        <a *ngFor="let action of patient_table.menu.actions" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" title="{{action.icon.description || ''}}">
+                            <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                            <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                        </a>
+                    </mat-menu>
                 </ng-container>
                 <ng-container *ngSwitchCase="'pipe'">{{patient.attrs | dynamicPipe:patient_table.pipe}}</ng-container>
                 <ng-container *ngSwitchCase="'value'">{{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}</ng-container>

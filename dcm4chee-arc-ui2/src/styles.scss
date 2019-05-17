@@ -3556,3 +3556,31 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     border-radius: 0;
   }
 }
+
+.study_action_buttons.mat-menu-panel{
+  min-width: 30px !important;
+  max-width: 96px !important;
+  -webkit-box-shadow: 5px 5px 16px 2px black;
+  -moz-box-shadow: 5px 5px 16px 2px black;
+  box-shadow: 5px 5px 16px 2px black;
+  .mat-menu-content{
+    padding: 0 !important;
+    .dicom_table_buttons{
+      width: 30px;
+      display: block;
+      float: left;
+      height: 25px;
+      text-align: center;
+      line-height: 25px;
+      margin: 1px;
+      background: rgba(204, 204, 204, 0.65);
+      //background: rgba(28, 36, 43, 0.92);
+      //color: rgba(255, 255, 255, 0.9);
+      &:hover{
+        background: #161d23;
+        color: white;
+      }
+    }
+  }
+}
+

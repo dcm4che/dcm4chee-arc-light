@@ -26,6 +26,7 @@ export interface Icon{
     tag:("span"|"i");
     cssClass:string;
     text?:string;
+    description?:string;
     showIf?:Function
 }
 
