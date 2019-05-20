@@ -169,6 +169,12 @@ public class PurgeStorageScheduler extends Scheduler {
         if (desc.getStorageDuration() == StorageDuration.PERMANENT)
             return;
 
+        while (desc.hasRetentionPeriods()
+                && arcDev.getPurgeStoragePollingInterval() != null
+                && deleteStudies(arcDev, desc, true) > 0) {
+            deleteObjectsFromStorage(arcDev, desc);
+        }
+
         if (desc.hasDeleterThresholds()) {
             long minUsableSpace = desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance());
             long deleteSize = sizeToDelete(desc, minUsableSpace);
@@ -179,14 +185,14 @@ public class PurgeStorageScheduler extends Scheduler {
                     BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
             while (arcDev.getPurgeStoragePollingInterval() != null
                     && deleteSize > 0L
-                    && deleteStudies(arcDev, desc) > 0) {
+                    && deleteStudies(arcDev, desc, false) > 0) {
                 deleteObjectsFromStorage(arcDev, desc);
                 deleteSize = sizeToDelete(desc, minUsableSpace);
             }
-        } else {
+        } else if (!desc.hasRetentionPeriods()) {
             LOG.info("Start deleting all objects from {} {}", desc.getStorageDuration(), desc);
             while (arcDev.getPurgeStoragePollingInterval() != null
-                    && deleteStudies(arcDev, desc) > 0) {
+                    && deleteStudies(arcDev, desc, false) > 0) {
                 deleteObjectsFromStorage(arcDev, desc);
             }
         }
@@ -204,10 +210,10 @@ public class PurgeStorageScheduler extends Scheduler {
         }
     }
 
-    private int deleteStudies(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
+    private int deleteStudies(ArchiveDeviceExtension arcDev, StorageDescriptor desc, boolean retentionPeriods) {
         List<Study.PKUID> studyPks;
         try {
-           studyPks = findStudiesForDeletion(arcDev, desc);
+           studyPks = findStudiesForDeletion(arcDev, desc, retentionPeriods);
         } catch (Exception e) {
             LOG.warn("Query for studies for deletion on {} failed", desc, e);
             return 0;
@@ -221,12 +227,10 @@ public class PurgeStorageScheduler extends Scheduler {
                 : deleteStudiesFromDB(arcDev, desc, studyPks);
     }
 
-    private List<Study.PKUID> findStudiesForDeletion(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
+    private List<Study.PKUID> findStudiesForDeletion(ArchiveDeviceExtension arcDev, StorageDescriptor desc,
+            boolean retentionPeriods) {
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
-        List<Study.PKUID> studyPks = desc.getExternalRetrieveAETitle() != null
-                ? ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(desc, deleteStudyBatchSize)
-                : ejb.findStudiesForDeletionOnStorage(desc, deleteStudyBatchSize);
-
+        List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(desc, retentionPeriods, deleteStudyBatchSize);
         String storageID = desc.getStorageID();
         String exportStorageID = desc.getExportStorageID();
         StoreSession storeSession = storeService.newStoreSession(device.getApplicationEntities().iterator().next());

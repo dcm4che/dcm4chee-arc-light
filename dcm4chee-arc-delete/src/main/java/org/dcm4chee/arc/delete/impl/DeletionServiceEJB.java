@@ -46,6 +46,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.RetentionPeriod;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -69,11 +70,15 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -124,13 +129,59 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public List<Study.PKUID> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
+    public List<Study.PKUID> findStudiesForDeletionOnStorage(StorageDescriptor desc, boolean retentionPeriods,
+            int limit) {
         List<String> studyStorageIDs = getStudyStorageIDs(desc);
         LOG.debug("Query for Studies for deletion on {} with StorageIDs={}", desc, studyStorageIDs);
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Study.PKUID.class)
-                .setParameter(1, studyStorageIDs)
+        return em.createQuery(queryStudiesForDeletionOnStorage(desc, studyStorageIDs, retentionPeriods))
                 .setMaxResults(limit)
                 .getResultList();
+    }
+
+    private CriteriaQuery<Study.PKUID> queryStudiesForDeletionOnStorage(
+            StorageDescriptor desc, List<String> studyStorageIDs, boolean retentionPeriods) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Study.PKUID> query = cb.createQuery(Study.PKUID.class);
+        Root<Study> study = query.from(Study.class);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(study.get(Study_.storageIDs).in(studyStorageIDs));
+        String externalRetrieveAETitle = desc.getExternalRetrieveAETitle();
+        if (externalRetrieveAETitle != null)
+            predicates.add(cb.equal(study.get(Study_.externalRetrieveAET), externalRetrieveAETitle));
+        if (retentionPeriods)
+            retentionPeriods(predicates, cb, study, desc);
+        return query.select(cb.construct(Study.PKUID.class, study.get(Study_.pk), study.get(Study_.studyInstanceUID)))
+                .where(predicates.toArray(new Predicate[0]))
+                .orderBy(cb.asc(study.get(Study_.accessTime)));
+    }
+
+    private void retentionPeriods(List<Predicate> predicates, CriteriaBuilder cb, Root<Study> study, StorageDescriptor desc) {
+        Calendar now = Calendar.getInstance();
+        List<Predicate> list = new ArrayList<>();
+        desc.getRetentionPeriod(RetentionPeriod.DeleteStudies.ReceivedBefore, now).ifPresent(
+                period -> list.add(beforeDate(cb, study.get(Study_.createdTime), period)));
+        desc.getRetentionPeriod(RetentionPeriod.DeleteStudies.OlderThan, now).ifPresent(
+                period -> list.add(beforeDA(cb, study.get(Study_.studyDate), period)));
+        desc.getRetentionPeriod(RetentionPeriod.DeleteStudies.NotUsedSince, now).ifPresent(
+                period -> list.add(beforeDate(cb, study.get(Study_.accessTime), period)));
+        switch (list.size()) {
+            case 0:
+                break;
+            case 1:
+                predicates.add(list.get(0));
+                break;
+            default:
+                predicates.add(cb.or(list.toArray(new Predicate[0])));
+                break;
+        }
+    }
+
+    private Predicate beforeDA(CriteriaBuilder cb, Path<String> stringPath, Period period) {
+        return cb.lessThanOrEqualTo(stringPath, BASIC_ISO_DATE.format(LocalDate.now().minus(period)));
+    }
+
+    private Predicate beforeDate(CriteriaBuilder cb, Path<Date> datePath, Period period) {
+        return cb.lessThanOrEqualTo(datePath, java.sql.Date.valueOf(LocalDate.now().minus(period)));
     }
 
     public int instancesNotStoredOnExportStorage(Long studyPk, StorageDescriptor desc) {
@@ -146,18 +197,6 @@ public class DeletionServiceEJB {
                 .setParameter(2, Collections.singletonList(desc.getExportStorageID()))
                 .getResultList());
         return onStorage.size();
-    }
-
-    public List<Study.PKUID> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
-        List<String> studyStorageIDs = getStudyStorageIDs(desc);
-        String externalRetrieveAETitle = desc.getExternalRetrieveAETitle();
-        LOG.debug("Query for Studies for deletion on {} with ExternalRetrieveAET={} and StorageIDs={}",
-                desc, externalRetrieveAETitle, studyStorageIDs);
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Study.PKUID.class)
-                .setParameter(1, studyStorageIDs)
-                .setParameter(2, externalRetrieveAETitle)
-                .setMaxResults(limit)
-                .getResultList();
     }
 
     public List<Series> findSeriesWithPurgedInstances(Long studyPk) {
@@ -595,7 +634,7 @@ public class DeletionServiceEJB {
 
     public List<Study> findExpiredStudies(int studyFetchSize) {
         return em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
-                .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                .setParameter(1, BASIC_ISO_DATE.format(LocalDate.now()))
                 .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
                 .setMaxResults(studyFetchSize)
                 .getResultList();
@@ -603,7 +642,7 @@ public class DeletionServiceEJB {
 
     public List<Series> findExpiredSeries(int seriesFetchSize) {
         return em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
-                .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                .setParameter(1, BASIC_ISO_DATE.format(LocalDate.now()))
                 .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
                 .setMaxResults(seriesFetchSize)
                 .getResultList();

@@ -44,9 +44,11 @@ import org.dcm4che3.util.StringUtils;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -70,6 +72,8 @@ public final class StorageDescriptor {
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
+    private final EnumMap<RetentionPeriod.DeleteStudies,List<RetentionPeriod>> retentionPeriods =
+            new EnumMap(RetentionPeriod.DeleteStudies.class);
 
     public StorageDescriptor() {
     }
@@ -214,6 +218,37 @@ public final class StorageDescriptor {
                 return deleterThreshold.getMinUsableDiskSpace();
         }
         return -1L;
+    }
+
+    public boolean hasRetentionPeriods() {
+        return !retentionPeriods.isEmpty();
+    }
+
+    public String[] getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies deleteStudies) {
+        List<RetentionPeriod> retentionPeriods = this.retentionPeriods.get(deleteStudies);
+        return retentionPeriods == null ? StringUtils.EMPTY_STRING
+                : retentionPeriods.stream().map(RetentionPeriod::toString).toArray(String[]::new);
+    }
+
+    private List<RetentionPeriod> getRetentionPeriods(RetentionPeriod.DeleteStudies deleteStudies) {
+        return retentionPeriods.getOrDefault(deleteStudies, Collections.emptyList());
+    }
+
+    private void setRetentionPeriods(RetentionPeriod.DeleteStudies deleteStudies, String... ss) {
+        if (ss.length == 0)
+            retentionPeriods.remove(deleteStudies);
+        else
+            retentionPeriods.put(deleteStudies,
+                    Stream.of(ss)
+                    .map(RetentionPeriod::valueOf)
+                    .sorted()
+                    .collect(Collectors.toList()));
+    }
+
+    public Optional<Period> getRetentionPeriod(RetentionPeriod.DeleteStudies deleteStudies, Calendar cal) {
+        List<RetentionPeriod> retentionPeriods = this.retentionPeriods.get(deleteStudies);
+        return retentionPeriods == null ? Optional.empty()
+                : retentionPeriods.stream().filter(x -> x.match(cal)).map(RetentionPeriod::getPeriod).findFirst();
     }
 
     public void setProperty(String name, String value) {

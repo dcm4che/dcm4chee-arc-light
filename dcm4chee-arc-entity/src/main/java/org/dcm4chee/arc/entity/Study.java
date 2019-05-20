@@ -79,16 +79,6 @@ import java.util.*;
                         "join fetch p.attributesBlob " +
                         "where st.studyInstanceUID = ?1"),
         @NamedQuery(
-                name=Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME,
-                query="select new org.dcm4chee.arc.entity.Study$PKUID(st.pk, st.studyInstanceUID) from Study st " +
-                        "where st.storageIDs in ?1 " +
-                        "order by st.accessTime"),
-        @NamedQuery(
-                name=Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET,
-                query="select new org.dcm4chee.arc.entity.Study$PKUID(st.pk, st.studyInstanceUID) from Study st " +
-                        "where st.storageIDs in ?1 and st.externalRetrieveAET = ?2 " +
-                        "order by st.accessTime"),
-        @NamedQuery(
                 name=Study.UPDATE_ACCESS_TIME,
                 query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1"),
         @NamedQuery(
@@ -163,8 +153,6 @@ public class Study {
     public static final String FIND_BY_PATIENT = "Study.findByPatient";
     public static final String FIND_BY_STUDY_IUID = "Study.findByStudyIUID";
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
-    public static final String FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME = "Study.findPkByStorageIDsOrderByAccessTime";
-    public static final String FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET = "Study.findPkByStorageIDsAndExtRetrAET";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
     public static final String SET_STUDY_SIZE = "Study.setStudySize";
     public static final String SET_COMPLETENESS = "Study.setCompleteness";
