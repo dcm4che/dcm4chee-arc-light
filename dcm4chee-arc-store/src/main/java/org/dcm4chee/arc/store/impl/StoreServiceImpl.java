@@ -463,6 +463,7 @@ class StoreServiceImpl implements StoreService {
         coercion = coerceAttributesByXSL(ctx, rule, coercion);
         coercion = mergeAttributesFromMWL(ctx, rule, coercion);
         coercion = SupplementAssigningAuthorities.forInstance(rule.getSupplementFromDevice(), coercion);
+        coercion = rule.supplementIssuerOfPatientID(coercion);
         coercion = rule.nullifyIssuerOfPatientID(ctx.getAttributes(), coercion);
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (coercion != null)

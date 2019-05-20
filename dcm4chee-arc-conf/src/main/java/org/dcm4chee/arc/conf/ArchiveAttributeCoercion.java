@@ -45,6 +45,7 @@ import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.util.AttributesFormat;
 
 import java.util.Arrays;
 
@@ -314,6 +315,34 @@ public class ArchiveAttributeCoercion {
     private boolean nullifyIssuerOfPatientID(Attributes attrs) {
         return nullifyIssuerOfPatientID != null
                 && nullifyIssuerOfPatientID.test(Issuer.fromIssuerOfPatientID(attrs), issuerOfPatientIDs);
+    }
+
+    public AttributesCoercion supplementIssuerOfPatientID(final AttributesCoercion next) {
+        if (issuerOfPatientIDFormat == null)
+            return next;
+
+        return new AttributesCoercion() {
+            @Override
+            public void coerce(Attributes attrs, Attributes modified) {
+                String issuerOfPatientID = attrs.getString(Tag.IssuerOfPatientID);
+                String supplementIssuerOfPatientID = new AttributesFormat(issuerOfPatientIDFormat).format(attrs);
+
+                attrs.setString(Tag.IssuerOfPatientID, VR.LO,
+                        issuerOfPatientID != null && !issuerOfPatientID.isEmpty()
+                                ? issuerOfPatientID + "-" + supplementIssuerOfPatientID
+                                : supplementIssuerOfPatientID);
+                if (modified != null)
+                    modified.setString(Tag.IssuerOfPatientID, VR.LO, issuerOfPatientID);
+
+                if (next != null)
+                    next.coerce(attrs, modified);
+            }
+
+            @Override
+            public String remapUID(String uid) {
+                return next != null ? next.remapUID(uid) : uid;
+            }
+        };
     }
 
     @Override
