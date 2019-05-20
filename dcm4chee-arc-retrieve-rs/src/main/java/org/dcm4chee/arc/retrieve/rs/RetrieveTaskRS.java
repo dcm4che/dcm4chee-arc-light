@@ -564,7 +564,6 @@ public class RetrieveTaskRS {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status);
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setBatchID(batchID);
         taskQueryParam.setQueueName(dcmQueueName);
         return taskQueryParam;
     }
@@ -573,6 +572,7 @@ public class RetrieveTaskRS {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setRemoteAET(remoteAET);
+        taskQueryParam.setBatchID(batchID);
         taskQueryParam.setDestinationAET(destinationAET);
         taskQueryParam.setStudyIUID(studyIUID);
         taskQueryParam.setCreatedTime(createdTime);

@@ -194,6 +194,8 @@ public class MatchTask {
         if (taskQueryParam.getUpdatedTime() != null)
             queryBuilder.dateRange(
                     predicates, retrieveTask.get(RetrieveTask_.updatedTime), taskQueryParam.getUpdatedTime());
+        if (taskQueryParam.getBatchID() != null)
+            predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.batchID), taskQueryParam.getBatchID()));
     }
 
     private void matchDiff(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<DiffTask> diffTask) {
