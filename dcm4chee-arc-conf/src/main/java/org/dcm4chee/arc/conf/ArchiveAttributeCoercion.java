@@ -73,6 +73,7 @@ public class ArchiveAttributeCoercion {
     private NullifyIssuer nullifyIssuerOfPatientID;
     private Issuer[] issuerOfPatientIDs = {};
     private Device supplementFromDevice;
+    private String issuerOfPatientIDFormat;
 
     public ArchiveAttributeCoercion() {
     }
@@ -254,6 +255,14 @@ public class ArchiveAttributeCoercion {
         return this;
     }
 
+    public String getIssuerOfPatientIDFormat() {
+        return issuerOfPatientIDFormat;
+    }
+
+    public void setIssuerOfPatientIDFormat(String issuerOfPatientIDFormat) {
+        this.issuerOfPatientIDFormat = issuerOfPatientIDFormat;
+    }
+
     public boolean match(String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
         return this.role == role && this.dimse == dimse
                 && isEmptyOrContains(hostNames, hostName)
@@ -326,6 +335,7 @@ public class ArchiveAttributeCoercion {
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
                 + ", nullifyIssuerOfPatientID=" + nullifyIssuerOfPatientID
                 + ", issuerOfPatientIDs=" + Arrays.toString(issuerOfPatientIDs)
+                + ", issuerOfPatientIDFormat=" + issuerOfPatientIDFormat
                 + ", supplementFromDeviceName="
                 + (supplementFromDevice != null ? supplementFromDevice.getDeviceName() : null)
                 + "]";

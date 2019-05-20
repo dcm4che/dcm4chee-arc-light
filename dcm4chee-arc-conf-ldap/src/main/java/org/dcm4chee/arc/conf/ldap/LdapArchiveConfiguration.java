@@ -3635,6 +3635,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                supplementDeviceRef(coercion), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID", coercion.getNullifyIssuerOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", coercion.getIssuerOfPatientIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIssuerOfPatientIDFormat", coercion.getIssuerOfPatientIDFormat(), null);
         return attrs;
     }
 
@@ -3673,6 +3674,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         : loadSupplementFromDevice(supplementDeviceDN));
                 coercion.setNullifyIssuerOfPatientID(LdapUtils.enumValue(NullifyIssuer.class, attrs.get("dcmNullifyIssuerOfPatientID"), null));
                 coercion.setIssuerOfPatientIDs(toIssuers(LdapUtils.stringArray(attrs.get("dcmIssuerOfPatientID"))));
+                coercion.setIssuerOfPatientIDFormat(LdapUtils.stringValue(attrs.get("dcmIssuerOfPatientIDFormat"), null));
                 coercions.add(coercion);
             }
         } finally {
@@ -3730,6 +3732,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmNullifyIssuerOfPatientID",
                 prev.getNullifyIssuerOfPatientID(), coercion.getNullifyIssuerOfPatientID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIssuerOfPatientID", prev.getIssuerOfPatientIDs(), coercion.getIssuerOfPatientIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIssuerOfPatientIDFormat",
+                prev.getIssuerOfPatientIDFormat(), coercion.getIssuerOfPatientIDFormat(), null);
         return mods;
     }
 
