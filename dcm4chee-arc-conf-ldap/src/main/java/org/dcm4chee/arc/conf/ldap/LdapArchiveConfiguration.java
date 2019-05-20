@@ -1761,6 +1761,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getRetrieveCacheStorageID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveCacheMaxParallel",
                 descriptor.getRetrieveCacheMaxParallel(), 10);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteStudiesOlderThan",
+                descriptor.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteStudiesReceivedBefore",
+                descriptor.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteStudiesNotUsedSince",
+                descriptor.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
         return attrs;
     }
 
@@ -1797,6 +1803,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.stringValue(attrs.get("dcmRetrieveCacheStorageID"), null));
                 desc.setRetrieveCacheMaxParallel(
                         LdapUtils.intValue(attrs.get("dcmRetrieveCacheMaxParallel"), 10));
+                desc.setRetentionPeriods(RetentionPeriod.DeleteStudies.OlderThan,
+                        LdapUtils.stringArray(attrs.get("dcmDeleteStudiesOlderThan")));
+                desc.setRetentionPeriods(RetentionPeriod.DeleteStudies.ReceivedBefore,
+                        LdapUtils.stringArray(attrs.get("dcmDeleteStudiesReceivedBefore")));
+                desc.setRetentionPeriods(RetentionPeriod.DeleteStudies.NotUsedSince,
+                        LdapUtils.stringArray(attrs.get("dcmDeleteStudiesNotUsedSince")));
                 arcdev.addStorageDescriptor(desc);
             }
         } finally {
@@ -1866,6 +1878,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getRetrieveCacheStorageID(), desc.getRetrieveCacheStorageID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveCacheMaxParallel",
                 prev.getRetrieveCacheMaxParallel(), desc.getRetrieveCacheMaxParallel(), 10);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteStudiesOlderThan",
+                prev.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan),
+                desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan));
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteStudiesReceivedBefore",
+                prev.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore),
+                desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteStudiesNotUsedSince",
+                prev.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince),
+                desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
         return mods;
     }
 

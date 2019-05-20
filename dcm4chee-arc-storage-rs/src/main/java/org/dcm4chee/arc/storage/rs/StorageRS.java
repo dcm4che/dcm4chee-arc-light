@@ -137,6 +137,12 @@ public class StorageRS {
                     writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
                     writer.writeNotEmpty("dicomAETitle", ss.aets);
                     writer.writeNotNullOrDef("dcmStorageClusterID", desc.getStorageClusterID(), null);
+                    writer.writeNotEmpty("dcmDeleteStudiesOlderThan",
+                            desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan));
+                    writer.writeNotEmpty("dcmDeleteStudiesReceivedBefore",
+                            desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
+                    writer.writeNotEmpty("dcmDeleteStudiesNotUsedSince",
+                            desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
                     writer.writeNotEmpty("usages", ss.usages);
                     gen.write("usableSpace", ss.usableSpace);
                     gen.write("totalSpace", ss.totalSpace);

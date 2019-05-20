@@ -378,6 +378,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmExportStorageID", st.getExportStorageID(), null);
             writer.writeNotNullOrDef("dcmRetrieveCacheStorageID", st.getRetrieveCacheStorageID(), null);
             writer.writeNotDef("dcmRetrieveCacheMaxParallel", st.getRetrieveCacheMaxParallel(), 10);
+            writer.writeNotEmpty("dcmDeleteStudiesOlderThan", st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan));
+            writer.writeNotEmpty("dcmDeleteStudiesReceivedBefore", st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
+            writer.writeNotEmpty("dcmDeleteStudiesNotUsedSince", st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1579,6 +1582,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRetrieveCacheMaxParallel":
                         st.setRetrieveCacheMaxParallel(reader.intValue());
+                        break;
+                    case "dcmDeleteStudiesOlderThan":
+                        st.setRetentionPeriods(RetentionPeriod.DeleteStudies.OlderThan, reader.stringArray());
+                        break;
+                    case "dcmDeleteStudiesReceivedBefore":
+                        st.setRetentionPeriods(RetentionPeriod.DeleteStudies.ReceivedBefore, reader.stringArray());
+                        break;
+                    case "dcmDeleteStudiesNotUsedSince":
+                        st.setRetentionPeriods(RetentionPeriod.DeleteStudies.NotUsedSince, reader.stringArray());
                         break;
                     default:
                         reader.skipUnknownProperty();

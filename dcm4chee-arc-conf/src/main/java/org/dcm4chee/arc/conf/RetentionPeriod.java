@@ -50,7 +50,7 @@ import java.util.Calendar;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2019
  */
-public class RetentionPeriod implements Comparable<DeleterThreshold> {
+public class RetentionPeriod implements Comparable<RetentionPeriod> {
     private final String value;
     private final Period period;
     private final ScheduleExpression schedule;
@@ -94,11 +94,11 @@ public class RetentionPeriod implements Comparable<DeleterThreshold> {
     }
 
     @Override
-    public int compareTo(DeleterThreshold o) {
+    public int compareTo(RetentionPeriod o) {
         return schedule != null ? o.schedule != null ? value.compareTo(o.value) : -1 : o.schedule != null ? 1 : 0;
     }
 
     public enum DeleteStudies {
-        OlderThan, ReceivedBefore, NotUsedSince;
+        OlderThan, ReceivedBefore, NotUsedSince
     }
 }

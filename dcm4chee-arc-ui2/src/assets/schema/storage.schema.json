@@ -118,6 +118,33 @@
       "items": {
         "type": "string"
       }
+    },
+    "dcmDeleteStudiesOlderThan": {
+      "title": "Delete Studies Older Than",
+      "description": "Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if their Study Date is longer ago than the specified value in ISO-8601 period format. Format [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesReceivedBefore": {
+      "title": "Delete Studies Received Before",
+      "description": "Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if they were received longer ago than the specified value in ISO-8601 period format. Format [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesNotUsedSince": {
+      "title": "Delete Studies Not Used Since",
+      "description": "Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if they were last accessed longer ago than the specified value in ISO-8601 period format. Format [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
     }
   }
 }
