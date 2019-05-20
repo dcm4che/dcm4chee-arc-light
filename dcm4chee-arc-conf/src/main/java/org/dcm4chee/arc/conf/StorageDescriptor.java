@@ -230,11 +230,11 @@ public final class StorageDescriptor {
                 : retentionPeriods.stream().map(RetentionPeriod::toString).toArray(String[]::new);
     }
 
-    private List<RetentionPeriod> getRetentionPeriods(RetentionPeriod.DeleteStudies deleteStudies) {
+    public List<RetentionPeriod> getRetentionPeriods(RetentionPeriod.DeleteStudies deleteStudies) {
         return retentionPeriods.getOrDefault(deleteStudies, Collections.emptyList());
     }
 
-    private void setRetentionPeriods(RetentionPeriod.DeleteStudies deleteStudies, String... ss) {
+    public void setRetentionPeriods(RetentionPeriod.DeleteStudies deleteStudies, String... ss) {
         if (ss.length == 0)
             retentionPeriods.remove(deleteStudies);
         else
