@@ -27,6 +27,7 @@
         "assets/scss/old_mobile.scss"
       ],
       "scripts": [
+        "../node_modules/keycloak/keycloak.min.js",
         "../node_modules/hammerjs/hammer.min.js",
         "../node_modules/jquery/dist/jquery.min.js",
         "../node_modules/bootstrap/dist/js/bootstrap.min.js",

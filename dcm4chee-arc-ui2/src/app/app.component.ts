@@ -16,6 +16,8 @@ import {j4care} from "./helpers/j4care.service";
 import {PermissionService} from "./helpers/permissions/permission.service";
 import {Observable} from "../../node_modules/rxjs";
 declare var DCM4CHE: any;
+declare var Keycloak: any;
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -57,6 +59,21 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit(){
+/*        console.log("app.component.ts");
+        this.mainservice.keycloak = Keycloak("./assets/lib/keycloak.json");
+        console.log("this.mainservice.keycloak",this.mainservice.keycloak);
+
+        this.mainservice.keycloak.init({ onLoad: 'login-required' }).success((authenticated)=>{
+            console.log("auth",authenticated);
+            if(authenticated){
+                console.log("auth",this.mainservice.keycloak);
+                console.log("auth",this.mainservice.keycloak.token);
+                console.log("auth",this.mainservice.keycloak.realmAccess);
+                console.log("auth",this.mainservice.keycloak.tokenParsed);
+            }
+        }).error((error)=>{
+            console.log("error",error);
+        });*/
         Date.prototype.toDateString = function() {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
@@ -65,6 +82,11 @@ export class AppComponent implements OnInit {
             this.setLogutUrl();
             this.initGetPDQServices();
         });
+    }
+    testLogout(){
+        console.log("in logout",this.mainservice.keycloak);
+        console.log("in logouturl",this.logoutUrl);
+        this.mainservice.keycloak.logout(this.logoutUrl);
     }
     setServerTime(recall?:Function){
         let currentBrowserTime = new Date().getTime();

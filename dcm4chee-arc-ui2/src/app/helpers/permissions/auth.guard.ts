@@ -7,6 +7,7 @@ import {Subscription} from "rxjs/Subscription";
 import {PermissionService} from "./permission.service";
 import {AppService} from "../../app.service";
 
+// let keycloak: any;
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,6 +19,7 @@ export class AuthGuard implements CanActivate {
     ) {}
 
     canActivate(route : ActivatedRouteSnapshot, state : RouterStateSnapshot){
+
         if(this.appservice.global && this.appservice.global.notSecure){
             return true;
         }else{

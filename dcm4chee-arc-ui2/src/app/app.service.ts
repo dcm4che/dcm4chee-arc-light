@@ -14,7 +14,7 @@ export class AppService implements OnInit, OnDestroy{
     private _user: User;
     private _global;
     subscription: Subscription;
-
+    keycloak;
     constructor(
         public ngHttp:Http,
         public $httpClient:HttpClient

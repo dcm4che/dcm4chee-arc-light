@@ -3520,6 +3520,11 @@ karma@1.4.1:
     tmp "0.0.28"
     useragent "^2.1.10"
 
+keycloak@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/keycloak/-/keycloak-1.2.0.tgz#2ff4cc57102842f2eecc2f4bb206306596d7b025"
+  integrity sha1-L/TMVxAoQvLuzC9LsgYwZZbXsCU=
+
 killable@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/killable/-/killable-1.0.0.tgz#da8b84bd47de5395878f95d64d02f2449fe05e6b"
