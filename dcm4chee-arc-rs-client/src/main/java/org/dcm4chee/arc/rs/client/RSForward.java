@@ -87,7 +87,6 @@ public class RSForward {
                 request.getRemoteUser(),
                 request.getRemoteHost());
         String requestURI = request.getRequestURI();
-        String appendURI = requestURI.substring(requestURI.indexOf("/rs/") + 4);
 
         arcAE.findRSForwardRules(rsOp, request).forEach(
                 rule -> {
