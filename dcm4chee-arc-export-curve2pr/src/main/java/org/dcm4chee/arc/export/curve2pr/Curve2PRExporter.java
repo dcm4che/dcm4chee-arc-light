@@ -44,6 +44,7 @@ package org.dcm4chee.arc.export.curve2pr;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
@@ -61,16 +62,14 @@ import org.dcm4chee.arc.store.StoreSession;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2019
  */
 public class Curve2PRExporter extends AbstractExporter {
+    private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
     private static final int[] TOP_LEFT = {1, 1};
     private static final int[] VOI_LUT_TAGS = {
             Tag.WindowCenter,
@@ -88,16 +87,23 @@ public class Curve2PRExporter extends AbstractExporter {
 
     private final RetrieveService retrieveService;
     private final StoreService storeService;
-    private final int[] commonTags;
+    private final int[] patStudyTags;
+    private final Attributes propsAttrs = new Attributes();
 
     Curve2PRExporter(ExporterDescriptor descriptor, RetrieveService retrieveService, StoreService storeService) {
         super(descriptor);
         this.retrieveService = retrieveService;
         this.storeService = storeService;
-        this.commonTags = commonTags(retrieveService.getArchiveDeviceExtension());
+        this.patStudyTags = patStudyTags(retrieveService.getArchiveDeviceExtension());
+        for (Map.Entry<String, String> prop : descriptor.getProperties().entrySet()) {
+            if (prop.getKey().startsWith("PR.")) {
+                int tag = TagUtils.forName(prop.getKey().substring(3));
+                propsAttrs.setString(tag, dict.vrOf(tag), prop.getValue());
+            }
+        }
     }
 
-    private int[] commonTags(ArchiveDeviceExtension arcdev) {
+    private int[] patStudyTags(ArchiveDeviceExtension arcdev) {
         int[] patTags = arcdev.getAttributeFilter(Entity.Patient).getSelection(false);
         int[] studyTags = arcdev.getAttributeFilter(Entity.Study).getSelection(false);
         int[] dst = new int[patTags.length + studyTags.length - 1 + MOD_LUT_TAGS.length];
@@ -213,36 +219,30 @@ public class Curve2PRExporter extends AbstractExporter {
             if (modLUT.equals(new Attributes(pr, MOD_LUT_TAGS)))
                 return pr;
         }
-        Attributes pr = new Attributes(metadata, commonTags);
         String instanceNumber = Integer.toString(results.size() + 1);
         String seriesInstanceUID = seriesInstanceUID(ctx, results);
         String sopInstanceUID = sopInstanceUID(instanceNumber, seriesInstanceUID);
+        Attributes pr = new Attributes();
+        pr.setNull(Tag.Manufacturer, VR.LO);
+        pr.setString(Tag.SeriesNumber, VR.IS, "0");
+        pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
+        pr.setString(Tag.ContentLabel, VR.CS, "CURVEDATA");
+        pr.setNull(Tag.ContentDescription, VR.LO);
+        pr.setNull(Tag.ContentCreatorName, VR.PN);
+        pr.addAll(propsAttrs);
+        pr.addSelected(metadata, patStudyTags);
         pr.setString(Tag.SOPClassUID, VR.UI, UID.GrayscaleSoftcopyPresentationStateStorage);
         pr.setString(Tag.SOPInstanceUID, VR.UI, sopInstanceUID);
         pr.setString(Tag.Modality, VR.CS, "PR");
-        pr.setString(Tag.Manufacturer, VR.LO, descriptor.getProperty("Manufacturer", null));
-        setNotNull(pr, Tag.StationName, VR.SH, descriptor.getProperty("StationName", null));
-        setNotNull(pr, Tag.ManufacturerModelName, VR.LO, descriptor.getProperty("ManufacturerModelName", null));
-        setNotNull(pr, Tag.SoftwareVersions, VR.LO, descriptor.getProperty("SoftwareVersions", null));
         pr.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-        pr.setString(Tag.SeriesNumber, VR.IS, descriptor.getProperty("SeriesNumber", "0"));
-        pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
         pr.setString(Tag.ImageHorizontalFlip, VR.CS, "N");
         pr.setInt(Tag.ImageRotation, VR.US, 0);
         pr.newSequence(Tag.GraphicLayerSequence, 1).add(graphicLayerItem());
-        pr.setString(Tag.ContentLabel, VR.CS, descriptor.getProperty("ContentLabel", "CURVEDATA"));
-        pr.setString(Tag.ContentDescription, VR.LO, descriptor.getProperty("ContentDescription", null));
         Date now = new Date();
         pr.setDate(Tag.InstanceCreationDateAndTime, now);
         pr.setDate(Tag.PresentationCreationDateAndTime, now);
-        pr.setString(Tag.ContentCreatorName, VR.PN, descriptor.getProperty("ContentCreatorName", null));
         results.add(pr);
         return pr;
-    }
-
-    private static void setNotNull(Attributes pr, int tag, VR vr, String value) {
-        if (value != null)
-            pr.setString(tag, vr, value);
     }
 
     private static String seriesInstanceUID(RetrieveContext ctx, List<Attributes> results) {
