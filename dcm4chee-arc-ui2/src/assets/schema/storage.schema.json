@@ -44,7 +44,7 @@
     },
     "dcmStorageDuration": {
       "title": "Storage Duration",
-      "description": "Indicates if the Storage is used as permanent (=PERMANENT), cache (=CACHE) or temporary (=TEMPORARY) storage. Objects get purged from cache and temporary storage according configured deleter thresholds or - if no deleter threshold is specified - all objects on the Storage will get purged. In the case of temporary storage, the studies which objects were purged are also deleted from the database.",
+      "description": "Indicates if the Storage is used as permanent (=PERMANENT), cache (=CACHE) or temporary (=TEMPORARY) storage. Objects get purged from cache and temporary storage according configured deleter thresholds or - if no deleter threshold is specified and no Retention Periods are configured - all objects on the Storage will get purged. In the case of temporary storage, the studies which objects were purged are also deleted from the database.",
       "type": "string",
       "default": "PERMANENT",
       "enum": [
