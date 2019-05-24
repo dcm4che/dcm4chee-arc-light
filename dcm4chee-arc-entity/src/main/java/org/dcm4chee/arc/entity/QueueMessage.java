@@ -467,20 +467,6 @@ public class QueueMessage {
         return baos.toByteArray();
     }
 
-    public void updateExporterIDInMessageProperties() {
-        if (exportTask == null)
-            return;
-
-        int before = messageProperties.lastIndexOf("\"ExporterID\":\"") + 14;
-        int after = messageProperties.indexOf('"', before);
-        if (messageProperties.substring(before, after).equals(exportTask.getExporterID()))
-            return;
-
-        messageProperties = messageProperties.substring(0, before)
-                + exportTask.getExporterID()
-                + messageProperties.substring(after);
-    }
-
     @PrePersist
     public void onPrePersist() {
         Date now = new Date();

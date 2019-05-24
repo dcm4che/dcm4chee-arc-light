@@ -40,6 +40,7 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -87,7 +88,7 @@ public class RetrieveManagerMDB implements MessageListener {
             Attributes keys = (Attributes) ((ObjectMessage) msg).getObject();
             Outcome outcome = retrieveManager.cmove(
                     msg.getIntProperty("Priority"),
-                    toExternalRetrieveContext(msg, keys),
+                    toExternalRetrieveContext(msg, queueMessage.getRetrieveTask(), keys),
                     queueMessage);
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
@@ -96,11 +97,11 @@ public class RetrieveManagerMDB implements MessageListener {
         }
     }
 
-    private ExternalRetrieveContext toExternalRetrieveContext(Message msg, Attributes keys) throws Exception {
+    private ExternalRetrieveContext toExternalRetrieveContext(Message msg, RetrieveTask task, Attributes keys) {
         return new ExternalRetrieveContext()
-                .setLocalAET(msg.getStringProperty("LocalAET"))
-                .setRemoteAET(msg.getStringProperty("RemoteAET"))
-                .setDestinationAET(msg.getStringProperty("DestinationAET"))
+                .setLocalAET(task.getLocalAET())
+                .setRemoteAET(task.getRemoteAET())
+                .setDestinationAET(task.getDestinationAET())
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg))
                 .setKeys(keys);
     }

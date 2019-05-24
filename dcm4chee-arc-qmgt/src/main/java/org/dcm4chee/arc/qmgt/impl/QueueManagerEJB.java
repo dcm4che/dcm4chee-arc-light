@@ -466,7 +466,6 @@ public class QueueManagerEJB {
         entity.setNumberOfFailures(0);
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);
-        entity.updateExporterIDInMessageProperties();
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
     }
 

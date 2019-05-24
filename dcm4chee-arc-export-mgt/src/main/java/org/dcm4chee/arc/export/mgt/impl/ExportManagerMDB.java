@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -43,6 +43,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
@@ -97,15 +98,16 @@ public class ExportManagerMDB implements MessageListener {
         Outcome outcome;
         ExportContext exportContext = null;
         try {
+            ExportTask exportTask = queueMessage.getExportTask();
             ExporterDescriptor exporterDesc = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getExporterDescriptorNotNull(msg.getStringProperty("ExporterID"));
+                    .getExporterDescriptorNotNull(exportTask.getExporterID());
             Exporter exporter = exporterFactory.getExporter(exporterDesc);
             exportContext = exporter.createExportContext();
             exportContext.setMessageID(msgID);
             exportContext.setBatchID(queueMessage.getBatchID());
-            exportContext.setStudyInstanceUID(msg.getStringProperty("StudyInstanceUID"));
-            exportContext.setSeriesInstanceUID(msg.getStringProperty("SeriesInstanceUID"));
-            exportContext.setSopInstanceUID(msg.getStringProperty("SOPInstanceUID"));
+            exportContext.setStudyInstanceUID(exportTask.getStudyInstanceUID());
+            exportContext.setSeriesInstanceUID(exportTask.getSeriesInstanceUID());
+            exportContext.setSopInstanceUID(exportTask.getSopInstanceUID());
             exportContext.setAETitle(exporterDesc.getAETitle());
             exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
             outcome = exporter.export(exportContext);
