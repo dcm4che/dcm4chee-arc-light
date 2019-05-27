@@ -193,7 +193,7 @@
         }
       }
     },
-    "/devicename": {
+    "/ui2/rs/devicename": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -216,7 +216,7 @@
         }
       }
     },
-    "/devices": {
+    "/ui2/rs/devices": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -295,7 +295,7 @@
         }
       }
     },
-    "/devices/{deviceName}": {
+    "/ui2/rs/devices/{deviceName}": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -556,7 +556,7 @@
         }
       }
     },
-    "/devices/{deviceName}/vendordata": {
+    "/ui2/rs/devices/{deviceName}/vendordata": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -660,7 +660,7 @@
         }
       }
     },
-    "/aes": {
+    "/ui2/rs/aes": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -721,7 +721,7 @@
         }
       }
     },
-    "/unique/aets": {
+    "/ui2/rs/unique/aets": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -744,7 +744,7 @@
         }
       }
     },
-    "/unique/aets/{aet}": {
+    "/ui2/rs/unique/aets/{aet}": {
       "post": {
         "tags": [
           "CONFIG-RS"
@@ -800,7 +800,7 @@
         }
       }
     },
-    "/hl7apps": {
+    "/ui2/rs/hl7apps": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -843,7 +843,7 @@
         }
       }
     },
-    "/unique/webApps/{webAppName}": {
+    "/ui2/rs/unique/webApps/{webAppName}": {
       "post": {
         "tags": [
           "CONFIG-RS"
@@ -899,7 +899,7 @@
         }
       }
     },
-    "/unique/hl7apps": {
+    "/ui2/rs/unique/hl7apps": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -922,7 +922,7 @@
         }
       }
     },
-    "/unique/webAppNames": {
+    "/ui2/rs/unique/webAppNames": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -945,7 +945,7 @@
         }
       }
     },
-    "/unique/hl7apps/{appName}": {
+    "/ui2/rs/unique/hl7apps/{appName}": {
       "post": {
         "tags": [
           "CONFIG-RS"
@@ -1001,7 +1001,7 @@
         }
       }
     },
-    "/webapps": {
+    "/ui2/rs/webapps": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -1073,7 +1073,7 @@
         }
       }
     },
-    "/attribute-filter/{entity}": {
+    "/ui2/rs/attribute-filter/{entity}": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -1108,7 +1108,7 @@
         }
       }
     },
-    "/attribute-set/{type}": {
+    "/ui2/rs/attribute-set/{type}": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -4874,7 +4874,7 @@
         }
       }
     },
-    "/aets": {
+    "/ui2/rs/aets": {
       "get": {
         "tags": [
           "CONFIG-RS",
@@ -17701,7 +17701,7 @@
         }
       }
     },
-    "/export": {
+    "/ui2/rs/export": {
       "get": {
         "tags": [
           "CONFIG-RS",
@@ -17725,7 +17725,7 @@
         }
       }
     },
-    "/reject": {
+    "/ui2/rs/reject": {
       "get": {
         "tags": [
           "CONFIG-RS",
@@ -18098,7 +18098,7 @@
         }
       }
     },
-    "/pdq": {
+    "/ui2/rs/pdq": {
       "get": {
         "tags": [
           "CONFIG-RS",
