@@ -42,7 +42,7 @@ export class StorageSystemsService {
         }
     ];
     search(filters, offset) {
-        return this.$http.get('./rs/storage' + '?' + this.mainservice.param(this.queryParams(filters, offset))).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get('../storage' + '?' + this.mainservice.param(this.queryParams(filters, offset))).map(res => j4care.redirectOnAuthResponse(res));
     };
     queryParams(filters, offset) {
         filters.offset = (offset && offset != '') ? offset : 0;
