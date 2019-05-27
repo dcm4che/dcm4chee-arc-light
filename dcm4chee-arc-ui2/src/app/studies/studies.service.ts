@@ -328,7 +328,7 @@ export class StudiesService {
                 localParams = `?${j4care.objToUrlParams(params)}`
             }
         }
-        return this.$http.put(`./rs/aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{}).map(res => j4care.redirectOnAuthResponse(res))
+        return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{}).map(res => j4care.redirectOnAuthResponse(res))
     }
 
     queryPatients = function(url, params) {
