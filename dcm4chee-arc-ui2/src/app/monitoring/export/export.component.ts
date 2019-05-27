@@ -278,7 +278,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             prepareUrl:(filter)=>{
                 let clonedFilters = {};
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
-                return `./rs/aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+                return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{

@@ -1322,7 +1322,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     });
                     console.log('on post', local);
                     $this.$http.post(
-                        './rs/aets/' + $this.aet + '/rs/mwlitems',
+                        '../aets/' + $this.aet + '/rs/mwlitems',
                         local,
                         {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
                     ).subscribe((response) => {
@@ -1441,7 +1441,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         }
                     });
                     $this.$http.post(
-                        './rs/aets/' + $this.aet + '/rs/studies',
+                        '../aets/' + $this.aet + '/rs/studies',
                         local,
                         {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
                     ).subscribe(
@@ -1780,7 +1780,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             $this.cfpLoadingBar.start();
             if (result){
                 $this.$http.delete(
-                    './rs/aets/' + $this.aet + '/rs/studies/' + study.attrs['0020000D'].Value[0]
+                    '../aets/' + $this.aet + '/rs/studies/' + study.attrs['0020000D'].Value[0]
                 ).subscribe(
                     (response) => {
                         $this.mainservice.setMessage({
@@ -2068,7 +2068,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    $this.$http.delete('./rs/aets/' + $this.aet + '/rs/patients/' + encodeURIComponent(this.service.getPatientId(patient.attrs)),undefined, true).subscribe(
+                    $this.$http.delete('../aets/' + $this.aet + '/rs/patients/' + encodeURIComponent(this.service.getPatientId(patient.attrs)),undefined, true).subscribe(
                         (response) => {
                             $this.mainservice.setMessage({
                                 'title': 'Info',
@@ -2100,7 +2100,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             if (result){
                 $this.cfpLoadingBar.start();
                 $this.$http.delete(
-                    `./rs/aets/${this.aet}/rs/mwlitems/${mwl.attrs['0020000D'].Value[0]}/${mwl.attrs['00400100'].Value[0]['00400009'].Value[0]}`
+                    `../aets/${this.aet}/rs/mwlitems/${mwl.attrs['0020000D'].Value[0]}/${mwl.attrs['00400100'].Value[0]['00400009'].Value[0]}`
                 ).subscribe(
                     (response) => {
                         $this.mainservice.setMessage({
@@ -2382,13 +2382,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     batchID = `batchID=${result.batchID}&`;
                 $this.cfpLoadingBar.start();
                 if(mode === "multiple"){
-                    urlRest = `./rs/aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.mainservice.param(this.createStudyFilterParams())}` ;
+                    urlRest = `..r/aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.mainservice.param(this.createStudyFilterParams())}` ;
                 }else{
                     if(mode === 'multipleExport'){
                         let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
                         if(checkbox != '' && this.mainservice.param(this.createStudyFilterParams()) != '')
                             checkbox = '&' + checkbox;
-                        urlRest = `./rs/aets/${this.aet}/export/${result.selectedExporter}/studies?${batchID}${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
+                        urlRest = `../aets/${this.aet}/export/${result.selectedExporter}/studies?${batchID}${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
                     }else{
                         if($this.externalInternalAetMode === 'external'){
                             // let param = result.dcmQueueName ? `?${batchID}dcmQueueName=${result.dcmQueueName}` : '';
@@ -2396,7 +2396,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                 params['dcmQueueName'] = result.dcmQueueName
                             }
                             urlRest = `${url}/export/dicom:${result.selectedAet}`;
-                            // urlRest = `./rs/aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
+                            // urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
     /*                        switch (dicomMode){
                                 case 'study':
                                     console.log("newUrl",this.studyURL(objectAttr));
@@ -3380,7 +3380,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 'status': 'warning'
             });
         }else{
-            return `./rs/aets/${this.aet}/dimse/${this.aet1}/diff/${this.aet2}/studies`;
+            return `../aets/${this.aet}/dimse/${this.aet1}/diff/${this.aet2}/studies`;
         }
     }
     studyURL(attrs) {
@@ -3653,7 +3653,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                 let object;
                                 let url;
                                 if(this.externalInternalAetMode === 'external'){
-                                    url = `./rs/hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
+                                    url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
                                     object = $this.selected.patients[0].attrs;
 
                                 }else{
@@ -3664,7 +3664,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                         }
                                     });
                                     object =  $this.clipboard.patients;
-                                    url = './rs/aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
+                                    url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
                                 }
                                 console.log("url",url);
                                 $this.$http.post(
@@ -3706,7 +3706,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                         '00080050': {'vr': 'SH', 'Value': ['']}
                                     };
                                     $this.$http.post(
-                                        './rs/aets/' + $this.aet + '/rs/studies',
+                                        '../aets/' + $this.aet + '/rs/studies',
                                         study,
                                         headers
                                     ).map(res => {
@@ -3730,7 +3730,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                     console.log('m', m);
                                                     console.log('i', i);
                                                     $this.$http.post(
-                                                        './rs/aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/copy',
+                                                        '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/copy',
                                                         m,
                                                         headers
                                                     )
@@ -3780,7 +3780,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                     _.forEach($this.clipboard.otherObjects, function (m, i) {
                                         console.log('m', m);
                                         $this.$http.post(
-                                            './rs/aets/' + $this.aet + '/rs/studies/' + $this.target.attrs['0020000D'].Value[0] + '/copy',
+                                            '../aets/' + $this.aet + '/rs/studies/' + $this.target.attrs['0020000D'].Value[0] + '/copy',
                                             m,
                                             headers
                                         )
@@ -3828,7 +3828,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                         '00080050': {'vr': 'SH', 'Value': ['']}
                                     };
                                     $this.$http.post(
-                                        './rs/aets/' + $this.aet + '/rs/studies',
+                                        '../aets/' + $this.aet + '/rs/studies',
                                         study,
                                         headers
                                     )
@@ -3851,7 +3851,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                 _.forEach($this.clipboard.otherObjects, function (m, i) {
                                                     console.log('m', m);
                                                     $this.$http.post(
-                                                        './rs/aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/move/' + $this.reject,
+                                                        '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/move/' + $this.reject,
                                                         m,
                                                         headers
                                                     )
@@ -3896,9 +3896,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                     let url;
                                     let index = 1;
                                     if ($this.target.modus === 'mwl') {
-                                        url = `./rs/aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
+                                        url = `../aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
                                     }else{
-                                        url = `./rs/aets/${$this.aet}/rs/studies/${$this.target.attrs['0020000D'].Value[0]}/move/${$this.reject}`;
+                                        url = `../aets/${$this.aet}/rs/studies/${$this.target.attrs['0020000D'].Value[0]}/move/${$this.reject}`;
                                     }
                                     _.forEach($this.clipboard.otherObjects, function (m, i) {
                                         console.log('m', m);
@@ -4053,7 +4053,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }, 301);
     };
     wadoURL(...args: any[]): any {
-        let i, url = './rs/aets/' + this.aet + '/wado?requestType=WADO';
+        let i, url = '../aets/' + this.aet + '/wado?requestType=WADO';
         for (i = 0; i < arguments.length; i++) {
             _.forEach(arguments[i], (value, key) => {
                 url += '&' + key + '=' + value;
@@ -4335,7 +4335,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }).subscribe(ok=> {
                 if (ok) {
                     this.cfpLoadingBar.start();
-                    let url = './rs/aets/' + this.aet + '/rs/studies/';
+                    let url = '../aets/' + this.aet + '/rs/studies/';
                     switch (mode) {
                         case 'study':
                             url += object.attrs['0020000D'].Value[0] + '/stgver';
