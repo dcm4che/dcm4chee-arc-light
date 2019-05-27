@@ -40,18 +40,19 @@ export class PermissionService {
         let deviceName;
         let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
-            return this.$http.get('../devicename')
+            return this.$http.get('./rs/devicename')
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
                     archiveDeviceName = res.dicomDeviceName;
-                    return this.$http.get('../devices/' + deviceName)
+                    return this.$http.get('./rs/devices/' + deviceName)
                 })
                 .map((res)=>{
                     try{
                         this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
                         let global = _.cloneDeep(this.mainservice.global);
+                        console.log("permission uiconfig");
                         global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
                         global["myDevice"] = res;
                         this.mainservice.deviceName = deviceName;
@@ -60,13 +61,13 @@ export class PermissionService {
                     }catch(e){
                         console.warn("Permission not found!",e);
                         this.mainservice.showError("Permission not found!");
-                        return response.apply(this,[]);
+                        return response.call(this);
                     }
                     // return this.checkMenuTabAccess(url);
-                    return response.apply(this,[]);
+                    return response.call(this);
                 });
         else
-            return response.apply(this,[]);
+            return response.call(this);
     }
     getConfigWithUser(response){
         let deviceName;
@@ -77,12 +78,12 @@ export class PermissionService {
                     this.mainservice.user = user;
                     this.user = user;
                 })
-                .switchMap(res => this.$http.get('../devicename'))
+                .switchMap(res => this.$http.get('./rs/devicename'))
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
                     archiveDeviceName = res.dicomDeviceName;
-                    return this.$http.get('../devices/' + deviceName);
+                    return this.$http.get('./rs/devices/' + deviceName);
                 })
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .map((res)=>{
@@ -92,6 +93,7 @@ export class PermissionService {
                         let global = _.cloneDeep(this.mainservice.global);
                         global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
                         global["myDevice"] = res;
+                        console.log("permission uiconfig");
                         this.mainservice.archiveDeviceName = archiveDeviceName;
                         this.mainservice.deviceName = deviceName;
                         this.mainservice.setGlobal(global);

@@ -64,7 +64,7 @@ export class StorageCommitmentService {
     //     return this.$http.post("../monitor/export/"+pk+"/reschedule/"+exporterID,{});
     // }
 
-    getExporters = () => this.$http.get('../export').map(res => j4care.redirectOnAuthResponse(res));
+    getExporters = () => this.$http.get('./rs/export').map(res => j4care.redirectOnAuthResponse(res));
 
     getFiltersSchema(exporters){
         return [

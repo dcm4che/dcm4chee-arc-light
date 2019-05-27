@@ -15,6 +15,8 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import {j4care} from "./helpers/j4care.service";
 import {PermissionService} from "./helpers/permissions/permission.service";
 import {Observable} from "../../node_modules/rxjs";
+import {HttpClient} from "@angular/common/http";
+import {DcmWebApp} from "./models/dcm-web-app";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -53,17 +55,25 @@ export class AppComponent implements OnInit {
         public config: MatDialogConfig,
         public mainservice: AppService,
         private $http:J4careHttpService,
+        private nativeHttp:Http,
         private permissionService:PermissionService
     ){
         console.log("in app.component construct", window);
     }
 
     ngOnInit(){
-/*        console.log("app.component.ts");
-        this.mainservice.keycloak = Keycloak("./assets/lib/keycloak.json");
-        console.log("this.mainservice.keycloak",this.mainservice.keycloak);
+        // console.log("app.component.ts",this.mainservice.keycloak);
+        console.log("config",this.mainservice);
+        // console.log("dcmWebApps",dcmWebApps);
 
-        this.mainservice.keycloak.init({ onLoad: 'login-required' }).success((authenticated)=>{
+/*        this.mainservice.keycloak = Keycloak({
+            "url":"https://shefki-lifebook:8843/auth",
+            "realm": "dcm4che",
+            "clientId": "dcm4chee-arc-ui"
+        });
+
+        this.mainservice.keycloak.init({ onLoad: 'check-sso', checkLoginIframeInterval: 1}).success((authenticated)=>{
+            // this.mainservice.keycloak.init({ onLoad: 'login-required'}).success((authenticated)=>{
             console.log("auth",authenticated);
             if(authenticated){
                 console.log("auth",this.mainservice.keycloak);
@@ -74,6 +84,141 @@ export class AppComponent implements OnInit {
         }).error((error)=>{
             console.log("error",error);
         });*/
+        //https://shefki-lifebook:8843/auth/realms/dcm4che/protocol/openid-connect/login-status-iframe.html/init?client_id=wildfly-console&origin=https%3A%2F%2Fshefki-lifebook%3A9993
+/*        this.nativeHttp.get(`https://shefki-lifebook:8843/auth/realms/dcm4che/protocol/openid-connect/login-status-iframe.html/init?client_id=dcm4chee-arc-ui&origin=http%3A%2F%2Fshefki-lifebook%3A8080%2Fdcm4chee-arc%2Fui2%2F%23%2Fstudies`).subscribe(res=>{
+            console.log("token",res);
+        });*/
+/*        this.mainservice.getMyWebApps().subscribe((dcmWebApps:DcmWebApp[])=>{
+            console.log("dcmWebApps",dcmWebApps);
+        });*/
+
+  /*      let keycloakConfig = localStorage.getItem('keycloakConfig');
+
+        let $this = this;
+        if(keycloakConfig){
+            $this.mainservice.keycloak = Keycloak(JSON.parse(keycloakConfig));
+            $this.mainservice.keycloak.init({flow: 'standard', responseMode: 'fragment', checkLoginIframe: true, onLoad: 'login-required'}).success((authenticated)=>{
+                // this.mainservice.keycloak.init({ onLoad: 'login-required'}).success((authenticated)=>{
+                console.log("auth",authenticated);
+                if(authenticated){
+                    console.log("auth",$this.mainservice.keycloak);
+                    console.log("auth",$this.mainservice.keycloak.token);
+                    console.log("auth",$this.mainservice.keycloak.realmAccess);
+                    console.log("auth",$this.mainservice.keycloak.tokenParsed);
+                }
+            }).error((error)=>{
+                console.log("error",error);
+            });
+        }else{
+
+/!*            this.$http.get("./rs/keycloak-json").subscribe(function(res){
+                console.log("res keycloak-json",res);
+                localStorage.setItem('keycloakConfig', JSON.stringify(res));
+                $this.mainservice.keycloak = Keycloak(res);
+
+                $this.mainservice.keycloak.init({flow: 'standard', responseMode: 'fragment', checkLoginIframe: true, onLoad: 'login-required'}).success((authenticated)=>{
+                    // this.mainservice.keycloak.init({ onLoad: 'login-required'}).success((authenticated)=>{
+                    console.log("auth",authenticated);
+                    if(authenticated){
+                        console.log("auth",$this.mainservice.keycloak);
+                        console.log("auth",$this.mainservice.keycloak.token);
+                        console.log("auth",$this.mainservice.keycloak.realmAccess);
+                        console.log("auth",$this.mainservice.keycloak.tokenParsed);
+                    }
+                }).error((error)=>{
+                    console.log("error",error);
+                });
+            });*!/
+            this.mainservice.getMyWebApps().subscribe((dcmWebApps:DcmWebApp[])=>{
+                console.log("dcmWebApps",dcmWebApps);
+                this.mainservice.keycloak = Keycloak({
+                    "url":"https://shefki-lifebook:8843/auth",
+                    "realm": "dcm4che",
+                    "clientId": "dcm4chee-arc-ui"
+                });
+                // this.mainservice.keycloak = Keycloak("./assets/lib/keycloak.json");
+                /!*        this.mainservice.keycloak = Keycloak({
+                            "url":"https://shefki-lifebook:8843/auth",
+                            "realm": "dcm4che",
+                            "clientId": "dcm4chee-arc-ui"
+                        });*!/
+                let $this = this;
+                this.mainservice.keycloak.init({flow: 'standard', responseMode: 'fragment', checkLoginIframe: true, onLoad: 'login-required'}).success((authenticated)=>{
+                    // this.mainservice.keycloak.init({ onLoad: 'login-required'}).success((authenticated)=>{
+                    console.log("auth",authenticated);
+                    if(authenticated){
+                        console.log("auth",$this.mainservice.keycloak);
+                        console.log("auth",$this.mainservice.keycloak.token);
+                        console.log("auth",$this.mainservice.keycloak.realmAccess);
+                        console.log("auth",$this.mainservice.keycloak.tokenParsed);
+                    }
+                }).error((error)=>{
+                    console.log("error",error);
+                });
+            },err=>{
+                console.log("err",err);
+            });
+        }*/
+
+/*        this.mainservice.getMyWebApps().subscribe((dcmWebApps:DcmWebApp[])=>{
+            console.log("dcmWebApps",dcmWebApps);
+            this.mainservice.keycloak = Keycloak({
+                "url":"https://shefki-lifebook:8843/auth",
+                "realm": "dcm4che",
+                "clientId": "dcm4chee-arc-ui"
+            });
+            // this.mainservice.keycloak = Keycloak("./assets/lib/keycloak.json");
+            /!*        this.mainservice.keycloak = Keycloak({
+                        "url":"https://shefki-lifebook:8843/auth",
+                        "realm": "dcm4che",
+                        "clientId": "dcm4chee-arc-ui"
+                    });*!/
+            let $this = this;
+            this.mainservice.keycloak.init({flow: 'standard', responseMode: 'fragment', checkLoginIframe: true, onLoad: 'login-required'}).success((authenticated)=>{
+                // this.mainservice.keycloak.init({ onLoad: 'login-required'}).success((authenticated)=>{
+                console.log("auth",authenticated);
+                if(authenticated){
+                    console.log("auth",$this.mainservice.keycloak);
+                    console.log("auth",$this.mainservice.keycloak.token);
+                    console.log("auth",$this.mainservice.keycloak.realmAccess);
+                    console.log("auth",$this.mainservice.keycloak.tokenParsed);
+                }
+            }).error((error)=>{
+                console.log("error",error);
+            });
+        },err=>{
+            console.log("err",err);
+        });*/
+/*        this.permissionService.getConfig((res)=>{
+            console.log("config",this.mainservice.global);
+
+        });*/
+/*        console.log("this.mainservice.keycloak",this.mainservice.keycloak);
+        this.mainservice.getUserInfo()
+            .map(realm=>{
+                console.log("realm",realm);
+                return {
+                    "url":realm["auth-server-url"],
+                    "realm":realm["realm"],
+                    "clientId": "dcm4chee-arc-ui"
+                }
+            }).subscribe(realm=>{
+                this.mainservice.keycloak = Keycloak(realm);
+                console.log("realm",realm);
+                this.mainservice.keycloak.init({ onLoad: 'login-required' }).success((authenticated)=>{
+                    console.log("auth",authenticated);
+                    if(authenticated){
+                        console.log("auth",this.mainservice.keycloak);
+                        console.log("auth",this.mainservice.keycloak.token);
+                        console.log("auth",this.mainservice.keycloak.realmAccess);
+                        console.log("auth",this.mainservice.keycloak.tokenParsed);
+                    }
+                }).error((error)=>{
+                    console.log("error",error);
+                });
+            },(err=>{
+                j4care.log("Error on getting keycloak.json",err);
+            }));*/
         Date.prototype.toDateString = function() {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
@@ -281,16 +426,16 @@ export class AppComponent implements OnInit {
         })
     }
     getPDQServices(url?:string):Observable<any[]>{
-        return this.$http.get(`${url || '..'}/pdq`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '.'}/rs/pdq`).map(res => j4care.redirectOnAuthResponse(res));
     }
     getServerTime(url?:string){
         return this.$http.get(`${url || '..'}/monitor/serverTime`).map(res => j4care.redirectOnAuthResponse(res));
     }
     getDeviceName(url?:string){
-        return this.$http.get(`${url || '..'}/devicename`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '.'}/rs/devicename`).map(res => j4care.redirectOnAuthResponse(res));
     }
     getDeviceInfo(dicomDeviceName:string, url?:string){
-        return this.$http.get(`${url || '..'}/devices?dicomDeviceName=${dicomDeviceName}`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '.'}/rs/devices?dicomDeviceName=${dicomDeviceName}`).map(res => j4care.redirectOnAuthResponse(res));
     }
 }
 

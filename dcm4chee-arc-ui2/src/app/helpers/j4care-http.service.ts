@@ -157,6 +157,7 @@ export class J4careHttpService{
     }
     getRealm(dcmWebApp?:DcmWebApp){
         let service = this.$http.get('rs/realm');
+        // let service = Observable.of(this.mainservice.keycloak);
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
@@ -185,6 +186,11 @@ export class J4careHttpService{
             } return resjson;
         })
     }
+/*    getTokenFromKeycloak(){
+        if(!this.mainservice.keycloak.tokenValid()){
+            return this.mainservice.keycloak.
+        }
+    }*/
     refreshToken(dcmWebApp?:DcmWebApp):Observable<any>{
         if(dcmWebApp){
 

@@ -405,7 +405,7 @@ export class StorageVerificationService {
 
     getDevices = ()=> this.deviceService.getDevices();
 
-    scheduleStorageVerification  = (param, aet) => this.$http.post(`../aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{});
+    scheduleStorageVerification  = (param, aet) => this.$http.post(`./rs/aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{});
 
     getUniqueID = () => this.mainservice.getUniqueID();
 }

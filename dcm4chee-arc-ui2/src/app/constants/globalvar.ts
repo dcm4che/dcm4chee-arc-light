@@ -644,7 +644,7 @@ export class Globalvar {
         };
     }
     public static get HL7_LIST_LINK(): string{
-        return "../hl7apps";
+        return "./rs/hl7apps";
     }
     public static get QUEU_CONFIG_PATH(): string{
         return "dcmDevice.dcmArchiveDevice.dcmQueue";

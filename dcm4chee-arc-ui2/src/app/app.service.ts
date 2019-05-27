@@ -8,6 +8,7 @@ import {DatePipe} from "@angular/common";
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import {HttpClient} from "@angular/common/http";
 import {j4care} from "./helpers/j4care.service";
+import {DcmWebApp} from "./models/dcm-web-app";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -181,5 +182,58 @@ export class AppService implements OnInit, OnDestroy{
     getUniqueID(){
         let newDate = new Date(this.serverTime);
         return `${newDate.getFullYear().toString().substr(-2)}${newDate.getMonth()}${newDate.getDate()}${newDate.getHours()}${newDate.getMinutes()}${newDate.getSeconds()}`;
+    }
+
+
+    getMyWebApps(){
+        if(_.hasIn(this.global,"myDevice")){
+            return Observable.of((<DcmWebApp[]>_.get(this.global.myDevice,"dcmDevice.dcmWebApp")).map((dcmWebApp:DcmWebApp)=>{
+                dcmWebApp.dcmKeycloakClientID = (<any[]>_.get(this.global.myDevice,"dcmDevice.dcmKeycloakClient")).filter(keycloakClient=>{
+                    return keycloakClient.dcmKeycloakClientID === dcmWebApp.dcmKeycloakClientID;
+                })[0];
+                return dcmWebApp;
+            }));
+        }else{
+            return this.getMyDevice().map(res=>{
+                return _.get(res,"dcmDevice.dcmWebApp");
+            })
+        }
+    }
+
+    getUiConfig(){
+        if(_.hasIn(this.global,"uiConfig")){
+            return Observable.of(this.global.uiConfig);
+        }else{
+            return this.getMyDevice().map(res=>{
+                return _.get(res,"dcmDevice.dcmuiConfig[0]");
+            })
+        }
+    }
+    getMyDevice(){
+        if(_.hasIn(this.global,"myDevice")){
+            return Observable.of(this.global.myDevice);
+        }else{
+            let deviceName;
+            let archiveDeviceName;
+            return this.$httpClient.get('./rs/devicename')
+                .switchMap(res => {
+                    deviceName = (_.get(res,"UIConfigurationDeviceName") || _.get(res,"dicomDeviceName"));
+                    archiveDeviceName = _.get(res,"dicomDeviceName");
+                    return this.$httpClient.get('./rs/devices/' + deviceName)
+                })
+                .map((res)=>{
+                    try{
+                        let global = _.cloneDeep(this.global);
+                        global["uiConfig"] = _.get(res,"dcmDevice.dcmuiConfig[0]");
+                        global["myDevice"] = res;
+                        this.deviceName = deviceName;
+                        this.archiveDeviceName = archiveDeviceName;
+                        this.setGlobal(global);
+                    }catch(e){
+                        console.warn("Permission not found!",e);
+                        this.showError("Permission not found!");
+                    }
+                });
+        }
     }
 }

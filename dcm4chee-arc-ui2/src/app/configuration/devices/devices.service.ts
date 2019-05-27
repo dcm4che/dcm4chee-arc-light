@@ -45,19 +45,19 @@ export class DevicesService {
         }
     }
     createDevice(deviceName, object){
-        return  this.$http.post(`../devices/${deviceName}`, object, this.headers)
+        return  this.$http.post(`./rs/devices/${deviceName}`, object, this.headers)
     }
     saveDeviceChanges(deviceName, object){
-        return  this.$http.put(`../devices/${deviceName}`, object, this.headers)
+        return  this.$http.put(`./rs/devices/${deviceName}`, object, this.headers)
     }
     getDevices(){
        return this.$http.get(
-            '../devices'
+            './rs/devices'
         ).map(res => j4care.redirectOnAuthResponse(res));
     }
     getDevice(deviceName){
        return this.$http.get(
-            `../devices/${deviceName}`
+            `./rs/devices/${deviceName}`
         ).map(res => j4care.redirectOnAuthResponse(res));
     }
     generateNewTitle(oldTitle, aes, titleName){

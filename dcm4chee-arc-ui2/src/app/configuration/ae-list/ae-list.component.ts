@@ -121,7 +121,7 @@ export class AeListComponent implements OnInit{
             urlParam = '?' + urlParam;
         }
         let $this = this;
-        this.$http.get('../aes' + urlParam)
+        this.$http.get('./rs/aes' + urlParam)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aes = response;
@@ -206,7 +206,7 @@ export class AeListComponent implements OnInit{
             if (result){
                 console.log('in clearae', result);
                 if (result.input === true){
-                    $this.$http.delete('../devices/' + device).subscribe((res) => {
+                    $this.$http.delete('./rs/devices/' + device).subscribe((res) => {
                             console.log('res', res);
                             $this.mainservice.setMessage({
                                 'title': 'Info',
@@ -229,7 +229,7 @@ export class AeListComponent implements OnInit{
                             $this.httpErrorHandler.handleError(err);
                         });
                 }else{
-                    $this.$http.get('../devices/' + device)
+                    $this.$http.get('./rs/devices/' + device)
                         .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                         .subscribe(
                             (res) => {
@@ -245,7 +245,7 @@ export class AeListComponent implements OnInit{
                                 });
                                 console.log('equal', _.isEqual(res, deviceObject));
                                 console.log('deviceObj', deviceObject);
-                                $this.$http.put('../devices/' + device, deviceObject)
+                                $this.$http.put('./rs/devices/' + device, deviceObject)
                                     .subscribe((resdev) => {
                                             console.log('resdev', resdev);
                                             $this.mainservice.setMessage({
@@ -335,7 +335,7 @@ export class AeListComponent implements OnInit{
                         if (!re.newaetmodel.dicomDeviceName || re.newaetmodel.dicomDeviceName === ''){
                             re.newaetmodel.dicomDeviceName = re.newaetmodel.dicomNetworkAE[0].dicomAETitle.toLowerCase();
                         }
-                        $this.$http.post('../devices/' + re.newaetmodel.dicomDeviceName, re.newaetmodel, headers)
+                        $this.$http.post('./rs/devices/' + re.newaetmodel.dicomDeviceName, re.newaetmodel, headers)
                             .subscribe( (devre) => {
                                     $this.mainservice.setMessage({
                                         'title': 'Info',
@@ -364,7 +364,7 @@ export class AeListComponent implements OnInit{
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
                         re.device.dicomNetworkAE.push(re.newaetmodel.dicomNetworkAE[0]);
-                        $this.$http.put('../devices/' + re.device.dicomDeviceName, re.device)
+                        $this.$http.put('./rs/devices/' + re.device.dicomDeviceName, re.device)
                             .subscribe((putresponse) => {
                                 $this.mainservice.setMessage({
                                     'title': 'Info',

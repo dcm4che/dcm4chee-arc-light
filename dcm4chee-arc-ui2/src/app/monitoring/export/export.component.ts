@@ -278,7 +278,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             prepareUrl:(filter)=>{
                 let clonedFilters = {};
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
-                return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+                return `./rs/aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
@@ -667,7 +667,7 @@ export class ExportComponent implements OnInit, OnDestroy {
 
     initExporters(retries) {
         let $this = this;
-        this.$http.get('../export')
+        this.$http.get('./rs/export')
             .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe(
                 (res) => {

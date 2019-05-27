@@ -15,12 +15,12 @@ export class AeListService {
 
     getAes(){
       return this.$http.get(
-          '../aes'
+          './rs/aes'
       ).map(res => j4care.redirectOnAuthResponse(res));
     }
     getAets(){
        return this.$http.get(
-            '../aets'
+            './rs/aets'
         ).map(res => j4care.redirectOnAuthResponse(res));
 
     }
@@ -29,7 +29,7 @@ export class AeListService {
     }
     echoAe(callingAet, externalAet,data){
         return  this.$http.post(
-            `../aets/${callingAet}/dimse/${externalAet}${j4care.getUrlParams(data)}`,
+            `./rs/aets/${callingAet}/dimse/${externalAet}${j4care.getUrlParams(data)}`,
             {}
         ).map(res => j4care.redirectOnAuthResponse(res));
     }

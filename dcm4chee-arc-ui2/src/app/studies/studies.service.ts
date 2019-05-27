@@ -187,7 +187,7 @@ export class StudiesService {
     };
 
 /*    setExpiredDate(aet,studyUID, expiredDate){
-        let url = `../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}`
+        let url = `./rs/aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}`
         return this.$http.put(url,{}).map(res => j4care.redirectOnAuthResponse(res));
     }*/
 
@@ -328,7 +328,7 @@ export class StudiesService {
                 localParams = `?${j4care.objToUrlParams(params)}`
             }
         }
-        return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{}).map(res => j4care.redirectOnAuthResponse(res))
+        return this.$http.put(`./rs/aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{}).map(res => j4care.redirectOnAuthResponse(res))
     }
 
     queryPatients = function(url, params) {
@@ -686,7 +686,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         return endObject;
     }
     changeExternalPatientID(patient, internalAppName, externalAppName, oldPatientID){
-        let url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients/${oldPatientID}/changeid`;
+        let url = `./rs/hl7apps/${internalAppName}/hl7/${externalAppName}/patients/${oldPatientID}/changeid`;
         let headers = new HttpHeaders({ 'Content-Type': 'application/dicom+json' });
         let object;
         if(_.hasIn(patient,"attrs")){
@@ -717,13 +717,13 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }else{
             if(accesMode === 'internal'){
                 return this.$http.post(
-                    `../aets/${aet}/rs/patients/${oldPatientID}/changeid/${newPatientID}`,
+                    `./rs/aets/${aet}/rs/patients/${oldPatientID}/changeid/${newPatientID}`,
                     patientData,
                     {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
                 );
             }else{
                 return this.$http.post(
-                    `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients/${oldPatientID}/changeid`,
+                    `./rs/hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients/${oldPatientID}/changeid`,
                     patientData,
                     {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
                 );
@@ -737,10 +737,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             if(!sendingHl7App || !receivingHl7App){
                 return Observable.throw(new Error('Hl7Applications not found!'));
             }else{
-                url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients?queue=true`;
+                url = `./rs/hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients?queue=true`;
             }
         }else{
-            url = `../aets/${aet}/rs/patients/`;
+            url = `./rs/aets/${aet}/rs/patients/`;
         }
         return this.$http.post(
             url,
@@ -759,10 +759,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 });
                 return null;
             }else{
-                url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients`;
+                url = `./rs/hl7apps/${internalAppName}/hl7/${externalAppName}/patients`;
             }
         }else{
-            url = `../aets/${aet}/rs/patients/`;
+            url = `./rs/aets/${aet}/rs/patients/`;
         }
         let headers = new HttpHeaders({ 'Content-Type': 'application/dicom+json' });
         this.clearPatientObject(patient.attrs);
@@ -851,7 +851,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
     }
     getWebApps(){
-        return this.$http.get('../webapps?dcmWebServiceClass=STOW_RS')
+        return this.$http.get('./rs/webapps?dcmWebServiceClass=STOW_RS')
             .map(res => j4care.redirectOnAuthResponse(res));
     }
     isTargetInClipboard(target, clipboard){
@@ -872,15 +872,15 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     rsURL(externalInternalAetMode,aet, aetTitle, externalInternalAetModelAETitle) {
         let url;
         if(externalInternalAetMode === "external"){
-            url = `../aets/${aetTitle}/dimse/${externalInternalAetModelAETitle}`;
+            url = `./rs/aets/${aetTitle}/dimse/${externalInternalAetModelAETitle}`;
         }
         if(externalInternalAetMode === "internal"){
-            url = `../aets/${aet}/rs`;
+            url = `./rs/aets/${aet}/rs`;
         }
         return url;
     }
     getDiffAttributeSet(){
-        return this.$http.get('../attribute-set/DIFF_RS')
+        return this.$http.get('./rs/attribute-set/DIFF_RS')
             .map(res => j4care.redirectOnAuthResponse(res));
     }
     queryNationalPationtRegister(patientID){
@@ -906,7 +906,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
 
     scheduleStorageVerification(param, aet){
-        return this.$http.post(`../aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{})
+        return this.$http.post(`./rs/aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{})
     }
 
     getStorageSystems(){

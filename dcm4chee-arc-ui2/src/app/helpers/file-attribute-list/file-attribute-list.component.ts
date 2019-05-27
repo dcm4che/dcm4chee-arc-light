@@ -30,7 +30,7 @@ export class FileAttributeListComponent implements OnInit {
     }
     init(){
         this.cfpLoadingBar.start();
-        let url = '../aets/' +
+        let url = './rs/aets/' +
             this.aet +
             '/rs/studies/' +
             this.studyuid +

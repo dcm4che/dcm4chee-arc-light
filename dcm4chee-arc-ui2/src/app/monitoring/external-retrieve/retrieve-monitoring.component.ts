@@ -383,9 +383,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
                 if(filter['dcmQueueName']) clonedFilters['dcmQueueName'] = filter['dcmQueueName'];
                 if(filter.withoutScheduling){
-                    return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/mark4retrieve/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
+                    return `./rs/aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/mark4retrieve/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
                 }else{
-                    return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
+                    return `./rs/aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
                 }
             }
         };
