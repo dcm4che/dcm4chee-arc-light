@@ -158,6 +158,7 @@ export class J4careHttpService{
     getRealm(dcmWebApp?:DcmWebApp){
         let service = this.$http.get('rs/realm');
         // let service = Observable.of(this.mainservice.keycloak);
+        console.log("in get realm", this.mainservice.keycloak);
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }

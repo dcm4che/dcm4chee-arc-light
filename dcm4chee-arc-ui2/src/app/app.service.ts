@@ -195,7 +195,12 @@ export class AppService implements OnInit, OnDestroy{
             }));
         }else{
             return this.getMyDevice().map(res=>{
-                return _.get(res,"dcmDevice.dcmWebApp");
+                return (<DcmWebApp[]>_.get(res,"dcmDevice.dcmWebApp")).map((dcmWebApp:DcmWebApp)=>{
+                    dcmWebApp.dcmKeycloakClientID = (<any[]>_.get(this.global.myDevice,"dcmDevice.dcmKeycloakClient")).filter(keycloakClient=>{
+                        return keycloakClient.dcmKeycloakClientID === dcmWebApp.dcmKeycloakClientID;
+                    })[0];
+                    return dcmWebApp;
+                });
             })
         }
     }
@@ -233,7 +238,23 @@ export class AppService implements OnInit, OnDestroy{
                         console.warn("Permission not found!",e);
                         this.showError("Permission not found!");
                     }
+                    return res;
                 });
         }
+    }
+    getKeycloakJson(){
+        return this.getMyWebApps()
+            .map((dcmWebApps:DcmWebApp[])=>{
+                return dcmWebApps.filter((dcmWebApp:DcmWebApp)=>{
+                    return dcmWebApp.dcmKeycloakClientID && dcmWebApp.dcmKeycloakClientID != "";
+                })[0].dcmKeycloakClientID
+            })
+            .map(keyclokClient=>{
+                return {
+                    "url":keyclokClient["dcmURI"],
+                    "realm":keyclokClient["dcmKeycloakRealm"],
+                    "clientId":keyclokClient["dcmKeycloakClientID"]
+                }
+            })
     }
 }
