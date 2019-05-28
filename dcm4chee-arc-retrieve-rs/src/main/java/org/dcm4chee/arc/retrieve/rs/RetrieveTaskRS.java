@@ -275,13 +275,14 @@ public class RetrieveTaskRS {
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
-            if (devName == null)
+            String taskDeviceName;
+            if ((taskDeviceName = mgr.findDeviceNameByPk(pk)) == null)
                 return errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
 
             if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
                 return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
 
+            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 

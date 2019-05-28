@@ -243,10 +243,11 @@ public class ExportTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
-            if (devName == null)
+            String taskDeviceName;
+            if ((taskDeviceName = mgr.findDeviceNameByPk(pk)) == null)
                 return errResponse("No such Export Task : " + pk, Response.Status.NOT_FOUND);
 
+            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 

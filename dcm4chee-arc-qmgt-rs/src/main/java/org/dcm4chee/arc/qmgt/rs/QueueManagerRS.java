@@ -216,10 +216,11 @@ public class QueueManagerRS {
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByMsgId(msgId);
-            if (devName == null)
-                return errResponse("Task not found", Response.Status.NOT_FOUND);
+            String taskDeviceName;
+            if ((taskDeviceName = mgr.findDeviceNameByMsgId(msgId)) == null)
+                return errResponse("No such Queue Message: " + msgId, Response.Status.NOT_FOUND);
 
+            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 

@@ -233,10 +233,11 @@ public class StgVerTaskRS {
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            String devName = newDeviceName != null ? newDeviceName : stgCmtMgr.findDeviceNameByPk(pk);
-            if (devName == null)
+            String taskDeviceName;
+            if ((taskDeviceName = stgCmtMgr.findDeviceNameByPk(pk)) == null)
                 return errResponse("No such Storage Verification Task : " + pk, Response.Status.NOT_FOUND);
 
+            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
