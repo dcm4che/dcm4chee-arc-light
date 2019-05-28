@@ -5,6 +5,7 @@ import {ClickOutsideDirective} from "../../helpers/click-outside.directive";
 import {FormsModule} from "@angular/forms";
 import {SearchPipe} from "../../pipes/search.pipe";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {ArrayToStringPipe} from "../../pipes/array-to-string.pipe";
 
 describe('DcmDropDownComponent', () => {
   let component: DcmDropDownComponent;
@@ -12,7 +13,7 @@ describe('DcmDropDownComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DcmDropDownComponent, ClickOutsideDirective, SearchPipe],
+      declarations: [ DcmDropDownComponent, ClickOutsideDirective, SearchPipe, ArrayToStringPipe],
         imports:[FormsModule, BrowserAnimationsModule]
     })
     .compileComponents();

@@ -115,12 +115,14 @@ export interface FilterSchemaElement {
     placeholder?:string;
     showStar?:boolean;
     maxSelectedLabels?:number;
+    showSearchField?:boolean;
     min?:number,
     title?:string,
     options?:SelectDropdown<any>[],
     firstField?:FilterSchemaElement,
     secondField?:FilterSchemaElement,
     convert?:Function;
+    disabled?:boolean;
     cssClass?:string;
 }
 

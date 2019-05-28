@@ -103,6 +103,7 @@ import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
 import {OptionService} from "./widgets/dropdown/option.service";
 import {RetrieveMonitoringComponent} from "./monitoring/external-retrieve/retrieve-monitoring.component";
 import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve-monitoring.service";
+import { ArrayToStringPipe } from './pipes/array-to-string.pipe';
 
 @NgModule({
     declarations: [
@@ -160,6 +161,7 @@ import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve
         StudyComponent,
         DicomStudiesTableComponent,
         DynamicPipePipe,
+        ArrayToStringPipe
     ],
     imports: [
         BrowserModule,
@@ -253,9 +255,11 @@ import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve
         StorageVerificationService,
         StudyService,
         ContentDescriptionPipe,
+        ArrayToStringPipe,
         OptionService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
+    exports:[ArrayToStringPipe]
 })
 export class AppModule { }

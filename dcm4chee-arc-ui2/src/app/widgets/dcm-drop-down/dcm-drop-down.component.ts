@@ -2,7 +2,7 @@ import {Component, ContentChild, ContentChildren, EventEmitter, Input, OnInit, O
 import {OptionComponent} from "../dropdown/option.component";
 import {SelectDropdown} from "../../interfaces";
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {element} from "protractor";
+
 
 @Component({
     selector: 'dcm-drop-down',
@@ -28,7 +28,7 @@ import {element} from "protractor";
                 animate('0.2s cubic-bezier(.52,-0.01,.15,1)')
             ])
         ])
-    ],
+    ]
 })
 export class DcmDropDownComponent implements OnInit {
     selectedValue:any;
@@ -60,7 +60,8 @@ export class DcmDropDownComponent implements OnInit {
     @Output() modelChange =  new EventEmitter();
 
     showDropdown = false;
-    constructor() { }
+    constructor(
+    ) { }
 
     ngOnInit() {
     }
@@ -82,10 +83,7 @@ export class DcmDropDownComponent implements OnInit {
         return undefined;
     }
     allChecked(e){
-
-        if(!this.isAllCheck){
-            this.multiSelectValue = [];
-        }
+        this.multiSelectValue = [];
         this.options.forEach(element=>{
             element.selected = this.isAllCheck;
             if(this.isAllCheck){
@@ -130,7 +128,8 @@ export class DcmDropDownComponent implements OnInit {
                 this.multiSelectValue = [];
                 this.options.forEach(option=>{
                     option.selected = false;
-                })
+                });
+                this.isAllCheck = false;
             }else{
                 let index = this.multiSelectValue.indexOf(element.value);
                 if(index> -1){

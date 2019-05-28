@@ -70,6 +70,7 @@
       li.option{
         //padding-left:15px;
         border-bottom: 1px solid #ccc;
+        display: flex;
       }
       .option:hover {
         cursor: pointer;
@@ -87,6 +88,7 @@
     input[type=text]{
       width: calc(100% - 32px);
       float: left;
+      color: #000000;
     }
     input[type=checkbox]{
       width: 30px;

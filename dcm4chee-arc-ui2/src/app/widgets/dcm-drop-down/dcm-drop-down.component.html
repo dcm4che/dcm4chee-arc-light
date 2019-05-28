@@ -1,9 +1,9 @@
 <div class="dcm_dropdown" [ngClass]="{'single_mode':!multiSelectMode}" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
   <div class="dropdown_input" (click)="toggleDropdown()">
     <div class="input_part">
-        <!--<pre style="position:fixed;right:10px;width:70%;top:40px;z-index: 9999999;">{{selectedDropdown|json}}</pre>-->
+        <!--<pre style="position:fixed;right:10px;width:70%;top:40px;z-index: 9999999;height: 200px;">{{selectedDropdown|json}}</pre>-->
       <ng-container *ngIf="multiSelectMode">
-        <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue}}</div>
+        <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue | arrayToString:', '}}</div>
         <div class="selected_value" *ngIf="multiSelectValue.length > maxSelectedValueShown">( {{multiSelectValue.length}} ) selected</div>
         <div class="selected_value" *ngIf="multiSelectValue.length === 0">{{placeholder}}</div>
       </ng-container>
@@ -35,16 +35,5 @@
              </div>
           </li>
       </ul>
-
-<!--      <div [hidden]="!showElement" class="option" (click)="select($event)" #options [ngClass]="{'active':selected}" title="{{title || ''}}">
-          <div *ngIf="htmlLabel" [innerHTML]="htmlLabel"></div>
-          <input type="checkbox" *ngIf="value && value != '' && multiSelectMode" [(ngModel)]="selected">
-          <ng-content *ngIf="!htmlLabel">
-          </ng-content>
-      </div>-->
-
-<!--      <ul *ngIf="mixedMode">
-          <li *ngFor="let option of options"></li>
-      </ul>-->
   </div>
 </div>
