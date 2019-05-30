@@ -70,7 +70,7 @@
     <jclouds.version>2.1.2</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
-    <glassfish-json.version>1.0.4</glassfish-json.version>
+    <jakarta.json.version>1.1.5</jakarta.json.version>
     <junit.version>4.12</junit.version>
 
     <!-- JPA -->
@@ -308,8 +308,8 @@
 
     <dependency>
       <groupId>org.glassfish</groupId>
-      <artifactId>javax.json</artifactId>
-      <version>${glassfish-json.version}</version>
+      <artifactId>jakarta.json</artifactId>
+      <version>${jakarta.json.version}</version>
       <scope>provided</scope>
     </dependency>
 
