@@ -6,11 +6,12 @@ import {AppService} from "../../app.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import * as _ from 'lodash';
 import {j4care} from "../../helpers/j4care.service";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
 export class RetrieveMonitoringService {
 
-    header = new Headers({ 'Content-Type': 'application/json' });
+    header = new HttpHeaders({ 'Content-Type': 'application/json' });
     constructor(
       public $http:J4careHttpService,
       public mainservice: AppService,
@@ -66,7 +67,7 @@ export class RetrieveMonitoringService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         // let header = new Headers({ 'Content-Type': 'text/csv' });
-        let header = new Headers({ 'Accept': 'text/csv' });
+        let header = new HttpHeaders({ 'Accept': 'text/csv' });
         return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
     }
 
@@ -109,6 +110,7 @@ export class RetrieveMonitoringService {
                 options:destinationAET,
                 showStar:true,
                 filterKey:"DestinationAET",
+                placeholder:"Destination AET",
                 description:"Destination AE Title to filter by"
             };
         }else{
@@ -116,6 +118,7 @@ export class RetrieveMonitoringService {
                 tag:"input",
                 type:"text",
                 filterKey:"DestinationAET",
+                placeholder:"Destination AET",
                 description:"Destination AE Title to filter by"
             }
         }
@@ -155,8 +158,7 @@ export class RetrieveMonitoringService {
                         options:remoteAET,
                         showStar:true,
                         filterKey:"RemoteAET",
-                        description:"C-MOVE SCP AE Title to filter by",
-                        placeholder:"RemoteAET"
+                        description:"C-MOVE SCP AE Title to filter by"
                     }
                 ]
             ],[
@@ -166,6 +168,8 @@ export class RetrieveMonitoringService {
                         options:queueNames,
                         filterKey:"dcmQueueName",
                         description:"Queue Name",
+                        showSearchField:true,
+                        showStar:true,
                         placeholder:"Queue Name"
                     },
                     destinationAet

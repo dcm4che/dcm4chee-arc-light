@@ -37,6 +37,7 @@ declare var $: any;
 import "rxjs/add/operator/retry";
 import {DropdownList} from "../helpers/form/dropdown-list";
 import {RetrieveMonitoringService} from "../monitoring/external-retrieve/retrieve-monitoring.service";
+import {HttpHeaders} from "@angular/common/http";
 
 @Component({
     selector: 'app-studies',
@@ -134,7 +135,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
     }
     _ = _;
-    jsonHeader = new Headers({ 'Content-Type': 'application/json' });
+    jsonHeader = new HttpHeaders({ 'Content-Type': 'application/json' });
     aet1;
     aet2;
     count;
@@ -749,6 +750,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     }
                     tags.splice(index, 0, '00201200');
                     tags.push('77770010','77771010','77771011','77771012','77771013','77771014');
+                    console.log("tags",tags);
                     console.log('res', res);
                     res.forEach(function (studyAttrs, index) {
                         patAttrs = {};
@@ -1324,7 +1326,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     $this.$http.post(
                         '../aets/' + $this.aet + '/rs/mwlitems',
                         local,
-                        {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+                         new HttpHeaders({ 'Content-Type': 'application/dicom+json' })
                     ).subscribe((response) => {
                         if (mode === 'edit'){
                             // _.assign(mwl, mwlFiltered);
@@ -1443,7 +1445,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     $this.$http.post(
                         '../aets/' + $this.aet + '/rs/studies',
                         local,
-                        {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+                         new HttpHeaders({ 'Content-Type': 'application/dicom+json' })
                     ).subscribe(
                         (response) => {
                             if (mode === 'edit'){
@@ -3594,7 +3596,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         console.log('ctrlv size', _.size(this.clipboard));
         if (_.size(this.clipboard) > 0 && (_.size(this.selected) > 0 || (_.hasIn(this.selected, 'hasPatient') && _.size(this.selected) > 1))) {
             this.cfpLoadingBar.start();
-            let headers: Headers = new Headers({'Content-Type': 'application/json'});
+            let headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
             if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){
 
                 let $this = this;
@@ -4353,7 +4355,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     }
                     let $this = this;
 
-                    let headers = {headers: new Headers({'Content-Type': 'application/dicom+json'})};
+                    let headers = new HttpHeaders({'Content-Type': 'application/dicom+json'});
                     this.$http.post(
                         url,
                         {},

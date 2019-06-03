@@ -6,16 +6,17 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import * as _ from 'lodash';
 import {j4care} from "../../helpers/j4care.service";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
 export class ExportService {
 
-    header = new Headers({ 'Content-Type': 'application/json' });
+    header = new HttpHeaders({ 'Content-Type': 'application/json' });
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) {
     }
 
     search(filters, offset, batch) {
-        return this.$http.get(`../monitor/export${(batch?'/batch':'')}?${this.mainservice.param(this.queryParams(filters, offset))}`);
+        return this.$http.get(`../monitor/export${(batch?'/batch':'')}?${this.mainservice.param(this.queryParams(filters, offset))}`).map(res => j4care.redirectOnAuthResponse(res));;
     };
 
     getCount(filters) {
@@ -89,7 +90,7 @@ export class ExportService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         // let header = new Headers({ 'Content-Type': 'text/csv' });
-        let header = new Headers({ 'Accept': 'text/csv' });
+        let header = new HttpHeaders({ 'Accept': 'text/csv' });
         return this.$http.get(`/dcm4chee-arc/monitor/export${urlParam}`, header)
     }
     getDevices(){

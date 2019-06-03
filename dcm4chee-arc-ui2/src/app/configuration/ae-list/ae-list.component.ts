@@ -12,6 +12,7 @@ import {MatDialog, MatDialogRef, MatDialogConfig} from "@angular/material";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
 import {j4care} from "../../helpers/j4care.service";
+import {HttpHeaders} from "@angular/common/http";
 
 @Component({
   selector: 'app-ae-list',
@@ -148,7 +149,7 @@ export class AeListComponent implements OnInit{
         this.searchAes();
     };
     echoAe(ae){
-        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         let select: any = [];
         _.forEach(this.aets, (m, i) => {
             select.push({
@@ -285,7 +286,7 @@ export class AeListComponent implements OnInit{
     };
     createAe(){
         this.cfpLoadingBar.start();
-        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         let dicomconn = [];
         let newAetModel = {
             dicomNetworkConnection: [{
@@ -382,7 +383,7 @@ export class AeListComponent implements OnInit{
                             }, (err) => {
                                 $this.cfpLoadingBar.complete();
 /*                                $this.$http.delete(
-                                    "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
+                                    "./rs/unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
                                 ).subscribe((response) => {
                                     $this.mainservice.setMessage({
                                         "title": "Error",
@@ -441,7 +442,7 @@ export class AeListComponent implements OnInit{
                 });
                 this.devicesService.saveDeviceChanges(deviceName,device).subscribe(result=>{
                     this.mainservice.showMsg(`${newAet.dicomAETitle} was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet,", ", " and ")}`);
-                    this.$http.post('../ctrl/reload', {},  new Headers({ 'Content-Type': 'application/json' })).subscribe((res) => {
+                    this.$http.post('../ctrl/reload', {},  new HttpHeaders({ 'Content-Type': 'application/json' })).subscribe((res) => {
                         this.mainservice.setMessage({
                             'title': 'Info',
                             'text': 'Archive reloaded successfully!',

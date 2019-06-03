@@ -103,11 +103,9 @@ export class StudyService {
 
 
     getStudies(filterModel, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
-        let header;
+        let header:HttpHeaders;
         if(!responseType || responseType === "object"){
-            header = {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            };
+            header =  new HttpHeaders({'Accept': 'application/dicom+json'});
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
@@ -139,11 +137,9 @@ export class StudyService {
     }
 
     getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
-        let header;
+        let header:HttpHeaders;
         if(!responseType || responseType === "object"){
-            header = {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            };
+            header =  new HttpHeaders({'Accept': 'application/dicom+json'});
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;

@@ -10,9 +10,20 @@ export class HttpErrorHandler {
     public handleError(error){
         if ((error._body && error._body != '')|| _.hasIn(error,"message") || _.hasIn(error, "[00000902].Value[0]")) {
             try{
-                let msg = "Error";
-                if(_.hasIn(error,"message")){
-                    msg = error["message"];
+                if(_.hasIn(error,"message") || _.hasIn(error,"error.errorMessage")){
+                    if(_.hasIn(error,"error.errorMessage")){
+                        this.mainservice.setMessage({
+                            'title': 'Error ' + (error.status||''),
+                            'text': _.get(error,"error.errorMessage"),
+                            'status': 'error'
+                        });
+                    }else{
+                        this.mainservice.setMessage({
+                            'title': 'Error ' + (error.status||''),
+                            'text': error["message"],
+                            'status': 'error'
+                        });
+                    }
                 }else{
                     if(_.hasIn(error, "[00000902].Value[0]")){
                         this.mainservice.setMessage({
@@ -21,6 +32,7 @@ export class HttpErrorHandler {
                             'status': 'error'
                         });
                     }else{
+                        let msg = "Error";
                         let msgObject = JSON.parse(error._body);
                         if(_.hasIn(msgObject,"msa-3")){
                             msg = msgObject["msa-3"];

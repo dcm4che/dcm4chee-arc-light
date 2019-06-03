@@ -6,10 +6,11 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
 export class DevicesService {
-    headers = new Headers({ 'Content-Type': 'application/json' });
+    headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     dialogRef: MatDialogRef<any>;
 
     constructor(

@@ -15,6 +15,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DeviceConfiguratorService} from "../device-configurator/device-configurator.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
+import {HttpHeaders} from "@angular/common/http";
 
 @Component({
   selector: 'app-devices',
@@ -196,7 +197,7 @@ export class DevicesComponent implements OnInit{
     };
 
     cloneDevice(devicename){
-        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         let deviceNameList = this.devices.map(res => {
             return res.dicomDeviceName;
         });
@@ -299,7 +300,7 @@ export class DevicesComponent implements OnInit{
         this.dialogRef.afterClosed().subscribe(re => {
             console.log('re', re);
             if (re && re.device && re.device.dicomDeviceName && re.exporter){
-                let headers = new Headers({ 'Content-Type': 'application/json' });
+                let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
                 let i = 0;
                 if(_.hasIn(re.device,Globalvar.EXPORTER_CONFIG_PATH)){
                     i = (<any>_.get(re.device,Globalvar.EXPORTER_CONFIG_PATH)).length;

@@ -6,10 +6,11 @@ import {AppService} from "../../app.service";
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
 import {Headers} from "@angular/http";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
 export class StorageVerificationService {
-    header = new Headers({ 'Content-Type': 'application/json' });
+    header = new HttpHeaders({ 'Content-Type': 'application/json' });
     constructor(
       public $http:J4careHttpService,
       public mainservice: AppService,

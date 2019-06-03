@@ -4,11 +4,12 @@ import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {j4care} from "../../helpers/j4care.service";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
-export class QueuesService {
+export class QueuesService{
 
-    header = new Headers({ 'Content-Type': 'application/json' });
+    header = new HttpHeaders({ 'Content-Type': 'application/json' });
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
 
     search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
@@ -62,7 +63,7 @@ export class QueuesService {
     }
     config(params) {
         console.log('paramsconfig', params);
-        let header = new Headers({ 'Content-Type': 'application/json' });
+        let header = new HttpHeaders({ 'Content-Type': 'application/json' });
         header.append('params', params);
         return header;
     }
@@ -220,5 +221,4 @@ export class QueuesService {
             }
         ]
     }
-
 }

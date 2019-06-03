@@ -6,11 +6,12 @@ import {AppService} from "../../app.service";
 import {DatePipe} from "@angular/common";
 import {Router} from "@angular/router";
 import {Headers} from "@angular/http";
+import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()
 export class DiffMonitorService {
 
-    header = new Headers({ 'Content-Type': 'application/json' });
+    header = new HttpHeaders({ 'Content-Type': 'application/json' });
     constructor(
         private deviceService: DevicesService,
         private mainservice:AppService,
