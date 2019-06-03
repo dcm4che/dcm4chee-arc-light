@@ -60,6 +60,8 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Set;
 
+import static org.dcm4che3.net.TransferCapability.Role.SCP;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
@@ -92,22 +94,48 @@ public class CStoreSCUImpl implements CStoreSCU {
     private AAssociateRQ createAARQ(RetrieveContext ctx) {
         AAssociateRQ aarq = new AAssociateRQ();
         ApplicationEntity localAE = ctx.getLocalApplicationEntity();
+        ApplicationEntity destAE = ctx.getDestinationAE();
         if (!localAE.isMasqueradeCallingAETitle(ctx.getDestinationAETitle()))
             aarq.setCallingAET(ctx.getLocalAETitle());
+        boolean considerConfiguredTCs = !destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
         for (InstanceLocations inst : ctx.getMatches()) {
             String cuid = inst.getSopClassUID();
-            if (!aarq.containsPresentationContextFor(cuid)) {
-                aarq.addPresentationContextFor(cuid, UID.ImplicitVRLittleEndian);
-                aarq.addPresentationContextFor(cuid, UID.ExplicitVRLittleEndian);
+            TransferCapability configuredTCs = null;
+            if (considerConfiguredTCs && ((configuredTCs = destAE.getTransferCapabilityFor(cuid, SCP)) == null))
+                continue;
+            if (!aarq.containsPresentationContextFor(cuid) && !isVideo(inst)) {
+                addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, configuredTCs);
+                addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, configuredTCs);
             }
             for (Location location : inst.getLocations()) {
                 String tsuid = location.getTransferSyntaxUID();
                 if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
                         !tsuid.equals(UID.ExplicitVRLittleEndian))
-                    aarq.addPresentationContextFor(cuid, tsuid);
+                    addPresentationContext(aarq, cuid, tsuid, configuredTCs);
             }
         }
         return aarq;
+    }
+
+    private boolean isVideo(InstanceLocations inst) {
+        switch (inst.getLocations().get(0).getTransferSyntaxUID()) {
+            case UID.MPEG2:
+            case UID.MPEG2MainProfileHighLevel:
+            case UID.MPEG4AVCH264HighProfileLevel41:
+            case UID.MPEG4AVCH264BDCompatibleHighProfileLevel41:
+            case UID.MPEG4AVCH264HighProfileLevel42For2DVideo:
+            case UID.MPEG4AVCH264HighProfileLevel42For3DVideo:
+            case UID.MPEG4AVCH264StereoHighProfileLevel42:
+            case UID.HEVCH265MainProfileLevel51:
+            case UID.HEVCH265Main10ProfileLevel51:
+                return true;
+        }
+        return false;
+    }
+
+    private void addPresentationContext(AAssociateRQ aarq, String cuid, String ts, TransferCapability configuredTCs) {
+        if (configuredTCs == null || configuredTCs.containsTransferSyntax(ts))
+            aarq.addPresentationContextFor(cuid, ts);
     }
 
     @Override
