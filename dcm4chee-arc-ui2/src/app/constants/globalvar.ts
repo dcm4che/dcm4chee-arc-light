@@ -1068,5 +1068,13 @@ export class Globalvar {
         ]
     }
 
+    static KEYCLOAK_OPTIONS():any{
+        return {
+            flow: 'standard',
+            responseMode: 'fragment',
+            checkLoginIframe: true,
+            onLoad: 'login-required'
+        };
+    }
 
 }

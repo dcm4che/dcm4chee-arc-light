@@ -10,6 +10,8 @@ import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {DcmWebAppRequestParam, HttpMethod} from "../interfaces";
 import {j4care} from "./j4care.service";
+import {KeycloakService} from "./keycloak-service/keycloak.service";
+import {Globalvar} from "../constants/globalvar";
 
 @Injectable()
 export class J4careHttpService{
@@ -18,7 +20,10 @@ export class J4careHttpService{
         private $httpClient:HttpClient,
         public mainservice:AppService,
         public httpErrorHandler:HttpErrorHandler,
-    ){}
+        private _keycloakService: KeycloakService
+    ){
+        console.log("in j4care-http-service constructor");
+    }
     header;
     token = {};
     get(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
@@ -158,6 +163,33 @@ export class J4careHttpService{
     getRealm(dcmWebApp?:DcmWebApp){
         let service = this.$http.get('rs/realm');
         // let service = Observable.of(this.mainservice.keycloak);
+/*        console.log("in getrelam",this.mainservice.keycloak);
+        console.log("in getrelam authentication",this.mainservice.keycloak);
+        const tokenPromise: Promise<any> = this.mainservice.keycloak.getToken();
+        let service: Observable<any> = Observable.fromPromise(tokenPromise);*/
+        // const tokenPromise: Promise<any> = this._keycloakService.getToken();
+/*        let service
+        if(!this._keycloakService.authenticated()){
+           service = KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS());
+        }else{
+            service = this._keycloakService.getToken();
+        }*/
+/*        if(KeycloakService.keycloakAuth.token){
+            console.log("token in j4carehttpservice",KeycloakService.keycloakAuth.token);
+        }else {
+            KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS());
+        }*/
+/*        KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(keycloakauth=>{
+           console.log("in getRelam keycloakauth",keycloakauth);
+           console.log("in getRelam keycloakauth",KeycloakService.keycloakAuth);
+           console.log("in getRelam keycloakauth",KeycloakService.keycloakAuth.token);
+        },(err)=>{
+            console.log("in getRelam err",err);
+        });*/
+
+/*        this._keycloakService.getToken().subscribe(token=>{
+            console.log("-------token",token);
+        });*/
         console.log("in get realm", this.mainservice.keycloak);
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});

@@ -8,5 +8,4 @@ import { AppModule } from './app/';
 if (environment.production) {
   enableProdMode();
 }
-
 platformBrowserDynamic().bootstrapModule(AppModule);

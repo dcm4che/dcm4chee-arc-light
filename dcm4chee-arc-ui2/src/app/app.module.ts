@@ -104,6 +104,8 @@ import {OptionService} from "./widgets/dropdown/option.service";
 import {RetrieveMonitoringComponent} from "./monitoring/external-retrieve/retrieve-monitoring.component";
 import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve-monitoring.service";
 import { ArrayToStringPipe } from './pipes/array-to-string.pipe';
+import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
+import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
 
 @NgModule({
     declarations: [
@@ -257,6 +259,8 @@ import { ArrayToStringPipe } from './pipes/array-to-string.pipe';
         ContentDescriptionPipe,
         ArrayToStringPipe,
         OptionService,
+        KeycloakService,
+        KeycloakHttpClient,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent],

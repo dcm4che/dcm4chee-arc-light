@@ -17,6 +17,9 @@ import {PermissionService} from "./helpers/permissions/permission.service";
 import {Observable} from "../../node_modules/rxjs";
 import {HttpClient} from "@angular/common/http";
 import {DcmWebApp} from "./models/dcm-web-app";
+import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
+import {Globalvar} from "./constants/globalvar";
+import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -56,7 +59,9 @@ export class AppComponent implements OnInit {
         public mainservice: AppService,
         private $http:J4careHttpService,
         private nativeHttp:Http,
-        private permissionService:PermissionService
+        private permissionService:PermissionService,
+        private keycloakHttpClient:KeycloakHttpClient,
+        private _keycloakService: KeycloakService
     ){
         console.log("in app.component construct", window);
     }
@@ -64,7 +69,16 @@ export class AppComponent implements OnInit {
     ngOnInit(){
         // console.log("app.component.ts",this.mainservice.keycloak);
         console.log("config",this.mainservice);
-/*        let keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
+/*        if(KeycloakService.keycloakAuth.token){
+            console.log("token in j4carehttpservice",KeycloakService.keycloakAuth.token);
+        }else {
+            KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
+                console.log("subscripkeycloak res",res);
+                console.log("token",KeycloakService.keycloakAuth.token);
+            })
+        }*/
+/*        console.log("authenticated",this.mainservice.keycloak);
+        let keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
         let $this = this;
         if(keycloakConfig){
             $this.mainservice.keycloak = Keycloak(keycloakConfig);
@@ -113,9 +127,12 @@ export class AppComponent implements OnInit {
         });
     }
     testLogout(){
+        this.keycloakHttpClient.get('./rs/devicename').subscribe(res=>{
+           console.log("keycloakhttpclient",res);
+        });
         console.log("in logout",this.mainservice.keycloak);
         console.log("in logouturl",this.logoutUrl);
-        this.mainservice.keycloak.logout(this.logoutUrl);
+        // this.mainservice.keycloak.logout(this.logoutUrl);
     }
     setServerTime(recall?:Function){
         let currentBrowserTime = new Date().getTime();
