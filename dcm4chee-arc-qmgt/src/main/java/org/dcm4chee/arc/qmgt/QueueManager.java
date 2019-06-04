@@ -45,6 +45,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.jms.ObjectMessage;
+import javax.persistence.Tuple;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -80,8 +81,6 @@ public interface QueueManager {
 
     long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
-    String findDeviceNameByMsgId(String msgId);
-
     void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
@@ -96,4 +95,7 @@ public interface QueueManager {
 
     List<String> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit);
 
+    List<Tuple> listQueueMsgIDAndMsgProps(TaskQueryParam queueTaskQueryParam, int limit);
+
+    Tuple findDeviceNameAndMsgPropsByMsgID(String msgID);
 }

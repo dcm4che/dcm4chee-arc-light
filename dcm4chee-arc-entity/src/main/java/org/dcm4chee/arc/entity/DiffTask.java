@@ -70,8 +70,6 @@ import java.util.Date;
                 @Index(columnList = "compare_fields") }
 )
 @NamedQueries({
-        @NamedQuery(name = DiffTask.FIND_DEVICE_BY_PK,
-                query = "select o.queueMessage.deviceName from DiffTask o where o.pk=?1"),
         @NamedQuery(name = DiffTask.FIND_ATTRS_BY_PK,
                 query = "select attrs.encodedAttributes from DiffTask o join o.diffTaskAttributes attrs where o.pk=?1"),
         @NamedQuery(name = DiffTask.COUNT_BY_BATCH_ID,
@@ -79,7 +77,6 @@ import java.util.Date;
 })
 public class DiffTask {
 
-    public static final String FIND_DEVICE_BY_PK = "DiffTask.FindDeviceByPk";
     public static final String FIND_ATTRS_BY_PK = "DiffTask.FindAttrsByPk";
     public static final String COUNT_BY_BATCH_ID = "DiffTask.CountByBatchId";
 

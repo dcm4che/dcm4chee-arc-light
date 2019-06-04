@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
+import javax.persistence.Tuple;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -152,11 +153,6 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public String findDeviceNameByMsgId(String msgId) {
-        return ejb.findDeviceNameByMsgId(msgId);
-    }
-
-    @Override
     public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
         return ejb.deleteTask(msgId, queueEvent);
     }
@@ -184,5 +180,15 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public List<String> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
         return ejb.getQueueMsgIDs(queueTaskQueryParam, limit);
+    }
+
+    @Override
+    public List<Tuple> listQueueMsgIDAndMsgProps(TaskQueryParam queueTaskQueryParam, int limit) {
+        return ejb.listQueueMsgIDAndMsgProps(queueTaskQueryParam, limit);
+    }
+
+    @Override
+    public Tuple findDeviceNameAndMsgPropsByMsgID(String msgID) {
+        return ejb.findDeviceNameAndMsgPropsByMsgID(msgID);
     }
 }

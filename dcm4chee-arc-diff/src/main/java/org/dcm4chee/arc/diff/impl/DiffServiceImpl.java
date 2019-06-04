@@ -58,6 +58,7 @@ import org.dcm4chee.arc.query.util.TaskQueryParam;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.persistence.Tuple;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -205,8 +206,15 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public String findDeviceNameByPk(Long pk) {
-        return ejb.findDeviceNameByPk(pk);
+    public List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
+        return ejb.listDiffTaskQueueMsgIDAndMsgProps(queueTaskQueryParam, diffTaskQueryParam, limit);
+    }
+
+
+    @Override
+    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
+        return ejb.findDeviceNameAndMsgPropsByPk(pk);
     }
 
     @Override

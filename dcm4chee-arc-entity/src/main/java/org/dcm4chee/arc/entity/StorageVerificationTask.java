@@ -72,13 +72,10 @@ import java.util.Date;
                         "o.updatedTime=current_timestamp, " +
                         "o.completed=?2, " +
                         "o.failed=?3 " +
-                        "where pk=?1"),
-        @NamedQuery(name = StorageVerificationTask.FIND_DEVICE_BY_PK,
-                query = "select o.queueMessage.deviceName from StorageVerificationTask o where o.pk=?1")
+                        "where pk=?1")
 })
 public class StorageVerificationTask {
     public static final String UPDATE_RESULT_BY_PK = "StorageVerificationTask.UpdateResultByPk";
-    public static final String FIND_DEVICE_BY_PK = "StorageVerificationTask.FindDeviceByPk";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

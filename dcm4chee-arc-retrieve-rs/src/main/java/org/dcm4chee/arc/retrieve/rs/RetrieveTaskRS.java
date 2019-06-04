@@ -40,7 +40,10 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -62,8 +65,10 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
+import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
@@ -91,6 +96,9 @@ public class RetrieveTaskRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IDeviceCache deviceCache;
 
     @Inject
     private RSClient rsClient;
@@ -270,17 +278,18 @@ public class RetrieveTaskRS {
     @Path("{taskPK}/reschedule")
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
-        if (newDeviceName != null)
-            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
-
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
+            Tuple tuple = mgr.findDeviceNameAndMsgPropsByPk(pk);
             String taskDeviceName;
-            if ((taskDeviceName = mgr.findDeviceNameByPk(pk)) == null)
+            if ((taskDeviceName = (String) tuple.get(0)) == null)
                 return errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
 
             if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
                 return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
+
+            if (newDeviceName != null)
+                validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
 
             String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
             if (!devName.equals(device.getDeviceName()))
@@ -290,6 +299,8 @@ public class RetrieveTaskRS {
             return Response.noContent().build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -298,12 +309,24 @@ public class RetrieveTaskRS {
         }
     }
 
+    private boolean validateTaskAssociationInitiator(String messageProperties, Device device) throws ConfigurationException {
+        javax.json.JsonReader reader = Json.createReader(new StringReader('{' + messageProperties + '}'));
+        JsonObject jsonObj = reader.readObject();
+
+        String localAET = jsonObj.getString("LocalAET");
+        ApplicationEntity ae = device.getApplicationEntity(localAET, true);
+        if (ae == null || !ae.isInstalled())
+            throw new ConfigurationException("No such Application Entity " + localAET + " on new device: " + newDeviceName);
+
+        return true;
+    }
+
     @POST
     @Path("/reschedule")
     public Response rescheduleRetrieveTasks() {
         logRequest();
         if (newDeviceName != null)
-            return errResponse("newDeviceName query parameter temporarily not supported.", Response.Status.BAD_REQUEST);
+            return errResponse("Query param newDeviceName temporarily disabled", Response.Status.BAD_REQUEST);
 
         QueueMessage.Status status = status();
         if (status == null)
@@ -319,8 +342,8 @@ public class RetrieveTaskRS {
 
             TaskQueryParam retrieveTaskQueryParam = retrieveTaskQueryParam(updatedTime);
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(retrieveTaskQueryParam, status)
-                    : rescheduleTasks(
+                        ? rescheduleOnDistinctDevices(retrieveTaskQueryParam, status)
+                        : rescheduleTasks(
                             queueTaskQueryParam(newDeviceName != null ? null : devName, status),
                             retrieveTaskQueryParam));
         } catch (IllegalStateException e) {

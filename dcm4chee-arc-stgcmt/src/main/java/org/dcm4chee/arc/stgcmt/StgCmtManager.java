@@ -52,6 +52,7 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
+import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
@@ -90,7 +91,7 @@ public interface StgCmtManager {
 
     long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
-    String findDeviceNameByPk(Long pk);
+    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
 
     void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent);
 
@@ -99,6 +100,9 @@ public interface StgCmtManager {
     List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
     List<String> listStgVerTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
+
+    List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
 
     boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent);

@@ -75,6 +75,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.persistence.Tuple;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -197,8 +198,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public String findDeviceNameByPk(Long pk) {
-        return ejb.findDeviceNameByPk(pk);
+    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
+        return ejb.findDeviceNameAndMsgPropsByPk(pk);
     }
 
     @Override
@@ -220,6 +221,12 @@ public class StgCmtManagerImpl implements StgCmtManager {
     public List<String> listStgVerTaskQueueMsgIDs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
         return ejb.listStgVerTaskQueueMsgIDs(queueTaskQueryParam, stgVerTaskQueryParam, limit);
+    }
+
+    @Override
+    public List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
+        return ejb.listStgVerTaskQueueMsgIDAndMsgProps(queueTaskQueryParam, stgVerTaskQueryParam, limit);
     }
 
     @Override

@@ -40,8 +40,16 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.persistence.criteria.Predicate;
+
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
@@ -66,6 +74,7 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -438,14 +447,15 @@ public class QueueManagerEJB {
         return sq.select(diffTask.get(DiffTask_.queueMessage));
     }
 
-    public String findDeviceNameByMsgId(String msgId) {
-        try {
-            return em.createNamedQuery(QueueMessage.FIND_DEVICE_BY_MSG_ID, String.class)
-                    .setParameter(1, msgId)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+    public Tuple findDeviceNameAndMsgPropsByMsgID(String msgID) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
+        Root<QueueMessage> queueMsg = tupleQuery.from(QueueMessage.class);
+        tupleQuery.where(cb.equal(queueMsg.get(QueueMessage_.messageID), msgID));
+        tupleQuery.multiselect(
+                queueMsg.get(QueueMessage_.deviceName),
+                queueMsg.get(QueueMessage_.messageProperties));
+        return em.createQuery(tupleQuery).getSingleResult();
     }
 
     public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
@@ -530,6 +540,22 @@ public class QueueManagerEJB {
 
     public List<String> getQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
         return em.createQuery(queueMsgQuery(queueTaskQueryParam, QueueMessage_.messageID))
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    public List<Tuple> listQueueMsgIDAndMsgProps(TaskQueryParam queueTaskQueryParam, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        Root<QueueMessage> queueMsg = q.from(QueueMessage.class);
+        List<Predicate> predicates = matchTask.queueMsgPredicates(queueMsg, queueTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(
+                q.multiselect(
+                    queueMsg.get(QueueMessage_.messageID),
+                    queueMsg.get(QueueMessage_.messageProperties)))
                 .setMaxResults(limit)
                 .getResultList();
     }

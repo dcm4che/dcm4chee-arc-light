@@ -274,16 +274,6 @@ public class RetrieveManagerEJB {
         return queueManager.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 
-    public String findDeviceNameByPk(Long pk) {
-        try {
-            return em.createNamedQuery(RetrieveTask.FIND_DEVICE_BY_PK, String.class)
-                    .setParameter(1, pk)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
     public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
@@ -415,6 +405,18 @@ public class RetrieveManagerEJB {
             predicates = matchTask.retrievePredicates(queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
         }
         return predicates;
+    }
+
+    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
+        Root<RetrieveTask> retrieveTask = tupleQuery.from(RetrieveTask.class);
+        Join<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+        tupleQuery.where(cb.equal(retrieveTask.get(RetrieveTask_.pk), pk));
+        tupleQuery.multiselect(
+                queueMsg.get(QueueMessage_.deviceName),
+                queueMsg.get(QueueMessage_.messageProperties));
+        return em.createQuery(tupleQuery).getSingleResult();
     }
 
     public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {

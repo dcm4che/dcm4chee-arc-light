@@ -188,6 +188,24 @@ public class DiffServiceEJB {
                 .getResultList();
     }
 
+    public List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        Root<DiffTask> diffTask = q.from(DiffTask.class);
+        From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
+        List<Predicate> predicates = new MatchTask(cb).diffPredicates(
+                queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(
+                q.multiselect(
+                        queueMsg.get(QueueMessage_.messageID),
+                        queueMsg.get(QueueMessage_.messageProperties)))
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     private CriteriaQuery<String> select(SingularAttribute<QueueMessage, String> attribute,
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -238,14 +256,16 @@ public class DiffServiceEJB {
         queueManager.rescheduleTask(msgId, DiffService.QUEUE_NAME, queueEvent);
     }
 
-    public String findDeviceNameByPk(Long pk) {
-        try {
-            return em.createNamedQuery(DiffTask.FIND_DEVICE_BY_PK, String.class)
-                    .setParameter(1, pk)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
+        Root<DiffTask> diffTask = tupleQuery.from(DiffTask.class);
+        Join<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
+        tupleQuery.where(cb.equal(diffTask.get(DiffTask_.pk), pk));
+        tupleQuery.multiselect(
+                queueMsg.get(QueueMessage_.deviceName),
+                queueMsg.get(QueueMessage_.messageProperties));
+        return em.createQuery(tupleQuery).getSingleResult();
     }
 
     public List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {

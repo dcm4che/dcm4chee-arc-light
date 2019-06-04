@@ -328,14 +328,16 @@ public class StgCmtEJB {
         return queueManager.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 
-    public String findDeviceNameByPk(Long pk) {
-        try {
-            return em.createNamedQuery(StorageVerificationTask.FIND_DEVICE_BY_PK, String.class)
-                    .setParameter(1, pk)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
+        Root<StorageVerificationTask> stgVerTask = tupleQuery.from(StorageVerificationTask.class);
+        Join<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        tupleQuery.where(cb.equal(stgVerTask.get(StorageVerificationTask_.pk), pk));
+        tupleQuery.multiselect(
+                queueMsg.get(QueueMessage_.deviceName),
+                queueMsg.get(QueueMessage_.messageProperties));
+        return em.createQuery(tupleQuery).getSingleResult();
     }
 
     public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent) {
@@ -360,6 +362,24 @@ public class StgCmtEJB {
     public List<String> listStgVerTaskQueueMsgIDs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
         return em.createQuery(select(QueueMessage_.messageID, queueTaskQueryParam, stgVerTaskQueryParam))
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    public List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
+        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
+        List<Predicate> predicates = new MatchTask(cb).stgVerPredicates(
+                queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(
+                q.multiselect(
+                    queueMsg.get(QueueMessage_.messageID),
+                    queueMsg.get(QueueMessage_.messageProperties)))
                 .setMaxResults(limit)
                 .getResultList();
     }

@@ -46,6 +46,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
+import javax.persistence.Tuple;
 import java.util.Iterator;
 import java.util.List;
 
@@ -85,7 +86,7 @@ public interface DiffService {
 
     void rescheduleDiffTask(String diffTaskQueueMsgId);
 
-    String findDeviceNameByPk(Long pk);
+    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
 
     boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
 
@@ -94,6 +95,9 @@ public interface DiffService {
     List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
     List<String> listDiffTaskQueueMsgIDs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
+
+    List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);

@@ -45,6 +45,7 @@ import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
+import javax.persistence.Tuple;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -60,15 +61,13 @@ public interface RetrieveManager {
     int createRetrieveTask(ExternalRetrieveContext ctx);
 
     int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter,
-            long delay) throws QueueSizeLimitExceededException;
+                             long delay) throws QueueSizeLimitExceededException;
 
     boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 
     boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
     long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
-
-    String findDeviceNameByPk(Long pk);
 
     void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent);
 
@@ -85,4 +84,6 @@ public interface RetrieveManager {
 
     Iterator<RetrieveTask> listRetrieveTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit);
+
+    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
 }

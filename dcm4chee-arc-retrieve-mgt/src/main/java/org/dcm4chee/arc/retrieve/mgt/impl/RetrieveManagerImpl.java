@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
@@ -170,11 +171,6 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public String findDeviceNameByPk(Long pk) {
-        return ejb.findDeviceNameByPk(pk);
-    }
-
-    @Override
     public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
         ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
     }
@@ -210,5 +206,10 @@ public class RetrieveManagerImpl implements RetrieveManager {
     @Override
     public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
         return ejb.countTasks(queueTaskQueryParam, retrieveTaskQueryParam);
+    }
+
+    @Override
+    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
+        return ejb.findDeviceNameAndMsgPropsByPk(pk);
     }
 }

@@ -77,14 +77,11 @@ import java.util.Date;
                         "o.warning=?5, " +
                         "o.statusCode=?6, " +
                         "o.errorComment=?7 " +
-                        "where o.queueMessage=?1"),
-        @NamedQuery(name = RetrieveTask.FIND_DEVICE_BY_PK,
-                query = "select o.deviceName from RetrieveTask o where o.pk=?1")
+                        "where o.queueMessage=?1")
 })
 public class RetrieveTask {
 
     public static final String UPDATE_BY_QUEUE_MESSAGE = "RetrieveTask.UpdateByQueueMessage";
-    public static final String FIND_DEVICE_BY_PK = "RetrieveTask.FindDeviceByPk";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

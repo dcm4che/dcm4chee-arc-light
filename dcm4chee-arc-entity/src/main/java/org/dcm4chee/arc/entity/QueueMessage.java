@@ -73,8 +73,6 @@ import java.util.*;
 @NamedQueries({
         @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
                 query = "select o from QueueMessage o where o.messageID=?1"),
-        @NamedQuery(name = QueueMessage.FIND_DEVICE_BY_MSG_ID,
-                query = "select o.deviceName from QueueMessage o where o.messageID=?1"),
         @NamedQuery(name = QueueMessage.FIND_DEVICE_BY_BATCH_ID,
                 query = "select distinct o.deviceName from QueueMessage o where o.batchID=?1 order by o.deviceName"),
         @NamedQuery(name = QueueMessage.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
@@ -85,7 +83,6 @@ import java.util.*;
 public class QueueMessage {
 
     public static final String FIND_BY_MSG_ID = "QueueMessage.FindByMsgId";
-    public static final String FIND_DEVICE_BY_MSG_ID = "QueueMessage.FindDeviceByMsgId";
     public static final String FIND_DEVICE_BY_BATCH_ID = "QueueMessage.FindDeviceByBatchId";
     public static final String COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS = "QueueMessage.CountByDeviceAndQueueNameAndStatus";
     public static final String COUNT_BY_BATCH_ID_AND_STATUS = "QueueMessage.CountByBatchIdAndStatus";
