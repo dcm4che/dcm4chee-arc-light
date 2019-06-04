@@ -17,6 +17,7 @@ update metadata
     set created_time = (select series.updated_time
     from series
     where metadata.pk = metadata_fk);
+update metadata set created_time='2000-01-01 00:00:00' where status != 0 and created_time is null;
 
 create index UK_ln9rs61la03lhvgiv8c2wehnr on queue_msg (batch_id);
 create index UK_djkqk3dls3xkru1n0c3p5rm3 on retrieve_task (device_name);
@@ -39,6 +40,7 @@ update series set metadata_update_failures = 0 where metadata_update_failures is
 update metadata
     set created_time = (select series.updated_time from series
                     where metadata.pk = metadata_fk and metadata.created_time is null);
+update metadata set created_time='2000-01-01 00:00:00' where status != 0 and created_time is null;
 
 -- part 3: can be applied on already running archive 5.17
 alter table queue_msg drop column batchID;
