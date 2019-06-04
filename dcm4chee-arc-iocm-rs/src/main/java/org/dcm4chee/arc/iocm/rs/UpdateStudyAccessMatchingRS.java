@@ -165,7 +165,7 @@ public class UpdateStudyAccessMatchingRS {
     }
 
     @POST
-    @Path("/access/{accessControlID}")
+    @Path("/access/{accessControlID}/studies")
     public Response updateStudyAccessControlID(
             @PathParam("accessControlID") String accessControlID) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
