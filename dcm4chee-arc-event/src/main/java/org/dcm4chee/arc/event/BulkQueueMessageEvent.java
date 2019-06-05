@@ -11,6 +11,7 @@ public class BulkQueueMessageEvent {
     private final HttpServletRequest request;
     private final QueueMessageOperation operation;
     private long count;
+    private int failed;
     private Exception exception;
 
     public BulkQueueMessageEvent(HttpServletRequest request, QueueMessageOperation operation) {
@@ -32,6 +33,14 @@ public class BulkQueueMessageEvent {
 
     public void setCount(long count) {
         this.count = count;
+    }
+
+    public int getFailed() {
+        return failed;
+    }
+
+    public void setFailed(int failed) {
+        this.failed = failed;
     }
 
     public Exception getException() {

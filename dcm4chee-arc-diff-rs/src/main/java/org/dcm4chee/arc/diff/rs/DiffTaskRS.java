@@ -415,6 +415,7 @@ public class DiffTaskRS {
             queueEvent.setException(e);
             throw e;
         } finally {
+            queueEvent.setFailed(failed);
             bulkQueueMsgEvent.fire(queueEvent);
         }
 

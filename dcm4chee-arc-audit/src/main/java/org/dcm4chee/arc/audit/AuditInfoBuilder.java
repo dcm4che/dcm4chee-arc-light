@@ -89,6 +89,7 @@ class AuditInfoBuilder {
     final Patient.VerificationStatus patVerificationStatus;
     final String pdqServiceURI;
     final String impaxEndpoint;
+    final int failed;
 
     static class Builder {
         private String callingHost;
@@ -126,6 +127,7 @@ class AuditInfoBuilder {
         private Patient.VerificationStatus patVerificationStatus;
         private String pdqServiceURI;
         private String impaxEndpoint;
+        private int failed;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -282,6 +284,10 @@ class AuditInfoBuilder {
             impaxEndpoint = val;
             return this;
         }
+        Builder failed(int val) {
+            failed = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -323,6 +329,7 @@ class AuditInfoBuilder {
         patVerificationStatus = builder.patVerificationStatus;
         pdqServiceURI = builder.pdqServiceURI;
         impaxEndpoint = builder.impaxEndpoint;
+        failed = builder.failed;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

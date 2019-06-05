@@ -83,6 +83,7 @@ class QueueMessageAuditService {
                 .outcome(outcome(bulkQueueMsgEvent.getException()))
                 .filters(req.getQueryString())
                 .count(bulkQueueMsgEvent.getCount())
+                .failed(bulkQueueMsgEvent.getFailed())
                 .taskPOID(bulkQueueMsgEvent.getOperation().name())
                 .build();
     }
@@ -139,7 +140,8 @@ class QueueMessageAuditService {
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
                 null)
                 .detail(AuditMessages.createParticipantObjectDetail("Filters", info.getField(AuditInfo.FILTERS)),
-                        AuditMessages.createParticipantObjectDetail("Count", info.getField(AuditInfo.COUNT)))
+                        AuditMessages.createParticipantObjectDetail("Count", info.getField(AuditInfo.COUNT)),
+                        AuditMessages.createParticipantObjectDetail("Failed", info.getField(AuditInfo.FAILED)))
                 .build();
     }
 
