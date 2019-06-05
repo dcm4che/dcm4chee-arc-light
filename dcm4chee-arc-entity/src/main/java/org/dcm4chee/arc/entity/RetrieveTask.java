@@ -417,7 +417,9 @@ public class RetrieveTask {
             writer.append(delimiter).write(queueName);
             writer.append(delimiter).write(deviceName);
             writer.append(delimiter).write("TO SCHEDULE");
-            writer.append(delimiter).append(delimiter).write(batchID);
+            writer.append(delimiter).append(delimiter);
+            if (batchID != null)
+                writer.write(batchID);
             writer.append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter);
         } else
             queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
