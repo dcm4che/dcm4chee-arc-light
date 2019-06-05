@@ -2013,7 +2013,10 @@
             "description": "Compare Studies Tasks status is null"
           },
           "409": {
-            "description": "Validation for all matching tasks failed"
+            "description": "Validation for all matching tasks failed",
+            "schema": {
+              "$ref": "#/definitions/Failed"
+            }
           },
           "default": {
             "description": "unexpected error"
@@ -3599,7 +3602,10 @@
             "description": "Retrieve tasks status is null"
           },
           "409": {
-            "description": "Validation for all matching tasks failed"
+            "description": "Validation for all matching tasks failed",
+            "schema": {
+              "$ref": "#/definitions/Failed"
+            }
           },
           "default": {
             "description": "unexpected error"
@@ -4250,7 +4256,10 @@
             "description": "Retrieve tasks status is null"
           },
           "409": {
-            "description": "Validation for all matching tasks failed"
+            "description": "Validation for all matching tasks failed",
+            "schema": {
+              "$ref": "#/definitions/Failed"
+            }
           },
           "default": {
             "description": "unexpected error"
@@ -4782,7 +4791,10 @@
             "description": "Queue Message status is null"
           },
           "409": {
-            "description": "Validation for all matching tasks failed"
+            "description": "Validation for all matching tasks failed",
+            "schema": {
+              "$ref": "#/definitions/Failed"
+            }
           },
           "default": {
             "description": "unexpected error"
@@ -18462,7 +18474,20 @@
         },
         "failed": {
           "title": "failed",
-          "description": "number of tasks failed to be rescheduled",
+          "description": "number of tasks which failed to be rescheduled",
+          "type": "integer"
+        }
+      }
+    },
+    "Failed": {
+      "type": "object",
+      "required": [
+        "failed"
+      ],
+      "properties": {
+        "failed": {
+          "title": "failed",
+          "description": "number of tasks which failed to be rescheduled",
           "type": "integer"
         }
       }
