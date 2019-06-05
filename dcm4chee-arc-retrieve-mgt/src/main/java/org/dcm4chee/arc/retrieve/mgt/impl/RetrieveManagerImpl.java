@@ -198,6 +198,12 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
+    public List<Tuple> listRetrieveTaskPkAndLocalAETs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
+        return ejb.listRetrieveTaskPkAndLocalAETs(queueTaskQueryParam, retrieveTaskQueryParam, limit);
+    }
+
+    @Override
     public Iterator<RetrieveTask> listRetrieveTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
         return ejb.listRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam, offset, limit);

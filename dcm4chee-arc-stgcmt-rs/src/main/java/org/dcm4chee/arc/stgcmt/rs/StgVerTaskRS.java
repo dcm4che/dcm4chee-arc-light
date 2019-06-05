@@ -378,7 +378,7 @@ public class StgVerTaskRS {
         if (failed == 0)
             return count(rescheduled);
 
-        LOG.info("Failed to rescheduled {} Storage Verification tasks on device {}", failed, device.getDeviceName());
+        LOG.info("Failed to reschedule {} Storage Verification tasks on device {}", failed, device.getDeviceName());
         return rescheduled > 0
                 ? accepted(rescheduled, failed)
                 : conflict(failed);

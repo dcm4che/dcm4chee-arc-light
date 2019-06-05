@@ -421,7 +421,7 @@ public class DiffTaskRS {
         if (failed == 0)
             return count(rescheduled);
 
-        LOG.info("Failed to rescheduled {} Diff tasks on device {}", failed, device.getDeviceName());
+        LOG.info("Failed to reschedule {} Diff tasks on device {}", failed, device.getDeviceName());
         return rescheduled > 0
                 ? accepted(rescheduled, failed)
                 : conflict(failed);

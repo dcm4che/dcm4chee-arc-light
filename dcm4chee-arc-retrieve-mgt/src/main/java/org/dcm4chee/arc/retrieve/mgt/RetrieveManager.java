@@ -80,6 +80,8 @@ public interface RetrieveManager {
 
     List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
 
+    List<Tuple> listRetrieveTaskPkAndLocalAETs(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
+
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
 
     Iterator<RetrieveTask> listRetrieveTasks(

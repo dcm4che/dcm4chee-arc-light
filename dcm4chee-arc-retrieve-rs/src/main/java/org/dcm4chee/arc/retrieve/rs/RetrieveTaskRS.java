@@ -325,9 +325,6 @@ public class RetrieveTaskRS {
     @Path("/reschedule")
     public Response rescheduleRetrieveTasks() {
         logRequest();
-        if (newDeviceName != null)
-            return errResponse("Query param newDeviceName temporarily disabled", Response.Status.BAD_REQUEST);
-
         QueueMessage.Status status = status();
         if (status == null)
             return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
@@ -341,10 +338,12 @@ public class RetrieveTaskRS {
                 return rsClient.forward(request, devName, "");
 
             TaskQueryParam retrieveTaskQueryParam = retrieveTaskQueryParam(updatedTime);
-            return count(devName == null
+            return newDeviceName != null
+                    ? rescheduleValidTasks(queueTaskQueryParam(null, status), retrieveTaskQueryParam)
+                    : count(devName == null
                         ? rescheduleOnDistinctDevices(retrieveTaskQueryParam, status)
                         : rescheduleTasks(
-                            queueTaskQueryParam(newDeviceName != null ? null : devName, status),
+                            queueTaskQueryParam(devName, status),
                             retrieveTaskQueryParam));
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -391,6 +390,54 @@ public class RetrieveTaskRS {
         } finally {
             bulkQueueMsgEvent.fire(bulkMsgQueueEvent);
         }
+    }
+
+    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        int rescheduled = 0;
+        int failed = 0;
+        try {
+            int count = 0;
+            int rescheduleTaskFetchSize = queueTasksFetchSize();
+            do {
+                List<Tuple> retrieveTaskTuples = mgr.listRetrieveTaskPkAndLocalAETs(
+                        queueTaskQueryParam, retrieveTaskQueryParam, rescheduleTaskFetchSize);
+                for (Tuple tuple : retrieveTaskTuples) {
+                    Long retrieveTaskPk = (Long) tuple.get(0);
+                    try {
+                        if (validateTaskAssociationInitiator(
+                                "\"LocalAET\":\"" + tuple.get(1) + "\"",
+                                device)) {
+                            mgr.rescheduleRetrieveTask(
+                                    retrieveTaskPk,
+                                    newQueueName,
+                                    new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks));
+                            count++;
+                        }
+                    } catch (ConfigurationException e) {
+                        LOG.info("Validation of association initiator failed for Retrieve Task [pk={}] : {}",
+                                retrieveTaskPk, e.getMessage());
+                        failed++;
+                    }
+                }
+                rescheduled += count;
+            } while (count >= rescheduleTaskFetchSize);
+            queueEvent.setCount(rescheduled);
+            LOG.info("Rescheduled {} Retrieve tasks on device {}", rescheduled, device.getDeviceName());
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            throw e;
+        } finally {
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
+
+        if (failed == 0)
+            return count(rescheduled);
+
+        LOG.info("Failed to reschedule {} Retrieve tasks on device {}", failed, device.getDeviceName());
+        return rescheduled > 0
+                ? accepted(rescheduled, failed)
+                : conflict(failed);
     }
 
     @DELETE
@@ -441,8 +488,16 @@ public class RetrieveTaskRS {
                 : errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
     }
 
-    private static Response count(long count) {
+    private Response count(long count) {
         return Response.ok("{\"count\":" + count + '}').build();
+    }
+
+    private Response accepted(int rescheduled, int failed) {
+        return Response.accepted("{\"count\":" + rescheduled + ", \"failed\":" + failed + '}').build();
+    }
+
+    private Response conflict(int failed) {
+        return Response.status(Response.Status.CONFLICT).entity("{\"failed\":" + failed + '}').build();
     }
 
     private int count(Response response, String devName) {

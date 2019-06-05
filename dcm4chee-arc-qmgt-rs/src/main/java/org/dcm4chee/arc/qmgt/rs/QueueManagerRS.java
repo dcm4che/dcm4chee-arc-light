@@ -366,7 +366,7 @@ public class QueueManagerRS {
         if (failed == 0)
             return count(rescheduled);
 
-        LOG.info("Failed to rescheduled {} Queue Messages of queue {} on device {}",
+        LOG.info("Failed to reschedule {} Queue Messages of queue {} on device {}",
                 failed, queueName, device.getDeviceName());
         return rescheduled > 0
                 ? accepted(rescheduled, failed)

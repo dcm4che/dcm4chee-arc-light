@@ -334,6 +334,23 @@ public class RetrieveManagerEJB {
         return query.getResultList();
     }
 
+    public List<Tuple> listRetrieveTaskPkAndLocalAETs(
+            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        MatchTask matchTask = new MatchTask(cb);
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
+        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
+        List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(
+                q.multiselect(
+                        retrieveTask.get(RetrieveTask_.pk),
+                        retrieveTask.get(RetrieveTask_.localAET)))
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     public List<RetrieveBatch> listRetrieveBatches(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit) {
         if (queueBatchQueryParam.getStatus() == null) {
