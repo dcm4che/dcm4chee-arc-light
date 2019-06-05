@@ -476,8 +476,23 @@ export class StudyComponent implements OnInit {
         })
     }
 
-    testRequest(){
-        this.service.test(this.deviceWebservice.selectedWebApp);
+    testAet(){
+
+        this.service.testAet("http://test-ng:8080/dcm4chee-arc/ui2/rs/aets", this.deviceWebservice.selectedWebApp).subscribe(res=>{
+            console.log("res",res);
+        },err=>{
+            console.log("err",err);
+        });
+        // this.service.test(this.deviceWebservice.selectedWebApp);
+    }
+    testStudy(){
+
+        this.service.testAet("http://test-ng:8080/dcm4chee-arc/aets/TEST/rs/studies?limit=21&offset=0&includefield=all", this.deviceWebservice.selectedWebApp).subscribe(res=>{
+            console.log("res",res);
+        },err=>{
+            console.log("err",err);
+        });
+        // this.service.test(this.deviceWebservice.selectedWebApp);
     }
 
 }

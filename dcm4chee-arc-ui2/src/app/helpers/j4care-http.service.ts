@@ -161,7 +161,7 @@ export class J4careHttpService{
         this.setValueInGlobal('getRealmStateActive',false);
     }
     getRealm(dcmWebApp?:DcmWebApp){
-        let service = this.$http.get('rs/realm');
+        let service = this.$httpClient.get('rs/realm');
         // let service = Observable.of(this.mainservice.keycloak);
 /*        console.log("in getrelam",this.mainservice.keycloak);
         console.log("in getrelam authentication",this.mainservice.keycloak);
@@ -210,12 +210,17 @@ export class J4careHttpService{
                     if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                resjson = res.json();
-                // resjson = res;
+                // resjson = res.json();
+                resjson = res;
                 console.log("getRealm Response:",res);
                 // resjson = res.body;
             }catch (e){
-                resjson = [];
+   /*             console.log("");
+                if(_.hasIn(e, "message") && e.message.indexOf("res.json") > -1){
+                    resjson = res;
+                }else{*/
+                    resjson = [];
+                // }
             } return resjson;
         })
     }
@@ -276,11 +281,7 @@ export class J4careHttpService{
         if(header){
             if(token){
                 console.log("header",header);
-                if(_.hasIn(header,"headers")){
-                    this.header = header.headers.set('Authorization', `Bearer ${token}`);
-                }else{
-                    this.header = header.set('Authorization', `Bearer ${token}`);
-                }
+                this.header = header.set('Authorization', `Bearer ${token}`);
             }
         }else{
             this.header = new HttpHeaders();

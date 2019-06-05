@@ -121,9 +121,7 @@ export class StudyService {
     getSeries(studyInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
-            header = {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            };
+            header =  new HttpHeaders({'Accept': 'application/dicom+json'});
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
@@ -136,6 +134,16 @@ export class StudyService {
             ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
+    testAet( url, dcmWebApp:DcmWebApp){
+        let header:HttpHeaders;
+            header =  new HttpHeaders({'Accept': 'application/json'});
+        return this.$http.get(
+            url,//`http://test-ng:8080/dcm4chee-arc/ui2/rs/aets`,
+            header,
+            false,
+            dcmWebApp
+        ).map(res => j4care.redirectOnAuthResponse(res));
+    }
     getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header:HttpHeaders;
         if(!responseType || responseType === "object"){

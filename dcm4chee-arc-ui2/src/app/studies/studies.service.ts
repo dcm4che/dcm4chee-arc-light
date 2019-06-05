@@ -217,7 +217,7 @@ export class StudiesService {
                     setExpirationDateToNever:false,
                     FreezeExpirationDate:false
                 };
-                title = "Unfreeze Expiration Date of the Study";
+                title = "Unfreeze/Unprotect Expiration Date of the Study";
                 schema = [
                     [
                         [
@@ -234,7 +234,7 @@ export class StudiesService {
                     ]
                 ];
             }else{
-                title = "Freeze Expiration Date of the Study";
+                title = "Freeze/Protect Expiration Date of the Study";
                 schemaModel = {
                     setExpirationDateToNever:true,
                     FreezeExpirationDate:true
@@ -259,19 +259,17 @@ export class StudiesService {
                             }
                         ],[
                         {
-                            tag:"dummy",
-                            text:"Set Expiration Date to 'never'"
+                            tag:"dummy"
                         },
                         {
                             tag:"checkbox",
                             filterKey:"setExpirationDateToNever",
-                            description:"Set Expiration Date to 'never'",
-                            text:"Set Expiration Date to 'never'"
+                            description:"Set Expiration Date to 'never' if you want also to protect the study",
+                            text:"Set Expiration Date to 'never' if you want also to protect the study"
                         }
                         ],[
                             {
-                                tag:"dummy",
-                                text:"Freeze Expiration Date"
+                                tag:"dummy"
                             },
                             {
                                 tag:"checkbox",
@@ -334,43 +332,34 @@ export class StudiesService {
     queryPatients = function(url, params) {
         return this.$http.get(
             url + '/patients' + this._config(params),
-            {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            }).map(res => j4care.redirectOnAuthResponse(res));
+            new HttpHeaders({'Accept': 'application/dicom+json'})
+        ).map(res => j4care.redirectOnAuthResponse(res));
     };
     queryDiffs = function(url, params) {
         // params["missing"] = params["missing"] || true;
         return this.$http.get(
             url + this._config(params),
-            {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            }
+            new HttpHeaders({'Accept': 'application/dicom+json'})
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
     getCount(url,mode,params) {
         return this.$http.get(
             `${url}/${mode}/count${this._config(params)}`,
-            {
-                headers:  new HttpHeaders({'Accept': 'application/json'})
-            }
+            new HttpHeaders({'Accept': 'application/json'})
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
     getSize(url,params) {
         return this.$http.get(
             `${url}/studies/size${this._config(params)}`,
-            {
-                headers:  new HttpHeaders({'Accept': 'application/json'})
-            }
+                new HttpHeaders({'Accept': 'application/json'})
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
     queryStudies = function(url, params) {
         return this.$http.get(
             url + '/studies' + this._config(params),
-            {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            }
+            new HttpHeaders({'Accept': 'application/dicom+json'})
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
     otherAttributesButIDWasChanged(originalAttr,changedAttr){
@@ -419,9 +408,7 @@ export class StudiesService {
     queryMwl = function(url, params) {
         return this.$http.get(
             url + '/mwlitems' + this._config(params),
-            {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            }
+            new HttpHeaders({'Accept': 'application/dicom+json'})
         ).map(res => {let resjson; try{
             let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
             if(pattern.exec(res.url)){
@@ -433,9 +420,7 @@ export class StudiesService {
     querySeries = function(url, studyIUID, params) {
         return this.$http.get(
             url + '/studies/' + studyIUID + '/series' + this._config(params),
-            {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            }
+            new HttpHeaders({'Accept': 'application/dicom+json'})
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
@@ -445,9 +430,7 @@ export class StudiesService {
             + '/series/' + seriesIUID
             + '/instances' +
             this._config(params),
-            {
-                headers:  new HttpHeaders({'Accept': 'application/dicom+json'})
-            }
+            new HttpHeaders({'Accept': 'application/dicom+json'})
         ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
@@ -698,7 +681,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             save:this.$http.post(
                 url,
                 object,
-                {headers: headers}
+                headers
             ).map(res => j4care.redirectOnAuthResponse(res))
             ,
             successMsg:'Patient ID changed successfully!'
@@ -719,13 +702,13 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 return this.$http.post(
                     `../aets/${aet}/rs/patients/${oldPatientID}/changeid/${newPatientID}`,
                     patientData,
-                    {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
+                     new HttpHeaders({ 'Content-Type': 'application/dicom+json' })
                 );
             }else{
                 return this.$http.post(
                     `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients/${oldPatientID}/changeid`,
                     patientData,
-                    {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
+                    new HttpHeaders({ 'Content-Type': 'application/dicom+json' })
                 );
             }
         }
@@ -745,7 +728,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         return this.$http.post(
             url,
             patientData,
-            {headers: new HttpHeaders({ 'Content-Type': 'application/dicom+json' })}
+             new HttpHeaders({ 'Content-Type': 'application/dicom+json' })
         );
     }
     modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode, queue?){
@@ -800,7 +783,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                         save:this.$http.put(
                                 url,
                                 toSavePatientObject,
-                                {headers: headers},
+                                 headers,
                             true
                             )
                             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;}),
@@ -812,7 +795,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                        save:this.$http.post(
                            url,
                            toSavePatientObject,
-                           {headers: headers}
+                           headers
                        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                        ,
                        successMsg:'Patient created successfully!'
@@ -835,7 +818,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                     save:this.$http.post(
                         url,
                         toSavePatientObject,
-                        {headers: headers}
+                         headers
                     ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                     ,
                         successMsg:'Patient created successfully!'
