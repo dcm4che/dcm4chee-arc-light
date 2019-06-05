@@ -2003,8 +2003,17 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "202": {
+            "description": "Number of Reschedule Tasks Accepted",
+            "schema": {
+              "$ref": "#/definitions/Accepted"
+            }
+          },
           "400": {
             "description": "Compare Studies Tasks status is null"
+          },
+          "409": {
+            "description": "Validation for all matching tasks failed"
           },
           "default": {
             "description": "unexpected error"
@@ -3580,8 +3589,17 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "202": {
+            "description": "Number of Reschedule Tasks Accepted",
+            "schema": {
+              "$ref": "#/definitions/Accepted"
+            }
+          },
           "400": {
             "description": "Retrieve tasks status is null"
+          },
+          "409": {
+            "description": "Validation for all matching tasks failed"
           },
           "default": {
             "description": "unexpected error"
@@ -4222,8 +4240,17 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "202": {
+            "description": "Number of Reschedule Tasks Accepted",
+            "schema": {
+              "$ref": "#/definitions/Accepted"
+            }
+          },
           "400": {
             "description": "Retrieve tasks status is null"
+          },
+          "409": {
+            "description": "Validation for all matching tasks failed"
           },
           "default": {
             "description": "unexpected error"
@@ -4745,8 +4772,17 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "202": {
+            "description": "Number of Reschedule Tasks Accepted",
+            "schema": {
+              "$ref": "#/definitions/Accepted"
+            }
+          },
           "400": {
             "description": "Queue Message status is null"
+          },
+          "409": {
+            "description": "Validation for all matching tasks failed"
           },
           "default": {
             "description": "unexpected error"
@@ -18408,6 +18444,25 @@
         "count": {
           "title": "count",
           "description": "number of matches",
+          "type": "integer"
+        }
+      }
+    },
+    "Accepted": {
+      "type": "object",
+      "required": [
+        "count",
+        "failed"
+      ],
+      "properties": {
+        "count": {
+          "title": "count",
+          "description": "number of rescheduled tasks",
+          "type": "integer"
+        },
+        "failed": {
+          "title": "failed",
+          "description": "number of tasks failed to be rescheduled",
           "type": "integer"
         }
       }
