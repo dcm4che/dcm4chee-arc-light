@@ -357,14 +357,14 @@
             "name": "storageClustered",
             "in": "query",
             "description": "return Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "return Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
@@ -627,14 +627,14 @@
             "name": "storageClustered",
             "in": "query",
             "description": "return Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "return Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
@@ -851,14 +851,14 @@
             "name": "storageClustered",
             "in": "query",
             "description": "return Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "return Series of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
@@ -1035,14 +1035,14 @@
             "name": "storageClustered",
             "in": "query",
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
@@ -1212,14 +1212,14 @@
             "name": "storageClustered",
             "in": "query",
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
@@ -1382,14 +1382,14 @@
             "name": "storageClustered",
             "in": "query",
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
             "name": "storageExported",
             "in": "query",
             "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID",
-            "type": "Boolean",
+            "type": "boolean",
             "default": null
           },
           {
