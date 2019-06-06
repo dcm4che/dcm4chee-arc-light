@@ -156,16 +156,17 @@ public class DeletionServiceImpl implements DeletionService {
 
     @Override
     public void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE) {
-        List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
-                .setParameter(1, ctx.getPatient()).getResultList();
-        for (Study study : sList)
-            try {
-                deleteStudy(study, ctx.getHttpServletRequestInfo(), arcAE, ctx);
-            } catch (Exception e) {
-                ctx.setException(e);
-            }
-
-        if (ctx.getException() == null) {
+        em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
+                .setParameter(1, ctx.getPatient())
+                .getResultList()
+                .forEach(study -> {
+                    try {
+                        deleteStudy(study, ctx.getHttpServletRequestInfo(), arcAE, ctx);
+                    } catch (Exception e) {
+                        ctx.setException(e);
+                    }
+                });
+        if (ctx.getException() == null && !arcAE.getArchiveDeviceExtension().isDeletePatientOnDeleteLastStudy()) {
             patientService.deletePatient(ctx);
             LOG.info("Successfully delete {} from database", ctx.getPatient());
         }
