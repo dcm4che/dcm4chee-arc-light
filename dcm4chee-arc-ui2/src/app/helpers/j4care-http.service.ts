@@ -282,7 +282,19 @@ export class J4careHttpService{
         if(header){
             if(token){
                 console.log("header",header);
-                this.header = header.set('Authorization', `Bearer ${token}`);
+                try{
+                    if(header instanceof HttpHeaders){
+                        this.header = header.set('Authorization', `Bearer ${token}`);
+                    }else{
+                        if(_.hasIn(header, "headers")){
+                            let newHeader = header.headers;
+                            this.header = newHeader.set('Authorization', `Bearer ${token}`);
+                        }
+                    }
+                }catch (e) {
+                    this.header = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+                    j4care.log("Error on setting bearer on header, j4care-http.service.ts",e);
+                }
             }
         }else{
             this.header = new HttpHeaders();
