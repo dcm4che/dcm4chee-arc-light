@@ -1615,8 +1615,8 @@
           "200": {
               "$ref": "#/components/responses/deviceList"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error."
           }
         }
       }
