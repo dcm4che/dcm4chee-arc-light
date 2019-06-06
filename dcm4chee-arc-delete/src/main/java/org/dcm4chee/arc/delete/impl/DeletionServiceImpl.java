@@ -62,6 +62,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -166,7 +167,7 @@ public class DeletionServiceImpl implements DeletionService {
                         ctx.setException(e);
                     }
                 });
-        if (ctx.getException() == null && !arcAE.getArchiveDeviceExtension().isDeletePatientOnDeleteLastStudy()) {
+        if (ctx.getException() == null) {
             patientService.deletePatient(ctx);
             LOG.info("Successfully delete {} from database", ctx.getPatient());
         }
@@ -176,25 +177,33 @@ public class DeletionServiceImpl implements DeletionService {
 
     private void studyDeleted(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx)
             throws Exception {
+        AllowDeleteStudyPermanently allowDeleteStudy = AllowDeleteStudyPermanently.ALWAYS;
         ctx.setStudy(study);
         ctx.setPatient(study.getPatient());
-        ctx.setDeletePatientOnDeleteLastStudy(arcAE.getArchiveDeviceExtension().isDeletePatientOnDeleteLastStudy());
-        AllowDeleteStudyPermanently allowDeleteStudy = pCtx != null && arcAE.allowDeletePatient() == AllowDeletePatient.ALWAYS
-                ? AllowDeleteStudyPermanently.ALWAYS : arcAE.allowDeleteStudy();
-        RejectionState rejectionState = study.getRejectionState();
-        if (rejectionState == RejectionState.NONE && allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
-            List<Series> seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(study.getPk());
-            if (!seriesWithPurgedInstances.isEmpty()) {
-                for (Series series : seriesWithPurgedInstances)
-                    storeService.restoreInstances(
-                            storeService.newStoreSession(device.getApplicationEntities().iterator().next()),
-                            study.getStudyInstanceUID(),
-                            series.getSeriesInstanceUID(),
-                            device.getDeviceExtension(ArchiveDeviceExtension.class).getPurgeInstanceRecordsDelay());
-                ejb.deleteStudy(ctx);
-                return;
-            }
+        if (pCtx == null) {
+            ctx.setDeletePatientOnDeleteLastStudy(arcAE.getArchiveDeviceExtension().isDeletePatientOnDeleteLastStudy());
+            allowDeleteStudy = arcAE.allowDeleteStudy();
         }
+        RejectionState rejectionState = study.getRejectionState();
+
+        if (rejectionState == RejectionState.NONE && allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
+            ejb.findSeriesWithPurgedInstances(study.getPk())
+                    .forEach(series ->
+                        {
+                            try {
+                                storeService.restoreInstances(
+                                        storeService.newStoreSession(device.getApplicationEntities().iterator().next()),
+                                        study.getStudyInstanceUID(),
+                                        series.getSeriesInstanceUID(),
+                                        device.getDeviceExtension(ArchiveDeviceExtension.class).getPurgeInstanceRecordsDelay());
+                            } catch (IOException e) {
+                                LOG.info("Restore instances failed for series {} \n", series.getSeriesInstanceUID(), e);
+                            }
+                        });
+            ejb.deleteStudy(ctx);
+            return;
+        }
+
         if (rejectionState == RejectionState.COMPLETE
                 || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS)
             ejb.deleteStudy(ctx);
