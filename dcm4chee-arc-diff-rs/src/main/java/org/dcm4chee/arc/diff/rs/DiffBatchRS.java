@@ -135,6 +135,7 @@ public class DiffBatchRS {
 
     @GET
     @NoCache
+    @Produces("application/json")
     public Response listDiffBatches() {
         logRequest();
         try {

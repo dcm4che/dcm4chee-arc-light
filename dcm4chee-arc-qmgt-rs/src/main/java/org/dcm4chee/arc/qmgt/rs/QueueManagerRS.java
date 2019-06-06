@@ -194,6 +194,7 @@ public class QueueManagerRS {
 
     @POST
     @Path("/cancel")
+    @Produces("application/json")
     public Response cancelTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -271,6 +272,7 @@ public class QueueManagerRS {
 
     @POST
     @Path("/reschedule")
+    @Produces("application/json")
     public Response rescheduleMessages() {
         logRequest();
         QueueMessage.Status status = status();

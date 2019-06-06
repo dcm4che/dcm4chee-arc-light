@@ -250,6 +250,7 @@ public class RetrieveTaskRS {
 
     @POST
     @Path("/cancel")
+    @Produces("application/json")
     public Response cancelRetrieveTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -323,6 +324,7 @@ public class RetrieveTaskRS {
 
     @POST
     @Path("/reschedule")
+    @Produces("application/json")
     public Response rescheduleRetrieveTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -457,6 +459,7 @@ public class RetrieveTaskRS {
     }
 
     @DELETE
+    @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);

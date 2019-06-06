@@ -250,6 +250,7 @@ public class DiffTaskRS {
 
     @POST
     @Path("/cancel")
+    @Produces("application/json")
     public Response cancelDiffTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -318,6 +319,7 @@ public class DiffTaskRS {
 
     @POST
     @Path("/reschedule")
+    @Produces("application/json")
     public Response rescheduleDiffTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -444,6 +446,7 @@ public class DiffTaskRS {
     }
 
     @DELETE
+    @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);

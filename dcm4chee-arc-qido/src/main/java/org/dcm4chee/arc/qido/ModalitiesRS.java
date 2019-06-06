@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -75,8 +75,10 @@ public class ModalitiesRS {
     @Produces("application/json")
     public String listModalities() {
         logRequest();
-        return queryService.getDistinctModalities().stream().filter(modality -> !modality.equals("*")).sorted()
-                .collect(Collectors.joining("\",\"", "[\"", "\"]"));
+        return queryService.getDistinctModalities().stream()
+                .filter(modality -> !modality.equals("*"))
+                .sorted()
+                .collect(Collectors.joining("\",\"", "{\"Modalities\":[\"", "\"]}"));
     }
 
     private void logRequest() {

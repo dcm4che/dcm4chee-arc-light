@@ -130,6 +130,7 @@ public class ArchiveMonitor {
     @GET
     @NoCache
     @Path("/serverTime")
+    @Produces("application/json")
     public String getServerTime() {
         logRequest();
         return "{\"serverTimeWithTimezone\": \""

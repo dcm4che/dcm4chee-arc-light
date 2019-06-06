@@ -208,6 +208,7 @@ public class StgVerTaskRS {
 
     @POST
     @Path("/cancel")
+    @Produces("application/json")
     public Response cancelStgVerTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -276,6 +277,7 @@ public class StgVerTaskRS {
 
     @POST
     @Path("/reschedule")
+    @Produces("application/json")
     public Response rescheduleStgVerTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -403,6 +405,7 @@ public class StgVerTaskRS {
     }
 
     @DELETE
+    @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);

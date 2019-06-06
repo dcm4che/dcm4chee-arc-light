@@ -213,6 +213,7 @@ public class ExportTaskRS {
 
     @POST
     @Path("/cancel")
+    @Produces("application/json")
     public Response cancelExportTasks() {
         logRequest();
         QueueMessage.Status status = status();
@@ -268,12 +269,14 @@ public class ExportTaskRS {
 
     @POST
     @Path("/reschedule")
+    @Produces("application/json")
     public Response rescheduleExportTasks() {
         return rescheduleTasks(null);
     }
 
     @POST
     @Path("/reschedule/{ExporterID}")
+    @Produces("application/json")
     public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) {
         return rescheduleTasks(newExporterID);
     }
@@ -365,6 +368,7 @@ public class ExportTaskRS {
     }
 
     @DELETE
+    @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);

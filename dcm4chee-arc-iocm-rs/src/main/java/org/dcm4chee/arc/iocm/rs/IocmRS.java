@@ -266,6 +266,7 @@ public class IocmRS {
     @POST
     @Path("/patients")
     @Consumes({"application/dicom+json,application/json"})
+    @Produces("application/json")
     public String createPatient(InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -282,7 +283,7 @@ public class IocmRS {
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, attrs, request);
             rsHL7Sender.sendHL7Message("ADT^A28^ADT_A05", ctx);
-            return IDWithIssuer.pidOf(attrs).toString();
+            return "{\"PatientID\":\"" + attrs.getString(Tag.PatientID) + "\"}";
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
