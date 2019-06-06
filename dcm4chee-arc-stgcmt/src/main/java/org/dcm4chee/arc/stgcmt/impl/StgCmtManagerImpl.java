@@ -76,9 +76,9 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.Tuple;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -527,7 +527,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
             return (readContext.getStorage().getContentLength(readContext) == l.getSize())
                     ? new CheckResult(Location.Status.OK)
                     : new CheckResult(Location.Status.DIFFERING_OBJECT_SIZE);
-        } catch (FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             return new CheckResult(Location.Status.MISSING_OBJECT, e);
         } catch (IOException e) {
             return new CheckResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
@@ -538,7 +538,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
         try (InputStream stream = readContext.getStorage().openInputStream(readContext)) {
             StreamUtils.copy(stream, null);
             return new CheckResult(Location.Status.OK);
-        } catch (FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             return new CheckResult(Location.Status.MISSING_OBJECT, e);
         } catch (IOException e) {
             return new CheckResult(Location.Status.FAILED_TO_FETCH_OBJECT, e);
@@ -578,7 +578,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
         byte[] contentMD5;
         try {
             contentMD5 = readContext.getStorage().getContentMD5(readContext);
-        } catch (FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             return new CheckResult(Location.Status.MISSING_OBJECT, e);
         } catch (IOException e) {
             return new CheckResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
