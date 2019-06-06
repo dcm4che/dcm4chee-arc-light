@@ -84,6 +84,9 @@ public class AuditTriggerObserver {
     private Device device;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
+        if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
+            return;
+
         if (deviceHasAuditLoggers())
             auditService.spoolApplicationActivity(event);
     }
@@ -119,6 +122,9 @@ public class AuditTriggerObserver {
     }
 
     public void onExport(@Observes ExportContext ctx) {
+        if (ctx.getXDSiManifest() == null)
+            return;
+
         if (deviceHasAuditLoggers())
             auditService.spoolProvideAndRegister(ctx);
     }

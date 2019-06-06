@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,6 +49,7 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -82,16 +83,14 @@ class RetrieveAuditService {
     private void processPartialRetrieve() {
         auditInfoBuilder = new AuditInfoBuilder[2][];
         HashSet<InstanceLocations> failed = new HashSet<>();
-        HashSet<InstanceLocations> success = new HashSet<>();
         List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
-        Collection<InstanceLocations> instanceLocations = ctx.getMatches();
-        success.addAll(instanceLocations);
-        for (InstanceLocations instanceLocation : instanceLocations) {
+        HashSet<InstanceLocations> success = new HashSet<>(ctx.getMatches());
+        ctx.getMatches().forEach(instanceLocation -> {
             if (failedList.contains(instanceLocation.getSopInstanceUID())) {
                 failed.add(instanceLocation);
                 success.remove(instanceLocation);
             }
-        }
+        });
         auditInfoBuilder[0] = buildAuditInfos(toBuildAuditInfo(true), failed);
         auditInfoBuilder[1] = buildAuditInfos(toBuildAuditInfo(false), success);
     }
@@ -104,9 +103,9 @@ class RetrieveAuditService {
         return objs.toArray(new AuditInfoBuilder[0]);
     }
 
-    private LinkedHashSet<AuditInfoBuilder> buildInstanceInfos(Collection<InstanceLocations> il) {
+    private LinkedHashSet<AuditInfoBuilder> buildInstanceInfos(Collection<InstanceLocations> instanceLocations) {
         LinkedHashSet<AuditInfoBuilder> objs = new LinkedHashSet<>();
-        for (InstanceLocations instanceLocation : il) {
+        instanceLocations.forEach(instanceLocation -> {
             Attributes attrs = instanceLocation.getAttributes();
             AuditInfoBuilder iI = new AuditInfoBuilder.Builder()
                     .studyUIDAccNumDate(attrs, arcDev)
@@ -115,7 +114,7 @@ class RetrieveAuditService {
                     .pIDAndName(attrs, arcDev)
                     .build();
             objs.add(iI);
-        }
+        });
         return objs;
     }
 
@@ -215,12 +214,10 @@ class RetrieveAuditService {
                         : null;
     }
 
-    static AuditMessage auditMsg(AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger,
-                                 EventIdentificationBuilder eventIdentification, SpoolFileReader reader) {
+    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         HashMap<String, InstanceInfo> study_instanceInfo = new HashMap<>();
-        String pID = null;
-        String pName = null;
-        String studyDt = null;
         for (String line : reader.getInstanceLines()) {
             AuditInfo rInfo = new AuditInfo(line);
             String studyInstanceUID = rInfo.getField(AuditInfo.STUDY_UID);
@@ -231,39 +228,17 @@ class RetrieveAuditService {
                 study_instanceInfo.put(studyInstanceUID, instanceInfo);
             }
             instanceInfo.addSOPInstance(rInfo);
+            instanceInfo.addStudyDate(rInfo);
             study_instanceInfo.put(studyInstanceUID, instanceInfo);
-            pID = rInfo.getField(AuditInfo.P_ID);
-            pName = rInfo.getField(AuditInfo.P_NAME);
-            studyDt = rInfo.getField(AuditInfo.STUDY_DATE);
         }
         List<ParticipantObjectIdentificationBuilder> pois = new ArrayList<>();
-        for (Map.Entry<String, InstanceInfo> entry : study_instanceInfo.entrySet()) {
-            ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                    .sopC(AuditService.toSOPClasses(entry.getValue().getSopClassMap(),
-                            auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null))
-                    .acc(entry.getValue().getAcc())
-                    .build();
-            ParticipantObjectIdentificationBuilder poi = new ParticipantObjectIdentificationBuilder.Builder(
-                    entry.getKey(),
-                    AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                    AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                    AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                    .desc(desc)
-                    .detail(AuditMessages.createParticipantObjectDetail("StudyDate", studyDt))
-                    .build();
-            pois.add(poi);
-        }
-        ParticipantObjectIdentificationBuilder poiPatient = new ParticipantObjectIdentificationBuilder.Builder(
-                pID,
-                AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
-                AuditMessages.ParticipantObjectTypeCode.Person,
-                AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(pName)
-                .build();
-        pois.add(poiPatient);
+        boolean showIUID = auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null;
+        study_instanceInfo.forEach(
+                (studyUID, instanceInfo) -> pois.add(ParticipantObjectID.studyPOI(studyUID, instanceInfo, showIUID)));
+        pois.add(ParticipantObjectID.patientPOI(reader));
 
         return AuditMessages.createMessage(
-                eventIdentification,
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(eventType, auditInfo, auditLogger),
                 pois.toArray(new ParticipantObjectIdentificationBuilder[0]));
     }

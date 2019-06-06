@@ -39,10 +39,14 @@
  */
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.ActiveParticipantBuilder;
+import org.dcm4che3.audit.AuditMessage;
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
@@ -53,6 +57,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -144,7 +149,7 @@ class ProcedureRecordAuditService {
         HttpServletRequest request = studyMgtCtx.getHttpRequest();
         return infoBuilder
                 .callingUserID(KeycloakContext.valueOf(request).getUserName())
-                .calledUserID(studyMgtCtx.getHttpRequest().getRequestURI())
+                .calledUserID(request.getRequestURI())
                 .build();
     }
 
@@ -190,5 +195,59 @@ class ProcedureRecordAuditService {
     
     private static String outcome(Exception e) {
         return e != null ? e.getMessage() : null;
+    }
+
+    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path.toFile());
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        return AuditMessages.createMessage(
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
+                activeParticipants(auditLogger, auditInfo),
+                ParticipantObjectID.studyPatParticipants(auditInfo, reader));
+    }
+
+    private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
+        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        AuditMessages.UserIDTypeCode calledUserIDTypeCode = userIDTypeCode(calledUserID);
+        boolean isHL7Forward = auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null;
+        ActiveParticipantBuilder.Builder callingUserParticipant = callingUserParticipant(auditInfo, calledUserIDTypeCode);
+        activeParticipantBuilder[0] = isHL7Forward
+                ? callingUserParticipant.build()
+                : callingUserParticipant.isRequester().build();
+        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+                calledUserID,
+                getLocalHostName(auditLogger))
+                .userIDTypeCode(calledUserIDTypeCode)
+                .altUserID(AuditLogger.processID())
+                .build();
+        if (isHL7Forward)
+            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+                    auditLogger.getDevice().getDeviceName(),
+                    getLocalHostName(auditLogger))
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
+                    .altUserID(AuditLogger.processID())
+                    .isRequester()
+                    .build();
+        return activeParticipantBuilder;
+    }
+
+    private static ActiveParticipantBuilder.Builder callingUserParticipant(
+            AuditInfo auditInfo, AuditMessages.UserIDTypeCode archiveUserIDTypeCode) {
+        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        return new ActiveParticipantBuilder.Builder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
+                    .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID));
+    }
+
+    private static String getLocalHostName(AuditLogger auditLogger) {
+        return auditLogger.getConnections().get(0).getHostname();
+    }
+
+    private static AuditMessages.UserIDTypeCode userIDTypeCode(String userID) {
+        return userID.indexOf('/') != -1
+                ? AuditMessages.UserIDTypeCode.URI
+                : userID.indexOf('|') != -1
+                    ? AuditMessages.UserIDTypeCode.ApplicationFacility
+                    : AuditMessages.UserIDTypeCode.StationAETitle;
     }
 }

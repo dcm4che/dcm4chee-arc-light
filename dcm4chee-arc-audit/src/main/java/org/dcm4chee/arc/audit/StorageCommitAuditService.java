@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,7 +49,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 
-import java.util.Calendar;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -136,28 +136,27 @@ class StorageCommitAuditService {
                     ? ctx.getRemoteAE().getAETitle() : null;
     }
 
-    static AuditMessage auditMsg(SpoolFileReader reader, AuditUtils.EventType eventType, AuditLogger auditLogger,
-                                 Calendar eventTime) {
+    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
 
         return AuditMessages.createMessage(
-            eventIdentification(eventType, eventTime, outcome),
+            EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
             activeParticipants(eventType, auditLogger, auditInfo),
-            poiStudy(reader, auditInfo),
-            AuditService.patientPOI(auditInfo));
+            ParticipantObjectID.studyPatParticipants(reader, auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditUtils.EventType eventType, AuditLogger auditLogger, AuditInfo auditInfo) {
+    private static ActiveParticipantBuilder[] activeParticipants(
+            AuditUtils.EventType eventType, AuditLogger auditLogger, AuditInfo auditInfo) {
         ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+        ActiveParticipantBuilder.Builder archive = new ActiveParticipantBuilder.Builder(
                 archiveUserID,
                 auditLogger.getConnections().get(0).getHostname())
                 .userIDTypeCode(archiveUserIDTypeCode)
                 .altUserID(AuditLogger.processID())
-                .roleIDCode(eventType.destination).build();
+                .roleIDCode(eventType.destination);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         if (callingUserID != null)
             activeParticipants[1] = new ActiveParticipantBuilder.Builder(
@@ -166,29 +165,10 @@ class StorageCommitAuditService {
                     .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                     .isRequester()
                     .roleIDCode(eventType.source).build();
-
+        else
+            archive.isRequester();
+        activeParticipants[0] = archive.build();
         return activeParticipants;
-    }
-
-    private static EventIdentificationBuilder eventIdentification(AuditUtils.EventType eventType, Calendar eventTime, String outcome) {
-        return new EventIdentificationBuilder.Builder(
-                eventType.eventID,
-                eventType.eventActionCode,
-                eventTime,
-                outcome != null ? AuditMessages.EventOutcomeIndicator.MinorFailure : AuditMessages.EventOutcomeIndicator.Success)
-                .outcomeDesc(outcome).build();
-    }
-
-    private static ParticipantObjectIdentificationBuilder poiStudy(SpoolFileReader reader, AuditInfo auditInfo) {
-        String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
-        ParticipantObjectDescriptionBuilder poDesc = new ParticipantObjectDescriptionBuilder.Builder()
-                .sopC(AuditService.toSOPClasses(reader, studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null))
-                .pocsStudyUIDs(studyUIDs).build();
-
-        return new ParticipantObjectIdentificationBuilder.Builder(studyUIDs[0],
-                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(poDesc).lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification).build();
     }
 
     private static AuditMessages.UserIDTypeCode archiveUserIDTypeCode(String userID) {

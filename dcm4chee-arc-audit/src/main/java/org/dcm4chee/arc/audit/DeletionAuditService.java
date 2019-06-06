@@ -54,6 +54,7 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,7 +69,7 @@ class DeletionAuditService {
         StoreSession storeSession = ctx.getStoreSession();
         Attributes attr = ctx.getAttributes();
         boolean isSchedulerDeletedExpiredStudies = storeSession.getAssociation() == null
-                                                    && storeSession.getHttpRequest() == null;
+                && storeSession.getHttpRequest() == null;
 
         AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
                 .studyUIDAccNumDate(attr, arcDev)
@@ -132,12 +133,15 @@ class DeletionAuditService {
     }
 
     private static void buildRejectionSOPAuditInfo(List<AuditInfoBuilder> auditInfoBuilders, Attributes attrs) {
-        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
-            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence))
-                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence))
-                    auditInfoBuilders.add(new AuditInfoBuilder.Builder()
-                            .sopCUID(sopRef.getString(Tag.ReferencedSOPClassUID))
-                            .sopIUID(sopRef.getString(Tag.ReferencedSOPInstanceUID)).build());
+        attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence).forEach(studyRef ->
+                studyRef.getSequence(Tag.ReferencedSeriesSequence).forEach(seriesRef ->
+                        seriesRef.getSequence(Tag.ReferencedSOPSequence).forEach(sopRef ->
+                                auditInfoBuilders.add(new AuditInfoBuilder.Builder()
+                                        .sopCUID(sopRef.getString(Tag.ReferencedSOPClassUID))
+                                        .sopIUID(sopRef.getString(Tag.ReferencedSOPInstanceUID)).build())
+                        )
+                )
+        );
     }
 
     static AuditInfoBuilder[] studyDeletedAuditInfo(StudyDeleteContext ctx, ArchiveDeviceExtension arcDev) {
@@ -182,8 +186,8 @@ class DeletionAuditService {
     private static String outcome(StoreContext ctx) {
         return ctx.getException() != null
                 ? ctx.getRejectionNote() != null
-                    ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                    : ctx.getException().getMessage()
+                ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
+                : ctx.getException().getMessage()
                 : null;
     }
 
@@ -196,29 +200,13 @@ class DeletionAuditService {
         return e != null ? e.getMessage() : null;
     }
 
-    static AuditMessage auditMsg(AuditLogger auditLogger, SpoolFileReader reader, AuditUtils.EventType eventType,
-                                 EventIdentificationBuilder eventIdentification) {
+    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         return AuditMessages.createMessage(
-                eventIdentification,
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditLogger, eventType, auditInfo),
-                poiStudy(reader, auditInfo),
-                AuditService.patientPOI(auditInfo));
-    }
-
-    private static ParticipantObjectIdentificationBuilder poiStudy(SpoolFileReader reader, AuditInfo auditInfo) {
-        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                .sopC(AuditService.toSOPClasses(reader, auditInfo.getField(AuditInfo.OUTCOME) != null))
-                .acc(auditInfo.getField(AuditInfo.ACC_NUM)).build();
-
-        return new ParticipantObjectIdentificationBuilder.Builder(
-                auditInfo.getField(AuditInfo.STUDY_UID),
-                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(desc)
-                .detail(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
-                .build();
+                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType));
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(

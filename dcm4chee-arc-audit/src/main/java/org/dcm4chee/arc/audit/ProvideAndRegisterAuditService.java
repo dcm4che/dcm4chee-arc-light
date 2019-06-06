@@ -7,7 +7,7 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import java.net.URI;
-import java.util.Calendar;
+import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -57,38 +57,14 @@ class ProvideAndRegisterAuditService {
         return ctx.getException() != null ? ctx.getException().getMessage() : null;
     }
 
-    static AuditMessage provideRegisterAuditMsg(
-            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType, Calendar eventTime) {
-        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
-        EventIdentificationBuilder eventIdentificationBuilder
-                = new EventIdentificationBuilder.Builder(
-                        eventType.eventID,
-                        eventType.eventActionCode,
-                        eventTime,
-                        outcome != null ? AuditMessages.EventOutcomeIndicator.MinorFailure : AuditMessages.EventOutcomeIndicator.Success)
-                        .outcomeDesc(outcome)
-                        .eventTypeCode(eventType.eventTypeCode).build();
-
-        ParticipantObjectIdentificationBuilder patientPOI = new ParticipantObjectIdentificationBuilder.Builder(
-                auditInfo.getField(AuditInfo.P_ID),
-                AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
-                AuditMessages.ParticipantObjectTypeCode.Person,
-                AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(auditInfo.getField(AuditInfo.P_NAME))
-                .build();
-
-        ParticipantObjectIdentificationBuilder submissionSetPOI = new ParticipantObjectIdentificationBuilder.Builder(
-                auditInfo.getField(AuditInfo.SUBMISSION_SET_UID),
-                AuditMessages.ParticipantObjectIDTypeCode.IHE_XDS_METADATA,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Job)
-                .build();
+    static AuditMessage provideRegisterAuditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
         return AuditMessages.createMessage(
-                eventIdentificationBuilder,
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipantBuilders(auditLogger, eventType, auditInfo),
-                patientPOI,
-                submissionSetPOI);
+                ParticipantObjectID.submissionSetParticipants(auditInfo));
     }
 
     private static ActiveParticipantBuilder[] activeParticipantBuilders(

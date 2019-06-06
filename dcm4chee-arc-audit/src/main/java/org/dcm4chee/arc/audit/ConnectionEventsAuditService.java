@@ -43,6 +43,7 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.ConnectionEvent;
 
+import java.nio.file.Path;
 import java.util.Calendar;
 
 /**
@@ -51,38 +52,39 @@ import java.util.Calendar;
  */
 class ConnectionEventsAuditService {
 
-    static AuditInfoBuilder connFailureAuditInfo(ConnectionEvent event, String deviceName) {
+    static AuditInfoBuilder connFailureAuditInfo(ConnectionEvent event) {
         return event.getType() == ConnectionEvent.Type.FAILED
-                ? connFailedAuditInfo(event, deviceName) : connRejectedAuditInfo(event, deviceName);
+                ? connFailedAuditInfo(event) : connRejectedAuditInfo(event);
     }
 
-    private static AuditInfoBuilder connRejectedAuditInfo(ConnectionEvent event, String deviceName) {
+    private static AuditInfoBuilder connRejectedAuditInfo(ConnectionEvent event) {
         String callingUser = event.getSocket().getRemoteSocketAddress().toString();
         return new AuditInfoBuilder.Builder()
                 .callingUserID(callingUser)
                 .callingHost(callingUser)
-                .calledUserID(deviceName)
+                .calledUserID(event.getConnection().getDevice().getDeviceName())
                 .calledHost(event.getConnection().getHostname())
                 .outcome(event.getException().getMessage())
                 .connType(event.getType())
                 .build();
     }
 
-    private static AuditInfoBuilder connFailedAuditInfo(ConnectionEvent event, String deviceName) {
-        String calledUser = event.getRemoteConnection().getHostname();
+    private static AuditInfoBuilder connFailedAuditInfo(ConnectionEvent event) {
         return new AuditInfoBuilder.Builder()
-                .callingUserID(deviceName)
+                .callingUserID(event.getConnection().getDevice().getDeviceName())
                 .callingHost(event.getConnection().getHostname())
-                .calledUserID(calledUser)
-                .calledHost(calledUser)
+                .calledUserID(event.getRemoteConnection().getHostname())
+                .calledHost(event.getRemoteConnection().getHostname())
                 .outcome(event.getException().getMessage())
                 .connType(event.getType())
                 .build();
     }
 
-    static AuditMessage auditMsg(AuditInfo auditInfo, AuditUtils.EventType eventType, Calendar eventTime) {
+    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         return AuditMessages.createMessage(
-                eventIdentification(auditInfo, eventType, eventTime),
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditInfo));
     }
 
@@ -114,14 +116,5 @@ class ConnectionEventsAuditService {
                     .isRequester().build();
         }
         return activeParticipants;
-    }
-
-    private static EventIdentificationBuilder eventIdentification(
-            AuditInfo auditInfo, AuditUtils.EventType eventType, Calendar eventTime) {
-        return new EventIdentificationBuilder.Builder(
-                eventType.eventID, eventType.eventActionCode, eventTime,
-                AuditMessages.EventOutcomeIndicator.MinorFailure)
-                .outcomeDesc(auditInfo.getField(AuditInfo.OUTCOME))
-                .eventTypeCode(eventType.eventTypeCode).build();
     }
 }

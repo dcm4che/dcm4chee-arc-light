@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Calendar;
+import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -88,22 +88,13 @@ class QueueMessageAuditService {
                 .build();
     }
 
-    static AuditMessage auditMsg(AuditInfo auditInfo, AuditUtils.EventType eventType, AuditLogger auditLogger,
-                                 Calendar eventTime) {
+    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         return AuditMessages.createMessage(
-                eventIdentification(eventType, auditInfo.getField(AuditInfo.OUTCOME), eventTime),
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditInfo, auditLogger),
-                auditInfo.getField(AuditInfo.QUEUE_MSG) != null ? buildTaskPOI(auditInfo) : buildTasksPOI(auditInfo));
-    }
-
-    private static EventIdentificationBuilder eventIdentification(
-            AuditUtils.EventType eventType, String outcome, Calendar eventTime) {
-        return new EventIdentificationBuilder.Builder(
-                eventType.eventID,
-                eventType.eventActionCode,
-                eventTime,
-                outcome != null ? AuditMessages.EventOutcomeIndicator.MinorFailure : AuditMessages.EventOutcomeIndicator.Success)
-                .eventTypeCode(eventType.eventTypeCode).build();
+                ParticipantObjectID.taskParticipant(auditInfo));
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(AuditInfo auditInfo, AuditLogger auditLogger) {
@@ -121,28 +112,6 @@ class QueueMessageAuditService {
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
                 .build();
         return activeParticipants;
-    }
-
-    private static ParticipantObjectIdentificationBuilder buildTaskPOI(AuditInfo info) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
-                info.getField(AuditInfo.TASK_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.TASK,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                null)
-                .detail(AuditMessages.createParticipantObjectDetail("Task", info.getField(AuditInfo.QUEUE_MSG)))
-                .build();
-    }
-
-    private static ParticipantObjectIdentificationBuilder buildTasksPOI(AuditInfo info) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
-                info.getField(AuditInfo.TASK_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.TASKS,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                null)
-                .detail(AuditMessages.createParticipantObjectDetail("Filters", info.getField(AuditInfo.FILTERS)),
-                        AuditMessages.createParticipantObjectDetail("Count", info.getField(AuditInfo.COUNT)),
-                        AuditMessages.createParticipantObjectDetail("Failed", info.getField(AuditInfo.FAILED)))
-                .build();
     }
 
     private static String outcome(Exception e) {

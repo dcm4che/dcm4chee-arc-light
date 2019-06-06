@@ -69,7 +69,7 @@ class AuditUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditUtils.class);
 
     enum EventClass {
-        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_FAILURE, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
+        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_FAILURE, RETRIEVE, APPLN_ACTIVITY, PATIENT, PROC_STUDY, PROV_REGISTER,
         STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX, ASSOCIATION_FAILURE
     }
     enum EventType {
@@ -115,19 +115,19 @@ class AuditUtils {
         CONN_FAILR(EventClass.CONN_FAILURE, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.NodeAuthentication),
 
-        PAT_CREATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
+        PAT_CREATE(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        PAT_UPDATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
+        PAT_UPDATE(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        PAT_DELETE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+        PAT_DELETE(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        PAT_DLT_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+        PAT_DLT_SC(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 null, null, null),
-        PAT___READ(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
+        PAT___READ(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        PAT_UPD_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
+        PAT_UPD_SC(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
                 null, null, null),
-        PAT_RD__SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
+        PAT_RD__SC(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 null, null, null),
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
@@ -165,11 +165,11 @@ class AuditUtils {
         final String eventActionCode;
         final AuditMessages.RoleIDCode source;
         final AuditMessages.RoleIDCode destination;
-        final EventTypeCode eventTypeCode;
+        final AuditMessages.EventTypeCode eventTypeCode;
 
 
         EventType(EventClass eventClass, AuditMessages.EventID eventID, String eventActionCode, AuditMessages.RoleIDCode source,
-                  AuditMessages.RoleIDCode destination, EventTypeCode etc) {
+                  AuditMessages.RoleIDCode destination, AuditMessages.EventTypeCode etc) {
             this.eventClass = eventClass;
             this.eventID = eventID;
             this.eventActionCode = eventActionCode;

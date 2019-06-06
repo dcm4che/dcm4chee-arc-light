@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,10 +41,11 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.AssociationEvent;
 
-import java.util.Calendar;
+import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -79,20 +80,12 @@ class AssociationEventsAuditService {
                 .build();
     }
 
-    static AuditMessage associationFailureAuditMsg(AuditInfo auditInfo, AuditUtils.EventType eventType,
-                                                   Calendar eventTime) {
+    static AuditMessage associationFailureAuditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         return AuditMessages.createMessage(
-                eventIdentification(auditInfo, eventType, eventTime),
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditInfo));
-    }
-
-    private static EventIdentificationBuilder eventIdentification(
-            AuditInfo auditInfo, AuditUtils.EventType eventType, Calendar eventTime) {
-        return new EventIdentificationBuilder.Builder(
-                eventType.eventID, eventType.eventActionCode, eventTime, AuditMessages.EventOutcomeIndicator.MinorFailure)
-                .outcomeDesc(auditInfo.getField(AuditInfo.OUTCOME))
-                .eventTypeCode(eventType.eventTypeCode)
-                .build();
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(AuditInfo auditInfo) {

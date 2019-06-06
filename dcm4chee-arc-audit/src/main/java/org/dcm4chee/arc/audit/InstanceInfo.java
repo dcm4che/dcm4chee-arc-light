@@ -51,6 +51,7 @@ class InstanceInfo {
     private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
     private HashSet<String> mpps = new HashSet<>();
     private HashSet<String> acc = new HashSet<>();
+    private HashSet<String> studyDate = new HashSet<>();
 
     InstanceInfo() {}
 
@@ -82,5 +83,15 @@ class InstanceInfo {
         String accNum = info.getField(AuditInfo.ACC_NUM);
         if (accNum != null)
             acc.add(accNum);
+    }
+
+    HashSet<String> getStudyDate() {
+        return studyDate;
+    }
+
+    void addStudyDate(AuditInfo info) {
+        String studyDt = info.getField(AuditInfo.ACC_NUM);
+        if (studyDt != null)
+            studyDate.add(studyDt);
     }
 }

@@ -42,11 +42,9 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Calendar;
-import java.util.stream.Collectors;
+import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -69,21 +67,13 @@ class SoftwareConfigurationAuditService {
                 .build();
     }
 
-    static AuditMessage auditMsg(AuditLogger auditLogger, SpoolFileReader reader,
-                                 AuditUtils.EventType eventType, Calendar eventTime) {
+    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-
         return AuditMessages.createMessage(
-                eventIdentification(eventType, eventTime),
+                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditLogger, auditInfo),
-                poiLDAPDiff(reader, auditInfo));
-    }
-
-    private static EventIdentificationBuilder eventIdentification(
-            AuditUtils.EventType eventType, Calendar eventTime) {
-        return new EventIdentificationBuilder.Builder(eventType.eventID, eventType.eventActionCode, eventTime,
-                AuditMessages.EventOutcomeIndicator.Success)
-                .eventTypeCode(eventType.eventTypeCode).build();
+                ParticipantObjectID.softwareConfParticipant(reader, auditInfo));
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
@@ -102,19 +92,6 @@ class SoftwareConfigurationAuditService {
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .isRequester().build();
         return activeParticipantBuilders;
-    }
-
-    private static ParticipantObjectIdentificationBuilder poiLDAPDiff(SpoolFileReader reader, AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
-                    auditInfo.getField(AuditInfo.CALLED_USERID),
-                    AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
-                    AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                    null)
-                    .detail(AuditMessages.createParticipantObjectDetail("Alert Description",
-                            !reader.getInstanceLines().isEmpty()
-                                    ? reader.getInstanceLines().stream().collect(Collectors.joining("\n"))
-                                    : null))
-                    .build();
     }
 
     private static String getLocalHostName(AuditLogger auditLogger) {
