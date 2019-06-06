@@ -1,0 +1,2541 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "dcm4chee-arc",
+    "version": "5.17.0"
+  },
+  "servers": [
+    {
+      "url": "http://gunter-nb:8080/dcm4chee-arc"
+    }
+  ],
+  "tags": [
+    {
+      "name": "QIDO-RS",
+      "description": "Query based on ID for DICOM Objects by RESTful Services",
+      "externalDocs": {
+        "description": "DICOM PS3.18",
+        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
+      }
+    },
+    {
+      "name": "WADO-RS",
+      "description": "Web Access to DICOM Objects by RESTful Services",
+      "externalDocs": {
+        "description": "DICOM PS3.18",
+        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
+      }
+    },
+    {
+      "name": "WADO-URI",
+      "description": "Web Access to DICOM Objects by URI",
+      "externalDocs": {
+        "description": "DICOM PS3.18",
+        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
+      }
+    },
+    {
+      "name": "STOW-RS",
+      "description": "Storage over the Web of DICOM Objects by RESTful Services",
+      "externalDocs": {
+        "description": "DICOM PS3.18",
+        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
+      }
+    },
+    {
+      "name": "AUTH-RS",
+      "description": "Authentication/Authorization services"
+    },
+    {
+      "name": "ACCESS-RS",
+      "description": "Study access control services"
+    },
+    {
+      "name": "CTRL-RS",
+      "description": "Start/Stop/Reload Archive"
+    },
+    {
+      "name": "CONFIG-RS",
+      "description": "Configuration Access"
+    },
+    {
+      "name": "COUNT-RS",
+      "description": "Count number of matching Entities"
+    },
+    {
+      "name": "ECHO-RS",
+      "description": "Verify connection to external Application Entity"
+    },
+    {
+      "name": "FIND-RS",
+      "description": "Invoke C-FIND requests on external C-FIND SCP"
+    },
+    {
+      "name": "MOVE-RS",
+      "description": "Invoke C-MOVE requests on external C-MOVE SCP"
+    },
+    {
+      "name": "DIFF-RS",
+      "description": "Compare Studies with/between external Archive(s)"
+    },
+    {
+      "name": "EXPORT-RS",
+      "description": "Export Entity"
+    },
+    {
+      "name": "IAN-RS",
+      "description": "Notify external IAN SCP about Availability of Instances"
+    },
+    {
+      "name": "IOCM-RS",
+      "description": "Imaging Object Change Management"
+    },
+    {
+      "name": "MWL-RS",
+      "description": "Modality Worklist Management"
+    },
+    {
+      "name": "HL7-RS",
+      "description": "Send HL7 message to external HL7 Application"
+    },
+    {
+      "name": "PDQ-RS",
+      "description": "Patient Demographics Query"
+    },
+    {
+      "name": "QUEUE-RS",
+      "description": "Queue/Task Management"
+    },
+    {
+      "name": "STGCMT-RS",
+      "description": "Request Storage Commitment from external Archive"
+    },
+    {
+      "name": "STGVER-RS",
+      "description": "Storage Verification"
+    },
+    {
+      "name": "STORAGE-RS",
+      "description": "Storage Management"
+    },
+    {
+      "name": "IMPAX-REPORT-RS",
+      "description": "Query Agfa IMPAX Report Service"
+    },
+    {
+      "name": "X-ROAD-RS",
+      "description": "Query Estonia National Patient Registry"
+    }
+  ],
+  "paths": {
+    "/aets/{aet}/rs/patients": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Patients",
+        "operationId": "SearchForPatients",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/withoutstudies"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Studies",
+        "operationId": "SearchForStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/returnempty"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "STOW-RS"
+        ],
+        "summary": "Store Instances",
+        "operationId": "StoreInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/storeInstances"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/storeInstancesSuccessful"
+          },
+          "204": {
+            "$ref": "#/components/responses/storeInstancesWarnings"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Series of Study",
+        "operationId": "SearchForStudySeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/returnempty"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/instances": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Instances of of Study",
+        "operationId": "SearchForStudyInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/returnempty"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/series": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Series",
+        "operationId": "SearchForStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/returnempty"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Instances of Series of Study",
+        "operationId": "SearchForStudySeriesInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/returnempty"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/instances": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Instances",
+        "operationId": "SearchForInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/returnempty"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Study",
+        "operationId": "RetrieveStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedInstances"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "Study does not exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "STOW-RS"
+        ],
+        "summary": "Store Instances",
+        "operationId": "StoreInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/storeInstances"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/storeInstancesSuccessful"
+          },
+          "204": {
+            "$ref": "#/components/responses/storeInstancesWarnings"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Series",
+        "operationId": "RetrieveSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedInstances"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "Series does not exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Instance",
+        "operationId": "RetrieveInstance",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedInstances"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "Instance does not exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/frames/{frames}": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Frames",
+        "operationId": "RetrieveFrames",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/framesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedFrames"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "Frames does not exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/bulkdata/{bulkdata}": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Bulkdata",
+        "operationId": "RetrieveIBulkdata",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/bulkdataPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedBulkdata"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "Bulkdata does not exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/metadata": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Study Metadata",
+        "operationId": "RetrieveStudyMetadata",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedMetadata"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "Study does not exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "STOW-RS"
+        ],
+        "summary": "Store Instances",
+        "operationId": "StoreInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/storeInstances"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/storeInstancesSuccessful"
+          },
+          "204": {
+            "$ref": "#/components/responses/storeInstancesWarnings"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/metadata": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Series Metadata",
+        "operationId": "RetrieveSeriesMetadata",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedMetadata"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/metadata": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Instance Metadata",
+        "operationId": "RetrieveInstanceMetadata",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedMetadata"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/wado": {
+      "get": {
+        "tags": [
+          "WADO-URI"
+        ],
+        "summary": "Retrieve Instance by WADO-URI",
+        "operationId": "RetrieveInstanceByWADOURI",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/requestType"
+          },
+          {
+            "$ref": "#/components/parameters/studyUID"
+          },
+          {
+            "$ref": "#/components/parameters/seriesUID"
+          },
+          {
+            "$ref": "#/components/parameters/objectUID"
+          },
+          {
+            "$ref": "#/components/parameters/contentType"
+          },
+          {
+            "$ref": "#/components/parameters/transferSyntax"
+          },
+          {
+            "$ref": "#/components/parameters/charset"
+          },
+          {
+            "$ref": "#/components/parameters/anonymize"
+          },
+          {
+            "$ref": "#/components/parameters/annotation"
+          },
+          {
+            "$ref": "#/components/parameters/rows"
+          },
+          {
+            "$ref": "#/components/parameters/columns"
+          },
+          {
+            "$ref": "#/components/parameters/region"
+          },
+          {
+            "$ref": "#/components/parameters/windowCenter"
+          },
+          {
+            "$ref": "#/components/parameters/windowWidth"
+          },
+          {
+            "$ref": "#/components/parameters/frameNumber"
+          },
+          {
+            "$ref": "#/components/parameters/imageQuality"
+          },
+          {
+            "$ref": "#/components/parameters/presentationUID"
+          },
+          {
+            "$ref": "#/components/parameters/presentationSeriesUID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedInstance"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "Instance does not exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/studies": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Search for Studies external",
+        "operationId": "SearchForStudiesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Search for Series of Study external",
+        "operationId": "SearchForStudySeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/instances/{instance}": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Search for Instances of Series of Study external",
+        "operationId": "SearchForStudySeriesInstancesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
+    "/ui2/rs/devices": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List devices",
+        "operationId": "listDevices",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDescription"
+          },
+          {
+            "$ref": "#/components/parameters/dicomManufacturer"
+          },
+          {
+            "$ref": "#/components/parameters/dicomManufacturerModelName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomStationName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomPrimaryDeviceType"
+          },
+          {
+            "$ref": "#/components/parameters/dicomInstitutionName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomInstitutionDepartmentName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomInstalled"
+          }
+        ],
+        "responses": {
+          "200": {
+              "$ref": "#/components/responses/deviceList"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "archiveAETPathParam": {
+        "name": "aet",
+        "in": "path",
+        "description": "Archive AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "findSCPPathParam": {
+        "name": "findscp",
+        "in": "path",
+        "description": "C-FIND SCP AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "studyPathParam": {
+        "name": "study",
+        "in": "path",
+        "description": "Study Instance UID for a single Study",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "seriesPathParam": {
+        "name": "series",
+        "in": "path",
+        "description": "Series Instance UID for a single Series",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "instancePathParam": {
+        "name": "instance",
+        "in": "path",
+        "description": "SOP Instance UID for a single Instance",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "bulkdataPathParam": {
+        "name": "instance",
+        "in": "path",
+        "description": "{dicomTag} or {dicomTag}/{itemIndex}/{AttributePath}",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "framesPathParam": {
+        "name": "frames",
+        "in": "path",
+        "description": "comma or %2C separated list of one or more non duplicate frame numbers",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "requestType": {
+        "name": "requestType",
+        "in": "query",
+        "description": "Request Type",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "WADO"
+          ]
+        }
+      },
+      "studyUID": {
+        "name": "studyUID",
+        "in": "query",
+        "description": "Study Instance UID for a single Study",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "seriesUID": {
+        "name": "series",
+        "in": "query",
+        "description": "Series Instance UID for a single Series",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "objectUID": {
+        "name": "instance",
+        "in": "query",
+        "description": "SOP Instance UID for a single Instance",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "accept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "contentType": {
+        "name": "contentType",
+        "in": "query",
+        "description": "Alternative to Accept header field",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "transferSyntax": {
+        "name": "transferSyntax",
+        "in": "query",
+        "description": "Transfer Syntax UID",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "charset": {
+        "name": "charset",
+        "in": "query",
+        "description": "Charset of the Response (not implemented)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "anonymize": {
+        "name": "anonymize",
+        "in": "query",
+        "description": "Anonymize Object (not implemented)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "yes"
+          ]
+        }
+      },
+      "annotation": {
+        "name": "annotation",
+        "in": "query",
+        "description": "Annotation On The Object (not implemented)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "rows": {
+        "name": "rows",
+        "in": "query",
+        "description": "Number of Pixel Rows",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "columns": {
+        "name": "columns",
+        "in": "query",
+        "description": "Number of Pixel Columns",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "region": {
+        "name": "region",
+        "in": "query",
+        "description": "Region of the Image (not implemented)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "windowCenter": {
+        "name": "windowCenter",
+        "in": "query",
+        "description": "Window Center of the Image",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "windowWidth": {
+        "name": "windowWidth",
+        "in": "query",
+        "description": "Window Width of the Image",
+        "schema": {
+          "type": "number",
+          "minimum": 1
+        }
+      },
+      "frameNumber": {
+        "name": "frameNumber",
+        "in": "query",
+        "description": "Frame Number",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "imageQuality": {
+        "name": "imageQuality",
+        "in": "query",
+        "description": "Image Quality",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "presentationUID": {
+        "name": "presentationUID",
+        "in": "query",
+        "description": "Unique Identifier of the Presentation Object",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "presentationSeriesUID": {
+        "name": "presentationSeriesUID",
+        "in": "query",
+        "description": "Unique Identifier of the Series Containing The Presentation Object",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "attributeMatch": {
+        "name": "match",
+        "in": "query",
+        "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "includefield": {
+        "name": "includefield",
+        "in": "query",
+        "description": "includefield={attributeID} | all",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "fuzzymatching": {
+        "name": "fuzzymatching",
+        "in": "query",
+        "description": "fuzzy semantic matching of person names",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "limit={maximumResults}",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "offset": {
+        "name": "offset",
+        "in": "query",
+        "description": "offset={skippedResults}",
+        "schema": {
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "orderBy": {
+        "name": "orderby",
+        "in": "query",
+        "description": "orderby=[-]{attributeID} (proprietary extension)",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "includedefaults": {
+        "name": "includedefaults",
+        "in": "query",
+        "description": "include the default set of attributes specified by DICOM Part 18 (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "withoutstudies": {
+        "name": "withoutstudies",
+        "in": "query",
+        "description": "return Patient w/o Studies (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "patientVerificationStatus": {
+        "name": "patientVerificationStatus",
+        "in": "query",
+        "description": "return only Patients with given Verification Status (proprietary extension)",
+        "schema": {
+          "$ref": "#/components/schemas/patientVerificationStatus"
+        }
+      },
+      "returnempty": {
+        "name": "returnempty",
+        "in": "query",
+        "description": "return also empty Studies (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "incomplete": {
+        "name": "incomplete",
+        "in": "query",
+        "description": "return only Studies which are marked as incomplete (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "retrievefailed": {
+        "name": "retrievefailed",
+        "in": "query",
+        "description": "return only Studies which failed to be retrieved from fallback C-MOVE SCP (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "storageVerificationFailed": {
+        "name": "storageVerificationFailed",
+        "in": "query",
+        "description": "return only Studies which includes at least one Series with Failures of Last Storage Commitment (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "compressionfailed": {
+        "name": "compressionfailed",
+        "in": "query",
+        "description": "return only Studies which includes at least one Series with Failures of Last Compression (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "metadataUpdateFailed": {
+        "name": "metadataUpdateFailed",
+        "in": "query",
+        "description": "return only Studies which includes at least one Series with Failures to update its Metadata (proprietary extension)",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "SendingApplicationEntityTitleOfSeries": {
+        "name": "SendingApplicationEntityTitleOfSeries",
+        "in": "query",
+        "description": "return Instances of Series of Studies received from this <AE Title> (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "StudyReceiveDateTime": {
+        "name": "StudyReceiveDateTime",
+        "in": "query",
+        "description": "return Instances of Series of Studies which were created between <datetime1>-<datetime2> (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "StudyAccessDateTime": {
+        "name": "StudyAccessDateTime",
+        "in": "query",
+        "description": "return Instances of Series of Studies which were accessed between <datetime1>-<datetime2> (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "StudySizeInKB": {
+        "name": "StudySizeInKB",
+        "in": "query",
+        "description": "return Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max> (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ExternalRetrieveAET": {
+        "name": "ExternalRetrieveAET",
+        "in": "query",
+        "description": "return Studies which are retrieveable from external <AE Title> (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ExternalRetrieveAET!": {
+        "name": "ExternalRetrieveAET!",
+        "in": "query",
+        "description": "return Studies which are not retrieveable from external <AE Title> (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ExpirationDate": {
+        "name": "ExpirationDate",
+        "in": "query",
+        "description": "list Instances of Series which have expiration date between <datetime1>-<datetime2> (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ExpirationState": {
+        "name": "ExpirationState",
+        "in": "query",
+        "description": "return Studies with given Expiration State",
+        "schema": {
+          "$ref": "#/components/schemas/ExpirationState"
+        }
+      },
+      "allOfModalitiesInStudy": {
+        "name": "allOfModalitiesInStudy",
+        "in": "query",
+        "description": "return Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy' (proprietary extension).",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "storageID": {
+        "name": "storageID",
+        "in": "query",
+        "description": "return Instances of Studies which have objects on a particular Storage System (proprietary extension)",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "storageClustered": {
+        "name": "storageClustered",
+        "in": "query",
+        "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs (proprietary extension)",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "storageExported": {
+        "name": "storageExported",
+        "in": "query",
+        "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID (proprietary extension)",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "dicomDeviceName": {
+        "name": "dicomDeviceName",
+        "in": "query",
+        "description": "Device Name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomDescription": {
+        "name": "dicomDescription",
+        "in": "query",
+        "description": "Device Description",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomManufacturer": {
+        "name": "dicomManufacturer",
+        "in": "query",
+        "description": "Manufacturer",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomManufacturerModelName": {
+        "name": "dicomManufacturerModelName",
+        "in": "query",
+        "description": "Manufacturer Model Name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomStationName": {
+        "name": "dicomStationName",
+        "in": "query",
+        "description": "Station Name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomPrimaryDeviceType": {
+        "name": "dicomPrimaryDeviceType",
+        "in": "query",
+        "description": "Primary Device Type",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomInstitutionName": {
+        "name": "dicomInstitutionName",
+        "in": "query",
+        "description": "Institution Name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomInstitutionDepartmentName": {
+        "name": "dicomInstitutionDepartmentName",
+        "in": "query",
+        "description": "Institution Department Name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomInstalled": {
+        "name": "dicomInstalled",
+        "in": "query",
+        "description": "Boolean to indicate whether this device is presently installed on the network",
+        "schema": {
+          "type": "boolean"
+        }
+      }
+    },
+    "responses": {
+      "searchResults": {
+        "description": "The search completed successfully, and the results are contained in the payload",
+        "content": {
+          "multipart/related;type=application/dicom+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "text/csv": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "searchResultsExternal": {
+        "description": "The search completed successfully, and the results are contained in the payload",
+        "content": {
+          "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "storeInstancesSuccessful": {
+        "description": "Successfully stored all Instances.",
+        "content": {
+          "application/dicom+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "storeInstancesWarnings": {
+        "description": "Stored some of the Instances but warnings or failures exist for others.",
+        "content": {
+          "application/dicom+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "retrievedInstances": {
+        "description": "Instance(s) successfully retrieved.",
+        "content": {
+          "multipart/related;type=application/dicom": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=application/pdf": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/jp2": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/jpx": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/x-dicom+rle": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/x-jls": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=text/xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=video/mpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=video/mp4": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/zip": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "retrievedFrames": {
+        "description": "Frame(s) successfully retrieved.",
+        "content": {
+          "multipart/related;type=application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/jp2": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/jpx": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/x-dicom+rle": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/x-jls": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=video/mpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=video/mp4": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/zip": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "retrievedBulkdata": {
+        "description": "Bulkdata successfully retrieved.",
+        "content": {
+          "multipart/related;type=application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=application/pdf": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=text/xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "retrievedMetadata": {
+        "description": "Metadata successfully retrieved.",
+        "content": {
+          "multipart/related;type=application/dicom+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "retrievedInstance": {
+        "description": "Instance successfully retrieved.",
+        "content": {
+          "application/dicom": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/pdf": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/gif": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "type=text/xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "video/mpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "video/mp4": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "deviceList": {
+        "description": "device list",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "deviceList.schema.json"
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "storeInstances": {
+        "content": {
+          "multipart/related;type=application/dicom": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=application/dicom+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "patientVerificationStatus": {
+        "type": "string",
+        "enum": [
+          "UNVERIFIED",
+          "VERIFIED",
+          "NOT_FOUND",
+          "VERIFICATION_FAILED"
+        ]
+      },
+      "ExpirationState": {
+        "type": "string",
+        "enum": [
+          "UPDATEABLE",
+          "FROZEN",
+          "REJECTED",
+          "EXPORT_SCHEDULED",
+          "FAILED_TO_EXPORT",
+          "FAILED_TO_REJECT"
+        ]
+      }
+    }
+  }
+}
