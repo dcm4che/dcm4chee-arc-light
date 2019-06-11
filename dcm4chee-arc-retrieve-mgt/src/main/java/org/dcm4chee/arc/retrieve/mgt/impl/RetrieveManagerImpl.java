@@ -215,7 +215,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
-        return ejb.findDeviceNameAndMsgPropsByPk(pk);
+    public Tuple findDeviceNameAndLocalAETByPk(Long pk) {
+        return ejb.findDeviceNameAndLocalAETByPk(pk);
     }
 }

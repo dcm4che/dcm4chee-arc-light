@@ -87,5 +87,5 @@ public interface RetrieveManager {
     Iterator<RetrieveTask> listRetrieveTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit);
 
-    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
+    Tuple findDeviceNameAndLocalAETByPk(Long pk);
 }

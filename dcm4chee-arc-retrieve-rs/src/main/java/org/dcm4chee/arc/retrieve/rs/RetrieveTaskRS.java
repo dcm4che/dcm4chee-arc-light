@@ -281,7 +281,7 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Tuple tuple = mgr.findDeviceNameAndMsgPropsByPk(pk);
+            Tuple tuple = mgr.findDeviceNameAndLocalAETByPk(pk);
             String taskDeviceName;
             if ((taskDeviceName = (String) tuple.get(0)) == null)
                 return errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
@@ -310,11 +310,7 @@ public class RetrieveTaskRS {
         }
     }
 
-    private boolean validateTaskAssociationInitiator(String messageProperties, Device device) throws ConfigurationException {
-        javax.json.JsonReader reader = Json.createReader(new StringReader('{' + messageProperties + '}'));
-        JsonObject jsonObj = reader.readObject();
-
-        String localAET = jsonObj.getString("LocalAET");
+    private boolean validateTaskAssociationInitiator(String localAET, Device device) throws ConfigurationException {
         ApplicationEntity ae = device.getApplicationEntity(localAET, true);
         if (ae == null || !ae.isInstalled())
             throw new ConfigurationException("No such Application Entity " + localAET + " on new device: " + newDeviceName);
@@ -407,9 +403,7 @@ public class RetrieveTaskRS {
                 for (Tuple tuple : retrieveTaskTuples) {
                     Long retrieveTaskPk = (Long) tuple.get(0);
                     try {
-                        if (validateTaskAssociationInitiator(
-                                "\"LocalAET\":\"" + tuple.get(1) + "\"",
-                                device)) {
+                        if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
                             mgr.rescheduleRetrieveTask(
                                     retrieveTaskPk,
                                     newQueueName,

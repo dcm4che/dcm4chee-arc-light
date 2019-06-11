@@ -424,15 +424,14 @@ public class RetrieveManagerEJB {
         return predicates;
     }
 
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
+    public Tuple findDeviceNameAndLocalAETByPk(Long pk) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
         Root<RetrieveTask> retrieveTask = tupleQuery.from(RetrieveTask.class);
-        Join<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
         tupleQuery.where(cb.equal(retrieveTask.get(RetrieveTask_.pk), pk));
         tupleQuery.multiselect(
-                queueMsg.get(QueueMessage_.deviceName),
-                queueMsg.get(QueueMessage_.messageProperties));
+                retrieveTask.get(RetrieveTask_.deviceName),
+                retrieveTask.get(RetrieveTask_.localAET));
         return em.createQuery(tupleQuery).getSingleResult();
     }
 
