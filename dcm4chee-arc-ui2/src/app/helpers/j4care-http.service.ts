@@ -163,47 +163,13 @@ export class J4careHttpService{
     getRealm(dcmWebApp?:DcmWebApp){
         // let service = this.$httpClient.get('rs/realm');
         let service = this.$http.get('rs/realm');
-        // let service = Observable.of(this.mainservice.keycloak);
-/*        console.log("in getrelam",this.mainservice.keycloak);
-        console.log("in getrelam authentication",this.mainservice.keycloak);
-        const tokenPromise: Promise<any> = this.mainservice.keycloak.getToken();
-        let service: Observable<any> = Observable.fromPromise(tokenPromise);*/
-        // const tokenPromise: Promise<any> = this._keycloakService.getToken();
-/*        let service
-        if(!this._keycloakService.authenticated()){
-           service = KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS());
-        }else{
-            service = this._keycloakService.getToken();
-        }*/
-/*        if(KeycloakService.keycloakAuth.token){
-            console.log("token in j4carehttpservice",KeycloakService.keycloakAuth.token);
-        }else {
-            KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS());
-        }*/
-/*        KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(keycloakauth=>{
-           console.log("in getRelam keycloakauth",keycloakauth);
-           console.log("in getRelam keycloakauth",KeycloakService.keycloakAuth);
-           console.log("in getRelam keycloakauth",KeycloakService.keycloakAuth.token);
-        },(err)=>{
-            console.log("in getRelam err",err);
-        });*/
-
-/*        this._keycloakService.getToken().subscribe(token=>{
-            console.log("-------token",token);
-        });*/
-        console.log("in get realm", this.mainservice.keycloak);
+        // let service = this._keycloakService.getToken();
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
-  /*      service.toPromise()
-            .then(res => {
-                var data = res.headers.get('X-Custom-header');
-                console.log(res);
-                console.log(data);
-                return res;
-            },err=>{
-                console.log("err",err);
-            })*/
+/*        this._keycloakService.getToken1().subscribe(res=>{
+            console.log("getToken1",res);
+        },error=>{});*/
         return service
             .map(res => {
             let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
@@ -251,6 +217,7 @@ export class J4careHttpService{
         }
     }
     tokenValid(){
+        // return this._keycloakService.authenticated()
         if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000))){
             return true;
         }else{

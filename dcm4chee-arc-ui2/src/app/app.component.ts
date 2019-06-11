@@ -69,54 +69,15 @@ export class AppComponent implements OnInit {
     ngOnInit(){
         // console.log("app.component.ts",this.mainservice.keycloak);
         console.log("config",this.mainservice);
-/*        if(KeycloakService.keycloakAuth.token){
+/*        if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             console.log("token in j4carehttpservice",KeycloakService.keycloakAuth.token);
         }else {
-            KeycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
+            this._keycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
                 console.log("subscripkeycloak res",res);
                 console.log("token",KeycloakService.keycloakAuth.token);
             })
         }*/
-/*        console.log("authenticated",this.mainservice.keycloak);
-        let keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
-        let $this = this;
-        if(keycloakConfig){
-            $this.mainservice.keycloak = Keycloak(keycloakConfig);
-            $this.mainservice.keycloak.init({flow: 'standard', responseMode: 'fragment', checkLoginIframe: true, onLoad: 'login-required'}).success((authenticated)=>{
-                // this.mainservice.keycloak.init({ onLoad: 'login-required'}).success((authenticated)=>{
-                localStorage.setItem("keycloakObject",JSON.stringify($this.mainservice.keycloak));
-                console.log("auth",authenticated);
-                if(authenticated){
-                    console.log("auth",$this.mainservice.keycloak);
-                    console.log("auth",$this.mainservice.keycloak.token);
-                    console.log("auth",$this.mainservice.keycloak.realmAccess);
-                    console.log("auth",$this.mainservice.keycloak.tokenParsed);
-                }
-            }).error((error)=>{
-                console.log("error",error);
-            });
-        }else{
-            this.mainservice.getKeycloakJson().subscribe((keycloakJson)=>{
-                console.log("dcmWebApps",keycloakJson);
-                localStorage.setItem("keycloakConfig",JSON.stringify(keycloakJson));
-                $this.mainservice.keycloak = Keycloak(keycloakJson);
-                $this.mainservice.keycloak.init({flow: 'standard', responseMode: 'fragment', checkLoginIframe: true, onLoad: 'login-required'}).success((authenticated)=>{
-                    // this.mainservice.keycloak.init({ onLoad: 'login-required'}).success((authenticated)=>{
-                    localStorage.setItem("keycloakObject",JSON.stringify($this.mainservice.keycloak));
-                    console.log("auth",authenticated);
-                    if(authenticated){
-                        console.log("auth",$this.mainservice.keycloak);
-                        console.log("auth",$this.mainservice.keycloak.token);
-                        console.log("auth",$this.mainservice.keycloak.realmAccess);
-                        console.log("auth",$this.mainservice.keycloak.tokenParsed);
-                    }
-                }).error((error)=>{
-                    console.log("error",error);
-                });
-            },err=>{
-                console.log("err",err);
-            });
-        }*/
+
         Date.prototype.toDateString = function() {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
