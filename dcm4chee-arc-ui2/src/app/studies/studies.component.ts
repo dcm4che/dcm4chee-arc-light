@@ -93,7 +93,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         SplitStudyDateRange:'',
         compressionfailed:false,
         storageVerificationFailed:false,
-        StudyInstanceUID:""
+        StudyInstanceUID:"",
+        onlyDefault:false
     };
     diffQueue = false;
     missing = true;
