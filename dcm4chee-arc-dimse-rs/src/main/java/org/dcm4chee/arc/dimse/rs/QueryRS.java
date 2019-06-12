@@ -166,7 +166,7 @@ public class QueryRS {
     public void searchForSeriesOfStudyJSON(
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        search(ar, Level.SERIES, studyInstanceUID, null, QIDO.STUDY_SERIES, false);
+        search(ar, Level.SERIES, studyInstanceUID, null, QIDO.SERIES, false);
     }
 
     @GET
@@ -177,7 +177,7 @@ public class QueryRS {
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.STUDY_SERIES_INSTANCE, false);
+        search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, false);
     }
 
     @GET
@@ -203,7 +203,7 @@ public class QueryRS {
     public void countSeriesOfStudy(
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        search(ar, Level.SERIES, studyInstanceUID, null, QIDO.STUDY_SERIES, true);
+        search(ar, Level.SERIES, studyInstanceUID, null, QIDO.SERIES, true);
     }
 
     @GET
@@ -214,7 +214,7 @@ public class QueryRS {
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.STUDY_SERIES_INSTANCE, true);
+        search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, true);
     }
 
     private int offset() {
@@ -246,23 +246,26 @@ public class QueryRS {
         try {
             aeCache.findApplicationEntity(externalAET);
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
+            Attributes keys = queryAttributes.getQueryKeys();
             if (!count) {
                 queryAttributes.addReturnTags(qido.includetags);
                 if (queryAttributes.isIncludeAll()) {
                     ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
                     switch (level) {
                         case IMAGE:
-                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Instance).getSelection());
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Instance).getSelection(false));
+                            break;
                         case SERIES:
-                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Series).getSelection());
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Series).getSelection(false));
+                            break;
                         case STUDY:
-                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection(false));
                         case PATIENT:
-                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection(false));
                     }
+                    keys.remove(Tag.TimezoneOffsetFromUTC);
                 }
             }
-            Attributes keys = queryAttributes.getQueryKeys();
             keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
             if (studyInstanceUID != null)
                 keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);

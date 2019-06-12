@@ -75,8 +75,13 @@ public class AttributesBuilder {
             if (!item.contains(ArchiveTag.PrivateCreator, tag))
                 item.setNull(ArchiveTag.PrivateCreator, tag, ElementDictionary.vrOf(tag, ArchiveTag.PrivateCreator));
         } else {
-            if (!item.contains(tag))
-                item.setNull(tag, DICT.vrOf(tag));
+            if (!item.contains(tag)) {
+                VR vr = DICT.vrOf(tag);
+                if (vr == VR.SQ)
+                    item.newSequence(tag, 1).add(new Attributes(0));
+                else
+                    item.setNull(tag, vr);
+            }
         }
     }
 
