@@ -5,6 +5,7 @@ import {J4careHttpService} from "../j4care-http.service";
 import {AppService} from "../../app.service";
 import {Route, Router} from "@angular/router";
 import * as _ from 'lodash';
+import {KeycloakService} from "../keycloak-service/keycloak.service";
 
 @Injectable()
 export class PermissionService {
@@ -12,7 +13,12 @@ export class PermissionService {
     user;
     uiConfig;
     configChecked = false;
-    constructor(private $http:J4careHttpService, private mainservice:AppService, private router: Router) { }
+    constructor(
+        private $http:J4careHttpService,
+        private mainservice:AppService,
+        private router: Router,
+        private _keycloakService:KeycloakService
+    ) { }
 
     getPermission(url){
         // console.log("permission user",this.mainservice.user.roles);
@@ -73,10 +79,14 @@ export class PermissionService {
         let deviceName;
         let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
-            return this.mainservice.getUserInfo()
+            return this._keycloakService.getUserInfo()//TODO Remove one of the mehthodes getUserInfo()
+            // return this.mainservice.getUserInfo()
+                .switchMap(res => this.mainservice.getUserInfo())
                 .map(user=>{
+                    console.log("user",user);
                     this.mainservice.user = user;
                     this.user = user;
+                    return user;
                 })
                 .switchMap(res => this.$http.get('./rs/devicename'))
                 .map(res => j4care.redirectOnAuthResponse(res))
@@ -90,7 +100,7 @@ export class PermissionService {
                     try{
                         this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
-                        let global = _.cloneDeep(this.mainservice.global);
+                        let global = _.cloneDeep(this.mainservice.global) || {};
                         global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
                         global["myDevice"] = res;
                         console.log("permission uiconfig");

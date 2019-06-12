@@ -228,7 +228,7 @@ export class AppService implements OnInit, OnDestroy{
                 })
                 .map((res)=>{
                     try{
-                        let global = _.cloneDeep(this.global);
+                        let global = _.cloneDeep(this.global) || {};
                         global["uiConfig"] = _.get(res,"dcmDevice.dcmuiConfig[0]");
                         global["myDevice"] = res;
                         this.deviceName = deviceName;

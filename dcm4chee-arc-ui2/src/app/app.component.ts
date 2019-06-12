@@ -69,15 +69,20 @@ export class AppComponent implements OnInit {
     ngOnInit(){
         // console.log("app.component.ts",this.mainservice.keycloak);
         console.log("config",this.mainservice);
-/*        if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
+        if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             console.log("token in j4carehttpservice",KeycloakService.keycloakAuth.token);
+            this.init();
         }else {
             this._keycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
                 console.log("subscripkeycloak res",res);
                 console.log("token",KeycloakService.keycloakAuth.token);
+                this.init();
             })
-        }*/
+        }
 
+
+    }
+    init(){
         Date.prototype.toDateString = function() {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };

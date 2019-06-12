@@ -36,6 +36,7 @@ export class KeycloakService {
     static keycloakAuth: KeycloakClient;
     static keycloakConfig:any;
     private setTokenSource = new Subject<any>();
+    private setUserSource = new Subject<any>();
     // static getTokenObs =
     constructor(
        private mainservice:AppService
@@ -50,14 +51,15 @@ export class KeycloakService {
         let $this = this;
         if(KeycloakService.keycloakConfig){
             KeycloakService.keycloakAuth = new Keycloak(KeycloakService.keycloakConfig);
-/*            KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS()).success(res=>{
-                console.log("this.keycloaksuccess",KeycloakService.keycloakAuth.token);
-            });*/
             return Observable.of(1).flatMap(res=>{ return new Promise((resolve, reject) => {
                 KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
                     .success(() => {
                         // this.test.emit(KeycloakService.keycloakAuth.token);
-                        this.setTokenSource.next(KeycloakService.keycloakAuth.token);
+                        this.setTokenSource.next(KeycloakService.keycloakAuth);
+                        KeycloakService.keycloakAuth.loadUserProfile().success(user=>{
+                           console.log("userInfo",user);
+                            this.setUserSource.next(user);
+                        });
                         resolve();
                     })
                     .error((errorData: any) => {
@@ -65,23 +67,7 @@ export class KeycloakService {
                     });
             })})
         }else{
-            // KeycloakService.keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
-             console.log("in else");
-            // KeycloakService.keycloakAuth = Keycloak(KeycloakService.keycloakConfig);
-/*            return Observable.of(1).flatMap(res=>{ return new Promise((resolve, reject) => {
-                KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
-                    .success(() => {
-                        // this.test.emit(KeycloakService.keycloakAuth.token);
-                        this.setTokenSource.next(KeycloakService.keycloakAuth.token);
-                        resolve();
-                    })
-                    .error((errorData: any) => {
-                        reject(errorData);
-                    });
-            })})*/
-/*            KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS()).success(res=>{
-                console.log("this.keycloaksuccess",KeycloakService.keycloakAuth.token);
-            });*/
+
             return this.mainservice.getKeycloakJson().flatMap((keycloakJson:any)=>{
                 console.log("dcmWebApps",keycloakJson);
                 localStorage.setItem("keycloakConfig",JSON.stringify(keycloakJson));
@@ -101,19 +87,11 @@ export class KeycloakService {
                 })})
             });
         }
-
-/*        const keycloakPromise = new Promise((resolve, reject) => {
-            KeycloakService.keycloakAuth.init(options)
-                .success(() => {
-                    resolve();
-                })
-                .error((errorData: any) => {
-                    reject(errorData);
-                });
-        });
-        return Observable.from(keycloakPromise);*/
     }
 
+    getUserInfo():Observable<any>{
+        return this.setUserSource.asObservable();
+    }
     getTokenObs():Observable<any>{
         return this.setTokenSource.asObservable();
     }
@@ -140,9 +118,55 @@ export class KeycloakService {
     getToken():Observable<any>{
         if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated){
             console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
-            return Observable.of(KeycloakService.keycloakAuth);
+            if(KeycloakService.keycloakAuth.isTokenExpired(5)){
+                return Observable.of(1).flatMap(res=>{
+                    return new Promise<any>((resolve, reject) => {
+                        if (KeycloakService.keycloakAuth.token) {
+                            KeycloakService.keycloakAuth
+                                .updateToken(5)
+                                .success(() => {
+                                    // this.setTokenSource.next(KeycloakService.keycloakAuth.token);
+                                    resolve(<any>KeycloakService.keycloakAuth);
+                                })
+                                .error(() => {
+                                    reject('Failed to refresh token');
+                                });
+                        } else {
+                            // return this.getTokenObs();
+                            reject('Not loggen in');
+                        }
+                    });
+                });
+            }else{
+                return Observable.of(KeycloakService.keycloakAuth);
+            }
         }else{
             return this.getTokenObs();
+        }
+    }
+    getToken2():Observable<any>{
+        if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated && !KeycloakService.keycloakAuth.isTokenExpired(5)){
+            console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
+            return Observable.of(KeycloakService.keycloakAuth);
+        }else{
+            // return this.getTokenObs();
+            return Observable.of(1).flatMap(res=>{ return new Promise<any>((resolve, reject) => {
+                if (KeycloakService.keycloakAuth.token) {
+                    KeycloakService.keycloakAuth
+                        .updateToken(5)
+                        .success(() => {
+                            this.setTokenSource.next(KeycloakService.keycloakAuth.token);
+                            resolve(<any>KeycloakService.keycloakAuth);
+                        })
+                        .error(() => {
+                            reject('Failed to refresh token');
+                        });
+                } else {
+                    // return this.getTokenObs();
+                    reject('Not loggen in');
+                }
+            });
+            });
         }
     }
 

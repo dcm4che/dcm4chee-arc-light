@@ -100,11 +100,13 @@ export class J4careHttpService{
     }
     private request(requestFunctionName, param, dcmWebApp?:DcmWebApp){
         let $this = this;
-        $this.setHeader(param.header, dcmWebApp);
+        // $this.setHeader(param.header, dcmWebApp);
 
         // let headerIndex = (param.length === 3) ? 2:1;
         return $this.refreshToken().flatMap((response)=>{
-                this.setGlobalToken(response,param);
+                $this.setHeader(param.header, dcmWebApp);
+                // this.setGlobalToken(response,param);
+                param.header = {headers:this.header};
                 return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
             }).catch(res=>{
                 if(res.ok === false && res.status === 0 && res.type === 3){
@@ -113,7 +115,7 @@ export class J4careHttpService{
                 }
                 if(res.statusText === "Unauthorized"){
                     return $this.getRealm().flatMap((resp)=>{
-                        this.setGlobalToken(resp,param);
+                        // this.setGlobalToken(resp,param);
                         return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
                     });
                 }
@@ -162,8 +164,8 @@ export class J4careHttpService{
     }
     getRealm(dcmWebApp?:DcmWebApp){
         // let service = this.$httpClient.get('rs/realm');
-        let service = this.$http.get('rs/realm');
-        // let service = this._keycloakService.getToken();
+        // let service = this.$http.get('rs/realm');
+        let service = this._keycloakService.getToken();
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
@@ -182,13 +184,17 @@ export class J4careHttpService{
                 console.log("getRealm Response:",res);
                 // resjson = res.body;
             }catch (e){
-                console.log("");
+                console.log("res",res);
+                console.log("e",e);
                 if(_.hasIn(e, "message") && e.message.indexOf("res.json") > -1){
                     resjson = res;
                 }else{
                     resjson = [];
                 }
-            } return resjson;
+            }
+            // console.log("abaout to set the token1",KeycloakService.keycloakAuth.token);
+            this.token["UI"] = KeycloakService.keycloakAuth.token;
+            return resjson;
         })
     }
 /*    getTokenFromKeycloak(){
@@ -205,8 +211,15 @@ export class J4careHttpService{
                 return this.getRealm();
             }else{
                 if(!this.mainservice.global.notSecure){
-                    if(_.hasIn(this.mainservice, "global.authentication.token")){
+                   /* if(_.hasIn(this.mainservice, "global.authentication.token")){
                         this.token["UI"] = this.mainservice.global.authentication.token;
+                    }else{
+                        // this.setValueInGlobal('getRealmStateActive',true);
+                        return this.getRealm();
+                    }*/
+                    if(KeycloakService.keycloakAuth.authenticated && !KeycloakService.keycloakAuth.isTokenExpired(5)){
+                        // console.log("abaout to set the token2",KeycloakService.keycloakAuth.token);
+                        this.token["UI"] = KeycloakService.keycloakAuth.token;
                     }else{
                         this.setValueInGlobal('getRealmStateActive',true);
                         return this.getRealm();
@@ -217,12 +230,12 @@ export class J4careHttpService{
         }
     }
     tokenValid(){
-        // return this._keycloakService.authenticated()
-        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000))){
+        return this._keycloakService.authenticated() && !KeycloakService.keycloakAuth.isTokenExpired(5);
+/*        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000))){
             return true;
         }else{
             return false;
-        }
+        }*/
     }
     setValueInGlobal(key, value){
         if (this.mainservice.global && !this.mainservice.global[key]){
@@ -248,7 +261,7 @@ export class J4careHttpService{
         }
         if(header){
             if(token){
-                console.log("header",header);
+                // console.log("header",header);
                 try{
                     if(header instanceof HttpHeaders){
                         this.header = header.set('Authorization', `Bearer ${token}`);
@@ -266,8 +279,10 @@ export class J4careHttpService{
         }else{
             this.header = new HttpHeaders();
             if(token){
+                // console.log("setHeadernew",token);
                 this.header = new HttpHeaders().append('Authorization', `Bearer ${token}`);
             }
         }
+        // header = this.header;
     }
 }
