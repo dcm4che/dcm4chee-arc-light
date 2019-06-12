@@ -3430,12 +3430,15 @@ export class StudiesComponent implements OnDestroy,OnInit{
 
     createQueryParams(offset, limit, filter) {
         let params = {
-            includefield: 'all',
             offset: offset,
             limit: limit
         };
+        if(!this.filter["onlyDefault"]){
+            params["includefield"] = 'all';
+        }
+
         for (let key in filter){
-            if (filter[key] || filter[key] === false){
+            if ((filter[key] || filter[key] === false) && key != "onlyDefault"){
                 params[key] = filter[key];
             }
         }
