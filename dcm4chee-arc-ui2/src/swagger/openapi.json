@@ -569,7 +569,7 @@
           "QIDO-RS"
         ],
         "summary": "Search for Series",
-        "operationId": "SearchForStudy",
+        "operationId": "SearchForSeries",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -905,6 +905,738 @@
         }
       }
     },
+    "/aets/{aet}/rs/mwlitems": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Scheduled Procedure Steps",
+        "operationId": "SearchForSPS",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResults"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MWL-RS"
+        ],
+        "summary": "Create/Update Scheduled Procedure Step",
+        "operationId": "CreateUpdateSPS",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createUpdateSPS"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/createUpdateSPSSuccessful"
+          },
+          "400": {
+            "description": "Missing Patient ID or Scheduled Procedure Step Sequence in request body"
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title or Patient does not exist."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/mwlitems/{StudyInstanceUID}/{spsID}": {
+      "delete": {
+        "tags": [
+          "MWL-RS"
+        ],
+        "summary": "Delete Scheduled Procedure Step",
+        "operationId": "DeleteSPS",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/spsID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Scheduled Procedure Step deleted successfully."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title or Scheduled Procedure Step not found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Patients",
+        "operationId": "CountPatients",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/withoutstudies"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Studies",
+        "operationId": "CountStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/returnempty"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Series of Study",
+        "operationId": "CountStudySeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/instances/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances of of Study",
+        "operationId": "CountStudyInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/series/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Series",
+        "operationId": "CountSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances of Series of Study",
+        "operationId": "CountStudySeriesInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/instances/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances",
+        "operationId": "CountInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/mwlitems/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Scheduled Procedure Steps",
+        "operationId": "CountScheduledProcedureSteps",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{study}": {
       "get": {
         "tags": [
@@ -974,6 +1706,7 @@
         }
       }
     },
+
     "/aets/{aet}/rs/studies/{study}/series/{series}": {
       "get": {
         "tags": [
@@ -1169,41 +1902,6 @@
             "description": "Internal Server Error."
           }
         }
-      },
-      "post": {
-        "tags": [
-          "STOW-RS"
-        ],
-        "summary": "Store Instances",
-        "operationId": "StoreInstances",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/archiveAETPathParam"
-          },
-          {
-            "$ref": "#/components/parameters/studyPathParam"
-          }
-        ],
-        "requestBody": {
-          "$ref": "#/components/requestBodies/storeInstances"
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/storeInstancesSuccessful"
-          },
-          "204": {
-            "$ref": "#/components/responses/storeInstancesWarnings"
-          },
-          "400": {
-            "description": "There was a problem with the request."
-          },
-          "404": {
-            "description": "There is no Archive AE with the specified Title."
-          },
-          "500": {
-            "description": "Internal Server Error."
-          }
-        }
       }
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/metadata": {
@@ -1365,6 +2063,73 @@
         }
       }
     },
+    "/aets/{aet}/dimse/{findscp}/patients": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Search for Patients external",
+        "operationId": "SearchForPatientsExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/searchResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
     "/aets/{aet}/dimse/{findscp}/studies": {
       "get": {
         "tags": [
@@ -1399,6 +2164,9 @@
           },
           {
             "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
           },
           {
             "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
@@ -1471,6 +2239,9 @@
             "$ref": "#/components/parameters/orderBy"
           },
           {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          },
+          {
             "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
           },
           {
@@ -1502,7 +2273,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/instances/{instance}": {
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances": {
       "get": {
         "tags": [
           "FIND-RS"
@@ -1544,6 +2315,9 @@
             "$ref": "#/components/parameters/orderBy"
           },
           {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          },
+          {
             "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
           },
           {
@@ -1556,6 +2330,268 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/searchResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/patients/count": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Count Patients external",
+        "operationId": "CountPatientsExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/count": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Count Studies external",
+        "operationId": "CountStudiesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/count": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Count Series of Study external",
+        "operationId": "CountStudySeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResultsExternal"
+          },
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances/count": {
+      "get": {
+        "tags": [
+          "FIND-RS"
+        ],
+        "summary": "Count Instances of Series of Study external",
+        "operationId": "CountStudySeriesInstancesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/includedefaults"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResultsExternal"
           },
           "204": {
             "description": "The search completed successfully, but there were zero results."
@@ -1609,11 +2645,165 @@
           },
           {
             "$ref": "#/components/parameters/dicomInstalled"
+          },
+          {
+            "$ref": "#/components/parameters/dicomSoftwareVersion"
+          },
+          {
+            "$ref": "#/components/parameters/hasArcDevExt"
           }
         ],
         "responses": {
           "200": {
               "$ref": "#/components/responses/deviceList"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/devicename": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Archive Device Name",
+        "operationId": "devicename",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/DeviceName"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/devices/{DeviceName}": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Archive Device Name",
+        "operationId": "devicename",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/devicePathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "../assets/schema/device.schema.json"
+          },
+          "404": {
+            "description": "Device configuration not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/aes": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Application Entities",
+        "operationId": "listApplicationEntities",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDescription"
+          },
+          {
+            "$ref": "#/components/parameters/dicomAETitle"
+          },
+          {
+            "$ref": "#/components/parameters/dicomAssociationAcceptor"
+          },
+          {
+            "$ref": "#/components/parameters/dicomAssociationInitiator"
+          },
+          {
+            "$ref": "#/components/parameters/dicomApplicationCluster"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/aeList"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/webapps": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Web Applications",
+        "operationId": "listWebApplications",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDescription"
+          },
+          {
+            "$ref": "#/components/parameters/dcmWebAppName"
+          },
+          {
+            "$ref": "#/components/parameters/dcmWebServicePath"
+          },
+          {
+            "$ref": "#/components/parameters/dcmWebServiceClass"
+          },
+          {
+            "$ref": "#/components/parameters/dicomAETitle"
+          },
+          {
+            "$ref": "#/components/parameters/dicomApplicationCluster"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/webAppList"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/hl7apps": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List HL7 Applications",
+        "operationId": "listHL7Applications",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/hl7ApplicationName"
+          },
+          {
+            "$ref": "#/components/parameters/dicomApplicationCluster"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/hl7AppList"
           },
           "500": {
             "description": "Internal Server Error."
@@ -1687,6 +2877,15 @@
           "type": "string"
         }
       },
+      "spsID": {
+        "name": "spsID",
+        "in": "path",
+        "description": "Scheduled Procedure Step ID of a MWL Item",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "requestType": {
         "name": "requestType",
         "in": "query",
@@ -1731,7 +2930,7 @@
         "in": "query",
         "description": "Alternative to Accept header field",
         "schema": {
-          "type": "string"
+          "$ref": "#/components/schemas/accept"
         }
       },
       "contentType": {
@@ -1914,6 +3113,14 @@
           }
         }
       },
+      "orderByTime": {
+        "name": "orderby",
+        "in": "query",
+        "description": "specifies sort direction and field of tasks in returned list",
+        "schema": {
+          "$ref": "#/components/schemas/orderByTime"
+        }
+      },
       "includedefaults": {
         "name": "includedefaults",
         "in": "query",
@@ -1992,6 +3199,14 @@
         "schema": {
           "type": "boolean",
           "default": false
+        }
+      },
+      "SplitStudyDateRange": {
+        "name": "SplitStudyDateRange",
+        "in": "query",
+        "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
+        "schema": {
+          "type": "string"
         }
       },
       "SendingApplicationEntityTitleOfSeries": {
@@ -2091,6 +3306,15 @@
           "type": "boolean"
         }
       },
+      "devicePathParam": {
+        "name": "DeviceName",
+        "in": "path",
+        "description": "Device Name",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "dicomDeviceName": {
         "name": "dicomDeviceName",
         "in": "query",
@@ -2103,6 +3327,14 @@
         "name": "dicomDescription",
         "in": "query",
         "description": "Device Description",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dicomAETitle": {
+        "name": "dicomAETitle",
+        "in": "query",
+        "description": "Application Entity Title",
         "schema": {
           "type": "string"
         }
@@ -2136,7 +3368,10 @@
         "in": "query",
         "description": "Primary Device Type",
         "schema": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "dicomInstitutionName": {
@@ -2144,7 +3379,10 @@
         "in": "query",
         "description": "Institution Name",
         "schema": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "dicomInstitutionDepartmentName": {
@@ -2152,7 +3390,10 @@
         "in": "query",
         "description": "Institution Department Name",
         "schema": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "dicomInstalled": {
@@ -2161,6 +3402,87 @@
         "description": "Boolean to indicate whether this device is presently installed on the network",
         "schema": {
           "type": "boolean"
+        }
+      },
+      "dicomSoftwareVersion": {
+        "name": "dicomSoftwareVersion",
+        "in": "query",
+        "description": "Software Versions",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "hasArcDevExt": {
+        "name": "hasArcDevExt",
+        "in": "query",
+        "description": "Boolean to indicate whether this device has an archive device extension",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "dicomAssociationAcceptor": {
+        "name": "dicomAssociationAcceptor",
+        "in": "query",
+        "description": "Boolean to indicate whether this Application Entity can accept associations",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "dicomAssociationInitiator": {
+        "name": "dicomAssociationInitiator",
+        "in": "query",
+        "description": "Boolean to indicate whether this Application Entity can initiate associations",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "dicomApplicationCluster": {
+        "name": "dicomApplicationCluster",
+        "in": "query",
+        "description": "Application Cluster",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "dcmWebAppName": {
+        "name": "dcmWebAppName",
+        "in": "query",
+        "description": "Web Application Name",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dcmWebServicePath": {
+        "name": "dcmWebServicePath",
+        "in": "query",
+        "description": "Web Service Path",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dcmWebServiceClass": {
+        "name": "dcmWebServiceClass",
+        "in": "query",
+        "description": "Web Service Class",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "hl7ApplicationName": {
+        "name": "hl7ApplicationName",
+        "in": "query",
+        "description": "HL7 Application Name",
+        "schema": {
+          "type": "string"
         }
       }
     },
@@ -2188,10 +3510,38 @@
           }
         }
       },
+      "countResults": {
+        "description": "Count completed successfully, and the count is contained in the payload",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
       "searchResultsExternal": {
         "description": "The search completed successfully, and the results are contained in the payload",
         "content": {
           "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "countResultsExternal": {
+        "description": "Count completed successfully, and the count is contained in the payload",
+        "content": {
+          "application/json": {
             "schema": {
               "type": "string",
               "format": "binary"
@@ -2226,6 +3576,23 @@
             }
           },
           "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "createUpdateSPSSuccessful": {
+        "description": "Create Update SPS completed successfully, and the attributes are contained in the payload",
+        "content": {
+          "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/json": {
             "schema": {
               "type": "string",
               "format": "binary"
@@ -2489,6 +3856,63 @@
             }
           }
         }
+      },
+      "DeviceName": {
+        "description": "Device Name",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "dicomDeviceName"
+              ],
+              "properties": {
+                "dicomDeviceName": {
+                  "type": "string"
+                },
+                "xRoad": {
+                  "type": "boolean"
+                },
+                "impaxReport": {
+                  "type": "boolean"
+                },
+                "UIConfigurationDeviceName": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "aeList": {
+        "description": "Application Entities list",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "aeList.schema.json"
+            }
+          }
+        }
+      },
+      "webAppList": {
+        "description": "Web Applications list",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "webappList.schema.json"
+            }
+          }
+        }
+      },
+      "hl7AppList": {
+        "description": "HL7 Applications list",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "hl7appList.schema.json"
+            }
+          }
+        }
       }
     },
     "requestBodies": {
@@ -2507,6 +3931,22 @@
             }
           },
           "multipart/related;type=application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "createUpdateSPS": {
+        "content": {
+          "application/dicom+json": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/json": {
             "schema": {
               "type": "string",
               "format": "binary"
@@ -2534,6 +3974,132 @@
           "EXPORT_SCHEDULED",
           "FAILED_TO_EXPORT",
           "FAILED_TO_REJECT"
+        ]
+      },
+      "dcmWebServiceClass": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "WADO_URI",
+            "WADO_RS",
+            "STOW_RS",
+            "QIDO_RS",
+            "UPS_RS",
+            "DCM4CHEE_ARC",
+            "DCM4CHEE_ARC_AET"
+          ]
+        }
+      },
+      "accept": {
+        "type": "string",
+        "enum": [
+          "application/json",
+          "text/csv"
+        ]
+      },
+      "orderByTime": {
+        "type": "string",
+        "enum": [
+          "createdTime",
+          "-createdTime",
+          "updatedTime",
+          "-updatedTime"
+        ],
+        "default": "-updatedTime"
+      },
+      "newQueueName": {
+        "type": "string",
+        "enum": [
+          "Retrieve1",
+          "Retrieve2",
+          "Retrieve3",
+          "Retrieve4",
+          "Retrieve5",
+          "Retrieve6",
+          "Retrieve7",
+          "Retrieve8",
+          "Retrieve9",
+          "Retrieve10",
+          "Retrieve11",
+          "Retrieve12",
+          "Retrieve13"
+        ]
+      },
+      "priority": {
+        "type": "integer",
+        "enum": [ 0, 1, 2 ],
+        "default": 0
+      },
+      "dcmQueueName": {
+        "type": "string",
+        "enum": [
+          "Retrieve1",
+          "Retrieve2",
+          "Retrieve3",
+          "Retrieve4",
+          "Retrieve5",
+          "Retrieve6",
+          "Retrieve7",
+          "Retrieve8",
+          "Retrieve9",
+          "Retrieve10",
+          "Retrieve11",
+          "Retrieve12",
+          "Retrieve13"
+        ],
+        "default": "Retrieve1"
+      },
+      "storageVerificationPolicy": {
+        "type": "string",
+        "enum": [
+          "DB_RECORD_EXISTS",
+          "OBJECT_EXISTS",
+          "OBJECT_SIZE",
+          "OBJECT_FETCH",
+          "OBJECT_CHECKSUM",
+          "S3_MD5SUM"
+        ]
+      },
+      "stgCmtStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "COMPLETED",
+          "WARNING",
+          "FAILED"
+        ]
+      },
+      "uriScheme": {
+        "type": "string",
+        "enum": [
+          "file",
+          "jclouds",
+          "emc-ecs-s3",
+          "hcp",
+          "documentum"
+        ]
+      },
+      "usage": {
+        "type": "string",
+        "enum": [
+          "dcmObjectStorageID",
+          "dcmMetadataStorageID",
+          "dcmSeriesMetadataStorageID"
+        ]
+      },
+      "cancelStatus": {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "IN PROCESS"
+        ]
+      },
+      "attributeSetType": {
+        "type": "string",
+        "enum": [
+          "DIFF_RS",
+          "WADO_RS"
         ]
       }
     }
