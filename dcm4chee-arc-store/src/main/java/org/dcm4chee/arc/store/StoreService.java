@@ -122,6 +122,9 @@ public interface StoreService {
 
     void addLocation(StoreSession storeSession, Long instancePk, Location location);
 
+    void replaceLocation(StoreSession storeSession, Long instancePk, Location newLocation,
+            List<Location> replaceLoactions);
+
     void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
             throws IOException;
 

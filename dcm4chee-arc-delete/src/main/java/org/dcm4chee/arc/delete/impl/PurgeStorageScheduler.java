@@ -70,6 +70,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiPredicate;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -309,7 +310,8 @@ public class PurgeStorageScheduler extends Scheduler {
                 JSONReader jsonReader = new JSONReader(Json.createParser(
                         new InputStreamReader(zip, "UTF-8")));
                 Attributes metadata = jsonReader.readDataset(null);
-                if (containsStorageID(metadata, storageID) && !containsStorageID(metadata, exportStorageID))
+                if (containsStorageID(metadata, storageID, PurgeStorageScheduler::matchStorageID)
+                        && !containsStorageID(metadata, exportStorageID, PurgeStorageScheduler::matchStorageIDAndCheckStatus))
                     count++;
                 zip.closeEntry();
             }
@@ -321,14 +323,15 @@ public class PurgeStorageScheduler extends Scheduler {
         return count;
     }
 
-    private static boolean containsStorageID(Attributes attrs, String storageID) {
-        if (matchStorageID(attrs, storageID))
+    private static boolean containsStorageID(Attributes attrs, String storageID,
+            BiPredicate<Attributes,String> predicate) {
+        if (predicate.test(attrs, storageID))
             return true;
 
         Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
         if (otherStorageSeq != null)
             for (Attributes otherStorageItem : otherStorageSeq)
-                if (matchStorageID(otherStorageItem, storageID))
+                if (predicate.test(otherStorageItem, storageID))
                     return true;
 
         return false;
@@ -336,6 +339,14 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private static boolean matchStorageID(Attributes attrs, String storageID) {
         return storageID.equals(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID));
+    }
+
+    private static boolean matchStorageIDAndCheckStatus(Attributes attrs, String storageID) {
+        if (!matchStorageID(attrs, storageID))
+            return false;
+
+        String status = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus);
+        return status == null || status.equals(Location.Status.OK.name());
     }
 
     private int deleteStudiesFromDB(ArchiveDeviceExtension arcDev, StorageDescriptor desc,

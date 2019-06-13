@@ -64,7 +64,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -111,8 +114,11 @@ public class StorageExporter extends AbstractExporter {
                 Storage storage = retrieveService.getStorage(storageID, retrieveContext);
                 retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
                 for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
-                    if (instanceLocations.getLocations().stream()
-                            .anyMatch(l -> l.getStatus() == Location.Status.OK && l.getStorageID().equals(storageID))) {
+                    Map<Boolean, List<Location>> locationsOnStorageByStatusOK =
+                            instanceLocations.getLocations().stream()
+                                .filter(l -> l.getStorageID().equals(storageID))
+                                .collect(Collectors.partitioningBy(Location::isStatusOK));
+                    if (!locationsOnStorageByStatusOK.get(Boolean.TRUE).isEmpty()) {
                         retrieveContext.setNumberOfMatches(retrieveContext.getNumberOfMatches()-1);
                         continue;
                     }
@@ -124,7 +130,8 @@ public class StorageExporter extends AbstractExporter {
                     try {
                         LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
                         location = copyTo(retrieveContext, instanceLocations, storage, writeCtx);
-                        storeService.addLocation(storeSession, instanceLocations.getInstancePk(), location);
+                        storeService.replaceLocation(storeSession, instanceLocations.getInstancePk(),
+                                location, locationsOnStorageByStatusOK.get(Boolean.FALSE));
                         storage.commitStorage(writeCtx);
                         retrieveContext.incrementCompleted();
                         LOG.debug("Finished copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());

@@ -291,6 +291,12 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
+    public void replaceLocation(StoreSession session, Long instancePk, Location newLocation,
+            List<Location> replaceLoactions) {
+        ejb.replaceLocation(session, instancePk, newLocation, replaceLoactions);
+    }
+
+    @Override
     public void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
             throws IOException {
         writeToStorage(ctx, data);

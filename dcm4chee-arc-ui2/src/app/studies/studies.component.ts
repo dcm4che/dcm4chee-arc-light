@@ -2464,6 +2464,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 this.createPatientFilterParams()
             ).subscribe((res)=>{
                 this.count = res.count;
+            },(err)=>{
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
             });
         }else{
             this.count = "";
@@ -2542,7 +2545,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             if (this.rjcode === null){
                 this.$http.get('./rs/reject?dcmRevokeRejection=true')
                     // .map((res) => res.json())
-                    .subscribe(function (res) {
+                    .subscribe((res)=>{
                         $this.rjcode = res[0];
                     });
             }
@@ -2593,7 +2596,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.rsURL(),
             study.attrs['0020000D'].Value[0],
             this.createQueryParams(offset, this.limit + 1, { orderby: 'SeriesNumber'})
-        ).subscribe(function (res) {
+        ).subscribe((res) => {
             if (res){
                 if (res.length === 0){
                     this.mainservice.setMessage( {
@@ -2628,6 +2631,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     'status': 'info'
                 });
             }
+        },(err)=>{
+            $this.cfpLoadingBar.complete();
+            $this.httpErrorHandler.handleError(err);
         });
     };
 
@@ -2640,7 +2646,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             series.attrs['0020000D'].Value[0],
             series.attrs['0020000E'].Value[0],
             this.createQueryParams(offset, this.limit + 1, { orderby: 'InstanceNumber'})
-        ).subscribe(function (res) {
+        ).subscribe((res)=>{
                 if (res){
                     series.instances = res.map(function(attrs, index) {
                         let numberOfFrames = $this.valueOf(attrs['00280008']),
@@ -2678,7 +2684,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }
                 // StudiesService.trim(this);
                 $this.cfpLoadingBar.complete();
-            });
+        },(err)=>{
+            $this.cfpLoadingBar.complete();
+            $this.httpErrorHandler.handleError(err);
+        });
     };
     queryAllStudiesOfPatient = function(patient, offset, event) {
         console.log('in queryallstudies');
@@ -2694,7 +2703,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 orderby: this.filter.orderby !== 'StudyDate,StudyTime' ? '-StudyDate,-StudyTime' : this.filter.orderby
             })
         )
-            .subscribe((res) => {
+        .subscribe((res) => {
             console.log('res in queryallstudy', res);
             if (res && res.length > 0){
                 patient.studies = res.map(function (attrs, index) {
@@ -2722,6 +2731,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 });
             }
             this.cfpLoadingBar.complete();
+        },(err)=>{
+                $this.cfpLoadingBar.complete();
+                $this.httpErrorHandler.handleError(err);
         });
     };
     getCount(){
@@ -2859,6 +2871,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             // }, 1000);
             $this.cfpLoadingBar.complete();
         },(err)=>{
+            $this.cfpLoadingBar.complete();
             $this.httpErrorHandler.handleError(err);
         });
     };
@@ -2922,12 +2935,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
     downloadZip(object, level, mode){
         let token;
         let param = 'accept=application/zip';
-        let url = this.studyURL(object.attrs);;
+        let url = this.studyURL(object.attrs);
+        let fileName = this.studyFileName(object.attrs);
         if(mode === 'compressed'){
             param += ';transfer-syntax=*';
         }
         if(level === 'serie'){
             url = this.seriesURL(object.attrs);
+            fileName = this.seriesFileName(object.attrs);
         }
         this.$http.refreshToken().subscribe((response)=>{
             if(!this.mainservice.global.notSecure){
@@ -2939,9 +2954,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }
             }
             if(!this.mainservice.global.notSecure){
-                WindowRefService.nativeWindow.open(`${url}?${param}&access_token=${token}`);
+                j4care.downloadFile(`${url}?${param}&access_token=${token}`,`${fileName}.zip`)
             }else{
-                WindowRefService.nativeWindow.open(`${url}?${param}`);
+                j4care.downloadFile(`${url}?${param}`,`${fileName}.zip`)
             }
         });
     };
@@ -3395,15 +3410,32 @@ export class StudiesComponent implements OnDestroy,OnInit{
     instanceURL(attrs) {
         return this.seriesURL(attrs) + '/instances/' + attrs['00080018'].Value[0];
     }
+    studyFileName(attrs) {
+        return attrs['0020000D'].Value[0];
+    }
+    seriesFileName(attrs) {
+        return this.studyFileName(attrs) + '_' + attrs['0020000E'].Value[0];
+    }
+    instanceFileName(attrs) {
+        return this.seriesFileName(attrs) + '_' + attrs['00080018'].Value[0];
+    }
     createPatientFilterParams() {
         let filter = Object.assign({}, this.filter);
+        delete filter["onlyDefault"];
+        if(!this.filter["onlyDefault"]){
+            filter["includefield"] = 'all';
+        }
         console.log('filter', filter);
         return filter;
     }
     createStudyFilterParams() {
         let filter = Object.assign({}, this.filter);
+        delete filter["onlyDefault"];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
+        if(!this.filter["onlyDefault"]){
+            filter["includefield"] = 'all';
+        }
         // this.appendFilter(filter, 'StudyDate', this.studyDate, /-/g);
         // this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
         // this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
@@ -3412,8 +3444,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
     createMwlFilterParams() {
         let filter = Object.assign({}, this.filter);
+        delete filter["onlyDefault"];
         delete filter.StudyDate;
         delete filter.StudyTime;
+        if(!this.filter["onlyDefault"]){
+            filter["includefield"] = 'all';
+        }
 /*        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.studyDate, /-/g);
         this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
         this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
@@ -4420,7 +4456,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }
             });
         },(err)=>{
-
+            this.httpErrorHandler.handleError(err);
         });
     };
     openViewer(model, mode){

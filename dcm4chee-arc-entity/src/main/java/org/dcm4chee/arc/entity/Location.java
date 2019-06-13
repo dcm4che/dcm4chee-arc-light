@@ -71,6 +71,8 @@ import java.util.Date;
                 query = "select l from Location l where l.instance.sopInstanceUID=?1 and l.storageID=?2"),
         @NamedQuery(name = Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS,
                 query = "select l.instance.pk from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
+        @NamedQuery(name = Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS_AND_STATUS,
+                query = "select l.instance.pk from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2 and l.status=?3"),
         @NamedQuery(name = Location.STORAGE_IDS_BY_STUDY_PK_AND_OBJECT_TYPE,
                 query = "select distinct l.storageID from Location l " +
                         "where l.instance.series.study.pk=?1 and l.objectType=?2"),
@@ -115,6 +117,7 @@ public class Location {
     public static final String FIND_BY_STUDY_PK_AND_STORAGE_IDS = "Location.FindByStudyPkAndStorageIDs";
     public static final String FIND_BY_SOP_IUID_AND_STORAGE_ID = "Location.FindBySOPIUIDAndStorageID";
     public static final String INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS = "Location.InstancePksByStudyPkAndStorageIDs";
+    public static final String INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS_AND_STATUS = "Location.InstancePksByStudyPkAndStorageIDsAndStatus";
     public static final String STORAGE_IDS_BY_STUDY_PK_AND_OBJECT_TYPE = "Location.StorageIDsByStudyPkAndObjectType";
     public static final String FIND_BY_REJECTION_CODE = "Location.FindByRejectionCode";
     public static final String FIND_BY_CONCEPT_NAME_CODE = "Location.FindByConceptNameCode";
@@ -326,6 +329,10 @@ public class Location {
 
     public Status getStatus() {
         return status;
+    }
+
+    public boolean isStatusOK() {
+        return status == Status.OK;
     }
 
     public void setStatus(Status status) {

@@ -1368,6 +1368,15 @@ public class StoreServiceEJB {
         LOG.info("{}: Create {}", session, location);
     }
 
+    public void replaceLocation(StoreSession session, Long instancePk, Location newLocation,
+            List<Location> replaceLocations) {
+        addLocation(session, instancePk, newLocation);
+        for (Location location : replaceLocations) {
+            LOG.info("{}: Mark to delete {}", session, location);
+            removeOrMarkToDelete(em.find(Location.class, location.getPk()));
+        }
+    }
+
     public void addStorageID(String studyIUID, String storageID) {
         Tuple tuple = em.createNamedQuery(Study.STORAGE_IDS_BY_STUDY_UID, Tuple.class)
                 .setParameter(1, studyIUID)
