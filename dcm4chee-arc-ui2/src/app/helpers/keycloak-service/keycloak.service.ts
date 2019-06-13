@@ -57,8 +57,16 @@ export class KeycloakService {
                         // this.test.emit(KeycloakService.keycloakAuth.token);
                         this.setTokenSource.next(KeycloakService.keycloakAuth);
                         KeycloakService.keycloakAuth.loadUserProfile().success(user=>{
-                           console.log("userInfo",user);
-                            this.setUserSource.next(user);
+                           console.log("userProfile",user);
+                           console.log("roles",KeycloakService.keycloakAuth.realmAccess.roles);
+                           console.log("realm",KeycloakService.keycloakAuth.realm);
+                           console.log("tokenParsed",KeycloakService.keycloakAuth.tokenParsed);
+                            this.setUserSource.next({
+                                userProfile:user,
+                                tokenParsed:KeycloakService.keycloakAuth.tokenParsed,
+                                authServerUrl:KeycloakService.keycloakAuth.authServerUrl,
+                                realm:KeycloakService.keycloakAuth.realm
+                            });
                         });
                         resolve();
                     })

@@ -137,11 +137,11 @@ export class AppService implements OnInit, OnDestroy{
         return this.$httpClient.get('rs/realm')
             .map(res => j4care.redirectOnAuthResponse(res))
     }
-    get user(): any {
+    get user(): User {
         return this._user;
     }
 
-    set user(value: any) {
+    set user(value: User) {
         this._user = value;
     }
 

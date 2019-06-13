@@ -6,6 +6,8 @@ import {AppService} from "../../app.service";
 import {Route, Router} from "@angular/router";
 import * as _ from 'lodash';
 import {KeycloakService} from "../keycloak-service/keycloak.service";
+import {User} from "../../models/user";
+import UserInfo = KeycloakModule.UserInfo;
 
 @Injectable()
 export class PermissionService {
@@ -78,17 +80,32 @@ export class PermissionService {
     getConfigWithUser(response){
         let deviceName;
         let archiveDeviceName;
+        let userInfo:UserInfo;
         if(!this.uiConfig && !this.configChecked)
             return this._keycloakService.getUserInfo()//TODO Remove one of the mehthodes getUserInfo()
             // return this.mainservice.getUserInfo()
-                .switchMap(res => this.mainservice.getUserInfo())
+            //     .switchMap(res => this.mainservice.getUserInfo())
                 .map(user=>{
-                    console.log("user",user);
-                    this.mainservice.user = user;
-                    this.user = user;
-                    return user;
+                    console.log("user1",user);
+                    userInfo = user;
                 })
                 .switchMap(res => this.$http.get('./rs/devicename'))
+                .map(deviceNameResponse=>{
+
+                    console.log("user",deviceNameResponse);
+                    const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
+                    let user = new User({
+                        authServerUrl:userInfo.authServerUrl,
+                        realm:userInfo.realm,
+                        user:_.get(userInfo,"userProfile.username"),
+                        roles:roles,
+                        su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1)
+                    });
+                    this.mainservice.user = user;
+                    this.user = user;
+                    // return user;
+                    return deviceNameResponse;
+                })
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
