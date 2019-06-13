@@ -18406,10 +18406,14 @@
     "DeviceName": {
       "type": "object",
       "required": [
-        "dicomDeviceName"
+        "dicomDeviceName",
+        "super-user-role"
       ],
       "properties": {
         "dicomDeviceName": {
+          "type": "string"
+        },
+        "super-user-role": {
           "type": "string"
         },
         "xRoad": {

@@ -86,7 +86,8 @@ public class QueryDeviceName {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 gen.writeStartObject();
-                writer.writeNotNullOrDef("dicomDeviceName", device.getDeviceName(), null);
+                gen.write("dicomDeviceName", device.getDeviceName());
+                gen.write("super-user-role", System.getProperty("super-user-role", "admin"));
                 if (arcDev != null) {
                     writer.writeNotNullOrDef("xRoad", arcDev.hasXRoadProperties(), false);
                     writer.writeNotNullOrDef("impaxReport", arcDev.hasImpaxReportProperties(), false);
