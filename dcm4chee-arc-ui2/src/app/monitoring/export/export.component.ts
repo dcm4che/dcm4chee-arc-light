@@ -214,9 +214,11 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }
                 }
                 if(!this.mainservice.global.notSecure){
-                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
+                    // WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
+                    j4care.downloadFile(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`, "export.csv")
                 }else{
-                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
+                    // WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
+                    j4care.downloadFile(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`,"export.csv")
                 }
             });
         });

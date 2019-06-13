@@ -290,9 +290,11 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 delete filterClone.offset;
                 delete filterClone.limit;
                 if(!this.mainservice.global.notSecure){
-                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}${Object.keys(filterClone).length > 0 ?'&':''}${this.mainservice.param(filterClone)}`);
+                    // WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}${Object.keys(filterClone).length > 0 ?'&':''}${this.mainservice.param(filterClone)}`);
+                    j4care.downloadFile(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}${Object.keys(filterClone).length > 0 ?'&':''}${this.mainservice.param(filterClone)}`,"retrieve.csv")
                 }else{
-                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}${Object.keys(filterClone).length > 0 ?'&':''}${this.mainservice.param(filterClone)}`);
+                    // WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}${Object.keys(filterClone).length > 0 ?'&':''}${this.mainservice.param(filterClone)}`);
+                    j4care.downloadFile(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}${Object.keys(filterClone).length > 0 ?'&':''}${this.mainservice.param(filterClone)}`,"retrieve.csv")
                 }
             });
         })
