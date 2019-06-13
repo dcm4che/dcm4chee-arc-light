@@ -25,6 +25,7 @@ import {DropdownList} from "../../helpers/form/dropdown-list";
 import {SelectDropdown} from "../../interfaces";
 import {RetrieveMonitoringService} from "./retrieve-monitoring.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'retrieve-monitoring',
@@ -87,7 +88,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
       private permissionService:PermissionService,
-      private deviceService:DevicesService
+      private deviceService:DevicesService,
+      private _keycloakService: KeycloakService
     ) { }
 
     ngOnInit(){
@@ -277,14 +279,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             if(ok)
                 semicolon = true;
             let token;
-            this.$http.refreshToken().subscribe((response)=>{
+            this._keycloakService.getToken().subscribe((response)=>{
                 if(!this.mainservice.global.notSecure){
-                    if(response && response.length != 0){
-                        this.$http.resetAuthenticationInfo(response);
-                        token = response['token'];
-                    }else{
-                        token = this.mainservice.global.authentication.token;
-                    }
+                    token = response.token;
                 }
                 let filterClone = _.cloneDeep(this.filterObject);
                 delete filterClone.offset;

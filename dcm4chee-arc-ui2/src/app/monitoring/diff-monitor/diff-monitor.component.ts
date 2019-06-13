@@ -15,6 +15,7 @@ import {MatDialogConfig, MatDialog, MatDialogRef} from "@angular/material";
 import {Globalvar} from "../../constants/globalvar";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
     selector: 'diff-monitor',
@@ -72,7 +73,8 @@ export class DiffMonitorComponent implements OnInit {
         public dialog: MatDialog,
         public dialogConfig: MatDialogConfig,
         private permissionService:PermissionService,
-        private deviceService:DevicesService
+        private deviceService:DevicesService,
+        private _keycloakService: KeycloakService
     ){}
 
     ngOnInit(){
@@ -458,14 +460,9 @@ export class DiffMonitorComponent implements OnInit {
             if(ok)
                 semicolon = true;
             let token;
-            this.$http.refreshToken().subscribe((response)=>{
+            this._keycloakService.getToken().subscribe((response)=>{
                 if(!this.mainservice.global.notSecure){
-                    if(response && response.length != 0){
-                        this.$http.resetAuthenticationInfo(response);
-                        token = response['token'];
-                    }else{
-                        token = this.mainservice.global.authentication.token;
-                    }
+                    token = response.token;
                 }
                 let filterClone = _.cloneDeep(this.filterObject);
                 delete filterClone['offset'];
