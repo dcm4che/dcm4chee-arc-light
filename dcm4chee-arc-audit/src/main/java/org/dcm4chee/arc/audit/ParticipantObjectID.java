@@ -223,14 +223,15 @@ class ParticipantObjectID {
     }
 
     static ParticipantObjectIdentificationBuilder qidoParticipant(AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+        ParticipantObjectIdentificationBuilder.Builder qidoParticipant = new ParticipantObjectIdentificationBuilder.Builder(
                 auditInfo.getField(AuditInfo.Q_POID),
                 AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
                 AuditMessages.ParticipantObjectTypeCodeRole.Query)
-                .query(auditInfo.getField(AuditInfo.Q_STRING).getBytes())
-                .detail(AuditMessages.createParticipantObjectDetail("QueryEncoding", StandardCharsets.UTF_8.name()))
-                .build();
+                .detail(AuditMessages.createParticipantObjectDetail("QueryEncoding", StandardCharsets.UTF_8.name()));
+        if (auditInfo.getField(AuditInfo.Q_STRING) != null)
+            qidoParticipant.query(auditInfo.getField(AuditInfo.Q_STRING).getBytes());
+        return qidoParticipant.build();
     }
 
     static ParticipantObjectIdentificationBuilder cFindParticipant(AuditInfo auditInfo, byte[] data) {
