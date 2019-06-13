@@ -205,9 +205,9 @@ public class StorageExporter extends AbstractExporter {
         String studyInstanceUID = exportContext.getStudyInstanceUID();
         String seriesInstanceUID = exportContext.getSeriesInstanceUID();
         String sopInstanceUID = exportContext.getSopInstanceUID();
-        if (sopInstanceUID != null)
+        if (sopInstanceUID != null && !sopInstanceUID.equals("*"))
             sb.append("Instance[uid=").append(sopInstanceUID).append("] of ");
-        if (seriesInstanceUID != null)
+        if (seriesInstanceUID != null && !seriesInstanceUID.equals("*"))
             sb.append("Series[uid=").append(seriesInstanceUID).append("] of ");
         return sb.append("Study[uid=").append(studyInstanceUID).append("]");
     }
