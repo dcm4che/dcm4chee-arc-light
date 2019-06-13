@@ -59,8 +59,8 @@
       "description": "Configuration Access"
     },
     {
-      "name": "COUNT-RS",
-      "description": "Count number of matching Entities"
+      "name": "STAT-RS",
+      "description": "Statistics of Archive Content"
     },
     {
       "name": "ECHO-RS",
@@ -89,6 +89,10 @@
     {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
+    },
+    {
+      "name": "MONITOR-RS",
+      "description": "Archive Monitoring"
     },
     {
       "name": "MWL-RS",
@@ -1026,7 +1030,7 @@
     "/aets/{aet}/rs/patients/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Patients",
         "operationId": "CountPatients",
@@ -1063,7 +1067,7 @@
     "/aets/{aet}/rs/studies/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Studies",
         "operationId": "CountStudies",
@@ -1154,7 +1158,7 @@
     "/aets/{aet}/rs/studies/{study}/series/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Series of Study",
         "operationId": "CountStudySeries",
@@ -1245,7 +1249,7 @@
     "/aets/{aet}/rs/studies/{study}/instances/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Instances of of Study",
         "operationId": "CountStudyInstances",
@@ -1336,7 +1340,7 @@
     "/aets/{aet}/rs/series/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Series",
         "operationId": "CountSeries",
@@ -1424,7 +1428,7 @@
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Instances of Series of Study",
         "operationId": "CountStudySeriesInstances",
@@ -1518,7 +1522,7 @@
     "/aets/{aet}/rs/instances/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Instances",
         "operationId": "CountInstances",
@@ -1606,7 +1610,7 @@
     "/aets/{aet}/rs/mwlitems/count": {
       "get": {
         "tags": [
-          "COUNT-RS"
+          "STAT-RS"
         ],
         "summary": "Count Scheduled Procedure Steps",
         "operationId": "CountScheduledProcedureSteps",
@@ -1630,6 +1634,113 @@
           },
           "404": {
             "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/size": {
+      "get": {
+        "tags": [
+          "STAT-RS"
+        ],
+        "summary": "Size of Studies",
+        "operationId": "SizeOfStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Size"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/modalities": {
+      "get": {
+        "tags": [
+          "STAT-RS"
+        ],
+        "summary": "List Distinct Modalities",
+        "operationId": "listDistinctModalities",
+        "description": "List distinct values for Modality (0008,0060) of received Series",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/modalities"
           },
           "500": {
             "description": "Internal Server Error."
@@ -1674,8 +1785,8 @@
         "tags": [
           "STOW-RS"
         ],
-        "summary": "Store Instances",
-        "operationId": "StoreInstances",
+        "summary": "Store Instances to a Study",
+        "operationId": "StoreInstancesToStudy",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -2668,8 +2779,8 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "Get Archive Device Name",
-        "operationId": "devicename",
+        "summary": "Get Archive Device",
+        "operationId": "getArchiveDevice",
         "parameters": [],
         "responses": {
           "200": {
@@ -2686,8 +2797,8 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "Get Archive Device Name",
-        "operationId": "devicename",
+        "summary": "Get Device",
+        "operationId": "getDevice",
         "parameters": [
           {
             "$ref": "#/components/parameters/devicePathParam"
@@ -2699,6 +2810,118 @@
           },
           "404": {
             "description": "Device configuration not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Create Device",
+        "operationId": "createDevice",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/devicePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/register"
+          }
+        ],
+        "requestBody": {
+          "description": "new device",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../assets/schema/device.schema.json"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+          },
+          "404": {
+            "description": "Referenced devices/configuration not found"
+          },
+          "409": {
+            "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Update Device",
+        "operationId": "updateDevice",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/devicePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/register"
+          }
+        ],
+        "requestBody": {
+          "description": "updated device",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../assets/schema/device.schema.json"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+          },
+          "404": {
+            "description": "Device not found or referenced device/configuration not found"
+          },
+          "409": {
+            "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Delete Device",
+        "operationId": "deleteDevice",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/devicePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/register"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Device not found"
           },
           "500": {
             "description": "Internal Server Error."
@@ -2736,6 +2959,106 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/aeList"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/aets": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Archive AE Titles",
+        "operationId": "listArchiveAETs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Archive AE Titles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "aets.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/unique/aets": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Registered Application Entity Titles",
+        "operationId": "listRegisteredAETs",
+        "responses": {
+          "200": {
+            "description": "Registered Application Entity Titles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/unique/aets/{aet}": {
+      "post": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Register Application Entity Title",
+        "operationId": "registerAET",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/aetPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "AE Title already registered"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Unregister Application Entity Title",
+        "operationId": "unregisterAET",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/aetPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "AE Title not found"
           },
           "500": {
             "description": "Internal Server Error."
@@ -2783,6 +3106,81 @@
         }
       }
     },
+    "/ui2/rs/unique/webAppNames": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Registered Web Application Names",
+        "operationId": "listRegisteredWebAppNames",
+        "responses": {
+          "200": {
+            "description": "Registered Web Application Names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/unique/aets/{webAppName}": {
+      "post": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Register Web Application Name",
+        "operationId": "registerWebApp",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/webAppPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "Web Application already registered"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Unregister Web Application Name",
+        "operationId": "unregisterWebApp",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/webAppPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Web Application not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
     "/ui2/rs/hl7apps": {
       "get": {
         "tags": [
@@ -2810,14 +3208,758 @@
           }
         }
       }
+    },
+    "/ui2/rs/unique/hl7apps": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Registered HL7 Application and Facility Names",
+        "operationId": "listRegisteredHL7Apps",
+        "responses": {
+          "200": {
+            "description": "Registered HL7 Application and Facility Names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/unique/aets/{hl7AppName}": {
+      "post": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Register HL7 Application Name",
+        "operationId": "registerHL7App",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/hl7AppPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "HL7 Application already registered"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Unregister HL7 Application Name",
+        "operationId": "unregisterHL7App",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/hl7AppPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "HL7 Application not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/devices/{deviceName}/vendordata": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Device Vendor Data",
+        "operationId": "getDeviceVendorData",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/devicePathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "successful operation - device has no vendor data"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Update Device Vendor Data",
+        "operationId": "updateDeviceVendorData",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/devicePathParam"
+          }
+        ],
+        "requestBody": {
+          "description": "Vendor Data",
+          "required": true,
+          "content": {
+            "application/zip": {
+              "schema": {
+                "type": "file"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Delete Device Vendor Data",
+        "operationId": "deleteDeviceVendorData",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/devicePathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/attribute-filter/{entity}": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Attribute Filter",
+        "operationId": "getAttributeFilter",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/entityPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attribute Filter of Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../assets/schema/attributeFilter.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/attribute-set/{type}": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Attribute Set",
+        "operationId": "getAttributeSet",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/typePathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attribute Set of Type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "attributeSets.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/export": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Exporters",
+        "operationId": "listExporters",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Exporter Descriptors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "exporters.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/pdq": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List PDQ Services",
+        "operationId": "listPDQServices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "PDQ Services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "pdqServices.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/reject": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Rejection Notes",
+        "operationId": "listRejectionNotes",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dcmRevokeRejection"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rejection Notes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "rejectionNotes.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/monitor/associations": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Open Associations",
+        "operationId": "listOpenAssociations",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "Open Associations",
+            "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "associations.schema.json"
+               }
+             }
+            }
+          }
+        }
+      }
+    },
+    "/monitor/associations/{serialNo}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Abort Associations",
+        "operationId": "abortAssociation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/serialNo"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no open Association with given serialNo found"
+          }
+        }
+      }
+    },
+    "/monitor/serverTime": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Get Server Time with Timezone",
+        "operationId": "getServerTime",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ServerTime"
+          }
+        }
+      }
+    },
+    "/storage": {
+      "get": {
+        "tags": [
+          "STORAGE-RS"
+        ],
+        "summary": "List Storage Systems",
+        "operationId": "listStorageSystems",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/uriScheme"
+          },
+          {
+            "$ref": "#/components/parameters/dicomAETitle"
+          },
+          {
+            "$ref": "#/components/parameters/usage"
+          },
+          {
+            "$ref": "#/components/parameters/storageClusterID"
+          },
+          {
+            "$ref": "#/components/parameters/usableSpaceBelow"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "storageList.schema.json"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/token2/{webAppName}": {
+      "get": {
+        "tags": [
+          "AUTH-RS"
+        ],
+        "summary": "Get Access token from Keycloak for given Web Application",
+        "operationId": "getAccessToken",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/webAppPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access Token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "title": "token",
+                      "description": "OAuth Bearer Token",
+                      "type": "string"
+                    },
+                    "expiration": {
+                      "title": "expiration",
+                      "description": "Access token lifetime in seconds",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Keycloak Client ID configured for Web Application"
+          },
+          "404": {
+            "description": "No such Web Application or Keycloak Client for given Web Application identifier in Device configuration"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ctrl/start": {
+      "post": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Start Archive",
+        "operationId": "start",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "archive started"
+          }
+        }
+      }
+    },
+    "/ctrl/stop": {
+      "post": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Stop Archive",
+        "operationId": "stop",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "archive stopped"
+          }
+        }
+      }
+    },
+    "/ctrl/reload": {
+      "post": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Reload Archive Configuration",
+        "operationId": "reload",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "configuration reloaded"
+          }
+        }
+      }
+    },
+    "/ctrl/status": {
+      "get": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Get Archive Status",
+        "operationId": "status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Status"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/access/{accessControlID}": {
+      "post": {
+        "tags": [
+          "ACCESS-RS"
+        ],
+        "summary": "Update Study Access Control ID",
+        "operationId": "UpdateStudyAccessControlID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accessControlID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Study"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/access/{accessControlID}/studies": {
+      "post": {
+        "tags": [
+          "ACCESS-RS"
+        ],
+        "summary": "Update Study Access Control ID of matching studies",
+        "operationId": "UpdateStudyAccessControlIDOfMatchingStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/accessControlID"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/impax/reports/studies/{StudyInstanceUID}": {
+      "get": {
+        "tags": [
+          "IMPAX-REPORT-RS"
+        ],
+        "summary": "Query report by Study Instance UID",
+        "operationId": "queryReportByStudyUID",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+            "content": {
+              "multipart/related;type=text/xml": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Impax Report Service returns no report for the study"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Connection to remote side fails"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
+      "post": {
+        "tags": [
+          "IMPAX-REPORT-RS"
+        ],
+        "summary": "Import Reports of Study",
+        "operationId": "importReportsOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "This indicates that some reports returned by the Impax Report Service were stored, but failures exist for others.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "no such Archive AET or Study"
+          },
+          "409": {
+            "description": "Impax Report Service returns no report for the study"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
     }
   },
   "components": {
     "parameters": {
+      "devicePathParam": {
+        "name": "DeviceName",
+        "in": "path",
+        "description": "Device Name",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "archiveAETPathParam": {
         "name": "aet",
         "in": "path",
         "description": "Archive AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "aetPathParam": {
+        "name": "aet",
+        "in": "path",
+        "description": "AE Title to register or unregister",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "webAppPathParam": {
+        "name": "webAppName",
+        "in": "path",
+        "description": "Web Application to register or unregister",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "hl7AppPathParam": {
+        "name": "hl7AppName",
+        "in": "path",
+        "description": "HL7 Application to register or unregister",
         "required": true,
         "schema": {
           "type": "string"
@@ -2881,6 +4023,46 @@
         "name": "spsID",
         "in": "path",
         "description": "Scheduled Procedure Step ID of a MWL Item",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "entityPathParam": {
+        "name": "Entity",
+        "in": "path",
+        "description": "Entity of which Attribute Filter is to be returned",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "typePathParam": {
+        "name": "Attribute Set Type",
+        "in": "path",
+        "description": "Type of which Attribute Set is to be returned",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "DIFF_RS",
+            "WADO_RS"
+          ]
+        }
+      },
+      "serialNo": {
+        "name": "Association Serial No",
+        "in": "path",
+        "description": "Association Serial No",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "accessControlID": {
+        "name": "accessControlID",
+        "in": "path",
+        "description": "Access Control ID or 'null'",
         "required": true,
         "schema": {
           "type": "string"
@@ -3306,15 +4488,6 @@
           "type": "boolean"
         }
       },
-      "devicePathParam": {
-        "name": "DeviceName",
-        "in": "path",
-        "description": "Device Name",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
       "dicomDeviceName": {
         "name": "dicomDeviceName",
         "in": "query",
@@ -3484,6 +4657,68 @@
         "schema": {
           "type": "string"
         }
+      },
+      "register": {
+        "name": "register",
+        "in": "query",
+        "description": "indicates to register/unregister added/removed AE Titles, HL7 Application names and Web Application Names of added/updated Device",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "dcmRevokeRejection": {
+        "name": "dcmRevokeRejection",
+        "in": "query",
+        "description": "return Rejection Note(s) used to revoke rejection",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "storageClusterID": {
+        "name": "dcmStorageClusterID",
+        "in": "query",
+        "description": "only return Storage Systems belonging to a particular Storage Cluster",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "uriScheme": {
+        "name": "uriScheme",
+        "in": "query",
+        "description": "only return Storage Systems of a particular type",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "file",
+            "jclouds",
+            "emc-ecs-s3",
+            "hcp",
+            "documentum"
+          ]
+        }
+      },
+      "usage": {
+        "name": "usage",
+        "in": "query",
+        "description": "only return Storage Systems used for the specified content",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "dcmObjectStorageID",
+            "dcmMetadataStorageID",
+            "dcmSeriesMetadataStorageID"
+          ]
+        }
+      },
+      "usableSpaceBelow": {
+        "name": "usableSpaceBelow",
+        "in": "query",
+        "description": "only return Storage Systems which have usable space below specified value",
+        "schema": {
+          "type": "integer"
+        }
       }
     },
     "responses": {
@@ -3511,12 +4746,37 @@
         }
       },
       "countResults": {
-        "description": "Count completed successfully, and the count is contained in the payload",
+        "description": "Count of corresponding operation",
         "content": {
           "application/json": {
             "schema": {
-              "type": "string",
-              "format": "binary"
+              "type": "object",
+              "required": [
+                "count"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Size": {
+        "description": "Size of matching studies",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "size"
+              ],
+              "properties": {
+                "size": {
+                  "type": "integer"
+                }
+              }
             }
           }
         }
@@ -3543,8 +4803,15 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "string",
-              "format": "binary"
+              "type": "object",
+              "required": [
+                "count"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer"
+                }
+              }
             }
           }
         }
@@ -3864,10 +5131,14 @@
             "schema": {
               "type": "object",
               "required": [
-                "dicomDeviceName"
+                "dicomDeviceName",
+                "super-user-role"
               ],
               "properties": {
                 "dicomDeviceName": {
+                  "type": "string"
+                },
+                "super-user-role": {
                   "type": "string"
                 },
                 "xRoad": {
@@ -3912,6 +5183,69 @@
               "$ref": "hl7appList.schema.json"
             }
           }
+        }
+      },
+      "modalities": {
+        "description": "List of Distinct Modalities",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "Modalities"
+              ],
+              "properties": {
+                "Modalities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ServerTime": {
+        "description": "Server Time with Timezone",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "serverTimeWithTimezone"
+              ],
+              "properties": {
+                "serverTimeWithTimezone": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Status": {
+        "description": "archive status",
+        "content": {
+         "application/json": {
+           "schema": {
+             "type": "object",
+             "required": [
+               "status"
+             ],
+             "properties": {
+               "status": {
+                 "title": "status",
+                 "description": "status of archive",
+                 "type": "string",
+                 "enum": [
+                   "STARTED",
+                   "STOPPED"
+                 ]
+               }
+             }
+           }
+         }
         }
       }
     },
@@ -4070,36 +5404,11 @@
           "FAILED"
         ]
       },
-      "uriScheme": {
-        "type": "string",
-        "enum": [
-          "file",
-          "jclouds",
-          "emc-ecs-s3",
-          "hcp",
-          "documentum"
-        ]
-      },
-      "usage": {
-        "type": "string",
-        "enum": [
-          "dcmObjectStorageID",
-          "dcmMetadataStorageID",
-          "dcmSeriesMetadataStorageID"
-        ]
-      },
       "cancelStatus": {
         "type": "string",
         "enum": [
           "SCHEDULED",
           "IN PROCESS"
-        ]
-      },
-      "attributeSetType": {
-        "type": "string",
-        "enum": [
-          "DIFF_RS",
-          "WADO_RS"
         ]
       }
     }

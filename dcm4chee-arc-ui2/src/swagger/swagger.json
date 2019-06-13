@@ -506,7 +506,7 @@
         }
       }
     },
-    "/token/{webAppName}": {
+    "/token2/{webAppName}": {
       "get": {
         "tags": [
           "AUTH-RS"
