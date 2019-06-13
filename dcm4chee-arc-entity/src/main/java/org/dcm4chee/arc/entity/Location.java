@@ -331,6 +331,10 @@ public class Location {
         return status;
     }
 
+    public boolean isStatusOK() {
+        return status == Status.OK;
+    }
+
     public void setStatus(Status status) {
         this.status = status;
     }
