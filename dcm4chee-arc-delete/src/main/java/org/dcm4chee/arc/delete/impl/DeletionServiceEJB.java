@@ -192,9 +192,10 @@ public class DeletionServiceEJB {
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDsOfCluster)
                 .getResultList());
-        onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
+        onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS_AND_STATUS, Long.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, Collections.singletonList(desc.getExportStorageID()))
+                .setParameter(3, Location.Status.OK)
                 .getResultList());
         return onStorage.size();
     }
