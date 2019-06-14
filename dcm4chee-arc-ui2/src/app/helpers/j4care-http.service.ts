@@ -109,10 +109,10 @@ export class J4careHttpService{
                 param.header = {headers:this.header};
                 return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
             }).catch(res=>{
-                if(res.ok === false && res.status === 0 && res.type === 3){
+                /*if(res.ok === false && res.status === 0 && res.type === 3){
                     if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
+                }*/
                 if(res.statusText === "Unauthorized"){
                     return $this.getRealm().flatMap((resp)=>{
                         // this.setGlobalToken(resp,param);

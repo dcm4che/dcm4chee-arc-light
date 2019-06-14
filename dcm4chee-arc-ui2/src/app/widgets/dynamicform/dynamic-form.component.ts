@@ -2,7 +2,7 @@
  * Created by shefki on 9/20/16.
  */
 import {Component, OnInit, Input, EventEmitter} from '@angular/core';
-import {FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
 import {Output} from '@angular/core';
@@ -36,7 +36,8 @@ export class DynamicFormComponent implements OnInit{
     constructor(
         private formservice: FormService,
         private mainservice:AppService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private fb: FormBuilder
     ){}
     // submi(){
     //     console.log("in submitfunctiondynamicform");

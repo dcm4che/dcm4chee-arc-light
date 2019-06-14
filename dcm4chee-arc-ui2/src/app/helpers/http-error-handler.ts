@@ -53,8 +53,7 @@ export class HttpErrorHandler {
 
             }catch (e){
                 if(error.status === 0 && error.statusText === ""){
-                    console.error("About to reload the page, error=",error);
-                    if(_.hasIn(error,"_body.target.__zone_symbol__xhrURL") && _.get(error,"_body.target.__zone_symbol__xhrURL") === "rs/realm"){
+                    /*if(_.hasIn(error,"_body.target.__zone_symbol__xhrURL") && _.get(error,"_body.target.__zone_symbol__xhrURL") === "rs/realm"){
                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                     }else {
                         this.mainservice.setMessage({
@@ -62,7 +61,7 @@ export class HttpErrorHandler {
                             'text': `Request didn't work (${_.get(error,"_body.target.__zone_symbol__xhrURL") || ''})`,
                             'status': 'error'
                         });
-                    }
+                    }*/
                 }else{
                     this.mainservice.setMessage({
                         'title': 'Error ' + error.status,

@@ -215,10 +215,12 @@ export class DeviceConfiguratorService{
     }
     getDevice(devicename:string){
         // return this.$http.get('./assets/dummydata/dcm4chee-arc.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
-        return this.$http.get('./rs/devices/' + devicename).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
+        return this.$http.get('./rs/devices/' + devicename)
+            //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
     }
     getSchema(schema){
-        return this.$http.get('./assets/schema/' + schema).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
+        return this.$http.get('./assets/schema/' + schema)
+            //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
     };
     getSchemaFromPath(schema, schemaparam){
         let paramArray = schemaparam.split('.');
@@ -344,14 +346,16 @@ export class DeviceConfiguratorService{
     }
     updateDevice(){
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
-            return this.$http.put('./rs/devices/' + this.device.dicomDeviceName, this.device).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
+            return this.$http.put('./rs/devices/' + this.device.dicomDeviceName, this.device)
+                //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
         }else{
             return null;
         }
     }
     createDevice(){
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
-            return this.$http.post('./rs/devices/' + this.device.dicomDeviceName, this.device).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
+            return this.$http.post('./rs/devices/' + this.device.dicomDeviceName, this.device)
+                //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
         }else{
             return null;
         }

@@ -3737,10 +3737,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                         console.log('in map1', res);
                                         let resjson;
                                         try {
-                                            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                          /*  let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                                             if(pattern.exec(res.url)){
                                                 WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                            }
+                                            }*/
                                             // resjson = res.json();
                                             resjson = res;
                                         } catch (e) {
@@ -3762,10 +3762,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                             console.log('in map1', res);
                                                             let resjson;
                                                             try {
-                                                                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                                                                 if(pattern.exec(res.url)){
                                                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                                }
+                                                                }*/
                                                                 // resjson = res.json();
                                                                 resjson = res;
                                                             } catch (e) {
@@ -3812,10 +3812,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                 console.log('in map1', res);
                                                 let resjson;
                                                 try {
-                                                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                    /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                                                     if(pattern.exec(res.url)){
                                                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                    }
+                                                    }*/
                                                     // resjson = res.json();
                                                     resjson = res;
                                                 } catch (e) {
@@ -3860,10 +3860,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                             console.log('in map1', res);
                                             let resjson;
                                             try {
-                                                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                               /* let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                                                 if(pattern.exec(res.url)){
                                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                }
+                                                }*/
                                                 // resjson = res.json();
                                                 resjson = res;
                                             } catch (e) {
@@ -3882,10 +3882,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                         .map(res => {
                                                             let resjson;
                                                             try {
-                                                                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                                                                 if(pattern.exec(res.url)){
                                                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                                }
+                                                                }*/
                                                                 // resjson = res.json();
                                                                 resjson = res;
                                                             } catch (e) {
@@ -3937,10 +3937,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                 console.log('in map1', res);
                                                 let resjson;
                                                 try {
-                                                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                    /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                                                     if (pattern.exec(res.url)) {
                                                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                    }
+                                                    }*/
                                                     // resjson = res.json();
                                                     resjson = res;
                                                 } catch (e) {
@@ -4256,10 +4256,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
        this.$http.get('./rs/attribute-filter/' + entity)
             .map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
+                }*/
                 resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
@@ -4386,10 +4386,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         .map(res => {
                             let resjson;
                             try {
-                                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                               /* let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                                 if (pattern.exec(res.url)) {
                                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                }
+                                }*/
                                 resjson = res;
                             } catch (e) {
                                 resjson = {};
@@ -4560,10 +4560,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
        this.$http.get('./rs/export')
             .map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
+                }*/
                 resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
@@ -4589,10 +4589,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
        this.$http.get('./rs/reject')
             .map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
+                }*/
                 resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
@@ -4625,10 +4625,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
     testToken(){
         this.$http.get('./rs/aes')
             .map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
+                }*/
                 resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe((res)=>{
                 console.log("testres",res);
