@@ -87,7 +87,7 @@ public class StgCmtRS {
     @QueryParam("studyUID")
     private String studyUID;
 
-    @QueryParam("exporterID")
+    @QueryParam("ExporterID")
     private String exporterID;
 
     @QueryParam("batchID")
