@@ -82,17 +82,12 @@ export class PermissionService {
         let archiveDeviceName;
         let userInfo:UserInfo;
         if(!this.uiConfig && !this.configChecked)
-            return this._keycloakService.getUserInfo()//TODO Remove one of the mehthodes getUserInfo()
-            // return this.mainservice.getUserInfo()
-            //     .switchMap(res => this.mainservice.getUserInfo())
+            return this._keycloakService.getUserInfo()
                 .map(user=>{
-                    console.log("user1",user);
-                    userInfo = user;
+                    userInfo = user; //Extracting userInfo from KeyCloak
                 })
                 .switchMap(res => this.$http.get('./rs/devicename'))
                 .map(deviceNameResponse=>{
-
-                    console.log("user",deviceNameResponse);
                     const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
                     let user = new User({
                         authServerUrl:userInfo.authServerUrl,
@@ -101,9 +96,8 @@ export class PermissionService {
                         roles:roles,
                         su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1)
                     });
-                    this.mainservice.user = user;
+                    this.mainservice.setUser(user);
                     this.user = user;
-                    // return user;
                     return deviceNameResponse;
                 })
                 .map(res => j4care.redirectOnAuthResponse(res))
@@ -120,7 +114,6 @@ export class PermissionService {
                         let global = _.cloneDeep(this.mainservice.global) || {};
                         global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
                         global["myDevice"] = res;
-                        console.log("permission uiconfig");
                         this.mainservice.archiveDeviceName = archiveDeviceName;
                         this.mainservice.deviceName = deviceName;
                         this.mainservice.setGlobal(global);

@@ -20,6 +20,7 @@ import {DcmWebApp} from "./models/dcm-web-app";
 import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
 import {Globalvar} from "./constants/globalvar";
 import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
+import {User} from "./models/user";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -51,7 +52,6 @@ export class AppComponent implements OnInit {
     timeZone;
     sidenavopen = false;
     superUser:boolean = false;
-    // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -67,38 +67,24 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit(){
-        // console.log("app.component.ts",this.mainservice.keycloak);
-        console.log("config",this.mainservice);
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
-            console.log("token in j4carehttpservice",KeycloakService.keycloakAuth.token);
             this.init();
         }else {
             this._keycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
-                console.log("subscripkeycloak res",res);
-                console.log("token",KeycloakService.keycloakAuth.token);
                 this.init();
             })
         }
-
-
     }
     init(){
+        this.setUserInformation();
         Date.prototype.toDateString = function() {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
         this.initGetDevicename(2);
         this.setServerTime(()=>{
-            this.setLogutUrl();
+            // this.setLogutUrl();
             this.initGetPDQServices();
         });
-    }
-    testLogout(){
-        this.keycloakHttpClient.get('./rs/devicename').subscribe(res=>{
-           console.log("keycloakhttpclient",res);
-        });
-        console.log("in logout",this.mainservice.keycloak);
-        console.log("in logouturl",this.logoutUrl);
-        // this.mainservice.keycloak.logout(this.logoutUrl);
     }
     setServerTime(recall?:Function){
         let currentBrowserTime = new Date().getTime();
@@ -115,18 +101,20 @@ export class AppComponent implements OnInit {
                     recall.apply(this);
             });
     }
-    setLogutUrl(){
+    setUserInformation(){
         try{
-            this.mainservice.user = this.mainservice.user || this.mainservice.global.authentication
-            this.user = this.mainservice.user;
-            this.realm = this.mainservice.user.realm;
-            this.superUser = (_.hasIn(this.mainservice.user, "su") && this.mainservice.user["su"]);
-            this.authServerUrl = this.mainservice.user['auth-server-url'];
-            let host    = location.protocol + '//' + location.host;
-            this.logoutUrl =  `${this.mainservice.user['auth-server-url']}/realms/${this.mainservice.user.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(host + location.pathname)}`;
-        }catch(e){
-            console.warn("Authentication not found",e);
+            this.mainservice.getUser().subscribe((user:User)=>{
+                this.user = user;
+                this.realm = user.realm;
+                this.superUser = user.su;
+                this.authServerUrl = user.authServerUrl;
+            });
+        }catch (e) {
+            j4care.log("User information couldn't be set",e);
         }
+    }
+    logout(){
+        KeycloakService.keycloakAuth.logout();
     }
     closeFromOutside(){
         if(this.showMenu)
@@ -153,12 +141,12 @@ export class AppComponent implements OnInit {
         clearInterval(this.clockInterval);
         this.startClock(serverTime);
     }
-    logout(){
+/*    logout(){
         window.location.href = this.logoutUrl;
-/*        setTimeout(()=>{
+/!*        setTimeout(()=>{
             location.reload(true);
-        },100);*/
-    }
+        },100);*!/
+    }*/
     progress(){
         let changeTo = function (t) {
             this.progressValue = t;

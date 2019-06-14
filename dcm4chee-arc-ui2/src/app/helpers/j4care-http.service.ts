@@ -163,39 +163,32 @@ export class J4careHttpService{
         this.setValueInGlobal('getRealmStateActive',false);
     }
     getRealm(dcmWebApp?:DcmWebApp){
-        // let service = this.$httpClient.get('rs/realm');
-        // let service = this.$http.get('rs/realm');
         let service = this._keycloakService.getToken();
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
-/*        this._keycloakService.getToken1().subscribe(res=>{
-            console.log("getToken1",res);
-        },error=>{});*/
         return service
             .map(res => {
-            let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res["url"])){
-                    if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
-                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                let resjson;
+                try{
+    /*                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                    if(pattern.exec(res["url"])){
+                        if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
+                            WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                    }*/
+                    resjson = res.json();
+                    console.log("getRealm Response:",res);
+                }catch (e){
+                    j4care.log("error on extracting json",e);
+                    if(_.hasIn(e, "message") && e.message.indexOf("res.json") > -1){
+                        resjson = res;
+                    }else{
+                        resjson = [];
+                    }
                 }
-                resjson = res.json();
-                // resjson = res;
-                console.log("getRealm Response:",res);
-                // resjson = res.body;
-            }catch (e){
-                console.log("res",res);
-                console.log("e",e);
-                if(_.hasIn(e, "message") && e.message.indexOf("res.json") > -1){
-                    resjson = res;
-                }else{
-                    resjson = [];
-                }
-            }
-            // console.log("abaout to set the token1",KeycloakService.keycloakAuth.token);
-            this.token["UI"] = KeycloakService.keycloakAuth.token;
-            return resjson;
-        })
+                this.token["UI"] = KeycloakService.keycloakAuth.token;
+                return resjson;
+            })
     }
 /*    getTokenFromKeycloak(){
         if(!this.mainservice.keycloak.tokenValid()){

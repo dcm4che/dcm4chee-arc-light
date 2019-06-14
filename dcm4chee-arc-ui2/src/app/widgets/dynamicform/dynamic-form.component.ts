@@ -102,7 +102,7 @@ export class DynamicFormComponent implements OnInit{
             orderValue = parseInt(m.order);
         });
         this.formelements = orderedGroupClone;
-        let formGroup: any = this.formservice.toFormGroup(orderedGroupClone);
+        let formGroup: FormGroup = this.formservice.toFormGroup(orderedGroupClone);
         this.form = formGroup;
         console.log("hr",window.location);
         console.log('after convert form', this.form);

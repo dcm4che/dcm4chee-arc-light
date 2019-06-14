@@ -13,6 +13,7 @@ import {DcmWebApp} from "./models/dcm-web-app";
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
     private _user: User;
+    private userSubject = new Subject<User>();
     private _global;
     subscription: Subscription;
     keycloak;
@@ -33,6 +34,14 @@ export class AppService implements OnInit, OnDestroy{
     serverTime:Date;
     set global(value) {
         this._global = value;
+    }
+
+    setUser(user:User){
+        this._user = user;
+        this.userSubject.next(user);
+    }
+    getUser():Observable<User>{
+        return this.userSubject.asObservable();
     }
 
     private _isRole = function(role){

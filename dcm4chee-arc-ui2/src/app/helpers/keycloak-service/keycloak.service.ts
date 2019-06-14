@@ -37,12 +37,13 @@ export class KeycloakService {
     static keycloakConfig:any;
     private setTokenSource = new Subject<any>();
     private setUserSource = new Subject<any>();
+    keycloakConfigName = `keycloak_config_${location.host}`;
     // static getTokenObs =
     constructor(
        private mainservice:AppService
     ){
         try{
-            KeycloakService.keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
+            KeycloakService.keycloakConfig = JSON.parse(localStorage.getItem(this.keycloakConfigName));
         }catch (e) {
             j4care.log("keycloakConfig probably not set",e);
         }
@@ -78,7 +79,7 @@ export class KeycloakService {
 
             return this.mainservice.getKeycloakJson().flatMap((keycloakJson:any)=>{
                 console.log("dcmWebApps",keycloakJson);
-                localStorage.setItem("keycloakConfig",JSON.stringify(keycloakJson));
+                localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
                 // localStorage.setItem("keycloakObject",JSON.stringify($this.mainservice.keycloak));
                 KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
                 // return KeycloakService.keycloakAuth.init({flow: 'standard', responseMode: 'fragment', checkLoginIframe: true, onLoad: 'login-required'}).success();
