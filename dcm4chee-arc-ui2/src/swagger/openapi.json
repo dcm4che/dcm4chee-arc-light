@@ -191,6 +191,35 @@
             "description": "Internal Server Error."
           }
         }
+      },
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Create Patient",
+        "operationId": "CreatePatient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/patientAttributes"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PatientID"
+          },
+          "400": {
+            "description": "Patient ID in request body"
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
       }
     },
     "/aets/{aet}/rs/studies": {
@@ -2373,7 +2402,7 @@
             "description": "There was a problem with the request."
           },
           "404": {
-            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title or Study."
           },
           "500": {
             "description": "Internal Server Error."
@@ -2449,7 +2478,7 @@
             "description": "There was a problem with the request."
           },
           "404": {
-            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title, Study or Series."
           },
           "500": {
             "description": "Internal Server Error."
@@ -2641,7 +2670,7 @@
             "description": "There was a problem with the request."
           },
           "404": {
-            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title or Study."
           },
           "500": {
             "description": "Internal Server Error."
@@ -2711,7 +2740,7 @@
             "description": "There was a problem with the request."
           },
           "404": {
-            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title, Study or Series."
           },
           "500": {
             "description": "Internal Server Error."
@@ -3399,6 +3428,9 @@
               }
             }
           },
+          "404": {
+            "description": "entity not found"
+          },
           "500": {
             "description": "Internal Server Error."
           }
@@ -3427,6 +3459,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Attribute Set type not found"
           },
           "500": {
             "description": "Internal Server Error."
@@ -3624,32 +3659,56 @@
         ],
         "responses": {
           "200": {
-            "description": "Access Token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "title": "token",
-                      "description": "OAuth Bearer Token",
-                      "type": "string"
-                    },
-                    "expiration": {
-                      "title": "expiration",
-                      "description": "Access token lifetime in seconds",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/AccessToken"
           },
           "204": {
             "description": "No Keycloak Client ID configured for Web Application"
           },
           "404": {
             "description": "No such Web Application or Keycloak Client for given Web Application identifier in Device configuration"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/realm": {
+      "get": {
+        "tags": [
+          "AUTH-RS"
+        ],
+        "summary": "Get information about logged-in user",
+        "operationId": "get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Realm"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/token/{keycloakID}": {
+      "get": {
+        "tags": [
+          "AUTH-RS"
+        ],
+        "summary": "Get Access token from Keycloak",
+        "operationId": "getAccessTokenFromKeycloak",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/keycloakIDPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AccessToken"
+          },
+          "404": {
+            "description": "No such Keycloak Server in Archive Device configuration"
           },
           "500": {
             "description": "Internal Server Error."
@@ -3827,6 +3886,9 @@
           "200": {
             "$ref": "#/components/responses/countResults"
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title"
           },
@@ -3869,7 +3931,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/reports": {
       "post": {
         "tags": [
           "IMPAX-REPORT-RS"
@@ -3890,7 +3952,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "file"
+                  "$ref": "#/components/schemas/attributes"
                 }
               }
             }
@@ -3900,7 +3962,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "file"
+                  "$ref": "#/components/schemas/attributes"
                 }
               }
             }
@@ -3910,6 +3972,3363 @@
           },
           "409": {
             "description": "Impax Report Service returns no report for the study"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Connection to remote side fails"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}": {
+      "post": {
+        "tags": [
+          "ECHO-RS"
+        ],
+        "summary": "Verify DICOM Connection",
+        "operationId": "verifyConnection",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/host"
+          },
+          {
+            "$ref": "#/components/parameters/port"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "echo.schema.json"
+          },
+          "404": {
+            "description": "No such Application Entity or Remote Application Entity"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/xroad/RR441/{patientID}": {
+      "get": {
+        "tags": [
+          "X-ROAD-RS"
+        ],
+        "summary": "x-road RR441",
+        "operationId": "xroadRR441",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "no patient found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "x-road RR441 returns error response"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/ian/dicom:{ianscp}": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Send Instance Availability Notification of Study to external Instance Availability Notification SCP",
+        "operationId": "SendInstanceAvailabilityNotificationOfStudyExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instance Availability Notification request accepted by external Instance Availability Notification SCP ",
+            "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "ianscu.schema.json"
+               }
+             }
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Instance Availability Notification SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "ianscu.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/ian/dicom:{ianscp}": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Send Instance Availability Notification of Series to external Instance Availability Notification SCP",
+        "operationId": "SendInstanceAvailabilityNotificationOfSeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instance Availability Notification request accepted by external Instance Availability Notification SCP ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "ianscu.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study, Series or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Instance Availability Notification SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "ianscu.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instance/{SOPInstanceUID}/ian/dicom:{ianscp}": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Send Instance Availability Notification of Instance to external Instance Availability Notification SCP",
+        "operationId": "SendInstanceAvailabilityNotificationOfInstanceExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instance Availability Notification request accepted by external Instance Availability Notification SCP ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "ianscu.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study, Series, SOPInstance or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Instance Availability Notification SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "ianscu.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/ian/{ianscp}/studies": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Schedule Instance Availability Notification of matching Studies to external Instance Availability Notification SCP",
+        "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingStudiesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/ian/{ianscp}/series": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Schedule Instance Availability Notification of matching Series to external Instance Availability Notification SCP",
+        "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingSeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/ian/{ianscp}/instances": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Schedule Instance Availability Notification of matching Instances to external Instance Availability Notification SCP",
+        "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingInstancesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/ian/{ianscp}/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Schedule Instance Availability Notification of matching Series of Study to external Instance Availability Notification SCP",
+        "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingSeriesOfStudyExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/ian/{ianscp}/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Schedule Instance Availability Notification of matching Instances of Study to external Instance Availability Notification SCP",
+        "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingInstancesOfStudyExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/ian/{ianscp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "IAN-RS"
+        ],
+        "summary": "Schedule Instance Availability Notification of matching Instances of Series to external Instance Availability Notification SCP",
+        "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingInstancesOfSeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ianSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study, Series or Instance Availability Notification SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients": {
+      "post": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Create Patient in external archive",
+        "operationId": "CreatePatientExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/hl7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/externalHL7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queue"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/patientAttributes"
+        },
+        "responses": {
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "204": {
+            "description": "Message accepted by Receiving HL7 Application"
+          },
+          "400": {
+            "description": "JSON request body was not well formed."
+          },
+          "404": {
+            "description": "HL7 Application or External HL7 Application not configured"
+          },
+          "409": {
+            "$ref": "#/components/responses/HL7ACK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Update Patient in external archive",
+        "operationId": "UpdatePatientExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/hl7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/externalHL7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queue"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/patientAttributes"
+        },
+        "responses": {
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "204": {
+            "description": "Message accepted by Receiving HL7 Application"
+          },
+          "400": {
+            "description": "JSON request body was not well formed."
+          },
+          "404": {
+            "description": "HL7 Application or External HL7 Application not configured"
+          },
+          "409": {
+            "$ref": "#/components/responses/HL7ACK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          }
+        }
+      }
+    },
+    "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/merge": {
+      "post": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Merge Patients in external archive",
+        "operationId": "MergePatientExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/hl7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/externalHL7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/priorPatientPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queue"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/patientAttributes"
+        },
+        "responses": {
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "204": {
+            "description": "Message accepted by Receiving HL7 Application"
+          },
+          "400": {
+            "description": "JSON request body was not well formed."
+          },
+          "404": {
+            "description": "HL7 Application or External HL7 Application not configured"
+          },
+          "409": {
+            "$ref": "#/components/responses/HL7ACK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          }
+        }
+      }
+    },
+    "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/changeid": {
+      "post": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Change Patient ID in external archive",
+        "operationId": "ChangePatientIDExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/hl7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/externalHL7AppPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/priorPatientPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queue"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/patientAttributes"
+        },
+        "responses": {
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "204": {
+            "description": "Message accepted by Receiving HL7 Application"
+          },
+          "400": {
+            "description": "JSON request body was not well formed."
+          },
+          "404": {
+            "description": "HL7 Application or External HL7 Application not configured"
+          },
+          "409": {
+            "$ref": "#/components/responses/HL7ACK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{patientID}/pdq/{PDQServiceID}": {
+      "post": {
+        "tags": [
+          "PDQ-RS"
+        ],
+        "summary": "Update Patient Demographics",
+        "operationId": "updatePatientDemographics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/pdqServiceID"
+          },
+          {
+            "$ref": "#/components/parameters/adjustIssuerOfPatientID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "title": "action",
+                      "description": "Event Action Code",
+                      "type": "string",
+                      "enum": [ "C", "R", "U"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Patient was not found by the specified PDQ Service"
+          },
+          "404": {
+            "description": "no such PDQ Service"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "PDQ Service failure"
+          }
+        }
+      }
+    },
+    "/pdq/{PDQServiceID}/patients/{patientID}": {
+      "get": {
+        "tags": [
+          "PDQ-RS"
+        ],
+        "summary": "Query Patient Demographics",
+        "operationId": "queryPatientDemographics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pdqServiceID"
+          },
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/attributes"
+          },
+          "404": {
+            "description": "No such PDQ Service or Patient was not found by the specified PDQ Service"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Query of PDQ Service fails"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/diff/pdq/{PDQServiceID}/patients": {
+      "get": {
+        "tags": [
+          "PDQ-RS"
+        ],
+        "summary": "Compare Patient Demographics",
+        "operationId": "comparePatientDemographics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/pdqServiceID"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/withoutstudies"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "different/missing patients as JSON array with DICOM JSON objects - may be empty if no patient differs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No matching Patient found at Archive AE"
+          },
+          "400": {
+            "description": "Request entity too large"
+          },
+          "404": {
+            "description": "AE Title of Archive or PDQ Service not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/stgcmt": {
+      "get": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "List Storage Commitment Results",
+        "operationId": "listStgCmts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/stgcmtStatus"
+          },
+          {
+            "$ref": "#/components/parameters/studyUID"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterID"
+          },
+          {
+            "$ref": "#/components/parameters/JMSMessageID"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/updatedBefore"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment Result List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgcmtList.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Delete Storage Commitment Results",
+        "operationId": "deleteStgCmts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/stgcmtStatus"
+          },
+          {
+            "$ref": "#/components/parameters/updatedBefore"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/deletedCount"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/stgcmt/{transactionUID}": {
+      "delete": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Delete Storage Commitment Result",
+        "operationId": "deleteStgCmt",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/transactionUID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Storage Commitment Result not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Request Storage Commitment of Study from external Storage Commitment SCP",
+        "operationId": "RequestStorageCommitmentOfStudyExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgcmtscu.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study or external AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Storage Commitment SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgcmtscu.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Request Storage Commitment of Series from external Storage Commitment SCP",
+        "operationId": "RequestStorageCommitmentOfSeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgcmtscu.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study, Series or external AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Storage Commitment SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgcmtscu.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Request Storage Commitment of Instance from external Storage Commitment SCP",
+        "operationId": "RequestStorageCommitmentOfInstanceExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgcmtscu.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study, Series, SOPInstance or external AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Storage Commitment SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgcmtscu.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Studies from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingStudiesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Storage Commitment SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{stgCmtSCP}/series": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Series from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingSeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Storage Commitment SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{stgCmtSCP}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Instances from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingInstancesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Storage Commitment SCP AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Series of Study from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingSeriesOfStudyExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Storage Commitment SCP AE Title or Study"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Instances of Study from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingInstancesOfStudyExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Storage Commitment SCP AE Title or Study"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Schedule Storage Commitment of matching Instances of Series from external Storage Commitment SCP",
+        "operationId": "ScheduleStorageCommitmentOfMatchingInstancesOfSeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/stgCmtSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Storage Commitment SCP AE Title, Study or Series"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/reject/{codeValue}^{codingSchemeDesignator}": {
+      "delete": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Delete Rejected Instances Permanently",
+        "operationId": "deleteRejectedInstancesPermanently",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/rejectedBefore"
+          },
+          {
+            "$ref": "#/components/parameters/keepRejectionNote"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/deletedCount"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Rejection Note"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/expire/series": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Apply Retention Policy",
+        "operationId": "applyRetentionPolicy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Matching Studies",
+        "operationId": "rejectMatchingStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/series": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Matching Series",
+        "operationId": "rejectMatchingSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/instances": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Matching Instances",
+        "operationId": "rejectMatchingInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Rejection Note"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Matching Series of Study",
+        "operationId": "rejectMatchingSeriesOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Rejection Note or Study"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Matching Instances of Study",
+        "operationId": "rejectMatchingInstancesOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Rejection Note or Study"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Matching Instances of Series",
+        "operationId": "rejectMatchingInstancesOfSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Rejection Note, Study or Series"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Study external",
+        "operationId": "RejectStudyExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/storescp"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "reject.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Application Entity, External Application Entity, Study or Rejection Note."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "C-FIND-SCP or C-STORE SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "reject.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Series external",
+        "operationId": "RejectSeriesExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/storescp"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "reject.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Application Entity, External Application Entity, Study, Series or Rejection Note."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "C-FIND-SCP or C-STORE SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "reject.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Reject Instance external",
+        "operationId": "RejectInstanceExternal",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          },
+          {
+            "$ref": "#/components/parameters/storescp"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "reject.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Application Entity, External Application Entity, Study, Series, Instance or Rejection Note."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "C-FIND-SCP or C-STORE SCP Failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "reject.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{PatientID}": {
+      "put": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Update or Create patient",
+        "operationId": "UpdateOrCreatePatient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/patientAttributes"
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Missing Patient ID in request body"
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "409": {
+            "description": "Patient Tracking Not Allowed or Circular Patient Merge exception"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Delete Patient Permanently",
+        "operationId": "DeletePatient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "403": {
+            "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies"
+          },
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non Unique Patient or Patient is already merged exception."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{patientID}/merge": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Merge Patients",
+        "operationId": "MergePatients",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PriorPatientIDs"
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "JSON request body was not well formed"
+          },
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{priorPatientID}/merge/{patientID}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Merge Patient",
+        "operationId": "MergePatient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/priorPatientPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{priorPatientID}/changeid/{patientID}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Change Patient ID",
+        "operationId": "ChangePatientID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/priorPatientPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/patientPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/mwlitems/{StudyInstanceUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Link Instances with MWL Entry",
+        "operationId": "LinkInstancesWithMWLEntry",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/spsID"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/HierarchicalSOPInstanceReference"
+        },
+        "responses": {
+          "200": {
+            "description": "All matching Instances linked with MWLItem",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "This indicates that some Instances were linked with MWLItem, but failures exist for others.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          },
+          "404": {
+            "description": "No such Application Entity, Study, MWL Item or Rejection Note."
+          },
+          "409": {
+            "description": "Link Instances with MWLItem failed for all.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies_": {
+      "post": {
+        "description": "URL shall be without '_'. Open API does not allow matching URLs with same HTTP request methods to be defined twice! Clashes with STOW-RS URL",
+        "summary": "Create Or Update Study",
+        "operationId": "CreateOrUpdateStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/studyAttributes"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/attributes"
+          },
+          "400": {
+            "description": "JSON request body not well formed or Missing Patient ID in request body"
+          },
+          "404": {
+            "description": "No such Application Entity or Patient not found"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}": {
+      "delete": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Delete Study Permanently",
+        "operationId": "DeleteStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "403": {
+            "description": "Study is not empty."
+          },
+          "404": {
+            "description": "No such Application Entity or Study"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/copy": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Copy Instances to Study",
+        "operationId": "CopyInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/HierarchicalSOPInstanceReference"
+        },
+        "responses": {
+          "200": {
+            "description": "All referenced instances copied to target study",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "This indicates that some Instances were copied to target study, but failures exist for others.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          },
+          "404": {
+            "description": "No such Application Entity, Study."
+          },
+          "409": {
+            "description": "Copy Instances to target study failed for all.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/move/{CodeValue}^{CodingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Move Instances to Study",
+        "operationId": "MoveInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/codeValue"
+          },
+          {
+            "$ref": "#/components/parameters/codingSchemeDesignator"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/HierarchicalSOPInstanceReference"
+        },
+        "responses": {
+          "200": {
+            "description": "All referenced instances moved to target study",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "This indicates that some Instances were moved to target study, but failures exist for others.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          },
+          "404": {
+            "description": "No such Application Entity, Study or Rejection Note."
+          },
+          "409": {
+            "description": "Move Instances to target study failed for all.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/expire/{expirationDate}": {
+      "put": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Update Study Expiration Date",
+        "operationId": "UpdateStudyExpirationDate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/expirationDatePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterID"
+          },
+          {
+            "$ref": "#/components/parameters/FreezeExpirationDate"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Expiration Date cannot be parsed."
+          },
+          "404": {
+            "description": "No such Application Entity or Study"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/expire/{expirationDate}": {
+      "put": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Update Series Expiration Date",
+        "operationId": "UpdateSeriesExpirationDate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/expirationDatePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterID"
+          },
+          {
+            "$ref": "#/components/parameters/FreezeExpirationDate"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Expiration Date cannot be parsed or Revoke expiration for Series not allowed."
+          },
+          "404": {
+            "description": "No such Application Entity, Study or Series"
           },
           "500": {
             "description": "Internal Server Error."
@@ -3950,7 +7369,7 @@
       "webAppPathParam": {
         "name": "webAppName",
         "in": "path",
-        "description": "Web Application to register or unregister",
+        "description": "Web Application Name",
         "required": true,
         "schema": {
           "type": "string"
@@ -3959,7 +7378,16 @@
       "hl7AppPathParam": {
         "name": "hl7AppName",
         "in": "path",
-        "description": "HL7 Application to register or unregister",
+        "description": "HL7 Application Name",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "externalHL7AppPathParam": {
+        "name": "externalHL7AppName",
+        "in": "path",
+        "description": "External HL7 Application Name",
         "required": true,
         "schema": {
           "type": "string"
@@ -3969,6 +7397,51 @@
         "name": "findscp",
         "in": "path",
         "description": "C-FIND SCP AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ianSCPPathParam": {
+        "name": "ianscp",
+        "in": "path",
+        "description": "IAN SCP AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "stgCmtSCPPathParam": {
+        "name": "stgcmtscp",
+        "in": "path",
+        "description": "Storage Commitment SCP AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "remoteAETPathParam": {
+        "name": "externalAET",
+        "in": "path",
+        "description": "Remote AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "patientPathParam": {
+        "name": "patientID",
+        "in": "path",
+        "description": "Patient ID and Issuer encoded as HL7 CX",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "priorPatientPathParam": {
+        "name": "priorPatientID",
+        "in": "path",
+        "description": "Prior Patient ID and Issuer encoded as HL7 CX",
         "required": true,
         "schema": {
           "type": "string"
@@ -4063,6 +7536,60 @@
         "name": "accessControlID",
         "in": "path",
         "description": "Access Control ID or 'null'",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "keycloakIDPathParam": {
+        "name": "keycloakID",
+        "in": "path",
+        "description": "Keycloak Server ID",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "pdqServiceID": {
+        "name": "pdqServiceID",
+        "in": "path",
+        "description": "PDQ Service ID",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "transactionUID": {
+        "name": "transactionUID",
+        "in": "path",
+        "description": "Transaction UID of Storage Commitment",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "codeValue": {
+        "name": "codeValue",
+        "in": "path",
+        "description": "Code Value of Rejection Note",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "codingSchemeDesignator": {
+        "name": "codingSchemeDesignator",
+        "in": "path",
+        "description": "Coding Scheme Designator of Rejection Note",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "expirationDatePathParam": {
+        "name": "expirationDate",
+        "in": "path",
+        "description": "Expiration Date",
         "required": true,
         "schema": {
           "type": "string"
@@ -4420,7 +7947,8 @@
         "in": "query",
         "description": "return Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max> (proprietary extension)",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}"
         }
       },
       "ExternalRetrieveAET": {
@@ -4719,6 +8247,149 @@
         "schema": {
           "type": "integer"
         }
+      },
+      "host": {
+        "name": "host",
+        "in": "query",
+        "description": "remote connection host",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "port": {
+        "name": "port",
+        "in": "query",
+        "description": "remote connection port",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "queue": {
+        "name": "queue",
+        "in": "query",
+        "description": "Queue the request",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "adjustIssuerOfPatientID": {
+        "name": "adjustIssuerOfPatientID",
+        "in": "query",
+        "description": "Adjust Issuer Of Patient ID",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "checkDifferent": {
+        "name": "different",
+        "in": "query",
+        "description": "include Patients with different Patient Demographics",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "checkMissing": {
+        "name": "missing",
+        "in": "query",
+        "description": "include Patients missing at the PDQ Service",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "stgcmtStatus": {
+        "name": "status",
+        "in": "query",
+        "description": "Storage Commitment Status to filter by",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "COMPLETED",
+            "WARNING",
+            "FAILED"
+          ]
+        }
+      },
+      "ExporterID": {
+        "name": "ExporterID",
+        "in": "query",
+        "description": "Exporter ID to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "JMSMessageID": {
+        "name": "JMSMessageID",
+        "in": "query",
+        "description": "JMS Message ID to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "batchID": {
+        "name": "batchID",
+        "in": "query",
+        "description": "Batch ID to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "updatedBefore": {
+        "name": "updatedBefore",
+        "in": "query",
+        "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
+        "schema": {
+          "type": "string",
+          "pattern": "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}"
+        }
+      },
+      "rejectedBefore": {
+        "name": "rejectedBefore",
+        "in": "query",
+        "description": "maximum reject date of instances to delete. Format: YYYY-MM-DD",
+        "schema": {
+          "type": "string",
+          "pattern": "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}"
+        }
+      },
+      "keepRejectionNote": {
+        "name": "keepRejectionNote",
+        "in": "query",
+        "description": "indicates to keep rejection note instances - only delete rejected instances",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "storescp": {
+        "name": "storescp",
+        "in": "query",
+        "description": "AE Title of C-STORE SCP to which the Rejection Note is send. If absent, the AE Title of C-FIND SCP will be used",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "priority": {
+        "name": "priority",
+        "in": "query",
+        "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+        "schema": {
+          "type": "integer",
+          "enum": [ 0, 1, 2 ],
+          "default": 0
+        }
+      },
+      "FreezeExpirationDate": {
+        "name": "FreezeExpirationDate",
+        "in": "query",
+        "description": "Shall be set to true to freeze(=FROZEN) or false to unfreeze(=UPDATEABLE) Expiration Date of the Study. If the query param is absent, keep the ExpirationDate unchanged for FROZEN studies.",
+        "schema": {
+          "type": "boolean"
+        }
       }
     },
     "responses": {
@@ -4756,6 +8427,24 @@
               ],
               "properties": {
                 "count": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "deletedCount": {
+        "description": "Count of corresponding Delete operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "deleted"
+              ],
+              "properties": {
+                "deleted": {
                   "type": "integer"
                 }
               }
@@ -5206,6 +8895,24 @@
           }
         }
       },
+      "PatientID": {
+        "description": "Patient ID of created Patient",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "PatientID"
+              ],
+              "properties": {
+                "PatientID": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "ServerTime": {
         "description": "Server Time with Timezone",
         "content": {
@@ -5247,6 +8954,132 @@
            }
          }
         }
+      },
+      "Realm": {
+        "description": "Realm User Details",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "auth-server-url": {
+                  "title": "auth server url",
+                  "description": "The base URL of the Keycloak server",
+                  "type": "string"
+                },
+                "realm": {
+                  "title": "realm",
+                  "description": "Name of the realm",
+                  "type": "string"
+                },
+                "token": {
+                  "title": "token",
+                  "description": "OAuth Bearer Token",
+                  "type": "string"
+                },
+                "user": {
+                  "title": "user",
+                  "description": "user name",
+                  "type": "string"
+                },
+                "expiration": {
+                  "title": "expiration",
+                  "description": "Access token lifetime in seconds",
+                  "type": "integer"
+                },
+                "systemCurrentTime": {
+                  "title": "systemCurrentTime",
+                  "description": "System current time in seconds",
+                  "type": "integer"
+                },
+                "roles": {
+                  "title": "roles",
+                  "description": "user roles",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "su": {
+                  "title": "super user",
+                  "description": "logged in user is a super user",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AccessToken": {
+        "description": "Access Token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "title": "token",
+                  "description": "OAuth Bearer Token",
+                  "type": "string"
+                },
+                "expiration": {
+                  "title": "expiration",
+                  "description": "Access token lifetime in seconds",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "HL7ACK": {
+        "description": "Message rejected by Receiving HL7 Application",
+        "content": {
+         "application/json": {
+           "schema": {
+             "type": "object",
+             "required": [
+               "msa-1"
+             ],
+             "properties": {
+               "msa-1": {
+                 "title": "Acknowledgement code",
+                 "type": "string"
+               },
+               "msa-3": {
+                 "title": "Text Message",
+                 "type": "string"
+               },
+               "err-3": {
+                 "title": "HL7 Error Code",
+                 "type": "string"
+               },
+               "err-7": {
+                 "title": "Diagnostic Information",
+                 "type": "string"
+               },
+               "err-8": {
+                 "title": "User Message",
+                 "type": "string"
+               },
+               "message": {
+                 "title": "Error Message",
+                 "type": "string"
+               }
+             }
+           }
+         }
+        }
+      },
+      "attributes": {
+        "description": "DICOM Attributes",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/attributes"
+            }
+          }
+        }
       }
     },
     "requestBodies": {
@@ -5273,23 +9106,148 @@
         }
       },
       "createUpdateSPS": {
+        "description": "MWL Item Attributes",
         "content": {
           "application/dicom+json": {
             "schema": {
-              "type": "string",
-              "format": "binary"
+              "$ref": "#/components/schemas/attributes"
             }
           },
           "application/json": {
             "schema": {
-              "type": "string",
-              "format": "binary"
+              "$ref": "#/components/schemas/attributes"
+            }
+          }
+        }
+      },
+      "patientAttributes": {
+        "description": "Patient Attributes",
+        "content": {
+          "application/dicom+json": {
+            "schema": {
+              "$ref": "#/components/schemas/attributes"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/attributes"
+            }
+          }
+        }
+      },
+      "studyAttributes": {
+        "description": "Study Attributes",
+        "content": {
+          "application/dicom+json": {
+            "schema": {
+              "$ref": "#/components/schemas/attributes"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/attributes"
+            }
+          }
+        }
+      },
+      "HierarchicalSOPInstanceReference": {
+        "description": "References to Source Instances",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "StudyInstanceUID"
+              ],
+              "properties": {
+                "StudyInstanceUID": {
+                  "type": "string"
+                },
+                "ReferencedSeriesSequence": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "SeriesInstanceUID"
+                    ],
+                    "properties": {
+                      "SeriesInstanceUID": {
+                        "type": "string"
+                      },
+                      "ReferencedSOPSequence": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "ReferencedSOPClassUID",
+                            "ReferencedSOPInstanceUID"
+                          ],
+                          "properties": {
+                            "ReferencedSOPClassUID": {
+                              "type": "string"
+                            },
+                            "ReferencedSOPInstanceUID": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PriorPatientIDs": {
+        "description": "Prior Patient IDs and Issuers of Patient IDs with Qualifiers Sequence",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "PatientID"
+                ],
+                "properties": {
+                  "PatientID": {
+                    "type": "string"
+                  },
+                  "IssuerOfPatientID": {
+                    "type": "string"
+                  },
+                  "IssuerOfPatientIDQualifiers": {
+                    "type": "object",
+                    "required": [
+                      "UniversalEntityID",
+                      "UniversalEntityIDType"
+                    ],
+                    "properties": {
+                      "UniversalEntityID": {
+                        "type": "string"
+                      },
+                      "UniversalEntityIDType": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       }
     },
     "schemas": {
+      "attributes": {
+        "type": "object",
+        "externalDocs": {
+          "description": "Attributes in DICOM JSON Model Format",
+          "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
+        }
+      },
       "patientVerificationStatus": {
         "type": "string",
         "enum": [
@@ -5360,11 +9318,6 @@
           "Retrieve13"
         ]
       },
-      "priority": {
-        "type": "integer",
-        "enum": [ 0, 1, 2 ],
-        "default": 0
-      },
       "dcmQueueName": {
         "type": "string",
         "enum": [
@@ -5393,15 +9346,6 @@
           "OBJECT_FETCH",
           "OBJECT_CHECKSUM",
           "S3_MD5SUM"
-        ]
-      },
-      "stgCmtStatus": {
-        "type": "string",
-        "enum": [
-          "PENDING",
-          "COMPLETED",
-          "WARNING",
-          "FAILED"
         ]
       },
       "cancelStatus": {

@@ -113,8 +113,8 @@
               "$ref": "#/definitions/Realm"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -129,9 +129,6 @@
         "responses": {
           "204": {
             "description": "archive started"
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -146,9 +143,6 @@
         "responses": {
           "204": {
             "description": "archive stopped"
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -163,9 +157,6 @@
         "responses": {
           "204": {
             "description": "configuration reloaded"
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -186,9 +177,6 @@
             "schema": {
               "$ref": "#/definitions/Status"
             }
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -210,8 +198,8 @@
               "$ref": "#/definitions/DeviceName"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -289,8 +277,8 @@
               "$ref": "deviceList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -324,8 +312,8 @@
           "404": {
             "description": "Device not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -367,11 +355,17 @@
           "204": {
             "description": "successful operation"
           },
-          "409": {
-            "description": "Device with specified name already exists"
+          "400": {
+            "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
           },
-          "default": {
-            "description": "unexpected error"
+          "404": {
+            "description": "Referenced devices/configuration not found"
+          },
+          "409": {
+            "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -414,10 +408,16 @@
             "description": "successful operation"
           },
           "400": {
-            "description": "Device with specified name does not exist"
+            "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
           },
-          "default": {
-            "description": "unexpected error"
+          "404": {
+            "description": "Device not found or referenced device/configuration not found"
+          },
+          "409": {
+            "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -453,8 +453,8 @@
           "404": {
             "description": "Device not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -465,7 +465,7 @@
           "AUTH-RS"
         ],
         "summary": "Get Access token from Keycloak",
-        "operationId": "getAccessToken",
+        "operationId": "getAccessTokenFromKeycloak",
         "produces": [
           "application/json"
         ],
@@ -500,8 +500,8 @@
           "404": {
             "description": "No such Keycloak identifier in Archive Device configuration"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -550,8 +550,8 @@
           "404": {
             "description": "No such Web Application or Keycloak Client for given Web Application identifier in Device configuration"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -588,8 +588,8 @@
           "404": {
             "description": "Device not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -627,8 +627,8 @@
           "404": {
             "description": "Device not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -654,8 +654,8 @@
           "404": {
             "description": "Device not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -715,8 +715,8 @@
               "$ref": "aeList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -738,8 +738,8 @@
               }
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -767,8 +767,8 @@
           "409": {
             "description": "AE Title already registered"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -794,8 +794,8 @@
           "404": {
             "description": "AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -837,8 +837,8 @@
               "$ref": "hl7appList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -866,8 +866,8 @@
           "409": {
             "description": "Web Application Name already registered"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -893,8 +893,8 @@
           "404": {
             "description": "Web Application Name not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -916,8 +916,8 @@
               }
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -939,8 +939,8 @@
               }
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -968,8 +968,8 @@
           "409": {
             "description": "HL7 Application and Facility Name already registered"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -995,8 +995,8 @@
           "404": {
             "description": "HL7 Application and Facility Name not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1067,8 +1067,8 @@
               "$ref": "webappList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1102,8 +1102,8 @@
           "404": {
             "description": "entity not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1139,10 +1139,10 @@
             }
           },
           "404": {
-            "description": "type not found"
+            "description": "Attribute Set type not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1160,6 +1160,7 @@
         ],
         "responses": {
           "200": {
+            "description": "List of distinct Modalities",
             "schema": {
               "description": "list of distinct values for Modality (0008,0060)",
               "type": "array",
@@ -1168,8 +1169,8 @@
               }
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1190,9 +1191,6 @@
             "schema": {
               "$ref": "associations.schema.json"
             }
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -1219,9 +1217,6 @@
           },
           "404": {
             "description": "no open Association with given serialNo found"
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -1242,9 +1237,6 @@
             "schema": {
               "$ref": "#/definitions/ServerTime"
             }
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -1379,8 +1371,8 @@
               "$ref": "diffTaskList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -1477,8 +1469,8 @@
               "$ref": "#/definitions/Deleted"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1602,8 +1594,8 @@
               "$ref": "diffBatchList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1696,8 +1688,8 @@
           "404": {
             "description": "no task with specified batchID"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1796,8 +1788,8 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -1896,8 +1888,8 @@
           "400": {
             "description": "Invalid status for Cancel of Compare Studies Tasks"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2018,8 +2010,8 @@
               "$ref": "#/definitions/Failed"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2048,8 +2040,8 @@
           "404": {
             "description": "task not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2081,8 +2073,8 @@
           "409": {
             "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2120,8 +2112,8 @@
           "409": {
             "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2172,8 +2164,8 @@
           "404": {
             "description": "no task with specified taskPK"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2288,8 +2280,8 @@
               "$ref": "exportTaskList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -2366,8 +2358,8 @@
               "$ref": "#/definitions/Deleted"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2464,8 +2456,8 @@
               "$ref": "exportBatchList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2544,8 +2536,8 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2623,8 +2615,8 @@
           "400": {
             "description": "Invalid status for Cancel of Export tasks"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2715,8 +2707,8 @@
           "409": {
             "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2817,8 +2809,8 @@
           "409": {
             "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2847,8 +2839,8 @@
           "404": {
             "description": "task not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2880,8 +2872,8 @@
           "409": {
             "description": "tasks with status TO SCHEDULE, CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -2926,8 +2918,8 @@
           "409": {
             "description": "tasks with status TO SCHEDULE cannot be rescheduled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3060,8 +3052,8 @@
               "$ref": "retrieveTaskList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -3156,8 +3148,8 @@
               "$ref": "#/definitions/Deleted"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3272,8 +3264,8 @@
               "$ref": "retrieveBatchList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3370,8 +3362,8 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3467,8 +3459,8 @@
           "400": {
             "description": "Invalid status for Cancel of Retrieve tasks"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3607,8 +3599,8 @@
               "$ref": "#/definitions/Failed"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3637,8 +3629,8 @@
           "404": {
             "description": "task not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3670,8 +3662,8 @@
           "409": {
             "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3730,8 +3722,8 @@
           "409": {
             "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -3842,8 +3834,8 @@
               "$ref": "stgverTaskList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -3916,8 +3908,8 @@
               "$ref": "#/definitions/Deleted"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4011,8 +4003,8 @@
               "$ref": "stgverBatchList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4087,8 +4079,8 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4163,8 +4155,8 @@
           "400": {
             "description": "Invalid status for Cancel of Retrieve tasks"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4261,8 +4253,8 @@
               "$ref": "#/definitions/Failed"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4291,8 +4283,8 @@
           "404": {
             "description": "task not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4324,8 +4316,8 @@
           "409": {
             "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4363,8 +4355,8 @@
           "409": {
             "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4386,8 +4378,8 @@
               "$ref": "queueList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4490,8 +4482,8 @@
           "404": {
             "description": "Queue not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -4561,8 +4553,8 @@
           "404": {
             "description": "Queue not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4634,8 +4626,8 @@
           "404": {
             "description": "Queue not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4704,8 +4696,8 @@
           "400": {
             "description": "Invalid Queue Message status"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4796,8 +4788,8 @@
               "$ref": "#/definitions/Failed"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4832,8 +4824,8 @@
           "404": {
             "description": "task not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4871,8 +4863,8 @@
           "409": {
             "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4916,8 +4908,8 @@
           "409": {
             "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4942,8 +4934,8 @@
               "$ref": "aets.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -4993,8 +4985,8 @@
           "404": {
             "description": "External AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -5074,13 +5066,19 @@
             }
           },
           "204": {
-            "description": "no matching patient found"
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5174,13 +5172,19 @@
             }
           },
           "204": {
-            "description": "no matching study found"
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5275,13 +5279,19 @@
             }
           },
           "204": {
-            "description": "no matching series found"
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title or Study."
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5366,13 +5376,19 @@
             }
           },
           "204": {
-            "description": "no matching instances found"
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title, Study or Series."
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5428,11 +5444,20 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "404": {
-            "description": "External AE Title not found"
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5502,11 +5527,20 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "404": {
-            "description": "External AE Title not found"
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5577,11 +5611,20 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "404": {
-            "description": "External AE Title not found"
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title or Study."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5652,11 +5695,20 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "404": {
-            "description": "External AE Title not found"
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE, C-FIND SCP with the specified Title, Study or Series."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "description": "Query of C-FIND SCP failed."
           }
         }
       }
@@ -5764,8 +5816,8 @@
           "404": {
             "description": "External AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -5881,8 +5933,8 @@
           "404": {
             "description": "External AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6005,8 +6057,8 @@
           "404": {
             "description": "External AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6093,8 +6145,8 @@
           "404": {
             "description": "AE Title of Archive or External AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6188,8 +6240,8 @@
           "404": {
             "description": "AE Title of Archive or External AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6290,8 +6342,8 @@
           "404": {
             "description": "AE Title of Archive or External AE Title not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6374,8 +6426,8 @@
           "404": {
             "description": "Study not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6465,8 +6517,8 @@
           "404": {
             "description": "Series not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6563,8 +6615,8 @@
           "404": {
             "description": "Instance not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6659,8 +6711,8 @@
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6753,8 +6805,8 @@
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6872,8 +6924,8 @@
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -6992,8 +7044,8 @@
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7119,8 +7171,8 @@
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7236,8 +7288,8 @@
           "502": {
             "description": "C-FIND-SCP Failure"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7354,8 +7406,8 @@
           "502": {
             "description": "C-FIND-SCP Failure"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7479,8 +7531,8 @@
           "502": {
             "description": "C-FIND-SCP Failure"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7634,8 +7686,8 @@
           "404": {
             "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7771,8 +7823,8 @@
           "404": {
             "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7879,8 +7931,8 @@
           "404": {
             "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -7953,8 +8005,8 @@
           "504": {
             "description": "Failed to connect to Receiving HL7 Application"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -8025,8 +8077,8 @@
           "504": {
             "description": "Failed to connect to Receiving HL7 Application"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8106,8 +8158,8 @@
           "504": {
             "description": "Failed to connect to Receiving HL7 Application"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8187,8 +8239,8 @@
           "504": {
             "description": "Failed to connect to Receiving HL7 Application"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8203,10 +8255,9 @@
         "consumes": [
           "application/dicom+json",
           "application/json"
-
         ],
         "produces": [
-          "text/plain"
+          "application/json"
         ],
         "parameters": [
           {
@@ -8221,11 +8272,17 @@
           "200": {
             "description": "Patient ID of created Patient",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/PatientID"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "Patient ID in request body"
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8261,8 +8318,17 @@
           "204": {
             "description": "successful operation"
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "Missing Patient ID in request body"
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "409": {
+            "description": "Patient Tracking Not Allowed or Circular Patient Merge exception"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -8292,11 +8358,17 @@
           "204": {
             "description": "successful operation"
           },
-          "404": {
-            "description": "no such patient"
+          "403": {
+            "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies"
           },
-          "default": {
-            "description": "unexpected error"
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non Unique Patient or Patient is already merged exception."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8340,8 +8412,17 @@
           "204": {
             "description": "successful operation"
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "JSON request body was not well formed"
+          },
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8380,8 +8461,14 @@
           "204": {
             "description": "successful operation"
           },
-          "default": {
-            "description": "unexpected error"
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8420,8 +8507,14 @@
           "204": {
             "description": "successful operation"
           },
-          "default": {
-            "description": "unexpected error"
+          "404": {
+            "description": "No such Application Entity or Patient."
+          },
+          "409": {
+            "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8481,8 +8574,8 @@
           "502": {
             "description": "PDQ Service failure"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8582,8 +8675,17 @@
               "type": "file"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "204": {
+            "description": "The search completed successfully, but there were zero results."
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -8617,8 +8719,14 @@
               "type": "file"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "Missing Patient ID or Scheduled Procedure Step Sequence in request body"
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title or Patient does not exist."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8658,10 +8766,10 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "no such SPS"
+            "description": "There is no Archive AE with the specified Title or Scheduled Procedure Step not found."
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8736,8 +8844,8 @@
           "404": {
             "description": "no such MWL Item"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8772,8 +8880,8 @@
               "type": "file"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8808,8 +8916,8 @@
           "404": {
             "description": "no such study"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8862,8 +8970,8 @@
           "404": {
             "description": "no such study"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8930,8 +9038,8 @@
           "404": {
             "description": "no such study"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -8971,10 +9079,10 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "study not found"
+            "description": "No such Archive AE Title or Study"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -9156,16 +9264,19 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/report": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/reports": {
       "post": {
         "tags": [
           "IMPAX-REPORT-RS"
@@ -9210,8 +9321,11 @@
           "409": {
             "description": "Impax Report Service returns no report for the study"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Connection to remote side fails"
           }
         }
       }
@@ -9271,8 +9385,8 @@
           "404": {
             "description": "no exporter with specified exporterID configured"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -9339,8 +9453,8 @@
           "404": {
             "description": "no exporter with specified exporterID configured"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -9414,8 +9528,8 @@
           "404": {
             "description": "no exporter with specified exporterID configured"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -10848,8 +10962,8 @@
           "404": {
             "description": "no Study with specified UIDs found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -10940,8 +11054,8 @@
           "404": {
             "description": "no Series with specified UID found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -11033,8 +11147,8 @@
           "404": {
             "description": "no object with specified UIDs found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -12280,8 +12394,8 @@
           "404": {
             "description": "No such Archive AE Title, Study or external AE Title"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -12342,8 +12456,8 @@
           "404": {
             "description": "No such Archive AE Title, Series or external AE Title"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -12411,8 +12525,8 @@
           "404": {
             "description": "No such Archive AE Title, Instance or external AE Title"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -13682,8 +13796,8 @@
           "404": {
             "description": "No such Archive AE Title, Study or Instance Availability Notification SCP AE Title"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -13744,8 +13858,8 @@
           "404": {
             "description": "No such Archive AE Title, Series or Instance Availability Notification SCP AE Title"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -13813,8 +13927,8 @@
           "404": {
             "description": "No such Archive AE Title, Instance or Instance Availability Notification SCP AE Title"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -15101,8 +15215,8 @@
           "503": {
             "description": "Maximal number of Tasks in Queue reached"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -15180,8 +15294,8 @@
           "503": {
             "description": "Maximal number of Tasks in Queue reached"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -15266,8 +15380,8 @@
           "503": {
             "description": "Maximal number of Tasks in Queue reached"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -15322,8 +15436,8 @@
           "404": {
             "description": "study not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -15378,8 +15492,8 @@
           "404": {
             "description": "series not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -16762,8 +16876,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -16812,8 +16932,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -16965,8 +17091,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17107,8 +17239,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17242,8 +17380,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17358,8 +17502,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17474,8 +17624,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17590,8 +17746,14 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17743,8 +17905,14 @@
               "$ref": "#/definitions/Size"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17767,8 +17935,8 @@
               "$ref": "exporters.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17799,8 +17967,8 @@
               "$ref": "rejectionNotes.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17851,8 +18019,8 @@
           "404": {
             "description": "no rejection note with specified codeValue and codingSchemeDesignator configured"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17905,6 +18073,13 @@
             "type": "string"
           },
           {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped Storage Commitment Results before first result in returned list",
@@ -17924,8 +18099,8 @@
               "$ref": "stgcmtList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -17966,8 +18141,8 @@
               "$ref": "#/definitions/Deleted"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -17995,8 +18170,8 @@
           "404": {
             "description": "Storage Commitment Result not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -18063,8 +18238,8 @@
               "$ref": "storageList.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -18095,14 +18270,14 @@
               "type": "file"
             }
           },
-          "204": {
+          "409": {
             "description": "Impax Report Service returns no report for the study"
           },
-          "404": {
-            "description": "Impax Report Service returns QueryReportByStudyUidResult: false"
+          "500": {
+            "description": "Internal Server Error"
           },
-          "default": {
-            "description": "unexpected error"
+          "502": {
+            "description": "Connection to remote side fails"
           }
         }
       }
@@ -18134,14 +18309,14 @@
               "type": "file"
             }
           },
-          "204": {
+          "404": {
             "description": "no patient found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           },
           "502": {
             "description": "x-road RR441 returns error response"
-          },
-          "default": {
-            "description": "unexpected error"
           }
         }
       }
@@ -18164,8 +18339,8 @@
               "$ref": "pdqServices.schema.json"
             }
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -18210,8 +18385,8 @@
           "502": {
             "description": "Query of PDQ Service fails"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -18330,8 +18505,8 @@
           "404": {
             "description": "AE Title of Archive or PDQ Service not found"
           },
-          "default": {
-            "description": "unexpected error"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -18537,6 +18712,17 @@
         },
         "message": {
           "title": "Error Message",
+          "type": "string"
+        }
+      }
+    },
+    "PatientID": {
+      "type": "object",
+      "required": [
+        "PatientID"
+      ],
+      "properties": {
+        "PatientID": {
           "type": "string"
         }
       }
