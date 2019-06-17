@@ -7067,6 +7067,9 @@
     },
     "/aets/{aet}/rs/studies_": {
       "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
         "description": "URL shall be without '_'. Open API does not allow matching URLs with same HTTP request methods to be defined twice! Clashes with STOW-RS URL",
         "summary": "Create Or Update Study",
         "operationId": "CreateOrUpdateStudy",
@@ -9140,12 +9143,20 @@
         "content": {
           "application/dicom+json": {
             "schema": {
-              "$ref": "#/components/schemas/attributes"
+              "type": "object",
+              "externalDocs": {
+                "description": "Attributes in DICOM JSON Model Format",
+                "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
+              }
             }
           },
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/attributes"
+              "type": "object",
+              "externalDocs": {
+                "description": "Attributes in DICOM JSON Model Format",
+                "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
+              }
             }
           }
         }

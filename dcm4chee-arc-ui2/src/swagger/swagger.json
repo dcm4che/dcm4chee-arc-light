@@ -6424,7 +6424,7 @@
             }
           },
           "404": {
-            "description": "Study not found"
+            "description": "No such Application Entity, External Application Entity, Study or Rejection Note."
           },
           "500": {
             "description": "Internal Server Error"
@@ -6515,7 +6515,7 @@
             }
           },
           "404": {
-            "description": "Series not found"
+            "description": "No such Application Entity, External Application Entity, Study, Series or Rejection Note."
           },
           "500": {
             "description": "Internal Server Error"
@@ -6613,7 +6613,7 @@
             }
           },
           "404": {
-            "description": "Instance not found"
+            "description": "No such Application Entity, External Application Entity, Study, Series, Instance or Rejection Note."
           },
           "500": {
             "description": "Internal Server Error"
@@ -7990,6 +7990,9 @@
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
           },
+          "400": {
+            "description": "JSON request body was not well formed."
+          },
           "404": {
             "description": "Receiving HL7 Application not configured"
           },
@@ -8061,6 +8064,9 @@
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
+          },
+          "400": {
+            "description": "JSON request body was not well formed."
           },
           "404": {
             "description": "Receiving HL7 Application not configured"
@@ -8143,6 +8149,9 @@
           "204": {
             "description": "Receiving HL7 Application not configured"
           },
+          "400": {
+            "description": "JSON request body was not well formed."
+          },
           "404": {
             "description": "Receiving HL7 Application and Facility Name not configured"
           },
@@ -8223,6 +8232,9 @@
           },
           "204": {
             "description": "Message accepted by Receiving HL7 Application"
+          },
+          "400": {
+            "description": "JSON request body was not well formed."
           },
           "404": {
             "description": "Receiving HL7 Application not configured"
@@ -8841,8 +8853,23 @@
               "type": "file"
             }
           },
+          "202": {
+            "description": "This indicates that some Instances were linked with MWLItem, but failures exist for others.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "400": {
+            "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          },
           "404": {
             "description": "no such MWL Item"
+          },
+          "409": {
+            "description": "Link Instances with MWLItem failed for all.",
+            "schema": {
+              "type": "file"
+            }
           },
           "500": {
             "description": "Internal Server Error"
@@ -8880,6 +8907,12 @@
               "type": "file"
             }
           },
+          "400": {
+            "description": "JSON request body not well formed or Missing Patient ID in request body"
+          },
+          "404": {
+            "description": "No such Application Entity or Patient not found"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -8912,6 +8945,9 @@
         "responses": {
           "204": {
             "description": "successful operation"
+          },
+          "403": {
+            "description": "Study is not empty."
           },
           "404": {
             "description": "no such study"
@@ -8967,8 +9003,23 @@
               "type": "file"
             }
           },
+          "202": {
+            "description": "This indicates that some Instances were copied to target study, but failures exist for others.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "400": {
+            "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          },
           "404": {
             "description": "no such study"
+          },
+          "409": {
+            "description": "Copy Instances to target study failed for all.",
+            "schema": {
+              "type": "file"
+            }
           },
           "500": {
             "description": "Internal Server Error"
@@ -9035,8 +9086,23 @@
               "type": "file"
             }
           },
+          "202": {
+            "description": "This indicates that some Instances were moved to target study, but failures exist for others.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "400": {
+            "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          },
           "404": {
             "description": "no such study"
+          },
+          "409": {
+            "description": "Move Instances to target study failed for all.",
+            "schema": {
+              "type": "file"
+            }
           },
           "500": {
             "description": "Internal Server Error"
@@ -12717,6 +12783,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title or external AE Title"
           },
@@ -12914,6 +12983,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or external AE Title"
@@ -13120,6 +13192,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title or external AE Title"
           },
@@ -13317,6 +13392,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or external AE Title"
@@ -13522,6 +13600,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or external AE Title"
@@ -13734,6 +13815,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or external AE Title"
@@ -14119,6 +14203,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
           },
@@ -14316,6 +14403,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
@@ -14522,6 +14612,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
           },
@@ -14719,6 +14812,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
@@ -14924,6 +15020,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
@@ -15136,6 +15235,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
@@ -15433,8 +15535,11 @@
           "204": {
             "description": "successful operation"
           },
+          "400": {
+            "description": "Expiration Date cannot be parsed."
+          },
           "404": {
-            "description": "study not found"
+            "description": "No such Application Entity or Study"
           },
           "500": {
             "description": "Internal Server Error"
@@ -15489,8 +15594,11 @@
           "204": {
             "description": "successful operation"
           },
+          "400": {
+            "description": "Expiration Date cannot be parsed or Revoke expiration for Series not allowed."
+          },
           "404": {
-            "description": "series not found"
+            "description": "No such Application Entity, Study or Series"
           },
           "500": {
             "description": "Internal Server Error"
@@ -15761,6 +15869,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title or Rejection Note Code"
           },
@@ -15965,6 +16076,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Rejection Note Code"
@@ -16178,6 +16292,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "No such Archive AE Title or Rejection Note Code"
           },
@@ -16382,6 +16499,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Rejection Note Code"
@@ -16594,6 +16714,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Rejection Note Code"
@@ -16813,6 +16936,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "No such Archive AE Title or Rejection Note Code"
@@ -18016,6 +18142,9 @@
               "$ref": "#/definitions/Deleted"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "no rejection note with specified codeValue and codingSchemeDesignator configured"
           },
@@ -18501,6 +18630,9 @@
           },
           "204": {
             "description": "No matching Patient found at Archive AE"
+          },
+          "400": {
+            "description": "Request entity too large"
           },
           "404": {
             "description": "AE Title of Archive or PDQ Service not found"
