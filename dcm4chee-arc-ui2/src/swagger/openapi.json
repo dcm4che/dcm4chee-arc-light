@@ -3611,6 +3611,1762 @@
         }
       }
     },
+    "/monitor/export": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Export Tasks",
+        "operationId": "listExportTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDs"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "exportTaskList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Export Tasks",
+        "operationId": "deleteExportTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDs"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/deletedCount"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Export Task",
+        "operationId": "deleteExportTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Count Export Tasks",
+        "operationId": "countExportTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDs"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Export Task",
+        "operationId": "cancelExportTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task"
+          },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Export Tasks",
+        "operationId": "cancelExportTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDs"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/cancelTaskStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Cannot cancel tasks with status CANCELED, COMPLETED, WARNING or FAILED or Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/{taskPK}/reschedule/{exporterID}": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Export Task to potential different Exporter",
+        "operationId": "rescheduleExportTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          },
+          {
+            "$ref": "#/components/parameters/newExporterID"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task or Exporter configuration not found"
+          },
+          "409": {
+            "description": "tasks with status TO SCHEDULE cannot be rescheduled"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Export Tasks to original Exporter",
+        "operationId": "rescheduleExportTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDs"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Missing status or Validation for one of the query parameters failed."
+          },
+          "409": {
+            "description": "Cannot reschedule tasks with status TO SCHEDULE"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/reschedule/{newExporterID}": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Export Tasks to potential different Exporter",
+        "operationId": "rescheduleExportTasksToExporter",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/newExporterID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDs"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Missing status or Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "New Exporter configuration not found"
+          },
+          "409": {
+            "description": "Cannot reschedule tasks with status TO SCHEDULE"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/export/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Export Batches",
+        "operationId": "listExportBatches",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDs"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "exportBatchList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Retrieve Tasks",
+        "operationId": "listRetrieveTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAET"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAET"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueName"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "retrieveTaskList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Retrieve Tasks",
+        "operationId": "deleteRetrieveTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAET"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAET"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueName"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/deletedCount"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Retrieve Task",
+        "operationId": "deleteRetrieveTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Count Retrieve Tasks",
+        "operationId": "countRetrieveTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAET"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAET"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueName"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Retrieve Task",
+        "operationId": "cancelRetrieveTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task"
+          },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Retrieve Tasks",
+        "operationId": "cancelRetrieveTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAET"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAET"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueName"
+          },
+          {
+            "$ref": "#/components/parameters/cancelTaskStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Cannot cancel tasks with status CANCELED, COMPLETED, WARNING or FAILED or Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/{taskPK}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Retrieve Task",
+        "operationId": "rescheduleRetrieveTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task"
+          },
+          "409": {
+            "description": "Validation of task referring an Archive AE failed. Configuration not available on new device."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Retrieve Tasks",
+        "operationId": "rescheduleRetrieveTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAET"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAET"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueName"
+          },
+          {
+            "$ref": "#/components/parameters/newQueueName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "202": {
+            "$ref": "#/components/responses/accepted"
+          },
+          "400": {
+            "description": "Missing status or Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "New queue configuration not found"
+          },
+          "409": {
+            "$ref": "#/components/responses/failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Retrieve Batches",
+        "operationId": "listRetrieveBatches",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/remoteAET"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAET"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueName"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "retrieveBatchList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Storage Verification Tasks",
+        "operationId": "listStorageVerificationTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "stgverTaskList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Storage Verification Tasks",
+        "operationId": "deleteStorageVerificationTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/deletedCount"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Storage Verification Task",
+        "operationId": "deleteStorageVerificationTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Count Storage Verification Tasks",
+        "operationId": "countStorageVerificationTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Storage Verification Task",
+        "operationId": "cancelStorageVerificationTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task"
+          },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Storage Verification Tasks",
+        "operationId": "cancelStorageVerificationTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/cancelTaskStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Cannot cancel tasks with status CANCELED, COMPLETED, WARNING or FAILED or Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/{taskPK}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Storage Verification Task",
+        "operationId": "rescheduleStorageVerificationTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task"
+          },
+          "409": {
+            "description": "Validation of task referring an Archive AE failed. Configuration not available on new device."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Storage Verification Tasks",
+        "operationId": "rescheduleStorageVerificationTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/StudyInstanceUID"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "202": {
+            "$ref": "#/components/responses/accepted"
+          },
+          "400": {
+            "description": "Missing status or Validation for one of the query parameters failed."
+          },
+          "409": {
+            "$ref": "#/components/responses/failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/stgver/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Storage Verification Batches",
+        "operationId": "listStorageVerificationBatches",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "stgverBatchList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Compare Studies Tasks",
+        "operationId": "listCompareStudiesTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/primaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "diffTaskList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Compare Studies Tasks",
+        "operationId": "deleteCompareStudiesTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/primaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/deletedCount"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Delete Compare Studies Task",
+        "operationId": "deleteCompareStudiesTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Count Compare Studies Tasks",
+        "operationId": "countCompareStudiesTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/primaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Compare Studies Task",
+        "operationId": "cancelCompareStudiesTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task"
+          },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Cancel Compare Studies Tasks",
+        "operationId": "cancelCompareStudiesTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/primaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/cancelTaskStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Cannot cancel tasks with status CANCELED, COMPLETED, WARNING or FAILED or Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Compare Studies Task",
+        "operationId": "rescheduleCompareStudiesTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such task"
+          },
+          "409": {
+            "description": "Validation of task referring an Archive AE failed. Configuration not available on new device."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Reschedule Compare Studies Tasks",
+        "operationId": "rescheduleCompareStudiesTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/primaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "202": {
+            "$ref": "#/components/responses/accepted"
+          },
+          "400": {
+            "description": "Missing status or Validation for one of the query parameters failed."
+          },
+          "409": {
+            "$ref": "#/components/responses/failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}/studies": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Get Compare Studies Task Result",
+        "operationId": "getCompareStudiesTaskResult",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/taskPk"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/attributes"
+          },
+          "204": {
+            "description": "no matching study found at primary C-FIND SCP"
+          },
+          "404": {
+            "description": "no task with specified taskPK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Compare Studies Batches",
+        "operationId": "listCompareStudiesBatches",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/primaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "diffBatchList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/batch/{batchID}/studies": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Get Compare Studies Batch Result",
+        "operationId": "getCompareStudiesBatchResult",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/batchIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/localAET"
+          },
+          {
+            "$ref": "#/components/parameters/primaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryAET"
+          },
+          {
+            "$ref": "#/components/parameters/checkMissing"
+          },
+          {
+            "$ref": "#/components/parameters/checkDifferent"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/attributes"
+          },
+          "404": {
+            "description": "no task with specified batchID"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/storage": {
       "get": {
         "tags": [
@@ -5099,10 +6855,10 @@
             "$ref": "#/components/parameters/withoutstudies"
           },
           {
-            "$ref": "#/components/parameters/checkDifferent"
+            "$ref": "#/components/parameters/different"
           },
           {
-            "$ref": "#/components/parameters/checkMissing"
+            "$ref": "#/components/parameters/missing"
           },
           {
             "$ref": "#/components/parameters/orderBy"
@@ -7338,6 +9094,366 @@
           }
         }
       }
+    },
+    "/queue": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "List Configured Queues",
+        "operationId": "listQueues",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "$ref": "queueList.schema.json"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "List Tasks in Queue",
+        "operationId": "listTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/JMSMessageID"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/orderByTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "messageList.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Delete Tasks in Queue",
+        "operationId": "deleteTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/JMSMessageID"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/deletedCount"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/{taskID}": {
+      "delete": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Delete Task",
+        "operationId": "deleteTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/taskID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such queue or task"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/count": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Count Tasks in Queue",
+        "operationId": "countTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/JMSMessageID"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/{taskID}/cancel": {
+      "post": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Cancel Task",
+        "operationId": "cancelTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/taskID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such queue or task"
+          },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/cancel": {
+      "post": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Cancel Tasks in Queue",
+        "operationId": "cancelTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/cancelTaskStatus"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/JMSMessageID"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Cannot cancel tasks with status CANCELED, COMPLETED, WARNING or FAILED or Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "409": {
+            "description": "Invalid Queue Message status"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/{taskID}/reschedule": {
+      "post": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Reschedule Task",
+        "operationId": "rescheduleTask",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/taskID"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "No such queue or task"
+          },
+          "409": {
+            "description": "Validation of task referring an Archive AE or HL7 App failed. Configuration not available on new device."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/reschedule": {
+      "post": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Reschedule Tasks in Queue",
+        "operationId": "rescheduleTasks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queuePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/newDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/queueMsgStatus"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/JMSMessageID"
+          },
+          {
+            "$ref": "#/components/parameters/createdTime"
+          },
+          {
+            "$ref": "#/components/parameters/updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "202": {
+            "$ref": "#/components/responses/accepted"
+          },
+          "400": {
+            "description": "Missing Queue Message Status or Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "409": {
+            "$ref": "#/components/responses/failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7594,6 +9710,50 @@
         "in": "path",
         "description": "Expiration Date",
         "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "queuePathParam": {
+        "name": "queueName",
+        "in": "path",
+        "description": "Name of Queue",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "taskID": {
+        "name": "taskID",
+        "in": "path",
+        "description": "JMS Message ID of queue message",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "taskPk": {
+        "name": "taskPk",
+        "in": "path",
+        "description": "Primary Key of a task",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "newExporterID": {
+        "name": "newExporterID",
+        "in": "path",
+        "description": "New Exporter ID where task(s) shall be rescheduled",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "batchIDPathParam": {
+        "name": "batchID",
+        "in": "query",
+        "description": "Batch ID to filter by",
         "schema": {
           "type": "string"
         }
@@ -8019,6 +10179,14 @@
           "type": "boolean"
         }
       },
+      "newDeviceName": {
+        "name": "newDeviceName",
+        "in": "query",
+        "description": "New Device Name on which task(s) shall be rescheduled",
+        "schema": {
+          "type": "string"
+        }
+      },
       "dicomDeviceName": {
         "name": "dicomDeviceName",
         "in": "query",
@@ -8220,14 +10388,7 @@
         "in": "query",
         "description": "only return Storage Systems of a particular type",
         "schema": {
-          "type": "string",
-          "enum": [
-            "file",
-            "jclouds",
-            "emc-ecs-s3",
-            "hcp",
-            "documentum"
-          ]
+          "$ref": "#/components/schemas/storageURIScheme"
         }
       },
       "usage": {
@@ -8235,12 +10396,7 @@
         "in": "query",
         "description": "only return Storage Systems used for the specified content",
         "schema": {
-          "type": "string",
-          "enum": [
-            "dcmObjectStorageID",
-            "dcmMetadataStorageID",
-            "dcmSeriesMetadataStorageID"
-          ]
+          "$ref": "#/components/schemas/usage"
         }
       },
       "usableSpaceBelow": {
@@ -8285,7 +10441,7 @@
           "default": false
         }
       },
-      "checkDifferent": {
+      "different": {
         "name": "different",
         "in": "query",
         "description": "include Patients with different Patient Demographics",
@@ -8294,7 +10450,7 @@
           "default": true
         }
       },
-      "checkMissing": {
+      "missing": {
         "name": "missing",
         "in": "query",
         "description": "include Patients missing at the PDQ Service",
@@ -8308,13 +10464,7 @@
         "in": "query",
         "description": "Storage Commitment Status to filter by",
         "schema": {
-          "type": "string",
-          "enum": [
-            "PENDING",
-            "COMPLETED",
-            "WARNING",
-            "FAILED"
-          ]
+          "$ref": "#/components/schemas/stgCmtStatus"
         }
       },
       "ExporterID": {
@@ -8323,6 +10473,17 @@
         "description": "Exporter ID to filter by",
         "schema": {
           "type": "string"
+        }
+      },
+      "ExporterIDs": {
+        "name": "ExporterID",
+        "in": "query",
+        "description": "Exporter ID to filter by",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "JMSMessageID": {
@@ -8381,9 +10542,7 @@
         "in": "query",
         "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
         "schema": {
-          "type": "integer",
-          "enum": [ 0, 1, 2 ],
-          "default": 0
+          "$ref": "#/components/schemas/priority"
         }
       },
       "FreezeExpirationDate": {
@@ -8392,6 +10551,138 @@
         "description": "Shall be set to true to freeze(=FROZEN) or false to unfreeze(=UPDATEABLE) Expiration Date of the Study. If the query param is absent, keep the ExpirationDate unchanged for FROZEN studies.",
         "schema": {
           "type": "boolean"
+        }
+      },
+      "queueMsgStatus": {
+        "name": "status",
+        "in": "query",
+        "description": "status of tasks to filter by",
+        "schema": {
+          "$ref": "#/components/schemas/queueMsgStatus"
+        }
+      },
+      "cancelTaskStatus": {
+        "name": "status",
+        "in": "query",
+        "description": "status of tasks to filter by",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/cancelTaskStatus"
+        }
+      },
+      "status": {
+        "name": "status",
+        "in": "query",
+        "description": "status of tasks to filter by",
+        "schema": {
+          "$ref": "#/components/schemas/status"
+        }
+      },
+      "createdTime": {
+        "name": "createdTime",
+        "in": "query",
+        "description": "tasks in queue which were created between <datetime1>-<datetime2>",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "updatedTime": {
+        "name": "updatedTime",
+        "in": "query",
+        "description": "tasks in queue which were updated between <datetime1>-<datetime2>",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "StudyInstanceUID": {
+        "name": "StudyInstanceUID",
+        "in": "query",
+        "description": "Study Instance UID to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "localAET": {
+        "name": "localAET",
+        "in": "query",
+        "description": "Archive AE Title to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "remoteAET": {
+        "name": "remoteAET",
+        "in": "query",
+        "description": "C-MOVE SCP AE Title to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "destinationAET": {
+        "name": "destinationAET",
+        "in": "query",
+        "description": "Destination AE Title to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dcmQueueName": {
+        "name": "dcmQueueName",
+        "in": "query",
+        "description": "name of retrieve queue to filter by",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/dcmQueueName"
+          }
+        }
+      },
+      "newQueueName": {
+        "name": "newQueueName",
+        "in": "query",
+        "description": "New Retrieve Queue on which task(s) shall be rescheduled",
+        "schema": {
+          "$ref": "#/components/schemas/newQueueName"
+        }
+      },
+      "primaryAET": {
+        "name": "primaryAET",
+        "in": "query",
+        "description": "AE Title of the primary C-FIND SCP to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "secondaryAET": {
+        "name": "secondaryAET",
+        "in": "query",
+        "description": "AE Title of the Secondary C-FIND SCP to filter by",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "checkDifferent": {
+        "name": "checkDifferent",
+        "in": "query",
+        "description": "include/exclude tasks which check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "checkMissing": {
+        "name": "checkMissing",
+        "in": "query",
+        "description": "include/exclude tasks which check for studies only available at the primary C-FIND SCP",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "comparefields": {
+        "name": "comparefields",
+        "in": "query",
+        "description": "compare attribute set id to filter by",
+        "schema": {
+          "type": "string"
         }
       }
     },
@@ -8448,6 +10739,46 @@
               ],
               "properties": {
                 "deleted": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "accepted": {
+        "description": "Number of Reschedule Tasks Accepted",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "count",
+                "failed"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "failed": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "failed": {
+        "description": "Reschedule of all tasks failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "faield"
+              ],
+              "properties": {
+                "failed": {
                   "type": "integer"
                 }
               }
@@ -9143,20 +11474,12 @@
         "content": {
           "application/dicom+json": {
             "schema": {
-              "type": "object",
-              "externalDocs": {
-                "description": "Attributes in DICOM JSON Model Format",
-                "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
-              }
+              "$ref": "#/components/schemas/attributes"
             }
           },
           "application/json": {
             "schema": {
-              "type": "object",
-              "externalDocs": {
-                "description": "Attributes in DICOM JSON Model Format",
-                "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
-              }
+              "$ref": "#/components/schemas/attributes"
             }
           }
         }
@@ -9254,9 +11577,11 @@
     "schemas": {
       "attributes": {
         "type": "object",
-        "externalDocs": {
-          "description": "Attributes in DICOM JSON Model Format",
-          "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
+        "example": {
+          "externalDocs": {
+            "description": "Attributes in DICOM JSON Model Format",
+            "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
+          }
         }
       },
       "patientVerificationStatus": {
@@ -9345,8 +11670,7 @@
           "Retrieve11",
           "Retrieve12",
           "Retrieve13"
-        ],
-        "default": "Retrieve1"
+        ]
       },
       "storageVerificationPolicy": {
         "type": "string",
@@ -9359,11 +11683,66 @@
           "S3_MD5SUM"
         ]
       },
-      "cancelStatus": {
+      "storageURIScheme": {
+        "type": "string",
+        "enum": [
+          "file",
+          "jclouds",
+          "emc-ecs-s3",
+          "hcp",
+          "documentum"
+        ]
+      },
+      "usage": {
+        "type": "string",
+        "enum": [
+          "dcmObjectStorageID",
+          "dcmMetadataStorageID",
+          "dcmSeriesMetadataStorageID"
+        ]
+      },
+      "priority": {
+        "type": "integer",
+        "enum": [ 0, 1, 2 ],
+        "default": 0
+      },
+      "stgCmtStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "COMPLETED",
+          "WARNING",
+          "FAILED"
+        ]
+      },
+      "cancelTaskStatus": {
         "type": "string",
         "enum": [
           "SCHEDULED",
           "IN PROCESS"
+        ]
+      },
+      "queueMsgStatus": {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "IN PROCESS",
+          "COMPLETED",
+          "WARNING",
+          "FAILED",
+          "CANCELED"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "TO SCHEDULE",
+          "SCHEDULED",
+          "IN PROCESS",
+          "COMPLETED",
+          "WARNING",
+          "FAILED",
+          "CANCELED"
         ]
       }
     }

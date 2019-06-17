@@ -1627,6 +1627,20 @@
             "type": "string"
           },
           {
+            "name": "status",
+            "in": "query",
+            "description": "list batche results with at least one diff task with the specified status",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "list batch results with at least one diff task with the specified Archive AE Title",
@@ -1681,9 +1695,6 @@
             "schema": {
               "type": "file"
             }
-          },
-          "204": {
-            "description": "no matching study found at primary C-FIND SCP"
           },
           "404": {
             "description": "no task with specified batchID"
@@ -2280,6 +2291,9 @@
               "$ref": "exportTaskList.schema.json"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -2357,6 +2371,9 @@
             "schema": {
               "$ref": "#/definitions/Deleted"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "500": {
             "description": "Internal Server Error"
@@ -2536,6 +2553,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -2613,7 +2633,7 @@
             }
           },
           "400": {
-            "description": "Invalid status for Cancel of Export tasks"
+            "description": "Cannot cancel tasks with status SCHEDULED or IN PROCESS or Validation for one of the query parameters failed."
           },
           "500": {
             "description": "Internal Server Error"
@@ -2702,7 +2722,7 @@
             }
           },
           "400": {
-            "description": "Export task status is null"
+            "description": "Missing status or Validation for one of the query parameters failed."
           },
           "409": {
             "description": "tasks with status TO SCHEDULE cannot be rescheduled"
@@ -2801,7 +2821,7 @@
             }
           },
           "400": {
-            "description": "Export task status is null"
+            "description": "Missing status or Validation for one of the query parameters failed."
           },
           "404": {
             "description": "exporter not found"
@@ -3052,6 +3072,9 @@
               "$ref": "retrieveTaskList.schema.json"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -3148,6 +3171,9 @@
               "$ref": "#/definitions/Deleted"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -3205,6 +3231,7 @@
             "description": "list batches with at least one retrieve task with the specified status",
             "type": "string",
             "enum": [
+              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
@@ -3263,6 +3290,9 @@
             "schema": {
               "$ref": "retrieveBatchList.schema.json"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
           },
           "500": {
             "description": "Internal Server Error"
@@ -3362,6 +3392,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -3457,7 +3490,7 @@
             }
           },
           "400": {
-            "description": "Invalid status for Cancel of Retrieve tasks"
+            "description": "Cannot cancel tasks with status CANCELED, COMPLETED, WARNING or FAILED or Validation for one of the query parameters failed."
           },
           "500": {
             "description": "Internal Server Error"
@@ -4479,6 +4512,9 @@
               "$ref": "messageList.schema.json"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "Queue not found"
           },
@@ -4549,6 +4585,9 @@
             "schema": {
               "$ref": "#/definitions/Deleted"
             }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
             "description": "Queue not found"
@@ -4623,6 +4662,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
           "404": {
             "description": "Queue not found"
           },
@@ -4694,6 +4736,12 @@
             }
           },
           "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "409": {
             "description": "Invalid Queue Message status"
           },
           "500": {
@@ -4781,6 +4829,9 @@
           },
           "400": {
             "description": "Queue Message status is null"
+          },
+          "404": {
+            "description": "Queue not found"
           },
           "409": {
             "description": "Validation for all matching tasks failed",
@@ -4903,10 +4954,10 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "task not found"
+            "description": "No such queue or task"
           },
           "409": {
-            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
+            "description": "Validation of task referring an Archive AE or HL7 App failed. Configuration not available on new device."
           },
           "500": {
             "description": "Internal Server Error"
