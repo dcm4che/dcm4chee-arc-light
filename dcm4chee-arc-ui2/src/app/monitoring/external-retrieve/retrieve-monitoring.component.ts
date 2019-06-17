@@ -97,7 +97,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
 
             this.route.queryParams.subscribe(params => {
                 console.log("params",params);

@@ -4,7 +4,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {j4care} from "../../helpers/j4care.service";
-import {Headers} from "@angular/http";
+import {Headers, Http, RequestOptions} from "@angular/http";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {Observable} from "rxjs/Observable";
 import * as _ from 'lodash'
@@ -13,10 +13,11 @@ import {StorageSystemsService} from "../../monitoring/storage-systems/storage-sy
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DcmWebApp} from "../../models/dcm-web-app";
-import {HttpHeaders} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {DicomTableSchema, DynamicPipe} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Injectable()
 export class StudyService {
@@ -25,7 +26,9 @@ export class StudyService {
       private aeListService:AeListService,
       private $http:J4careHttpService,
       private storageSystems:StorageSystemsService,
-      private devicesService:DevicesService
+      private devicesService:DevicesService,
+      private nativehttp:HttpClient,
+      private nativeHttp0:Http
     ) { }
 
     getEntrySchema(devices, aetWebService):{schema:FilterSchema, lineLength:number}{
@@ -300,6 +303,43 @@ export class StudyService {
         })
     }
 
+    testXds(url = "http://dev.j4care.com:8080/xdsadministrator/configuration/affinityDomains", token){
+        let headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+        return this.nativehttp.get(url,{headers:headers});
+    }
+    testPerformance(){
+        let token = KeycloakService.keycloakAuth.token;
+        let t11 =  performance.now();
+        let headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+        this.nativehttp.get("./assets/schema/device.schema.json",{headers:headers}).subscribe(res=>{
+            let t12 =  performance.now();
+            console.log("Response time HttpClient",t12-t11);
+        })
+        let t21 =  performance.now();
+        let headers0 = new Headers()
+        headers0.append("Authorization",`Bearer ${token}`);
+        let options = new RequestOptions({ headers: headers0 });
+        this.nativeHttp0.get("./assets/schema/device.schema.json",  options)
+            .map(res=>res.json())
+            .subscribe(res=>{
+            let t22 =  performance.now();
+            console.log("Response time Http      ",t22-t21);
+        });
+
+        let t31 = performance.now();
+        this.$http.get("./assets/schema/device.schema.json").subscribe(res=>{
+            let t32 = performance.now();
+            console.log("Repsonse time j4carehttp",t32-t31);
+        });
+/*        this.nativehttp.get("./assets/schema/device.schema.json").subscribe(res=>{
+            // console.log("new response",res);
+        });
+        this.nativeHttp0.get("./assets/schema/device.schema.json")
+            .map(res=>res.json())
+            .subscribe(res=>{
+            // console.log("new response0",res);
+        });*/
+    }
     PATIENT_STUDIES_TABLE_SCHEMA($this, actions):DicomTableSchema{
         return {
             patient:[

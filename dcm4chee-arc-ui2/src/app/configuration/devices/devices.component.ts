@@ -16,6 +16,7 @@ import {DeviceConfiguratorService} from "../device-configurator/device-configura
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
 import {HttpHeaders} from "@angular/common/http";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-devices',
@@ -67,7 +68,7 @@ export class DevicesComponent implements OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){

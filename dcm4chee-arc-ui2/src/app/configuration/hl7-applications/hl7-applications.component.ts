@@ -5,6 +5,7 @@ import {HostListener} from "@angular/core";
 import * as _ from 'lodash';
 import {Router} from "@angular/router";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-hl7-applications',
@@ -37,7 +38,7 @@ export class Hl7ApplicationsComponent implements OnInit {
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){

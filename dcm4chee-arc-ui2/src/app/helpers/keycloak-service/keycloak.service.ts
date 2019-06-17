@@ -114,27 +114,31 @@ export class KeycloakService {
     }
 
     getToken():Observable<any>{
+        let t1 = performance.now();
         if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated){
             console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
             if(KeycloakService.keycloakAuth.isTokenExpired(5)){
-                return Observable.of(1).flatMap(res=>{
-                    return new Promise<any>((resolve, reject) => {
-                        if (KeycloakService.keycloakAuth.token) {
-                            KeycloakService.keycloakAuth
-                                .updateToken(5)
-                                .success(() => {
-                                    resolve(<any>KeycloakService.keycloakAuth);
-                                })
-                                .error(() => {
-                                    reject('Failed to refresh token');
-                                });
-                        } else {
-                            // return this.getTokenObs();
-                            reject('Not loggen in');
-                        }
-                    });
-                });
+                return Observable.of(new Promise<any>((resolve, reject) => {
+                    if (KeycloakService.keycloakAuth.token) {
+                        KeycloakService.keycloakAuth
+                            .updateToken(5)
+                            .success(() => {
+                                let t2 = performance.now();
+                                console.log("getToken updated",t2-t1);
+                                console.trace("updated")
+                                resolve(<any>KeycloakService.keycloakAuth);
+                            })
+                            .error(() => {
+                                reject('Failed to refresh token');
+                            });
+                    } else {
+                        // return this.getTokenObs();
+                        reject('Not loggen in');
+                    }
+                }));
             }else{
+                let t2 = performance.now();
+                console.log("getToken not updated",t2-t1);
                 return Observable.of(KeycloakService.keycloakAuth);
             }
         }else{

@@ -14,6 +14,7 @@ import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.servi
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-device-configurator',
@@ -297,7 +298,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){

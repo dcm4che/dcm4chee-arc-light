@@ -199,7 +199,7 @@ export class J4careHttpService{
         if(dcmWebApp){
 
         }else{
-            if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
+            if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){ //TODO need refacatorization
                 this.setValueInGlobal('getRealmStateActive',true);
                 return this.getRealm();
             }else{

@@ -12,6 +12,7 @@ import {SearchPipe} from '../../pipes/search.pipe';
 import {AppService} from "../../app.service";
 import {DeviceConfiguratorComponent} from "../../configuration/device-configurator/device-configurator.component";
 import {ActivatedRoute} from "@angular/router";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
     selector: 'dynamic-form',
@@ -48,7 +49,7 @@ export class DynamicFormComponent implements OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){

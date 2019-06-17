@@ -1,7 +1,7 @@
 <div (keydown)="keyDown($event)" (keyup)="keyUp($event)">
     <input placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="filterFormElements()">
     <!--<div (click)="form.disable()">disable</div>-->
-    <form  [formGroup]="form"> <!-- *ngIf="form"-->
+    <form  [formGroup]="form">
         <div *ngFor="let formelement of formelements" class="form-row">
             <df-element [formelement]="formelement" [formelements]="formelements" [form]="form" [partSearch]="partSearch" [readOnlyMode]="readOnlyMode"></df-element>
         </div>

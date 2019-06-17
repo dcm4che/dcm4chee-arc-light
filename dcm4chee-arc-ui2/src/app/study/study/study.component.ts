@@ -485,6 +485,17 @@ export class StudyComponent implements OnInit {
         });
         // this.service.test(this.deviceWebservice.selectedWebApp);
     }
+    bearerToken;
+    testUrl;
+    testRequest(){
+
+        this.service.testXds(this.testUrl, this.bearerToken).subscribe(res=>{
+            console.log("res xds",res);
+        })
+    }
+    testPerformance(){
+        this.service.testPerformance();
+    }
     testStudy(){
 
         this.service.testAet("http://test-ng:8080/dcm4chee-arc/aets/TEST/rs/studies?limit=21&offset=0&includefield=all", this.deviceWebservice.selectedWebApp).subscribe(res=>{
