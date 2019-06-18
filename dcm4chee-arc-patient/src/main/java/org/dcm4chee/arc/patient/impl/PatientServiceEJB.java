@@ -212,6 +212,7 @@ public class PatientServiceEJB {
         } else {
             moveStudies(ctx, prev, pat);
             moveMPPS(prev, pat);
+            moveMWLItems(prev, pat);
         }
         if (ctx.getHttpServletRequestInfo() != null) {
             if (pat.getPatientName() != null)
@@ -327,32 +328,41 @@ public class PatientServiceEJB {
     }
 
     private void moveStudies(PatientMgtContext ctx, Patient from, Patient to) {
-        for (Study study : em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
-                .setParameter(1, from).getResultList()) {
-            Attributes modified = new Attributes();
-            from.getAttributes().diff(
-                    to.getAttributes(),
-                    ctx.getAttributeFilter().getSelection(false),
-                    modified);
-            study.setPatient(to);
-            study.setAttributes(study.getAttributes()
-                            .addOriginalAttributes(
-                                    null,
-                                    new Date(),
-                                    Attributes.CORRECT,
-                                    device.getDeviceName(),
-                                    modified),
-                    ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
-            to.incrementNumberOfStudies();
-            from.decrementNumberOfStudies();
-        }
+        em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
+                .setParameter(1, from)
+                .getResultList()
+                .forEach(study -> {
+                    Attributes modified = new Attributes();
+                    from.getAttributes().diff(
+                            to.getAttributes(),
+                            ctx.getAttributeFilter().getSelection(false),
+                            modified);
+                    study.setPatient(to);
+                    study.setAttributes(study.getAttributes()
+                                    .addOriginalAttributes(
+                                            null,
+                                            new Date(),
+                                            Attributes.CORRECT,
+                                            device.getDeviceName(),
+                                            modified),
+                            ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
+                    to.incrementNumberOfStudies();
+                    from.decrementNumberOfStudies();
+                });
     }
 
     private void moveMPPS(Patient from, Patient to) {
-        for (MPPS mpps : em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
-                .setParameter(1, from).getResultList()) {
-            mpps.setPatient(to);
-        }
+        em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
+                .setParameter(1, from)
+                .getResultList()
+                .forEach(mpps -> mpps.setPatient(to));
+    }
+
+    private void moveMWLItems(Patient from, Patient to) {
+        em.createNamedQuery(MWLItem.FIND_BY_PATIENT, MWLItem.class)
+                .setParameter(1, from)
+                .getResultList()
+                .forEach(mwl -> mwl.setPatient(to));
     }
 
     private PatientID createPatientID(IDWithIssuer idWithIssuer) {
