@@ -51,7 +51,7 @@ export class KeycloakService {
     init(options?: any) {
         if(KeycloakService.keycloakConfig){
             KeycloakService.keycloakAuth = new Keycloak(KeycloakService.keycloakConfig);
-            return Observable.of(1).flatMap(res=>{ return new Promise((resolve, reject) => {
+            return j4care.promiseToObservable(new Promise((resolve, reject) => {
                 KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
                     .success(() => {
                         this.setTokenSource.next(KeycloakService.keycloakAuth);
@@ -68,12 +68,12 @@ export class KeycloakService {
                     .error((errorData: any) => {
                         reject(errorData);
                     });
-            })})
+            }))
         }else{
             return this.mainservice.getKeycloakJson().flatMap((keycloakJson:any)=>{
                 localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
                 KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
-                return Observable.of(1).flatMap(res=>{ return new Promise((resolve, reject) => {
+                return j4care.promiseToObservable(new Promise((resolve, reject) => {
                     KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
                         .success(() => {
                             this.setTokenSource.next(KeycloakService.keycloakAuth.token);
@@ -82,7 +82,7 @@ export class KeycloakService {
                         .error((errorData: any) => {
                             reject(errorData);
                         });
-                })})
+                }))
             });
         }
     }
@@ -114,78 +114,28 @@ export class KeycloakService {
     }
 
     getToken():Observable<any>{
-        let t1 = performance.now();
         if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated){
             console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
             if(KeycloakService.keycloakAuth.isTokenExpired(5)){
-                return Observable.of(new Promise<any>((resolve, reject) => {
+                return j4care.promiseToObservable(new Promise<any>((resolve, reject) => {
                     if (KeycloakService.keycloakAuth.token) {
                         KeycloakService.keycloakAuth
                             .updateToken(5)
                             .success(() => {
-                                let t2 = performance.now();
-                                console.log("getToken updated",t2-t1);
-                                console.trace("updated")
                                 resolve(<any>KeycloakService.keycloakAuth);
                             })
                             .error(() => {
                                 reject('Failed to refresh token');
                             });
                     } else {
-                        // return this.getTokenObs();
-                        reject('Not loggen in');
+                        reject('Not logged in');
                     }
                 }));
             }else{
-                let t2 = performance.now();
-                console.log("getToken not updated",t2-t1);
                 return Observable.of(KeycloakService.keycloakAuth);
             }
         }else{
             return this.getTokenObs();
         }
     }
-/*    getToken2():Observable<any>{
-        if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated && !KeycloakService.keycloakAuth.isTokenExpired(5)){
-            console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
-            return Observable.of(KeycloakService.keycloakAuth);
-        }else{
-            // return this.getTokenObs();
-            return Observable.of(1).flatMap(res=>{ return new Promise<any>((resolve, reject) => {
-                if (KeycloakService.keycloakAuth.token) {
-                    KeycloakService.keycloakAuth
-                        .updateToken(5)
-                        .success(() => {
-                            this.setTokenSource.next(KeycloakService.keycloakAuth.token);
-                            resolve(<any>KeycloakService.keycloakAuth);
-                        })
-                        .error(() => {
-                            reject('Failed to refresh token');
-                        });
-                } else {
-                    // return this.getTokenObs();
-                    reject('Not loggen in');
-                }
-            });
-            });
-        }
-    }
-
-    getToken1(): Observable<any> {
-        return Observable.of(1).flatMap(res=>{ return new Promise<any>((resolve, reject) => {
-            if (KeycloakService.keycloakAuth.token) {
-                KeycloakService.keycloakAuth
-                    .updateToken(5)
-                    .success(() => {
-                        resolve(<any>KeycloakService.keycloakAuth);
-                    })
-                    .error(() => {
-                        reject('Failed to refresh token');
-                    });
-            } else {
-                reject('Not loggen in');
-            }
-            });
-        });
-    }*/
 }

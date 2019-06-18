@@ -100,21 +100,14 @@ export class J4careHttpService{
     }
     private request(requestFunctionName, param, dcmWebApp?:DcmWebApp){
         let $this = this;
-        // $this.setHeader(param.header, dcmWebApp);
-
-        // let headerIndex = (param.length === 3) ? 2:1;
         return $this.refreshToken().flatMap((response)=>{
                 $this.setHeader(param.header, dcmWebApp);
-                // this.setGlobalToken(response,param);
                 param.header = {headers:this.header};
                 return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
             }).catch(res=>{
-                /*if(res.ok === false && res.status === 0 && res.type === 3){
-                    if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
-                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }*/
+                j4care.log("In catch",res);
                 if(res.statusText === "Unauthorized"){
-                    return $this.getRealm().flatMap((resp)=>{
+                    return $this.refreshToken().flatMap((resp)=>{
                         // this.setGlobalToken(resp,param);
                         return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
                     });
@@ -171,11 +164,6 @@ export class J4careHttpService{
             .map(res => {
                 let resjson;
                 try{
-    /*                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                    if(pattern.exec(res["url"])){
-                        if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
-                            WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                    }*/
                     resjson = res.json();
                     console.log("getRealm Response:",res);
                 }catch (e){
@@ -190,28 +178,14 @@ export class J4careHttpService{
                 return resjson;
             })
     }
-/*    getTokenFromKeycloak(){
-        if(!this.mainservice.keycloak.tokenValid()){
-            return this.mainservice.keycloak.
-        }
-    }*/
     refreshToken(dcmWebApp?:DcmWebApp):Observable<any>{
-        if(dcmWebApp){
-
-        }else{
-            if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){ //TODO need refacatorization
+        if(!dcmWebApp){
+            if((!_.hasIn(KeycloakService,"keycloakAuth.authenticated") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
                 this.setValueInGlobal('getRealmStateActive',true);
                 return this.getRealm();
             }else{
-                if(!this.mainservice.global.notSecure){
-                   /* if(_.hasIn(this.mainservice, "global.authentication.token")){
-                        this.token["UI"] = this.mainservice.global.authentication.token;
-                    }else{
-                        // this.setValueInGlobal('getRealmStateActive',true);
-                        return this.getRealm();
-                    }*/
+                if(!this.mainservice.global || !this.mainservice.global.notSecure){
                     if(KeycloakService.keycloakAuth.authenticated && !KeycloakService.keycloakAuth.isTokenExpired(5)){
-                        // console.log("abaout to set the token2",KeycloakService.keycloakAuth.token);
                         this.token["UI"] = KeycloakService.keycloakAuth.token;
                     }else{
                         this.setValueInGlobal('getRealmStateActive',true);
@@ -224,11 +198,6 @@ export class J4careHttpService{
     }
     tokenValid(){
         return this._keycloakService.authenticated() && !KeycloakService.keycloakAuth.isTokenExpired(5);
-/*        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000))){
-            return true;
-        }else{
-            return false;
-        }*/
     }
     setValueInGlobal(key, value){
         if (this.mainservice.global && !this.mainservice.global[key]){
@@ -254,7 +223,6 @@ export class J4careHttpService{
         }
         if(header){
             if(token){
-                // console.log("header",header);
                 try{
                     if(header instanceof HttpHeaders){
                         this.header = header.set('Authorization', `Bearer ${token}`);
@@ -272,10 +240,8 @@ export class J4careHttpService{
         }else{
             this.header = new HttpHeaders();
             if(token){
-                // console.log("setHeadernew",token);
                 this.header = new HttpHeaders().append('Authorization', `Bearer ${token}`);
             }
         }
-        // header = this.header;
     }
 }

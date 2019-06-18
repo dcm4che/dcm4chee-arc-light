@@ -87,6 +87,15 @@ export class j4care {
     navigateTo(url){
         this.router.navigateByUrl(url);
     }
+    static promiseToObservable<T>(promise:Promise<T>):Observable<T>{
+        return Observable.create(observer=>{
+            promise.then(res=>{
+                observer.next(res);
+            }).catch(err=>{
+                observer.error(err);
+            })
+        });
+    }
     static prepareFlatFilterObject(array,lineLength?){
         if(!lineLength){
             lineLength = 3;
