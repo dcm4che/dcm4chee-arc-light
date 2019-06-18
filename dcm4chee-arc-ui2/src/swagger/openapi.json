@@ -3660,6 +3660,9 @@
           "400": {
             "description": "Validation for one of the query parameters failed"
           },
+          "406": {
+            "description": "Media type in Accept Header of Http Request Not Acceptable."
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -4091,6 +4094,9 @@
           "400": {
             "description": "Validation for one of the query parameters failed"
           },
+          "406": {
+            "description": "Media type in Accept Header of Http Request Not Acceptable."
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -4509,6 +4515,9 @@
           "400": {
             "description": "Validation for one of the query parameters failed"
           },
+          "406": {
+            "description": "Media type in Accept Header of Http Request Not Acceptable."
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -4857,7 +4866,7 @@
             "$ref": "#/components/parameters/checkDifferent"
           },
           {
-            "$ref": "#/components/parameters/comparefields"
+            "$ref": "#/components/parameters/comparefield"
           },
           {
             "$ref": "#/components/parameters/queueMsgStatus"
@@ -4887,6 +4896,9 @@
           },
           "400": {
             "description": "Validation for one of the query parameters failed"
+          },
+          "406": {
+            "description": "Media type in Accept Header of Http Request Not Acceptable."
           },
           "500": {
             "description": "Internal Server Error"
@@ -4919,7 +4931,7 @@
             "$ref": "#/components/parameters/checkDifferent"
           },
           {
-            "$ref": "#/components/parameters/comparefields"
+            "$ref": "#/components/parameters/comparefield"
           },
           {
             "$ref": "#/components/parameters/queueMsgStatus"
@@ -4999,7 +5011,7 @@
             "$ref": "#/components/parameters/checkDifferent"
           },
           {
-            "$ref": "#/components/parameters/comparefields"
+            "$ref": "#/components/parameters/comparefield"
           },
           {
             "$ref": "#/components/parameters/queueMsgStatus"
@@ -5082,7 +5094,7 @@
             "$ref": "#/components/parameters/checkDifferent"
           },
           {
-            "$ref": "#/components/parameters/comparefields"
+            "$ref": "#/components/parameters/comparefield"
           },
           {
             "$ref": "#/components/parameters/cancelTaskStatus"
@@ -5171,7 +5183,7 @@
             "$ref": "#/components/parameters/checkDifferent"
           },
           {
-            "$ref": "#/components/parameters/comparefields"
+            "$ref": "#/components/parameters/comparefield"
           },
           {
             "$ref": "#/components/parameters/queueMsgStatus"
@@ -5225,7 +5237,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/attributes"
+            "description": "different/missing studies as JSON array with DICOM JSON objects - may be empty if no study differs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
           },
           "204": {
             "description": "no matching study found at primary C-FIND SCP"
@@ -5269,7 +5288,7 @@
             "$ref": "#/components/parameters/checkDifferent"
           },
           {
-            "$ref": "#/components/parameters/comparefields"
+            "$ref": "#/components/parameters/comparefield"
           },
           {
             "$ref": "#/components/parameters/createdTime"
@@ -5336,7 +5355,7 @@
             "$ref": "#/components/parameters/checkDifferent"
           },
           {
-            "$ref": "#/components/parameters/comparefields"
+            "$ref": "#/components/parameters/comparefield"
           },
           {
             "$ref": "#/components/parameters/createdTime"
@@ -5356,7 +5375,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/attributes"
+            "description": "different/missing studies as JSON array with DICOM JSON objects - may be empty if no study differs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
           },
           "404": {
             "description": "no task with specified batchID"
@@ -6808,7 +6834,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/attributes"
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
           },
           "404": {
             "description": "No such PDQ Service or Patient was not found by the specified PDQ Service"
@@ -8839,7 +8872,14 @@
         },
         "responses": {
           "200": {
-            "$ref": "#/components/responses/attributes"
+            "description": "Created / Updated Study",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
           },
           "400": {
             "description": "JSON request body not well formed or Missing Patient ID in request body"
@@ -9454,6 +9494,2679 @@
           }
         }
       }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgver": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Verify Storage of Study",
+        "operationId": "VerifyStorageOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationPolicy"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationUpdateLocationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationStorageID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Verification successful for all objects of the Study",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Storage Verification successful for some objects of the Study, but failures exist for others.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE title or Study"
+          },
+          "409": {
+            "description": "Storage Verification failed for all objects of the Study",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Verify Storage of Study",
+        "operationId": "VerifyStorageOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationPolicy"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationUpdateLocationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationStorageID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Verification successful for all objects of the Series",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Storage Verification successful for some objects of the Series, but failures exist for others.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE title, Study or Series"
+          },
+          "409": {
+            "description": "Storage Verification failed for all objects of the Series",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgver": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Verify Storage of Study",
+        "operationId": "VerifyStorageOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationPolicy"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationUpdateLocationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationStorageID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Verification successful for SOP Instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE title, Study, Series or SOP Instance"
+          },
+          "409": {
+            "description": "Storage Verification failed for SOP Instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/studies": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Studies",
+        "operationId": "ScheduleStorageVerificationOfStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/series": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Series",
+        "operationId": "ScheduleStorageVerificationOfSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Series of Study",
+        "operationId": "ScheduleStorageVerificationOfSeriesOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Study"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/instances": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Instances",
+        "operationId": "ScheduleStorageVerificationOfInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Instances of Study",
+        "operationId": "ScheduleStorageVerificationOfInstancesOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Study"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "STGVER-RS"
+        ],
+        "summary": "Schedule Storage Verification of Instances of Series",
+        "operationId": "ScheduleStorageVerificationOfInstancesOfSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title, Study or Series"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findscp}/diff/{secondaryFindSCP}/studies": {
+      "get": {
+        "tags": [
+          "DIFF-RS"
+        ],
+        "summary": "Compare Studies",
+        "operationId": "CompareStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryFindSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/different"
+          },
+          {
+            "$ref": "#/components/parameters/missing"
+          },
+          {
+            "$ref": "#/components/parameters/ForceQueryByStudyUID"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/queue"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "different/missing studies as JSON array with DICOM JSON objects - may be empty if no study differs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/attributes"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "204": {
+            "description": "No matching Study found at primary C-FIND SCP"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "DICOM Service Exception"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/count": {
+      "get": {
+        "tags": [
+          "DIFF-RS"
+        ],
+        "summary": "Compare Studies Count",
+        "operationId": "CompareStudiesCount",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryFindSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/different"
+          },
+          {
+            "$ref": "#/components/parameters/missing"
+          },
+          {
+            "$ref": "#/components/parameters/ForceQueryByStudyUID"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/compareStudiesCount"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "DICOM Service Exception"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/csv:{field}": {
+      "post": {
+        "tags": [
+          "DIFF-RS"
+        ],
+        "summary": "Compares Studies specified in CSV",
+        "operationId": "CompareStudiesCSV",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/secondaryFindSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/csvField"
+          },
+          {
+            "$ref": "#/components/parameters/different"
+          },
+          {
+            "$ref": "#/components/parameters/missing"
+          },
+          {
+            "$ref": "#/components/parameters/includefield"
+          },
+          {
+            "$ref": "#/components/parameters/comparefields"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "requestBody": {
+          "description": "CSV File containing Study Instance UIDs",
+          "required": true,
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "file",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "204": {
+            "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID is specified as less than 1"
+          },
+          "404": {
+            "description": "No such Archive AE Title"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/export/{exporterID}": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Study",
+        "operationId": "exportStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/exported"
+          },
+          "202": {
+            "description": "successful operation"
+          },
+          "206": {
+            "$ref": "#/components/responses/exported"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE Title or Study or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "DICOM Service Exception or Export of all instances failed"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/{exporterID}": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Series",
+        "operationId": "exportSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/exported"
+          },
+          "202": {
+            "description": "successful operation"
+          },
+          "206": {
+            "$ref": "#/components/responses/exported"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE Title or Study or Series or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "DICOM Service Exception or Export of all instances failed"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/{exporterID}": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Instance",
+        "operationId": "exportInstance",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/exported"
+          },
+          "202": {
+            "description": "successful operation"
+          },
+          "206": {
+            "$ref": "#/components/responses/exported"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE Title or Study or Series or Instance or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "DICOM Service Exception or Export of all instances failed"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Studies specified in CSV",
+        "operationId": "ExportStudiesCSV",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/csvField"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "requestBody": {
+          "description": "CSV File containing Study Instance UIDs",
+          "required": true,
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "file",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "204": {
+            "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+          },
+          "400": {
+            "description": "CSV field for Study Instance UID is specified as less than 1"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter with specified exporterID not configured"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Studies",
+        "operationId": "exportMatchingStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/series": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Series",
+        "operationId": "exportMatchingSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Series of Study",
+        "operationId": "exportMatchingSeriesOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter or Study or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/instances": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Instances",
+        "operationId": "exportMatchingInstances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Instances of Study",
+        "operationId": "exportMatchingInstancesOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter or Study or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Instances of Series",
+        "operationId": "exportMatchingInstancesOfSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/ExporterIDPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/only-stgcmt"
+          },
+          {
+            "$ref": "#/components/parameters/only-ian"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/patientVerificationStatus"
+          },
+          {
+            "$ref": "#/components/parameters/incomplete"
+          },
+          {
+            "$ref": "#/components/parameters/retrievefailed"
+          },
+          {
+            "$ref": "#/components/parameters/storageVerificationFailed"
+          },
+          {
+            "$ref": "#/components/parameters/compressionfailed"
+          },
+          {
+            "$ref": "#/components/parameters/metadataUpdateFailed"
+          },
+          {
+            "$ref": "#/components/parameters/SendingApplicationEntityTitleOfSeries"
+          },
+          {
+            "$ref": "#/components/parameters/StudyReceiveDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudyAccessDateTime"
+          },
+          {
+            "$ref": "#/components/parameters/StudySizeInKB"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET"
+          },
+          {
+            "$ref": "#/components/parameters/ExternalRetrieveAET!"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationDate"
+          },
+          {
+            "$ref": "#/components/parameters/ExpirationState"
+          },
+          {
+            "$ref": "#/components/parameters/allOfModalitiesInStudy"
+          },
+          {
+            "$ref": "#/components/parameters/storageID"
+          },
+          {
+            "$ref": "#/components/parameters/storageClustered"
+          },
+          {
+            "$ref": "#/components/parameters/storageExported"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter or Study or Series or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Retrieve Study from external C-MOVE SCP",
+        "operationId": "RetrieveStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "export.schema.json"
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "206": {
+            "$ref": "export.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "$ref": "export.schema.json"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Retrieve Series from external C-MOVE SCP",
+        "operationId": "RetrieveSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "export.schema.json"
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "206": {
+            "$ref": "export.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "$ref": "export.schema.json"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Retrieve Instance from external C-MOVE SCP",
+        "operationId": "RetrieveInstance",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "export.schema.json"
+          },
+          "202": {
+            "description": "Request successfully queued for processing"
+          },
+          "206": {
+            "$ref": "export.schema.json"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          },
+          "502": {
+            "$ref": "export.schema.json"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Mark Study for retrieve from external C-MOVE SCP",
+        "operationId": "MarkStudyForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Retrieve Task created for Study"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Mark Series from external C-MOVE SCP",
+        "operationId": "MarkSeriesForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Retrieve Task created for Series"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Mark Instance from external C-MOVE SCP",
+        "operationId": "MarkInstanceForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Retrieve Task created for Instance"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Retrieve Studies specified in CSV from external C-MOVE SCP",
+        "operationId": "RetrieveStudiesCSV",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/csvField"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "204": {
+            "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed."
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Mark Studies for Retrieve specified in CSV from external C-MOVE SCP",
+        "operationId": "MarkForRetrieveStudiesCSV",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/csvField"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "204": {
+            "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed."
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Retrieve matching Studies from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingStudies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queryAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Retrieve matching Series of Study from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingSeriesOfStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queryAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Retrieve matching Instances of Series from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingInstancesOfSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queryAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Mark matching Studies for retrieve from external C-MOVE SCP",
+        "operationId": "MarkMatchingStudiesForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queryAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Mark matching Series for retrieve from external C-MOVE SCP",
+        "operationId": "MarkMatchingSeriesForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queryAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Mark matching Instances for retrieve from external C-MOVE SCP",
+        "operationId": "MarkMatchingInstancesForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/queryAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -9513,9 +12226,18 @@
         }
       },
       "findSCPPathParam": {
-        "name": "findscp",
+        "name": "ExternalAET",
         "in": "path",
-        "description": "C-FIND SCP AE Title",
+        "description": "AE Title of primary C-FIND SCP",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "secondaryFindSCPPathParam": {
+        "name": "OriginalAET",
+        "in": "path",
+        "description": "AE Title of secondary C-FIND SCP to query for Studies returned from externalAET",
         "required": true,
         "schema": {
           "type": "string"
@@ -9539,10 +12261,37 @@
           "type": "string"
         }
       },
+      "moveSCPPathParam": {
+        "name": "ExternalAET",
+        "in": "path",
+        "description": "AE Title of C-MOVE SCP",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "remoteAETPathParam": {
         "name": "externalAET",
         "in": "path",
         "description": "Remote AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "destinationAETPathParam": {
+        "name": "DestinationAET",
+        "in": "path",
+        "description": "Destination AE Title",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "queryAETPathParam": {
+        "name": "queryAET",
+        "in": "path",
+        "description": "AE Title of C-FIND SCP to query for matching Studies",
         "required": true,
         "schema": {
           "type": "string"
@@ -9745,6 +12494,24 @@
         "name": "newExporterID",
         "in": "path",
         "description": "New Exporter ID where task(s) shall be rescheduled",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "csvField": {
+        "name": "field",
+        "in": "path",
+        "description": "CSV field which contains the Study Instance UID",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "ExporterIDPathParam": {
+        "name": "ExporterID",
+        "in": "query",
+        "description": "Exporter ID",
         "required": true,
         "schema": {
           "type": "string"
@@ -10444,7 +13211,7 @@
       "different": {
         "name": "different",
         "in": "query",
-        "description": "include Patients with different Patient Demographics",
+        "description": "include Patients with different Patient Demographics / secondary C-FIND SCP",
         "schema": {
           "type": "boolean",
           "default": true
@@ -10453,7 +13220,7 @@
       "missing": {
         "name": "missing",
         "in": "query",
-        "description": "include Patients missing at the PDQ Service",
+        "description": "include Patients missing at the PDQ Service / secondary C-FIND SCP",
         "schema": {
           "type": "boolean",
           "default": false
@@ -10637,6 +13404,14 @@
           }
         }
       },
+      "dcmQueueNameRetrieve": {
+        "name": "dcmQueueName",
+        "in": "query",
+        "description": "name of retrieve queue to filter by",
+        "schema": {
+          "$ref": "#/components/schemas/dcmQueueNameRetrieve"
+        }
+      },
       "newQueueName": {
         "name": "newQueueName",
         "in": "query",
@@ -10677,12 +13452,75 @@
           "type": "boolean"
         }
       },
-      "comparefields": {
-        "name": "comparefields",
+      "comparefield": {
+        "name": "comparefield",
         "in": "query",
         "description": "compare attribute set id to filter by",
         "schema": {
           "type": "string"
+        }
+      },
+      "comparefields": {
+        "name": "comparefield",
+        "in": "query",
+        "description": "compare attribute set id to filter by",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "storageVerificationPolicy": {
+        "name": "storageVerificationPolicy",
+        "in": "query",
+        "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+        "schema": {
+          "$ref": "#/components/schemas/storageVerificationPolicy"
+        }
+      },
+      "storageVerificationUpdateLocationStatus": {
+        "name": "storageVerificationUpdateLocationStatus",
+        "in": "query",
+        "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "storageVerificationStorageID": {
+        "name": "storageVerificationStorageID",
+        "in": "query",
+        "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "ForceQueryByStudyUID": {
+        "name": "ForceQueryByStudyUID",
+        "in": "query",
+        "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "only-stgcmt": {
+        "name": "only-stgcmt",
+        "in": "query",
+        "description": "Only enable storage commitment without export",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "only-ian": {
+        "name": "only-ian",
+        "in": "query",
+        "description": "Only enable Instance Availability Notification without export",
+        "schema": {
+          "type": "boolean"
         }
       }
     },
@@ -10798,6 +13636,56 @@
               "properties": {
                 "size": {
                   "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "compareStudiesCount": {
+        "description": "Compare Studies Count",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "count",
+                "missing",
+                "different"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "missing": {
+                  "type": "integer"
+                },
+                "different": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "exported": {
+        "description": "Exported Instances",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "completed": {
+                  "type": "integer"
+                },
+                "warning": {
+                  "type": "integer"
+                },
+                "failed": {
+                  "type": "integer"
+                },
+                "error": {
+                  "type": "string"
                 }
               }
             }
@@ -11404,16 +14292,6 @@
            }
          }
         }
-      },
-      "attributes": {
-        "description": "DICOM Attributes",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/attributes"
-            }
-          }
-        }
       }
     },
     "requestBodies": {
@@ -11671,6 +14549,25 @@
           "Retrieve12",
           "Retrieve13"
         ]
+      },
+      "dcmQueueNameRetrieve": {
+        "type": "string",
+        "enum": [
+          "Retrieve1",
+          "Retrieve2",
+          "Retrieve3",
+          "Retrieve4",
+          "Retrieve5",
+          "Retrieve6",
+          "Retrieve7",
+          "Retrieve8",
+          "Retrieve9",
+          "Retrieve10",
+          "Retrieve11",
+          "Retrieve12",
+          "Retrieve13"
+        ],
+        "default": "Retrieve1"
       },
       "storageVerificationPolicy": {
         "type": "string",

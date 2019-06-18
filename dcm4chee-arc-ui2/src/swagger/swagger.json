@@ -5466,7 +5466,7 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of C-FIND SCP to query for Studies",
+            "description": "AE Title of C-FIND SCP to query for Patients",
             "required": true,
             "type": "string"
           },
@@ -5855,20 +5855,23 @@
               "$ref": "export.schema.json"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
           "502": {
             "description": "C-MOVE SCP Failure",
             "schema": {
               "$ref": "export.schema.json"
             }
           },
-          "400": {
-            "description": "Invalid Study Instance UID"
-          },
-          "404": {
-            "description": "External AE Title not found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           }
         }
       }
@@ -5879,7 +5882,7 @@
           "DIMSE-RS",
           "RETRIEVE-RS"
         ],
-        "summary": "Retrieve Series  from external C-MOVE SCP",
+        "summary": "Retrieve Series from external C-MOVE SCP",
         "operationId": "RetrieveSeries",
         "produces": [
           "application/json"
@@ -5979,13 +5982,16 @@
             }
           },
           "400": {
-            "description": "Invalid Series Instance UID"
+            "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "No such Archive AE Title or Move SCP AE Title Retrieve queue"
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           }
         }
       }
@@ -6103,13 +6109,16 @@
             }
           },
           "400": {
-            "description": "Invalid SOP Instance UID"
+            "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "No such Archive AE Title or Move SCP AE Title Retrieve queue"
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           }
         }
       }
@@ -6190,8 +6199,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "successful operation"
+          "204": {
+            "description": "Retrieve Task created for Study"
           },
           "404": {
             "description": "AE Title of Archive or External AE Title not found"
@@ -6286,7 +6295,7 @@
         ],
         "responses": {
           "204": {
-            "description": "successful operation"
+            "description": "Retrieve Task created for Series"
           },
           "404": {
             "description": "AE Title of Archive or External AE Title not found"
@@ -6388,7 +6397,7 @@
         ],
         "responses": {
           "204": {
-            "description": "successful operation"
+            "description": "Retrieve Task created for Instance"
           },
           "404": {
             "description": "AE Title of Archive or External AE Title not found"
@@ -6750,6 +6759,12 @@
             "in": "query",
             "description": "Batch ID of scheduled tasks",
             "type": "string"
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Name of Device on the Retrieve Task shall be performed",
+            "type": "string"
           }
         ],
         "responses": {
@@ -6759,11 +6774,26 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "204": {
+            "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed."
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
+          },
           "404": {
-            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "Failed to schedule retrieve of Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           }
         }
       }
@@ -6853,8 +6883,14 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "204": {
+            "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed."
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
+          },
           "404": {
-            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
           },
           "500": {
             "description": "Internal Server Error"
@@ -6969,14 +7005,20 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "502": {
-            "description": "C-FIND-SCP Failure"
+          "400": {
+            "description": "Validation for one of the query parameters failed"
           },
           "404": {
-            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "C-FIND-SCP Failure"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           }
         }
       }
@@ -7828,14 +7870,14 @@
             "in": "query",
             "description": "include Studies different at originalAET",
             "type": "boolean",
-            "default": "yes"
+            "default": true
           },
           {
             "name": "missing",
             "in": "query",
             "description": "include Studies missing at originalAET",
             "type": "boolean",
-            "default": "no"
+            "default": false
           },
           {
             "name": "priority",
@@ -7928,14 +7970,14 @@
             "in": "query",
             "description": "include Studies different at originalAET",
             "type": "boolean",
-            "default": "yes"
+            "default": true
           },
           {
             "name": "missing",
             "in": "query",
             "description": "include Studies missing at originalAET",
             "type": "boolean",
-            "default": "no"
+            "default": false
           },
           {
             "name": "includefield",
@@ -9496,14 +9538,29 @@
           }
         ],
         "responses": {
-          "204": {
+          "200": {
+            "$ref": "#/definitions/exported"
+          },
+          "202": {
             "description": "successful operation"
           },
+          "206": {
+            "$ref": "#/definitions/exported"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
           "404": {
-            "description": "no exporter with specified exporterID configured"
+            "description": "No such Archive AE Title or Study or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "502": {
+            "description": "DICOM Service Exception or Export of all instances failed"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           }
         }
       }
@@ -9699,6 +9756,12 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "204": {
+            "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+          },
+          "400": {
+            "description": "CSV field for Study Instance UID is specified as less than 1"
           },
           "404": {
             "description": "No such Archive AE Title or Exporter ID"
@@ -11070,14 +11133,17 @@
               "type": "file"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE title or Study"
+          },
           "409": {
             "description": "Storage Verification failed for all objects of the Study",
             "schema": {
               "type": "file"
             }
-          },
-          "404": {
-            "description": "no Study with specified UIDs found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -11162,14 +11228,17 @@
               "type": "file"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE title or Study"
+          },
           "409": {
             "description": "Storage Verification failed for all objects of the Series",
             "schema": {
               "type": "file"
             }
-          },
-          "404": {
-            "description": "no Series with specified UID found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -11255,14 +11324,17 @@
               "type": "file"
             }
           },
+          "400": {
+            "description": "Validation for one of the query parameters failed."
+          },
+          "404": {
+            "description": "No such Archive AE title or Study"
+          },
           "409": {
             "description": "Storage Verification failed",
             "schema": {
               "type": "file"
             }
-          },
-          "404": {
-            "description": "no object with specified UIDs found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -18838,6 +18910,23 @@
           "title": "failed",
           "description": "number of tasks which failed to be rescheduled",
           "type": "integer"
+        }
+      }
+    },
+    "exported": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "integer"
+        },
+        "warning": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "integer"
+        },
+        "error": {
+          "type": "string"
         }
       }
     },
