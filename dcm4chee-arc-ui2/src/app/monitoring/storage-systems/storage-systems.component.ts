@@ -12,6 +12,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {environment} from "../../../environments/environment";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-storage-systems',
@@ -53,7 +54,7 @@ export class StorageSystemsComponent implements OnInit {
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -282,7 +283,7 @@ export class StorageSystemsComponent implements OnInit {
                 }else{
 
                     this.service.flush(parameters.result.select, parameters.result.date)
-                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+                        // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                         .subscribe((res) => {
                             console.log('resflush', res);
                             $this.mainservice.setMessage({

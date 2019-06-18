@@ -451,13 +451,6 @@ export class StudyComponent implements OnInit {
     getDevices(){
         this.service.getDevices()
             .subscribe(devices=>{
-            // this.studyDevice = new StudyDevice(devices.map(device=> new SelectDropdown(device.dicomDeviceName, device.dicomDeviceName)));
-/*                if(this.deviceWebservice){
-                    this.deviceWebservice.devices = devices;
-                    this.deviceWebservice.selectedDevice
-                }else{
-                }*/
-
                 if(_.hasIn(this.appService,"global.myDevice") && this.appService.deviceName && this.appService.deviceName === this.appService.global.myDevice.dicomDeviceName){
                     this.deviceWebservice = new StudyDeviceWebserviceModel({
                         devices:devices,
@@ -486,7 +479,6 @@ export class StudyComponent implements OnInit {
         // this.service.test(this.deviceWebservice.selectedWebApp);
     }
     testStudy(){
-
         this.service.testAet("http://test-ng:8080/dcm4chee-arc/aets/TEST/rs/studies?limit=21&offset=0&includefield=all", this.deviceWebservice.selectedWebApp).subscribe(res=>{
             console.log("res",res);
         },err=>{

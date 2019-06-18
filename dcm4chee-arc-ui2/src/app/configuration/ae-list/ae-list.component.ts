@@ -13,6 +13,7 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpHeaders} from "@angular/common/http";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-ae-list',
@@ -56,7 +57,7 @@ export class AeListComponent implements OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication")  || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated  || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -123,7 +124,7 @@ export class AeListComponent implements OnInit{
         }
         let $this = this;
         this.$http.get('./rs/aes' + urlParam)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aes = response;
                 $this.cfpLoadingBar.complete();
@@ -231,7 +232,7 @@ export class AeListComponent implements OnInit{
                         });
                 }else{
                     $this.$http.get('./rs/devices/' + device)
-                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+                        // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                         .subscribe(
                             (res) => {
                                 console.log('res', res);

@@ -100,20 +100,15 @@ export class J4careHttpService{
     }
     private request(requestFunctionName, param, dcmWebApp?:DcmWebApp){
         let $this = this;
-        $this.setHeader(param.header, dcmWebApp);
-
-        // let headerIndex = (param.length === 3) ? 2:1;
         return $this.refreshToken().flatMap((response)=>{
-                this.setGlobalToken(response,param);
+                $this.setHeader(param.header, dcmWebApp);
+                param.header = {headers:this.header};
                 return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
             }).catch(res=>{
-                if(res.ok === false && res.status === 0 && res.type === 3){
-                    if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
-                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
+                j4care.log("In catch",res);
                 if(res.statusText === "Unauthorized"){
-                    return $this.getRealm().flatMap((resp)=>{
-                        this.setGlobalToken(resp,param);
+                    return $this.refreshToken().flatMap((resp)=>{
+                        // this.setGlobalToken(resp,param);
                         return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
                     });
                 }
@@ -161,52 +156,37 @@ export class J4careHttpService{
         this.setValueInGlobal('getRealmStateActive',false);
     }
     getRealm(dcmWebApp?:DcmWebApp){
-        // let service = this.$httpClient.get('rs/realm');
-        let service = this.$http.get('rs/realm');
-        // let service = this._keycloakService.getToken();
+        let service = this._keycloakService.getToken();
         if(dcmWebApp && dcmWebApp.dcmWebAppName){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
-/*        this._keycloakService.getToken1().subscribe(res=>{
-            console.log("getToken1",res);
-        },error=>{});*/
         return service
             .map(res => {
-            let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res["url"])){
-                    if(_.hasIn(res,"_body.target.__zone_symbol__xhrURL") && _.get(res,"_body.target.__zone_symbol__xhrURL") === "rs/realm")
-                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                let resjson;
+                try{
+                    resjson = res.json();
+                    console.log("getRealm Response:",res);
+                }catch (e){
+                    j4care.log("error on extracting json",e);
+                    if(_.hasIn(e, "message") && e.message.indexOf("res.json") > -1){
+                        resjson = res;
+                    }else{
+                        resjson = [];
+                    }
                 }
-                resjson = res.json();
-                // resjson = res;
-                console.log("getRealm Response:",res);
-                // resjson = res.body;
-            }catch (e){
-                console.log("");
-                if(_.hasIn(e, "message") && e.message.indexOf("res.json") > -1){
-                    resjson = res;
-                }else{
-                    resjson = [];
-                }
-            } return resjson;
-        })
+                this.token["UI"] = KeycloakService.keycloakAuth.token;
+                return resjson;
+            })
     }
-/*    getTokenFromKeycloak(){
-        if(!this.mainservice.keycloak.tokenValid()){
-            return this.mainservice.keycloak.
-        }
-    }*/
     refreshToken(dcmWebApp?:DcmWebApp):Observable<any>{
-        if(dcmWebApp){
-
-        }else{
-            if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
+        if(!dcmWebApp){
+            if((!_.hasIn(KeycloakService,"keycloakAuth.authenticated") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
                 this.setValueInGlobal('getRealmStateActive',true);
                 return this.getRealm();
             }else{
-                if(!this.mainservice.global.notSecure){
-                    if(_.hasIn(this.mainservice, "global.authentication.token")){
-                        this.token["UI"] = this.mainservice.global.authentication.token;
+                if(!this.mainservice.global || !this.mainservice.global.notSecure){
+                    if(KeycloakService.keycloakAuth.authenticated && !KeycloakService.keycloakAuth.isTokenExpired(5)){
+                        this.token["UI"] = KeycloakService.keycloakAuth.token;
                     }else{
                         this.setValueInGlobal('getRealmStateActive',true);
                         return this.getRealm();
@@ -217,12 +197,7 @@ export class J4careHttpService{
         }
     }
     tokenValid(){
-        // return this._keycloakService.authenticated()
-        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000))){
-            return true;
-        }else{
-            return false;
-        }
+        return this._keycloakService.authenticated() && !KeycloakService.keycloakAuth.isTokenExpired(5);
     }
     setValueInGlobal(key, value){
         if (this.mainservice.global && !this.mainservice.global[key]){
@@ -248,7 +223,6 @@ export class J4careHttpService{
         }
         if(header){
             if(token){
-                console.log("header",header);
                 try{
                     if(header instanceof HttpHeaders){
                         this.header = header.set('Authorization', `Bearer ${token}`);

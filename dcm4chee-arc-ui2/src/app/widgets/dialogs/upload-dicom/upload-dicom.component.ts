@@ -8,6 +8,7 @@ import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {StudiesService} from "../../../studies/studies.service";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
+import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -36,7 +37,8 @@ export class UploadDicomComponent implements OnInit{
         private service: UploadDicomService,
         public mainservice:AppService,
         private studieService:StudiesService,
-        private httpErrorHandler:HttpErrorHandler
+        private httpErrorHandler:HttpErrorHandler,
+        private _keycloakService: KeycloakService
     ) {
         this.service.progress$.subscribe(
             data => {
@@ -78,14 +80,9 @@ export class UploadDicomComponent implements OnInit{
         this.fileList = event.target.files;
 
         if (this.fileList) {
-            this.$http.refreshToken().subscribe((response) => {
+            this._keycloakService.getToken().subscribe((response) => {
                 if(!this.mainservice.global.notSecure){
-                    if (response && response.length != 0) {
-                        $this.$http.resetAuthenticationInfo(response);
-                        token = response['token'];
-                    } else {
-                        token = this.mainservice.global.authentication.token;
-                    }
+                    token = response.token;
                 }
                 _.forEach(this.fileList, (file, i) => {
     /*                {

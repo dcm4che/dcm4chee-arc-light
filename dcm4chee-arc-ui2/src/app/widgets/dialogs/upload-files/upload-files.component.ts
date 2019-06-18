@@ -5,6 +5,7 @@ import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {StudiesService} from "../../../studies/studies.service";
 import {UploadDicomService} from "../upload-dicom/upload-dicom.service";
+import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-upload-files',
@@ -48,7 +49,8 @@ export class UploadFilesComponent implements OnInit {
         public mainservice:AppService,
         public $http:J4careHttpService,
         private studieService:StudiesService,
-        private uploadDicomService:UploadDicomService
+        private uploadDicomService:UploadDicomService,
+        private _keycloakService: KeycloakService
     ) {
     }
 
@@ -71,14 +73,9 @@ export class UploadFilesComponent implements OnInit {
         let token;
         this.showFileList = true;
         // this.fileList = this.file;
-        this.$http.refreshToken().subscribe((response) => {
+        this._keycloakService.getToken().subscribe((response) => {
             if(!this.mainservice.global.notSecure){
-                if (response && response.length != 0) {
-                    $this.$http.resetAuthenticationInfo(response);
-                    token = response['token'];
-                } else {
-                    token = this.mainservice.global.authentication.token;
-                }
+                token = response.token;
             }
             if (this.fileList) {
                 _.forEach(this.fileList, (file, i) => {

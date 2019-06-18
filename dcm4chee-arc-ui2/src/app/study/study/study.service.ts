@@ -4,7 +4,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {j4care} from "../../helpers/j4care.service";
-import {Headers} from "@angular/http";
+import {Headers, Http, RequestOptions} from "@angular/http";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {Observable} from "rxjs/Observable";
 import * as _ from 'lodash'
@@ -13,10 +13,11 @@ import {StorageSystemsService} from "../../monitoring/storage-systems/storage-sy
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DcmWebApp} from "../../models/dcm-web-app";
-import {HttpHeaders} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {DicomTableSchema, DynamicPipe} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Injectable()
 export class StudyService {
@@ -293,13 +294,6 @@ export class StudyService {
     getDevices(){
         return this.devicesService.getDevices();
     }
-
-    test(dcmWebApp:DcmWebApp){
-        this.$http.get("",undefined,false,dcmWebApp).subscribe(res=>{
-            console.log("res",res);
-        })
-    }
-
     PATIENT_STUDIES_TABLE_SCHEMA($this, actions):DicomTableSchema{
         return {
             patient:[

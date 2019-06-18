@@ -14,6 +14,7 @@ import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.servi
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-device-configurator',
@@ -297,7 +298,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -364,7 +365,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         $this.service.pagination.push(newPaginationObject);
                     }
                         if (params['device'] == '[new_device]') {
-                            $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;}).subscribe((schema) => {
+                            $this.$http.get('./assets/schema/device.schema.json')
+                                // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+                                .subscribe((schema) => {
                                 $this.showform = false;
                                 $this.device = {};
                                 $this.service.device = {};
@@ -382,7 +385,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
                             Observable.combineLatest(
                                 $this.service.getDevice(params['device']),
-                                $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+                                $this.$http.get('./assets/schema/device.schema.json')
+                                    // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                             ).subscribe(deviceschema => {
                                 $this.service.device = deviceschema[0];
                                 $this.service.schema = deviceschema[1];

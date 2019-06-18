@@ -14,6 +14,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-storage-verification',
@@ -74,8 +75,9 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
       private permissionService:PermissionService,
-      private deviceService:DevicesService
-  ) { }
+      private deviceService:DevicesService,
+      private _keycloakService: KeycloakService
+    ) { }
 
     ngOnInit(){
         this.initCheck(10);
@@ -83,7 +85,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -396,14 +398,9 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             if(ok)
                 semicolon = true;
             let token;
-            this.$http.refreshToken().subscribe((response)=>{
+            this._keycloakService.getToken().subscribe((response)=>{
                 if(!this.mainservice.global.notSecure){
-                    if(response && response.length != 0){
-                        this.$http.resetAuthenticationInfo(response);
-                        token = response['token'];
-                    }else{
-                        token = this.mainservice.global.authentication.token;
-                    }
+                    token = response.token;
                 }
                 let filterClone = _.cloneDeep(this.filterObject);
                 delete filterClone.offset;

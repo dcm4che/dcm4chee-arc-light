@@ -2,7 +2,7 @@
  * Created by shefki on 9/20/16.
  */
 import {Component, OnInit, Input, EventEmitter} from '@angular/core';
-import {FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
 import {Output} from '@angular/core';
@@ -12,6 +12,7 @@ import {SearchPipe} from '../../pipes/search.pipe';
 import {AppService} from "../../app.service";
 import {DeviceConfiguratorComponent} from "../../configuration/device-configurator/device-configurator.component";
 import {ActivatedRoute} from "@angular/router";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
     selector: 'dynamic-form',
@@ -36,7 +37,8 @@ export class DynamicFormComponent implements OnInit{
     constructor(
         private formservice: FormService,
         private mainservice:AppService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private fb: FormBuilder
     ){}
     // submi(){
     //     console.log("in submitfunctiondynamicform");
@@ -47,7 +49,7 @@ export class DynamicFormComponent implements OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -102,7 +104,7 @@ export class DynamicFormComponent implements OnInit{
             orderValue = parseInt(m.order);
         });
         this.formelements = orderedGroupClone;
-        let formGroup: any = this.formservice.toFormGroup(orderedGroupClone);
+        let formGroup: FormGroup = this.formservice.toFormGroup(orderedGroupClone);
         this.form = formGroup;
         console.log("hr",window.location);
         console.log('after convert form', this.form);

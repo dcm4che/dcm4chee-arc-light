@@ -24,6 +24,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
     selector: 'df-element',
@@ -56,7 +57,8 @@ export class DynamicFormElementComponent implements OnDestroy{
         private mainservice: AppService,
         private controlService:ControlService,
         private j4care:j4care,
-        private _fb: FormBuilder
+        private _fb: FormBuilder,
+        private _keycloakService: KeycloakService
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
         this.partRemoved = false;
@@ -82,18 +84,12 @@ export class DynamicFormElementComponent implements OnDestroy{
     };
     downloadFile(url){
         if(!this.readOnlyMode) {
-            let $this = this;
             let token;
             if (this.mainservice.global.notSecure) {
                 WindowRefService.nativeWindow.open(url);
             } else {
-                this.$http.refreshToken().subscribe((response) => {
-                    if (response && response.length != 0) {
-                        $this.$http.resetAuthenticationInfo(response);
-                        token = response['token'];
-                    } else {
-                        token = this.mainservice.global.authentication.token;
-                    }
+                this._keycloakService.getToken().subscribe((response) => {
+                    token = response.token;
                     WindowRefService.nativeWindow.open(url + `?access_token=${token}`);
                 });
             }

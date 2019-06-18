@@ -11,6 +11,7 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {j4care} from "../../helpers/j4care.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
   selector: 'app-storage-commitment',
@@ -49,7 +50,7 @@ export class StorageCommitmentComponent implements OnInit {
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){

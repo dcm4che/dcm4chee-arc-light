@@ -19,6 +19,7 @@ import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.co
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {Validators} from "@angular/forms";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 
 @Component({
@@ -76,14 +77,15 @@ export class ExportComponent implements OnInit, OnDestroy {
         private httpErrorHandler:HttpErrorHandler,
         private route: ActivatedRoute,
         public aeListService:AeListService,
-        private permissionService:PermissionService
+        private permissionService:PermissionService,
+        private _keycloakService: KeycloakService
     ) {}
     ngOnInit(){
         this.initCheck(10);
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.route.queryParams.subscribe(params => {
                 this.urlParam = Object.assign({},params);
                 this.init();
@@ -204,14 +206,9 @@ export class ExportComponent implements OnInit, OnDestroy {
             if(ok)
                 semicolon = true;
             let token;
-            this.$http.refreshToken().subscribe((response)=>{
+            this._keycloakService.getToken().subscribe((response)=>{
                 if(!this.mainservice.global.notSecure){
-                    if(response && response.length != 0){
-                        this.$http.resetAuthenticationInfo(response);
-                        token = response['token'];
-                    }else{
-                        token = this.mainservice.global.authentication.token;
-                    }
+                    token = response.token;
                 }
                 if(!this.mainservice.global.notSecure){
                     // WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);

@@ -87,6 +87,15 @@ export class j4care {
     navigateTo(url){
         this.router.navigateByUrl(url);
     }
+    static promiseToObservable<T>(promise:Promise<T>):Observable<T>{
+        return Observable.create(observer=>{
+            promise.then(res=>{
+                observer.next(res);
+            }).catch(err=>{
+                observer.error(err);
+            })
+        });
+    }
     static prepareFlatFilterObject(array,lineLength?){
         if(!lineLength){
             lineLength = 3;
@@ -513,14 +522,14 @@ export class j4care {
     static redirectOnAuthResponse(res){
         let resjson;
         try{
-            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+/*            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
             if(pattern.exec(res.url)){
                 // WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 console.log("onredirectOnAuthResponse",res);
                 location.reload(true);
-            }
+            }*/
             // resjson = res.json();
-            resjson = res;
+            // resjson = res;
             resjson = res
         }catch (e){
             if(typeof res === "object"){

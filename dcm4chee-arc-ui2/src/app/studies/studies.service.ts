@@ -410,10 +410,10 @@ export class StudiesService {
             url + '/mwlitems' + this._config(params),
             new HttpHeaders({'Accept': 'application/dicom+json'})
         ).map(res => {let resjson; try{
-            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+            /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
             if(pattern.exec(res.url)){
                 WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-            }
+            }*/
             resjson = res; }catch (e){resjson = {}; } return resjson; });
     };
 
@@ -786,7 +786,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                                  headers,
                             true
                             )
-                            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;}),
+                            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;}),
+                            ,
                         successMsg:'Patient saved successfully!'
                     };
             }else{
@@ -796,7 +797,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                            url,
                            toSavePatientObject,
                            headers
-                       ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+                       )
+                           // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                        ,
                        successMsg:'Patient created successfully!'
                    };
@@ -819,7 +821,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                         url,
                         toSavePatientObject,
                          headers
-                    ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+                    )
+                        // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                     ,
                         successMsg:'Patient created successfully!'
                 };

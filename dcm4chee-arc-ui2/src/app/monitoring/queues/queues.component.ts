@@ -12,6 +12,7 @@ import {ActivatedRoute} from "@angular/router";
 import {j4care} from "../../helpers/j4care.service";
 import {ReplaySubject} from "rxjs/ReplaySubject";
 import {DevicesService} from "../../configuration/devices/devices.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 
 @Component({
@@ -87,7 +88,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.route.queryParams.subscribe(params => {
                 this.urlParam = Object.assign({},params);
                 if(this.urlParam["queueName"])
@@ -498,7 +499,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         let $this = this;
         this.cfpLoadingBar.start();
         this.$http.get('../queue')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 $this.getDevices();
                 $this.queues = res;

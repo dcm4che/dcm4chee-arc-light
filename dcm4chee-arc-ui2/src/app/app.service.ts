@@ -13,6 +13,7 @@ import {DcmWebApp} from "./models/dcm-web-app";
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
     private _user: User;
+    private userSubject = new Subject<User>();
     private _global;
     subscription: Subscription;
     keycloak;
@@ -33,6 +34,14 @@ export class AppService implements OnInit, OnDestroy{
     serverTime:Date;
     set global(value) {
         this._global = value;
+    }
+
+    setUser(user:User){
+        this._user = user;
+        this.userSubject.next(user);
+    }
+    getUser():Observable<User>{
+        return this.userSubject.asObservable();
     }
 
     private _isRole = function(role){
@@ -137,11 +146,11 @@ export class AppService implements OnInit, OnDestroy{
         return this.$httpClient.get('rs/realm')
             .map(res => j4care.redirectOnAuthResponse(res))
     }
-    get user(): any {
+    get user(): User {
         return this._user;
     }
 
-    set user(value: any) {
+    set user(value: User) {
         this._user = value;
     }
 
@@ -228,7 +237,7 @@ export class AppService implements OnInit, OnDestroy{
                 })
                 .map((res)=>{
                     try{
-                        let global = _.cloneDeep(this.global);
+                        let global = _.cloneDeep(this.global) || {};
                         global["uiConfig"] = _.get(res,"dcmDevice.dcmuiConfig[0]");
                         global["myDevice"] = res;
                         this.deviceName = deviceName;

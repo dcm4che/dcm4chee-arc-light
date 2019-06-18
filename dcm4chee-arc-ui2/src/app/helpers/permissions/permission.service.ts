@@ -5,6 +5,9 @@ import {J4careHttpService} from "../j4care-http.service";
 import {AppService} from "../../app.service";
 import {Route, Router} from "@angular/router";
 import * as _ from 'lodash';
+import {KeycloakService} from "../keycloak-service/keycloak.service";
+import {User} from "../../models/user";
+import UserInfo = KeycloakModule.UserInfo;
 
 @Injectable()
 export class PermissionService {
@@ -12,7 +15,12 @@ export class PermissionService {
     user;
     uiConfig;
     configChecked = false;
-    constructor(private $http:J4careHttpService, private mainservice:AppService, private router: Router) { }
+    constructor(
+        private $http:J4careHttpService,
+        private mainservice:AppService,
+        private router: Router,
+        private _keycloakService:KeycloakService
+    ) { }
 
     getPermission(url){
         // console.log("permission user",this.mainservice.user.roles);
@@ -72,13 +80,26 @@ export class PermissionService {
     getConfigWithUser(response){
         let deviceName;
         let archiveDeviceName;
+        let userInfo:UserInfo;
         if(!this.uiConfig && !this.configChecked)
-            return this.mainservice.getUserInfo()
+            return this._keycloakService.getUserInfo()
                 .map(user=>{
-                    this.mainservice.user = user;
-                    this.user = user;
+                    userInfo = user; //Extracting userInfo from KeyCloak
                 })
                 .switchMap(res => this.$http.get('./rs/devicename'))
+                .map(deviceNameResponse=>{
+                    const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
+                    let user = new User({
+                        authServerUrl:userInfo.authServerUrl,
+                        realm:userInfo.realm,
+                        user:_.get(userInfo,"userProfile.username"),
+                        roles:roles,
+                        su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1)
+                    });
+                    this.mainservice.setUser(user);
+                    this.user = user;
+                    return deviceNameResponse;
+                })
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
@@ -90,10 +111,9 @@ export class PermissionService {
                     try{
                         this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
-                        let global = _.cloneDeep(this.mainservice.global);
+                        let global = _.cloneDeep(this.mainservice.global) || {};
                         global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
                         global["myDevice"] = res;
-                        console.log("permission uiconfig");
                         this.mainservice.archiveDeviceName = archiveDeviceName;
                         this.mainservice.deviceName = deviceName;
                         this.mainservice.setGlobal(global);

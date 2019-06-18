@@ -15,7 +15,7 @@ function testValidation(c: AbstractControl){
 export class FormService{
     constructor(private _fb: FormBuilder){}
 
-    toFormGroup(formelements: FormElement<any>[]){
+    toFormGroup(formelements: FormElement<any>[]):FormGroup{
         return this._fb.group(this.convertFormElement(formelements));
     }
 

@@ -54,6 +54,13 @@ declare module KeycloakModule {
         redirectUri?: string;
     }
 
+    export interface UserInfo{
+        userProfile:any;
+        tokenParsed:any;
+        authServerUrl:string;
+        realm:string;
+    }
+
     export interface KeycloakClient {
         init(options?: InitOptions): Promise;
         login(options?: LoginOptions): Promise;
@@ -68,6 +75,7 @@ declare module KeycloakModule {
         hasRealmRole(role: string): boolean;
         hasResourceRole(role: string, resource?: string): boolean;
         loadUserProfile(): Promise;
+        loadUserInfo(): Promise;
         isTokenExpired(minValidity: number): boolean;
         updateToken(minValidity: number): Promise;
         clearToken(): any;
