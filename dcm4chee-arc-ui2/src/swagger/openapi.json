@@ -1792,7 +1792,7 @@
             "$ref": "#/components/parameters/studyPathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveAccept"
           }
         ],
         "responses": {
@@ -1865,7 +1865,7 @@
             "$ref": "#/components/parameters/seriesPathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveAccept"
           }
         ],
         "responses": {
@@ -1905,7 +1905,7 @@
             "$ref": "#/components/parameters/instancePathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveAccept"
           }
         ],
         "responses": {
@@ -1948,7 +1948,7 @@
             "$ref": "#/components/parameters/framesPathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveFramesAccept"
           }
         ],
         "responses": {
@@ -1991,7 +1991,7 @@
             "$ref": "#/components/parameters/bulkdataPathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveBulkdataAccept"
           }
         ],
         "responses": {
@@ -2025,7 +2025,7 @@
             "$ref": "#/components/parameters/studyPathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveMetadataAccept"
           }
         ],
         "responses": {
@@ -2062,7 +2062,7 @@
             "$ref": "#/components/parameters/seriesPathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveMetadataAccept"
           }
         ],
         "responses": {
@@ -2102,7 +2102,7 @@
             "$ref": "#/components/parameters/instancePathParam"
           },
           {
-            "$ref": "#/components/parameters/accept"
+            "$ref": "#/components/parameters/wadoRetrieveMetadataAccept"
           }
         ],
         "responses": {
@@ -12719,6 +12719,38 @@
           "$ref": "#/components/schemas/accept"
         }
       },
+      "wadoRetrieveAccept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field for WADO-RS Retrieve Services",
+        "schema": {
+          "$ref": "#/components/schemas/wadoRetrieveAccept"
+        }
+      },
+      "wadoRetrieveFramesAccept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field for WADO-RS Retrieve Frames Service",
+        "schema": {
+          "$ref": "#/components/schemas/wadoRetrieveFramesAccept"
+        }
+      },
+      "wadoRetrieveBulkdataAccept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field for WADO-RS Retrieve Bulkdata Service",
+        "schema": {
+          "$ref": "#/components/schemas/wadoRetrieveBulkdataAccept"
+        }
+      },
+      "wadoRetrieveMetadataAccept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field for WADO-RS Retrieve Metadata Services",
+        "schema": {
+          "$ref": "#/components/schemas/wadoRetrieveMetadataAccept"
+        }
+      },
       "contentType": {
         "name": "contentType",
         "in": "query",
@@ -14649,6 +14681,49 @@
         "enum": [
           "application/json",
           "text/csv"
+        ]
+      },
+      "wadoRetrieveAccept": {
+        "type": "string",
+        "enum": [
+          "multipart/related;type=application/dicom",
+          "multipart/related;type=application/octet-stream",
+          "multipart/related;type=application/pdf",
+          "multipart/related;type=image/jpeg",
+          "multipart/related;type=image/jp2",
+          "multipart/related;type=image/jpx",
+          "multipart/related;type=image/x-dicom+rle",
+          "multipart/related;type=image/x-jls",
+          "multipart/related;type=text/xml",
+          "multipart/related;type=video/mpeg",
+          "multipart/related;type=video/mp4",
+          "application/zip"
+        ]
+      },
+      "wadoRetrieveFramesAccept": {
+        "type": "string",
+        "enum": [
+          "multipart/related;type=application/octet-stream",
+          "multipart/related;type=image/jpeg",
+          "multipart/related;type=image/jp2",
+          "multipart/related;type=image/jpx",
+          "multipart/related;type=image/x-dicom+rle",
+          "multipart/related;type=image/x-jls"
+        ]
+      },
+      "wadoRetrieveBulkdataAccept": {
+        "type": "string",
+        "enum": [
+          "multipart/related;type=application/octet-stream",
+          "multipart/related;type=application/pdf",
+          "multipart/related;type=text/xml"
+        ]
+      },
+      "wadoRetrieveMetadataAccept": {
+        "type": "string",
+        "enum": [
+          "multipart/related;type=application/dicom+xml",
+          "application/dicom+json"
         ]
       },
       "orderByTime": {
