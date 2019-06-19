@@ -423,7 +423,6 @@ export class DiffMonitorService {
         if(batchGrouped)
             url = `../monitor/diff/batch${urlParam}`;
         return this.$http.get(url)
-            .map(res => j4care.redirectOnAuthResponse(res));
 
     }
     getDiffTasksCount(filters){
@@ -431,14 +430,12 @@ export class DiffMonitorService {
         urlParam = urlParam?`?${urlParam}`:'';
         let url = `../monitor/diff/count${urlParam}`;
         return this.$http.get(url)
-            .map(res => j4care.redirectOnAuthResponse(res));
     }
 
     cancelAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/diff/cancel${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
     }
     cancel(pk){
         return this.$http.post(`../monitor/diff/${pk}/cancel`, {});
@@ -447,7 +444,6 @@ export class DiffMonitorService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/diff/reschedule${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
     }
     reschedule(pk, data){
         return this.$http.post(`../monitor/diff/${pk}/reschedule`, data);
@@ -456,7 +452,6 @@ export class DiffMonitorService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.delete(`../monitor/diff${urlParam}`, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
     }
     delete(pk){
         return this.$http.delete('../monitor/diff/' + pk);

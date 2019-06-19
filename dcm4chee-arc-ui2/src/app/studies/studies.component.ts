@@ -324,6 +324,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
 
     private init(){
         console.log("study global PDQs",this.mainservice.global.PDQs);
+        console.log("mainservice",this.mainservice);
         this.route.queryParams.subscribe(params => {
             console.log("params",params);
             this.checkDiffView(params);
@@ -4559,12 +4560,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
     initExporters(retries) {
         let $this = this;
        this.$http.get('./rs/export')
-            .map(res => {let resjson; try{
-                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }*/
-                resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     $this.exporters = res;
@@ -4588,12 +4583,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
     initRjNotes(retries) {
         let $this = this;
        this.$http.get('./rs/reject')
-            .map(res => {let resjson; try{
-                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }*/
-                resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     let rjnotes = res;
@@ -4624,12 +4613,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
 
     testToken(){
         this.$http.get('./rs/aes')
-            .map(res => {let resjson; try{
-                /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }*/
-                resjson = res; }catch (e){resjson = {}; } return resjson; })
             .subscribe((res)=>{
                 console.log("testres",res);
             },(err)=>{

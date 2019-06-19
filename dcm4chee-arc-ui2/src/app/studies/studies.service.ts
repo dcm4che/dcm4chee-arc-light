@@ -326,41 +326,41 @@ export class StudiesService {
                 localParams = `?${j4care.objToUrlParams(params)}`
             }
         }
-        return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{}).map(res => j4care.redirectOnAuthResponse(res))
+        return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{})
     }
 
     queryPatients = function(url, params) {
         return this.$http.get(
             url + '/patients' + this._config(params),
             new HttpHeaders({'Accept': 'application/dicom+json'})
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     };
     queryDiffs = function(url, params) {
         // params["missing"] = params["missing"] || true;
         return this.$http.get(
             url + this._config(params),
             new HttpHeaders({'Accept': 'application/dicom+json'})
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     };
 
     getCount(url,mode,params) {
         return this.$http.get(
             `${url}/${mode}/count${this._config(params)}`,
             new HttpHeaders({'Accept': 'application/json'})
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     };
     getSize(url,params) {
         return this.$http.get(
             `${url}/studies/size${this._config(params)}`,
                 new HttpHeaders({'Accept': 'application/json'})
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     };
 
     queryStudies = function(url, params) {
         return this.$http.get(
             url + '/studies' + this._config(params),
             new HttpHeaders({'Accept': 'application/dicom+json'})
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     };
     otherAttributesButIDWasChanged(originalAttr,changedAttr){
         let firstObject = _.cloneDeep(originalAttr);
@@ -409,19 +409,14 @@ export class StudiesService {
         return this.$http.get(
             url + '/mwlitems' + this._config(params),
             new HttpHeaders({'Accept': 'application/dicom+json'})
-        ).map(res => {let resjson; try{
-            /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-            if(pattern.exec(res.url)){
-                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-            }*/
-            resjson = res; }catch (e){resjson = {}; } return resjson; });
+        )
     };
 
     querySeries = function(url, studyIUID, params) {
         return this.$http.get(
             url + '/studies/' + studyIUID + '/series' + this._config(params),
             new HttpHeaders({'Accept': 'application/dicom+json'})
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     };
 
     queryInstances = function(url, studyIUID, seriesIUID, params) {
@@ -431,14 +426,14 @@ export class StudiesService {
             + '/instances' +
             this._config(params),
             new HttpHeaders({'Accept': 'application/dicom+json'})
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     };
 
     getPatientIod(){
         if (this._patientIod) {
             return Observable.of(this._patientIod);
         } else {
-            return this.$http.get('assets/iod/patient.iod.json').map(res => j4care.redirectOnAuthResponse(res));
+            return this.$http.get('assets/iod/patient.iod.json')
         }
     };
     getStudyIod(){
@@ -446,7 +441,7 @@ export class StudiesService {
         if (this._studyIod) {
             return Observable.of(this._studyIod);
         } else {
-            return this.$http.get('assets/iod/study.iod.json').map(res => j4care.redirectOnAuthResponse(res));
+            return this.$http.get('assets/iod/study.iod.json')
         }
     };
     getMwlIod(){
@@ -456,7 +451,7 @@ export class StudiesService {
         } else {
             return this.$http.get(
                 'assets/iod/mwl.iod.json'
-            ).map(res => j4care.redirectOnAuthResponse(res));
+            )
         }
     };
 
@@ -682,7 +677,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 url,
                 object,
                 headers
-            ).map(res => j4care.redirectOnAuthResponse(res))
+            )
             ,
             successMsg:'Patient ID changed successfully!'
         };
@@ -838,7 +833,6 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
     getWebApps(){
         return this.$http.get('./rs/webapps?dcmWebServiceClass=STOW_RS')
-            .map(res => j4care.redirectOnAuthResponse(res));
     }
     isTargetInClipboard(target, clipboard){
         let contains = false;
@@ -867,27 +861,26 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
     getDiffAttributeSet(){
         return this.$http.get('./rs/attribute-set/DIFF_RS')
-            .map(res => j4care.redirectOnAuthResponse(res));
     }
     queryNationalPationtRegister(patientID){
         // return Observable.of([{"00081190":{"vr":"UR","Value":["http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/rs"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"test12SELAM"}]},"00100020":{"vr":"LO","Value":["pid1"]},"00100040":{"vr":"CS","Value":["F"]},"00201200":{"vr":"IS","Value":[0]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20180315123826.668"]},"77771011":{"vr":"DT","Value":["20180315125113.826"]}}]);
         // return Observable.of([{"00080052":{"vr":"CS","Value":["PATIENT"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"PROBST^KATHY"}]},"00100020":{"vr":"LO","Value":["ALGO00001"]},"00100030":{"vr":"DA","Value":["19000101"]},"00100040":{"vr":"CS","Value":["F"]}}])
         // return Observable.of([])
-       return this.$http.get(`../xroad/RR441/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
+       return this.$http.get(`../xroad/RR441/${patientID}`)
     }
     queryPatientDemographics(patientID:string, PDQServiceID:string,url?:string){
-       return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
+       return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`)
     }
 
     gitDiffTaskResults(params, mode){
         if(mode === 'pk'){
             let taskPK = params['pk'];
             delete params['pk'];
-            return this.$http.get(`../monitor/diff/${taskPK}/studies${this._config(params)}`).map(res => j4care.redirectOnAuthResponse(res));
+            return this.$http.get(`../monitor/diff/${taskPK}/studies${this._config(params)}`)
         }else{
             let batchID = params['batchID'];
             delete params['batchID'];
-            return this.$http.get(`../monitor/diff/batch/${batchID}/studies${this._config(params)}`).map(res => j4care.redirectOnAuthResponse(res));
+            return this.$http.get(`../monitor/diff/batch/${batchID}/studies${this._config(params)}`)
         }
     }
 

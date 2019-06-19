@@ -141,12 +141,6 @@ export class AppComponent implements OnInit {
         clearInterval(this.clockInterval);
         this.startClock(serverTime);
     }
-/*    logout(){
-        window.location.href = this.logoutUrl;
-/!*        setTimeout(()=>{
-            location.reload(true);
-        },100);*!/
-    }*/
     progress(){
         let changeTo = function (t) {
             this.progressValue = t;
@@ -281,16 +275,16 @@ export class AppComponent implements OnInit {
         })
     }
     getPDQServices(url?:string):Observable<any[]>{
-        return this.$http.get(`${url || '.'}/rs/pdq`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '.'}/rs/pdq`)
     }
     getServerTime(url?:string){
-        return this.$http.get(`${url || '..'}/monitor/serverTime`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '..'}/monitor/serverTime`)
     }
     getDeviceName(url?:string){
-        return this.$http.get(`${url || '.'}/rs/devicename`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '.'}/rs/devicename`)
     }
     getDeviceInfo(dicomDeviceName:string, url?:string){
-        return this.$http.get(`${url || '.'}/rs/devices?dicomDeviceName=${dicomDeviceName}`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '.'}/rs/devices?dicomDeviceName=${dicomDeviceName}`)
     }
 }
 

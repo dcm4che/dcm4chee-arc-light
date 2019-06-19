@@ -126,7 +126,7 @@ export class AppService implements OnInit, OnDestroy{
         this.setGlobalSource.next(object);
     }
     updateGlobal(key:string, object:any){
-        if (this.global && !this.global["key"]){
+        if (this.global && !this.global[key]){
             let global = _.cloneDeep(this.global); //,...[{hl7:response}]];
             global[key] = object;
             this.setGlobal(global);
@@ -134,7 +134,7 @@ export class AppService implements OnInit, OnDestroy{
             if (this.global && this.global[key]){
                 this.global[key] = object;
             }else{
-                this.setGlobal({[key]: global});
+                this.setGlobal({[key]: object});
             }
         }
     }
@@ -142,10 +142,6 @@ export class AppService implements OnInit, OnDestroy{
         this.createPatientSource.next(patient);
     }
 
-    getUserInfo(): Observable<User>{
-        return this.$httpClient.get('rs/realm')
-            .map(res => j4care.redirectOnAuthResponse(res))
-    }
     get user(): User {
         return this._user;
     }
