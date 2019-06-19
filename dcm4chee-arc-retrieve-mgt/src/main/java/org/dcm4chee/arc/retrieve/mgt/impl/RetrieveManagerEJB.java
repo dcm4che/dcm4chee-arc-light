@@ -417,8 +417,7 @@ public class RetrieveManagerEJB {
             predicates.add(retrieveTask.get(RetrieveTask_.queueMessage).isNull());
         } else {
             From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage,
-                    status == null && queueTaskQueryParam.getBatchID() == null
-                            ? JoinType.LEFT : JoinType.INNER);
+                                                            status == null ? JoinType.LEFT : JoinType.INNER);
             predicates = matchTask.retrievePredicates(queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
         }
         return predicates;
