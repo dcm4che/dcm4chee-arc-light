@@ -180,6 +180,10 @@ public class MatchTask {
     }
 
     public void matchRetrieveTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<RetrieveTask> retrieveTask) {
+        if (!taskQueryParam.getQueueName().isEmpty())
+            predicates.add(cb.and(retrieveTask.get(RetrieveTask_.queueName).in(taskQueryParam.getQueueName())));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.deviceName), taskQueryParam.getDeviceName()));
         if (taskQueryParam.getLocalAET() != null)
             predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.localAET), taskQueryParam.getLocalAET()));
         if (taskQueryParam.getRemoteAET() != null)
