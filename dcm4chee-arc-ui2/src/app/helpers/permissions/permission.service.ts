@@ -181,17 +181,21 @@ export class PermissionService {
                 })
     }
     comparePermissionObjectWithRoles(object){
-        try{
-            let check = false;
-            if(object[0])
-                object[0].dcmAcceptedUserRole.forEach(role =>{
-                    if(this.mainservice.user.roles && this.mainservice.user.roles.indexOf(role) > -1)
-                        check = true;
-                });
-            return check;
-        }catch (err){
-            console.warn("Error comparing permissions object with the roles",err);
-            return false;
+        if(this.mainservice.global && this.mainservice.global.notSecure){
+            return true;
+        }else{
+            try{
+                let check = false;
+                if(object[0])
+                    object[0].dcmAcceptedUserRole.forEach(role =>{
+                        if(this.mainservice.user.roles && this.mainservice.user.roles.indexOf(role) > -1)
+                            check = true;
+                    });
+                return check;
+            }catch (err){
+                console.warn("Error comparing permissions object with the roles",err);
+                return false;
+            }
         }
     }
     filterAetDependingOnUiConfig(aets, mode){

@@ -71,18 +71,23 @@ export class KeycloakService {
             }))
         }else{
             return this.mainservice.getKeycloakJson().flatMap((keycloakJson:any)=>{
-                localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
-                KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
-                return j4care.promiseToObservable(new Promise((resolve, reject) => {
-                    KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
-                        .success(() => {
-                            this.setTokenSource.next(KeycloakService.keycloakAuth.token);
-                            resolve();
-                        })
-                        .error((errorData: any) => {
-                            reject(errorData);
-                        });
-                }))
+                if(keycloakJson){
+                    localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
+                    KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
+                    return j4care.promiseToObservable(new Promise((resolve, reject) => {
+                        KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
+                            .success(() => {
+                                this.setTokenSource.next(KeycloakService.keycloakAuth.token);
+                                resolve();
+                            })
+                            .error((errorData: any) => {
+                                reject(errorData);
+                            });
+                    }))
+                }else{
+                    this.setTokenSource.next("");
+                    return Observable.of([]);
+                }
             });
         }
     }

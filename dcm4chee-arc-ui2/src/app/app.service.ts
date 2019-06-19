@@ -9,6 +9,7 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import {HttpClient} from "@angular/common/http";
 import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
+import {Router} from "@angular/router";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -18,8 +19,8 @@ export class AppService implements OnInit, OnDestroy{
     subscription: Subscription;
     keycloak;
     constructor(
-        public ngHttp:Http,
-        public $httpClient:HttpClient
+        public $httpClient:HttpClient,
+        private router: Router
     ) {
         this.subscription = this.globalSet$.subscribe(obj => {
             this._global = obj;
@@ -250,15 +251,28 @@ export class AppService implements OnInit, OnDestroy{
     getKeycloakJson(){
         return this.getMyWebApps()
             .map((dcmWebApps:DcmWebApp[])=>{
-                return dcmWebApps.filter((dcmWebApp:DcmWebApp)=>{
-                    return dcmWebApp.dcmKeycloakClientID && dcmWebApp.dcmKeycloakClientID != "";
-                })[0].dcmKeycloakClientID
+                try{
+                    return dcmWebApps.filter((dcmWebApp:DcmWebApp)=>{
+                        return dcmWebApp.dcmKeycloakClientID && dcmWebApp.dcmKeycloakClientID != "";
+                    })[0].dcmKeycloakClientID || undefined;
+                }catch (e) {
+                    j4care.log("Error on getting the dcmKeycloakclientIDs, getKeycloakJson() in app.service.ts",e);
+                    this.showError("KeyCloakClient seams to be not configured!\nAt least in one of the Web Applications have to be the own KeyCloak set.");
+                    this.updateGlobal("notSecure",true);
+                    this.router.navigateByUrl("/configuration");
+                    return;
+                }
             })
             .map(keyclokClient=>{
-                return {
-                    "url":keyclokClient["dcmURI"],
-                    "realm":keyclokClient["dcmKeycloakRealm"],
-                    "clientId":keyclokClient["dcmKeycloakClientID"]
+                try{
+                    return {
+                        "url":keyclokClient["dcmURI"],
+                        "realm":keyclokClient["dcmKeycloakRealm"],
+                        "clientId":keyclokClient["dcmKeycloakClientID"]
+                    }
+                }catch (e) {
+                    j4care.log("Error on genrating keycloaj.json, getKeycloajJson() in app.service.ts",e);
+                    return;
                 }
             })
     }
