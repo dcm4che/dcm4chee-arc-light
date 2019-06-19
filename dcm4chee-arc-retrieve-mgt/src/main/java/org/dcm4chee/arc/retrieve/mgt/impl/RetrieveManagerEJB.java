@@ -450,7 +450,7 @@ public class RetrieveManagerEJB {
     private Subquery<Long> statusSubquery(TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam,
             Root<RetrieveTask> retrieveTask, QueueMessage.Status status) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<QueueMessage> query = cb.createQuery(QueueMessage.class);
+        CriteriaQuery<RetrieveTask> query = cb.createQuery(RetrieveTask.class);
         Subquery<Long> sq = query.subquery(Long.class);
         Root<RetrieveTask> retrieveTask1 = sq.from(RetrieveTask.class);
         Join<RetrieveTask, QueueMessage> queueMsg1 = sq.correlate(retrieveTask1.join(RetrieveTask_.queueMessage));
