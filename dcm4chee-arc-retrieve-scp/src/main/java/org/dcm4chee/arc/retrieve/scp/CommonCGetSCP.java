@@ -85,13 +85,32 @@ class CommonCGetSCP extends BasicCGetSCP {
             throws DicomServiceException {
         LOG.info("{}: Process C-GET RQ:\n{}", as, keys);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
-        QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
-                keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
+        QueryRetrieveLevel2 qrLevel = validateRetrieveIdentifier(as, keys, queryOpts.contains(QueryOption.RELATIONAL));
         ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = retrieveService.newRetrieveContextGET(arcAE, as, rq, qrLevel, keys);
         if (!retrieveService.calculateMatches(ctx))
             return null;
 
         return storeSCU.newRetrieveTaskGET(as, pc, rq, ctx);
+    }
+
+    private QueryRetrieveLevel2 validateRetrieveIdentifier(Association as, Attributes keys, boolean relational)
+            throws DicomServiceException {
+        QueryRetrieveLevel2 qrLevel;
+        try {
+            qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(keys, qrLevels, relational);
+        } catch (DicomServiceException e) {
+            if (relational || !relationalRetrieveNegotiationLenient(as))
+                throw e;
+
+            qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(keys, qrLevels, true);
+            LOG.info("{}: {}", as, e.getMessage());
+        }
+        return qrLevel;
+    }
+
+    private static boolean relationalRetrieveNegotiationLenient(Association as) {
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        return arcAE != null && arcAE.relationalRetrieveNegotiationLenient();
     }
 }

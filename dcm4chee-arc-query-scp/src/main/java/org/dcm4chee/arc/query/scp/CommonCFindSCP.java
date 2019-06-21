@@ -49,6 +49,7 @@ import org.dcm4che3.net.service.BasicCFindSCP;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.QueryTask;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.RunInTransaction;
@@ -88,8 +89,7 @@ class CommonCFindSCP extends BasicCFindSCP {
         LOG.info("{}: Process C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
-        QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(
-                keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
+        QueryRetrieveLevel2 qrLevel = validateQueryIdentifier(as, keys, queryOpts.contains(QueryOption.RELATIONAL));
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
         ctx.setQueryRetrieveLevel(qrLevel);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
@@ -101,6 +101,26 @@ class CommonCFindSCP extends BasicCFindSCP {
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
         return new ArchiveQueryTask(as, pc, rq, keys, ctx, runInTx);
+    }
+
+    private QueryRetrieveLevel2 validateQueryIdentifier(Association as, Attributes keys, boolean relational)
+            throws DicomServiceException {
+        QueryRetrieveLevel2 qrLevel;
+        try {
+            qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(keys, qrLevels, relational);
+        } catch (DicomServiceException e) {
+            if (relational || !relationalQueryNegotiationLenient(as))
+                throw e;
+
+            qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(keys, qrLevels, true);
+            LOG.info("{}: {}", as, e.getMessage());
+        }
+        return qrLevel;
+    }
+
+    private static boolean relationalQueryNegotiationLenient(Association as) {
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        return arcAE != null && arcAE.relationalQueryNegotiationLenient();
     }
 
     private Attributes createReturnKeys(Attributes keys) {

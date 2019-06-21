@@ -94,8 +94,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             throws DicomServiceException {
         LOG.info("{}: Process C-MOVE RQ:\n{}", as, keys);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
-        QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
-                keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
+        QueryRetrieveLevel2 qrLevel = validateRetrieveIdentifier(as, keys, queryOpts.contains(QueryOption.RELATIONAL));
         ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
         if (!arcAE.isAcceptedMoveDestination(rq.getString(Tag.MoveDestination)))
             throw new DicomServiceException(RetrieveService.MOVE_DESTINATION_NOT_ALLOWED,
@@ -158,6 +157,26 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
+    }
+
+    private QueryRetrieveLevel2 validateRetrieveIdentifier(Association as, Attributes keys, boolean relational)
+            throws DicomServiceException {
+        QueryRetrieveLevel2 qrLevel;
+        try {
+            qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(keys, qrLevels, relational);
+        } catch (DicomServiceException e) {
+            if (relational || !relationalRetrieveNegotiationLenient(as))
+                throw e;
+
+            qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(keys, qrLevels, true);
+            LOG.info("{}: {}", as, e.getMessage());
+        }
+        return qrLevel;
+    }
+
+    private static boolean relationalRetrieveNegotiationLenient(Association as) {
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        return arcAE != null && arcAE.relationalRetrieveNegotiationLenient();
     }
 
     private RetrieveContext newRetrieveContext(ArchiveAEExtension arcAE,

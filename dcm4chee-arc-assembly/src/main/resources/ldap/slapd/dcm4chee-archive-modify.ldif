@@ -1375,6 +1375,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.285 NAME 'dcmDeleteStudiesNotUsedSin
   DESC 'Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if they were last accessed longer ago than the specified value in ISO-8601 period format. Format [nn"["<schedule>"]"](PnYnMnD|PnW).'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.286 NAME 'dcmRelationalQueryNegotiationLenient'
+  DESC 'Indicates to accept C-FIND RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated; default is false.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.287 NAME 'dcmRelationalRetrieveNegotiationLenient'
+  DESC 'Indicates to accept C-MOVE and C-GET RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated; default is false.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1547,6 +1557,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmUIConfigurationDeviceName $
     dcmCSVUploadChunkSize $
     dcmValidateUID $
+    dcmRelationalQueryNegotiationLenient $
+    dcmRelationalRetrieveNegotiationLenient $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -1635,6 +1647,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorageVerificationUpdateLocationStatus $
     dcmStorageVerificationStorageID $
     dcmStorageVerificationInitialDelay $
+    dcmRelationalQueryNegotiationLenient $
+    dcmRelationalRetrieveNegotiationLenient $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $

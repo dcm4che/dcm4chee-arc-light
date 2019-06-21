@@ -233,6 +233,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7VeterinaryUsePatientName;
     private volatile int csvUploadChunkSize = 100;
     private volatile boolean validateUID = true;
+    private volatile boolean relationalQueryNegotiationLenient;
+    private volatile boolean relationalRetrieveNegotiationLenient;
     private volatile int[] rejectConflictingPatientAttribute = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -2275,6 +2277,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.validateUID = validateUID;
     }
 
+    public boolean isRelationalQueryNegotiationLenient() {
+        return relationalQueryNegotiationLenient;
+    }
+
+    public void setRelationalQueryNegotiationLenient(boolean relationalQueryNegotiationLenient) {
+        this.relationalQueryNegotiationLenient = relationalQueryNegotiationLenient;
+    }
+
+    public boolean isRelationalRetrieveNegotiationLenient() {
+        return relationalRetrieveNegotiationLenient;
+    }
+
+    public void setRelationalRetrieveNegotiationLenient(boolean relationalRetrieveNegotiationLenient) {
+        this.relationalRetrieveNegotiationLenient = relationalRetrieveNegotiationLenient;
+    }
+
     public int[] getRejectConflictingPatientAttribute() {
         return rejectConflictingPatientAttribute;
     }
@@ -2451,6 +2469,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;
+        relationalQueryNegotiationLenient = arcdev.relationalQueryNegotiationLenient;
+        relationalRetrieveNegotiationLenient = arcdev.relationalRetrieveNegotiationLenient;
         rejectConflictingPatientAttribute = arcdev.rejectConflictingPatientAttribute;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);

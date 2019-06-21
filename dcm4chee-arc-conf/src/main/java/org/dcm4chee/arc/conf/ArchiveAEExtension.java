@@ -126,6 +126,8 @@ public class ArchiveAEExtension extends AEExtension {
     private Period storageVerificationInitialDelay;
     private Boolean updateLocationStatusOnRetrieve;
     private Boolean storageVerificationOnRetrieve;
+    private Boolean relationalQueryNegotiationLenient;
+    private Boolean relationalRetrieveNegotiationLenient;
     private int[] rejectConflictingPatientAttribute = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
@@ -1193,6 +1195,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStorageVerificationOnRetrieve();
     }
 
+    public Boolean getRelationalQueryNegotiationLenient() {
+        return relationalQueryNegotiationLenient;
+    }
+
+    public void setRelationalQueryNegotiationLenient(Boolean relationalQueryNegotiationLenient) {
+        this.relationalQueryNegotiationLenient = relationalQueryNegotiationLenient;
+    }
+
+    public boolean relationalQueryNegotiationLenient() {
+        return relationalQueryNegotiationLenient != null
+                ? relationalQueryNegotiationLenient.booleanValue()
+                : getArchiveDeviceExtension().isRelationalQueryNegotiationLenient();
+    }
+
+    public Boolean getRelationalRetrieveNegotiationLenient() {
+        return relationalRetrieveNegotiationLenient;
+    }
+
+    public void setRelationalRetrieveNegotiationLenient(Boolean relationalRetrieveNegotiationLenient) {
+        this.relationalRetrieveNegotiationLenient = relationalRetrieveNegotiationLenient;
+    }
+
+    public boolean relationalRetrieveNegotiationLenient() {
+        return relationalRetrieveNegotiationLenient != null
+                ? relationalRetrieveNegotiationLenient.booleanValue()
+                : getArchiveDeviceExtension().isRelationalRetrieveNegotiationLenient();
+    }
+
     public int[] getRejectConflictingPatientAttribute() {
         return rejectConflictingPatientAttribute;
     }
@@ -1274,6 +1304,8 @@ public class ArchiveAEExtension extends AEExtension {
         storageVerificationInitialDelay = aeExt.storageVerificationInitialDelay;
         updateLocationStatusOnRetrieve = aeExt.updateLocationStatusOnRetrieve;
         storageVerificationOnRetrieve = aeExt.storageVerificationOnRetrieve;
+        relationalQueryNegotiationLenient = aeExt.relationalQueryNegotiationLenient;
+        relationalRetrieveNegotiationLenient = aeExt.relationalRetrieveNegotiationLenient;
         rejectConflictingPatientAttribute = aeExt.rejectConflictingPatientAttribute;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
