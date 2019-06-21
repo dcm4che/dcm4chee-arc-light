@@ -5461,7 +5461,7 @@
           "AUTH-RS"
         ],
         "summary": "Get information about logged-in user",
-        "operationId": "get",
+        "operationId": "getRealm",
         "parameters": [],
         "responses": {
           "200": {
@@ -5469,6 +5469,24 @@
           },
           "500": {
             "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/ui2/rs/keycloak.json": {
+      "get": {
+        "tags": [
+          "AUTH-RS"
+        ],
+        "summary": "Get Keycloak adapter configuration for UI application",
+        "operationId": "getKeycloakJSON",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/KeycloakJSON"
+          },
+          "404": {
+            "description": "UI application is not secured by Keycloak"
           }
         }
       }
@@ -14405,6 +14423,41 @@
                   "title": "super user",
                   "description": "logged in user is a super user",
                   "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "KeycloakJSON": {
+        "description": "Keycloak Adapater Configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "realm": {
+                  "type": "string"
+                },
+                "resource": {
+                  "type": "string"
+                },
+                "auth-server-url": {
+                  "type": "string"
+                },
+                "ssl-required": {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "external",
+                    "none"
+                  ]
+                },
+                "public-client": {
+                  "type": "boolean"
+                },
+                "confidential-port": {
+                  "type": "integer"
                 }
               }
             }

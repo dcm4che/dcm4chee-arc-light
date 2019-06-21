@@ -1,0 +1,8 @@
+{
+  "realm": "dcm4che",
+  "resource": "dcm4chee-arc-ui",
+  "auth-server-url": "http://gunter-nb:8880/auth",
+  "ssl-required": "external",
+  "public-client": true,
+  "confidential-port": 0
+}

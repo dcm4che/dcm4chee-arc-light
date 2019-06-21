@@ -449,6 +449,7 @@
     <module>dcm4chee-arc-conf-data</module>
     <module>dcm4chee-arc-conf-json</module>
     <module>dcm4chee-arc-conf-ldap</module>
+    <module>dcm4chee-arc-conf-keycloak</module>
     <module>dcm4chee-arc-conf-rs</module>
     <module>dcm4chee-arc-conf-test</module>
     <module>dcm4chee-arc-conf-ui</module>
