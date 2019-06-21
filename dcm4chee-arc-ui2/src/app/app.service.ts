@@ -249,31 +249,15 @@ export class AppService implements OnInit, OnDestroy{
         }
     }
     getKeycloakJson(){
-        return this.getMyWebApps()
-            .map((dcmWebApps:DcmWebApp[])=>{
-                try{
-                    return dcmWebApps.filter((dcmWebApp:DcmWebApp)=>{
-                        return dcmWebApp.dcmKeycloakClientID && dcmWebApp.dcmKeycloakClientID != "";
-                    })[0].dcmKeycloakClientID || undefined;
-                }catch (e) {
-                    j4care.log("Error on getting the dcmKeycloakclientIDs, getKeycloakJson() in app.service.ts",e);
-                    this.showError("KeyCloakClient seams to be not configured!\nAt least in one of the Web Applications have to be the own KeyCloak set.");
-                    this.updateGlobal("notSecure",true);
-                    this.router.navigateByUrl("/configuration");
-                    return;
-                }
-            })
-            .map(keyclokClient=>{
-                try{
-                    return {
-                        "url":keyclokClient["dcmURI"],
-                        "realm":keyclokClient["dcmKeycloakRealm"],
-                        "clientId":keyclokClient["dcmKeycloakClientID"]
-                    }
-                }catch (e) {
-                    j4care.log("Error on genrating keycloaj.json, getKeycloajJson() in app.service.ts",e);
-                    return;
-                }
+        return this.$httpClient.get("./rs/keycloak.json")
+            .map((res:any)=>{
+                return _.mapKeys(res, (value,key:any)=>{
+                    if(key === "auth-server-url")
+                        return "url";
+                    if(key === "resource")
+                        return "clientId";
+                    return key;
+                });
             })
     }
 }
