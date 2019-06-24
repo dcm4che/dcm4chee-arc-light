@@ -27,7 +27,9 @@ export class TableGeneratorComponent implements OnInit {
                 return model;
             });
         }
-        this.calculateWidthOfTable();
+        if(!_.hasIn(this.config,"calculate") || this.config.calculate){
+            this.calculateWidthOfTable();
+        }
     }
     calculateWidthOfTable(){
         let summ = 0;

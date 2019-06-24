@@ -10,7 +10,7 @@
             <div class="td {{table_element.cssClass||''}}" *ngFor="let table_element of config.table;let k = index" [ngStyle]="{width: table_element.calculatedWidth}">
                 <span *ngIf="table_element.type === 'index'">{{i+(config.filter.offset || 0)+1}}.</span>
                 <div *ngIf="table_element.type === 'buttons'" (mouseenter)="tMousEnter()" (mouseleave)="tMousLeave()">
-                    <a (click)="$event.preventDefault();button.click(model)" *ngFor="let button of table_element.buttons">
+                    <a (click)="$event.preventDefault();button.click(model)" *ngFor="let button of table_element.buttons" [title]="button.title || ''">
                         <div *ngIf="button.icon.tag === 'span'" class="{{button.icon.cssClass||''}}">{{button.icon.text||''}}</div>
                     </a>
                 </div>
@@ -26,6 +26,22 @@
                             {{_.get(model,table_element.key)}}
                         </span>
                     </ng-container>
+                </ng-container>
+                <ng-container *ngIf="table_element.type === 'value'">
+                    <ng-container *ngIf="table_element.modifyData">
+                        <span *ngIf="_.hasIn(model,table_element.pathToValue)">{{table_element.modifyData(_.get(model,table_element.pathToValue),model)}}</span>
+                    </ng-container>
+                    <ng-container *ngIf="!table_element.modifyData">
+                        <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content" tooltip="{{_.get(model,table_element.pathToValue)}}">
+                            {{_.get(model,table_element.pathToValue)}}
+                        </span>
+                    </ng-container>
+                </ng-container>
+                <ng-container *ngIf="table_element.type === 'actions'">
+                    <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(model)" *ngFor="let action of table_element.actions">
+                        <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                        <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                    </a>
                 </ng-container>
             </div>
         </div>
@@ -50,6 +66,11 @@
               </table>
             </div>
         </div>
+          <div class="tr"  *ngIf="model.showDicomAttributes">
+              <div class="td" style="width:100%">
+                  <attribute-list *ngIf="model" [attrs]="model"></attribute-list>
+              </div>
+          </div>
       </ng-container>
   </div>
 </div>
