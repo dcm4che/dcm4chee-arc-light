@@ -5455,24 +5455,6 @@
         }
       }
     },
-    "/ui2/rs/realm": {
-      "get": {
-        "tags": [
-          "AUTH-RS"
-        ],
-        "summary": "Get information about logged-in user",
-        "operationId": "getRealm",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/Realm"
-          },
-          "500": {
-            "description": "Internal Server Error."
-          }
-        }
-      }
-    },
     "/ui2/rs/keycloak.json": {
       "get": {
         "tags": [
@@ -14374,63 +14356,8 @@
          }
         }
       },
-      "Realm": {
-        "description": "Realm User Details",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "auth-server-url": {
-                  "title": "auth server url",
-                  "description": "The base URL of the Keycloak server",
-                  "type": "string"
-                },
-                "realm": {
-                  "title": "realm",
-                  "description": "Name of the realm",
-                  "type": "string"
-                },
-                "token": {
-                  "title": "token",
-                  "description": "OAuth Bearer Token",
-                  "type": "string"
-                },
-                "user": {
-                  "title": "user",
-                  "description": "user name",
-                  "type": "string"
-                },
-                "expiration": {
-                  "title": "expiration",
-                  "description": "Access token lifetime in seconds",
-                  "type": "integer"
-                },
-                "systemCurrentTime": {
-                  "title": "systemCurrentTime",
-                  "description": "System current time in seconds",
-                  "type": "integer"
-                },
-                "roles": {
-                  "title": "roles",
-                  "description": "user roles",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "su": {
-                  "title": "super user",
-                  "description": "logged in user is a super user",
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      },
       "KeycloakJSON": {
-        "description": "Keycloak Adapater Configuration",
+        "description": "Keycloak Adapter Configuration",
         "content": {
           "application/json": {
             "schema": {
