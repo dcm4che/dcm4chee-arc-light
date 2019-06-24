@@ -288,7 +288,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("hl7VeterinaryUsePatientName", arcDev.isHl7VeterinaryUsePatientName(), false);
         writer.writeNotDef("dcmCSVUploadChunkSize", arcDev.getCSVUploadChunkSize(), 100);
         writer.writeNotDef("dcmValidateUID", arcDev.isValidateUID(), true);
-        writer.writeNotEmpty("dcmRejectConflictingPatientAttribute", TagUtils.toHexStrings(arcDev.getRejectConflictingPatientAttribute()));
+        writer.writeNotDef("dcmRelationalQueryNegotiationLenient",
+                arcDev.isRelationalQueryNegotiationLenient(), false);
+        writer.writeNotDef("dcmRelationalRetrieveNegotiationLenient",
+                arcDev.isRelationalRetrieveNegotiationLenient(), false);
+        writer.writeNotEmpty("dcmRejectConflictingPatientAttribute",
+                TagUtils.toHexStrings(arcDev.getRejectConflictingPatientAttribute()));
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -843,7 +848,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getUpdateLocationStatusOnRetrieve());
         writer.writeNotNull("dcmStorageVerificationOnRetrieve",
                 arcAE.getStorageVerificationOnRetrieve());
-        writer.writeNotEmpty("dcmRejectConflictingPatientAttribute", TagUtils.toHexStrings(arcAE.getRejectConflictingPatientAttribute()));
+        writer.writeNotEmpty("dcmRejectConflictingPatientAttribute",
+                TagUtils.toHexStrings(arcAE.getRejectConflictingPatientAttribute()));
+        writer.writeNotNull("dcmRelationalQueryNegotiationLenient", arcAE.getRelationalQueryNegotiationLenient());
+        writer.writeNotNull("dcmRelationalRetrieveNegotiationLenient", arcAE.getRelationalRetrieveNegotiationLenient());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1360,6 +1368,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmValidateUID":
                     arcDev.setValidateUID(reader.booleanValue());
+                    break;
+                case "dcmRelationalQueryNegotiationLenient":
+                    arcDev.setRelationalQueryNegotiationLenient(reader.booleanValue());
+                    break;
+                case "dcmRelationalRetrieveNegotiationLenient":
+                    arcDev.setRelationalRetrieveNegotiationLenient(reader.booleanValue());
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
@@ -2695,6 +2709,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRejectConflictingPatientAttribute":
                     arcAE.setRejectConflictingPatientAttribute(TagUtils.fromHexStrings(reader.stringArray()));
+                    break;
+                case "dcmRelationalQueryNegotiationLenient":
+                    arcAE.setRelationalQueryNegotiationLenient(reader.booleanValue());
+                    break;
+                case "dcmRelationalRetrieveNegotiationLenient":
+                    arcAE.setRelationalRetrieveNegotiationLenient(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

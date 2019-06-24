@@ -62,6 +62,8 @@
     "dcmLinkMWLEntryUpdatePolicy",
     "dcmCSVUploadChunkSize",
     "dcmValidateUID",
+    "dcmRelationalQueryNegotiationLenient",
+    "dcmRelationalRetrieveNegotiationLenient",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
@@ -1210,6 +1212,18 @@
       "description": "Indicates if UIDs shall be validated or not.",
       "type": "boolean",
       "default": true
+    },
+    "dcmRelationalQueryNegotiationLenient": {
+      "title": "Relational Query Negotiation Lenient",
+      "description": "Indicates to accept C-FIND RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRelationalRetrieveNegotiationLenient": {
+      "title": "Relational Retrieve Negotiation Lenient",
+      "description": "Indicates to accept C-MOVE and C-GET RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated.",
+      "type": "boolean",
+      "default": false
     },
     "dcmRejectConflictingPatientAttribute": {
       "title": "Reject Conflicting Patient Attribute",

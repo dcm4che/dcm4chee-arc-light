@@ -293,6 +293,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
                 ext.isHl7VeterinaryUsePatientName(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmValidateUID", ext.isValidateUID(), true);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRelationalQueryNegotiationLenient",
+                ext.isRelationalQueryNegotiationLenient(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
+                ext.isRelationalRetrieveNegotiationLenient(), false);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
 
@@ -519,6 +523,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
         ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), false));
         ext.setValidateUID(LdapUtils.booleanValue(attrs.get("dcmValidateUID"), true));
+        ext.setRelationalQueryNegotiationLenient(LdapUtils.booleanValue(
+                attrs.get("dcmRelationalQueryNegotiationLenient"), false));
+        ext.setRelationalRetrieveNegotiationLenient(LdapUtils.booleanValue(
+                attrs.get("dcmRelationalRetrieveNegotiationLenient"), false));
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
     }
 
@@ -922,6 +930,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isValidateUID(),
                 bb.isValidateUID(),
                 true);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRelationalQueryNegotiationLenient",
+                aa.isRelationalQueryNegotiationLenient(),
+                bb.isRelationalQueryNegotiationLenient(),
+                false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRelationalRetrieveNegotiationLenient",
+                aa.isRelationalRetrieveNegotiationLenient(),
+                bb.isRelationalRetrieveNegotiationLenient(),
+                false);
         storeDiffTags(mods, "dcmRejectConflictingPatientAttribute",
                 aa.getRejectConflictingPatientAttribute(),
                 bb.getRejectConflictingPatientAttribute());
@@ -1126,6 +1142,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL",
                 ext.getInvokeImageDisplayStudyURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalQueryNegotiationLenient",
+                ext.getRelationalQueryNegotiationLenient(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
+                ext.getRelationalRetrieveNegotiationLenient(), null);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
 
@@ -1217,6 +1237,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
+        ext.setRelationalQueryNegotiationLenient(LdapUtils.booleanValue(
+                attrs.get("dcmRelationalQueryNegotiationLenient"), null));
+        ext.setRelationalRetrieveNegotiationLenient(LdapUtils.booleanValue(
+                attrs.get("dcmRelationalRetrieveNegotiationLenient"), null));
     }
 
     @Override
@@ -1383,6 +1407,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayStudyURL",
                 aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRelationalQueryNegotiationLenient",
+                aa.getRelationalQueryNegotiationLenient(), bb.getRelationalQueryNegotiationLenient(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRelationalRetrieveNegotiationLenient",
+                aa.getRelationalRetrieveNegotiationLenient(), bb.getRelationalRetrieveNegotiationLenient(), null);
         storeDiffTags(mods, "dcmRejectConflictingPatientAttribute",
                 aa.getRejectConflictingPatientAttribute(),
                 bb.getRejectConflictingPatientAttribute());
