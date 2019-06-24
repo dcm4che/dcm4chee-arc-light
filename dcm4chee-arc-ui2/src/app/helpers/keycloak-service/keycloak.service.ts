@@ -88,7 +88,7 @@ export class KeycloakService {
                     this.setTokenSource.next("");
                     return Observable.of([]);
                 }
-            });
+            })
         }
     }
 

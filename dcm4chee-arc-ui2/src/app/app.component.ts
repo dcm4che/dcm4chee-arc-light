@@ -72,6 +72,9 @@ export class AppComponent implements OnInit {
         }else {
             this._keycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
                 this.init();
+            },(err)=>{
+                console.log("error",err);
+                this.mainservice.updateGlobal("notSecure",true);
             })
         }
     }
