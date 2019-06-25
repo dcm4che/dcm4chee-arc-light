@@ -1663,7 +1663,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.287 NAME 'dcmRelationalRetrieveNegotiatio
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.288 NAME 'dcmStoreUpdateDBMaxRetryDelay'
+attributetype ( 1.2.40.0.13.1.15.110.3.288 NAME 'dcmStoreUpdateDBMinRetryDelay'
   DESC 'Minimal delay in ms between retries to update the database on storage; 500 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
