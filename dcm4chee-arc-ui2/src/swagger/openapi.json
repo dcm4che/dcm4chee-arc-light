@@ -2751,7 +2751,7 @@
         }
       }
     },
-    "/ui2/rs/devices": {
+    "/devices": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -2803,7 +2803,7 @@
         }
       }
     },
-    "/ui2/rs/devicename": {
+    "/devicename": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -2821,7 +2821,7 @@
         }
       }
     },
-    "/ui2/rs/devices/{DeviceName}": {
+    "/devices/{DeviceName}": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -2958,7 +2958,7 @@
         }
       }
     },
-    "/ui2/rs/aes": {
+    "/aes": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -2995,7 +2995,7 @@
         }
       }
     },
-    "/ui2/rs/aets": {
+    "/aets": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3020,7 +3020,7 @@
         }
       }
     },
-    "/ui2/rs/unique/aets": {
+    "/unique/aets": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3047,7 +3047,7 @@
         }
       }
     },
-    "/ui2/rs/unique/aets/{aet}": {
+    "/unique/aets/{aet}": {
       "post": {
         "tags": [
           "CONFIG-RS"
@@ -3095,7 +3095,7 @@
         }
       }
     },
-    "/ui2/rs/webapps": {
+    "/webapps": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3135,7 +3135,7 @@
         }
       }
     },
-    "/ui2/rs/unique/webAppNames": {
+    "/unique/webAppNames": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3162,7 +3162,7 @@
         }
       }
     },
-    "/ui2/rs/unique/aets/{webAppName}": {
+    "/unique/aets/{webAppName}": {
       "post": {
         "tags": [
           "CONFIG-RS"
@@ -3210,7 +3210,7 @@
         }
       }
     },
-    "/ui2/rs/hl7apps": {
+    "/hl7apps": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3238,7 +3238,7 @@
         }
       }
     },
-    "/ui2/rs/unique/hl7apps": {
+    "/unique/hl7apps": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3265,7 +3265,7 @@
         }
       }
     },
-    "/ui2/rs/unique/aets/{hl7AppName}": {
+    "/unique/aets/{hl7AppName}": {
       "post": {
         "tags": [
           "CONFIG-RS"
@@ -3313,7 +3313,7 @@
         }
       }
     },
-    "/ui2/rs/devices/{deviceName}/vendordata": {
+    "/devices/{deviceName}/vendordata": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3405,7 +3405,7 @@
         }
       }
     },
-    "/ui2/rs/attribute-filter/{entity}": {
+    "/attribute-filter/{entity}": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3437,7 +3437,7 @@
         }
       }
     },
-    "/ui2/rs/attribute-set/{type}": {
+    "/attribute-set/{type}": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3469,7 +3469,7 @@
         }
       }
     },
-    "/ui2/rs/export": {
+    "/export": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3494,7 +3494,7 @@
         }
       }
     },
-    "/ui2/rs/pdq": {
+    "/pdq": {
       "get": {
         "tags": [
           "CONFIG-RS"
@@ -3519,7 +3519,7 @@
         }
       }
     },
-    "/ui2/rs/reject": {
+    "/reject": {
       "get": {
         "tags": [
           "CONFIG-RS"
