@@ -42,6 +42,7 @@
     "dcmStorePermissionCacheSize",
     "dcmMergeMWLCacheSize",
     "dcmStoreUpdateDBMaxRetries",
+    "dcmStoreUpdateDBMinRetryDelay",
     "dcmStoreUpdateDBMaxRetryDelay",
     "dcmAllowRejectionForDataRetentionPolicyExpired",
     "dcmAllowDeleteStudyPermanently",
@@ -725,12 +726,19 @@
       "default": 1,
       "minimum": 0
     },
+    "dcmStoreUpdateDBMinRetryDelay": {
+      "title": "Minimal Store Update DB Delay of Retry",
+      "description": "Minimal Delay in ms between retries to update the database on storage.",
+      "type": "integer",
+      "default": 500,
+      "minimum": 0
+    },
     "dcmStoreUpdateDBMaxRetryDelay": {
-      "title": "Store Update DB Delay of Retry",
-      "description": "Delay in ms of retry to update the database on storage.",
+      "title": "Maximal Store Update DB Delay of Retry",
+      "description": "Maximal Delay in ms between retries to update the database on storage.",
       "type": "integer",
       "default": 1000,
-      "minimum": 0
+      "minimum": 1
     },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
       "title": "Allow Rejection For Data Retention Policy Expired",

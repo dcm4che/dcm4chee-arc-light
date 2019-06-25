@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -147,7 +146,7 @@ public class ExportScheduler extends Scheduler {
                 }
             }
             try {
-                Thread.sleep(ThreadLocalRandom.current().nextInt(arcDev.getStoreUpdateDBMaxRetryDelay()));
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
             } catch (InterruptedException e) {
                 LOG.info("{}: Failed to delay retry to update Study Export Task:\n", session, e);
             }
@@ -172,7 +171,7 @@ public class ExportScheduler extends Scheduler {
                 }
             }
             try {
-                Thread.sleep(ThreadLocalRandom.current().nextInt(arcDev.getStoreUpdateDBMaxRetryDelay()));
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
             } catch (InterruptedException e) {
                 LOG.info("{}: Failed to delay retry to update Series Export Task:\n", session, e);
             }
@@ -198,7 +197,7 @@ public class ExportScheduler extends Scheduler {
                 }
             }
             try {
-                Thread.sleep(ThreadLocalRandom.current().nextInt(arcDev.getStoreUpdateDBMaxRetryDelay()));
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
             } catch (InterruptedException e) {
                 LOG.info("{}: Failed to delay retry to update Instance Export Task:\n", session, e);
             }

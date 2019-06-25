@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -84,7 +83,7 @@ public class CodeServiceImpl implements CodeService {
                 }
             }
             try {
-                Thread.sleep(ThreadLocalRandom.current().nextInt(arcDev.getStoreUpdateDBMaxRetryDelay()));
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
             } catch (InterruptedException e) {
                 LOG.info("Failed to delay retry to update DB:\n", e);
             }

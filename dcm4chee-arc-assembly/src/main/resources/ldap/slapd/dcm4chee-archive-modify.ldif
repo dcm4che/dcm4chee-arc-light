@@ -714,7 +714,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.143 NAME 'dcmValidateCallingAEHostna
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.144 NAME 'dcmStoreUpdateDBMaxRetryDelay'
-  DESC 'Delay in ms of retry to update the database on storage; 1000 if absent'
+  DESC 'Maximal delay in ms between retries to update the database on storage; 1000 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1385,6 +1385,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.287 NAME 'dcmRelationalRetrieveNegot
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.288 NAME 'dcmStoreUpdateDBMaxRetryDelay'
+  DESC 'Minimal delay in ms between retries to update the database on storage; 500 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1505,6 +1510,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmMergeMWLCacheStaleTimeout $
     dcmMergeMWLCacheSize $
     dcmStoreUpdateDBMaxRetries $
+    dcmStoreUpdateDBMinRetryDelay $
     dcmStoreUpdateDBMaxRetryDelay $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAllowDeleteStudyPermanently $

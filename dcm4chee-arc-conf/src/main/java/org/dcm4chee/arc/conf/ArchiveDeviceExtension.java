@@ -52,6 +52,7 @@ import org.dcm4che3.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Period;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -162,6 +163,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int mergeMWLCacheSize = 10;
     private volatile int storeUpdateDBMaxRetries = 1;
     private volatile int storeUpdateDBMaxRetryDelay = 1000;
+    private volatile int storeUpdateDBMinRetryDelay = 500;
     private volatile AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =
             AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET;
     private volatile AcceptMissingPatientID acceptMissingPatientID = AcceptMissingPatientID.CREATE;
@@ -1087,6 +1089,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setStoreUpdateDBMaxRetryDelay(int storeUpdateDBMaxRetryDelay) {
         this.storeUpdateDBMaxRetryDelay = storeUpdateDBMaxRetryDelay;
+    }
+
+    public int getStoreUpdateDBMinRetryDelay() {
+        return storeUpdateDBMinRetryDelay;
+    }
+
+    public void setStoreUpdateDBMinRetryDelay(int storeUpdateDBMinRetryDelay) {
+        this.storeUpdateDBMinRetryDelay = storeUpdateDBMinRetryDelay;
+    }
+
+    public int storeUpdateDBRetryDelay() {
+        return storeUpdateDBMinRetryDelay + ThreadLocalRandom.current().nextInt(Math.max(1,
+                (storeUpdateDBMaxRetryDelay - storeUpdateDBMinRetryDelay)));
     }
 
     public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {
@@ -2400,6 +2415,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         mergeMWLCacheSize = arcdev.mergeMWLCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         storeUpdateDBMaxRetryDelay = arcdev.storeUpdateDBMaxRetryDelay;
+        storeUpdateDBMinRetryDelay = arcdev.storeUpdateDBMinRetryDelay;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
