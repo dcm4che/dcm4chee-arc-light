@@ -137,6 +137,9 @@ enum ObjectType {
     EncapsulatedCDA(
             new MediaType[] { MediaType.TEXT_XML_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
             new MediaType[] { MediaType.TEXT_XML_TYPE }, false),
+    EncapsulatedSTL(
+            new MediaType[] { MediaTypes.MODEL_STL_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
+            new MediaType[] { MediaType.TEXT_XML_TYPE }, false),
     Other(new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE }, null, false);
 
     private final MediaType[] mimeTypes;
@@ -164,6 +167,8 @@ enum ObjectType {
             return EncapsulatedPDF;
         if (cuid.equals(UID.EncapsulatedCDAStorage))
             return EncapsulatedCDA;
+        if (cuid.equals(UID.EncapsulatedSTLStorage))
+            return EncapsulatedSTL;
         if (!attrs.contains(Tag.BitsAllocated) || cuid.equals(UID.RTDoseStorage))
             return Other;
 
