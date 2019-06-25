@@ -68,13 +68,19 @@ export class AppComponent implements OnInit {
 
     ngOnInit(){
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
+            this.mainservice.updateGlobal("notSecure",false);
+            this.mainservice.setSecured(true);
             this.init();
         }else {
             this._keycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
+                this.mainservice.updateGlobal("notSecure",false);
+                this.mainservice.setSecured(true);
                 this.init();
             },(err)=>{
                 console.log("error",err);
                 this.mainservice.updateGlobal("notSecure",true);
+                this.mainservice.setSecured(false);
+                this.init();
             })
         }
     }
@@ -105,15 +111,24 @@ export class AppComponent implements OnInit {
             });
     }
     setUserInformation(){
-        try{
-            this.mainservice.getUser().subscribe((user:User)=>{
-                this.user = user;
-                this.realm = user.realm;
-                this.superUser = user.su;
-                this.authServerUrl = user.authServerUrl;
-            });
-        }catch (e) {
-            j4care.log("User information couldn't be set",e);
+        if(this.mainservice.global && this.mainservice.global.notSecure){
+            this.user = null;
+            this.realm = null;
+            this.superUser = true;
+            this.authServerUrl = null;
+        }else{
+            try{
+                this.mainservice.getUser().subscribe((user:User)=>{
+                    this.user = user;
+                    this.realm = user.realm;
+                    this.superUser = user.su;
+                    this.authServerUrl = user.authServerUrl;
+                },(err)=>{
+
+                });
+            }catch (e) {
+                j4care.log("User information couldn't be set",e);
+            }
         }
     }
     logout(){

@@ -10,11 +10,14 @@ import {HttpClient} from "@angular/common/http";
 import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {Router} from "@angular/router";
+import {Error} from "tslint/lib/error";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
     private _user: User;
     private userSubject = new Subject<User>();
+    private secured = new Subject<boolean>();
+    private securedValue:boolean;
     private _global;
     subscription: Subscription;
     keycloak;
@@ -43,6 +46,19 @@ export class AppService implements OnInit, OnDestroy{
     }
     getUser():Observable<User>{
         return this.userSubject.asObservable();
+    }
+
+    isSecure(){
+        if(typeof this.securedValue === "boolean"){
+            return Observable.of(this.securedValue);
+        }else{
+            return this.secured.asObservable();
+        }
+    }
+
+    setSecured(state:boolean){
+        this.securedValue = state;
+        this.secured.next(state);
     }
 
     private _isRole = function(role){
@@ -251,6 +267,7 @@ export class AppService implements OnInit, OnDestroy{
     getKeycloakJson(){
         return this.$httpClient.get("./rs/keycloak.json")
             .map((res:any)=>{
+                this.setSecured(true);
                 return _.mapKeys(res, (value,key:any)=>{
                     if(key === "auth-server-url")
                         return "url";
@@ -258,6 +275,10 @@ export class AppService implements OnInit, OnDestroy{
                         return "clientId";
                     return key;
                 });
+            },err=>{
+                console.log("err",err);
+                this.setSecured(false);
+                Observable.throw(err);
             })
     }
 }

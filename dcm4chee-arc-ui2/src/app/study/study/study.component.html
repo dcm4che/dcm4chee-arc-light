@@ -10,6 +10,7 @@
           <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
           <j4care-option *ngFor="let el of test" [value]="el.value" [htmlLabel]="el.label" [title]="'Test title'"></j4care-option>
       </j4care-select>-->
+      <!--<button (click)="testSecure()">test</button>-->
       <h2>Studies {{studyConfig.tab}}</h2>
       <h4 [@showHide]="fixedHeader ? 'hide':'show'">Select device and web service</h4>
 <!--      <div class="controll_header" *ngIf="studyDevice">

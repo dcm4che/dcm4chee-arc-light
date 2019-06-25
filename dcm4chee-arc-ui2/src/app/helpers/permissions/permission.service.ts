@@ -30,6 +30,7 @@ export class PermissionService {
             return this.getConfigWithUser(()=>{
                 if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0){
                     this.mainservice.global.notSecure = true;
+                    this.mainservice.setSecured(false);
                     return true; //not secured
                 }else
                     if(this.mainservice.user && this.mainservice.user.su)
@@ -121,6 +122,7 @@ export class PermissionService {
                         console.warn("Permission not found!",e);
                         if(this.mainservice.global.notSecure || (this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)){
                             this.mainservice.global.notSecure = true;
+                            this.mainservice.setSecured(false)
                         }else
                             this.mainservice.setMessage({
                                 'text': "Permission not found!",
@@ -164,7 +166,7 @@ export class PermissionService {
         if(this.mainservice.user && this.mainservice.user.roles && this.mainservice.user.roles.length > 0 && this.mainservice.user.su)
             return true;
         else
-            if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)
+            if((this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0) || (this.mainservice.global && this.mainservice.global.notSecure))
                 return true; //not secured
             else
                 return this.getConfig(()=>{

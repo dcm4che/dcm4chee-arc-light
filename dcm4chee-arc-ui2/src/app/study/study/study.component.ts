@@ -469,6 +469,12 @@ export class StudyComponent implements OnInit {
         })
     }
 
+    testSecure(){
+        this.appService.isSecure().subscribe((res)=>{
+            console.log("secured",res);
+        })
+    }
+
     testAet(){
 
         this.service.testAet("http://test-ng:8080/dcm4chee-arc/ui2/rs/aets", this.deviceWebservice.selectedWebApp).subscribe(res=>{

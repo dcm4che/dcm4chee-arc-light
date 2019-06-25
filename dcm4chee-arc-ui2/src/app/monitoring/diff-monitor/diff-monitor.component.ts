@@ -82,7 +82,7 @@ export class DiffMonitorComponent implements OnInit {
     }
     initCheck(retries){
         let $this = this;
-        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.route.queryParams.subscribe(params => {
                 console.log("params",params);
                 this.urlParam = Object.assign({},params);

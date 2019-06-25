@@ -141,8 +141,10 @@ export class J4careHttpService{
         if(response && response.length != 0){
             if(response['token'] === null){
                 this.setValueInGlobal('notSecure',true);
+                this.mainservice.setSecured(false);
             }else{
                 this.setValueInGlobal('notSecure',false);
+                this.mainservice.setSecured(true);
                 this.resetAuthenticationInfo(response);
                 this.token["UI"] = response['token'];
                 // this.setHeader(param[headerIndex]);
@@ -185,7 +187,7 @@ export class J4careHttpService{
                 return this.getRealm();
             }else{
                 if(!this.mainservice.global || !this.mainservice.global.notSecure){
-                    if(KeycloakService.keycloakAuth.authenticated && !KeycloakService.keycloakAuth.isTokenExpired(5)){
+                    if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) && !KeycloakService.keycloakAuth.isTokenExpired(5)){
                         this.token["UI"] = KeycloakService.keycloakAuth.token;
                     }else{
                         this.setValueInGlobal('getRealmStateActive',true);

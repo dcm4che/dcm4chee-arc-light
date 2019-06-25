@@ -63,6 +63,7 @@ export class KeycloakService {
                                 realm:KeycloakService.keycloakAuth.realm
                             });
                         });
+                        this.mainservice.setSecured(true);
                         resolve();
                     })
                     .error((errorData: any) => {
