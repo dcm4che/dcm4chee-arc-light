@@ -46,7 +46,7 @@
 
   <groupId>org.dcm4che.dcm4chee-arc</groupId>
   <artifactId>dcm4chee-arc-parent</artifactId>
-  <version>5.17.0</version>
+  <version>5.17.1</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -64,7 +64,7 @@
     <download-maven-plugin.version>1.4.0</download-maven-plugin.version>
     <jaxws-tools-maven-plugin.version>1.2.1.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
-    <dcm4che.version>5.17.1</dcm4che.version>
+    <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
     <keycloak.version>6.0.1</keycloak.version>
     <jclouds.version>2.1.2</jclouds.version>
