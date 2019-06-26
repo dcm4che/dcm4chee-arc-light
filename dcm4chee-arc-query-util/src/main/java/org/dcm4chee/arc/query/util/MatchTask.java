@@ -98,12 +98,17 @@ public class MatchTask {
         return predicates;
     }
 
-    public List<Predicate> retrieveBatchPredicates(
-            Path<QueueMessage> queueMsg, Path<RetrieveTask> retrieveTask,
+    public List<Predicate> retrieveBatchPredicates(Path<RetrieveTask> retrieveTask, Path<QueueMessage> queueMsg,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
         matchRetrieveBatch(predicates, retrieveBatchQueryParam, retrieveTask);
+
+        QueueMessage.Status status = queueBatchQueryParam.getStatus();
+        if (status != null)
+            predicates.add(status == QueueMessage.Status.TO_SCHEDULE
+                    ? retrieveTask.get(RetrieveTask_.queueMessage).isNull()
+                    : cb.equal(queueMsg.get(QueueMessage_.status), status));
+
         return predicates;
     }
 

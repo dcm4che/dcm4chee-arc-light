@@ -96,8 +96,13 @@ public class RetrieveBatch {
         return scheduledTimeRange;
     }
 
-    public void setScheduledTimeRange(Date... scheduledTimeRange) {
-        this.scheduledTimeRange = scheduledTimeRange;
+    public void setScheduledTimeRange(Date minScheduledTime, Date maxScheduledTime) {
+        if (minScheduledTime == null && maxScheduledTime == null)
+            return;
+
+        this.scheduledTimeRange = new Date[2];
+        this.scheduledTimeRange[0] = minScheduledTime;
+        this.scheduledTimeRange[1] = maxScheduledTime;
     }
 
     public Date[] getProcessingStartTimeRange() {
