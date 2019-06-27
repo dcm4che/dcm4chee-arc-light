@@ -1385,8 +1385,13 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.287 NAME 'dcmRelationalRetrieveNegotiat
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.288 NAME 'dcmStoreUpdateDBMaxRetryDelay'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.288 NAME 'dcmStoreUpdateDBMinRetryDelay'
   DESC 'Minimal delay in ms between retries to update the database on storage; 500 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.289 NAME 'dcmStowRetiredTransferSyntax'
+  DESC 'Store received JPEG Full Progression, Non-Hierarchical JPEG images in DICOM images with corresponding (retired) Transfer Syntax UID 1.2.840.10008.1.2.4.55. Otherwise set 1.2.840.10008.1.2.4.50 (= JPEG Baseline) or 1.2.840.10008.1.2.4.51 (= JPEG Extended) as Transfer Syntax UID of the stored DICOM image, without transcoding to JPEG Baseline or JPEG Extended, but including the JPEG image as received; false if absent.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1563,6 +1568,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmValidateUID $
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
+    dcmStowRetiredTransferSyntax $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -1653,6 +1659,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorageVerificationInitialDelay $
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
+    dcmStowRetiredTransferSyntax $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $
