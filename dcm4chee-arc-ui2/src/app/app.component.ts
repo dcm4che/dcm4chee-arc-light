@@ -69,17 +69,17 @@ export class AppComponent implements OnInit {
     ngOnInit(){
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             this.mainservice.updateGlobal("notSecure",false);
-            this.mainservice.setSecured(true);
+            // this.mainservice.setSecured(true);
             this.init();
         }else {
             this._keycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
                 this.mainservice.updateGlobal("notSecure",false);
-                this.mainservice.setSecured(true);
+                // this.mainservice.setSecured(true);
                 this.init();
             },(err)=>{
                 console.log("error",err);
                 this.mainservice.updateGlobal("notSecure",true);
-                this.mainservice.setSecured(false);
+                // this.mainservice.setSecured(false);
                 this.init();
             })
         }
@@ -94,6 +94,17 @@ export class AppComponent implements OnInit {
             // this.setLogutUrl();
             this.initGetPDQServices();
         });
+    }
+    testUser(){
+        KeycloakService.keycloakAuth.loadUserInfo().success(user=>{
+            console.log("in test success",user);
+            this._keycloakService.setUserInfo({
+                userProfile:user,
+                tokenParsed:KeycloakService.keycloakAuth.tokenParsed,
+                authServerUrl:KeycloakService.keycloakAuth.authServerUrl,
+                realm:KeycloakService.keycloakAuth.realm
+            });
+        })
     }
     setServerTime(recall?:Function){
         let currentBrowserTime = new Date().getTime();
@@ -293,16 +304,16 @@ export class AppComponent implements OnInit {
         })
     }
     getPDQServices(url?:string):Observable<any[]>{
-        return this.$http.get(`${url || '.'}/rs/pdq`)
+        return this.$http.get(`${url || '..'}/pdq`)
     }
     getServerTime(url?:string){
         return this.$http.get(`${url || '..'}/monitor/serverTime`)
     }
     getDeviceName(url?:string){
-        return this.$http.get(`${url || '.'}/rs/devicename`)
+        return this.$http.get(`${url || '..'}/devicename`)
     }
     getDeviceInfo(dicomDeviceName:string, url?:string){
-        return this.$http.get(`${url || '.'}/rs/devices?dicomDeviceName=${dicomDeviceName}`)
+        return this.$http.get(`${url || '..'}/devices?dicomDeviceName=${dicomDeviceName}`)
     }
 }
 

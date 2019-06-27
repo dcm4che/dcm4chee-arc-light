@@ -30,7 +30,7 @@ export class PermissionService {
             return this.getConfigWithUser(()=>{
                 if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0){
                     this.mainservice.global.notSecure = true;
-                    this.mainservice.setSecured(false);
+                    // this.mainservice.setSecured(false);
                     return true; //not secured
                 }else
                     if(this.mainservice.user && this.mainservice.user.su)
@@ -49,12 +49,12 @@ export class PermissionService {
         let deviceName;
         let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
-            return this.$http.get('./rs/devicename')
+            return this.$http.get('../devicename')
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
                     archiveDeviceName = res.dicomDeviceName;
-                    return this.$http.get('./rs/devices/' + deviceName)
+                    return this.$http.get('../devices/' + deviceName)
                 })
                 .map((res)=>{
                     try{
@@ -82,12 +82,19 @@ export class PermissionService {
         let deviceName;
         let archiveDeviceName;
         let userInfo:UserInfo;
-        if(!this.uiConfig && !this.configChecked)
+        if(!this.uiConfig && !this.configChecked){
+            console.log("*****before keycloakServiceGetUserInfo");
+            this._keycloakService.getUserInfo().subscribe(user=>{
+                console.log("in test get user",user);
+            },(err)=>{
+                console.log("in test get error",err);
+            });
             return this._keycloakService.getUserInfo()
                 .map(user=>{
+                    console.log("*********in get userinfo",user);
                     userInfo = user; //Extracting userInfo from KeyCloak
                 })
-                .switchMap(res => this.$http.get('./rs/devicename'))
+                .switchMap(res => this.$http.get('../devicename'))
                 .map(deviceNameResponse=>{
                     const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
                     let user = new User({
@@ -97,6 +104,7 @@ export class PermissionService {
                         roles:roles,
                         su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1)
                     });
+                    console.log("......user about to set",user);
                     this.mainservice.setUser(user);
                     this.user = user;
                     return deviceNameResponse;
@@ -105,7 +113,7 @@ export class PermissionService {
                 .switchMap(res => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
                     archiveDeviceName = res.dicomDeviceName;
-                    return this.$http.get('./rs/devices/' + deviceName);
+                    return this.$http.get('../devices/' + deviceName);
                 })
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .map((res)=>{
@@ -122,7 +130,7 @@ export class PermissionService {
                         console.warn("Permission not found!",e);
                         if(this.mainservice.global.notSecure || (this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)){
                             this.mainservice.global.notSecure = true;
-                            this.mainservice.setSecured(false)
+                            // this.mainservice.setSecured(false)
                         }else
                             this.mainservice.setMessage({
                                 'text': "Permission not found!",
@@ -133,8 +141,9 @@ export class PermissionService {
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
                 });
-        else
+        }else{
             return response.apply(this,[]);
+        }
     }
 
     checkMenuTabAccess(url){

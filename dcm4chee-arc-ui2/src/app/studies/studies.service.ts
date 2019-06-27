@@ -187,7 +187,7 @@ export class StudiesService {
     };
 
 /*    setExpiredDate(aet,studyUID, expiredDate){
-        let url = `./rs/aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}`
+        let url = `../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}`
         return this.$http.put(url,{}).map(res => j4care.redirectOnAuthResponse(res));
     }*/
 
@@ -832,7 +832,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
     }
     getWebApps(){
-        return this.$http.get('./rs/webapps?dcmWebServiceClass=STOW_RS')
+        return this.$http.get('../webapps?dcmWebServiceClass=STOW_RS')
     }
     isTargetInClipboard(target, clipboard){
         let contains = false;
@@ -860,7 +860,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         return url;
     }
     getDiffAttributeSet(){
-        return this.$http.get('./rs/attribute-set/DIFF_RS')
+        return this.$http.get('../attribute-set/DIFF_RS')
     }
     queryNationalPationtRegister(patientID){
         // return Observable.of([{"00081190":{"vr":"UR","Value":["http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/rs"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"test12SELAM"}]},"00100020":{"vr":"LO","Value":["pid1"]},"00100040":{"vr":"CS","Value":["F"]},"00201200":{"vr":"IS","Value":[0]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20180315123826.668"]},"77771011":{"vr":"DT","Value":["20180315125113.826"]}}]);

@@ -666,7 +666,7 @@ export class ExportComponent implements OnInit, OnDestroy {
 
     initExporters(retries) {
         let $this = this;
-        this.$http.get('./rs/export')
+        this.$http.get('../export')
             .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe(
                 (res) => {

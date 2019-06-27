@@ -128,7 +128,7 @@ export class DevicesComponent implements OnInit{
             urlParam = '?' + urlParam;
         }
         this.$http.get(
-            './rs/devices' + urlParam
+            '../devices' + urlParam
         )
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
         .subscribe((response) => {
@@ -181,7 +181,7 @@ export class DevicesComponent implements OnInit{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    $this.$http.delete('./rs/devices/' + device.dicomDeviceName).subscribe((res) => {
+                    $this.$http.delete('../devices/' + device.dicomDeviceName).subscribe((res) => {
                         $this.mainservice.setMessage({
                             'title': 'Info',
                             'text': 'Device deleted successfully!',
@@ -230,7 +230,7 @@ export class DevicesComponent implements OnInit{
                     $this.cfpLoadingBar.complete();
                 }else{
                     $this.$http.get(
-                        './rs/devices/' + devicename.dicomDeviceName
+                        '../devices/' + devicename.dicomDeviceName
                     )
                     // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                     .subscribe(
@@ -241,7 +241,7 @@ export class DevicesComponent implements OnInit{
                             console.log('device afterchange', device);
                             device.dicomDeviceName = parameters.result.input;
                             this.service.createDevice(parameters.result.input, device)
-                            // $this.$http.post('./rs/devices/' + parameters.result.input, device, headers)
+                            // $this.$http.post('../devices/' + parameters.result.input, device, headers)
                                 .subscribe(res => {
                                         console.log('res succes', res);
                                         $this.cfpLoadingBar.complete();
@@ -252,7 +252,7 @@ export class DevicesComponent implements OnInit{
                                         });
                                         $this.getDevices();
                                         $this.$http.get(
-                                            './rs/aes'
+                                            '../aes'
                                             // './assets/dummydata/aes.json'
                                         )
                                             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
@@ -308,7 +308,7 @@ export class DevicesComponent implements OnInit{
                     i = (<any>_.get(re.device,Globalvar.EXPORTER_CONFIG_PATH)).length;
                 }
                 this.deviceConfigurator.addChangesToDevice(re.exporter,`${Globalvar.EXPORTER_CONFIG_PATH}[${i}]`,re.device);
-                $this.$http.put('./rs/devices/' + re.device.dicomDeviceName,re.device, headers).subscribe(res => {
+                $this.$http.put('../devices/' + re.device.dicomDeviceName,re.device, headers).subscribe(res => {
                     $this.mainservice.setMessage({
                         'title': 'Info',
                         'text': 'The new exporter description appended successfully to the device: ' + re.device.dicomDeviceName,
@@ -333,7 +333,7 @@ export class DevicesComponent implements OnInit{
             this.aes = this.mainservice.global.aes;
         }else{
             this.$http.get(
-                './rs/aes'
+                '../aes'
                 // './assets/dummydata/aes.json'
             )
                 // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})

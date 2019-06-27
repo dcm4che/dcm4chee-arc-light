@@ -32,7 +32,7 @@ export class RetrieveMonitoringService {
             .map(res => j4care.redirectOnAuthResponse(res));
     };
     getExporters(){
-      return this.$http.get('./rs/export')
+      return this.$http.get('../export')
           .map(res => j4care.redirectOnAuthResponse(res));
     }
     delete(pk){

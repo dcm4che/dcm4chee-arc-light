@@ -11,6 +11,7 @@
     <!--</li>-->
 <!--</div>-->
 <!--<button (click)="testLogout()">logout</button>-->
+<!--<button (click)="testUser()">test</button>-->
 <div class="user" *ngIf="user && user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
     <span (click)="showUserMenu = !showUserMenu" id="usermenu">
         <div class="username" *ngIf="user && user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>

@@ -103,7 +103,7 @@ export class DynamicFormElementComponent implements OnDestroy{
             }).subscribe(result => {
                 if (result) {
                     console.log('delete file form device', deviceName);
-                    $this.$http.delete(`./rs/devices/${deviceName}/vendordata`).subscribe((res) => {
+                    $this.$http.delete(`../devices/${deviceName}/vendordata`).subscribe((res) => {
                         console.log('deleted successfully');
                         /*                    var globalForm = $this.formcomp.getForm();
                                             var valueObject = globalForm.value;
@@ -124,7 +124,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                             controlType: 'filedownload',
                             description: 'Device specific vendor configuration information',
                             deviceName: 'Testdevi2',
-                            downloadUrl: './rs/devices/Testdevi2/vendordata',
+                            downloadUrl: '../devices/Testdevi2/vendordata',
                             key: 'dicomVendorData',
                             label: 'Vendor Device Data',
                             order: 5.02,

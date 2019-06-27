@@ -1199,7 +1199,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 console.log('params1', $this.mainservice.param(params));
                 console.log('params', params);
                 $this.$http.delete(
-                    './rs/reject/' + re.reject + '?' + $this.mainservice.param(params)
+                    '../reject/' + re.reject + '?' + $this.mainservice.param(params)
                 )
                     // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe(
@@ -2541,7 +2541,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (this.aetmodel.dcmHideNotRejectedInstances === true){
             if (this.rjcode === null){
-                this.$http.get('./rs/reject?dcmRevokeRejection=true')
+                this.$http.get('../reject?dcmRevokeRejection=true')
                     // .map((res) => res.json())
                     .subscribe((res)=>{
                         $this.rjcode = res[0];
@@ -3361,10 +3361,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
     rsURL() {
 /*        let url;
         if(this.externalInternalAetMode === "external"){
-            url = `./rs/aets/${this.aetmodel.dicomAETitle}/dimse/${this.externalInternalAetModel.dicomAETitle}`;
+            url = `../aets/${this.aetmodel.dicomAETitle}/dimse/${this.externalInternalAetModel.dicomAETitle}`;
         }
         if(this.externalInternalAetMode === "internal"){
-            url = `./rs/aets/${this.aet}/rs`;
+            url = `../aets/${this.aet}/rs`;
         }*/
         let externalInternalAetModel = this.externalInternalAetModel && this.externalInternalAetModel.dicomAETitle ? this.externalInternalAetModel.dicomAETitle : undefined;
         let aetmodel = this.aetmodel && this.aetmodel.dicomAETitle ? this.aetmodel.dicomAETitle : undefined;
@@ -4175,7 +4175,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             if(!mode){
                 mode = "internal";
             }
-           this.$http.get('./rs/aets')
+           this.$http.get('../aets')
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,mode))
                 .subscribe((res)=> {
@@ -4199,7 +4199,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
     getAllAes(retries) {
         let $this = this;
-        this.$http.get('./rs/aes')
+        this.$http.get('../aes')
             .map(res => j4care.redirectOnAuthResponse(res))
             .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,"external"))
             .subscribe(
@@ -4255,7 +4255,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
     initAttributeFilter(entity, retries) {
         let $this = this;
-       this.$http.get('./rs/attribute-filter/' + entity)
+       this.$http.get('../attribute-filter/' + entity)
             .map(res => {let resjson; try{
                 /*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
@@ -4559,7 +4559,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
     initExporters(retries) {
         let $this = this;
-       this.$http.get('./rs/export')
+       this.$http.get('../export')
             .subscribe(
                 function (res) {
                     $this.exporters = res;
@@ -4582,7 +4582,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }*/
     initRjNotes(retries) {
         let $this = this;
-       this.$http.get('./rs/reject')
+       this.$http.get('../reject')
             .subscribe(
                 function (res) {
                     let rjnotes = res;
@@ -4612,7 +4612,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
 
     testToken(){
-        this.$http.get('./rs/aes')
+        this.$http.get('../aes')
             .subscribe((res)=>{
                 console.log("testres",res);
             },(err)=>{
@@ -4635,7 +4635,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         // this.mainservice.getRealmOfLogedinUser()
         //     .subscribe((res)=>{
         //         let token = res.token;
-        //         // this.$http.get('./rs/reject')
+        //         // this.$http.get('../reject')
         //         this.kc.init().then(init => {
         //             console.log("init",init);
         //         this.kc.getToken(token)

@@ -28,6 +28,7 @@ import {from} from "rxjs/observable/from";
 import {Globalvar} from "../../constants/globalvar";
 import {Subject} from "../../../../node_modules/rxjs";
 import {j4care} from "../j4care.service";
+import {User} from "../../models/user";
 
 type KeycloakClient = KeycloakModule.KeycloakClient;
 
@@ -37,6 +38,7 @@ export class KeycloakService {
     static keycloakConfig:any;
     private setTokenSource = new Subject<any>();
     private setUserSource = new Subject<any>();
+    private userInfo;
     keycloakConfigName = `keycloak_config_${location.host}`;
     // static getTokenObs =
     constructor(
@@ -50,23 +52,29 @@ export class KeycloakService {
     }
     init(options?: any) {
         if(KeycloakService.keycloakConfig){
+            // this.mainservice.updateGlobal("notSecure",false);
             KeycloakService.keycloakAuth = new Keycloak(KeycloakService.keycloakConfig);
             return j4care.promiseToObservable(new Promise((resolve, reject) => {
                 KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
                     .success(() => {
                         this.setTokenSource.next(KeycloakService.keycloakAuth);
                         KeycloakService.keycloakAuth.loadUserProfile().success(user=>{
-                            this.setUserSource.next({
+                            this.setUserInfo({
                                 userProfile:user,
                                 tokenParsed:KeycloakService.keycloakAuth.tokenParsed,
                                 authServerUrl:KeycloakService.keycloakAuth.authServerUrl,
                                 realm:KeycloakService.keycloakAuth.realm
                             });
+                            this.mainservice.setSecured(true);
+                            resolve();
+                        }).error(err=>{
+                            this.mainservice.setSecured(false);
+                            console.error("err on loadingUserProfile",err);
+                            reject(err);
                         });
-                        this.mainservice.setSecured(true);
-                        resolve();
                     })
                     .error((errorData: any) => {
+                        this.mainservice.setSecured(false);
                         reject(errorData);
                     });
             }))
@@ -93,8 +101,18 @@ export class KeycloakService {
         }
     }
 
+    setUserInfo(user){
+        console.log("*******in set userINFo",user);
+        this.userInfo = user;
+        this.setUserSource.next(user);
+    }
     getUserInfo():Observable<any>{
-        return this.setUserSource.asObservable();
+        console.log("**********inget userINFO",this.userInfo);
+        if(this.userInfo){
+            return Observable.of(this.userInfo);
+        }else{
+            return this.setUserSource.asObservable();
+        }
     }
     getTokenObs():Observable<any>{
         return this.setTokenSource.asObservable();

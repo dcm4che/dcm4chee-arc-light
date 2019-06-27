@@ -39,7 +39,6 @@ export class AuthGuard implements CanActivate {
                     return check;
                 }
             });*/
-
         if(this.appservice.global && this.appservice.global.notSecure){
             return true;
         }else{

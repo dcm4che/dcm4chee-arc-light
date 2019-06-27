@@ -242,11 +242,11 @@ export class AppService implements OnInit, OnDestroy{
         }else{
             let deviceName;
             let archiveDeviceName;
-            return this.$httpClient.get('./rs/devicename')
+            return this.$httpClient.get('../devicename')
                 .switchMap(res => {
                     deviceName = (_.get(res,"UIConfigurationDeviceName") || _.get(res,"dicomDeviceName"));
                     archiveDeviceName = _.get(res,"dicomDeviceName");
-                    return this.$httpClient.get('./rs/devices/' + deviceName)
+                    return this.$httpClient.get('../devices/' + deviceName)
                 })
                 .map((res)=>{
                     try{

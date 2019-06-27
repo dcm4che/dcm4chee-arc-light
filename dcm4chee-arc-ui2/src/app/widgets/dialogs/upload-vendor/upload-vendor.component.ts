@@ -33,7 +33,7 @@ export class UploadVendorComponent implements OnInit {
                 token = response.token;
             }
             let xmlHttpRequest = new XMLHttpRequest();
-            xmlHttpRequest.open('PUT', `./rs/devices/${this._deviceName}/vendordata`, true);
+            xmlHttpRequest.open('PUT', `../devices/${this._deviceName}/vendordata`, true);
             xmlHttpRequest.setRequestHeader("Content-Type","application/zip");
             if(!this.mainservice.global.notSecure) {
                 xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);

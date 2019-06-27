@@ -211,7 +211,7 @@ export class StudyService {
 
     getAttributeFilter(entity?:string, baseUrl?:string){
         return this.$http.get(
-            `${baseUrl || '.'}/rs/attribute-filter/${entity || "Patient"}`
+            `${baseUrl || '..'}/attribute-filter/${entity || "Patient"}`
         )
         .map(res => j4care.redirectOnAuthResponse(res))
         .map(res => {

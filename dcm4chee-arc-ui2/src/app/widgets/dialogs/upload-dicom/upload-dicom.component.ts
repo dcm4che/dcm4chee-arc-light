@@ -169,7 +169,7 @@ export class UploadDicomComponent implements OnInit{
     }
     uploadFile(dialogRef){
 
-/*        this.vendorUpload.setOptions({url: `./rs/aets/${this._selectedAe}/rs/studies`});
+/*        this.vendorUpload.setOptions({url: `../aets/${this._selectedAe}/rs/studies`});
         this.vendorUpload.uploadAll();*/
         // dialogRef.close("ok");
     }

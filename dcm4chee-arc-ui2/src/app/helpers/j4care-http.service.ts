@@ -141,10 +141,10 @@ export class J4careHttpService{
         if(response && response.length != 0){
             if(response['token'] === null){
                 this.setValueInGlobal('notSecure',true);
-                this.mainservice.setSecured(false);
+                // this.mainservice.setSecured(false);
             }else{
                 this.setValueInGlobal('notSecure',false);
-                this.mainservice.setSecured(true);
+                // this.mainservice.setSecured(true);
                 this.resetAuthenticationInfo(response);
                 this.token["UI"] = response['token'];
                 // this.setHeader(param[headerIndex]);

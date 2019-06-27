@@ -331,7 +331,7 @@ export class StorageSystemsComponent implements OnInit {
         });
     }
     getAets(){
-        this.$http.get('./rs/aets')
+        this.$http.get('../aets')
             .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe((response) => {
                 this.aets = j4care.extendAetObjectWithAlias(response);
@@ -354,7 +354,7 @@ export class StorageSystemsComponent implements OnInit {
      }*/
 /*    initExporters(retries) {
         let $this = this;
-        this.$http.get("./rs/storage")
+        this.$http.get("../storage")
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
