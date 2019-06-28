@@ -338,7 +338,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.56 NAME 'dcmFallbackCMoveSCPLevel'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.57 NAME 'dcmDeleterThreshold'
-  DESC 'Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if the usable space fall below that value. If absent all studies are deleted from cache/temporary storage. Format [nn"["<schedule>"]"]nnn(MB|GB|MiB|GiB).'
+  DESC 'Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if the usable space fall below that value. Format [nn"["<schedule>"]"]nnn(MB|GB|MiB|GiB).'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
@@ -1203,7 +1203,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.208 NAME 'dcmExportStorageID'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.209 NAME 'dcmNoDeletionConstraint'
-  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
+  DESC 'Delete all Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured; false if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
