@@ -5536,9 +5536,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/KeycloakJSON"
-          },
-          "404": {
-            "description": "UI application is not secured by Keycloak"
           }
         }
       }

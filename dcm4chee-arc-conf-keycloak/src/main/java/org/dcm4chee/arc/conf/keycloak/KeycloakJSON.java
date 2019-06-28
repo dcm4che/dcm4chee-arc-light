@@ -62,10 +62,8 @@ public class KeycloakJSON {
     @Produces("application/json")
     public String get() {
         String authServerURL = System.getProperty("auth-server-url");
-        if (authServerURL == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return "{\"realm\":\"" + System.getProperty("realm-name", "dcm4che") +
+        return authServerURL == null ? "{}" :
+                "{\"realm\":\"" + System.getProperty("realm-name", "dcm4che") +
                 "\",\"resource\":\"" + System.getProperty("ui-client-id","dcm4chee-arc-ui") +
                 "\",\"auth-server-url\":\"" + authServerURL +
                 "\",\"ssl-required\":\"" + System.getProperty("ssl-required","external") +
