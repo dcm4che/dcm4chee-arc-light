@@ -68,6 +68,7 @@ public final class StorageDescriptor {
     private int deleterThreads = 1;
     private String externalRetrieveAETitle;
     private boolean readOnly;
+    private boolean noDeletionConstraint;
     private StorageDuration storageDuration = StorageDuration.PERMANENT;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
@@ -178,6 +179,14 @@ public final class StorageDescriptor {
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
+    }
+
+    public boolean isNoDeletionConstraint() {
+        return noDeletionConstraint;
+    }
+
+    public void setNoDeletionConstraint(boolean noDeletionConstraint) {
+        this.noDeletionConstraint = noDeletionConstraint;
     }
 
     public StorageThreshold getStorageThreshold() {

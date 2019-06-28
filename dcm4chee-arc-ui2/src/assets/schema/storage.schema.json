@@ -8,6 +8,7 @@
     "dcmInstanceAvailability",
     "dcmRetrieveCacheMaxParallel",
     "dcmReadOnly",
+    "dcmNoDeletionConstraint",
     "dcmDeleterThreads",
     "dcmStorageDuration"
   ],
@@ -56,6 +57,12 @@
     "dcmReadOnly": {
       "title": "Read Only",
       "description": "Indicates if a Storage System is read only.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmNoDeletionConstraint": {
+      "title": "No Deletion Constraint",
+      "description": "Delete all Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured",
       "type": "boolean",
       "default": false
     },

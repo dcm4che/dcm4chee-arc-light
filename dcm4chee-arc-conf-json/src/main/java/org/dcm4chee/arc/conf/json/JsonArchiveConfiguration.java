@@ -375,6 +375,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmInstanceAvailability", st.getInstanceAvailability(), Availability.ONLINE);
             writer.writeNotNullOrDef("dcmStorageDuration", st.getStorageDuration(), StorageDuration.PERMANENT);
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
+            writer.writeNotDef("dcmNoDeletionConstraint", st.isNoDeletionConstraint(), false);
             writer.writeNotDef("dcmDeleterThreads", st.getDeleterThreads(), 1);
             writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
@@ -1573,6 +1574,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmReadOnly":
                         st.setReadOnly(reader.booleanValue());
+                        break;
+                    case "dcmNoDeletionConstraint":
+                        st.setNoDeletionConstraint(reader.booleanValue());
                         break;
                     case "dcmDeleterThreads":
                         st.setDeleterThreads(reader.intValue());

@@ -167,7 +167,7 @@ public class PurgeStorageScheduler extends Scheduler {
     private void process(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
         deleteSeriesMetadata(arcDev, desc);
         deleteObjectsFromStorage(arcDev, desc);
-        if (desc.getStorageDuration() == StorageDuration.PERMANENT)
+        if (desc.getStorageDuration() == StorageDuration.PERMANENT || !desc.isNoDeletionConstraint())
             return;
 
         while (desc.hasRetentionPeriods()
