@@ -2835,7 +2835,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "../assets/schema/device.schema.json"
+            "description": "Device",
+            "content": {
+             "application/json": {
+               "schema": {
+                 "$ref": "../assets/schema/device.schema.json"
+               }
+             }
+            }
           },
           "404": {
             "description": "Device configuration not found"
@@ -3655,7 +3662,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "exportTaskList.schema.json"
+            "description": "Export Tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "exportTaskList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed"
@@ -4025,7 +4039,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "exportBatchList.schema.json"
+            "description": "Export Batches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "exportBatchList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed."
@@ -4089,7 +4110,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "retrieveTaskList.schema.json"
+            "description": "Retrieve Tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "retrieveTaskList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed"
@@ -4455,7 +4483,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "retrieveBatchList.schema.json"
+            "description": "Retrieve Batches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "retrieveBatchList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed."
@@ -4510,7 +4545,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "stgverTaskList.schema.json"
+            "description": "Storage Verification Tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgverTaskList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed"
@@ -4825,7 +4867,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "stgverBatchList.schema.json"
+            "description": "Storage Verification Batches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "stgverBatchList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed."
@@ -4892,7 +4941,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "diffTaskList.schema.json"
+            "description": "Compare Studies Tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "diffTaskList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed"
@@ -5311,7 +5367,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "diffBatchList.schema.json"
+            "description": "Compare Studies Batches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "diffBatchList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed."
@@ -5419,7 +5482,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "storageList.schema.json"
+            "description": "Storage Systems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "storageList.schema.json"
+                }
+              }
+            }
           },
           "500": {
             "description": "Internal Server Error."
@@ -5787,7 +5857,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "echo.schema.json"
+            "description": "Verification Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "echo.schema.json"
+                }
+              }
+            }
           },
           "404": {
             "description": "No such Application Entity or Remote Application Entity"
@@ -9292,7 +9369,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "$ref": "queueList.schema.json"
+            "description": "Queues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "queueList.schema.json"
+                }
+              }
+            }
           },
           "500": {
             "description": "Internal Server Error"
@@ -9341,7 +9425,14 @@
         ],
         "responses": {
           "200": {
-            "$ref": "messageList.schema.json"
+            "description": "Queue Messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "messageList.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed"
@@ -11523,13 +11614,27 @@
         ],
         "responses": {
           "200": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "202": {
             "description": "Request successfully queued for processing"
           },
           "206": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
@@ -11541,7 +11646,14 @@
             "description": "Internal Server Error."
           },
           "502": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "503": {
             "description": "Maximal number of Tasks in Queue reached"
@@ -11587,13 +11699,27 @@
         ],
         "responses": {
           "200": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "202": {
             "description": "Request successfully queued for processing"
           },
           "206": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
@@ -11605,7 +11731,14 @@
             "description": "Internal Server Error."
           },
           "502": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "503": {
             "description": "Maximal number of Tasks in Queue reached"
@@ -11654,13 +11787,27 @@
         ],
         "responses": {
           "200": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "202": {
             "description": "Request successfully queued for processing"
           },
           "206": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
@@ -11672,7 +11819,14 @@
             "description": "Internal Server Error."
           },
           "502": {
-            "$ref": "export.schema.json"
+            "description": "Export Result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "export.schema.json"
+                }
+              }
+            }
           },
           "503": {
             "description": "Maximal number of Tasks in Queue reached"
