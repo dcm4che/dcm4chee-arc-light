@@ -40,7 +40,6 @@ package org.dcm4chee.arc.ian.scu;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.IanTask;
@@ -69,9 +68,6 @@ import java.util.List;
 @ApplicationScoped
 public class IANScheduler extends Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(IANScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private IANEJB ejb;

@@ -42,7 +42,6 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -71,9 +70,6 @@ public class StgVerScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgVerScheduler.class);
     private static final long MILLIS_PER_DAY = 24 * 3600_000;
-
-    @Inject
-    private Device device;
 
     @Inject
     private QueueManager queueManager;

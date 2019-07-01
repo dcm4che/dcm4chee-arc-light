@@ -1,6 +1,5 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -25,9 +24,6 @@ import java.util.Map;
 public class ExportScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private ExportManager ejb;

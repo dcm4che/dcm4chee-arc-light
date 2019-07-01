@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -66,9 +65,6 @@ import java.util.List;
 public class RejectExpiredStudiesScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RejectExpiredStudiesScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private DeletionServiceEJB ejb;

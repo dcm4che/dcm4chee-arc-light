@@ -45,7 +45,6 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.json.JSONReader;
-import org.dcm4che3.net.Device;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
@@ -80,9 +79,6 @@ import java.util.zip.ZipInputStream;
 public class PurgeInstanceRecordsScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeInstanceRecordsScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private DeletionServiceEJB ejb;

@@ -44,7 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -70,9 +69,6 @@ import java.util.List;
 @ApplicationScoped
 public class HL7PSUScheduler extends Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(HL7PSUScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private HL7PSUEJB ejb;

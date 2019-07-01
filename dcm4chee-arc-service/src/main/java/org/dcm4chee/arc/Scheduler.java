@@ -40,13 +40,17 @@
 
 package org.dcm4chee.arc;
 
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.inject.Inject;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -56,10 +60,14 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class Scheduler implements Runnable {
 
+    @Inject
+    protected Device device;
+
     private static final int SECONDS_PER_DAY = 3600 * 24;
 
     private final Mode mode;
     volatile private long pollingIntervalInSeconds;
+    volatile private long initialDelay;
     volatile private LocalTime startTime;
     volatile private ScheduledFuture<?> running;
 
@@ -84,8 +92,8 @@ public abstract class Scheduler implements Runnable {
         if (pollingInterval != null) {
             pollingIntervalInSeconds = pollingInterval.getSeconds();
             startTime = getStartTime();
-            running = mode.schedule(
-                    this, startTime != null ? until(startTime) : pollingIntervalInSeconds, pollingIntervalInSeconds);
+            initialDelay = getInitialDelay();
+            running = mode.schedule(this, initialDelay, pollingIntervalInSeconds);
         }
     }
 
@@ -114,6 +122,11 @@ public abstract class Scheduler implements Runnable {
 
     protected LocalTime getStartTime() {
         return null;
+    }
+
+    protected long getInitialDelay() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getSchedulerMinStartDelay() +
+                new Random().nextInt((int) pollingIntervalInSeconds);
     }
 
     private long until(LocalTime time) {

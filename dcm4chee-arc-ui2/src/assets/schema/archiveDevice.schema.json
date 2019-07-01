@@ -1239,7 +1239,7 @@
       "description": "Minimal delay in ms to start schedulers on system start up.",
       "type": "integer",
       "default" : 1000,
-      "minimum": 1,
+      "minimum": 0,
       "exclusiveMinimum": true
     },
     "dcmRejectConflictingPatientAttribute": {

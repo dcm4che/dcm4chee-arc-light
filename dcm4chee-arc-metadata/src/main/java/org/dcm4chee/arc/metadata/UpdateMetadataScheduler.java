@@ -45,7 +45,6 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -87,9 +86,6 @@ public class UpdateMetadataScheduler extends Scheduler {
 
     @Inject
     private DicomConfiguration conf;
-
-    @Inject
-    private Device device;
 
     @Inject
     private UpdateMetadataEJB ejb;

@@ -44,7 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.json.JSONReader;
-import org.dcm4che3.net.Device;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
@@ -82,9 +81,6 @@ import java.util.zip.ZipInputStream;
 public class PurgeStorageScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeStorageScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private DeletionServiceEJB ejb;

@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -65,9 +64,6 @@ import java.util.Date;
 public class PurgeQueueMessageScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeQueueMessageScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private QueueManager mgr;

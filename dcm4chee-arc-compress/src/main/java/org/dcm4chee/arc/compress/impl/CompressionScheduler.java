@@ -43,7 +43,6 @@ package org.dcm4chee.arc.compress.impl;
 
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Location;
@@ -73,9 +72,6 @@ import java.util.concurrent.Semaphore;
 public class CompressionScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompressionScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private CompressionEJB ejb;

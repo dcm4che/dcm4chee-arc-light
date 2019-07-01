@@ -45,7 +45,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.json.JSONReader;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -78,9 +77,6 @@ import java.util.zip.ZipInputStream;
 public class FailedToDeleteScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailedToDeleteScheduler.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private DeletionServiceEJB ejb;

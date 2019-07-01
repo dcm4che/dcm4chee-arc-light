@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
@@ -67,9 +66,6 @@ public class AuditScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditScheduler.class);
     private static final String FAILED = ".failed";
-
-    @Inject
-    private Device device;
 
     @Inject
     private AuditService service;
