@@ -19,26 +19,6 @@ export class AuthGuard implements CanActivate {
     ) {}
 
     canActivate(route : ActivatedRouteSnapshot, state : RouterStateSnapshot){
-/*        return this.appservice.isSecure()
-            .map((secured:boolean)=>{
-                console.log("+++++ authguard",secured);
-                if(!secured){
-                    return true;
-                }else{
-                    let check = this.permissionService.getPermission(state.url);
-                    if(!check){
-                        this.router.navigateByUrl('/permission-denied');
-                        this.appservice.setMessage({
-                            'title': 'Permission denied',
-                            'text': `You don\'t have permission to access ${state.url}`,
-                            'status': 'error'
-                        });
-                    }
-                    if(check && check.redirect)
-                        this.router.navigateByUrl(check.redirect);
-                    return check;
-                }
-            });*/
         if(this.appservice.global && this.appservice.global.notSecure){
             return true;
         }else{

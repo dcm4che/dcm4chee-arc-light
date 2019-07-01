@@ -69,17 +69,11 @@ export class AppComponent implements OnInit {
     ngOnInit(){
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             this.mainservice.updateGlobal("notSecure",false);
-            // this.mainservice.setSecured(true);
             this.init();
         }else {
             this._keycloakService.init(Globalvar.KEYCLOAK_OPTIONS()).subscribe(res=>{
-                this.mainservice.updateGlobal("notSecure",false);
-                // this.mainservice.setSecured(true);
                 this.init();
             },(err)=>{
-                console.log("error",err);
-                this.mainservice.updateGlobal("notSecure",true);
-                // this.mainservice.setSecured(false);
                 this.init();
             })
         }
@@ -91,7 +85,6 @@ export class AppComponent implements OnInit {
         };
         this.initGetDevicename(2);
         this.setServerTime(()=>{
-            // this.setLogutUrl();
             this.initGetPDQServices();
         });
     }
@@ -115,7 +108,6 @@ export class AppComponent implements OnInit {
                     let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
                     this.timeZone = serverTimeObject.timeZone;
                     this.startClock(new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2));
-                    // this.startClock(new Date(serverTimeObject.time));
                 }
                 if(recall)
                     recall.apply(this);
@@ -154,8 +146,6 @@ export class AppComponent implements OnInit {
         this.mainservice.serverTime = this.currentServerTime;
         clearInterval(this.clockInterval);
         this.clockInterval = setInterval(() => {
-            // this.currentClockTime = new Date(this.currentServerTime);
-            // this.currentServerTime += 1000;
             this.currentServerTime.setMilliseconds(this.currentServerTime.getMilliseconds()+1000);
             this.mainservice.serverTime = this.currentServerTime;
         }, 1000);
@@ -217,10 +207,6 @@ export class AppComponent implements OnInit {
                 'status': 'info'
             });
         }, 500);
-        // this.messaging.showMessageBlock = true;
-        // this.messaging.change.emit(new MessagingComponent(true, "testmsg"));
-        // this.messaging.showMessageBlock.emit(false);
-        // console.log("showmessging=",this.messaging.showMessageBlock);
     }
     productLabelling(){
         // this.scrollToDialog();

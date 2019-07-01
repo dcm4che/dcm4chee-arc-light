@@ -29,6 +29,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {Subject} from "../../../../node_modules/rxjs";
 import {j4care} from "../j4care.service";
 import {User} from "../../models/user";
+import * as _ from 'lodash';
 
 type KeycloakClient = KeycloakModule.KeycloakClient;
 
@@ -66,21 +67,24 @@ export class KeycloakService {
                                 realm:KeycloakService.keycloakAuth.realm
                             });
                             this.mainservice.setSecured(true);
+                            this.mainservice.updateGlobal("notSecure",false);
                             resolve();
                         }).error(err=>{
                             this.mainservice.setSecured(false);
+                            this.mainservice.updateGlobal("notSecure",true);
                             console.error("err on loadingUserProfile",err);
                             reject(err);
                         });
                     })
                     .error((errorData: any) => {
                         this.mainservice.setSecured(false);
+                        this.mainservice.updateGlobal("notSecure",true);
                         reject(errorData);
                     });
             }))
         }else{
             return this.mainservice.getKeycloakJson().flatMap((keycloakJson:any)=>{
-                if(keycloakJson){
+                if(!_.isEmpty(keycloakJson)){
                     localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
                     KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
                     return j4care.promiseToObservable(new Promise((resolve, reject) => {
@@ -94,7 +98,9 @@ export class KeycloakService {
                             });
                     }))
                 }else{
+                    this.setUserInfo(undefined);
                     this.setTokenSource.next("");
+                    this.mainservice.updateGlobal("notSecure",true);
                     return Observable.of([]);
                 }
             })

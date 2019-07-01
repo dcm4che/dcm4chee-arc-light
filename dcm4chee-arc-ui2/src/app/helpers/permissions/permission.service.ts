@@ -84,11 +84,11 @@ export class PermissionService {
         let userInfo:UserInfo;
         if(!this.uiConfig && !this.configChecked){
             console.log("*****before keycloakServiceGetUserInfo");
-            this._keycloakService.getUserInfo().subscribe(user=>{
+/*            this._keycloakService.getUserInfo().subscribe(user=>{
                 console.log("in test get user",user);
             },(err)=>{
                 console.log("in test get error",err);
-            });
+            });*/
             return this._keycloakService.getUserInfo()
                 .map(user=>{
                     console.log("*********in get userinfo",user);
@@ -96,17 +96,19 @@ export class PermissionService {
                 })
                 .switchMap(res => this.$http.get('../devicename'))
                 .map(deviceNameResponse=>{
-                    const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
-                    let user = new User({
-                        authServerUrl:userInfo.authServerUrl,
-                        realm:userInfo.realm,
-                        user:_.get(userInfo,"userProfile.username"),
-                        roles:roles,
-                        su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1)
-                    });
-                    console.log("......user about to set",user);
-                    this.mainservice.setUser(user);
-                    this.user = user;
+                    if(userInfo){
+                        const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
+                        let user = new User({
+                            authServerUrl:userInfo.authServerUrl,
+                            realm:userInfo.realm,
+                            user:_.get(userInfo,"userProfile.username"),
+                            roles:roles,
+                            su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1)
+                        });
+                        console.log("......user about to set",user);
+                        this.mainservice.setUser(user);
+                        this.user = user;
+                    }
                     return deviceNameResponse;
                 })
                 .map(res => j4care.redirectOnAuthResponse(res))

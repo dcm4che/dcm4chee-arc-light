@@ -197,6 +197,8 @@ export class J4careHttpService{
                 return Observable.of([]);
             }
         }
+        return Observable.of([]);
+
     }
     tokenValid(){
         return this._keycloakService.authenticated() && !KeycloakService.keycloakAuth.isTokenExpired(5);

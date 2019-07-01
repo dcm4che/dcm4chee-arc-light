@@ -265,20 +265,32 @@ export class AppService implements OnInit, OnDestroy{
         }
     }
     getKeycloakJson(){
-        return this.$httpClient.get("./rs/keycloak.json")
-            .map((res:any)=>{
-                this.setSecured(true);
-                return _.mapKeys(res, (value,key:any)=>{
-                    if(key === "auth-server-url")
-                        return "url";
-                    if(key === "resource")
-                        return "clientId";
-                    return key;
-                });
-            },err=>{
-                console.log("err",err);
-                this.setSecured(false);
-                Observable.throw(err);
-            })
+        if(!this.global || !this.global.notSecure){
+            return this.$httpClient.get("./rs/keycloak.json")
+                .map((res:any)=>{
+                    if(_.isEmpty(res)){
+                        console.log("ojbect is empty",res);
+                        this.updateGlobal("notSecure", true);
+                        return res;
+                    }else{
+                        this.updateGlobal("notSecure", false);
+                        // this.setSecured(true);
+                        return _.mapKeys(res, (value,key:any)=>{
+                            if(key === "auth-server-url")
+                                return "url";
+                            if(key === "resource")
+                                return "clientId";
+                            return key;
+                        });
+                    }
+                },err=>{
+                    this.updateGlobal("notSecure", true);
+                    console.log("err",err);
+                    this.setSecured(false);
+                    Observable.throw(err);
+                })
+        }else{
+            return Observable.of({})
+        }
     }
 }
