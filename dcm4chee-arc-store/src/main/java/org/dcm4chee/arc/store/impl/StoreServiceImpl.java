@@ -62,6 +62,7 @@ import org.dcm4chee.arc.MergeMWLCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.*;
@@ -117,6 +118,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private MergeMWLCache mergeMWLCache;
+
+    @Inject
+    private MetricsService metricsService;
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -226,7 +230,9 @@ class StoreServiceImpl implements StoreService {
                 UpdateDBResult result = new UpdateDBResult(ctx);
                 long start = System.currentTimeMillis();
                 ejb.updateDB(ctx, result);
-                LOG.info("{}: Updated DB in {} ms", session, System.currentTimeMillis() - start);
+                long time = System.currentTimeMillis() - start;
+                LOG.info("{}: Updated DB in {} ms", session, time);
+                metricsService.accept("updateDBonStore", time);
                 return result;
             } catch (EJBException e) {
                 if (retries-- > 0) {
