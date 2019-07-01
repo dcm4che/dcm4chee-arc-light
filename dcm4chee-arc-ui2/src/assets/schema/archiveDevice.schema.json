@@ -65,6 +65,7 @@
     "dcmValidateUID",
     "dcmRelationalQueryNegotiationLenient",
     "dcmRelationalRetrieveNegotiationLenient",
+    "dcmSchedulerMinStartDelay",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
@@ -1232,6 +1233,14 @@
       "description": "Indicates to accept C-MOVE and C-GET RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated.",
       "type": "boolean",
       "default": false
+    },
+    "dcmSchedulerMinStartDelay": {
+      "title": "Scheduler Minimum Start Delay",
+      "description": "Minimal delay in ms to start schedulers on system start up.",
+      "type": "integer",
+      "default" : 1000,
+      "minimum": 1,
+      "exclusiveMinimum": true
     },
     "dcmRejectConflictingPatientAttribute": {
       "title": "Reject Conflicting Patient Attribute",
