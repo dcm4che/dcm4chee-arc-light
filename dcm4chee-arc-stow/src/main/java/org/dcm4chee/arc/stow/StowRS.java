@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,8 +41,9 @@
 package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.imageio.codec.jpeg.JPEGHeader;
-import org.dcm4che3.imageio.codec.mpeg.MPEGHeader;
+import org.dcm4che3.imageio.codec.jpeg.JPEGParser;
+import org.dcm4che3.imageio.codec.mp4.MP4Parser;
+import org.dcm4che3.imageio.codec.mpeg.MPEG2Parser;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONReader;
@@ -79,6 +80,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -94,8 +96,6 @@ import java.util.*;
 public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
-    private static final int INIT_BUFFER_SIZE = 8192;
-    private static final int MAX_BUFFER_SIZE = 10485768;
     private static final int[] IUIDS_TAGS = {
             Tag.StudyInstanceUID,
             Tag.SeriesInstanceUID,
@@ -515,49 +515,64 @@ public class StowRS {
     private enum CompressedPixelData {
         JPEG {
             @Override
-            boolean parseHeader(byte[] header, Attributes attrs, long flen) {
-                return new JPEGHeader(header, org.dcm4che3.imageio.codec.jpeg.JPEG.SOS).toAttributes(attrs) != null;
+            Attributes getAttributes(SeekableByteChannel channel, Attributes attrs) throws IOException {
+                return new JPEGParser(channel).getAttributes(attrs);
             }
         },
         MPEG {
             @Override
-            boolean parseHeader(byte[] header, Attributes attrs, long flen) {
-                return new MPEGHeader(header).toAttributes(attrs, flen) != null;
+            Attributes getAttributes(SeekableByteChannel channel, Attributes attrs) throws IOException {
+                return new MPEG2Parser(channel).getAttributes(attrs);
+            }
+        },
+        MP4 {
+            @Override
+            Attributes getAttributes(SeekableByteChannel channel, Attributes attrs) throws IOException {
+                MP4Parser mp4Parser = new MP4Parser(channel);
+                setTransferSyntaxUID(mp4Parser.getTransferSyntaxUID());
+                return mp4Parser.getAttributes(attrs);
             }
         };
 
-        abstract boolean parseHeader(byte[] header, Attributes attrs, long flen);
+        abstract Attributes getAttributes(SeekableByteChannel channel, Attributes attrs) throws IOException;
+
+        private String tsuid;
+
+        public String getTransferSyntaxUID() {
+            return tsuid;
+        }
+
+        public void setTransferSyntaxUID(String tsuid) {
+            this.tsuid = tsuid;
+        }
 
         static CompressedPixelData valueOf(MediaType mediaType) {
             return MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPEG_TYPE)
                     ? JPEG
                     : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MPEG_TYPE)
-                        ? MPEG : null;
+                        ? MPEG
+                        : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MP4_TYPE)
+                            ? MP4 : null;
         }
-
     }
 
     private void parseBulkdata(StoreSession session, BulkDataWithMediaType bulkdata, Attributes attrs) {
-        CompressedPixelData compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
+        CompressedPixelData compressedPixelData = null;
+        try {
+            compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
+        } catch (Exception e) {
+            LOG.info("{}: Failed to valueOf bulkdata {} from {}", session, bulkdata.mediaType, bulkdata.bulkData.getURI());
+        }
+
         if (compressedPixelData == null)
             return;
 
         File file = bulkdata.bulkData.getFile();
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
-            long flen = file.length();
-            byte[] header = ByteUtils.EMPTY_BYTES;
-            int rlen = 0;
-            int grow = INIT_BUFFER_SIZE;
-            while (rlen == header.length && rlen < MAX_BUFFER_SIZE) {
-                header = Arrays.copyOf(header, grow += rlen);
-                rlen += StreamUtils.readAvailable(bis, header, rlen, header.length - rlen);
-                if (compressedPixelData.parseHeader(header, attrs, flen))
-                    return;
-            }
+        try {
+            compressedPixelData.getAttributes(new FileInputStream(file).getChannel(), attrs);
         } catch (Exception e) {
             LOG.info("Failed to parse compressed pixel data {} for {}", compressedPixelData, file);
         }
-        LOG.info("{}: Failed to valueOf bulkdata {} from {}", session, bulkdata.mediaType, bulkdata.bulkData.getURI());
     }
 
     private boolean spoolBulkdata(MultipartInputStream in, MediaType mediaType,
