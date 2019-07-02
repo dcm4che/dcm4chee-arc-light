@@ -7,6 +7,7 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {AppService} from "../../app.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
     selector: 'app-control',
