@@ -2978,7 +2978,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     contentType = inst.attrs['00420012'].Value[0];
                 }
             }
-            if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase() === 'video/mpeg' || contentType.toLowerCase() === 'text/xml'){
+            if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf("video") > -1 || contentType.toLowerCase() === 'text/xml'){
                 // this.j4care.download(url);
                 if(!this.mainservice.global.notSecure){
                     WindowRefService.nativeWindow.open(this.renderURL(inst) + `&access_token=${token}`);
