@@ -220,9 +220,9 @@ export class PermissionService {
             try{
                 let aetConfig = this.uiConfig.dcmuiAetConfig.filter(config=>{
                     let oneAetRolesHasUser = false;
-                    if(_.hasIn(config, "dcmAcceptedUserRole") && config.dcmAcceptedUserRole && _.hasIn(this.mainservice.global,"authentication.roles") && this.mainservice.global.authentication.roles.length > 0){
+                    if(_.hasIn(config, "dcmAcceptedUserRole") && config.dcmAcceptedUserRole && _.hasIn(this.mainservice,"user.roles") && this.mainservice.user.roles.length > 0){
                         config.dcmAcceptedUserRole.forEach(role=>{
-                            if(this.mainservice.global.authentication.roles.indexOf(role) > -1){
+                            if(this.mainservice.user.roles.indexOf(role) > -1){
                                 oneAetRolesHasUser = true;
                             }
                         });
