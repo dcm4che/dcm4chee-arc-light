@@ -3606,8 +3606,8 @@
         "tags": [
           "MONITOR-RS"
         ],
-        "summary": "Metrics",
-        "operationId": "metrics",
+        "summary": "Get Metrics",
+        "operationId": "getMetrics",
         "parameters": [
           {
             "name": "name",
