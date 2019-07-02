@@ -98,7 +98,9 @@ public class MetricsServiceImpl implements MetricsService {
                     consumer.accept(bin);
                 bin = new DoubleSummaryStatistics();
             }
-            bin.combine(a[(offset + i) % BUFFER_SIZE]);
+            DoubleSummaryStatistics other = a[(offset + i) % BUFFER_SIZE];
+            if (other != null)
+                bin.combine(other);
         }
         consumer.accept(bin);
     }
