@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.metrics.rs;
 
-import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -56,11 +55,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.DoubleSummaryStatistics;
-import java.util.function.Consumer;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -130,17 +127,15 @@ public class MetricsRS {
     }
 
     private void write(DoubleSummaryStatistics dss, JsonGenerator gen) {
-        JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        writer.writeNotNullOrDef("count", dss.getCount(), 0L);
-        writer.writeNotNullOrDef("avg", dss.getAverage(), 0.0d);
-        writer.writeNotNullOrDef("min", dss.getMin(), 0.0d);
-        writer.writeNotNullOrDef("max", dss.getMax(), 0.0d);
+        long count = dss.getCount();
+        gen.write("count", count);
+        if (count > 0) {
+            gen.write("avg", dss.getAverage());
+            gen.write("min", dss.getMin());
+            gen.write("max", dss.getMax());
+        }
         gen.writeEnd();
-    }
-
-    private Response errResponse(String msg, Response.Status status) {
-        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
