@@ -61,9 +61,8 @@ public class MetricsServiceImpl implements MetricsService {
     private final Map<String, DoubleSummaryStatistics[]> map = new HashMap<>();
     private volatile long currentTimeMins = currentTimeMins();
 
-    @Override
-    public void register(String name) {
-        map.put(name, new DoubleSummaryStatistics[BUFFER_SIZE]);
+    public MetricsServiceImpl() {
+        map.put(UPDATE_DB_ON_STORE, new DoubleSummaryStatistics[BUFFER_SIZE]);
     }
 
     @Override

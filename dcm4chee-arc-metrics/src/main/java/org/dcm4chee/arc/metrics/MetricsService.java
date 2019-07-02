@@ -49,7 +49,7 @@ import java.util.function.Consumer;
  * @since Jul 2019
  */
 public interface MetricsService {
-    void register(String name);
+    String UPDATE_DB_ON_STORE = "updateDBonStore";
 
     boolean exists(String name);
 
