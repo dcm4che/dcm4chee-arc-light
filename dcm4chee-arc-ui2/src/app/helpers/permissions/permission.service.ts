@@ -149,28 +149,32 @@ export class PermissionService {
     }
 
     checkMenuTabAccess(url){
-        try{
-            let urlAction = Globalvar.LINK_PERMISSION(url);
-            let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
-                return urlAction && element.dcmuiAction === urlAction.permissionsAction && element.dcmuiActionParam.indexOf('accessible') > -1;
-            });
-            if(checkObject && checkObject[0]){
-                let check = this.comparePermissionObjectWithRoles(checkObject);
-                if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
-                    return true;
-                else
-                if(urlAction.nextCheck){
-                    this.router.navigate([urlAction.nextCheck]);
-                    return {redirect:urlAction.nextCheck};
+        if(_.hasIn(this.mainservice,"global.notSecured") && this.mainservice.global.notSecured){
+            return true;
+        }else{
+            try{
+                let urlAction = Globalvar.LINK_PERMISSION(url);
+                let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
+                    return urlAction && element.dcmuiAction === urlAction.permissionsAction && element.dcmuiActionParam.indexOf('accessible') > -1;
+                });
+                if(checkObject && checkObject[0]){
+                    let check = this.comparePermissionObjectWithRoles(checkObject);
+                    if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
+                        return true;
+                    else
+                    if(urlAction.nextCheck){
+                        this.router.navigate([urlAction.nextCheck]);
+                        return {redirect:urlAction.nextCheck};
+                    }
                 }
+                return false;
+            }catch (e){
+                console.warn('Are you sure you configured the permissions? ',e);
+                this.mainservice.setMessage({
+                    'text': "Are you sure you configured the permissions?",
+                    'status': 'error'
+                })
             }
-            return false;
-        }catch (e){
-            console.warn('Are you sure you configured the permissions? ',e);
-            this.mainservice.setMessage({
-                'text': "Are you sure you configured the permissions?",
-                'status': 'error'
-            })
         }
     }
     checkVisibility(permissionObject){
