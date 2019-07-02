@@ -111,8 +111,8 @@ public abstract class Scheduler implements Runnable {
     protected abstract void execute();
 
     protected long getInitialDelay() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getSchedulerMinStartDelay() +
-                ThreadLocalRandom.current().nextInt((int) pollingIntervalInSeconds);
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getSchedulerMinStartDelay()
+                + ThreadLocalRandom.current().nextInt((int) pollingIntervalInSeconds);
     }
 
     public enum Mode {
