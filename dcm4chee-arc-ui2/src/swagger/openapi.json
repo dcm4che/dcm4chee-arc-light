@@ -3601,6 +3601,73 @@
         }
       }
     },
+    "/monitor/metrics/{name}": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Metrics",
+        "operationId": "metrics",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Metrics Name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "return metrics since specified minutes",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60,
+              "default": 60
+            }
+          },
+          {
+            "name": "bin",
+            "in": "query",
+            "description": "data bin size in minutes",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of returned data entries",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "metrics.schema.json"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "no metrics with given name found"
+          }
+        }
+      }
+    },
     "/monitor/serverTime": {
       "get": {
         "tags": [
@@ -12641,7 +12708,7 @@
         }
       },
       "bulkdataPathParam": {
-        "name": "instance",
+        "name": "bulkdata",
         "in": "path",
         "description": "{dicomTag} or {dicomTag}/{itemIndex}/{AttributePath}",
         "required": true,

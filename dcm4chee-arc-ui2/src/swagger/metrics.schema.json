@@ -1,0 +1,28 @@
+{
+  "title": "Metrics",
+  "type": "array",
+  "items": {
+    "required": [
+      "count"
+    ],
+    "properties": {
+      "count": {
+        "title": "Number of values",
+        "type": "integer"
+      },
+      "avg": {
+        "title": "Average value",
+        "type": "number"
+      },
+      "min": {
+        "title": "Minimal value",
+        "type": "number"
+      },
+      "max": {
+        "title": "Maximal value",
+        "type": "number"
+      }
+    }
+  }
+}
+

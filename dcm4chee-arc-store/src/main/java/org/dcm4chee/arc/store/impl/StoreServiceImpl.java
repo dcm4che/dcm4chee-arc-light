@@ -100,6 +100,7 @@ class StoreServiceImpl implements StoreService {
 
     static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
     static final int DIFF_STUDY_INSTANCE_UID = 0xC409;
+    static final String METRICS_UPDATE_DB_ON_STORE = "updateDBonStore";
 
     @Inject
     private DicomConfiguration conf;
@@ -121,6 +122,10 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private MetricsService metricsService;
+
+    public StoreServiceImpl() {
+        metricsService.register(METRICS_UPDATE_DB_ON_STORE);
+    }
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -232,7 +237,7 @@ class StoreServiceImpl implements StoreService {
                 ejb.updateDB(ctx, result);
                 long time = System.currentTimeMillis() - start;
                 LOG.info("{}: Updated DB in {} ms", session, time);
-                metricsService.accept("updateDBonStore", time);
+                metricsService.accept(METRICS_UPDATE_DB_ON_STORE, time);
                 return result;
             } catch (EJBException e) {
                 if (retries-- > 0) {

@@ -41,10 +41,10 @@
 
 package org.dcm4chee.arc.metrics.impl;
 
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.metrics.MetricsService;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,26 +56,24 @@ import java.util.function.Consumer;
  */
 @ApplicationScoped
 public class MetricsServiceImpl implements MetricsService {
-    private static final int MINS_PER_HOUR = 60;
+    private static final int BUFFER_SIZE = 61;
     private static final int MILLIS_PER_MIN = 60000;
-    private static final DoubleSummaryStatistics EMPTY = new DoubleSummaryStatistics() {
-        @Override
-        public void accept(double value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void combine(DoubleSummaryStatistics other) {
-            throw new UnsupportedOperationException();
-        }
-    };
-
     private final Map<String, DoubleSummaryStatistics[]> map = new HashMap<>();
     private volatile long currentTimeMins = currentTimeMins();
 
     @Override
+    public void register(String name) {
+        map.put(name, new DoubleSummaryStatistics[BUFFER_SIZE]);
+    }
+
+    @Override
+    public boolean exists(String name) {
+        return map.containsKey(name);
+    }
+
+    @Override
     public void accept(String name, double value) {
-        DoubleSummaryStatistics[] a = map.computeIfAbsent(name, x -> new DoubleSummaryStatistics[MINS_PER_HOUR]);
+        DoubleSummaryStatistics[] a = require(name);
         int i = sync();
         if (a[i] == null)
             a[i] = new DoubleSummaryStatistics();
@@ -83,76 +81,66 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public DoubleSummaryStatistics get(String name, int index) {
-        if (index < 0 || index >= MINS_PER_HOUR)
-            throw new IndexOutOfBoundsException("Index out of range: " + index);
+    public void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer) {
+        DoubleSummaryStatistics[] a = require(name);
 
-        DoubleSummaryStatistics[] a = map.get(name);
-        if (a == null)
-            return EMPTY;
+        if (start <= 0 || start > 60)
+            throw new IllegalArgumentException("start not in range 0..60: " + start);
 
-        return StringUtils.maskNull(a[(sync() - index + MINS_PER_HOUR) % MINS_PER_HOUR], EMPTY);
-    }
+        if (binSize <= 0)
+            throw new IllegalArgumentException("binSize not > 0: " + binSize);
 
-    @Override
-    public DoubleSummaryStatistics combine(String name, int fromIndex, int toIndex) {
-        checkRange(fromIndex, toIndex);
-
-        DoubleSummaryStatistics[] a = map.get(name);
-        if (a == null)
-            return EMPTY;
-
-        DoubleSummaryStatistics tot = null;
-        int index = (sync() - fromIndex + MINS_PER_HOUR) % MINS_PER_HOUR;
-        int n = toIndex - fromIndex;
-        while (n-- > 0) {
-            DoubleSummaryStatistics other = a[index++ % MINS_PER_HOUR];
-            if (tot == null)
-                tot = other;
-            else if (other != null)
-                tot.combine(other);
+        int offset = (sync() - start + BUFFER_SIZE) % BUFFER_SIZE;
+        DoubleSummaryStatistics bin = null;
+        for (int i = 0, n = limit > 0 ? Math.min(binSize * limit, BUFFER_SIZE - 1) : BUFFER_SIZE - 1; i < n; i++) {
+            if (i % binSize == 0) {
+                if (bin != null)
+                    consumer.accept(bin);
+                bin = new DoubleSummaryStatistics();
+            }
+            bin.combine(a[(offset + i) % BUFFER_SIZE]);
         }
-        return StringUtils.maskNull(tot, EMPTY);
-    }
-
-    @Override
-    public void forEach(String name, int fromIndex, int toIndex, Consumer<DoubleSummaryStatistics> consumer) {
-        checkRange(fromIndex, toIndex);
-
-        DoubleSummaryStatistics[] a = map.get(name);
-        if (a == null)
-            return;
-
-        int index = (sync() - fromIndex + MINS_PER_HOUR) % MINS_PER_HOUR;
-        int n = toIndex - fromIndex;
-        while (n-- > 0) {
-            consumer.accept(StringUtils.maskNull(a[index++ % MINS_PER_HOUR], EMPTY));
-        }
+        consumer.accept(bin);
     }
 
     private static long currentTimeMins() {
         return System.currentTimeMillis() / MILLIS_PER_MIN;
     }
 
+    private DoubleSummaryStatistics[] require(String name) {
+        DoubleSummaryStatistics[] a = map.get(name);
+        if (a == null)
+            throw new IllegalStateException("no such metrics: " + name);
+        return a;
+    }
+
     private int sync() {
         long currentTimeMins = currentTimeMins();
-        if (this.currentTimeMins < currentTimeMins)
-            setCurrentTimeMins(currentTimeMins);
-        return (int) (currentTimeMins % MINS_PER_HOUR);
-    }
-
-    private synchronized void setCurrentTimeMins(long currentTimeMins) {
-        int index = (int) (this.currentTimeMins % MINS_PER_HOUR);
-        int n = (int) Math.min(currentTimeMins - this.currentTimeMins, MINS_PER_HOUR);
-        while (n-- > 0) {
-            int i = ++index % MINS_PER_HOUR;
-            map.values().forEach(x -> x[i] = null);
+        int index = (int) (currentTimeMins % BUFFER_SIZE);
+        if (this.currentTimeMins < currentTimeMins) {
+            synchronized (this) {
+                long diff = currentTimeMins - this.currentTimeMins;
+                if (diff > 0) {
+                    map.values().forEach(nullify(index, diff));
+                    this.currentTimeMins = currentTimeMins;
+                }
+            }
         }
-        this.currentTimeMins = currentTimeMins;
+        return index;
     }
 
-    private static void checkRange(int fromIndex, int toIndex) {
-        if (fromIndex < 0 || fromIndex > toIndex || toIndex > MINS_PER_HOUR)
-            throw new IndexOutOfBoundsException("Range [" + fromIndex + ", " + toIndex + ") out of bounds");
+    private static Consumer<? super DoubleSummaryStatistics[]> nullify(int index, long diff) {
+        if (diff >= BUFFER_SIZE)
+            return x -> Arrays.fill(x, null);
+
+        int toIndex = index + 1;
+        int fromIndex = toIndex - (int) diff;
+        if (fromIndex >= 0)
+            return x -> Arrays.fill(x, fromIndex, toIndex, null);
+
+        return x -> {
+            Arrays.fill(x, 0, toIndex, null);
+            Arrays.fill(x, fromIndex + BUFFER_SIZE, BUFFER_SIZE, null);
+        };
     }
 }
