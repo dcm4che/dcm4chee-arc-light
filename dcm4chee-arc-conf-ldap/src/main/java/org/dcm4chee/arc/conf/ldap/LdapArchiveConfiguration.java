@@ -299,6 +299,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
                 ext.isRelationalRetrieveNegotiationLenient(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmSchedulerMinStartDelay", ext.getSchedulerMinStartDelay(), 1000);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMetricsServices", ext.getMetricsServices());
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
 
@@ -531,6 +532,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRelationalRetrieveNegotiationLenient(LdapUtils.booleanValue(
                 attrs.get("dcmRelationalRetrieveNegotiationLenient"), false));
         ext.setSchedulerMinStartDelay(LdapUtils.intValue(attrs.get("dcmSchedulerMinStartDelay"), 1000));
+        ext.setMetricsServices(LdapUtils.stringArray(attrs.get("dcmMetricsServices")));
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
     }
 
@@ -949,6 +951,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getRejectConflictingPatientAttribute());
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedulerMinStartDelay",
                 aa.getSchedulerMinStartDelay(), bb.getSchedulerMinStartDelay(), 1000);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMetricsServices",
+                aa.getMetricsServices(),
+                bb.getMetricsServices());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

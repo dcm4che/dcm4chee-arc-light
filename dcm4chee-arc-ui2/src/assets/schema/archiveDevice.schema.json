@@ -1242,6 +1242,14 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmMetricsServices": {
+      "title": "Metrics Services",
+      "description": "Metrics Services which can be used to get metrics",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
     "dcmRejectConflictingPatientAttribute": {
       "title": "Reject Conflicting Patient Attribute",
       "description": "DICOM Tag of Patient Attribute which have to match in received objects with the value in previous received objects with equal Patient ID to be accepted.",

@@ -296,6 +296,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmRejectConflictingPatientAttribute",
                 TagUtils.toHexStrings(arcDev.getRejectConflictingPatientAttribute()));
         writer.writeNotDef("dcmSchedulerMinStartDelay", arcDev.getSchedulerMinStartDelay(), 1000);
+        writer.writeNotEmpty("dcmMetricsServices", arcDev.getMetricsServices());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1383,6 +1384,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmSchedulerMinStartDelay":
                     arcDev.setSchedulerMinStartDelay(reader.intValue());
+                    break;
+                case "dcmMetricsServices":
+                    arcDev.setMetricsServices(reader.stringArray());
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));

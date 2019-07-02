@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.metrics.impl;
 
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.metrics.MetricsService;
 
@@ -78,9 +79,7 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Override
     public boolean exists(String name) {
-        //TODO
-
-        return false;
+        return StringUtils.contains(device.getDeviceExtension(ArchiveDeviceExtension.class).getMetricsServices(), name);
     }
 
     @Override
