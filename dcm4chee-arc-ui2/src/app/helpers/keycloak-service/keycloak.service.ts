@@ -144,28 +144,32 @@ export class KeycloakService {
     }
 
     getToken():Observable<any>{
-        if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated){
-            console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
-            if(KeycloakService.keycloakAuth.isTokenExpired(5)){
-                return j4care.promiseToObservable(new Promise<any>((resolve, reject) => {
-                    if (KeycloakService.keycloakAuth.token) {
-                        KeycloakService.keycloakAuth
-                            .updateToken(5)
-                            .success(() => {
-                                resolve(<any>KeycloakService.keycloakAuth);
-                            })
-                            .error(() => {
-                                reject('Failed to refresh token');
-                            });
-                    } else {
-                        reject('Not logged in');
-                    }
-                }));
-            }else{
-                return Observable.of(KeycloakService.keycloakAuth);
-            }
+        if(_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure){
+            return Observable.of({});
         }else{
-            return this.getTokenObs();
+            if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated){
+                console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
+                if(KeycloakService.keycloakAuth.isTokenExpired(5)){
+                    return j4care.promiseToObservable(new Promise<any>((resolve, reject) => {
+                        if (KeycloakService.keycloakAuth.token) {
+                            KeycloakService.keycloakAuth
+                                .updateToken(5)
+                                .success(() => {
+                                    resolve(<any>KeycloakService.keycloakAuth);
+                                })
+                                .error(() => {
+                                    reject('Failed to refresh token');
+                                });
+                        } else {
+                            reject('Not logged in');
+                        }
+                    }));
+                }else{
+                    return Observable.of(KeycloakService.keycloakAuth);
+                }
+            }else{
+                return this.getTokenObs();
+            }
         }
     }
 }
