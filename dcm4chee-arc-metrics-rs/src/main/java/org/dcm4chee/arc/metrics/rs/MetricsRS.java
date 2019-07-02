@@ -96,13 +96,29 @@ public class MetricsRS {
     @GET
     @NoCache
     @Path("/{name}")
-    public void getMetrics(@PathParam("name") String name) {
+    public Response getMetrics(@PathParam("name") String name) {
         logRequest();
         if (!metricsService.exists(name))
-            throw new WebApplicationException("No metrics with given name found: " + name, Response.Status.NOT_FOUND);
+            return errResponse("No metrics with given name found: " + name, Response.Status.NOT_FOUND);
 
-        //TODO
+        try {
+            return Response.ok((StreamingOutput) out -> {
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
+                metricsService.forEach(
+                        name,
+                        parseInt(start),
+                        parseInt(limit),
+                        parseInt(binSize),
+                        dss -> write(dss, gen));
+                gen.writeEnd();
+                gen.flush();
+            }).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
+
     private int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
     }
@@ -114,6 +130,16 @@ public class MetricsRS {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private void write(DoubleSummaryStatistics dss, JsonGenerator gen) {
+        JsonWriter writer = new JsonWriter(gen);
+        gen.writeStartObject();
+        writer.writeNotNullOrDef("count", dss.getCount(), 0L);
+        writer.writeNotNullOrDef("avg", dss.getAverage(), 0.0d);
+        writer.writeNotNullOrDef("min", dss.getMin(), 0.0d);
+        writer.writeNotNullOrDef("max", dss.getMax(), 0.0d);
+        gen.writeEnd();
     }
 
     private Response errResponse(String msg, Response.Status status) {
