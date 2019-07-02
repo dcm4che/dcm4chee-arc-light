@@ -47,8 +47,8 @@ import org.dcm4chee.arc.conf.Duration;
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.inject.Inject;
-import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -62,7 +62,6 @@ public abstract class Scheduler implements Runnable {
 
     private final Mode mode;
     volatile private long pollingIntervalInSeconds;
-    volatile private long initialDelay;
     volatile private ScheduledFuture<?> running;
 
     @Resource
@@ -85,8 +84,7 @@ public abstract class Scheduler implements Runnable {
         Duration pollingInterval = getPollingInterval();
         if (pollingInterval != null) {
             pollingIntervalInSeconds = pollingInterval.getSeconds();
-            initialDelay = getInitialDelay();
-            running = mode.schedule(this, initialDelay, pollingIntervalInSeconds);
+            running = mode.schedule(this, getInitialDelay(), pollingIntervalInSeconds);
         }
     }
 
@@ -114,7 +112,7 @@ public abstract class Scheduler implements Runnable {
 
     protected long getInitialDelay() {
         return device.getDeviceExtension(ArchiveDeviceExtension.class).getSchedulerMinStartDelay() +
-                new Random().nextInt((int) pollingIntervalInSeconds);
+                ThreadLocalRandom.current().nextInt((int) pollingIntervalInSeconds);
     }
 
     public enum Mode {
