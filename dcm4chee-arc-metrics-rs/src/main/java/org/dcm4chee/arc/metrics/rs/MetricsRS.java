@@ -92,9 +92,12 @@ public class MetricsRS {
 
     @GET
     @NoCache
-    @Path("/{name}")
+    @Path("/{name:.+}")
     public Response getMetrics(@PathParam("name") String name) {
         logRequest();
+        if (!metricsService.exists(name))
+            return errResponse("No metrics with given name found: " + name, Response.Status.NOT_FOUND);
+
         try {
             return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
@@ -111,6 +114,10 @@ public class MetricsRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private int parseInt(String s) {

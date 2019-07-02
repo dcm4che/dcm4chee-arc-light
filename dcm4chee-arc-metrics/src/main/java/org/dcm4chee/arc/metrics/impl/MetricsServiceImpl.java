@@ -41,9 +41,12 @@
 
 package org.dcm4chee.arc.metrics.impl;
 
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.metrics.MetricsService;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.HashMap;
@@ -61,6 +64,9 @@ public class MetricsServiceImpl implements MetricsService {
     private final Map<String, DoubleSummaryStatistics[]> map = new HashMap<>();
     private volatile long currentTimeMins = currentTimeMins();
 
+    @Inject
+    private Device device;
+
     @Override
     public void accept(String name, double value) {
         DoubleSummaryStatistics[] a = map.computeIfAbsent(name, x -> new DoubleSummaryStatistics[BUFFER_SIZE]);
@@ -68,6 +74,13 @@ public class MetricsServiceImpl implements MetricsService {
         if (a[i] == null)
             a[i] = new DoubleSummaryStatistics();
         a[i].accept(value);
+    }
+
+    @Override
+    public boolean exists(String name) {
+        //TODO
+
+        return false;
     }
 
     @Override

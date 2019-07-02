@@ -3662,6 +3662,9 @@
               }
             }
           },
+          "404": {
+            "description": "no metrics with given name found"
+          },
           "500": {
             "description": "Internal Server Error"
           }

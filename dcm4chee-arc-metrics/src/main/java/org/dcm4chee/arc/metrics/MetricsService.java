@@ -50,6 +50,8 @@ import java.util.function.Consumer;
  */
 public interface MetricsService {
 
+    boolean exists(String name);
+
     void accept(String name, double value);
 
     void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer);
