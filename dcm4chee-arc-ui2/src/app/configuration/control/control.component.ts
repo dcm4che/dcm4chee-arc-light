@@ -27,7 +27,7 @@ export class ControlComponent implements OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.appservices,"user.roles") || (_.hasIn(this.appservices,"global.notSecure") && this.appservices.global.notSecure)){
+        if(KeycloakService.keycloakAuth.authenticated || (_.hasIn(this.appservices,"global.notSecure") && this.appservices.global.notSecure)){
             this.init();
         }else{
             if (retries){
