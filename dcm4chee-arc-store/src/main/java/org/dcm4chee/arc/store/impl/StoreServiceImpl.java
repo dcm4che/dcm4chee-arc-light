@@ -232,7 +232,7 @@ class StoreServiceImpl implements StoreService {
                 ejb.updateDB(ctx, result);
                 long time = System.currentTimeMillis() - start;
                 LOG.info("{}: Updated DB in {} ms", session, time);
-                metricsService.accept(MetricsService.UPDATE_DB_ON_STORE, time);
+                metricsService.accept("updateDBonStore", time);
                 return result;
             } catch (EJBException e) {
                 if (retries-- > 0) {

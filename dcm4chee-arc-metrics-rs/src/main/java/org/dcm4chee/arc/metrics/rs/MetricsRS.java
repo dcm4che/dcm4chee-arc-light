@@ -98,9 +98,6 @@ public class MetricsRS {
     @Path("/{name}")
     public Response getMetrics(@PathParam("name") String name) {
         logRequest();
-        if (!metricsService.exists(name))
-            return errResponse("No metrics with given name found: " + name, Response.Status.NOT_FOUND);
-
         try {
             return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);

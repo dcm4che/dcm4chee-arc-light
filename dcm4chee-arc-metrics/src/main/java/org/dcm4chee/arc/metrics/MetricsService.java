@@ -49,9 +49,6 @@ import java.util.function.Consumer;
  * @since Jul 2019
  */
 public interface MetricsService {
-    String UPDATE_DB_ON_STORE = "updateDBonStore";
-
-    boolean exists(String name);
 
     void accept(String name, double value);
 

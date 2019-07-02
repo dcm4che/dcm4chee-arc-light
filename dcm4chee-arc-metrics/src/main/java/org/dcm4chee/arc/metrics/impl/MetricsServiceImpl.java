@@ -61,18 +61,9 @@ public class MetricsServiceImpl implements MetricsService {
     private final Map<String, DoubleSummaryStatistics[]> map = new HashMap<>();
     private volatile long currentTimeMins = currentTimeMins();
 
-    public MetricsServiceImpl() {
-        map.put(UPDATE_DB_ON_STORE, new DoubleSummaryStatistics[BUFFER_SIZE]);
-    }
-
-    @Override
-    public boolean exists(String name) {
-        return map.containsKey(name);
-    }
-
     @Override
     public void accept(String name, double value) {
-        DoubleSummaryStatistics[] a = require(name);
+        DoubleSummaryStatistics[] a = map.computeIfAbsent(name, x -> new DoubleSummaryStatistics[BUFFER_SIZE]);
         int i = sync();
         if (a[i] == null)
             a[i] = new DoubleSummaryStatistics();
@@ -81,17 +72,19 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Override
     public void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer) {
-        DoubleSummaryStatistics[] a = require(name);
-
         if (start <= 0 || start > 60)
             throw new IllegalArgumentException("start not in range 0..60: " + start);
 
         if (binSize <= 0)
             throw new IllegalArgumentException("binSize not > 0: " + binSize);
 
+        DoubleSummaryStatistics[] a = map.get(name);
+        if (a == null)
+            return;
+
         int offset = (sync() - start + BUFFER_SIZE) % BUFFER_SIZE;
         DoubleSummaryStatistics bin = null;
-        for (int i = 0, n = limit > 0 ? Math.min(binSize * limit, BUFFER_SIZE - 1) : BUFFER_SIZE - 1; i < n; i++) {
+        for (int i = 0, n = limit > 0 ? Math.min(binSize * limit, start) : start; i < n; i++) {
             if (i % binSize == 0) {
                 if (bin != null)
                     consumer.accept(bin);
@@ -106,13 +99,6 @@ public class MetricsServiceImpl implements MetricsService {
 
     private static long currentTimeMins() {
         return System.currentTimeMillis() / MILLIS_PER_MIN;
-    }
-
-    private DoubleSummaryStatistics[] require(String name) {
-        DoubleSummaryStatistics[] a = map.get(name);
-        if (a == null)
-            throw new IllegalStateException("no such metrics: " + name);
-        return a;
     }
 
     private int sync() {
