@@ -149,7 +149,7 @@ export class PermissionService {
     }
 
     checkMenuTabAccess(url){
-        if(_.hasIn(this.mainservice,"global.notSecured") && this.mainservice.global.notSecured){
+        if(_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure){
             return true;
         }else{
             try{
