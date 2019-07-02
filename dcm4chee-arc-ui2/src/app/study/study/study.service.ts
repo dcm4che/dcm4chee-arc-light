@@ -18,9 +18,11 @@ import {DicomTableSchema, DynamicPipe} from "../../helpers/dicom-studies-table/d
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+declare var DCM4CHE: any;
 
 @Injectable()
 export class StudyService {
+    private _patientIod;
 
     constructor(
       private aeListService:AeListService,
@@ -29,12 +31,129 @@ export class StudyService {
       private devicesService:DevicesService
     ) { }
 
+    get patientIod() {
+        return this._patientIod;
+    }
+
+    set patientIod(value) {
+        this._patientIod = value;
+    }
+
     getEntrySchema(devices, aetWebService):{schema:FilterSchema, lineLength:number}{
         return {
             schema: j4care.prepareFlatFilterObject(Globalvar.STUDY_FILTER_ENTRY_SCHEMA(devices,aetWebService),1),
             lineLength: 1
         }
     }
+    /*
+    * return patientid - combination of patient id, issuer
+    * */
+    getPatientId(patient){
+        console.log('patient', patient);
+        let obj;
+        if (_.hasIn(patient, '[0]')){
+            obj = patient[0];
+        }else{
+            obj = patient;
+        }
+        let patientId = '';
+        if(obj.PatientID || (_.hasIn(obj, '["00100020"].Value[0]') && obj["00100020"].Value[0] != '')){
+            if (obj.PatientID){
+                patientId = obj.PatientID;
+            }
+            if (obj.IssuerOfPatientID){
+                patientId += '^^^' + obj.IssuerOfPatientID;
+            }
+            if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityID')){
+                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
+            }
+            if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityIDType')){
+                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
+            }
+            if (_.hasIn(obj, '["00100020"].Value[0]')){
+                patientId += obj["00100020"].Value[0];
+            }
+            if (_.hasIn(obj, '["00100021"].Value[0]'))
+                patientId += '^^^' + obj["00100021"].Value[0];
+            else{
+                if(_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') || _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]'))
+                    patientId += '^^^';
+            }
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
+                patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
+            }
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')){
+                patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
+            }
+            return patientId;
+        }else{
+            return undefined;
+        }
+    }
+
+    initEmptyValue(object){
+        _.forEach(object, (m, k)=>{
+            console.log('m', m);
+            if (m && m.vr && m.vr === 'PN' && m.vr != 'SQ' && (!m.Value || m.Value[0] === null)){
+                console.log('in pnvalue=', m);
+                object[k]['Value'] = [{
+                    Alphabetic: ''
+                }];
+            }
+            if (m && m.vr && m.vr != 'SQ' && !m.Value){
+                object[k]['Value'] = [''];
+            }
+            if (m && (_.isArray(m) || (m && _.isObject(m)))) {
+                console.log('beforecall', m);
+                this.initEmptyValue(m);
+            }
+        });
+        return object;
+    };
+
+    replaceKeyInJson(object, key, key2){
+        let $this = this;
+        _.forEach(object, function(m, k){
+            if (m[key]){
+                object[k][key2] = [object[k][key]];
+                delete object[k][key];
+            }
+            if (m.vr && m.vr != 'SQ' && !m.Value){
+                if (m.vr === 'PN'){
+                    object[k]['Value'] = object[k]['Value'] || [{Alphabetic: ''}];
+                    object[k]['Value'] = [{Alphabetic: ''}];
+                }else{
+                    object[k]['Value'] = [''];
+                }
+            }
+            if ((Object.prototype.toString.call(m) === '[object Array]') || (object[k] !== null && typeof(object[k]) == 'object')) {
+                $this.replaceKeyInJson(m, key, key2);
+            }
+        });
+        return object;
+    };
+    getArrayFromIod(res){
+        let dropdown = [];
+        _.forEach(res, function(m, i){
+            if (i === '00400100'){
+                _.forEach(m.items || m.Value[0], function(l, j){
+                    dropdown.push({
+                        'code': '00400100:' + j,
+                        'codeComma': '>' + j.slice(0, 4) + ',' + j.slice(4),
+                        'name': DCM4CHE.elementName.forTag(j)
+                    });
+                });
+            }else{
+                dropdown.push({
+                    'code': i,
+                    'codeComma': i.slice(0, 4) + ',' + i.slice(4),
+                    'name': DCM4CHE.elementName.forTag(i)
+                });
+            }
+        });
+        return dropdown;
+    };
+
     getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, filterMode:('main'| 'expand')){
         let schema:FilterSchema;
         let lineLength:number = 3;
@@ -368,6 +487,11 @@ export class StudyService {
                                     click:(e)=>{
                                         console.log("e",e);
                                         //TODO edit patient
+                                        actions.call($this, {
+                                            event:"click",
+                                            level:"patient",
+                                            action:"edit_patient"
+                                        },e);
                                     }
                                 },{
                                     icon:{
@@ -379,6 +503,11 @@ export class StudyService {
                                     click:(e)=>{
                                         console.log("e",e);
                                         //TODO create mwl
+                                        actions.call($this, {
+                                            event:"click",
+                                            level:"patient",
+                                            action:"create_mwl"
+                                        },e);
                                     }
                                 },{
                                     icon:{
@@ -390,6 +519,11 @@ export class StudyService {
                                     click:(e)=>{
                                         console.log("e",e);
                                         //TODO download csv
+                                        actions.call($this, {
+                                            event:"click",
+                                            level:"patient",
+                                            action:"download_csv"
+                                        },e);
                                     }
                                 }
                             ]
@@ -878,4 +1012,12 @@ export class StudyService {
             ]
         }
     }
+
+    getPatientIod(){
+        if (this._patientIod) {
+            return Observable.of(this._patientIod);
+        } else {
+            return this.$http.get('assets/iod/patient.iod.json')
+        }
+    };
 }

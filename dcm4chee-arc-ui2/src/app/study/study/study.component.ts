@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit, ViewContainerRef} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {
     AccessLocation,
@@ -32,6 +32,9 @@ import {DropdownList} from "../../helpers/form/dropdown-list";
 import {DropdownComponent} from "../../widgets/dropdown/dropdown.component";
 import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
+import {EditPatientComponent} from "../../widgets/dialogs/edit-patient/edit-patient.component";
+import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 
 @Component({
@@ -124,6 +127,8 @@ export class StudyComponent implements OnInit {
     // studyDevice:StudyDevice;
     testModel;
     deviceWebservice:StudyDeviceWebserviceModel;
+    dialogRef: MatDialogRef<any>;
+    lastPressedCode;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -131,7 +136,11 @@ export class StudyComponent implements OnInit {
         private appService:AppService,
         private httpErrorHandler:HttpErrorHandler,
         private cfpLoadingBar:LoadingBarService,
-        private deviceConfigurator:DeviceConfiguratorService
+        private deviceConfigurator:DeviceConfiguratorService,
+        private viewContainerRef: ViewContainerRef,
+        private dialog: MatDialog,
+        private config: MatDialogConfig,
+        private _keycloakService:KeycloakService
     ) { }
 
     ngOnInit() {
@@ -192,10 +201,65 @@ export class StudyComponent implements OnInit {
                 }
 
             }
+            if(id.action === "edit_patient"){
+                //TODO edit patient
+            }
+            if(id.action === "create_mwl"){
+                //TODO Create mwl
+
+            }
+            if(id.action === "download_csv"){
+                //TODO download_csv
+
+            }
         }else{
             this.appService.showError("No Web Application Service was selected!");
         }
     }
+
+    downloadCSV(attr?, mode?){
+/*        let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
+        this.confirm({
+            content:"Do you want to use semicolon as delimiter?",
+            cancelButton:"No",
+            saveButton:"Yes",
+            result:"yes"
+        }).subscribe((ok)=>{
+            let semicolon = false;
+            if(ok)
+                semicolon = true;
+            let token;
+            let url = `${this.rsURL()}/studies`;
+            this._keycloakService.getToken().subscribe((response)=>{
+                if(!this.appService.global.notSecure){
+                    token = response.token;
+                }
+                let filterClone = _.cloneDeep(queryParameters);
+                delete filterClone['offset'];
+                delete filterClone['limit'];
+                filterClone["accept"] = `text/csv${(semicolon?';delimiter=semicolon':'')}`;
+                let fileName = "dcm4chee.csv";
+                if(attr && mode){
+                    filterClone["PatientID"] =  j4care.valueOf(attr['00100020']);
+                    filterClone["IssuerOfPatientID"] = j4care.valueOf(attr['00100021']);
+                    if(mode === "series" && _.hasIn(attr,'0020000D')){
+                        url =`${url}/${j4care.valueOf(attr['0020000D'])}/series`;
+                        fileName = `${j4care.valueOf(attr['0020000D'])}.csv`;
+                    }
+                    if(mode === "instance"){
+                        url =`${url}/${j4care.valueOf(attr['0020000D'])}/series/${j4care.valueOf(attr['0020000E'])}/instances`;
+                        fileName = `${j4care.valueOf(attr['0020000D'])}_${j4care.valueOf(attr['0020000E'])}.csv`;
+                    }
+                }
+                if(!this.appService.global.notSecure){
+                    filterClone["access_token"] = token;
+                }
+                j4care.downloadFile(`${url}?${this.appService.param(filterClone)}`,fileName);
+                // WindowRefService.nativeWindow.open(`${url}?${this.mainservice.param(filterClone)}`);
+            });
+        })*/
+    }
+
     search(mode?:('next'|'prev'|'current')){
         if(this.deviceWebservice.selectedWebApp){
             // if (this._filter.filterModel.aet){
@@ -468,6 +532,135 @@ export class StudyComponent implements OnInit {
             this.httpErrorHandler.handleError(err);
         })
     }
+
+    editPatient(patient, patientkey){
+        let config:{saveLabel:string,titleLabel:string};
+        config.saveLabel = 'SAVE';
+        config.titleLabel = 'Edit patient ';
+        config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
+        config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
+        this.modifyPatient(patient, 'edit', patientkey, config);
+    };
+
+    modifyPatient(patient, mode , patientkey, config?:{saveLabel:string,titleLabel:string}){
+        let originalPatientObject = _.cloneDeep(patient);
+        this.config.viewContainerRef = this.viewContainerRef;
+        let oldPatientID;
+        this.lastPressedCode = 0;
+        let modifyPatientService;
+        if (mode === 'edit'){
+            _.forEach(patient.attrs, function(value, index) {
+                let checkValue = '';
+                if (value.Value && value.Value.length){
+                    checkValue = value.Value.join('');
+                }
+                if (!(value.Value && checkValue != '')){
+                    delete patient.attrs[index];
+                }
+                if (index === '00100040' && patient.attrs[index] && patient.attrs[index].Value && patient.attrs[index].Value[0]){
+                    patient.attrs[index].Value[0] = patient.attrs[index].Value[0].toUpperCase();
+                }
+            });
+            oldPatientID = this.service.getPatientId(patient.attrs);
+        }
+        let $this = this;
+        this.service.getPatientIod().subscribe((iod) => {
+            $this.service.patientIod = iod;
+
+            $this.service.initEmptyValue(patient.attrs);
+            $this.dialogRef = $this.dialog.open(EditPatientComponent, {
+                height: 'auto',
+                width: '90%'
+            });
+
+            $this.dialogRef.componentInstance.mode = mode;
+            $this.dialogRef.componentInstance.patient = patient;
+            $this.dialogRef.componentInstance.patientkey = patientkey;
+            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(iod);
+            $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(iod, 'items', 'Value');
+            $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
+            $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
+            // $this.dialogRef.componentInstance.externalInternalAetMode = $this.externalInternalAetMode;
+            $this.dialogRef.afterClosed().subscribe(result => {
+/*                //If user clicked save
+                if (result){
+                    if(mode === "create"){
+                        if(this.service.getPatientId(patient.attrs)){
+                            modifyPatientService = $this.service.modifyPatient(patient, iod, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode,this.externalInternalAetMode === "external");
+                            if(modifyPatientService){
+                                modifyPatientService.save.subscribe((response)=>{
+                                    this.fireRightQuery();
+                                    this.mainservice.setMessage({
+                                        'title': 'Info',
+                                        'text': modifyPatientService.successMsg,
+                                        'status': 'info'
+                                    });
+                                },(err)=>{
+                                    _.assign(patient, originalPatientObject);
+                                    $this.httpErrorHandler.handleError(err);
+                                });
+                            }
+                        }else{
+                            this.service.createPatient(
+                                patient.attrs,
+                                this.aet,
+                                this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes),
+                                this.externalInternalAetModel.hl7ApplicationName,
+                                this.externalInternalAetMode
+                            ).subscribe((res)=>{
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': 'Patient created successfully!',
+                                    'status': 'info'
+                                });
+                            },(err)=>{
+                                this.httpErrorHandler.handleError(err);
+                            });
+                        }
+                    }else{
+                        this.service.changePatientID(
+                            oldPatientID,
+                            this.service.getPatientId(patient.attrs),
+                            patient.attrs,
+                            this.aet,
+                            this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes),
+                            this.externalInternalAetModel.hl7ApplicationName,
+                            this.externalInternalAetMode
+                        ).subscribe((idChanged)=>{
+                            let id = oldPatientID;
+                            if(idChanged)
+                                id = this.service.getPatientId(patient.attrs);
+                            modifyPatientService = $this.service.modifyPatient(patient, iod, id, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode, this.externalInternalAetMode === "external");
+                            if(modifyPatientService){
+                                modifyPatientService.save.subscribe((response)=>{
+                                    this.fireRightQuery();
+                                    this.mainservice.setMessage({
+                                        'title': 'Info',
+                                        'text': modifyPatientService.successMsg,
+                                        'status': 'info'
+                                    });
+                                },(err)=>{
+                                    _.assign(patient, originalPatientObject);
+                                    $this.httpErrorHandler.handleError(err);
+                                });
+                            }else{
+                                _.assign(patient, originalPatientObject);
+                            }
+                        },(err)=>{
+                            _.assign(patient, originalPatientObject);
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                }else{
+                    _.assign(patient, originalPatientObject);
+                }
+                $this.dialogRef = null;*/
+            });
+        }, (err) => {
+            $this.httpErrorHandler.handleError(err);
+            console.log('error', err);
+        });
+    };
 
     testSecure(){
         this.appService.isSecure().subscribe((res)=>{
