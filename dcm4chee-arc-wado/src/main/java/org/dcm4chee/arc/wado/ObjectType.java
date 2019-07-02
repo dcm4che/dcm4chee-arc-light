@@ -139,7 +139,7 @@ enum ObjectType {
             new MediaType[] { MediaType.TEXT_XML_TYPE }, false),
     EncapsulatedSTL(
             new MediaType[] { MediaTypes.MODEL_STL_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaType.TEXT_XML_TYPE }, false),
+            new MediaType[] { MediaTypes.MODEL_STL_TYPE }, false),
     Other(new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE }, null, false);
 
     private final MediaType[] mimeTypes;
