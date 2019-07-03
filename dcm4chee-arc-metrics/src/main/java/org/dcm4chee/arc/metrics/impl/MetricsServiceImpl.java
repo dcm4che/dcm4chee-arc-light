@@ -86,15 +86,15 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Override
     public void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer) {
-        if (start <= 0)
-            throw new IllegalArgumentException("start not > 0: " + start);
-
         if (binSize <= 0)
             throw new IllegalArgumentException("binSize not > 0: " + binSize);
 
         DataBins dataBins = map.get(name);
         if (dataBins == null)
             return;
+
+        if (start <= 0)
+            start = dataBins.getRetentionPeriod();
 
         long time = currentTimeMins() - start;
         int n = (start - 1) / binSize + 1;
@@ -121,7 +121,11 @@ public class MetricsServiceImpl implements MetricsService {
             statistics[(int) (time % statistics.length)] = new DoubleSummaryStatistics();
         }
 
-        public void accept(long time, double value) {
+        int getRetentionPeriod() {
+            return statistics.length - 1;
+        }
+
+        void accept(long time, double value) {
             int i = (int) (time % statistics.length);
             if (this.acceptTime < time) {
                 synchronized (this) {

@@ -3144,8 +3144,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                MetricsDescriptor metricsDescriptor = new MetricsDescriptor(LdapUtils.stringValue(
-                        attrs.get("dcmMetricsName"), null));
+                MetricsDescriptor metricsDescriptor = new MetricsDescriptor();
+                metricsDescriptor.setMetricsName(LdapUtils.stringValue(attrs.get("dcmMetricsName"), null));
                 metricsDescriptor.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 metricsDescriptor.setRetentionPeriod(LdapUtils.intValue(attrs.get("dcmMetricsRetentionPeriod"), 60));
                 metricsDescriptor.setUnit(LdapUtils.stringValue(attrs.get("dcmUnit"), null));

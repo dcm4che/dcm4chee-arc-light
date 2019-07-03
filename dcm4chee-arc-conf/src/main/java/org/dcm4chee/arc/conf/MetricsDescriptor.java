@@ -53,10 +53,6 @@ public class MetricsDescriptor {
     private String unit;
     private int retentionPeriod = 60;
 
-    public MetricsDescriptor(String metricsName) {
-        setMetricsName(metricsName);
-    }
-
     public String getMetricsName() {
         return metricsName;
     }
