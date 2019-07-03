@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.metrics.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.MetricsDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -50,16 +54,14 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Positive;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Comparator;
 import java.util.DoubleSummaryStatistics;
 
 /**
@@ -72,6 +74,9 @@ import java.util.DoubleSummaryStatistics;
 public class MetricsRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsRS.class);
+
+    @Inject
+    private Device device;
 
     @Inject
     private MetricsService metricsService;
@@ -91,6 +96,31 @@ public class MetricsRS {
     @QueryParam("limit")
     @Pattern(regexp = "^[1-9][0-9]*$")
     private String limit;
+
+    @GET
+    @NoCache
+    public Response listMetricsDescriptors() {
+        logRequest();
+        try {
+            return Response.ok((StreamingOutput) out -> {
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
+                for (MetricsDescriptor metricsDescriptor : sortedMetricsDescriptors()) {
+                    JsonWriter writer = new JsonWriter(gen);
+                    gen.writeStartObject();
+                    writer.writeNotNullOrDef("dcmMetricsName", metricsDescriptor.getMetricsName(), null);
+                    writer.writeNotNullOrDef("dicomDescription", metricsDescriptor.getDescription(), null);
+                    writer.writeNotNullOrDef("dcmMetricsRetentionPeriod", metricsDescriptor.getRetentionPeriod(), null);
+                    writer.writeNotNullOrDef("dcmUnit", metricsDescriptor.getUnit(), null);
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
+                gen.flush();
+            }).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GET
     @NoCache
@@ -116,6 +146,13 @@ public class MetricsRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private MetricsDescriptor[] sortedMetricsDescriptors() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getMetricsDescriptors().stream()
+                .sorted(Comparator.comparing(MetricsDescriptor::getMetricsName))
+                .toArray(MetricsDescriptor[]::new);
     }
 
     private Response errResponse(String msg, Response.Status status) {
