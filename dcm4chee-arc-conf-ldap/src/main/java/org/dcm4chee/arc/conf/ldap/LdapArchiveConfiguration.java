@@ -299,7 +299,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
                 ext.isRelationalRetrieveNegotiationLenient(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmSchedulerMinStartDelay", ext.getSchedulerMinStartDelay(), 1000);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMetricsServices", ext.getMetricsServices());
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
 
@@ -532,7 +531,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRelationalRetrieveNegotiationLenient(LdapUtils.booleanValue(
                 attrs.get("dcmRelationalRetrieveNegotiationLenient"), false));
         ext.setSchedulerMinStartDelay(LdapUtils.intValue(attrs.get("dcmSchedulerMinStartDelay"), 1000));
-        ext.setMetricsServices(LdapUtils.stringArray(attrs.get("dcmMetricsServices")));
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
     }
 
@@ -951,9 +949,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getRejectConflictingPatientAttribute());
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedulerMinStartDelay",
                 aa.getSchedulerMinStartDelay(), bb.getSchedulerMinStartDelay(), 1000);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmMetricsServices",
-                aa.getMetricsServices(),
-                bb.getMetricsServices());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -989,6 +984,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeScheduledStations(diffs, arcDev.getHL7OrderScheduledStations(), deviceDN, config);
         storeHL7OrderSPSStatus(diffs, arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
         storeKeycloakServers(diffs, arcDev.getKeycloakServers(), deviceDN);
+        storeMetricsDescriptors(diffs, arcDev.getMetricsDescriptors(), deviceDN);
         config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1022,6 +1018,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config, device);
         loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
         loadKeycloakServers(arcdev, deviceDN);
+        loadMetricsDescriptors(arcdev, deviceDN);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1065,6 +1062,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeScheduledStations(diffs, aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
         mergeHL7OrderSPSStatus(diffs, aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
         mergeKeycloakServers(diffs, aa.getKeycloakServers(), bb.getKeycloakServers(), deviceDN);
+        mergeMetricsDescriptors(diffs, aa.getMetricsDescriptors(), bb.getMetricsDescriptors(), deviceDN);
         config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -2839,6 +2837,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeMetricsDescriptors(ConfigurationChanges diffs, Collection<MetricsDescriptor> metricsDescriptors, String parentDN)
+            throws NamingException {
+        for (MetricsDescriptor metricsDescriptor : metricsDescriptors) {
+            String dn = LdapUtils.dnOf("dcmMetricsName", metricsDescriptor.getMetricsName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, metricsDescriptor, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ArchiveCompressionRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveCompressionRule");
         attrs.put("cn", rule.getCommonName());
@@ -2932,6 +2940,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSDisableTrustManager", keycloakServer.isTlsDisableTrustManager(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "uid", keycloakServer.getUserID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "userPassword", keycloakServer.getPassword(), null);
+        return attrs;
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, MetricsDescriptor metricsDescriptor, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmMetrics");
+        attrs.put("dcmMetricsName", metricsDescriptor.getMetricsName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", metricsDescriptor.getDescription(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMetricsRetentionPeriod", metricsDescriptor.getRetentionPeriod(), 60);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUnit", metricsDescriptor.getUnit(), null);
         return attrs;
     }
 
@@ -3115,6 +3132,24 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 keycloakServer.setUserID(LdapUtils.stringValue(attrs.get("uid"), null));
                 keycloakServer.setPassword(LdapUtils.stringValue(attrs.get("userPassword"), null));
                 arcdev.addKeycloakServer(keycloakServer);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadMetricsDescriptors(ArchiveDeviceExtension arcdev, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmMetrics)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                MetricsDescriptor metricsDescriptor = new MetricsDescriptor(LdapUtils.stringValue(
+                        attrs.get("dcmMetricsName"), null));
+                metricsDescriptor.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
+                metricsDescriptor.setRetentionPeriod(LdapUtils.intValue(attrs.get("dcmMetricsRetentionPeriod"), 60));
+                metricsDescriptor.setUnit(LdapUtils.stringValue(attrs.get("dcmUnit"), null));
+                arcdev.addMetricsDescriptor(metricsDescriptor);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -3401,6 +3436,36 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeMetricsDescriptors(ConfigurationChanges diffs, Collection<MetricsDescriptor> prevMetricsDescriptors,
+                                         Collection<MetricsDescriptor> metricsDescriptors, String parentDN)
+            throws NamingException {
+        for (MetricsDescriptor prevMetricsDescriptor : prevMetricsDescriptors) {
+            String metricsName = prevMetricsDescriptor.getMetricsName();
+            if (findMetricsDescriptorByName(prevMetricsDescriptors, metricsName) == null) {
+                String dn = LdapUtils.dnOf("dcmMetricsName", metricsName, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (MetricsDescriptor metricsDescriptor : metricsDescriptors) {
+            String metricsName = metricsDescriptor.getMetricsName();
+            String dn = LdapUtils.dnOf("dcmMetricsName", metricsName, parentDN);
+            MetricsDescriptor prevMetricsDescriptor = findMetricsDescriptorByName(prevMetricsDescriptors, metricsName);
+            if (prevMetricsDescriptor == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                metricsDescriptor, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevMetricsDescriptor, metricsDescriptor, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
@@ -3523,6 +3588,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private List<ModificationItem> storeDiffs(
+            ConfigurationChanges.ModifiedObject ldapObj, MetricsDescriptor prev, MetricsDescriptor metricsDescriptor,
+            ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription", prev.getDescription(),
+                metricsDescriptor.getDescription(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMetricsRetentionPeriod",
+                prev.getRetentionPeriod(), metricsDescriptor.getRetentionPeriod(), 60);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUnit", prev.getUnit(), metricsDescriptor.getUnit(), null);
+        return mods;
+    }
+
     private ArchiveCompressionRule findCompressionRuleByCN(Collection<ArchiveCompressionRule> rules, String cn) {
         for (ArchiveCompressionRule rule : rules)
             if (rule.getCommonName().equals(cn))
@@ -3580,6 +3656,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (KeycloakServer keycloakServer : keycloakServers)
             if (keycloakServer.getKeycloakServerID().equals(keycloakServerID))
                 return keycloakServer;
+        return null;
+    }
+
+    private MetricsDescriptor findMetricsDescriptorByName(
+            Collection<MetricsDescriptor> metricsDescriptors, String metricsName) {
+        for (MetricsDescriptor metricsDescriptor : metricsDescriptors)
+            if (metricsDescriptor.getMetricsName().equals(metricsName))
+                return metricsDescriptor;
         return null;
     }
 

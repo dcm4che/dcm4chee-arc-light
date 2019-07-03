@@ -296,7 +296,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmRejectConflictingPatientAttribute",
                 TagUtils.toHexStrings(arcDev.getRejectConflictingPatientAttribute()));
         writer.writeNotDef("dcmSchedulerMinStartDelay", arcDev.getSchedulerMinStartDelay(), 1000);
-        writer.writeNotEmpty("dcmMetricsServices", arcDev.getMetricsServices());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -320,6 +319,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
         writeHL7OrderSPSStatus(writer, arcDev.getHL7OrderSPSStatuses());
         writeKeycloakServers(writer, arcDev.getKeycloakServers());
+        writeMetricsDescriptors(writer, arcDev.getMetricsDescriptors());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
     }
@@ -749,6 +749,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeEnd();
         }
         writer.writeEnd();
+    }
+
+    private static void writeMetricsDescriptors(JsonWriter writer, Collection<MetricsDescriptor> metricsDescriptors) {
+        writer.writeStartArray("dcmMetrics");
+        metricsDescriptors.forEach(metricsDescriptor -> {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmMetricsName", metricsDescriptor.getMetricsName(), null);
+            writer.writeNotNullOrDef("dicomDescription", metricsDescriptor.getDescription(), null);
+            writer.writeNotDef("dcmMetricsRetentionPeriod", metricsDescriptor.getRetentionPeriod(), 60);
+            writer.writeNotNullOrDef("dcmUnit", metricsDescriptor.getUnit(), null);
+            writer.writeEnd();
+        });
     }
 
     private void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
@@ -1385,9 +1397,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmSchedulerMinStartDelay":
                     arcDev.setSchedulerMinStartDelay(reader.intValue());
                     break;
-                case "dcmMetricsServices":
-                    arcDev.setMetricsServices(reader.stringArray());
-                    break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
                     break;
@@ -1471,6 +1480,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmKeycloakServer":
                     loadKeycloakServers(arcDev, reader);
+                    break;
+                case "dcmMetrics":
+                    loadMetricsDescriptors(arcDev, reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -2469,6 +2481,36 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             arcDev.addKeycloakServer(keycloakServer);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private static void loadMetricsDescriptors(ArchiveDeviceExtension arcDev, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            MetricsDescriptor metricsDescriptor = new MetricsDescriptor();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmMetricsName":
+                        metricsDescriptor.setMetricsName(reader.stringValue());
+                        break;
+                    case "dicomDescription":
+                        metricsDescriptor.setDescription(reader.stringValue());
+                        break;
+                    case "dcmMetricsRetentionPeriod":
+                        metricsDescriptor.setRetentionPeriod(reader.intValue());
+                        break;
+                    case "dcmUnit":
+                        metricsDescriptor.setUnit(reader.stringValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            arcDev.addMetricsDescriptor(metricsDescriptor);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2019
  */
 public class MetricsDescriptor {
@@ -51,6 +52,10 @@ public class MetricsDescriptor {
     private String description;
     private String unit;
     private int retentionPeriod = 60;
+
+    public MetricsDescriptor(String metricsName) {
+        setMetricsName(metricsName);
+    }
 
     public String getMetricsName() {
         return metricsName;
