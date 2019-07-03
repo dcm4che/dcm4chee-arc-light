@@ -50,7 +50,10 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -77,17 +80,16 @@ public class MetricsRS {
     private HttpServletRequest request;
 
     @QueryParam("start")
-    @Pattern(regexp = "^(?:[1-9]|[12345][0-9]|60)$")
-    @DefaultValue("60")
+    @Pattern(regexp = "^[1-9][0-9]*$")
     private String start;
 
     @QueryParam("bin")
-    @Pattern(regexp = "^(?:[1-9]|[12345][0-9]|60)$")
+    @Pattern(regexp = "^[1-9][0-9]*$")
     @DefaultValue("1")
     private String binSize;
 
     @QueryParam("limit")
-    @Pattern(regexp = "^(?:[1-9]|[12345][0-9]|60)$")
+    @Pattern(regexp = "^[1-9][0-9]*$")
     private String limit;
 
     @GET

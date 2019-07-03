@@ -9,24 +9,23 @@
   "properties": {
     "dcmMetricsName": {
       "title": "Metrics Name",
-      "description": "Metrics Name",
+      "description": "Name for this Metrics Descriptor.",
       "type": "string"
     },
     "dicomDescription": {
       "title": "Metrics Description",
-      "description": "Unconstrained text description of the metrics",
+      "description": "Unconstrained description of the Metrics.",
       "type": "string"
     },
     "dcmMetricsRetentionPeriod": {
-      "title": "Metrics Retention Period",
+      "title": "Keycloak Realm",
       "description": "Metrics Retention Period in minutes",
       "type": "integer",
-      "default" : 60,
-      "minimum": 1
+      "default": 60
     },
     "dcmUnit": {
       "title": "Metrics Unit",
-      "description": "Unit of metrics data",
+      "description": "Unit of metrics data.",
       "type": "string"
     }
   }

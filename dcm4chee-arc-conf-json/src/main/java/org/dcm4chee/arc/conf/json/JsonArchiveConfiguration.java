@@ -753,29 +753,26 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     private static void writeMetricsDescriptors(JsonWriter writer, Collection<MetricsDescriptor> metricsDescriptors) {
         writer.writeStartArray("dcmMetrics");
-        metricsDescriptors.forEach(metricsDescriptor -> {
+        for (MetricsDescriptor metricsDescriptor : metricsDescriptors) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmMetricsName", metricsDescriptor.getMetricsName(), null);
             writer.writeNotNullOrDef("dicomDescription", metricsDescriptor.getDescription(), null);
             writer.writeNotDef("dcmMetricsRetentionPeriod", metricsDescriptor.getRetentionPeriod(), 60);
             writer.writeNotNullOrDef("dcmUnit", metricsDescriptor.getUnit(), null);
             writer.writeEnd();
-        });
+        }
+        writer.writeEnd();
     }
 
     private void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmIDGenerator");
         for (IDGenerator generator : arcDev.getIDGenerators().values()) {
-             writeIDGenerator(writer, generator);
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmIDGeneratorName", generator.getName(), null);
+            writer.writeNotNullOrDef("dcmIDGeneratorFormat", generator.getFormat(), null);
+            writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
+            writer.writeEnd();
         }
-        writer.writeEnd();
-    }
-
-    private void writeIDGenerator(JsonWriter writer, IDGenerator generator) {
-        writer.writeStartObject();
-        writer.writeNotNullOrDef("dcmIDGeneratorName", generator.getName(), null);
-        writer.writeNotNullOrDef("dcmIDGeneratorFormat", generator.getFormat(), null);
-        writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         writer.writeEnd();
     }
 
