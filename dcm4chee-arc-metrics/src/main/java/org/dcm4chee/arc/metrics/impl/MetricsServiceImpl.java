@@ -44,9 +44,11 @@ package org.dcm4chee.arc.metrics.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.MetricsDescriptor;
+import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.metrics.MetricsService;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
@@ -57,6 +59,7 @@ import java.util.function.DoubleSupplier;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2019
  */
 @ApplicationScoped
@@ -82,6 +85,18 @@ public class MetricsServiceImpl implements MetricsService {
         long time = currentTimeMins();
         map.computeIfAbsent(name, x -> new DataBins(time, descriptor.getRetentionPeriod()))
                 .accept(time, valueSupplier.getAsDouble());
+    }
+
+    public void onReload(@Observes ArchiveServiceEvent event) {
+        if (event.getType() != ArchiveServiceEvent.Type.RELOADED)
+            return;
+
+        map.entrySet().removeIf(entry -> {
+            MetricsDescriptor metricsDescriptor = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getMetricsDescriptor(entry.getKey());
+            return metricsDescriptor == null
+                    || metricsDescriptor.getRetentionPeriod() != entry.getValue().getRetentionPeriod();
+        });
     }
 
     @Override
