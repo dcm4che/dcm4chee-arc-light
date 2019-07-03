@@ -155,14 +155,14 @@ public class MetricsServiceImpl implements MetricsService {
 
         DoubleSummaryStatistics getBin(long time, int binSize) {
             DoubleSummaryStatistics bin = new DoubleSummaryStatistics();
-            long diff = time - this.acceptTime;
+            long diff = this.acceptTime - time;
             if (diff > statistics.length) {
                 int beforeRetentionPeriod = (int) diff - statistics.length;
                 time += beforeRetentionPeriod;
                 binSize -= beforeRetentionPeriod;
             }
-            if (diff < binSize) {
-                binSize = (int) diff;
+            if (diff + 1 < binSize) {
+                binSize = (int) diff + 1;
             }
             for (int i = (int) (time % statistics.length); binSize-- > 0; i++) {
                 DoubleSummaryStatistics other = statistics[i % statistics.length];
