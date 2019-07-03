@@ -3601,6 +3601,32 @@
         }
       }
     },
+    "/monitor/metrics": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List Metrics Descriptors",
+        "operationId": "listMetricsDescriptors",
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "Metrics Descriptors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../assets/schema/metrics.schema.json"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/monitor/metrics/{name}": {
       "get": {
         "tags": [
@@ -3621,12 +3647,10 @@
           {
             "name": "start",
             "in": "query",
-            "description": "return metrics since specified minutes",
+            "description": "return metrics since specified minutes; whole metrics retention period if absent.",
             "schema": {
               "type": "integer",
-              "minimum": 1,
-              "maximum": 60,
-              "default": 60
+              "minimum": 1
             }
           },
           {
@@ -3636,7 +3660,6 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 60,
               "default": 1
             }
           },
@@ -3646,8 +3669,7 @@
             "description": "maximal number of returned data entries",
             "schema": {
               "type": "integer",
-              "minimum": 1,
-              "maximum": 60
+              "minimum": 1
             }
           }
         ],
@@ -3662,8 +3684,11 @@
               }
             }
           },
+          "400": {
+            "description": "query parameter out of range"
+          },
           "404": {
-            "description": "no metrics with given name found"
+            "description": "no metrics with given name found",
           },
           "500": {
             "description": "Internal Server Error"

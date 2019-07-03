@@ -39,21 +39,50 @@
  *
  */
 
-package org.dcm4chee.arc.metrics;
-
-import java.util.DoubleSummaryStatistics;
-import java.util.function.Consumer;
-import java.util.function.DoubleSupplier;
+package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2019
  */
-public interface MetricsService {
+public class MetricsDescriptor {
 
-    boolean exists(String name);
+    private String metricsName;
+    private String description;
+    private String unit;
+    private int retentionPeriod = 60;
 
-    void accept(String name, DoubleSupplier valueSupplier);
+    public String getMetricsName() {
+        return metricsName;
+    }
 
-    void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer);
+    public void setMetricsName(String metricsName) {
+        this.metricsName = metricsName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public int getRetentionPeriod() {
+        return retentionPeriod;
+    }
+
+    public void setRetentionPeriod(int retentionPeriod) {
+        if (retentionPeriod <= 0)
+            throw new IllegalArgumentException("retentionPeriod: " + retentionPeriod);
+        this.retentionPeriod = retentionPeriod;
+    }
 }

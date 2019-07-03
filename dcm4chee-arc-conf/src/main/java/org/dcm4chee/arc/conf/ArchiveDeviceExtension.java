@@ -249,6 +249,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
+    private final Map<String, MetricsDescriptor> metricsDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final Map<String, PDQServiceDescriptor> pdqServiceDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
@@ -1490,6 +1491,26 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return queueDescriptorMap.values();
     }
 
+    public MetricsDescriptor getMetricsDescriptor(String metricsName) {
+        return metricsDescriptorMap.get(metricsName);
+    }
+
+    public boolean hasMetricsDescriptor(String metricsName) {
+        return metricsDescriptorMap.containsKey(metricsName);
+    }
+
+    public MetricsDescriptor removeMetricsDescriptor(String metricsName) {
+        return metricsDescriptorMap.remove(metricsName);
+    }
+
+    public void addMetricsDescriptor(MetricsDescriptor descriptor) {
+        metricsDescriptorMap.put(descriptor.getMetricsName(), descriptor);
+    }
+
+    public Collection<MetricsDescriptor> getMetricsDescriptors() {
+        return metricsDescriptorMap.values();
+    }
+
     public ExporterDescriptor getExporterDescriptor(String exporterID) {
         return exporterDescriptorMap.get(exporterID);
     }
@@ -2520,6 +2541,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
         queueDescriptorMap.clear();
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
+        metricsDescriptorMap.clear();
+        metricsDescriptorMap.putAll(arcdev.metricsDescriptorMap);
         pdqServiceDescriptorMap.clear();
         pdqServiceDescriptorMap.putAll(arcdev.pdqServiceDescriptorMap);
         exporterDescriptorMap.clear();

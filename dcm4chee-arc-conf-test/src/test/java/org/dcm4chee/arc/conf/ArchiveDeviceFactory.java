@@ -235,6 +235,10 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("Rejection", "Rejection Tasks")
     };
 
+    static final MetricsDescriptor[] METRICS_DESCRIPTORS = {
+            newMetricsDescriptor("db-update-on-store","DB Update Time on Store", "ms")
+    };
+
     static final HL7OrderSPSStatus[] HL7_ORDER_SPS_STATUSES = {
             newHL7OrderSPSStatus("SCHEDULED", "NW_SC", "NW_IP", "XO_SC"),
             newHL7OrderSPSStatus("CANCELLED", "CA_CA"),
@@ -251,6 +255,14 @@ class ArchiveDeviceFactory {
         desc.setRetryDelayMultiplier(200);
         desc.setMaxRetryDelay(Duration.valueOf("PT10M"));
         desc.setPurgeQueueMessageCompletedDelay(Duration.valueOf("P1D"));
+        return desc;
+    }
+
+    private static MetricsDescriptor newMetricsDescriptor(String name, String description, String unit) {
+        MetricsDescriptor desc = new MetricsDescriptor();
+        desc.setMetricsName(name);
+        desc.setDescription(description);
+        desc.setUnit(unit);
         return desc;
     }
 
@@ -1594,6 +1606,9 @@ class ArchiveDeviceFactory {
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
+
+        for (MetricsDescriptor descriptor : METRICS_DESCRIPTORS)
+            ext.addMetricsDescriptor(descriptor);
 
         for (HL7OrderSPSStatus hl7OrderSPSStatus : HL7_ORDER_SPS_STATUSES)
             ext.addHL7OrderSPSStatus(hl7OrderSPSStatus);

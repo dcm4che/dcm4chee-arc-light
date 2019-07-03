@@ -42,8 +42,8 @@
 package org.dcm4chee.arc.metrics.impl;
 
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.MetricsDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -53,6 +53,7 @@ import java.util.DoubleSummaryStatistics;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -60,86 +61,111 @@ import java.util.function.Consumer;
  */
 @ApplicationScoped
 public class MetricsServiceImpl implements MetricsService {
-    private static final int BUFFER_SIZE = 61;
     private static final int MILLIS_PER_MIN = 60000;
-    private final Map<String, DoubleSummaryStatistics[]> map = new HashMap<>();
-    private volatile long currentTimeMins = currentTimeMins();
+    private final Map<String, DataBins> map = new HashMap<>();
 
     @Inject
     private Device device;
 
     @Override
-    public void accept(String name, double value) {
-        DoubleSummaryStatistics[] a = map.computeIfAbsent(name, x -> new DoubleSummaryStatistics[BUFFER_SIZE]);
-        int i = sync();
-        if (a[i] == null)
-            a[i] = new DoubleSummaryStatistics();
-        a[i].accept(value);
+    public boolean exists(String name) {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).hasMetricsDescriptor(name);
     }
 
     @Override
-    public boolean exists(String name) {
-        return StringUtils.contains(device.getDeviceExtension(ArchiveDeviceExtension.class).getMetricsServices(), name);
+    public void accept(String name, DoubleSupplier valueSupplier) {
+        MetricsDescriptor descriptor =
+                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getMetricsDescriptor(name);
+        if (descriptor == null)
+            return;
+
+        long time = currentTimeMins();
+        map.computeIfAbsent(name, x -> new DataBins(time, descriptor.getRetentionPeriod()))
+                .accept(time, valueSupplier.getAsDouble());
     }
 
     @Override
     public void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer) {
-        if (start <= 0 || start > 60)
-            throw new IllegalArgumentException("start not in range 0..60: " + start);
+        if (start <= 0)
+            throw new IllegalArgumentException("start not > 0: " + start);
 
         if (binSize <= 0)
             throw new IllegalArgumentException("binSize not > 0: " + binSize);
 
-        DoubleSummaryStatistics[] a = map.get(name);
-        if (a == null)
+        DataBins dataBins = map.get(name);
+        if (dataBins == null)
             return;
 
-        int offset = (sync() - start + BUFFER_SIZE) % BUFFER_SIZE;
-        DoubleSummaryStatistics bin = null;
-        for (int i = 0, n = limit > 0 ? Math.min(binSize * limit, start) : start; i < n; i++) {
-            if (i % binSize == 0) {
-                if (bin != null)
-                    consumer.accept(bin);
-                bin = new DoubleSummaryStatistics();
-            }
-            DoubleSummaryStatistics other = a[(offset + i) % BUFFER_SIZE];
-            if (other != null)
-                bin.combine(other);
+        long time = currentTimeMins() - start;
+        int n = (start - 1) / binSize + 1;
+        if (limit > 0 && n > limit)
+            n = limit;
+
+        while (n-- > 0) {
+            consumer.accept(dataBins.getBin(time, binSize));
+            time += binSize;
         }
-        consumer.accept(bin);
     }
 
     private static long currentTimeMins() {
         return System.currentTimeMillis() / MILLIS_PER_MIN;
     }
 
-    private int sync() {
-        long currentTimeMins = currentTimeMins();
-        int index = (int) (currentTimeMins % BUFFER_SIZE);
-        if (this.currentTimeMins < currentTimeMins) {
-            synchronized (this) {
-                long diff = currentTimeMins - this.currentTimeMins;
-                if (diff > 0) {
-                    map.values().forEach(nullify(index, diff));
-                    this.currentTimeMins = currentTimeMins;
+    private static class DataBins {
+        volatile long acceptTime;
+        final DoubleSummaryStatistics[] statistics;
+
+        DataBins(long time, int retentionPeriod) {
+            this.acceptTime = time;
+            this.statistics = new DoubleSummaryStatistics[retentionPeriod + 1];
+            statistics[(int) (time % statistics.length)] = new DoubleSummaryStatistics();
+        }
+
+        public void accept(long time, double value) {
+            int i = (int) (time % statistics.length);
+            if (this.acceptTime < time) {
+                synchronized (this) {
+                    long diff = time - this.acceptTime;
+                    if (diff > 0) {
+                        if (diff > 1) {
+                            if (diff >= statistics.length) {
+                                Arrays.fill(statistics, null);
+                            } else {
+                                int fromIndex = i + 1 - (int) diff;
+                                if (fromIndex >= 0) {
+                                    Arrays.fill(statistics, fromIndex, i, null);
+                                } else {
+                                    Arrays.fill(statistics, 0, i, null);
+                                    Arrays.fill(statistics,
+                                            fromIndex + statistics.length, statistics.length, null);
+                                }
+                            }
+                        }
+                        statistics[i] = new DoubleSummaryStatistics();
+                        this.acceptTime = time;
+                    }
                 }
             }
+            statistics[i].accept(value);
         }
-        return index;
-    }
 
-    private static Consumer<? super DoubleSummaryStatistics[]> nullify(int index, long diff) {
-        if (diff >= BUFFER_SIZE)
-            return x -> Arrays.fill(x, null);
-
-        int toIndex = index + 1;
-        int fromIndex = toIndex - (int) diff;
-        if (fromIndex >= 0)
-            return x -> Arrays.fill(x, fromIndex, toIndex, null);
-
-        return x -> {
-            Arrays.fill(x, 0, toIndex, null);
-            Arrays.fill(x, fromIndex + BUFFER_SIZE, BUFFER_SIZE, null);
-        };
+        DoubleSummaryStatistics getBin(long time, int binSize) {
+            DoubleSummaryStatistics bin = new DoubleSummaryStatistics();
+            long diff = time - this.acceptTime;
+            if (diff > statistics.length) {
+                int beforeRetentionPeriod = (int) diff - statistics.length;
+                time += beforeRetentionPeriod;
+                binSize -= beforeRetentionPeriod;
+            }
+            if (diff < binSize) {
+                binSize = (int) diff;
+            }
+            for (int i = (int) (time % statistics.length); binSize-- > 0; i++) {
+                DoubleSummaryStatistics other = statistics[i % statistics.length];
+                if (other != null)
+                    bin.combine(other);
+            }
+            return bin;
+        }
     }
 }

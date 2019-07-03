@@ -1327,6 +1327,15 @@
         "$ref": "queue.schema.json"
       }
     },
+    "dcmMetrics": {
+      "title": "Metrics",
+      "description": "Activated Metrics",
+      "type": "array",
+      "titleKey":"{dcmMetricsName}",
+      "items" : {
+        "$ref": "metrics.schema.json"
+      }
+    },
     "dcmPDQService": {
       "title": "PDQ Service Descriptor",
       "description": "PDQ Service Descriptor",

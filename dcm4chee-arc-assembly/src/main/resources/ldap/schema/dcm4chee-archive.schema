@@ -1681,10 +1681,23 @@ attributetype ( 1.2.40.0.13.1.15.110.3.290 NAME 'dcmSchedulerMinStartDelay'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.291 NAME 'dcmMetricsServices'
-  DESC 'Metrics Services which can be used to get metrics'
+attributetype ( 1.2.40.0.13.1.15.110.3.291 NAME 'dcmMetricsName'
+  DESC 'Metrics Name'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.292 NAME 'dcmMetricsRetentionPeriod'
+  DESC 'Metrics Retention Period in minutes; 60 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.293 NAME 'dcmUnit'
+  DESC 'Unit of metrics data'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -1861,7 +1874,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRelationalRetrieveNegotiationLenient $
     dcmStowRetiredTransferSyntax $
     dcmSchedulerMinStartDelay $
-    dcmMetricsServices $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -2318,3 +2330,13 @@ objectclass ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
     dcmNullifyIssuerOfPatientID $
     dcmIssuerOfPatientID $
     dcmDuration ) )
+
+objectclass ( 1.2.40.0.13.1.15.110.4.36 NAME 'dcmMetrics'
+  DESC 'Metrics'
+  SUP top STRUCTURAL
+  MUST (
+    dcmMetricsName )
+  MAY (
+    dicomDescription $
+    dcmMetricsRetentionPeriod $
+    dcmUnit  ))
