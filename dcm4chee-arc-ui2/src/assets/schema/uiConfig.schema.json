@@ -81,6 +81,15 @@
         "$ref": "uiDashboard.schema.json"
       }
     },
+    "dcmuiStudyTableConfig": {
+      "title": "UI Study Table Configuration",
+      "description": "Configuration of table",
+      "titleKey":"{dcmuiStudyTableConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiTable.schema.json"
+      }
+    },
     "dcmuiElasticsearchConfig": {
       "title": "UI Elasticsearch Configuration",
       "description": "Elasticsearch Configuration for the pro version",
