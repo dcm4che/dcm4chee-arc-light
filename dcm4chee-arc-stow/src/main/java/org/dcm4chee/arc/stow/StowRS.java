@@ -463,9 +463,13 @@ public class StowRS {
             parseBulkdata(session, bulkdata, attrs);
             verifyImagePixelModule(attrs);
         }
-        if (attrs.containsValue(Tag.EncapsulatedDocument)) {
-            verifyEncapsulatedDocumentModule(attrs, bulkdata.mediaType);
-        }
+        if (attrs.containsValue(Tag.EncapsulatedDocument))
+            verifyEncapsulatedDocumentModule(session, attrs, bulkdata.mediaType);
+    }
+
+    private void supplementMissing(StoreSession session, int tag, VR vr, String value, Attributes attrs) {
+        logSupplementMissing(session, tag, value);
+        attrs.setString(tag, vr, value);
     }
 
     private void logSupplementMissing(StoreSession session, int tag, Object value) {
@@ -480,15 +484,46 @@ public class StowRS {
             throw missingAttribute(Tag.PlanarConfiguration);
     }
 
-    private void verifyEncapsulatedDocumentModule(Attributes attrs, MediaType bulkdataMediaType)
+    private void verifyEncapsulatedDocumentModule(StoreSession session, Attributes attrs, MediaType bulkdataMediaType)
             throws DicomServiceException {
-        if (!attrs.containsValue(Tag.BurnedInAnnotation))
-            attrs.setString(Tag.BurnedInAnnotation, VR.CS, "YES");
+        String cuid = attrs.getString(Tag.SOPClassUID);
         if (!attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument)) {
             String mimeType = MediaTypes.mimeTypeOf(bulkdataMediaType);
             if (mimeType == null)
                 throw missingAttribute(Tag.MIMETypeOfEncapsulatedDocument);
-            attrs.setString(Tag.MIMETypeOfEncapsulatedDocument, VR.LO, mimeType);
+            supplementMissing(session, Tag.MIMETypeOfEncapsulatedDocument, VR.LO, mimeType, attrs);
+        }
+        if (!attrs.containsValue(Tag.BurnedInAnnotation))
+            supplementMissing(session, Tag.BurnedInAnnotation, VR.CS, "YES", attrs);
+        if (cuid.equals(UID.EncapsulatedSTLStorage)) {
+            if (!attrs.contains(Tag.MeasurementUnitsCodeSequence)) {
+                Attributes item = new Attributes(3);
+                item.setString(Tag.CodeValue, VR.SH, "m");
+                item.setString(Tag.CodingSchemeDesignator, VR.SH, "UCUM");
+                item.setString(Tag.CodeMeaning, VR.LO, "m");
+                logSupplementMissing(session, Tag.MeasurementUnitsCodeSequence, item);
+                attrs.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(item);
+            }
+            if (!attrs.containsValue(Tag.Modality))
+                supplementMissing(session, Tag.Modality, VR.CS, "M3D", attrs);
+            if (!attrs.containsValue(Tag.Manufacturer))
+                supplementMissing(session, Tag.Manufacturer, VR.LO, "UNKNOWN", attrs);
+            if (!attrs.containsValue(Tag.ManufacturerModelName))
+                supplementMissing(session, Tag.ManufacturerModelName, VR.LO, "UNKNOWN", attrs);
+            if (!attrs.containsValue(Tag.DeviceSerialNumber))
+                supplementMissing(session, Tag.DeviceSerialNumber, VR.LO, "UNKNOWN", attrs);
+            if (!attrs.containsValue(Tag.SoftwareVersions))
+                supplementMissing(session, Tag.SoftwareVersions, VR.LO, "UNKNOWN", attrs);
+            if (!attrs.containsValue(Tag.FrameOfReferenceUID))
+                supplementMissing(session, Tag.FrameOfReferenceUID, VR.UI, UIDUtils.createUID(), attrs);
+        }
+        if (cuid.equals(UID.EncapsulatedPDFStorage) && !attrs.containsValue(Tag.ConversionType))
+            supplementMissing(session, Tag.ConversionType, VR.CS, "SD", attrs);
+        if (cuid.equals(UID.EncapsulatedCDAStorage)) {
+            if (!attrs.containsValue(Tag.Modality))
+                supplementMissing(session, Tag.Modality, VR.CS, "SR", attrs);
+            if (!attrs.containsValue(Tag.ConversionType))
+                supplementMissing(session, Tag.ConversionType, VR.CS, "WSD", attrs);
         }
     }
 
