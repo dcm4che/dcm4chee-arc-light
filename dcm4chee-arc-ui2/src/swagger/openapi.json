@@ -3601,7 +3601,7 @@
         }
       }
     },
-    "/monitor/metrics": {
+    "/metrics": {
       "get": {
         "tags": [
           "MONITOR-RS"
@@ -3627,7 +3627,7 @@
         }
       }
     },
-    "/monitor/metrics/{name}": {
+    "/metrics/{name}": {
       "get": {
         "tags": [
           "MONITOR-RS"

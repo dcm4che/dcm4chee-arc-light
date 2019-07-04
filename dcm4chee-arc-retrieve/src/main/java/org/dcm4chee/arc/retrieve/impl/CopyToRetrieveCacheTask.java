@@ -171,7 +171,11 @@ public class CopyToRetrieveCacheTask implements Runnable {
         Location location = null;
         try {
             LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());
+            long start = System.currentTimeMillis();
             location = copyTo(match, storage, writeCtx);
+            double nanos = Math.max(1, System.currentTimeMillis() - start) * 1000.;
+            ctx.getRetrieveService().getMetricsService().accept("write-to-" + writeCtx.getStorageID(),
+                    () -> writeCtx.getSize() / nanos);
             StoreService storeService = ctx.getRetrieveService().getStoreService();
             ApplicationEntity ae = ctx.getLocalApplicationEntity();
             StoreSession storeSession = storeService.newStoreSession(ae).withObjectStorageID(storageID);
