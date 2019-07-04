@@ -53,6 +53,7 @@ import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -91,8 +92,8 @@ public class EMCECSStorage extends AbstractStorage {
     private final long maxPartSize;
     private int count;
 
-    public EMCECSStorage(StorageDescriptor descriptor, Device device) {
-        super(descriptor);
+    public EMCECSStorage(StorageDescriptor descriptor, MetricsService metricsService, Device device) {
+        super(descriptor, metricsService);
         this.device = device;
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);

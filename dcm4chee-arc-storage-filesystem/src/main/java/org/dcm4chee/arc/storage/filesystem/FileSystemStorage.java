@@ -42,6 +42,7 @@ package org.dcm4chee.arc.storage.filesystem;
 
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -67,8 +68,8 @@ public class FileSystemStorage extends AbstractStorage {
     private final AttributesFormat pathFormat;
     private final Path checkMountFilePath;
 
-    public FileSystemStorage(StorageDescriptor descriptor) {
-        super(descriptor);
+    public FileSystemStorage(StorageDescriptor descriptor, MetricsService metricsService) {
+        super(descriptor, metricsService);
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         String checkMountFile = descriptor.getProperty("checkMountFile", null);

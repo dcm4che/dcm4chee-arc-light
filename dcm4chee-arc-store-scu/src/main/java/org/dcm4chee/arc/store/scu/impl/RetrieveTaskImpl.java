@@ -179,8 +179,8 @@ final class RetrieveTaskImpl implements RetrieveTask {
                     storeas.cstore(cuid, iuid, priority,
                             data, tsuid, rspHandler);
                 }
-                service.getMetricsService().accept("send-to-" + storeas.getRemoteAET(),
-                        () -> data.getCount() / (Math.max(1, System.currentTimeMillis() - start) * 1000.));
+                service.getMetricsService().acceptDataRate("send-to-" + storeas.getRemoteAET(),
+                        data.getCount(), System.currentTimeMillis() - start);
             }
         } catch (Exception e) {
             outstandingRSP.remove(inst);

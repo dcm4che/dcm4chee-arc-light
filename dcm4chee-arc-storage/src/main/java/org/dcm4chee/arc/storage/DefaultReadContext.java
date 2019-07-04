@@ -65,11 +65,6 @@ public class DefaultReadContext implements ReadContext {
     }
 
     @Override
-    public String getStorageID() {
-        return storage.getStorageDescriptor().getStorageID();
-    }
-
-    @Override
     public String getStoragePath() {
         return storagePath;
     }

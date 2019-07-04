@@ -42,6 +42,7 @@ package org.dcm4chee.arc.storage.emc.ecs;
 
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageProvider;
 
@@ -60,8 +61,11 @@ class EMCECSStorageProvider implements StorageProvider {
     @Inject
     private Device device;
 
+    @Inject
+    private MetricsService metricsService;
+
     @Override
     public Storage openStorage(StorageDescriptor descriptor) {
-        return new EMCECSStorage(descriptor, device);
+        return new EMCECSStorage(descriptor, metricsService, device);
     }
 }

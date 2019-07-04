@@ -49,8 +49,6 @@ import java.security.MessageDigest;
 public interface ReadContext {
     Storage getStorage();
 
-    String getStorageID();
-
     String getStoragePath();
 
     void setStoragePath(String storagePath);

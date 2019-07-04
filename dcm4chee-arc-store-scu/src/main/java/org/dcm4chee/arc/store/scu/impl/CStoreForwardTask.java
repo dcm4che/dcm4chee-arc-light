@@ -130,8 +130,8 @@ class CStoreForwardTask implements Runnable {
                 storeas.cstore(cuid, iuid, ctx.getPriority(),
                             ctx.getMoveOriginatorAETitle(), ctx.getMoveOriginatorMessageID(),
                             data, tsuid, rspHandler);
-                service.getMetricsService().accept("send-to-" + storeas.getRemoteAET(),
-                        () -> data.getCount() / (Math.max(1, System.currentTimeMillis() - start) * 1000.));
+                service.getMetricsService().acceptDataRate("send-to-" + storeas.getRemoteAET(),
+                        data.getCount(), System.currentTimeMillis() - start);
             }
         } catch (Exception e) {
             ctx.incrementFailed();

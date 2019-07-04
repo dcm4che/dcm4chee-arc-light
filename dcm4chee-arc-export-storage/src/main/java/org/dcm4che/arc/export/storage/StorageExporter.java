@@ -129,11 +129,7 @@ public class StorageExporter extends AbstractExporter {
                     Location location = null;
                     try {
                         LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
-                        long start = System.currentTimeMillis();
                         location = copyTo(retrieveContext, instanceLocations, storage, writeCtx);
-                        double nanos = Math.max(1, System.currentTimeMillis() - start) * 1000.;
-                        retrieveService.getMetricsService().accept("write-to-" + writeCtx.getStorageID(),
-                                () -> writeCtx.getSize() / nanos);
                         storeService.replaceLocation(storeSession, instanceLocations.getInstancePk(),
                                 location, locationsOnStorageByStatusOK.get(Boolean.FALSE));
                         storage.commitStorage(writeCtx);

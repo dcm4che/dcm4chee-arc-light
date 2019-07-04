@@ -53,6 +53,10 @@ public interface MetricsService {
 
     boolean exists(String name);
 
+    void accept(String name, double value);
+
+    void acceptDataRate(String name, long bytes, long ms);
+
     void accept(String name, DoubleSupplier valueSupplier);
 
     void forEach(String name, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer);

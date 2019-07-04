@@ -52,7 +52,6 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
-import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.storage.Storage;
@@ -93,9 +92,6 @@ public class UpdateMetadataScheduler extends Scheduler {
 
     @Inject
     private RetrieveService retrieveService;
-
-    @Inject
-    private MetricsService metricsService;
 
     @Inject
     private Event<SoftwareConfiguration> softwareConfigurationEvent;
@@ -207,7 +203,6 @@ public class UpdateMetadataScheduler extends Scheduler {
                         storage.getStorageDescriptor());
                 WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
                 try {
-                    long start = System.currentTimeMillis();
                     try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
                         for (InstanceLocations match : ctx.getMatches()) {
                             out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
@@ -218,9 +213,6 @@ public class UpdateMetadataScheduler extends Scheduler {
                         }
                         out.finish();
                     }
-                    double nanos = Math.max(1, System.currentTimeMillis() - start) * 1000.;
-                    metricsService.accept("write-to-" + writeCtx.getStorageID(),
-                            () -> writeCtx.getSize() / nanos);
                     storage.commitStorage(writeCtx);
                     ejb.commit(metadataUpdate.seriesPk, createMetadata(writeCtx));
                 } catch (Exception e) {

@@ -76,6 +76,16 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
+    public void accept(String name, double value) {
+        accept(name, () -> value);
+    }
+
+    @Override
+    public void acceptDataRate(String name, long bytes, long ms) {
+        accept(name, () -> bytes / (Math.max(1, ms) * 1000.));
+    }
+
+    @Override
     public void accept(String name, DoubleSupplier valueSupplier) {
         MetricsDescriptor descriptor = getMetricsDescriptor(name);
         if (descriptor == null)

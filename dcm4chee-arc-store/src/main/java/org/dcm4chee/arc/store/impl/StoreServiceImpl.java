@@ -168,13 +168,11 @@ class StoreServiceImpl implements StoreService {
             CountingInputStream countingInputStream = new CountingInputStream(data);
             long start = System.currentTimeMillis();
             writeToStorage(ctx, countingInputStream);
-            double nanos = Math.max(1, System.currentTimeMillis() - start) * 1000.;
             String callingAET = ctx.getStoreSession().getCallingAET();
             if (callingAET != null) {
-                metricsService.accept("receive-from-" + callingAET, () -> countingInputStream.getCount() / nanos);
+                metricsService.acceptDataRate("receive-from-" + callingAET,
+                        countingInputStream.getCount(), System.currentTimeMillis() - start);
             }
-            WriteContext writeContext = ctx.getWriteContext(Location.ObjectType.DICOM_FILE);
-            metricsService.accept("write-to-" + writeContext.getStorageID(), () -> writeContext.getSize() / nanos);
             if (ctx.getAcceptedStudyInstanceUID() != null
                     && !ctx.getAcceptedStudyInstanceUID().equals(ctx.getStudyInstanceUID())) {
                 LOG.info("{}: Received Instance[studyUID={},seriesUID={},objectUID={}]" +
@@ -242,7 +240,7 @@ class StoreServiceImpl implements StoreService {
                 ejb.updateDB(ctx, result);
                 long time = System.currentTimeMillis() - start;
                 LOG.info("{}: Updated DB in {} ms", session, time);
-                metricsService.accept("db-update-on-store", () -> time);
+                metricsService.accept("db-update-on-store", time);
                 return result;
             } catch (EJBException e) {
                 if (retries-- > 0) {
@@ -314,11 +312,7 @@ class StoreServiceImpl implements StoreService {
     @Override
     public void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
             throws IOException {
-        long start = System.currentTimeMillis();
         writeToStorage(ctx, data);
-        double nanos = Math.max(1, System.currentTimeMillis() - start) * 1000.;
-        WriteContext writeContext = ctx.getWriteContext(Location.ObjectType.DICOM_FILE);
-        metricsService.accept("write-to-" + writeContext.getStorageID(), () -> writeContext.getSize() / nanos);
         ejb.replaceLocation(ctx, inst);
     }
 
@@ -339,15 +333,10 @@ class StoreServiceImpl implements StoreService {
         UpdateDBResult result = null;
         try {
             if (locations.isEmpty()) {
-                long start = System.currentTimeMillis();
                 try (DicomOutputStream dos = new DicomOutputStream(
                         openOutputStream(ctx, Location.ObjectType.DICOM_FILE), UID.ExplicitVRLittleEndian)) {
                     dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
                 }
-                double nanos = Math.max(1, System.currentTimeMillis() - start) * 1000.;
-                WriteContext writeContext = ctx.getWriteContext(Location.ObjectType.DICOM_FILE);
-                metricsService.accept("write-to-" + writeContext.getStorageID(),
-                        () -> writeContext.getSize() / nanos);
                 adjustPixelDataBulkData(attrs);
                 supplementDefaultCharacterSet(ctx);
                 storeMetadata(ctx);
@@ -456,16 +445,11 @@ class StoreServiceImpl implements StoreService {
 
     private void storeMetadata(StoreContext ctx) throws IOException {
         if (ctx.getStoreSession().getArchiveAEExtension().getMetadataStorageIDs().length > 0) {
-            long start = System.currentTimeMillis();
             try (JsonGenerator gen = Json.createGenerator(openOutputStream(ctx, Location.ObjectType.METADATA))) {
                 JSONWriter jsonWriter = new JSONWriter(gen);
                 jsonWriter.setReplaceBulkDataURI("");
                 jsonWriter.write(ctx.getAttributes());
             }
-            double nanos = Math.max(1, System.currentTimeMillis() - start) * 1000.;
-            WriteContext writeContext = ctx.getWriteContext(Location.ObjectType.DICOM_FILE);
-            metricsService.accept("write-to-" + writeContext.getStorageID(),
-                    () -> writeContext.getSize() / nanos);
         }
     }
 

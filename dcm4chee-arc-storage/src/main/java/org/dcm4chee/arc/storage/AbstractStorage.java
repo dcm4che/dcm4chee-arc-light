@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.storage;
 
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.metrics.MetricsService;
 
 import java.io.*;
 import java.security.DigestInputStream;
@@ -56,9 +57,11 @@ public abstract class AbstractStorage implements Storage {
             "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 
     protected final StorageDescriptor descriptor;
+    protected final MetricsService metricsService;
 
-    protected AbstractStorage(StorageDescriptor descriptor) {
+    protected AbstractStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         this.descriptor = descriptor;
+        this.metricsService = metricsService;
     }
 
     @Override
@@ -108,6 +111,7 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public OutputStream openOutputStream(final WriteContext ctx) throws IOException {
         checkAccessable();
+        long start = System.currentTimeMillis();
         OutputStream stream = openOutputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestOutputStream(stream, ctx.getMessageDigest());
@@ -140,6 +144,8 @@ public abstract class AbstractStorage implements Storage {
                 } finally {
                     try {
                         super.close();
+                        metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
+                                ctx.getSize(), System.currentTimeMillis() - start);
                     } catch (IOException e) {
                         throw new StorageException(e);
                     } finally {
@@ -153,7 +159,10 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public void copy(InputStream in, WriteContext ctx) throws IOException {
         checkAccessable();
+        long start = System.currentTimeMillis();
         copyA(in, ctx);
+        metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
+                ctx.getContentLength(), System.currentTimeMillis() - start);
     }
 
     private void checkAccessable() throws IOException {
@@ -193,6 +202,7 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public InputStream openInputStream(final ReadContext ctx) throws IOException {
         checkAccessable();
+        long start = System.currentTimeMillis();
         InputStream stream = openInputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestInputStream(stream, ctx.getMessageDigest());
@@ -248,6 +258,8 @@ public abstract class AbstractStorage implements Storage {
                 } finally {
                     try {
                         super.close();
+                        metricsService.acceptDataRate("read-from-" + descriptor.getStorageID(),
+                                ctx.getSize(), System.currentTimeMillis() - start);
                     } catch (IOException e) {
                         throw new StorageException(e);
                     } finally {
