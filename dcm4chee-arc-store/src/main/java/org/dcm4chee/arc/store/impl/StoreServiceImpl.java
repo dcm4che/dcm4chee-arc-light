@@ -54,6 +54,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.CountingInputStream;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.Cache;
@@ -164,7 +165,14 @@ class StoreServiceImpl implements StoreService {
     public void store(StoreContext ctx, InputStream data) throws IOException {
         UpdateDBResult result = null;
         try {
-            writeToStorage(ctx, data);
+            CountingInputStream countingInputStream = new CountingInputStream(data);
+            long start = System.currentTimeMillis();
+            writeToStorage(ctx, countingInputStream);
+            String callingAET = ctx.getStoreSession().getCallingAET();
+            if (callingAET != null) {
+                metricsService.accept("receive-from-" + callingAET, () ->
+                        countingInputStream.getCount() / (Math.max(1, System.currentTimeMillis() - start) * 1000.));
+            }
             if (ctx.getAcceptedStudyInstanceUID() != null
                     && !ctx.getAcceptedStudyInstanceUID().equals(ctx.getStudyInstanceUID())) {
                 LOG.info("{}: Received Instance[studyUID={},seriesUID={},objectUID={}]" +
