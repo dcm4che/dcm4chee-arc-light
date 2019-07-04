@@ -87,7 +87,12 @@ export class UploadFilesComponent implements OnInit {
                             descriptionPart = "Image";
                             break;
                         case "video/mpeg":
-                            transfareSyntax = "1.2.840.10008.1.2.4.100";
+                            transfareSyntax = "";
+                            descriptionPart = "Video";
+                            $this.modality = "XC";
+                            break;
+                        case "video/mp4":
+                            transfareSyntax = "";
                             descriptionPart = "Video";
                             $this.modality = "XC";
                             break;
@@ -182,7 +187,7 @@ export class UploadFilesComponent implements OnInit {
                                 ]
                             };
                         } else {
-                            if (file.type === "video/mpeg") {
+                            if (file.type.indexOf("video") > -1) {
                                 studyObject["00080016"] = {
                                     "vr": "UI",
                                     "Value": [
@@ -201,7 +206,7 @@ export class UploadFilesComponent implements OnInit {
                                 "vr": "OB",
                                 "BulkDataURI": "file/" + file.name
                             }
-                            transfareSyntax = ';transfer-syntax=' + transfareSyntax;
+                            // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
                         }
                         if(file.type === "image/jpeg"){
                             studyObject["00080008"] = {
