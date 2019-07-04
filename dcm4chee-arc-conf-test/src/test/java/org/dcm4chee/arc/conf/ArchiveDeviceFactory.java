@@ -237,7 +237,8 @@ class ArchiveDeviceFactory {
 
     static final MetricsDescriptor[] METRICS_DESCRIPTORS = {
             newMetricsDescriptor("db-update-on-store","DB Update Time on Store", "ms"),
-            newMetricsDescriptor("receive-from-STORESCU","Receive Data-rate from STORESCU", "MB/s")
+            newMetricsDescriptor("receive-from-STORESCU","Receive Data-rate from STORESCU", "MB/s"),
+            newMetricsDescriptor("send-to-STORESCP","Send Data-rate to STORESCP", "MB/s")
     };
 
     static final HL7OrderSPSStatus[] HL7_ORDER_SPS_STATUSES = {

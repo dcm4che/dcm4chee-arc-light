@@ -123,12 +123,15 @@ class CStoreForwardTask implements Runnable {
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
-                DataWriter data = new TranscoderDataWriter(transcoder,
+                TranscoderDataWriter data = new TranscoderDataWriter(transcoder,
                         service.getAttributesCoercion(ctx, inst));
                 DimseRSPHandler rspHandler = new CStoreRSPHandler(inst);
+                long start = System.currentTimeMillis();
                 storeas.cstore(cuid, iuid, ctx.getPriority(),
                             ctx.getMoveOriginatorAETitle(), ctx.getMoveOriginatorMessageID(),
                             data, tsuid, rspHandler);
+                service.getMetricsService().accept("send-to-" + storeas.getRemoteAET(),
+                        () -> data.getCount() / (Math.max(1, System.currentTimeMillis() - start) * 1000.));
             }
         } catch (Exception e) {
             ctx.incrementFailed();

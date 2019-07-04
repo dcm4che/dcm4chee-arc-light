@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Series;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -116,6 +117,8 @@ public interface RetrieveService {
     InstanceLocations newInstanceLocations(Attributes attrs);
 
     StoreService getStoreService();
+
+    MetricsService getMetricsService();
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;

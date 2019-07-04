@@ -45,6 +45,7 @@ import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.DataWriter;
 import org.dcm4che3.net.PDVOutputStream;
+import org.dcm4che3.util.CountingOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,6 +58,7 @@ public class TranscoderDataWriter implements DataWriter {
 
     private final Transcoder transcoder;
     private final AttributesCoercion coerce;
+    private long count;
 
     public TranscoderDataWriter(Transcoder transcoder, AttributesCoercion coerce) {
         this.transcoder = transcoder;
@@ -65,13 +67,19 @@ public class TranscoderDataWriter implements DataWriter {
 
     @Override
     public void writeTo(final PDVOutputStream out, String tsuid) throws IOException {
+        CountingOutputStream countingOutputStream = new CountingOutputStream(out);
         transcoder.setDestinationTransferSyntax(tsuid);
         transcoder.transcode(new Transcoder.Handler(){
             @Override
             public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
                 coerce.coerce(dataset, null);
-                return out;
+                return countingOutputStream;
             }
         });
+        count = countingOutputStream.getCount();
+    }
+
+    public long getCount() {
+        return count;
     }
 }

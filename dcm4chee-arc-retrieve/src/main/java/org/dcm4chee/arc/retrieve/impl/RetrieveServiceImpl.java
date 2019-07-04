@@ -58,6 +58,7 @@ import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
@@ -112,6 +113,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Inject
     private StoreService storeService;
+
+    @Inject
+    private MetricsService metricsService;
 
     @Inject
     private Device device;
@@ -517,6 +521,11 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public StoreService getStoreService() {
         return storeService;
+    }
+
+    @Override
+    public MetricsService getMetricsService() {
+        return metricsService;
     }
 
     @Override

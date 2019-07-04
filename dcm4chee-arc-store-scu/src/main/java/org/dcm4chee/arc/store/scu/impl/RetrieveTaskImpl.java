@@ -168,8 +168,9 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 if (coerce != null)
                     iuid = coerce.remapUID(iuid);
 
-                DataWriter data = new TranscoderDataWriter(transcoder, coerce);
+                TranscoderDataWriter data = new TranscoderDataWriter(transcoder, coerce);
                 outstandingRSP.add(inst);
+                long start = System.currentTimeMillis();
                 if (ctx.getMoveOriginatorAETitle() != null) {
                     storeas.cstore(cuid, iuid, priority,
                             ctx.getMoveOriginatorAETitle(), ctx.getMoveOriginatorMessageID(),
@@ -178,6 +179,8 @@ final class RetrieveTaskImpl implements RetrieveTask {
                     storeas.cstore(cuid, iuid, priority,
                             data, tsuid, rspHandler);
                 }
+                service.getMetricsService().accept("send-to-" + storeas.getRemoteAET(),
+                        () -> data.getCount() / (Math.max(1, System.currentTimeMillis() - start) * 1000.));
             }
         } catch (Exception e) {
             outstandingRSP.remove(inst);
