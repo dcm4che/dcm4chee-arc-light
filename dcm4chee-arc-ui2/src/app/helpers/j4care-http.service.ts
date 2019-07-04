@@ -170,13 +170,17 @@ export class J4careHttpService{
                     console.log("getRealm Response:",res);
                 }catch (e){
                     j4care.log("error on extracting json",e);
-                    if(_.hasIn(e, "message") && e.message.indexOf("res.json") > -1){
+                    if(_.hasIn(e, "message") && e.message.indexOf(".json") > -1){
                         resjson = res;
                     }else{
                         resjson = [];
                     }
                 }
-                this.token["UI"] = KeycloakService.keycloakAuth.token;
+                if(dcmWebApp && dcmWebApp.dcmWebAppName){
+                    this.token[dcmWebApp.dcmWebAppName] = resjson.token;
+                }else{
+                    this.token["UI"] = KeycloakService.keycloakAuth.token;
+                }
                 return resjson;
             })
     }
