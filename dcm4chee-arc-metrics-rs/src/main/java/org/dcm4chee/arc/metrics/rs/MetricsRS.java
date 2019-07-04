@@ -84,10 +84,6 @@ public class MetricsRS {
     @Context
     private HttpServletRequest request;
 
-    @QueryParam("start")
-    @Pattern(regexp = "^[1-9][0-9]*$")
-    private String start;
-
     @QueryParam("bin")
     @Pattern(regexp = "^[1-9][0-9]*$")
     @DefaultValue("1")
@@ -136,10 +132,9 @@ public class MetricsRS {
                 gen.writeStartArray();
                 metricsService.forEach(
                         name,
-                        parseInt(start),
                         parseInt(limit),
                         parseInt(binSize),
-                        dss -> write(dss, gen));
+                        dss -> write(gen, dss));
                 gen.writeEnd();
                 gen.flush();
             }).build();
@@ -172,16 +167,16 @@ public class MetricsRS {
                 request.getRemoteHost());
     }
 
-    private void write(DoubleSummaryStatistics dss, JsonGenerator gen) {
-        gen.writeStartObject();
-        long count = dss.getCount();
-        gen.write("count", count);
-        if (count > 0) {
-            gen.write("avg", dss.getAverage());
-            gen.write("min", dss.getMin());
-            gen.write("max", dss.getMax());
-        }
-        gen.writeEnd();
+    private void write(JsonGenerator gen, DoubleSummaryStatistics dss) {
+        if (dss == null)
+            gen.writeNull();
+        else
+            gen.writeStartObject()
+                .write("count", dss.getCount())
+                .write("min", dss.getMin())
+                .write("avg", dss.getAverage())
+                .write("max", dss.getMax())
+                .writeEnd();
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

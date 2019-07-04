@@ -55,5 +55,5 @@ public interface MetricsService {
 
     void accept(String name, DoubleSupplier valueSupplier);
 
-    void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer);
+    void forEach(String name, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer);
 }

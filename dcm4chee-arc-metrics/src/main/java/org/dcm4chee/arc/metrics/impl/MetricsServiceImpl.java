@@ -77,8 +77,7 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Override
     public void accept(String name, DoubleSupplier valueSupplier) {
-        MetricsDescriptor descriptor =
-                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getMetricsDescriptor(name);
+        MetricsDescriptor descriptor = getMetricsDescriptor(name);
         if (descriptor == null)
             return;
 
@@ -100,30 +99,30 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public void forEach(String name, int start, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer) {
+    public void forEach(String name, int limit, int binSize, Consumer<DoubleSummaryStatistics> consumer) {
+        MetricsDescriptor descriptor = getMetricsDescriptor(name);
+        if (descriptor == null)
+            return;
+
         if (binSize <= 0)
             throw new IllegalArgumentException("binSize not > 0: " + binSize);
 
         DataBins dataBins = map.get(name);
-        if (dataBins == null)
-            return;
-
-        if (start <= 0)
-            start = dataBins.getRetentionPeriod();
-
-        long time = currentTimeMins() - start;
-        int n = (start - 1) / binSize + 1;
+        int n = (descriptor.getRetentionPeriod() - 1) / binSize + 1;
         if (limit > 0 && n > limit)
             n = limit;
 
-        while (n-- > 0) {
-            consumer.accept(dataBins.getBin(time, binSize));
-            time += binSize;
+        for (long time = currentTimeMins(); n-- > 0; time -= binSize) {
+            consumer.accept(dataBins != null ? dataBins.getBin(time, binSize) : null);
         }
     }
 
     private static long currentTimeMins() {
         return System.currentTimeMillis() / MILLIS_PER_MIN;
+    }
+
+    private MetricsDescriptor getMetricsDescriptor(String name) {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getMetricsDescriptor(name);
     }
 
     private static class DataBins {
@@ -132,12 +131,8 @@ public class MetricsServiceImpl implements MetricsService {
 
         DataBins(long time, int retentionPeriod) {
             this.acceptTime = time;
-            this.statistics = new DoubleSummaryStatistics[retentionPeriod + 1];
+            this.statistics = new DoubleSummaryStatistics[retentionPeriod];
             statistics[(int) (time % statistics.length)] = new DoubleSummaryStatistics();
-        }
-
-        int getRetentionPeriod() {
-            return statistics.length - 1;
         }
 
         void accept(long time, double value) {
@@ -169,20 +164,25 @@ public class MetricsServiceImpl implements MetricsService {
         }
 
         DoubleSummaryStatistics getBin(long time, int binSize) {
-            DoubleSummaryStatistics bin = new DoubleSummaryStatistics();
-            long diff = this.acceptTime - time;
-            if (diff > statistics.length) {
-                int beforeRetentionPeriod = (int) diff - statistics.length;
-                time += beforeRetentionPeriod;
-                binSize -= beforeRetentionPeriod;
+            long afterAcceptTime = time - this.acceptTime;
+            if (afterAcceptTime > 0) {
+                if (afterAcceptTime >= binSize)
+                    return null;
+
+                time = this.acceptTime;
+                binSize -= afterAcceptTime;
+            } else if (binSize > statistics.length + afterAcceptTime) {
+                binSize = (int) (statistics.length + afterAcceptTime);
             }
-            if (diff + 1 < binSize) {
-                binSize = (int) diff + 1;
-            }
-            for (int i = (int) (time % statistics.length); binSize-- > 0; i++) {
+            DoubleSummaryStatistics bin = null;
+            for (int i = statistics.length + (int) (time % statistics.length); binSize-- > 0; i--) {
                 DoubleSummaryStatistics other = statistics[i % statistics.length];
-                if (other != null)
+                if (other != null) {
+                    if (bin == null)
+                        bin = new DoubleSummaryStatistics();
+
                     bin.combine(other);
+                }
             }
             return bin;
         }

@@ -3645,15 +3645,6 @@
             }
           },
           {
-            "name": "start",
-            "in": "query",
-            "description": "return metrics since specified minutes; whole metrics retention period if absent.",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          },
-          {
             "name": "bin",
             "in": "query",
             "description": "data bin size in minutes",
