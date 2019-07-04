@@ -101,6 +101,7 @@ public class StowRS {
             Tag.SeriesInstanceUID,
             Tag.SOPInstanceUID
     };
+
     private static final int[] IMAGE_PIXEL_TAGS = {
             Tag.SamplesPerPixel,
             Tag.PhotometricInterpretation,
@@ -111,6 +112,7 @@ public class StowRS {
             Tag.HighBit,
             Tag.PixelRepresentation
     };
+
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
     @Inject
@@ -461,6 +463,9 @@ public class StowRS {
             parseBulkdata(session, bulkdata, attrs);
             verifyImagePixelModule(attrs);
         }
+        if (attrs.containsValue(Tag.EncapsulatedDocument)) {
+            verifyEncapsulatedDocumentModule(attrs, bulkdata.mediaType);
+        }
     }
 
     private void logSupplementMissing(StoreSession session, int tag, Object value) {
@@ -473,6 +478,18 @@ public class StowRS {
                 throw missingAttribute(tag);
         if (attrs.getInt(Tag.SamplesPerPixel, 1) > 1 && !attrs.containsValue(Tag.PlanarConfiguration))
             throw missingAttribute(Tag.PlanarConfiguration);
+    }
+
+    private void verifyEncapsulatedDocumentModule(Attributes attrs, MediaType bulkdataMediaType)
+            throws DicomServiceException {
+        if (!attrs.containsValue(Tag.BurnedInAnnotation))
+            attrs.setString(Tag.BurnedInAnnotation, VR.CS, "YES");
+        if (!attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument)) {
+            String mimeType = MediaTypes.mimeTypeOf(bulkdataMediaType);
+            if (mimeType == null)
+                throw missingAttribute(Tag.MIMETypeOfEncapsulatedDocument);
+            attrs.setString(Tag.MIMETypeOfEncapsulatedDocument, VR.LO, mimeType);
+        }
     }
 
     private static DicomServiceException missingAttribute(int tag) {
