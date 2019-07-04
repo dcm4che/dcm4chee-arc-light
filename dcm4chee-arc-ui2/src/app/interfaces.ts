@@ -236,3 +236,10 @@ export interface DcmWebAppRequestParam {
     params:any;
     data:any;
 }
+
+export interface MetricsDescriptors{
+    dcmMetricsName:string;
+    dcmMetricsRetentionPeriod:string;
+    dcmUnit:string;
+    dicomDescription:string;
+}

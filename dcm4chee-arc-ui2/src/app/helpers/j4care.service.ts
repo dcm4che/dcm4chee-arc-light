@@ -683,6 +683,10 @@ export class j4care {
         let filterCleared = _.compact(filterMaped);
         return filterCleared.join('&');
     }
+    static param(filter){
+        let paramString = j4care.objToUrlParams(filter);
+        return paramString ? '?' + paramString : '';
+    }
     get(url: string): Observable<any> {
         return new Observable((observer: Subscriber<any>) => {
             let objectUrl: string = null;

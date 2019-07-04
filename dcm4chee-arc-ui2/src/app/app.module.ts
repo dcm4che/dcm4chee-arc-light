@@ -106,6 +106,8 @@ import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve
 import { ArrayToStringPipe } from './pipes/array-to-string.pipe';
 import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
 import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
+import { MetricsComponent } from './monitoring/metrics/metrics.component';
+import {MetricsService} from "./monitoring/metrics/metrics.service";
 
 @NgModule({
     declarations: [
@@ -163,7 +165,8 @@ import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-clien
         StudyComponent,
         DicomStudiesTableComponent,
         DynamicPipePipe,
-        ArrayToStringPipe
+        ArrayToStringPipe,
+        MetricsComponent
     ],
     imports: [
         BrowserModule,
@@ -212,6 +215,7 @@ import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-clien
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-verification', component: StorageVerificationComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/diff', component: DiffMonitorComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/metrics', component: MetricsComponent,  canActivate: [AuthGuard] },
             { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
             { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent,  canActivate: [AuthGuard] },
@@ -261,6 +265,7 @@ import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-clien
         OptionService,
         KeycloakService,
         KeycloakHttpClient,
+        MetricsService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent],

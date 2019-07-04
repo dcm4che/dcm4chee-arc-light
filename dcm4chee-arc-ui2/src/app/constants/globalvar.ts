@@ -718,6 +718,9 @@ export class Globalvar {
             "/monitoring/storage-systems":{
                 permissionsAction:"tab-monitoring->storage_systems"
             },
+            "/monitoring/metrics":{
+                permissionsAction:"tab-monitoring->metrics"
+            },
             "/statistics/all":{
                 permissionsAction:"tab-statistics->statistics",
                 nextCheck:"/statistics/studies-stored"

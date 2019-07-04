@@ -1,0 +1,11 @@
+<div class="main_content retrieve monitoring white_design">
+    <monitoring-tabs></monitoring-tabs>
+    <div class="tab-content">
+        <h2>Metrics</h2>
+        <div class="filter_line">
+            <div class="filter_block">
+                <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="getMetrics($event)"></filter-generator>
+            </div>
+        </div>
+    </div>
+</div>
