@@ -135,6 +135,10 @@ public class MetricsServiceImpl implements MetricsService {
             statistics[(int) (time % statistics.length)] = new DoubleSummaryStatistics();
         }
 
+        int getRetentionPeriod() {
+            return statistics.length;
+        }
+
         void accept(long time, double value) {
             int i = (int) (time % statistics.length);
             if (this.acceptTime < time) {
@@ -164,15 +168,15 @@ public class MetricsServiceImpl implements MetricsService {
         }
 
         DoubleSummaryStatistics getBin(long time, int binSize) {
-            long afterAcceptTime = time - this.acceptTime;
-            if (afterAcceptTime > 0) {
-                if (afterAcceptTime >= binSize)
+            long beforeAcceptTime = this.acceptTime - time;
+            if (beforeAcceptTime < 0) {
+                if (beforeAcceptTime + binSize <= 0)
                     return null;
 
                 time = this.acceptTime;
-                binSize -= afterAcceptTime;
-            } else if (binSize > statistics.length + afterAcceptTime) {
-                binSize = (int) (statistics.length + afterAcceptTime);
+                binSize += beforeAcceptTime;
+            } else if (binSize > statistics.length - beforeAcceptTime) {
+                binSize = (int) (statistics.length - beforeAcceptTime);
             }
             DoubleSummaryStatistics bin = null;
             for (int i = statistics.length + (int) (time % statistics.length); binSize-- > 0; i--) {
