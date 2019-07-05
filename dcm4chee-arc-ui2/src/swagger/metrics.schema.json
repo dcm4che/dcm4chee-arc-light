@@ -2,9 +2,6 @@
   "title": "Metrics",
   "type": "array",
   "items": {
-    "required": [
-      "count"
-    ],
     "properties": {
       "count": {
         "title": "Number of values",

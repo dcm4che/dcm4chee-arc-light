@@ -168,15 +168,13 @@ public class MetricsRS {
     }
 
     private void write(JsonGenerator gen, DoubleSummaryStatistics dss) {
-        if (dss == null)
-            gen.writeNull();
-        else
-            gen.writeStartObject()
-                .write("count", dss.getCount())
+        gen.writeStartObject();
+        if (dss != null)
+            gen.write("count", dss.getCount())
                 .write("min", dss.getMin())
                 .write("avg", dss.getAverage())
-                .write("max", dss.getMax())
-                .writeEnd();
+                .write("max", dss.getMax());
+        gen.writeEnd();
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
