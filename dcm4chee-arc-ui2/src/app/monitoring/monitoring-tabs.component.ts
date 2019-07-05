@@ -15,7 +15,7 @@ import { Component } from '@angular/core';
         <li [permission]="{id:'tab-monitoring->storage_commitments',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
         <li [permission]="{id:'tab-monitoring->storage_systems',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-systems" routerLinkActive="active">Storage systems</a></li>
         <li [permission]="{id:'tab-monitoring->storage_verification',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-verification" routerLinkActive="active">Storage verification</a></li>
-        <!--<li [permission]="{id:'tab-monitoring->metrics',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/metrics" routerLinkActive="active">Metrics</a></li>-->
+        <li [permission]="{id:'tab-monitoring->metrics',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/metrics" routerLinkActive="active">Metrics</a></li>
     </ul>
   `
 })

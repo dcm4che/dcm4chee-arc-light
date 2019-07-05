@@ -8,4 +8,7 @@
             </div>
         </div>
     </div>
+    <div>
+        <table-generator *ngIf="tableConfig && metrics && metrics.length && metrics.length > 0" [config]="tableConfig" [models]="metrics"></table-generator>
+    </div>
 </div>
