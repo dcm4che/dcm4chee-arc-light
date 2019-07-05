@@ -625,8 +625,8 @@ public class StowRS {
             return;
 
         File file = bulkdata.bulkData.getFile();
-        try {
-            compressedPixelData.getAttributes(new FileInputStream(file).getChannel(), attrs);
+        try(FileInputStream fis = new FileInputStream(file)) {
+            compressedPixelData.getAttributes(fis.getChannel(), attrs);
             ctx.setReceiveTransferSyntax(getTransferSyntax(session, attrs, compressedPixelData));
         } catch (Exception e) {
             LOG.info("Failed to parse compressed pixel data {} for {}", compressedPixelData, file);
