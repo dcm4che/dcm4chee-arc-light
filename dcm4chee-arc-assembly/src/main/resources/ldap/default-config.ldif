@@ -1008,6 +1008,12 @@ dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices
 dcmWebAppName: dcm4chee-arc
 dcmWebServicePath: /dcm4chee-arc
 
+dn: dcmMetricsName=write-to-fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Write Data-rate to fs1
+dcmMetricsName: write-to-fs1
+objectClass: dcmMetrics
+dcmUnit: MB/s
+
 dn: dcmWebAppName=DCM4CHEE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_URI
@@ -1038,6 +1044,12 @@ dn: dcmIDGeneratorName=PatientID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICO
 dcmIDGeneratorName: PatientID
 dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
+
+dn: dcmMetricsName=read-from-fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Read Data-rate from fs1
+dcmMetricsName: read-from-fs1
+objectClass: dcmMetrics
+dcmUnit: MB/s
 
 dn: dcmWebAppName=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
@@ -1099,6 +1111,12 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomAETitle: IOCM_REGULAR_USE
 dicomAssociationAcceptor: TRUE
 
+dn: dcmMetricsName=delete-from-fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Object Delete Time on fs1
+dcmMetricsName: delete-from-fs1
+objectClass: dcmMetrics
+dcmUnit: ms
+
 dn: dcmWebAppName=AS_RECEIVED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Retrieve instances as received
 dcmWebServiceClass: WADO_URI
@@ -1123,6 +1141,12 @@ dn: dcmBulkDataDescriptorID=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=D
 dcmBulkDataVRLengthThreshold: DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024
 dcmBulkDataDescriptorID: default
 objectClass: dcmBulkDataDescriptor
+
+dn: dcmMetricsName=send-to-STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Send Data-rate to STORESCP
+dcmMetricsName: send-to-STORESCP
+objectClass: dcmMetrics
+dcmUnit: MB/s
 
 dn: dcmWebAppName=IOCM_EXPIRED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Data Retention Expired
@@ -1149,6 +1173,12 @@ dcmQueueName: Export4
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE
 dcmURI: study-size:dummyPath
+
+dn: dcmMetricsName=db-update-on-store,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: DB Update Time on Store
+dcmMetricsName: db-update-on-store
+objectClass: dcmMetrics
+dcmUnit: ms
 
 dn: dcmQueryRetrieveViewID=regularUse,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmQueryRetrieveViewID: regularUse
@@ -1191,6 +1221,12 @@ dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices
 dicomAETitle: IOCM_REGULAR_USE
 dcmWebAppName: IOCM_REGULAR_USE-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/wado
+
+dn: dcmMetricsName=receive-from-STORESCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Receive Data-rate from STORESCU
+dcmMetricsName: receive-from-STORESCU
+objectClass: dcmMetrics
+dcmUnit: MB/s
 
 dn: dcmRejectionNoteLabel=Patient Safety,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Patient Safety
