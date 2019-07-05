@@ -614,13 +614,7 @@ public class StowRS {
     }
 
     private void parseBulkdata(StoreContext ctx, StoreSession session, BulkDataWithMediaType bulkdata, Attributes attrs) {
-        CompressedPixelData compressedPixelData = null;
-        try {
-            compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
-        } catch (Exception e) {
-            LOG.info("{}: Failed to valueOf bulkdata {} from {}", session, bulkdata.mediaType, bulkdata.bulkData.getURI());
-        }
-
+        CompressedPixelData compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
         if (compressedPixelData == null)
             return;
 
