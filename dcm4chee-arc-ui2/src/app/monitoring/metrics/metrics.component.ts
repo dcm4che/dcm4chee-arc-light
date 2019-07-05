@@ -28,7 +28,7 @@ export class MetricsComponent implements OnInit {
         this.getMetricsDescriptors();
     }
 
-    getMetrics(){
+    getMetrics(e){
         if(_.hasIn(this.filterObject,"name") && this.filterObject["name"] != ""){
             this.cfpLoadingBar.start();
 
