@@ -568,13 +568,17 @@ public class StowRS {
         JPEG {
             @Override
             Attributes getAttributes(SeekableByteChannel channel, Attributes attrs) throws IOException {
-                return new JPEGParser(channel).getAttributes(attrs);
+                JPEGParser jpegParser = new JPEGParser(channel);
+                setTransferSyntaxUID(jpegParser.getTransferSyntaxUID());
+                return jpegParser.getAttributes(attrs);
             }
         },
         MPEG {
             @Override
             Attributes getAttributes(SeekableByteChannel channel, Attributes attrs) throws IOException {
-                return new MPEG2Parser(channel).getAttributes(attrs);
+                MPEG2Parser mpeg2Parser = new MPEG2Parser(channel);
+                setTransferSyntaxUID(mpeg2Parser.getTransferSyntaxUID());
+                return mpeg2Parser.getAttributes(attrs);
             }
         },
         MP4 {
@@ -594,7 +598,7 @@ public class StowRS {
             return tsuid;
         }
 
-        public void setTransferSyntaxUID(String tsuid) {
+        void setTransferSyntaxUID(String tsuid) {
             this.tsuid = tsuid;
         }
 

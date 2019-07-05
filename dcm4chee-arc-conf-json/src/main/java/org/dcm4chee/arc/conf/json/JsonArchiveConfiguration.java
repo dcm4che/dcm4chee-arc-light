@@ -296,6 +296,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmRejectConflictingPatientAttribute",
                 TagUtils.toHexStrings(arcDev.getRejectConflictingPatientAttribute()));
         writer.writeNotDef("dcmSchedulerMinStartDelay", arcDev.getSchedulerMinStartDelay(), 1000);
+        writer.writeNotDef("dcmStowRetiredTransferSyntax", arcDev.isStowRetiredTransferSyntax(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -865,6 +866,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 TagUtils.toHexStrings(arcAE.getRejectConflictingPatientAttribute()));
         writer.writeNotNull("dcmRelationalQueryNegotiationLenient", arcAE.getRelationalQueryNegotiationLenient());
         writer.writeNotNull("dcmRelationalRetrieveNegotiationLenient", arcAE.getRelationalRetrieveNegotiationLenient());
+        writer.writeNotNull("dcmStowRetiredTransferSyntax", arcAE.getStowRetiredTransferSyntax());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1405,6 +1407,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRejectConflictingPatientAttribute":
                     arcDev.setRejectConflictingPatientAttribute(TagUtils.fromHexStrings(reader.stringArray()));
+                    break;
+                case "dcmStowRetiredTransferSyntax":
+                    arcDev.setStowRetiredTransferSyntax(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -2770,6 +2775,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRelationalRetrieveNegotiationLenient":
                     arcAE.setRelationalRetrieveNegotiationLenient(reader.booleanValue());
+                    break;
+                case "dcmStowRetiredTransferSyntax":
+                    arcAE.setStowRetiredTransferSyntax(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

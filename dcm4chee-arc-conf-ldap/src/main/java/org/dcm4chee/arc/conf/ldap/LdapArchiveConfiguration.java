@@ -299,6 +299,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
                 ext.isRelationalRetrieveNegotiationLenient(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmSchedulerMinStartDelay", ext.getSchedulerMinStartDelay(), 1000);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowRetiredTransferSyntax", ext.isStowRetiredTransferSyntax(), false);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
 
@@ -532,6 +533,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmRelationalRetrieveNegotiationLenient"), false));
         ext.setSchedulerMinStartDelay(LdapUtils.intValue(attrs.get("dcmSchedulerMinStartDelay"), 1000));
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
+        ext.setStowRetiredTransferSyntax(LdapUtils.booleanValue(attrs.get("dcmStowRetiredTransferSyntax"), false));
     }
 
     @Override
@@ -949,6 +951,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getRejectConflictingPatientAttribute());
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedulerMinStartDelay",
                 aa.getSchedulerMinStartDelay(), bb.getSchedulerMinStartDelay(), 1000);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStowRetiredTransferSyntax",
+                aa.isStowRetiredTransferSyntax(),
+                bb.isStowRetiredTransferSyntax(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1158,6 +1164,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
                 ext.getRelationalRetrieveNegotiationLenient(), null);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowRetiredTransferSyntax", ext.getStowRetiredTransferSyntax(), null);
     }
 
     @Override
@@ -1252,6 +1259,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmRelationalQueryNegotiationLenient"), null));
         ext.setRelationalRetrieveNegotiationLenient(LdapUtils.booleanValue(
                 attrs.get("dcmRelationalRetrieveNegotiationLenient"), null));
+        ext.setStowRetiredTransferSyntax(LdapUtils.booleanValue(attrs.get("dcmStowRetiredTransferSyntax"), null));
     }
 
     @Override
@@ -1425,6 +1433,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeDiffTags(mods, "dcmRejectConflictingPatientAttribute",
                 aa.getRejectConflictingPatientAttribute(),
                 bb.getRejectConflictingPatientAttribute());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowRetiredTransferSyntax",
+                aa.getStowRetiredTransferSyntax(), bb.getStowRetiredTransferSyntax(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

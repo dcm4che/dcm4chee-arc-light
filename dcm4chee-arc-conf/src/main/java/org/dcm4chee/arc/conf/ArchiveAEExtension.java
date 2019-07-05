@@ -128,6 +128,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean storageVerificationOnRetrieve;
     private Boolean relationalQueryNegotiationLenient;
     private Boolean relationalRetrieveNegotiationLenient;
+    private Boolean stowRetiredTransferSyntax;
     private int[] rejectConflictingPatientAttribute = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
@@ -1177,7 +1178,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean updateLocationStatusOnRetrieve() {
         return updateLocationStatusOnRetrieve != null
-                ? updateLocationStatusOnRetrieve.booleanValue()
+                ? updateLocationStatusOnRetrieve
                 : getArchiveDeviceExtension().isUpdateLocationStatusOnRetrieve();
     }
 
@@ -1191,7 +1192,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean storageVerificationOnRetrieve() {
         return storageVerificationOnRetrieve != null
-                ? storageVerificationOnRetrieve.booleanValue()
+                ? storageVerificationOnRetrieve
                 : getArchiveDeviceExtension().isStorageVerificationOnRetrieve();
     }
 
@@ -1205,7 +1206,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean relationalQueryNegotiationLenient() {
         return relationalQueryNegotiationLenient != null
-                ? relationalQueryNegotiationLenient.booleanValue()
+                ? relationalQueryNegotiationLenient
                 : getArchiveDeviceExtension().isRelationalQueryNegotiationLenient();
     }
 
@@ -1219,7 +1220,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean relationalRetrieveNegotiationLenient() {
         return relationalRetrieveNegotiationLenient != null
-                ? relationalRetrieveNegotiationLenient.booleanValue()
+                ? relationalRetrieveNegotiationLenient
                 : getArchiveDeviceExtension().isRelationalRetrieveNegotiationLenient();
     }
 
@@ -1235,6 +1236,20 @@ public class ArchiveAEExtension extends AEExtension {
         return rejectConflictingPatientAttribute.length > 0
                 ? rejectConflictingPatientAttribute
                 : getArchiveDeviceExtension().getRejectConflictingPatientAttribute();
+    }
+
+    public Boolean getStowRetiredTransferSyntax() {
+        return stowRetiredTransferSyntax;
+    }
+
+    public void setStowRetiredTransferSyntax(Boolean stowRetiredTransferSyntax) {
+        this.stowRetiredTransferSyntax = stowRetiredTransferSyntax;
+    }
+
+    public boolean stowRetiredTransferSyntax() {
+        return stowRetiredTransferSyntax != null
+                ? stowRetiredTransferSyntax
+                : getArchiveDeviceExtension().isStowRetiredTransferSyntax();
     }
 
     @Override
@@ -1307,6 +1322,7 @@ public class ArchiveAEExtension extends AEExtension {
         relationalQueryNegotiationLenient = aeExt.relationalQueryNegotiationLenient;
         relationalRetrieveNegotiationLenient = aeExt.relationalRetrieveNegotiationLenient;
         rejectConflictingPatientAttribute = aeExt.rejectConflictingPatientAttribute;
+        stowRetiredTransferSyntax = aeExt.stowRetiredTransferSyntax;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

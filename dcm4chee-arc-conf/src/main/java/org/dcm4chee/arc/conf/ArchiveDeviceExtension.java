@@ -239,6 +239,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean relationalRetrieveNegotiationLenient;
     private volatile int[] rejectConflictingPatientAttribute = {};
     private volatile int schedulerMinStartDelay = 1000;
+    private volatile boolean stowRetiredTransferSyntax = false;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2346,6 +2347,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.schedulerMinStartDelay = schedulerMinStartDelay;
     }
 
+    public boolean isStowRetiredTransferSyntax() {
+        return stowRetiredTransferSyntax;
+    }
+
+    public void setStowRetiredTransferSyntax(boolean stowRetiredTransferSyntax) {
+        this.stowRetiredTransferSyntax = stowRetiredTransferSyntax;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2519,6 +2528,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         relationalRetrieveNegotiationLenient = arcdev.relationalRetrieveNegotiationLenient;
         rejectConflictingPatientAttribute = arcdev.rejectConflictingPatientAttribute;
         schedulerMinStartDelay = arcdev.schedulerMinStartDelay;
+        stowRetiredTransferSyntax = arcdev.stowRetiredTransferSyntax;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
