@@ -418,8 +418,7 @@ public class StowRS {
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
         try {
             BulkDataWithMediaType bulkdataWithMediaType = resolveBulkdataRefs(attrs);
-            ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(bulkdataWithMediaType.mediaType));
-            supplementAttrs(session, attrs, instanceNumber, bulkdataWithMediaType);
+            supplementAttrs(ctx, session, attrs, instanceNumber, bulkdataWithMediaType);
             service.store(ctx, attrs);
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
@@ -431,7 +430,7 @@ public class StowRS {
         }
     }
 
-    private void supplementAttrs(StoreSession session, Attributes attrs, int instanceNumber,
+    private void supplementAttrs(StoreContext ctx, StoreSession session, Attributes attrs, int instanceNumber,
                                  BulkDataWithMediaType bulkdata) throws DicomServiceException {
         for (int tag : IUIDS_TAGS)
             if (!attrs.containsValue(tag)) {
@@ -460,11 +459,13 @@ public class StowRS {
             attrs.setInt(Tag.InstanceNumber, VR.IS, instanceNumber);
         }
         if (attrs.containsValue(Tag.PixelData)) {
-            parseBulkdata(session, bulkdata, attrs);
+            parseBulkdata(ctx, session, bulkdata, attrs);
             verifyImagePixelModule(attrs);
         }
-        if (attrs.containsValue(Tag.EncapsulatedDocument))
+        if (attrs.containsValue(Tag.EncapsulatedDocument)) {
             verifyEncapsulatedDocumentModule(session, attrs, bulkdata.mediaType);
+            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+        }
     }
 
     private void supplementMissing(StoreSession session, int tag, VR vr, String value, Attributes attrs) {
@@ -612,7 +613,7 @@ public class StowRS {
         }
     }
 
-    private void parseBulkdata(StoreSession session, BulkDataWithMediaType bulkdata, Attributes attrs) {
+    private void parseBulkdata(StoreContext ctx, StoreSession session, BulkDataWithMediaType bulkdata, Attributes attrs) {
         CompressedPixelData compressedPixelData = null;
         try {
             compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
@@ -626,9 +627,19 @@ public class StowRS {
         File file = bulkdata.bulkData.getFile();
         try {
             compressedPixelData.getAttributes(new FileInputStream(file).getChannel(), attrs);
+            ctx.setReceiveTransferSyntax(getTransferSyntax(session, attrs, compressedPixelData));
         } catch (Exception e) {
             LOG.info("Failed to parse compressed pixel data {} for {}", compressedPixelData, file);
         }
+    }
+
+    private String getTransferSyntax(StoreSession session, Attributes attrs, CompressedPixelData compressedPixelData) {
+        return compressedPixelData != CompressedPixelData.JPEG
+                    || !compressedPixelData.getTransferSyntaxUID().equals(UID.JPEGFullProgressionNonHierarchical1012Retired)
+                    || session.getArchiveAEExtension().stowRetiredTransferSyntax()
+                ? compressedPixelData.getTransferSyntaxUID()
+                : attrs.getInt(Tag.BitsAllocated, 8) == 8
+                    ? UID.JPEGBaseline1 : UID.JPEGExtended24;
     }
 
     private boolean spoolBulkdata(MultipartInputStream in, MediaType mediaType,
