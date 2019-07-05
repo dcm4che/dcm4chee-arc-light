@@ -8920,7 +8920,7 @@
     "/aets/{aet}/rs/patients/{PatientID}": {
       "put": {
         "tags": [
-          "IOCM-RS"
+          "PAM-RS"
         ],
         "summary": "Update or Create patient",
         "operationId": "UpdateOrCreatePatient",
