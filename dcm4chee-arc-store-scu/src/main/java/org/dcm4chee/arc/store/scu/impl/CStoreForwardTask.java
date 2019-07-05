@@ -126,12 +126,12 @@ class CStoreForwardTask implements Runnable {
                 TranscoderDataWriter data = new TranscoderDataWriter(transcoder,
                         service.getAttributesCoercion(ctx, inst));
                 DimseRSPHandler rspHandler = new CStoreRSPHandler(inst);
-                long start = System.currentTimeMillis();
+                long startTime = System.nanoTime();
                 storeas.cstore(cuid, iuid, ctx.getPriority(),
                             ctx.getMoveOriginatorAETitle(), ctx.getMoveOriginatorMessageID(),
                             data, tsuid, rspHandler);
                 service.getMetricsService().acceptDataRate("send-to-" + storeas.getRemoteAET(),
-                        data.getCount(), System.currentTimeMillis() - start);
+                        data.getCount(), startTime);
             }
         } catch (Exception e) {
             ctx.incrementFailed();

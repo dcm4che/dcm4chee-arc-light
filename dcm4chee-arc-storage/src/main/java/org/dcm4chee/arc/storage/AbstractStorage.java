@@ -111,7 +111,7 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public OutputStream openOutputStream(final WriteContext ctx) throws IOException {
         checkAccessable();
-        long start = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         OutputStream stream = openOutputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestOutputStream(stream, ctx.getMessageDigest());
@@ -145,7 +145,7 @@ public abstract class AbstractStorage implements Storage {
                     try {
                         super.close();
                         metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
-                                ctx.getSize(), System.currentTimeMillis() - start);
+                                ctx.getSize(), startTime);
                     } catch (IOException e) {
                         throw new StorageException(e);
                     } finally {
@@ -159,10 +159,18 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public void copy(InputStream in, WriteContext ctx) throws IOException {
         checkAccessable();
-        long start = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         copyA(in, ctx);
         metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
-                ctx.getContentLength(), System.currentTimeMillis() - start);
+                ctx.getContentLength(), startTime);
+    }
+
+    @Override
+    public void deleteObject(String storagePath) throws IOException {
+        checkAccessable();
+        long startTime = System.nanoTime();
+        deleteObjectA(storagePath);
+        metricsService.acceptNanoTime("delete-from-" + descriptor.getStorageID(), startTime);
     }
 
     private void checkAccessable() throws IOException {
@@ -186,6 +194,8 @@ public abstract class AbstractStorage implements Storage {
         throw new UnsupportedOperationException();
     }
 
+    protected abstract void deleteObjectA(String storagePath) throws IOException;
+
     protected void beforeOutputStreamClosed(WriteContext ctx, OutputStream stream) throws IOException {}
 
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {}
@@ -202,7 +212,7 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public InputStream openInputStream(final ReadContext ctx) throws IOException {
         checkAccessable();
-        long start = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         InputStream stream = openInputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestInputStream(stream, ctx.getMessageDigest());
@@ -259,7 +269,7 @@ public abstract class AbstractStorage implements Storage {
                     try {
                         super.close();
                         metricsService.acceptDataRate("read-from-" + descriptor.getStorageID(),
-                                ctx.getSize(), System.currentTimeMillis() - start);
+                                ctx.getSize(), startTime);
                     } catch (IOException e) {
                         throw new StorageException(e);
                     } finally {

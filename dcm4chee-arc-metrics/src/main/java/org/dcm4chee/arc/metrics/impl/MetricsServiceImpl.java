@@ -81,8 +81,13 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public void acceptDataRate(String name, long bytes, long ms) {
-        accept(name, () -> bytes / (Math.max(1, ms) * 1000.));
+    public void acceptNanoTime(String name, long startTime) {
+        accept(name, () -> (System.nanoTime() - startTime) / 1000000.);
+    }
+
+    @Override
+    public void acceptDataRate(String name, long bytes, long startTime) {
+        accept(name, () -> bytes * 1000. / (System.nanoTime() - startTime));
     }
 
     @Override

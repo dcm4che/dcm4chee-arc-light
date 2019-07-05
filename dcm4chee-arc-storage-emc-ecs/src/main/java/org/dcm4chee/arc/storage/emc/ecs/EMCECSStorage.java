@@ -217,7 +217,7 @@ public class EMCECSStorage extends AbstractStorage {
     }
 
     @Override
-    public void deleteObject(String storagePath) throws IOException {
+    protected void deleteObjectA(String storagePath) throws IOException {
         s3.deleteObject(container, storagePath);
     }
 

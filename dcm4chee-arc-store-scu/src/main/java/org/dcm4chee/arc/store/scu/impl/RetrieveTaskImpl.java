@@ -170,7 +170,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
                 TranscoderDataWriter data = new TranscoderDataWriter(transcoder, coerce);
                 outstandingRSP.add(inst);
-                long start = System.currentTimeMillis();
+                long startTime = System.nanoTime();
                 if (ctx.getMoveOriginatorAETitle() != null) {
                     storeas.cstore(cuid, iuid, priority,
                             ctx.getMoveOriginatorAETitle(), ctx.getMoveOriginatorMessageID(),
@@ -180,7 +180,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
                             data, tsuid, rspHandler);
                 }
                 service.getMetricsService().acceptDataRate("send-to-" + storeas.getRemoteAET(),
-                        data.getCount(), System.currentTimeMillis() - start);
+                        data.getCount(), startTime);
             }
         } catch (Exception e) {
             outstandingRSP.remove(inst);

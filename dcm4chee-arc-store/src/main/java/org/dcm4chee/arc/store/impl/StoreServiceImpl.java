@@ -166,12 +166,12 @@ class StoreServiceImpl implements StoreService {
         UpdateDBResult result = null;
         try {
             CountingInputStream countingInputStream = new CountingInputStream(data);
-            long start = System.currentTimeMillis();
+            long startTime = System.nanoTime();
             writeToStorage(ctx, countingInputStream);
             String callingAET = ctx.getStoreSession().getCallingAET();
             if (callingAET != null) {
                 metricsService.acceptDataRate("receive-from-" + callingAET,
-                        countingInputStream.getCount(), System.currentTimeMillis() - start);
+                        countingInputStream.getCount(), startTime);
             }
             if (ctx.getAcceptedStudyInstanceUID() != null
                     && !ctx.getAcceptedStudyInstanceUID().equals(ctx.getStudyInstanceUID())) {

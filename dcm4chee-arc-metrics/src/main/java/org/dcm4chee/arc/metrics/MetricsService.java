@@ -55,7 +55,9 @@ public interface MetricsService {
 
     void accept(String name, double value);
 
-    void acceptDataRate(String name, long bytes, long ms);
+    void acceptNanoTime(String name, long startTime);
+
+    void acceptDataRate(String name, long bytes, long startTime);
 
     void accept(String name, DoubleSupplier valueSupplier);
 

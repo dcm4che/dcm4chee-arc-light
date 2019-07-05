@@ -239,7 +239,7 @@ public class CloudStorage extends AbstractStorage {
     }
 
     @Override
-    public void deleteObject(String storagePath) throws IOException {
+    protected void deleteObjectA(String storagePath) throws IOException {
         BlobStore blobStore = context.getBlobStore();
         if (!blobStore.blobExists(container, storagePath))
             throw objectNotFound(storagePath);
