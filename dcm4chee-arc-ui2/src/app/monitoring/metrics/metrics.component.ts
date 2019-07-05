@@ -92,8 +92,11 @@ export class MetricsComponent implements OnInit {
     }
 
     getMetricsDescriptors(){
-        this.service.getMetricsDescriptors().subscribe((res:MetricsDescriptors)=>{
+        this.service.getMetricsDescriptors().subscribe((res:MetricsDescriptors[])=>{
             this.metricsDescriptors = res;
+            if(!res || res.length === 0){
+                this.appService.showError("No Metrics Descriptors were found, please configure Metrics Descriptors first");
+            }
             this.setFilterSchema();
         },err=>{
             this.httpErrorHandler.handleError(err);
