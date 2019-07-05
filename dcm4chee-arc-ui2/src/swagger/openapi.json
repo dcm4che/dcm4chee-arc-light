@@ -99,8 +99,8 @@
       "description": "Modality Worklist Management"
     },
     {
-      "name": "HL7-RS",
-      "description": "Send HL7 message to external HL7 Application"
+      "name": "PAM-RS",
+      "description": "Patient Administration Management"
     },
     {
       "name": "PDQ-RS",
@@ -6725,7 +6725,7 @@
     "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients": {
       "post": {
         "tags": [
-          "HL7-RS"
+          "PAM-RS"
         ],
         "summary": "Create Patient in external archive",
         "operationId": "CreatePatientExternal",
@@ -6772,7 +6772,7 @@
       },
       "put": {
         "tags": [
-          "HL7-RS"
+          "PAM-RS"
         ],
         "summary": "Update Patient in external archive",
         "operationId": "UpdatePatientExternal",
@@ -6821,7 +6821,7 @@
     "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/merge": {
       "post": {
         "tags": [
-          "HL7-RS"
+          "PAM-RS"
         ],
         "summary": "Merge Patients in external archive",
         "operationId": "MergePatientExternal",
@@ -6873,7 +6873,7 @@
     "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/changeid": {
       "post": {
         "tags": [
-          "HL7-RS"
+          "PAM-RS"
         ],
         "summary": "Change Patient ID in external archive",
         "operationId": "ChangePatientIDExternal",
@@ -8955,7 +8955,7 @@
       },
       "delete": {
         "tags": [
-          "IOCM-RS"
+          "PAM-RS"
         ],
         "summary": "Delete Patient Permanently",
         "operationId": "DeletePatient",
@@ -8989,7 +8989,7 @@
     "/aets/{aet}/rs/patients/{patientID}/merge": {
       "post": {
         "tags": [
-          "IOCM-RS"
+          "PAM-RS"
         ],
         "summary": "Merge Patients",
         "operationId": "MergePatients",
@@ -9026,7 +9026,7 @@
     "/aets/{aet}/rs/patients/{priorPatientID}/merge/{patientID}": {
       "post": {
         "tags": [
-          "IOCM-RS"
+          "PAM-RS"
         ],
         "summary": "Merge Patient",
         "operationId": "MergePatient",
@@ -9060,7 +9060,7 @@
     "/aets/{aet}/rs/patients/{priorPatientID}/changeid/{patientID}": {
       "post": {
         "tags": [
-          "IOCM-RS"
+          "PAM-RS"
         ],
         "summary": "Change Patient ID",
         "operationId": "ChangePatientID",
