@@ -807,7 +807,7 @@ export class j4care {
         return attr && attr.Value && attr.Value[0];
     }
 
-    static decimal(number, decimal?:number){
+    static floor(number, decimal?:number){
         decimal = decimal || 2;
         try{
             if(number)
