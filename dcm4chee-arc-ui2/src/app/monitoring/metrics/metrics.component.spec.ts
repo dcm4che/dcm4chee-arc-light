@@ -1,3 +1,4 @@
+/*
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MetricsComponent } from './metrics.component';
@@ -23,3 +24,4 @@ describe('MetricsComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+*/

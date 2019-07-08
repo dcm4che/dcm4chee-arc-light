@@ -421,4 +421,12 @@ describe('j4care', () => {
         ).toEqual(`http://127.0.0.1:2575/dcm4chee-arc/aets/DCM4CHEE/rs`);
 
     });
+
+    it("Should cut float number",()=>{
+        expect(j4care.decimal(5.2343,2)).toEqual(5.23);
+        expect(j4care.decimal(5.2343,undefined)).toEqual(5.23);
+        expect(j4care.decimal("5.2343",2)).toEqual(5.23);
+        expect(j4care.decimal("",2)).toEqual("");
+        expect(j4care.decimal(undefined,2)).toEqual(undefined);
+    })
 });

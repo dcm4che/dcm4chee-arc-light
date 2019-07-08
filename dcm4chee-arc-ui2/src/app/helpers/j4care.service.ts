@@ -807,6 +807,18 @@ export class j4care {
         return attr && attr.Value && attr.Value[0];
     }
 
+    static decimal(number, decimal?:number){
+        decimal = decimal || 2;
+        try{
+            if(number)
+                return _.floor(number,decimal);
+            return number;
+        }catch (e) {
+            this.log("Error on cutting the floating points, decimal()",e);
+            return number;
+        }
+    }
+
     static encode64(inputStr) {
         let b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
         let outputStr = "";
