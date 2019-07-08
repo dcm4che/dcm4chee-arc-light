@@ -122,11 +122,14 @@ public class MetricsServiceImpl implements MetricsService {
         if (binSize <= 0)
             throw new IllegalArgumentException("binSize not > 0: " + binSize);
 
-        DataBins dataBins = map.get(name);
-        int n = (descriptor.getRetentionPeriod() - 1) / binSize + 1;
+        int retentionPeriod = descriptor.getRetentionPeriod();
+        if (binSize > retentionPeriod)
+            binSize = retentionPeriod;
+        int n = (retentionPeriod - 1) / binSize + 1;
         if (limit > 0 && n > limit)
             n = limit;
 
+        DataBins dataBins = map.get(name);
         for (long time = currentTimeMins(); n-- > 0; time -= binSize) {
             consumer.accept(dataBins != null ? dataBins.getBin(time, binSize) : null);
         }
