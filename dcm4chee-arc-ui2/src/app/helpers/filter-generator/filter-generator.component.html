@@ -25,7 +25,7 @@
               <ng-container *ngFor="let index of [0,1]">
                 <ng-container *ngIf="line && line[index] && (!line[index].showIf || line[index].showIf(model)) && ((line[index].dependingOn && model[line[index].dependingOn]) || !line[index].dependingOn)" [ngSwitch]="line[index].tag">
                     <div class="input_group_dropdown" *ngSwitchCase="'combined'">
-                        <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" max="{{line[index].firstField.max}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
+                        <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
                         <mat-select [(ngModel)]="model[line[index].secondField.filterKey]">
                             <mat-option *ngIf="line[index].secondField.showStar" value="">*</mat-option>
                             <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}"  [innerHtml]="option.label || option.text"></mat-option>
@@ -37,7 +37,18 @@
                     <div class="input_group_dropdown" *ngSwitchCase="'size_range_picker'">
                         <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
                     </div>
-                    <input [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" type="{{line[index].type}}" [ngStyle]="line[index].style" title="{{line[index]?.description}}" placeholder="{{line[index]?.placeholder}}" *ngSwitchCase="'input'">
+                    <input
+                            [disabled]="line[index].disabled"
+                            (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"
+                            [(ngModel)]="model[line[index].filterKey]"
+                            type="{{line[index].type}}"
+                            [ngStyle]="line[index].style"
+                            title="{{line[index]?.description}}"
+                            placeholder="{{line[index]?.placeholder}}"
+                            min="{{line[index]?.min}}"
+                            max="{{line[index]?.max}}"
+                            *ngSwitchCase="'input'"
+                    >
                     <div class="filter_checkbox" *ngSwitchCase="'checkbox'" title="{{line[index]?.description}}" [ngClass]="{'active':model[line[index].filterKey]}">
                       <input [disabled]="line[index].disabled" type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
                     </div>
@@ -54,6 +65,8 @@
                               [placeholder]="line[index]?.placeholder"
                               [ngClass]="line[index].cssClass"
                               [options]="line[index].options"
+                              [min]="line[index].min"
+                              [max]="line[index].max"
                               [editable]="true"
                               [showSearchField]="line[index].showSearchField"
                               [multiSelectMode]="false"

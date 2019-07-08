@@ -117,6 +117,7 @@ export interface FilterSchemaElement {
     maxSelectedLabels?:number;
     showSearchField?:boolean;
     min?:number,
+    max?:number,
     title?:string,
     options?:SelectDropdown<any>[],
     firstField?:FilterSchemaElement,

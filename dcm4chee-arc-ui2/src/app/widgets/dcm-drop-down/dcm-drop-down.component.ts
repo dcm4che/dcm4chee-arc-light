@@ -43,6 +43,8 @@ export class DcmDropDownComponent implements OnInit {
     @Input() options:SelectDropdown<any>[];
     @Input() optionsTree:{label:string, options:SelectDropdown<any>[]}[];
     @Input() editable:boolean = false;
+    @Input() min:number;
+    @Input() max:number;
     @Input() showStar:boolean = false;
     @Input('model')
     set model(value){

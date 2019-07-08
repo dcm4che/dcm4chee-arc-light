@@ -35,6 +35,8 @@ export class MetricsService {
             tag:"editable-select",
             type:"number",
             filterKey:"bin",
+            min:1,
+            max:60,
             options:binOptions,
             description:"Data bin size in minutes",
             placeholder:"Bin (min)"
