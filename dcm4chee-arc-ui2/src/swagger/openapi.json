@@ -194,7 +194,7 @@
       },
       "post": {
         "tags": [
-          "IOCM-RS"
+          "PAM-RS"
         ],
         "summary": "Create Patient",
         "operationId": "CreatePatient",
