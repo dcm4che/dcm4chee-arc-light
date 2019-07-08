@@ -807,11 +807,6 @@ export class j4care {
         return attr && attr.Value && attr.Value[0];
     }
 
-    static decimal(number:number, decimal:number){
-        return parseFloat((Math.round(number * Math.pow(10,decimal)) / Math.pow(10,decimal)).toString()).toFixed(decimal);
-    }
-
-
     static encode64(inputStr) {
         let b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
         let outputStr = "";
