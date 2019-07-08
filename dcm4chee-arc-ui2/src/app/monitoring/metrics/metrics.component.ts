@@ -79,7 +79,7 @@ export class MetricsComponent implements OnInit {
                         if(!_.isEmpty(metric)){
                             return {
                                 time:j4care.formatDate(currentServerTime,"HH:mm"),
-                                avg: metric["avg"],
+                                avg: j4care.decimal(metric["avg"],2),
                                 count: metric["count"],
                                 max: metric["max"],
                                 min: metric["min"]
