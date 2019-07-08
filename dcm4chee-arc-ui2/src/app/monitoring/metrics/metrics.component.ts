@@ -21,6 +21,7 @@ export class MetricsComponent implements OnInit {
     };
     filterSchema:FilterSchema;
     tableConfig;
+    selectedMetricsDescriptors:MetricsDescriptors;
     metrics;
     constructor(
         private service:MetricsService,
@@ -31,13 +32,29 @@ export class MetricsComponent implements OnInit {
 
     ngOnInit() {
         this.getMetricsDescriptors();
-        this.tableConfig = {
-            table:j4care.calculateWidthOfTable(this.service.getTableSchema()),
-            filter:this.filterObject,
-            calculate:false
-        };
     }
 
+    onFormChange(e){
+        console.log("e",e);
+        console.log("filterSchema",this.filterSchema);
+        console.log("metricsDescriptors",this.metricsDescriptors);
+        this.selectWrightMetricsDescriptor();
+        this.setFilterSchema();
+        this.setTableConfig();
+    }
+    selectWrightMetricsDescriptor(){
+        if(_.hasIn(this.filterObject,"name") && this.filterObject["name"] != ""){
+            if(!(this.selectedMetricsDescriptors && this.selectedMetricsDescriptors.dcmMetricsName === this.filterObject['name'])){
+                this.metricsDescriptors.forEach((descriptor:MetricsDescriptors)=>{
+                    if(descriptor.dcmMetricsName === this.filterObject["name"]){
+                        this.selectedMetricsDescriptors = descriptor;
+                    }
+                })
+            }
+        }else{
+            this.selectedMetricsDescriptors = undefined;
+        }
+    }
     getMetrics(e){
         if(_.hasIn(this.filterObject,"name") && this.filterObject["name"] != ""){
             this.cfpLoadingBar.start();
@@ -47,19 +64,24 @@ export class MetricsComponent implements OnInit {
             delete params["name"];
 
             this.service.getMetrics(name, params).subscribe(metrics=>{
-                let bin = this.filterObject["bin"] || 1;
+                let bin:number = _.parseInt(this.filterObject["bin"].toString()) || 1;
                 let currentServerTime = new Date(this.appService.serverTime);
                 this.metrics = metrics.map( (metric,i)=>{
+                    // let time:Date = currentServerTime;
+                    if(i != 0){
+                        console.log("min=",currentServerTime.getMinutes() + bin);
+                        currentServerTime.setMinutes(currentServerTime.getMinutes() + bin);
+                    }
+                    console.log("currentServerTime",currentServerTime);
                     if(!_.isEmpty(metric)){
                         return {
-                            time:j4care.formatDate(new Date(currentServerTime.setMinutes(currentServerTime.getMinutes()+bin)),"HH:mm"),
+                            time:j4care.formatDate(currentServerTime,"HH:mm"),
                             avg: metric["avg"],
                             count: metric["count"],
                             max: metric["max"],
                             min: metric["min"]
                         }
                     }else{
-                        currentServerTime.setMinutes(currentServerTime.getMinutes()+bin);
                         return {}
                     }
                 }).reduce((accumulator, current) => {
@@ -82,11 +104,23 @@ export class MetricsComponent implements OnInit {
         }
     }
 
+    setTableConfig(){
+        this.tableConfig = {
+            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this.selectedMetricsDescriptors ? this.selectedMetricsDescriptors.dcmUnit :'')),
+            filter:this.filterObject,
+            calculate:false
+        };
+    }
     setFilterSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(
-            this.service.getFilterSchema(this.metricsDescriptors.map((metricsDescriptor:MetricsDescriptors)=>{
-                return new SelectDropdown(metricsDescriptor.dcmMetricsName, metricsDescriptor.dicomDescription, metricsDescriptor.dicomDescription,undefined, undefined,metricsDescriptor);
-            })),
+            this.service.getFilterSchema(
+                this.metricsDescriptors.map((metricsDescriptor:MetricsDescriptors)=>{
+                    return new SelectDropdown(metricsDescriptor.dcmMetricsName, metricsDescriptor.dicomDescription, metricsDescriptor.dicomDescription,undefined, undefined,metricsDescriptor);
+                }),
+                [1,5,15,this.selectedMetricsDescriptors ? this.selectedMetricsDescriptors.dcmMetricsRetentionPeriod : 60].map(nr=>{
+                    return new SelectDropdown(nr,nr.toString(),nr.toString())
+                })
+            ),
             1
         );
     }
@@ -96,7 +130,10 @@ export class MetricsComponent implements OnInit {
             this.metricsDescriptors = res;
             if(!res || res.length === 0){
                 this.appService.showError("No Metrics Descriptors were found, please configure Metrics Descriptors first");
+            }else{
+                this.selectedMetricsDescriptors = res[0];
             }
+            this.setTableConfig();
             this.setFilterSchema();
         },err=>{
             this.httpErrorHandler.handleError(err);

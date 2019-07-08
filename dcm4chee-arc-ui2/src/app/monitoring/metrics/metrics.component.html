@@ -4,7 +4,7 @@
         <h2>Metrics</h2>
         <div class="filter_line">
             <div class="filter_block">
-                <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="getMetrics($event)"></filter-generator>
+                <filter-generator [filterIdTemplate]="'metric'" [schema]="filterSchema" [model]="filterObject" (submit)="getMetrics($event)" (onChange)="onFormChange($event)"></filter-generator>
             </div>
         </div>
     </div>

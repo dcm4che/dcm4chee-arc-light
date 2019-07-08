@@ -42,6 +42,7 @@ export class DcmDropDownComponent implements OnInit {
     @Input() maxSelectedValueShown = 2;
     @Input() options:SelectDropdown<any>[];
     @Input() optionsTree:{label:string, options:SelectDropdown<any>[]}[];
+    @Input() editable:boolean = false;
     @Input() showStar:boolean = false;
     @Input('model')
     set model(value){
@@ -65,6 +66,13 @@ export class DcmDropDownComponent implements OnInit {
 
     ngOnInit() {
     }
+
+    inputChangedManually(e){
+       console.log("e",e);
+       this.selectedDropdown = undefined;
+       this.modelChange.emit(this.selectedValue);
+    }
+
     selectOptionByValue(value:string|string[]){
         if(this.multiSelectMode){
 

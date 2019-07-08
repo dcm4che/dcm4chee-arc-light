@@ -21,27 +21,29 @@ export class MetricsService {
         return this.$http.get(`${this.url.METRICS(name)}${j4care.param(params)}`);
     };
 
-    getFilterSchema = (nameDescriptors:any):FilterSchema => [
+    getFilterSchema = (nameDescriptors:any,binOptions):FilterSchema => [
         {
-          tag:"select",
-          type:"text",
-          filterKey:"name",
-          options:nameDescriptors,
-          text:"Name",
-          description:"Metrics Name",
-          placeholder:"Metrics Name"
+            tag:"select",
+            type:"text",
+            filterKey:"name",
+            options:nameDescriptors,
+            text:"Name",
+            description:"Metrics Name",
+            placeholder:"Metrics Name"
         },
         {
-          tag:"input",
-          type:"number",
-          filterKey:"bin",
-          description:"Data bin size in minutes",
-          placeholder:"Bin (min)"
+            tag:"editable-select",
+            type:"number",
+            filterKey:"bin",
+            options:binOptions,
+            description:"Data bin size in minutes",
+            placeholder:"Bin (min)"
         },
         {
           tag:"input",
           type:"number",
           filterKey:"limit",
+          min:1,
           text:"Limit",
           description:"Maximal number of returned data entries",
           placeholder:"Limit"
@@ -54,7 +56,11 @@ export class MetricsService {
 
     ];
 
-    getTableSchema(){
+    getTableSchema(unit:string){
+        let unitString = "";
+        if(unit){
+            unitString = `[${unit}]`
+        }
         return [
             new TableSchemaElement({
                 type:"value",
@@ -72,22 +78,22 @@ export class MetricsService {
             }),
             new TableSchemaElement({
                 type:"value",
-                title:"Min[MB/s]",
-                header:"Min[MB/s]",
+                title:`Min${unitString}`,
+                header:`Min${unitString}`,
                 widthWeight:1,
                 pathToValue:"min"
             }),
             new TableSchemaElement({
                 type:"value",
-                header:"Avg[MB/s]",
-                title:"Avg[MB/s]",
+                header:`Avg${unitString}`,
+                title:`Avg${unitString}`,
                 widthWeight:1,
                 pathToValue:"avg"
             }),
             new TableSchemaElement({
                 type:"value",
-                header:"Max[MB/s]",
-                title:"Max[MB/s]",
+                header:`Max${unitString}`,
+                title:`Max${unitString}`,
                 widthWeight:1,
                 pathToValue:"max"
             })

@@ -25,7 +25,7 @@
               <ng-container *ngFor="let index of [0,1]">
                 <ng-container *ngIf="line && line[index] && (!line[index].showIf || line[index].showIf(model)) && ((line[index].dependingOn && model[line[index].dependingOn]) || !line[index].dependingOn)" [ngSwitch]="line[index].tag">
                     <div class="input_group_dropdown" *ngSwitchCase="'combined'">
-                        <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
+                        <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" max="{{line[index].firstField.max}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
                         <mat-select [(ngModel)]="model[line[index].secondField.filterKey]">
                             <mat-option *ngIf="line[index].secondField.showStar" value="">*</mat-option>
                             <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}"  [innerHtml]="option.label || option.text"></mat-option>
@@ -47,6 +47,19 @@
                       <j4care-option *ngIf="line[index].showStar" [value]="''">*</j4care-option>
                       <j4care-option *ngFor="let option of line[index].options"  [value]="option.value" title="{{option.description || option.title}}" [htmlLabel]="option.htmlLabel || option.label || option.text"></j4care-option>
                     </j4care-select>-->
+                      <dcm-drop-down
+                              [(model)]="model[line[index].filterKey]"
+                              [ngStyle]="line[index].style"
+                              *ngSwitchCase="'editable-select'"
+                              [placeholder]="line[index]?.placeholder"
+                              [ngClass]="line[index].cssClass"
+                              [options]="line[index].options"
+                              [editable]="true"
+                              [showSearchField]="line[index].showSearchField"
+                              [multiSelectMode]="false"
+                              (modelChange)="filterChange($event)"
+                              [showStar]="line[index].showStar"
+                      ></dcm-drop-down>
                       <dcm-drop-down
                               [(model)]="model[line[index].filterKey]"
                               [ngStyle]="line[index].style"

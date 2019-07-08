@@ -20,6 +20,10 @@
       display: inline-block;
       float: left;
       min-height: 25px;
+      .edited_input_value{
+        border: 0;
+        padding-left: 0;
+      }
     }
     .selected_value.empty_field{
       font-style: italic;
