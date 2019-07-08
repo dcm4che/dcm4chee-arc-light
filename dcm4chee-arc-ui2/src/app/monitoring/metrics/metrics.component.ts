@@ -57,51 +57,76 @@ export class MetricsComponent implements OnInit {
     }
     getMetrics(e){
         if(_.hasIn(this.filterObject,"name") && this.filterObject["name"] != ""){
-            this.cfpLoadingBar.start();
 
-            let params = _.clone(this.filterObject);
-            let name = params["name"];
-            delete params["name"];
+            let validation = this.validFilter();
+            if(validation.valid){
+                this.cfpLoadingBar.start();
 
-            this.service.getMetrics(name, params).subscribe(metrics=>{
-                let bin:number = _.parseInt(this.filterObject["bin"].toString()) || 1;
-                let currentServerTime = new Date(this.appService.serverTime);
-                this.metrics = metrics.map( (metric,i)=>{
-                    // let time:Date = currentServerTime;
-                    if(i != 0){
-                        console.log("min=",currentServerTime.getMinutes() + bin);
-                        currentServerTime.setMinutes(currentServerTime.getMinutes() + bin);
-                    }
-                    console.log("currentServerTime",currentServerTime);
-                    if(!_.isEmpty(metric)){
-                        return {
-                            time:j4care.formatDate(currentServerTime,"HH:mm"),
-                            avg: metric["avg"],
-                            count: metric["count"],
-                            max: metric["max"],
-                            min: metric["min"]
+                let params = _.clone(this.filterObject);
+                let name = params["name"];
+                delete params["name"];
+
+                this.service.getMetrics(name, params).subscribe(metrics=>{
+                    let bin:number = _.parseInt(this.filterObject["bin"].toString()) || 1;
+                    let currentServerTime = new Date(this.appService.serverTime);
+                    this.metrics = metrics.map( (metric,i)=>{
+                        // let time:Date = currentServerTime;
+                        if(i != 0){
+                            console.log("min=",currentServerTime.getMinutes() + bin);
+                            currentServerTime.setMinutes(currentServerTime.getMinutes() + bin);
                         }
-                    }else{
-                        return {}
+                        console.log("currentServerTime",currentServerTime);
+                        if(!_.isEmpty(metric)){
+                            return {
+                                time:j4care.formatDate(currentServerTime,"HH:mm"),
+                                avg: metric["avg"],
+                                count: metric["count"],
+                                max: metric["max"],
+                                min: metric["min"]
+                            }
+                        }else{
+                            return {}
+                        }
+                    }).reduce((accumulator, current) => {
+                        const length = accumulator.length;
+                        if (length === 0 || _.isEmpty(accumulator[length - 1]) != _.isEmpty(current) || !_.isEmpty(current)) {
+                            accumulator.push(current);
+                        }
+                        return accumulator;
+                    }, []);
+                    this.cfpLoadingBar.complete();
+                    if((!this.metrics || this.metrics.length === 0) || (this.metrics.length === 1 && _.isEmpty(this.metrics[0]))){
+                        this.appService.showMsg("No data found!");
                     }
-                }).reduce((accumulator, current) => {
-                    const length = accumulator.length;
-                    if (length === 0 || _.isEmpty(accumulator[length - 1]) != _.isEmpty(current) || !_.isEmpty(current)) {
-                        accumulator.push(current);
-                    }
-                    return accumulator;
-                }, []);
-                this.cfpLoadingBar.complete();
-                if((!this.metrics || this.metrics.length === 0) || (this.metrics.length === 1 && _.isEmpty(this.metrics[0]))){
-                    this.appService.showMsg("No data found!");
-                }
-            },err=>{
-                this.cfpLoadingBar.complete();
-                this.httpErrorHandler.handleError(err);
-            })
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                })
+            }else{
+                this.appService.showError(validation.msg);
+            }
         }else{
             this.appService.showError("Metrics Name is missing");
         }
+    }
+    validFilter(){
+        let validation = {
+            valid:true,
+            msg:""
+        };
+        if(!_.hasIn(this.filterObject,"bin") || _.parseInt(this.filterObject["bin"].toString()) < 1 || _.parseInt(this.filterObject["bin"].toString()) > _.parseInt(this.selectedMetricsDescriptors.dcmMetricsRetentionPeriod)){
+            validation = {
+                valid:false,
+                msg:"Bin value is not valid!"
+            };
+        }
+        if(_.hasIn(this.filterObject,"limit") && this.filterObject["limit"] && _.parseInt(this.filterObject["limit"].toString()) < 1){
+            validation = {
+                valid:false,
+                msg:"Limit value is not valid!"
+            };
+        }
+        return validation;
     }
 
     setTableConfig(){
