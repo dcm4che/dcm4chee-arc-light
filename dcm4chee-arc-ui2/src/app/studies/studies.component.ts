@@ -4040,7 +4040,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     };
     renderURL(inst) {
         if (inst.video)
-            return this.wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
+            return this.wadoURL(inst.wadoQueryParams, { contentType: 'video/*' });
         if (inst.numberOfFrames)
             return this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg', frameNumber: inst.view });
         if (inst.gspsQueryParams.length)
