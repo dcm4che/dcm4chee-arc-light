@@ -807,11 +807,19 @@ export class j4care {
         return attr && attr.Value && attr.Value[0];
     }
 
-    static floor(number:any, decimal?:number):number{
+    static floor(number:any, decimal?:number, asNumber?:boolean){
         decimal = decimal || 2;
         try{
-            if(number)
-                return _.floor(number,decimal);
+            if(number && number != ""){
+                if(typeof number === "number"){
+                    if(asNumber)
+                        return parseFloat(number.toFixed(decimal));
+                    else
+                        return number.toFixed(decimal);
+                }else{
+                    return _.round(number,decimal);
+                }
+            }
             return number;
         }catch (e) {
             this.log("Error on cutting the floating points, decimal()",e);
