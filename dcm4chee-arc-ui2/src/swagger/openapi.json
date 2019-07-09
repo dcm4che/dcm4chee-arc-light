@@ -10980,7 +10980,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
+    "/aets/{aet}/rs/studies/csv:{field}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11035,7 +11035,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies": {
+    "/aets/{aet}/rs/studies/export/{exporterID}/": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11138,7 +11138,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/series": {
+    "/aets/{aet}/rs/series/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11241,7 +11241,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11347,7 +11347,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/instances": {
+    "/aets/{aet}/rs/instances/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11450,7 +11450,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/instances": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11556,7 +11556,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -12171,7 +12171,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12235,7 +12235,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12302,7 +12302,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12372,7 +12372,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12430,7 +12430,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12491,7 +12491,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"

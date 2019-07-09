@@ -167,7 +167,7 @@ public class QueryRetrieveRS {
     }
 
     @POST
-    @Path("/studies/query:{QueryAET}/export/dicom:{DestinationAET}")
+    @Path("/query:{QueryAET}/studies/export/dicom:{DestinationAET}")
     @Produces("application/json")
     public Response retrieveMatchingStudies(
             @PathParam("QueryAET") String queryAET,
@@ -177,9 +177,79 @@ public class QueryRetrieveRS {
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/query:{QueryAET}/export/dicom:{DestinationAET}")
+    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/export/dicom:{DestinationAET}")
     @Produces("application/json")
     public Response retrieveMatchingSeries(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("QueryAET") String queryAET,
+            @PathParam("DestinationAET") String destAET)
+    {
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
+                this::scheduleRetrieveTask);
+    }
+
+    @POST
+    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response retrieveMatchingInstances(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
+            @PathParam("QueryAET") String queryAET,
+            @PathParam("DestinationAET") String destAET)
+    {
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
+                this::scheduleRetrieveTask);
+    }
+
+    @POST
+    @Path("/query:{QueryAET}/studies/mark4retrieve/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response markMatchingStudiesForRetrieve(
+            @PathParam("QueryAET") String queryAET,
+            @PathParam("DestinationAET") String destAET) {
+        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
+                this::createRetrieveTask);
+    }
+
+    @POST
+    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response markMatchingSeriesForRetrieve(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("QueryAET") String queryAET,
+            @PathParam("DestinationAET") String destAET)
+    {
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
+                this::createRetrieveTask);
+    }
+
+    @POST
+    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response markMatchingInstancesForRetrieve(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
+            @PathParam("QueryAET") String queryAET,
+            @PathParam("DestinationAET") String destAET)
+    {
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
+                this::createRetrieveTask);
+    }
+
+    @POST
+    @Path("/studies/query:{QueryAET}/export/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response retrieveMatchingStudies1(
+            @PathParam("QueryAET") String queryAET,
+            @PathParam("DestinationAET") String destAET) {
+        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
+                this::scheduleRetrieveTask);
+    }
+
+    @POST
+    @Path("/studies/{StudyInstanceUID}/series/query:{QueryAET}/export/dicom:{DestinationAET}")
+    @Produces("application/json")
+    public Response retrieveMatchingSeries1(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
@@ -191,7 +261,7 @@ public class QueryRetrieveRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{QueryAET}/export/dicom:{DestinationAET}")
     @Produces("application/json")
-    public Response retrieveMatchingInstances(
+    public Response retrieveMatchingInstances1(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
             @PathParam("QueryAET") String queryAET,
@@ -204,7 +274,7 @@ public class QueryRetrieveRS {
     @POST
     @Path("/studies/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
     @Produces("application/json")
-    public Response markMatchingStudiesForRetrieve(
+    public Response markMatchingStudiesForRetrieve1(
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET) {
         return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
@@ -214,7 +284,7 @@ public class QueryRetrieveRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/series/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
     @Produces("application/json")
-    public Response markMatchingSeriesForRetrieve(
+    public Response markMatchingSeriesForRetrieve1(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
@@ -226,7 +296,7 @@ public class QueryRetrieveRS {
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
     @Produces("application/json")
-    public Response markMatchingInstancesForRetrieve(
+    public Response markMatchingInstancesForRetrieve1(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
             @PathParam("QueryAET") String queryAET,

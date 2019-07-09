@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.export.rs;
 
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
