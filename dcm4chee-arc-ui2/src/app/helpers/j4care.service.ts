@@ -807,7 +807,7 @@ export class j4care {
         return attr && attr.Value && attr.Value[0];
     }
 
-    static floor(number:any, decimal?:number, asNumber?:boolean){
+    static round(number:any, decimal?:number, asNumber?:boolean){
         decimal = decimal || 2;
         try{
             if(number && number != ""){
