@@ -210,9 +210,6 @@
           "200": {
             "$ref": "#/components/responses/PatientID"
           },
-          "400": {
-            "description": "Patient ID in request body"
-          },
           "404": {
             "description": "There is no Archive AE with the specified Title."
           },
@@ -6774,7 +6771,7 @@
         "tags": [
           "PAM-RS"
         ],
-        "summary": "Update Patient in external archive",
+        "summary": "Update, Merge or Change Patient ID of Patient in external archive",
         "operationId": "UpdatePatientExternal",
         "parameters": [
           {
@@ -6785,6 +6782,9 @@
           },
           {
             "$ref": "#/components/parameters/queue"
+          },
+          {
+            "$ref": "#/components/parameters/merge"
           }
         ],
         "requestBody": {
@@ -6798,7 +6798,7 @@
             "description": "Message accepted by Receiving HL7 Application"
           },
           "400": {
-            "description": "JSON request body was not well formed."
+            "description": "JSON request body was not well formed or Circular merge of patients not allowed."
           },
           "404": {
             "description": "HL7 Application or External HL7 Application not configured"
@@ -8922,14 +8922,17 @@
         "tags": [
           "PAM-RS"
         ],
-        "summary": "Update or Create patient",
-        "operationId": "UpdateOrCreatePatient",
+        "summary": "Update, Create, Merge or Change Patient ID of patient",
+        "operationId": "UpdatePatient",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
           },
           {
             "$ref": "#/components/parameters/patientPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/merge"
           }
         ],
         "requestBody": {
@@ -8940,7 +8943,7 @@
             "description": "successful operation"
           },
           "400": {
-            "description": "Missing Patient ID in request body"
+            "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed."
           },
           "404": {
             "description": "There is no Archive AE with the specified Title."
@@ -13937,6 +13940,15 @@
         "description": "Only enable Instance Availability Notification without export",
         "schema": {
           "type": "boolean"
+        }
+      },
+      "merge": {
+        "name": "merge",
+        "in": "query",
+        "description": "Merge Patient",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       }
     },
