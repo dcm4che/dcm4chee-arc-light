@@ -70,12 +70,9 @@ export class MetricsComponent implements OnInit {
                     let bin:number = _.parseInt(this.filterObject["bin"].toString()) || 1;
                     let currentServerTime = new Date(this.appService.serverTime);
                     this.metrics = metrics.map( (metric,i)=>{
-                        // let time:Date = currentServerTime;
                         if(i != 0){
-                            console.log("min=",currentServerTime.getMinutes() - bin);
                             currentServerTime.setMinutes(currentServerTime.getMinutes() - bin);
                         }
-                        console.log("currentServerTime",currentServerTime);
                         if(!_.isEmpty(metric)){
                             return {
                                 time:j4care.formatDate(currentServerTime,"HH:mm"),
