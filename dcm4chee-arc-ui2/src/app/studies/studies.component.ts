@@ -2396,7 +2396,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                             if(result.dcmQueueName){
                                 params['dcmQueueName'] = result.dcmQueueName
                             }
-                            urlRest = `${url}/export/dicom:${result.selectedAet}`;
+                            urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                             // urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
     /*                        switch (dicomMode){
                                 case 'study':
@@ -2424,7 +2424,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }
                 $this.$http.post(
                     urlRest,
-                    params,
+                    undefined,
                     $this.jsonHeader
                 ).subscribe(
                     (result) => {
