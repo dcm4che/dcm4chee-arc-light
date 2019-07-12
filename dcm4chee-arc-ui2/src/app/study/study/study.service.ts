@@ -1013,6 +1013,40 @@ export class StudyService {
         }
     }
 
+    modifyPatient(patientId:string,patientObject,deviceWebservice:StudyDeviceWebserviceModel){
+        const url = this.getModifyPatientUrl(deviceWebservice);
+        if(url){
+            if(patientId){
+                //Change patient;
+                return this.$http.put(`${url}/${patientId}`,patientObject);
+            }else{
+                //Create new patient
+                return this.$http.post(url,patientObject);
+            }
+        }
+        return Observable.throw({error:"Error on getting the WebApp URL"});
+    }
+
+    getModifyPatientUrl(deviceWebservice:StudyDeviceWebserviceModel){
+       return this.getDicomURL("patient", this.getModifyPatientWebApp(deviceWebservice));
+    }
+    getModifyPatientWebApp(deviceWebservice:StudyDeviceWebserviceModel):DcmWebApp{
+        if(deviceWebservice.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+            return deviceWebservice.selectedWebApp;
+        }else{
+            try{
+                return deviceWebservice.dcmWebAppServices.filter((webService:DcmWebApp)=>{
+                    if(webService.dcmWebServiceClass.indexOf("PAM_RS") > -1 && webService.dicomAETitle === deviceWebservice.selectedWebApp.dicomAETitle){
+                        return true;
+                    }
+                    return false;
+                })[0];
+            }catch (e) {
+                j4care.log("Error on getting the PAM_RS WebApp getModifyPatientUrl",e);
+                return undefined;
+            }
+        }
+    }
     getPatientIod(){
         if (this._patientIod) {
             return Observable.of(this._patientIod);

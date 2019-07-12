@@ -67,6 +67,15 @@
             <div class="line">
               <a href="" (click)="$event.preventDefault();filter.expand=true" *ngIf="!filter.expand" class="more pull-left">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
               <a href="" (click)="$event.preventDefault();filter.expand=false" *ngIf="filter.expand" class="more [hidden] pull-left">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
+              <dcm-drop-down
+                  [placeholder]="moreFunctionConfig.placeholder"
+                  [options]="moreFunctionConfig.options"
+                  [editable]="false"
+                  [showSearchField]="false"
+                  [multiSelectMode]="false"
+                  (modelChange)="moreFunctionChanged($event)"
+                  [showStar]="false"
+              ></dcm-drop-down>
             </div>
           </div>
         </div>

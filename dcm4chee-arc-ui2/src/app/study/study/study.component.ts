@@ -129,6 +129,13 @@ export class StudyComponent implements OnInit {
     deviceWebservice:StudyDeviceWebserviceModel;
     dialogRef: MatDialogRef<any>;
     lastPressedCode;
+    moreFunctionConfig = {
+        placeholder: "More functions",
+        options:[
+            new SelectDropdown("create_patient","Create patient"),
+            new SelectDropdown("upload_dicom","Upload DICOM Object"),
+        ]
+    };
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -172,6 +179,15 @@ export class StudyComponent implements OnInit {
     }
 
 
+    moreFunctionChanged(e){
+        console.log("e",e);
+        switch (e){
+            case "create_patient":{
+                this.createPatient();
+                break;
+            }
+        }
+    }
     actions(id, model){
         console.log("id",id);
         console.log("model",model);
@@ -203,6 +219,7 @@ export class StudyComponent implements OnInit {
             }
             if(id.action === "edit_patient"){
                 //TODO edit patient
+                this.editPatient(model);
             }
             if(id.action === "create_mwl"){
                 //TODO Create mwl
@@ -533,120 +550,69 @@ export class StudyComponent implements OnInit {
         })
     }
 
-    editPatient(patient, patientkey){
-        let config:{saveLabel:string,titleLabel:string};
-        config.saveLabel = 'SAVE';
-        config.titleLabel = 'Edit patient ';
-        config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
-        config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
-        this.modifyPatient(patient, 'edit', patientkey, config);
+    createPatient(){
+        let config:{saveLabel:string,titleLabel:string} = {
+            saveLabel:'CREATE',
+            titleLabel:'Create new patient'
+        };
+        let newPatient: any = {
+            'attrs': {
+                '00100010': { 'vr': 'PN', 'Value': [{
+                        Alphabetic: ''
+                    }]},
+                '00100020': { 'vr': 'LO', 'Value': ['']},
+                '00100021': { 'vr': 'LO', 'Value': ['']},
+                '00100030': { 'vr': 'DA', 'Value': ['']},
+                '00100040': { 'vr': 'CS', 'Value': ['']}
+            }
+        };
+        this.modifyPatient(newPatient, 'create', config);
     };
 
-    modifyPatient(patient, mode , patientkey, config?:{saveLabel:string,titleLabel:string}){
-        let originalPatientObject = _.cloneDeep(patient);
-        this.config.viewContainerRef = this.viewContainerRef;
-        let oldPatientID;
-        this.lastPressedCode = 0;
-        let modifyPatientService;
-        if (mode === 'edit'){
-            _.forEach(patient.attrs, function(value, index) {
-                let checkValue = '';
-                if (value.Value && value.Value.length){
-                    checkValue = value.Value.join('');
-                }
-                if (!(value.Value && checkValue != '')){
-                    delete patient.attrs[index];
-                }
-                if (index === '00100040' && patient.attrs[index] && patient.attrs[index].Value && patient.attrs[index].Value[0]){
-                    patient.attrs[index].Value[0] = patient.attrs[index].Value[0].toUpperCase();
-                }
-            });
-            oldPatientID = this.service.getPatientId(patient.attrs);
-        }
-        let $this = this;
-        this.service.getPatientIod().subscribe((iod) => {
-            $this.service.patientIod = iod;
+    editPatient(patient){
+        let config:{saveLabel:string,titleLabel:string} = {
+            saveLabel:'SAVE',
+            titleLabel:'Edit patient'
+        };
+        config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
+        config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
+        this.modifyPatient(patient, 'edit', config);
+    };
 
-            $this.service.initEmptyValue(patient.attrs);
-            $this.dialogRef = $this.dialog.open(EditPatientComponent, {
+    modifyPatient(patient, mode:("edit"|"create") , config?:{saveLabel:string,titleLabel:string}){
+        let originalPatientObject;
+        if(mode === "edit"){
+            originalPatientObject = _.cloneDeep(patient);
+        }
+        this.lastPressedCode = 0;
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.service.getPatientIod().subscribe((iod) => {
+            this.service.patientIod = iod;
+
+            this.service.initEmptyValue(patient.attrs);
+            this.dialogRef = this.dialog.open(EditPatientComponent, {
                 height: 'auto',
                 width: '90%'
             });
 
-            $this.dialogRef.componentInstance.mode = mode;
-            $this.dialogRef.componentInstance.patient = patient;
-            $this.dialogRef.componentInstance.patientkey = patientkey;
-            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(iod);
-            $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(iod, 'items', 'Value');
-            $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
-            $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
-            // $this.dialogRef.componentInstance.externalInternalAetMode = $this.externalInternalAetMode;
-            $this.dialogRef.afterClosed().subscribe(result => {
-/*                //If user clicked save
+            this.dialogRef.componentInstance.mode = mode;
+            this.dialogRef.componentInstance.patient = patient;
+            this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
+            this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
+            this.dialogRef.componentInstance.saveLabel = config.saveLabel;
+            this.dialogRef.componentInstance.titleLabel = config.titleLabel;
+            this.dialogRef.afterClosed().subscribe(result => {
                 if (result){
                     if(mode === "create"){
-                        if(this.service.getPatientId(patient.attrs)){
-                            modifyPatientService = $this.service.modifyPatient(patient, iod, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode,this.externalInternalAetMode === "external");
-                            if(modifyPatientService){
-                                modifyPatientService.save.subscribe((response)=>{
-                                    this.fireRightQuery();
-                                    this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': modifyPatientService.successMsg,
-                                        'status': 'info'
-                                    });
-                                },(err)=>{
-                                    _.assign(patient, originalPatientObject);
-                                    $this.httpErrorHandler.handleError(err);
-                                });
-                            }
-                        }else{
-                            this.service.createPatient(
-                                patient.attrs,
-                                this.aet,
-                                this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes),
-                                this.externalInternalAetModel.hl7ApplicationName,
-                                this.externalInternalAetMode
-                            ).subscribe((res)=>{
-                                this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Patient created successfully!',
-                                    'status': 'info'
-                                });
-                            },(err)=>{
-                                this.httpErrorHandler.handleError(err);
-                            });
-                        }
+                        this.service.modifyPatient(undefined,patient.attrs,this.deviceWebservice).subscribe(res=>{
+                            this.appService.showMsg("Patient created successfully");
+                        },err=>{
+                            this.httpErrorHandler.handleError(err);
+                        });
                     }else{
-                        this.service.changePatientID(
-                            oldPatientID,
-                            this.service.getPatientId(patient.attrs),
-                            patient.attrs,
-                            this.aet,
-                            this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes),
-                            this.externalInternalAetModel.hl7ApplicationName,
-                            this.externalInternalAetMode
-                        ).subscribe((idChanged)=>{
-                            let id = oldPatientID;
-                            if(idChanged)
-                                id = this.service.getPatientId(patient.attrs);
-                            modifyPatientService = $this.service.modifyPatient(patient, iod, id, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode, this.externalInternalAetMode === "external");
-                            if(modifyPatientService){
-                                modifyPatientService.save.subscribe((response)=>{
-                                    this.fireRightQuery();
-                                    this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': modifyPatientService.successMsg,
-                                        'status': 'info'
-                                    });
-                                },(err)=>{
-                                    _.assign(patient, originalPatientObject);
-                                    $this.httpErrorHandler.handleError(err);
-                                });
-                            }else{
-                                _.assign(patient, originalPatientObject);
-                            }
-                        },(err)=>{
+                        this.service.modifyPatient(this.service.getPatientId(patient.attrs),patient.attrs,this.deviceWebservice).subscribe(res=>{
+                            this.appService.showMsg("Patient updated successfully");
+                        },err=>{
                             _.assign(patient, originalPatientObject);
                             this.httpErrorHandler.handleError(err);
                         });
@@ -654,10 +620,10 @@ export class StudyComponent implements OnInit {
                 }else{
                     _.assign(patient, originalPatientObject);
                 }
-                $this.dialogRef = null;*/
+                this.dialogRef = null;
             });
         }, (err) => {
-            $this.httpErrorHandler.handleError(err);
+            this.httpErrorHandler.handleError(err);
             console.log('error', err);
         });
     };
