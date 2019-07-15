@@ -212,9 +212,11 @@ public class StoreServiceEJB {
             rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
             if (rjNote != null) {
                 result.setRejectionNote(rjNote);
-                rejectInstances(ctx, rjNote, conceptNameCode, arcAE);
-                if (rjNote.isRevokeRejection())
+                if (rjNote.isRevokeRejection()) {
+                    revokeRejection(ctx, arcAE);
                     return result;
+                }
+                rejectInstances(ctx, rjNote, conceptNameCode, arcAE);
             }
         }
         boolean createLocations = ctx.getLocations().isEmpty();
@@ -342,64 +344,121 @@ public class StoreServiceEJB {
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         Duration seriesMetadataDelay = arcAE.seriesMetadataDelay();
+        Duration purgeInstanceRecordsDelay = arcAE.purgeInstanceRecordsDelay();
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
             String studyUID = studyRef.getString(Tag.StudyInstanceUID);
             Series series = null;
             for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
-                Instance inst = null;
                 String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
                 series = findSeries(studyUID, seriesUID);
-                if (series == null)
-                    throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
-                            MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_SERIES_MSG, seriesUID));
+                if (series != null && rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED)
+                    checkExpirationDate(series, arcAE);
 
-                if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED)
-                    checkExpirationDate(series, arcAE.allowRejectionForDataRetentionPolicyExpired());
-
-                restoreInstances(session, series, studyUID, null, null);
                 for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
                     String classUID = sopRef.getString(Tag.ReferencedSOPClassUID);
                     String objectUID = sopRef.getString(Tag.ReferencedSOPInstanceUID);
-                    inst = rejectInstance(session, series, objectUID, classUID, rjNote, rejectionCode);
+                    RejectedInstance rejectedInstance = findRejectedInstance(studyUID, seriesUID, objectUID);
+                    if (rejectedInstance != null) {
+                        LOG.info("{}: Detect previous {}", session, rejectedInstance);
+                        CodeEntity prevRjNoteCode = rejectedInstance.getRejectionNoteCode();
+                        if (rejectionCode.getPk() != prevRjNoteCode.getPk()) {
+                            if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
+                                throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
+                                        MessageFormat.format(StoreService.REJECTION_FAILED_ALREADY_REJECTED_MSG, objectUID));
+                            rejectedInstance.setRejectionNoteCode(rejectionCode);
+                            LOG.info("{}: {}", session, rejectedInstance);
+                        }
+                    } else {
+                        rejectedInstance = new RejectedInstance(studyUID, seriesUID, objectUID, classUID, rejectionCode);
+                        em.persist(rejectedInstance);
+                        LOG.info("{}: {}", session, rejectedInstance);
+                    }
                 }
-                if (inst != null) {
-                    RejectionState rejectionState = rjNote.isRevokeRejection()
-                            ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
-                            : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
+                if (series != null) {
+                    restoreInstances(session, series, studyUID, purgeInstanceRecordsDelay, null);
+                    RejectionState rejectionState = hasNotRejectedInstances(series)
+                            ? RejectionState.PARTIAL : RejectionState.COMPLETE;
                     series.setRejectionState(rejectionState);
                     if (rejectionState == RejectionState.COMPLETE)
                         series.setExpirationDate(null);
                     deleteSeriesQueryAttributes(series);
                     series.scheduleMetadataUpdate(seriesMetadataDelay);
-                    series.setInstancePurgeTime(null);
                 }
             }
             if (series != null) {
                 Study study = series.getStudy();
-                if (rjNote.isRevokeRejection()) {
-                    if (study.getRejectionState() == RejectionState.COMPLETE)
-                        study.getPatient().incrementNumberOfStudies();
-                    study.setRejectionState(
-                            hasSeriesWithOtherRejectionState(study, RejectionState.NONE)
-                                    ? RejectionState.PARTIAL
-                                    : RejectionState.NONE);
-                } else {
-                    if (hasSeriesWithOtherRejectionState(study, RejectionState.COMPLETE))
-                        study.setRejectionState(RejectionState.PARTIAL);
-                    else {
-                        study.setRejectionState(RejectionState.COMPLETE);
-                        study.setExpirationDate(null);
-                        study.getPatient().decrementNumberOfStudies();
-                    }
+                if (hasSeriesWithOtherRejectionState(study, RejectionState.COMPLETE))
+                    study.setRejectionState(RejectionState.PARTIAL);
+                else {
+                    study.setRejectionState(RejectionState.COMPLETE);
+                    study.setExpirationDate(null);
+                    study.getPatient().decrementNumberOfStudies();
                 }
                 deleteStudyQueryAttributes(study);
             }
         }
     }
 
-    private void checkExpirationDate(Series series, AllowRejectionForDataRetentionPolicyExpired policy)
-            throws DicomServiceException {
-        switch (policy) {
+    private void revokeRejection(StoreContext ctx, ArchiveAEExtension arcAE) throws DicomServiceException {
+        StoreSession session = ctx.getStoreSession();
+        Duration seriesMetadataDelay = arcAE.seriesMetadataDelay();
+        Duration purgeInstanceRecordsDelay = arcAE.purgeInstanceRecordsDelay();
+        for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
+            String studyUID = studyRef.getString(Tag.StudyInstanceUID);
+            Series series = null;
+            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
+                int revoked = 0;
+                String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
+                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
+                    String objectUID = sopRef.getString(Tag.ReferencedSOPInstanceUID);
+                    String classUID = sopRef.getString(Tag.ReferencedSOPClassUID);
+                    RejectedInstance rejectedInstance = findRejectedInstance(studyUID, seriesUID, objectUID);
+                    if (rejectedInstance != null) {
+                        em.remove(rejectedInstance);
+                        revoked++;
+                        LOG.info("{}: Revoke {}", session, rejectedInstance);
+                    } else {
+                        LOG.info("{}: Ignore Revoke Rejection of Instance[uid={},class={}] of Series[uid={}] " +
+                                        "of Study[uid={}]", session, objectUID, classUID, seriesUID, studyUID);
+                    }
+                }
+                if (revoked > 0) {
+                    series = findSeries(studyUID, seriesUID);
+                    if (series != null) {
+                        restoreInstances(session, series, studyUID, purgeInstanceRecordsDelay, null);
+                        series.setRejectionState(
+                                hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE);
+                        deleteSeriesQueryAttributes(series);
+                        series.scheduleMetadataUpdate(seriesMetadataDelay);
+                    }
+                }
+            }
+            if (series != null) {
+                Study study = series.getStudy();
+                if (study.getRejectionState() == RejectionState.COMPLETE)
+                    study.getPatient().incrementNumberOfStudies();
+                study.setRejectionState(
+                        hasSeriesWithOtherRejectionState(study, RejectionState.NONE)
+                                ? RejectionState.PARTIAL
+                                : RejectionState.NONE);
+            }
+        }
+    }
+
+    private RejectedInstance findRejectedInstance(String studyIUID, String seriesIUID, String sopIUID) {
+        try {
+            return em.createNamedQuery(RejectedInstance.FIND_BY_UIDS, RejectedInstance.class)
+                    .setParameter(1, studyIUID)
+                    .setParameter(2, seriesIUID)
+                    .setParameter(3, sopIUID)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    private void checkExpirationDate(Series series, ArchiveAEExtension arcAE) throws DicomServiceException {
+        switch (arcAE.allowRejectionForDataRetentionPolicyExpired()) {
             case NEVER:
                 throw new DicomServiceException(StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED,
                     StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED_MSG);
@@ -442,32 +501,6 @@ public class StoreServiceEJB {
                 .setParameter(1, study)
                 .setParameter(2, rejectionState)
                 .getSingleResult() > 0;
-    }
-
-    private Instance rejectInstance(StoreSession session, Series series,
-                                    String objectUID, String classUID, RejectionNote rjNote,
-                                    CodeEntity rejectionCode) throws DicomServiceException {
-        Instance inst = findInstance(series, objectUID);
-        if (inst == null)
-            throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
-                    MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE_MSG, objectUID));
-        if (!inst.getSopClassUID().equals(classUID))
-            throw new DicomServiceException(StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT,
-                    MessageFormat.format(StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT_MSG, objectUID));
-        CodeEntity prevRjNoteCode = inst.getRejectionNoteCode();
-        if (prevRjNoteCode != null) {
-            if (!rjNote.isRevokeRejection() && rejectionCode.getPk() == prevRjNoteCode.getPk())
-                return inst;
-            if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
-                throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
-                        MessageFormat.format(StoreService.REJECTION_FAILED_ALREADY_REJECTED_MSG, objectUID));
-        }
-        inst.setRejectionNoteCode(rjNote.isRevokeRejection() ? null : rejectionCode);
-        if (!rjNote.isRevokeRejection())
-            LOG.info("{}: Reject {} by {}", session, inst, rejectionCode.getCode());
-        else if (prevRjNoteCode != null)
-            LOG.info("{}: Revoke Rejection of {} by {}", session, inst, prevRjNoteCode.getCode());
-        return inst;
     }
 
     private RejectionNote getRejectionNote(ArchiveDeviceExtension arcDev, CodeEntity codeEntry) {

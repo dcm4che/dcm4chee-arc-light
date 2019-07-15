@@ -22,6 +22,7 @@ create index FK_39gahcxyursxfxe2ucextr65s on patient (patient_id_fk) ;
 create index FK_rj42ffdtimnrcwmqqlvj24gi2 on patient (pat_name_fk) ;
 create index FK_56r2g5ggptqgcvb3hl11adke2 on patient (resp_person_fk) ;
 create index FK_oo232lt89k1b5h8mberi9v152 on patient_id (issuer_fk) ;
+create index FK_iafiq2ugv5rd6fonwd0vd7xdx on rejected_instance (reject_code_fk) ;
 create index FK_fryhnb2ppb6fcop3jrrfwvnfy on rel_study_pcode (pcode_fk) ;
 create index FK_mnahh8fh77d365m6w2x4x3f4q on rel_study_pcode (study_fk) ;
 create index FK_mxokt1gw5g1e7rc3ssotvuqix on retrieve_task (queue_msg_fk) ;

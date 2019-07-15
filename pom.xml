@@ -55,7 +55,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-javaee8.version>16.0.0.Final</wildfly-javaee8.version>
+    <wildfly-javaee8.version>17.0.0.Final</wildfly-javaee8.version>
     <jbossws-cxf-client.version>5.2.4.Final</jbossws-cxf-client.version>
     <apache-cxf.version>3.2.7</apache-cxf.version>
     <maven-war-plugin.version>3.2.0</maven-war-plugin.version>

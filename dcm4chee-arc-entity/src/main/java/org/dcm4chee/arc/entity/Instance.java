@@ -129,13 +129,19 @@ import java.util.*;
             "and se.seriesInstanceUID = ?2 " +
             "and i.sopInstanceUID = ?3"),
 @NamedQuery(
-    name=Instance.COUNT_REJECTED_INSTANCES_OF_SERIES,
-    query="select count(i) from Instance i " +
-            "where i.series = ?1 and i.rejectionNoteCode is not null"),
+    name = Instance.COUNT_REJECTED_INSTANCES_OF_SERIES,
+    query = "select count(i) from Instance i " +
+            "where i.series = ?1 and i.sopInstanceUID in (" +
+            "select ri.sopInstanceUID from RejectedInstance ri " +
+            "where ri.studyInstanceUID = i.series.study.studyInstanceUID " +
+            "and ri.seriesInstanceUID = i.series.seriesInstanceUID)"),
 @NamedQuery(
-    name=Instance.COUNT_NOT_REJECTED_INSTANCES_OF_SERIES,
-    query="select count(i) from Instance i " +
-            "where i.series = ?1 and i.rejectionNoteCode is null"),
+    name = Instance.COUNT_NOT_REJECTED_INSTANCES_OF_SERIES,
+    query ="select count(i) from Instance i " +
+            "where i.series = ?1 and i.sopInstanceUID not in (" +
+            "select ri.sopInstanceUID from RejectedInstance ri " +
+            "where ri.studyInstanceUID = i.series.study.studyInstanceUID " +
+            "and ri.seriesInstanceUID = i.series.seriesInstanceUID)"),
 @NamedQuery(
     name=Instance.COUNT_INSTANCES_OF_SERIES,
     query="select count(i) from Instance i " +
