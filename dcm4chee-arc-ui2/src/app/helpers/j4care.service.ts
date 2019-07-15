@@ -53,6 +53,7 @@ export class j4care {
                 link.appendChild(linkText);
                 link.href = url;
                 link.download=filename;
+                link.target='_blank';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);

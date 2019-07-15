@@ -22,7 +22,11 @@ declare var DCM4CHE: any;
 
 @Injectable()
 export class StudyService {
+
     private _patientIod;
+    private _mwlIod;
+    private _studyIod;
+    integerVr = ['DS', 'FL', 'FD', 'IS', 'SL', 'SS', 'UL', 'US'];
 
     constructor(
       private aeListService:AeListService,
@@ -37,6 +41,22 @@ export class StudyService {
 
     set patientIod(value) {
         this._patientIod = value;
+    }
+
+    get mwlIod() {
+        return this._mwlIod;
+    }
+
+    set mwlIod(value) {
+        this._mwlIod = value;
+    }
+
+    get studyIod() {
+        return this._studyIod;
+    }
+
+    set studyIod(value) {
+        this._studyIod = value;
     }
 
     getEntrySchema(devices, aetWebService):{schema:FilterSchema, lineLength:number}{
@@ -91,6 +111,40 @@ export class StudyService {
         }
     }
 
+    clearPatientObject(object){
+        let $this = this;
+        _.forEach(object, function(m, i){
+            if (typeof(m) === 'object' && i != 'vr'){
+                $this.clearPatientObject(m);
+            }else{
+                let check = typeof(i) === 'number' || i === 'vr' || i === 'Value' || i === 'Alphabetic' || i === 'Ideographic' || i === 'Phonetic' || i === 'items';
+                if (!check){
+                    delete object[i];
+                }
+            }
+        });
+    };
+    convertStringToNumber(object){
+        let $this = this;
+        _.forEach(object, function(m, i){
+            if (typeof(m) === 'object' && i != 'vr'){
+                $this.convertStringToNumber(m);
+            }else{
+                if (i === 'vr'){
+                    if (($this.integerVr.indexOf(object.vr) > -1 && object.Value && object.Value.length > 0)){
+                        if (object.Value.length > 1){
+                            _.forEach(object.Value, (k, j) => {
+                                object.Value[j] = Number(object.Value[j]);
+                            });
+                        }else{
+                            object.Value[0] = Number(object.Value[0]);
+                        }
+                    }
+
+                }
+            }
+        });
+    };
     initEmptyValue(object){
         _.forEach(object, (m, k)=>{
             console.log('m', m);
@@ -321,12 +375,12 @@ export class StudyService {
             }/studies`;
     }
 
-    private rsURL(callingAet:Aet, accessLocation?:AccessLocation,  externalAet?:Aet, baseUrl?:string) {
+/*    private rsURL(callingAet:Aet, accessLocation?:AccessLocation,  externalAet?:Aet, baseUrl?:string) {
         if(accessLocation === "external" && externalAet){
             return `${baseUrl || '..'}/aets/${callingAet.dicomAETitle}/dims/${externalAet.dicomAETitle}`;
         }
         return `${baseUrl || '..'}/aets/${callingAet.dicomAETitle}/rs`;
-    }
+    }*/
 
     getAttributeFilter(entity?:string, baseUrl?:string){
         return this.$http.get(
@@ -521,7 +575,7 @@ export class StudyService {
                                         //TODO download csv
                                         actions.call($this, {
                                             event:"click",
-                                            level:"patient",
+                                            level:"study",
                                             action:"download_csv"
                                         },e);
                                     }
@@ -657,25 +711,80 @@ export class StudyService {
                     pxWidth:40
                 }),
                 new TableSchemaElement({
+                    type:"actions-menu",
+                    header:"",
+                    menu:{
+                        toggle:(e)=>{
+                            console.log("e",e);
+                            e.showMenu = !e.showMenu;
+                        },
+                        actions:[
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-pencil',
+                                    text:'',
+                                    description:'Edit this study',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"edit_study"
+                                    },e);
+                                }
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-export',
+                                    text:'',
+                                    description:'Export study',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"export_study"
+                                    },e);
+                                }
+                            },{
+                                icon:{
+                                    tag:'i',
+                                    cssClass:'material-icons',
+                                    text:'history',
+                                    description:'Set/Change expired date',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"modify_expired_date"
+                                    },e);
+                                }
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'custom_icon csv_icon_black',
+                                    text:'',
+                                    description:'Download as CSV',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"series",
+                                        action:"download_csv"
+                                    },e);
+                                }
+                            }
+                        ]
+                    },
+                    headerDescription:"Actions",
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
                     type:"actions",
                     header:"",
                     actions:[
-                        {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-option-vertical',
-                                text:''
-                            },
-                            click:(e)=>{
-                                console.log("e",e);
-                                /*                                actions.call($this, {
-                                                                    event:"click",
-                                                                    level:"patient",
-                                                                    action:"toggle_studies"
-                                                                },e);*/
-                                // e.showAttributes = !e.showAttributes;
-                            }
-                        },
                         {
                             icon:{
                                 tag:'span',
@@ -821,24 +930,40 @@ export class StudyService {
                     pxWidth:40
                 }),
                 new TableSchemaElement({
+                    type:"actions-menu",
+                    header:"",
+                    menu:{
+                        toggle:(e)=>{
+                            console.log("e",e);
+                            e.showMenu = !e.showMenu;
+                        },
+                        actions:[
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'custom_icon csv_icon_black',
+                                    text:'',
+                                    description:'Download as CSV',
+                                },
+                                click:(e)=>{
+                                    console.log("e",e);
+                                    //TODO download csv
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"instance",
+                                        action:"download_csv"
+                                    },e);
+                                }
+                            }
+                        ]
+                    },
+                    headerDescription:"Actions",
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
                     type:"actions",
                     header:"",
-                    actions:[                        {
-                        icon:{
-                            tag:'span',
-                            cssClass:'glyphicon glyphicon-option-vertical',
-                            text:''
-                        },
-                        click:(e)=>{
-                            console.log("e",e);
-                            /*                                actions.call($this, {
-                                                                event:"click",
-                                                                level:"patient",
-                                                                action:"toggle_studies"
-                                                            },e);*/
-                            // e.showAttributes = !e.showAttributes;
-                        }
-                    },
+                    actions:[
                         {
                             icon:{
                                 tag:'span',
@@ -1012,6 +1137,41 @@ export class StudyService {
             ]
         }
     }
+    modifyStudy(study,deviceWebservice:StudyDeviceWebserviceModel, header:HttpHeaders){
+        const url = this.getModifyStudyUrl(deviceWebservice);
+        if(url){
+            return this.$http.post(url,study, header);
+        }
+        return Observable.throw({error:"Error on getting the WebApp URL"});
+    }
+    getModifyStudyUrl(deviceWebservice:StudyDeviceWebserviceModel){
+        return this.getDicomURL("study", this.getModifyStudyWebApp(deviceWebservice));
+    }
+    getModifyStudyWebApp(deviceWebservice:StudyDeviceWebserviceModel):DcmWebApp{
+        if(deviceWebservice.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+            return deviceWebservice.selectedWebApp;
+        }else{
+            return undefined;
+        }
+    }
+
+    modifyMWL(mwl,deviceWebservice:StudyDeviceWebserviceModel, header:HttpHeaders){
+        const url = this.getModifyMWLUrl(deviceWebservice);
+        if(url){
+            return this.$http.post(url,mwl, header);
+        }
+        return Observable.throw({error:"Error on getting the WebApp URL"});
+    }
+    getModifyMWLUrl(deviceWebservice:StudyDeviceWebserviceModel){
+        return this.getDicomURL("mwl", this.getModifyMWLWebApp(deviceWebservice));
+    }
+    getModifyMWLWebApp(deviceWebservice:StudyDeviceWebserviceModel):DcmWebApp{
+        if(deviceWebservice.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+            return deviceWebservice.selectedWebApp;
+        }else{
+            return undefined;
+        }
+    }
 
     modifyPatient(patientId:string,patientObject,deviceWebservice:StudyDeviceWebserviceModel){
         const url = this.getModifyPatientUrl(deviceWebservice);
@@ -1047,6 +1207,21 @@ export class StudyService {
             }
         }
     }
+
+    appendPatientIdTo(patient, obj){
+        if (_.hasIn(patient, '00100020')){
+            obj['00100020'] = obj['00100020'] || {};
+            obj['00100020'] = patient['00100020'];
+        }
+        if (_.hasIn(patient, '00100021')){
+            obj['00100021'] = obj['00100021'] || {};
+            obj['00100021'] = patient['00100021'];
+        }
+        if (_.hasIn(patient, '00100024')){
+            obj['00100024'] = obj['00100024'] || {};
+            obj['00100024'] = patient['00100024'];
+        }
+    }
     getPatientIod(){
         if (this._patientIod) {
             return Observable.of(this._patientIod);
@@ -1054,4 +1229,161 @@ export class StudyService {
             return this.$http.get('assets/iod/patient.iod.json')
         }
     };
+    getStudyIod(){
+        if (this._studyIod) {
+            return Observable.of(this._studyIod);
+        } else {
+            return this.$http.get('assets/iod/study.iod.json')
+        }
+    };
+
+    getMwlIod(){
+        if (this._mwlIod) {
+            return Observable.of(this._mwlIod);
+        } else {
+            return this.$http.get(
+                'assets/iod/mwl.iod.json'
+            )
+        }
+    };
+
+    getPrepareParameterForExpiriationDialog(study, exporters, infinit){
+        let expiredDate:Date;
+        let title = "Set expired date for the study.";
+        let schema:any = [
+            [
+                [
+                    {
+                        tag:"label",
+                        text:"Expired date"
+                    },
+                    {
+                        tag:"p-calendar",
+                        filterKey:"expiredDate",
+                        description:"Expired Date"
+                    }
+                ]
+            ]
+        ];
+        let schemaModel = {};
+        if(infinit){
+            if(_.hasIn(study,"7777102B.Value[0]") && study["7777102B"].Value[0] === "FROZEN"){
+                schemaModel = {
+                    setExpirationDateToNever:false,
+                    FreezeExpirationDate:false
+                };
+                title = "Unfreeze/Unprotect Expiration Date of the Study";
+                schema = [
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:"Expired Date"
+                            },
+                            {
+                                tag:"p-calendar",
+                                filterKey:"expiredDate",
+                                description:"Expired Date"
+                            }
+                        ]
+                    ]
+                ];
+            }else{
+                title = "Freeze/Protect Expiration Date of the Study";
+                schemaModel = {
+                    setExpirationDateToNever:true,
+                    FreezeExpirationDate:true
+                };
+                schema = [
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:"Expired date",
+                                showIf:(model)=>{
+                                    return !model.setExpirationDateToNever
+                                }
+                            },
+                            {
+                                tag:"p-calendar",
+                                filterKey:"expiredDate",
+                                description:"Expired Date",
+                                showIf:(model)=>{
+                                    return !model.setExpirationDateToNever
+                                }
+                            }
+                        ],[
+                        {
+                            tag:"dummy"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"setExpirationDateToNever",
+                            description:"Set Expiration Date to 'never' if you want also to protect the study",
+                            text:"Set Expiration Date to 'never' if you want also to protect the study"
+                        }
+                    ],[
+                        {
+                            tag:"dummy"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"FreezeExpirationDate",
+                            description:"Freeze Expiration Date",
+                            text:"Freeze Expiration Date"
+                        }
+                    ]
+                    ]
+                ];
+            }
+        }else{
+            if(_.hasIn(study,"77771023.Value.0") && study["77771023"].Value[0] != ""){
+                let expiredDateString = study["77771023"].Value[0];
+                expiredDate = new Date(expiredDateString.substring(0, 4)+ '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
+            }else{
+                expiredDate = new Date();
+            }
+            schemaModel = {
+                expiredDate:j4care.formatDate(expiredDate,'yyyyMMdd')
+            };
+            title += "<p>Set exporter if you wan't to export on expiration date too.";
+            schema[0].push([
+                {
+                    tag:"label",
+                    text:"Exporter"
+                },
+                {
+                    tag:"select",
+                    filterKey:"exporter",
+                    description:"Exporter",
+                    options:exporters.map(exporter=> new SelectDropdown(exporter.id, exporter.description || exporter.id))
+                }])
+        }
+        return {
+            content: title,
+            form_schema:schema,
+            result: {
+                schema_model: schemaModel
+            },
+            saveButton: 'SAVE'
+        };
+    }
+    setExpiredDate(deviceWebservice:StudyDeviceWebserviceModel,studyUID, expiredDate, exporter, params?:any){
+        const url = this.getModifyStudyUrl(deviceWebservice);
+        let localParams = "";
+        if(exporter){
+            localParams = `?ExporterID=${exporter}`
+        }
+        if(params && Object.keys(params).length > 0){
+            if(localParams){
+                localParams += j4care.objToUrlParams(params);
+            }else{
+                localParams = `?${j4care.objToUrlParams(params)}`
+            }
+        }
+        return this.$http.put(`${url}/${studyUID}/expire/${expiredDate}${localParams}`,{})
+    }
+    getExporters(){
+        return this.$http.get('../export')
+    }
 }

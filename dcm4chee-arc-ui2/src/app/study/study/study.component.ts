@@ -35,6 +35,12 @@ import {DeviceConfiguratorService} from "../../configuration/device-configurator
 import {EditPatientComponent} from "../../widgets/dialogs/edit-patient/edit-patient.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {HttpHeaders} from "@angular/common/http";
+import {EditMwlComponent} from "../../widgets/dialogs/edit-mwl/edit-mwl.component";
+import {ComparewithiodPipe} from "../../pipes/comparewithiod.pipe";
+import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
+import {EditStudyComponent} from "../../widgets/dialogs/edit-study/edit-study.component";
+import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 
 
 @Component({
@@ -134,8 +140,10 @@ export class StudyComponent implements OnInit {
         options:[
             new SelectDropdown("create_patient","Create patient"),
             new SelectDropdown("upload_dicom","Upload DICOM Object"),
-        ]
+        ],
+        model:undefined
     };
+    exporters;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -187,6 +195,9 @@ export class StudyComponent implements OnInit {
                 break;
             }
         }
+        setTimeout(()=>{
+            this.moreFunctionConfig.model = undefined;
+        },1);
     }
     actions(id, model){
         console.log("id",id);
@@ -218,24 +229,153 @@ export class StudyComponent implements OnInit {
 
             }
             if(id.action === "edit_patient"){
-                //TODO edit patient
                 this.editPatient(model);
             }
+            if(id.action === "edit_study"){
+                this.editStudy(model);
+            }
+            if(id.action === "modify_expired_date"){
+                this.setExpiredDate(model);
+            }
             if(id.action === "create_mwl"){
-                //TODO Create mwl
-
+                this.createMWL(model);
             }
             if(id.action === "download_csv"){
-                //TODO download_csv
-
+                this.downloadCSV(model.attrs, id.level);
             }
         }else{
             this.appService.showError("No Web Application Service was selected!");
         }
     }
+    editMWL(patient, patientkey, mwlkey, mwl){
+        let config = {
+            saveLabel:'SAVE',
+            titleLabel:'Edit MWL of patient '
+        };
+        config.titleLabel = 'Edit MWL of patient ';
+        config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
+        config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
+        this.modifyMWL(patient, 'edit', patientkey, mwlkey, mwl, config);
+    };
+    createMWL(patient){
+        let mwl: any = {
+            'attrs': {
+                '00400100': {
+                    'vr': 'SQ',
+                    'Value': [{
+                        '00400001': { 'vr': 'AE', 'Value': ['']}
+                    }]
+                },
+                '0020000D': { 'vr': 'UI', 'Value': ['']},
+                '00400009': { 'vr': 'SH', 'Value': ['']},
+                '00080050': { 'vr': 'SH', 'Value': ['']},
+                '00401001': { 'vr': 'SH', 'Value': ['']}
+            }
+        };
+        let config = {
+            saveLabel:'CREATE',
+            titleLabel:'Create new MWL'
+        };
+        // modifyStudy(patient, "create");
+        this.modifyMWL(patient, 'create', '', '', mwl, config);
+    };
+    modifyMWL(patient, mode, patientkey, mwlkey, mwl, config:{saveLabel:string, titleLabel:string}){
+        let originalMwlObject = _.cloneDeep(mwl);
+        this.config.viewContainerRef = this.viewContainerRef;
+
+        this.lastPressedCode = 0;
+        if (mode === 'edit'){
+            _.forEach(mwl.attrs, function(value, index) {
+                let checkValue = '';
+                if (value.Value && value.Value.length){
+                    checkValue = value.Value.join('');
+                }
+                if (!(value.Value && checkValue != '')){
+                    delete mwl.attrs[index];
+                }
+            });
+            if (mwl.attrs['00400100'].Value[0]['00400002'] && !mwl.attrs['00400100'].Value[0]['00400002'].Value){
+                mwl.attrs['00400100'].Value[0]['00400002']['Value'] = [''];
+            }
+        }
+
+        // this.config.width = "800";
+
+        let $this = this;
+        this.service.getMwlIod().subscribe((res) => {
+            $this.service.patientIod = res;
+            let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
+            let mwlFiltered = _.cloneDeep(mwl);
+            mwlFiltered.attrs = new ComparewithiodPipe().transform(mwl.attrs, iod);
+            $this.service.initEmptyValue(mwlFiltered.attrs);
+            $this.dialogRef = $this.dialog.open(EditMwlComponent, {
+                height: 'auto',
+                width: '90%'
+            });
+            $this.dialogRef.componentInstance.iod = iod;
+            $this.dialogRef.componentInstance.mode = mode;
+            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
+            $this.dialogRef.componentInstance.mwl = mwlFiltered;
+            $this.dialogRef.componentInstance.mwlkey = mwlkey;
+            $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
+            $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
+            $this.dialogRef.afterClosed().subscribe(result => {
+                //If user clicked save
+                console.log('result', result);
+                if (result){
+                    $this.service.clearPatientObject(mwlFiltered.attrs);
+                    $this.service.convertStringToNumber(mwlFiltered.attrs);
+                    // StudiesService.convertDateToString($scope, "mwl");
+                    let local = {};
+
+                    $this.service.appendPatientIdTo(patient.attrs, local);
+
+                    _.forEach(mwlFiltered.attrs, function(m, i){
+                        if (res[i]){
+                            local[i] = m;
+                        }
+                    });
+                    _.forEach(mwlFiltered.attrs, function(m, i){
+                        if ((res && res[i] && res[i].vr != 'SQ') && m.Value && m.Value.length === 1 && m.Value[0] === ''){
+                            delete mwlFiltered.attrs[i];
+                        }
+                    });
+                    console.log('on post', local);
+                    this.service.modifyMWL(local,this.deviceWebservice, new HttpHeaders({ 'Content-Type': 'application/dicom+json' })).subscribe((response) => {
+                        if (mode === 'edit'){
+                            // _.assign(mwl, mwlFiltered);
+                            $this.appService.setMessage('MWL saved successfully!');
+                        }else{
+                            $this.appService.showMsg('MWL created successfully!');
+                        }
+                    }, (response) => {
+                        $this.httpErrorHandler.handleError(response);
+                    });
+                }else{
+                    _.assign(mwl, originalMwlObject);
+                }
+                $this.dialogRef = null;
+            });
+        }, (err) => {
+            console.log('error', err);
+        });
+    }
+
+    /*
+    * @confirmparameters is an object that can contain title, content
+    * */
+    confirm(confirmparameters){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.parameters = confirmparameters;
+        return this.dialogRef.afterClosed();
+    };
 
     downloadCSV(attr?, mode?){
-/*        let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
+        let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
         this.confirm({
             content:"Do you want to use semicolon as delimiter?",
             cancelButton:"No",
@@ -246,7 +386,7 @@ export class StudyComponent implements OnInit {
             if(ok)
                 semicolon = true;
             let token;
-            let url = `${this.rsURL()}/studies`;
+            let url = this.service.getDicomURL("study",this.deviceWebservice.selectedWebApp);
             this._keycloakService.getToken().subscribe((response)=>{
                 if(!this.appService.global.notSecure){
                     token = response.token;
@@ -274,9 +414,35 @@ export class StudyComponent implements OnInit {
                 j4care.downloadFile(`${url}?${this.appService.param(filterClone)}`,fileName);
                 // WindowRefService.nativeWindow.open(`${url}?${this.mainservice.param(filterClone)}`);
             });
-        })*/
+        })
     }
 
+    createQueryParams(offset, limit, filter) {
+        let params = {
+            offset: offset,
+            limit: limit
+        };
+        if(!this._filter.filterModel["onlyDefault"]){
+            params["includefield"] = 'all';
+        }
+
+        for (let key in filter){
+            if ((filter[key] || filter[key] === false) && key != "onlyDefault"){
+                params[key] = filter[key];
+            }
+        }
+        return params;
+    }
+    createStudyFilterParams() {
+        let filter = Object.assign({}, this._filter.filterModel);
+        delete filter["onlyDefault"];
+        delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
+        delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
+        if(!this._filter.filterModel["onlyDefault"]){
+            filter["includefield"] = 'all';
+        }
+        return filter;
+    }
     search(mode?:('next'|'prev'|'current')){
         if(this.deviceWebservice.selectedWebApp){
             // if (this._filter.filterModel.aet){
@@ -503,6 +669,7 @@ export class StudyComponent implements OnInit {
             this.httpErrorHandler.handleError(err);
         });
     }
+/*
     getApplicationEntities(){
         if(!this.applicationEntities.aetsAreSet){
             Observable.forkJoin(
@@ -510,14 +677,14 @@ export class StudyComponent implements OnInit {
                 this.service.getAets().map(aets=> aets.map(aet => new Aet(aet))),
             )
             .subscribe((res)=>{
-/*                [0,1].forEach(i=>{
+/!*                [0,1].forEach(i=>{
                     res[i] = j4care.extendAetObjectWithAlias(res[i]);
                     ["external","internal"].forEach(location=>{
                       this.applicationEntities.aes[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
                       this.applicationEntities.aets[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
                       this.applicationEntities.aetsAreSet = true;
                     })
-                });*/
+                });*!/
                 console.log("filter",this.filter);
                 this.setSchema();
             },(err)=>{
@@ -528,6 +695,7 @@ export class StudyComponent implements OnInit {
             this.setSchema();
         }
     }
+*/
 
     getDevices(){
         this.service.getDevices()
@@ -540,10 +708,12 @@ export class StudyComponent implements OnInit {
                     // this.deviceWebservice.setSelectedWebAppByString(this.appService.deviceName);
                     this.filter.filterEntryModel["device"] = this.appService.deviceName;
                     // this.entryFilterChanged();
+                    this.initExporters(2);
                 }else{
                     this.deviceWebservice = new StudyDeviceWebserviceModel({devices:devices});
                 }
-            this.getApplicationEntities();
+                this.setSchema();
+                // this.getApplicationEntities();
         },err=>{
             j4care.log("Something went wrong on getting Devices",err);
             this.httpErrorHandler.handleError(err);
@@ -627,6 +797,247 @@ export class StudyComponent implements OnInit {
             console.log('error', err);
         });
     };
+
+    editStudy(study){
+        let config:{saveLabel:string,titleLabel:string} = {
+            saveLabel:'SAVE',
+            titleLabel:'Edit study of patient '
+        };
+        config.titleLabel += ((_.hasIn(study, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + study.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
+        config.titleLabel += ((_.hasIn(study, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + study.attrs['00100020'].Value[0] + '</b>' : '');
+        this.modifyStudy(study, 'edit', config);
+    };
+    modifyStudy(study, mode, config?:{saveLabel:string,titleLabel:string}){
+        let $this = this;
+        this.config.viewContainerRef = this.viewContainerRef;
+        let originalStudyObject = _.cloneDeep(study);
+        if (mode === 'edit'){
+            _.forEach(study.attrs, function(value, index) {
+                let checkValue = '';
+                if (value.Value && value.Value.length){
+                    checkValue = value.Value.join('');
+                }
+                if (!(value.Value && checkValue != '')){
+                    delete study.attrs[index];
+                }
+            });
+        }
+        this.lastPressedCode = 0;
+        this.service.getStudyIod()
+            .map(iod=>{
+                this.service.patientIod = iod;
+                return iod;
+            })
+            .subscribe((res) => {
+                let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
+                let studyFiltered = _.cloneDeep(study);
+                studyFiltered.attrs = new ComparewithiodPipe().transform(study.attrs, iod);
+                $this.service.initEmptyValue(studyFiltered.attrs);
+                $this.dialogRef = $this.dialog.open(EditStudyComponent, {
+                    height: 'auto',
+                    width: '90%'
+                });
+                $this.dialogRef.componentInstance.study = studyFiltered;
+                $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
+                $this.dialogRef.componentInstance.iod = iod;
+                $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
+                $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
+                $this.dialogRef.componentInstance.mode = mode;
+                $this.dialogRef.afterClosed().subscribe(result => {
+                    if (result){
+                        $this.service.clearPatientObject(studyFiltered.attrs);
+                        $this.service.convertStringToNumber(studyFiltered.attrs);
+                        let local = {};
+                        $this.service.appendPatientIdTo(study.attrs, local);
+                        _.forEach(studyFiltered.attrs, function(m, i){
+                            if (res[i]){
+                                local[i] = m;
+                            }
+                        });
+                        this.service.modifyStudy(local,this.deviceWebservice, new HttpHeaders({ 'Content-Type': 'application/dicom+json' })).subscribe(
+                            () => {
+                                $this.appService.showMsg('Study saved successfully!');
+                            },
+                            (err) => {
+                                $this.httpErrorHandler.handleError(err);
+                            }
+                        );
+                    }else{
+                        _.assign(study, originalStudyObject);
+                    }
+                    $this.dialogRef = null;
+                });
+            });
+    };
+
+    setExpiredDate(study){
+        this.setExpiredDateQuery(study,false);
+    }
+
+    setExpiredDateQuery(study, infinit){
+        this.confirm(this.service.getPrepareParameterForExpiriationDialog(study,this.exporters, infinit)).subscribe(result => {
+            if(result){
+                this.cfpLoadingBar.start();
+                if(result.schema_model.expiredDate){
+                    this.service.setExpiredDate(this.deviceWebservice, _.get(study,"attrs.0020000D.Value[0]"), result.schema_model.expiredDate, result.schema_model.exporter).subscribe(
+                        (res)=>{
+                            _.set(study,"attrs.77771023.Value[0]",result.schema_model.expiredDate);
+                            _.set(study,"attrs.77771023.vr","DA");
+                            this.appService.showMsg( 'Expired date set successfully!');
+                            this.cfpLoadingBar.complete();
+                        },
+                        (err)=>{
+                            this.httpErrorHandler.handleError(err);
+                            this.cfpLoadingBar.complete();
+                        }
+                    );
+                }else{
+                    this.appService.showError("Expired date is requred!");
+                }
+            }
+        });
+    }
+
+    initExporters(retries) {
+        this.service.getExporters()
+            .subscribe(
+                (res)=> {
+                    this.exporters = res;
+/*                    if (res && res[0] && res[0].id){
+                        $this.exporterID = res[0].id;
+                    }*/
+                    // $this.mainservice.setGlobal({exporterID:$this.exporterID});
+                },
+                (res)=> {
+                    if (retries)
+                        this.initExporters(retries - 1);
+                });
+    }
+    /*exportStudy(study) {
+        this.exporter(
+            this.studyURL(study.attrs),
+            'Export study',
+            'Study will not be sent!',
+            'single',
+            study.attrs,
+            "study"
+        );
+    };
+    exportSeries(series) {
+        this.exporter(
+            this.seriesURL(series.attrs),
+            'Export series',
+            'Series will not be sent!',
+            'single',
+            series.attrs,
+            "series"
+        );
+    };
+    exportInstance(instance) {
+        this.exporter(
+            this.instanceURL(instance.attrs),
+            'Export instance',
+            'Instance will not be sent!',
+            'single',
+            instance.attrs,
+            "instance"
+        );
+    };
+    exporter(url, title, warning, mode, objectAttr, dicomMode){
+        let $this = this;
+        let id;
+        let urlRest;
+        let noDicomExporters = [];
+        let dicomPrefixes = [];
+/!*        _.forEach(this.exporters, (m, i) => {
+            if (m.id.indexOf(':') > -1){
+                dicomPrefixes.push(m);
+            }else{
+                noDicomExporters.push(m);
+            }
+        });*!/
+        this.config.viewContainerRef = this.viewContainerRef;
+        let config = {
+            height: 'auto',
+            width: '500px'
+        };
+        if(mode === "multiple"){
+            config = {
+                height: 'auto',
+                width: '600px'
+            };
+        }
+        this.dialogRef = this.dialog.open(ExportDialogComponent, config);
+        this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
+        this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
+        // this.dialogRef.componentInstance.externalInternalAetMode = this.externalInternalAetMode;
+        this.dialogRef.componentInstance.title = title;
+        this.dialogRef.componentInstance.mode = mode;
+        // this.dialogRef.componentInstance.queues = this.queues;
+        this.dialogRef.componentInstance.warning = warning;
+        // this.dialogRef.componentInstance.count = this.count;
+/!*        if($this.externalInternalAetMode === 'external') {
+            this.dialogRef.componentInstance.preselectedExternalAET = this.externalInternalAetModel.dicomAETitle;
+        }*!/
+        this.dialogRef.afterClosed().subscribe(result => {
+            if (result){
+                let batchID = "";
+                let params = {};
+                if(result.batchID)
+                    batchID = `batchID=${result.batchID}&`;
+                $this.cfpLoadingBar.start();
+                if(mode === "multiple"){
+                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.mainservice.param(this.createStudyFilterParams())}` ;
+                }else{
+                    if(mode === 'multipleExport'){
+                        let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
+                        if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
+                            checkbox = '&' + checkbox;
+                        urlRest = `../aets/${this.aet}/export/${result.selectedExporter}/studies?${batchID}${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
+                    }else{
+                        if($this.externalInternalAetMode === 'external'){
+                            // let param = result.dcmQueueName ? `?${batchID}dcmQueueName=${result.dcmQueueName}` : '';
+                            if(result.dcmQueueName){
+                                params['dcmQueueName'] = result.dcmQueueName
+                            }
+                            urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                        }else{
+                            if (result.exportType === 'dicom'){
+                                //id = result.dicomPrefix + result.selectedAet;
+                                id = 'dicom:' + result.selectedAet;
+                            }else{
+                                id = result.selectedExporter;
+                            }
+                            urlRest = url  + '/export/' + id + '?'+ batchID + this.mainservice.param(result.checkboxes);
+                        }
+                    }
+                }
+                $this.$http.post(
+                    urlRest,
+                    undefined,
+                    $this.jsonHeader
+                ).subscribe(
+                    (result) => {
+                        $this.mainservice.setMessage({
+                            'title': 'Info',
+                            'text': $this.service.getMsgFromResponse(result,'Command executed successfully!'),
+                            'status': 'info'
+                        });
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (err) => {
+                        console.log("err",err);
+                        $this.mainservice.setMessage({
+                            'title': 'Error ' + err.status,
+                            'text': $this.service.getMsgFromResponse(err),
+                            'status': 'error'
+                        });
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+            }
+        });
+    }*/
 
     testSecure(){
         this.appService.isSecure().subscribe((res)=>{

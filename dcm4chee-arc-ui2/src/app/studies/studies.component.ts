@@ -1127,7 +1127,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }else{
                     this.mainservice.showError("Expired date is requred!");
                 }
-                // study["77771023"].Value[0] = result.pCalendar[0];
             }
         });
     }

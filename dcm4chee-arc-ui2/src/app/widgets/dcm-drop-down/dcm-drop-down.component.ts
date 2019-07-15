@@ -49,11 +49,15 @@ export class DcmDropDownComponent implements OnInit {
     @Input('model')
     set model(value){
         if(!(this.selectedDropdown && this.selectedDropdown.value === value) && !this.multiSelectMode){
-            this.selectedValue = value;
-            console.log("this.getSelectDropdownFromValue(value);",this.getSelectDropdownFromValue(value));
-            this.selectedDropdown  = this.getSelectDropdownFromValue(value);
-            // this.setSelectedElement();
-            this.setSelectedElement();
+            if(value){
+                this.selectedValue = value;
+                console.log("this.getSelectDropdownFromValue(value);",this.getSelectDropdownFromValue(value));
+                this.selectedDropdown  = this.getSelectDropdownFromValue(value);
+                // this.setSelectedElement();
+                this.setSelectedElement();
+            }else{
+                this.clearSelection();
+            }
         }else{
             console.log("model,element",value);
             this.multiSelectValue = value || [];
@@ -80,6 +84,15 @@ export class DcmDropDownComponent implements OnInit {
 
         }else{
 
+        }
+    }
+    clearSelection(){
+        this.selectedValue = undefined;
+        this.selectedDropdown = undefined;
+        if(this.options){
+            this.options.forEach(option=>{
+                option.selected = false;
+            })
         }
     }
     getSelectDropdownFromValue(value):SelectDropdown<any>{
