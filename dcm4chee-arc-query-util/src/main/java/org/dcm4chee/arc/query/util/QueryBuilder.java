@@ -311,7 +311,7 @@ public class QueryBuilder {
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.IMAGE);
         studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.IMAGE);
         seriesLevelPredicates(predicates, q, series, keys, queryParam);
-        instanceLevelPredicates(predicates, q, instance, keys, queryParam,
+        instanceLevelPredicates(predicates, q, study, series, instance, keys, queryParam,
                 showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
         return predicates;
     }
@@ -542,7 +542,7 @@ public class QueryBuilder {
     }
 
     private <T> void instanceLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            Root<Instance> instance, Attributes keys, QueryParam queryParam,
+            Path<Study> study, Path<Series> series, Root<Instance> instance, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         uidsPredicate(predicates, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
@@ -582,7 +582,7 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys,
                         attrFilter.getCustomAttribute3(), "*"),
                 true);
-        hideRejectedInstance(predicates, instance,
+        hideRejectedInstance(predicates, q, study, series, instance,
                 showInstancesRejectedByCodes, queryParam.isHideNotRejectedInstances());
     }
 
@@ -596,7 +596,8 @@ public class QueryBuilder {
             predicates.add(cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
         if (!isUniversalMatching(objectUID))
             predicates.add(cb.equal(instance.get(Instance_.sopInstanceUID), objectUID));
-        hideRejectedInstance(predicates, instance, showInstancesRejectedByCodes, qrView.isHideNotRejectedInstances());
+        hideRejectedInstance(predicates, q, study, series, instance,
+                showInstancesRejectedByCodes, qrView.isHideNotRejectedInstances());
         hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
         return predicates;
     }
@@ -653,22 +654,22 @@ public class QueryBuilder {
             predicates.add(mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not());
     }
 
-    public void hideRejectedInstance(List<Predicate> predicates, Path<Instance> instance, CodeEntity[] codes,
+    public <T> void hideRejectedInstance(List<Predicate> predicates, CriteriaQuery<T> q,
+            Path<Study> study, Path<Series> series, Path<Instance> instance, CodeEntity[] codes,
             boolean hideNotRejectedInstances) {
-        predicates.add(hideRejectedInstance(instance, codes, hideNotRejectedInstances));
-    }
-
-    private Predicate hideRejectedInstance(Path<Instance> instance, CodeEntity[] codes,
-            boolean hideNotRejectedInstances) {
-        if (codes.length == 0)
-            return hideNotRejectedInstances
-                    ? instance.get(Instance_.rejectionNoteCode).isNotNull()
-                    : instance.get(Instance_.rejectionNoteCode).isNull();
-
-        Predicate showRejected = instance.get(Instance_.rejectionNoteCode).in(codes);
-        return hideNotRejectedInstances
-                ? showRejected
-                : cb.or(instance.get(Instance_.rejectionNoteCode).isNull(), showRejected);
+        Subquery<RejectedInstance> sq = q.subquery(RejectedInstance.class);
+        Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
+        Predicate[] y = new Predicate[codes.length > 0 ? 4 : 3];
+        y[0] = cb.equal(ri.get(RejectedInstance_.studyInstanceUID), study.get(Study_.studyInstanceUID));
+        y[1] = cb.equal(ri.get(RejectedInstance_.seriesInstanceUID), series.get(Series_.seriesInstanceUID));
+        y[2] = cb.equal(ri.get(RejectedInstance_.sopInstanceUID), instance.get(Instance_.sopInstanceUID));
+        if (codes.length > 0) {
+            y[3] = ri.get(RejectedInstance_.rejectionNoteCode).in(codes);
+            if (!hideNotRejectedInstances)
+                y[3] = y[3].not();
+        }
+        Predicate exists = cb.exists(sq.select(ri).where(y));
+        predicates.add(hideNotRejectedInstances ? exists : exists.not());
     }
 
     public void hideRejectionNote(List<Predicate> predicates, Path<Instance> instance, CodeEntity[] codes) {

@@ -112,7 +112,7 @@ class LocationQuery {
             builder.uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), ctx.getSeriesInstanceUIDs());
             QueryRetrieveView qrView = ctx.getQueryRetrieveView();
             if (qrView != null) {
-                builder.hideRejectedInstance(predicates, instance,
+                builder.hideRejectedInstance(predicates, q, study, series, instance,
                         codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
                         qrView.isHideNotRejectedInstances());
                 builder.hideRejectionNote(predicates, instance,

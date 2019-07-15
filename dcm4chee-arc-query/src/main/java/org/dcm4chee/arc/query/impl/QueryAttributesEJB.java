@@ -114,10 +114,12 @@ public class QueryAttributesEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
+        Join<Instance, Series> series = instance.join(Instance_.series);
+        Join<Series, Study> study = series.join(Series_.study);
         QueryBuilder queryBuilder = new QueryBuilder(cb);
         List<Predicate> x = new ArrayList<>();
-        x.add(cb.equal(instance.get(Instance_.series).get(Series_.pk), seriesPk));
-        queryBuilder.hideRejectedInstance(x, instance,
+        x.add(cb.equal(series.get(Series_.pk), seriesPk));
+        queryBuilder.hideRejectedInstance(x, q, study, series, instance,
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
                 qrView.isHideNotRejectedInstances());
         queryBuilder.hideRejectionNote(x, instance,
