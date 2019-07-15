@@ -65,12 +65,14 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.net.ConnectException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -112,9 +114,31 @@ public class HL7RS {
     }
 
     @PUT
+    @Path("/{priorPatientID}")
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
-    public Response updatePatient(InputStream in) {
+    public Response updatePatient(
+            @PathParam("priorPatientID") IDWithIssuer priorPatientID,
+            @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
+            InputStream in) {
+        logRequest();
+        String msgType = "ADT^A31^ADT_A05";
+        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
+        IDWithIssuer patientID = ctx.getPatientID();
+        boolean mergePatients = Boolean.parseBoolean(merge);
+        if (!patientID.equals(priorPatientID)) {
+            ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+            msgType = mergePatients ? "ADT^A40^ADT_A39" : "ADT^A47^ADT_A30";
+        } else if (mergePatients)
+            return errResponse("Circular merge of patients not allowed.", Response.Status.BAD_REQUEST);
+
+        return scheduleOrSendHL7(msgType, ctx);
+    }
+
+    @PUT
+    @Consumes({"application/dicom+json,application/json"})
+    @Produces("application/json")
+    public Response updatePatient1(InputStream in) {
         logRequest();
         return scheduleOrSendHL7("ADT^A31^ADT_A05", toPatientMgtContext(toAttributes(in)));
     }
@@ -128,7 +152,7 @@ public class HL7RS {
 
     private Attributes toAttributes(InputStream in) {
         try {
-            return new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")))
+            return new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
                     .readDataset(null);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(errResponse(

@@ -270,62 +270,76 @@ public class IocmRS {
     public String createPatient(InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        Attributes attrs = toAttributes(in);
-        if (attrs.containsValue(Tag.PatientID))
-            throw new WebApplicationException(
-                    errResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
-
         try {
-            idService.newPatientID(attrs);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
-            ctx.setAttributes(attrs);
-            ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+            PatientMgtContext ctx = patientMgtCtx(in);
+            if (!ctx.getAttributes().containsValue(Tag.PatientID)) {
+                idService.newPatientID(ctx.getAttributes());
+                ctx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
+            }
             patientService.updatePatient(ctx);
-            rsForward.forward(RSOperation.CreatePatient, arcAE, attrs, request);
+            rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
             rsHL7Sender.sendHL7Message("ADT^A28^ADT_A05", ctx);
-            return "{\"PatientID\":\"" + attrs.getString(Tag.PatientID) + "\"}";
+            return "{\"PatientID\":\"" + ctx.getAttributes().getString(Tag.PatientID) + "\"}";
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
+    private PatientMgtContext patientMgtCtx(InputStream in) {
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+        ctx.setAttributes(toAttributes(in));
+        ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+        return ctx;
+    }
+
     @PUT
-    @Path("/patients/{PatientID}")
+    @Path("/patients/{priorPatientID}")
     @Consumes("application/dicom+json,application/json")
-    public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) {
+    public void updatePatient(
+            @PathParam("priorPatientID") IDWithIssuer priorPatientID,
+            @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
+            InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
-        Attributes attrs = toAttributes(in);
-        ctx.setAttributes(attrs);
-        ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-        IDWithIssuer bodyPatientID = ctx.getPatientID();
-        if (bodyPatientID == null)
+        PatientMgtContext ctx = patientMgtCtx(in);
+        IDWithIssuer targetPatientID = ctx.getPatientID();
+        if (targetPatientID == null)
             throw new WebApplicationException(
                     errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+
+        boolean mergePatients = Boolean.parseBoolean(merge);
+        boolean patientMatch = priorPatientID.equals(targetPatientID);
+        if (patientMatch && mergePatients)
+            throw new WebApplicationException(
+                    errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST));
+
+        RSOperation rsOp = RSOperation.CreatePatient;
+        String msgType = "ADT^A28^ADT_A05";
         try {
-            boolean patientMatch = patientID.equals(bodyPatientID);
-            RSOperation rsOp = RSOperation.CreatePatient;
-            String msgType = "ADT^A28^ADT_A05";
             if (patientMatch) {
                 patientService.updatePatient(ctx);
                 if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
                     rsOp = RSOperation.UpdatePatient;
                     msgType = "ADT^A31^ADT_A05";
                 }
-            }
-            else {
-                ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
-                patientService.changePatientID(ctx);
-                rsOp = RSOperation.ChangePatientID;
-                msgType = "ADT^A47^ADT_A30";
+            } else {
+                ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+                if (mergePatients) {
+                    msgType = "ADT^A40^ADT_A39";
+                    rsOp = RSOperation.MergePatient;
+                    patientService.mergePatient(ctx);
+                } else {
+                    msgType = "ADT^A47^ADT_A30";
+                    rsOp = RSOperation.ChangePatientID;
+                    patientService.changePatientID(ctx);
+                }
             }
 
             if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read))
                 return;
 
-            rsForward.forward(rsOp, arcAE, attrs, request);
+            rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
             rsHL7Sender.sendHL7Message(msgType, ctx);
         } catch (PatientTrackingNotAllowedException | CircularPatientMergeException e) {
             throw new WebApplicationException(

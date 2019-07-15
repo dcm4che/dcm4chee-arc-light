@@ -1835,6 +1835,7 @@ mat-dialog-container{
   .btn:last-child:hover{
     background:white;
     border-color: #cccccc;
+    z-index: 99;
   }
 
 .btn:after {

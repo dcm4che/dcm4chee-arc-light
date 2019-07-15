@@ -70,19 +70,16 @@ export class MetricsComponent implements OnInit {
                     let bin:number = _.parseInt(this.filterObject["bin"].toString()) || 1;
                     let currentServerTime = new Date(this.appService.serverTime);
                     this.metrics = metrics.map( (metric,i)=>{
-                        // let time:Date = currentServerTime;
                         if(i != 0){
-                            console.log("min=",currentServerTime.getMinutes() + bin);
-                            currentServerTime.setMinutes(currentServerTime.getMinutes() + bin);
+                            currentServerTime.setMinutes(currentServerTime.getMinutes() - bin);
                         }
-                        console.log("currentServerTime",currentServerTime);
                         if(!_.isEmpty(metric)){
                             return {
                                 time:j4care.formatDate(currentServerTime,"HH:mm"),
-                                avg: j4care.floor(metric["avg"],2),
+                                avg: j4care.round(metric["avg"],2),
                                 count: metric["count"],
-                                max: j4care.floor(metric["max"],2),
-                                min: j4care.floor(metric["min"],2)
+                                max: j4care.round(metric["max"],2),
+                                min: j4care.round(metric["min"],2)
                             }
                         }else{
                             return {}

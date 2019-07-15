@@ -210,9 +210,6 @@
           "200": {
             "$ref": "#/components/responses/PatientID"
           },
-          "400": {
-            "description": "Patient ID in request body"
-          },
           "404": {
             "description": "There is no Archive AE with the specified Title."
           },
@@ -6774,7 +6771,7 @@
         "tags": [
           "PAM-RS"
         ],
-        "summary": "Update Patient in external archive",
+        "summary": "Update, Merge or Change Patient ID of Patient in external archive",
         "operationId": "UpdatePatientExternal",
         "parameters": [
           {
@@ -6785,6 +6782,9 @@
           },
           {
             "$ref": "#/components/parameters/queue"
+          },
+          {
+            "$ref": "#/components/parameters/merge"
           }
         ],
         "requestBody": {
@@ -6798,7 +6798,7 @@
             "description": "Message accepted by Receiving HL7 Application"
           },
           "400": {
-            "description": "JSON request body was not well formed."
+            "description": "JSON request body was not well formed or Circular merge of patients not allowed."
           },
           "404": {
             "description": "HL7 Application or External HL7 Application not configured"
@@ -8922,14 +8922,17 @@
         "tags": [
           "PAM-RS"
         ],
-        "summary": "Update or Create patient",
-        "operationId": "UpdateOrCreatePatient",
+        "summary": "Update, Create, Merge or Change Patient ID of patient",
+        "operationId": "UpdatePatient",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
           },
           {
             "$ref": "#/components/parameters/patientPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/merge"
           }
         ],
         "requestBody": {
@@ -8940,7 +8943,7 @@
             "description": "successful operation"
           },
           "400": {
-            "description": "Missing Patient ID in request body"
+            "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed."
           },
           "404": {
             "description": "There is no Archive AE with the specified Title."
@@ -10977,7 +10980,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
+    "/aets/{aet}/rs/studies/csv:{field}/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11032,7 +11035,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies": {
+    "/aets/{aet}/rs/studies/export/{exporterID}/": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11135,7 +11138,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/series": {
+    "/aets/{aet}/rs/series/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11238,7 +11241,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11344,7 +11347,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/instances": {
+    "/aets/{aet}/rs/instances/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11447,7 +11450,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/instances": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -11553,7 +11556,7 @@
         }
       }
     },
-    "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/{exporterID}": {
       "post": {
         "tags": [
           "EXPORT-RS"
@@ -12168,7 +12171,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12232,7 +12235,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12299,7 +12302,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12369,7 +12372,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12427,7 +12430,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -12488,7 +12491,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
@@ -13937,6 +13940,15 @@
         "description": "Only enable Instance Availability Notification without export",
         "schema": {
           "type": "boolean"
+        }
+      },
+      "merge": {
+        "name": "merge",
+        "in": "query",
+        "description": "Merge Patient",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       }
     },

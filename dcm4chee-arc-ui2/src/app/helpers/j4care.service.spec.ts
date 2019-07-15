@@ -423,13 +423,13 @@ describe('j4care', () => {
     });
 
     it("Should cut float number",()=>{
-        expect(j4care.floor(5.2343,2, true)).toEqual(5.23);
-        expect(j4care.floor(5.2343,undefined, true)).toEqual(5.23);
-        expect(j4care.floor(5.2363,undefined, true)).toEqual(5.24);
-        expect(j4care.floor(5,2, true)).toEqual(5);
-        expect(j4care.floor(0,2, true)).toEqual(0);
-        expect(j4care.floor("5.2343",2, true)).toEqual(5.23);
-        expect(j4care.floor("",2, true)).toEqual("");
-        expect(j4care.floor(undefined,2, true)).toEqual(undefined);
+        expect(j4care.round(5.2343,2, true)).toEqual(5.23);
+        expect(j4care.round(5.2343,undefined, true)).toEqual(5.23);
+        expect(j4care.round(5.2363,undefined, true)).toEqual(5.24);
+        expect(j4care.round(5,2, true)).toEqual(5);
+        expect(j4care.round(0,2, true)).toEqual(0);
+        expect(j4care.round("5.2343",2, true)).toEqual(5.23);
+        expect(j4care.round("",2, true)).toEqual("");
+        expect(j4care.round(undefined,2, true)).toEqual(undefined);
     })
 });

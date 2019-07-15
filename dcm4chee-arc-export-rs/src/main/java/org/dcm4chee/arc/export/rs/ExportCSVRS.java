@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -68,7 +67,7 @@ import java.util.List;
  * @since Nov 2018
  */
 @RequestScoped
-@Path("aets/{AETitle}/export/{ExporterID}")
+@Path("aets/{AETitle}")
 public class ExportCSVRS {
     private static final Logger LOG = LoggerFactory.getLogger(ExportCSVRS.class);
 
@@ -87,9 +86,6 @@ public class ExportCSVRS {
     @PathParam("AETitle")
     private String aet;
 
-    @PathParam("ExporterID")
-    private String exporterID;
-
     @QueryParam("batchID")
     private String batchID;
 
@@ -99,10 +95,28 @@ public class ExportCSVRS {
     private char csvDelimiter = ',';
 
     @POST
-    @Path("/studies/csv:{field}")
+    @Path("/rs/studies/csv:{field}/export/{ExporterID}")
     @Consumes("text/csv")
     @Produces("application/json")
-    public Response exportStudies(@PathParam("field") int field, InputStream in) {
+    public Response exportStudies(
+            @PathParam("ExporterID") String exporterID,
+            @PathParam("field") int field,
+            InputStream in) {
+        return exportStudiesFromCSV(exporterID, field, in);
+    }
+
+    @POST
+    @Path("/export/{ExporterID}/studies/csv:{field}")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response exportStudies1(
+            @PathParam("ExporterID") String exporterID,
+            @PathParam("field") int field,
+            InputStream in) {
+        return exportStudiesFromCSV(exporterID, field, in);
+    }
+
+    private Response exportStudiesFromCSV(String exporterID, int field, InputStream in) {
         logRequest();
         Response.Status status = Response.Status.BAD_REQUEST;
         try {

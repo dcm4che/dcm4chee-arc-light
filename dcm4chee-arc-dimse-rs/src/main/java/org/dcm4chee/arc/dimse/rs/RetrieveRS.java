@@ -326,6 +326,9 @@ public class RetrieveRS {
     }
 
     private void validateQueue(Device device) {
+        if (queueName == null)
+            return;
+        
         device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
