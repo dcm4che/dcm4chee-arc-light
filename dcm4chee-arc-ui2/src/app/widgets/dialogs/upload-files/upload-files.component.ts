@@ -17,6 +17,8 @@ export class UploadFilesComponent implements OnInit {
     private _aes;
     private _selectedAe;
     private _dicomObject;
+    private _fromExternalWebApp;
+
     file;
     fileList: File[];
     xmlHttpRequest;
@@ -43,7 +45,7 @@ export class UploadFilesComponent implements OnInit {
             value:"1.2.840.10008.5.1.4.1.1.77.1.4",
             modality:"XC"
         }
-    ]
+    ];
     constructor(
         public dialogRef: MatDialogRef<UploadFilesComponent>,
         public mainservice:AppService,
@@ -57,8 +59,15 @@ export class UploadFilesComponent implements OnInit {
     ngOnInit() {
         this.percentComplete = {};
         this.selectedSopClass = this.imageType[0];
-        this.getWebApps();
+        if(!this._fromExternalWebApp){
+            this.getWebApps();
+        }else{
+            this.selectedWebApp = this._fromExternalWebApp;
+        }
     }
+
+
+
     fileChange(event){
         this.fileList = event.target.files;
         if(this.fileList[0] && this.fileList[0].type === "image/jpeg"){
@@ -340,6 +349,13 @@ export class UploadFilesComponent implements OnInit {
 
     set aes(value) {
         this._aes = value;
+    }
+    get fromExternalWebApp() {
+        return this._fromExternalWebApp;
+    }
+
+    set fromExternalWebApp(value) {
+        this._fromExternalWebApp = value;
     }
     getWebApps(){
         this.studieService.getWebApps().subscribe((res)=>{

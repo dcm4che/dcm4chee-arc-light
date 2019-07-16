@@ -762,6 +762,21 @@ export class StudyService {
                                     },e);
                                 }
                             },{
+                            //<i class="material-icons">file_upload</i>
+                                icon:{
+                                    tag:'i',
+                                    cssClass:'material-icons',
+                                    text:'file_upload',
+                                    description:'Upload file',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"upload_file"
+                                    },e);
+                                }
+                            },{
                                 icon:{
                                     tag:'span',
                                     cssClass:'custom_icon csv_icon_black',
@@ -1187,27 +1202,37 @@ export class StudyService {
         return Observable.throw({error:"Error on getting the WebApp URL"});
     }
 
-    getModifyPatientUrl(deviceWebservice:StudyDeviceWebserviceModel){
-       return this.getDicomURL("patient", this.getModifyPatientWebApp(deviceWebservice));
+    getModifyPatientUrl(deviceWebService:StudyDeviceWebserviceModel){
+        return this.getDicomURLFromWebService(deviceWebService, "patient");
     }
-    getModifyPatientWebApp(deviceWebservice:StudyDeviceWebserviceModel):DcmWebApp{
-        if(deviceWebservice.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
-            return deviceWebservice.selectedWebApp;
+    getModifyPatientWebApp(deviceWebService:StudyDeviceWebserviceModel):DcmWebApp{
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService,"DCM4CHEE_ARC_AET",  "PAM_RS");
+    }
+
+    getDicomURLFromWebService(deviceWebService:StudyDeviceWebserviceModel, mode:("patient"|"study")){
+        return this.getDicomURL(mode, this.getModifyPatientWebApp(deviceWebService));
+    }
+    getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService:StudyDeviceWebserviceModel, neededWebServiceClass:string, alternativeWebServiceClass:string){
+        if(deviceWebService.selectedWebApp.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1){
+            return deviceWebService.selectedWebApp;
         }else{
             try{
-                return deviceWebservice.dcmWebAppServices.filter((webService:DcmWebApp)=>{
-                    if(webService.dcmWebServiceClass.indexOf("PAM_RS") > -1 && webService.dicomAETitle === deviceWebservice.selectedWebApp.dicomAETitle){
+                return deviceWebService.dcmWebAppServices.filter((webService:DcmWebApp)=>{
+                    if(webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebApp.dicomAETitle){
                         return true;
                     }
                     return false;
                 })[0];
             }catch (e) {
-                j4care.log("Error on getting the PAM_RS WebApp getModifyPatientUrl",e);
+                j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`,e);
                 return undefined;
             }
         }
     }
 
+    getUploadFileWebApp(deviceWebService:StudyDeviceWebserviceModel){
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService,"STOW_RS",  "STOW_RS");
+    }
     appendPatientIdTo(patient, obj){
         if (_.hasIn(patient, '00100020')){
             obj['00100020'] = obj['00100020'] || {};
@@ -1386,4 +1411,20 @@ export class StudyService {
     getExporters(){
         return this.$http.get('../export')
     }
+
+    mapCode(m,i,newObject,mapCodes){
+        if(_.hasIn(mapCodes,i)){
+            if(_.isArray(mapCodes[i])){
+                _.forEach(mapCodes[i],(seq,j)=>{
+                    newObject[seq.code] = _.get(m,seq.map);
+                    newObject[seq.code].vr = seq.vr;
+                });
+            }else{
+                newObject[mapCodes[i].code] = m;
+                newObject[mapCodes[i].code].vr = mapCodes[i].vr;
+            }
+        }
+    }
+
+
 }
