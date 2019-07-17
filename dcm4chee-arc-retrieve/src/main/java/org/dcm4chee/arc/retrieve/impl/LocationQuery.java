@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
@@ -203,16 +204,16 @@ class LocationQuery {
         inst.setAvailability(tuple.get(instance.get(Instance_.availability)));
         inst.setCreatedTime(tuple.get(instance.get(Instance_.createdTime)));
         inst.setUpdatedTime(tuple.get(instance.get(Instance_.updatedTime)));
-        inst.setRejectionCode(rejectionCode(tuple));
+        inst.setRejectionCode(rejectionCode(instAttrs));
         return inst;
     }
 
-    private Attributes rejectionCode(Tuple tuple) {
+    private Attributes rejectionCode(Attributes instAttrs) {
         try {
             return em.createNamedQuery(RejectedInstance.REJECTION_CODE_BY_UIDS, CodeEntity.class)
-                    .setParameter(1, tuple.get(study.get(Study_.studyInstanceUID)))
-                    .setParameter(2, tuple.get(series.get(Series_.seriesInstanceUID)))
-                    .setParameter(3, tuple.get(instance.get(Instance_.sopInstanceUID)))
+                    .setParameter(1, instAttrs.getString(Tag.StudyInstanceUID))
+                    .setParameter(2, instAttrs.getString(Tag.SeriesInstanceUID))
+                    .setParameter(3, instAttrs.getString(Tag.SOPInstanceUID))
                     .getSingleResult().getCode().toItem();
         } catch (NoResultException e) {
             return null;
