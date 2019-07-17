@@ -192,24 +192,17 @@ public class StoreServiceEJB {
             RejectionNote prevRejectionNote = arcDev.getRejectionNote(rejectedInstance.getRejectionNoteCode().getCode());
             if (prevRejectionNote == null) {
                 LOG.warn(MISSING_REJECTION_NOTE_CONFIGURATION, session, rejectedInstance);
-            } else if (prevInstance != null
-                    || treatAsSubsequentOccurrence(session, rejectedInstance, prevRejectionNote)) {
-                RejectionNote.AcceptPreviousRejectedInstance accept = prevRejectionNote.getAcceptPreviousRejectedInstance();
-                switch (accept) {
+            } else if (prevInstance != null) {
+                switch (prevRejectionNote.getAcceptPreviousRejectedInstance()) {
                     case IGNORE:
-                        if (prevInstance == null)
-                            break;
-
                         logInfo(IGNORE_PREVIOUS_REJECTED, ctx, prevRejectionNote.getRejectionNoteCode());
                         return result;
                     case REJECT:
-                        throw new DicomServiceException(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
-                                MessageFormat.format(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG,
-                                        prevInstance.getSopInstanceUID(), prevRejectionNote.getRejectionNoteCode()));
+                        throw subsequentOccurenceOfRejectedObject(rejectedInstance);
                     case RESTORE:
                         logInfo(REVOKE_REJECTION, ctx, prevRejectionNote.getRejectionNoteCode());
                         em.remove(rejectedInstance);
-                        if (prevInstance != null && hasLocationWithEqualDigest(ctx, prevInstance)) {
+                        if (hasLocationWithEqualDigest(ctx, prevInstance)) {
                             result.setStoredInstance(prevInstance);
                             deleteQueryAttributes(prevInstance);
                             Series prevSeries = prevInstance.getSeries();
@@ -219,6 +212,16 @@ public class StoreServiceEJB {
                             prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                             return result;
                         }
+                        break;
+                }
+            } else if (treatAsSubsequentOccurrence(session, rejectedInstance, prevRejectionNote)) {
+                switch (prevRejectionNote.getAcceptPreviousRejectedInstance()) {
+                    case REJECT:
+                        result.setException(subsequentOccurenceOfRejectedObject(rejectedInstance));
+                        break;
+                    case RESTORE:
+                        logInfo(REVOKE_REJECTION, ctx, prevRejectionNote.getRejectionNoteCode());
+                        em.remove(rejectedInstance);
                         break;
                 }
             }
@@ -270,6 +273,12 @@ public class StoreServiceEJB {
             }
         }
         return result;
+    }
+
+    private static DicomServiceException subsequentOccurenceOfRejectedObject(RejectedInstance rejectedInstance) {
+        return new DicomServiceException(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
+                MessageFormat.format(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG,
+                        rejectedInstance.getSopInstanceUID(), rejectedInstance.getRejectionNoteCode()));
     }
 
     private static boolean hasLocationWithEqualDigest(StoreContext ctx, Instance prevInstance) {

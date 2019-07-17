@@ -129,6 +129,26 @@ public class RejectedInstance {
         return createdTime;
     }
 
+    public long getPk() {
+        return pk;
+    }
+
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    public String getSeriesInstanceUID() {
+        return seriesInstanceUID;
+    }
+
+    public String getSopClassUID() {
+        return sopClassUID;
+    }
+
+    public String getSopInstanceUID() {
+        return sopInstanceUID;
+    }
+
     public CodeEntity getRejectionNoteCode() {
         return rejectionNoteCode;
     }
@@ -136,5 +156,4 @@ public class RejectedInstance {
     public void setRejectionNoteCode(CodeEntity rejectionNoteCode) {
         this.rejectionNoteCode = rejectionNoteCode;
     }
-
 }

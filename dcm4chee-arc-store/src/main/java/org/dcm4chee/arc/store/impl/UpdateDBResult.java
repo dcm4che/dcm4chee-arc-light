@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.store.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -64,6 +65,7 @@ class UpdateDBResult {
     private Instance storedInstance;
     private Attributes storedAttributes;
     private final Attributes coercedAttributes;
+    private DicomServiceException exception;
 
     UpdateDBResult(StoreContext ctx) {
         this.storedAttributes = ctx.getAttributes();
@@ -136,5 +138,13 @@ class UpdateDBResult {
 
     public Attributes getCoercedAttributes() {
         return coercedAttributes;
+    }
+
+    public DicomServiceException getException() {
+        return exception;
+    }
+
+    public void setException(DicomServiceException exception) {
+        this.exception = exception;
     }
 }

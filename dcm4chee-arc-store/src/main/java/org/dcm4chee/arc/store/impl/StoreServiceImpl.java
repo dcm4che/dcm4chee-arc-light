@@ -284,6 +284,8 @@ class StoreServiceImpl implements StoreService {
         ctx.setAttributes(result.getStoredAttributes());
         ctx.setCoercedAttributes(result.getCoercedAttributes());
         LOG.debug("{}: Leave postUpdateDB", storeSession);
+        if (result.getException() != null)
+            throw result.getException();
     }
 
     private void commitStorage(UpdateDBResult result) throws IOException {
