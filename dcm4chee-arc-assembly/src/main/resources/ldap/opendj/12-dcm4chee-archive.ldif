@@ -1415,6 +1415,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.293 NAME 'dcmUnit'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.294 NAME 'dcmAcceptRejectionBeforeStorage'
+  DESC 'Time interval in ISO-8601 duration format PnDTnHnMn.nS after receive of a Rejection Note, in which received object referenced by this Rejection Note are treated as rejected. Referenced objects received afterwards are treated as subsequent occurrence of an already rejected instance. If not present, Rejection Notes which refers not yet received objects will not be accepted.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1849,6 +1854,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'
     dcmRevokeRejection $
     dcmAcceptPreviousRejectedInstance $
     dcmOverwritePreviousRejection $
+    dcmAcceptRejectionBeforeStorage $
     dcmDeleteRejectedInstanceDelay $
     dcmDeleteRejectionNoteDelay ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'

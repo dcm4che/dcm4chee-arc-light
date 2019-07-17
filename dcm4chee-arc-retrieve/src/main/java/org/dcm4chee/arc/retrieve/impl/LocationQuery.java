@@ -42,8 +42,6 @@
 package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
@@ -56,6 +54,7 @@ import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -76,7 +75,6 @@ class LocationQuery {
     private final Root<Instance> instance;
     private final Join<Instance, Series> series;
     private final Join<Series, Study> study;
-    private final Join<Instance, CodeEntity> rejectionNoteCode;
     private final CollectionJoin<Instance, Location> locationPath;
     private final Join<Location, UIDMap> uidMap;
     private final Path<byte[]> instanceAttrBlob;
@@ -91,7 +89,6 @@ class LocationQuery {
         this.instance = q.from(Instance.class);
         this.series = instance.join(Instance_.series);
         this.study = series.join(Series_.study);
-        this.rejectionNoteCode = instance.join(Instance_.rejectionNoteCode, JoinType.LEFT);
         this.locationPath = instance.join(Instance_.locations, JoinType.LEFT);
         if (ctx.getObjectType() != null) {
             locationPath.on(cb.equal(locationPath.get(Location_.objectType), ctx.getObjectType()));
@@ -146,9 +143,6 @@ class LocationQuery {
                 instance.get(Instance_.availability),
                 instance.get(Instance_.createdTime),
                 instance.get(Instance_.updatedTime),
-                rejectionNoteCode.get(CodeEntity_.codeValue),
-                rejectionNoteCode.get(CodeEntity_.codingSchemeDesignator),
-                rejectionNoteCode.get(CodeEntity_.codeMeaning),
                 uidMap.get(UIDMap_.pk),
                 uidMap.get(UIDMap_.encodedMap),
                 instanceAttrBlob
@@ -214,17 +208,15 @@ class LocationQuery {
     }
 
     private Attributes rejectionCode(Tuple tuple) {
-        if (tuple.get(rejectionNoteCode.get(CodeEntity_.codeValue)) == null)
+        try {
+            return em.createNamedQuery(RejectedInstance.REJECTION_CODE_BY_UIDS, CodeEntity.class)
+                    .setParameter(1, tuple.get(study.get(Study_.studyInstanceUID)))
+                    .setParameter(2, tuple.get(series.get(Series_.seriesInstanceUID)))
+                    .setParameter(3, tuple.get(instance.get(Instance_.sopInstanceUID)))
+                    .getSingleResult().getCode().toItem();
+        } catch (NoResultException e) {
             return null;
-
-        Attributes item = new Attributes();
-        item.setString(Tag.CodeValue, VR.SH,
-                tuple.get(rejectionNoteCode.get(CodeEntity_.codeValue)));
-        item.setString(Tag.CodeMeaning, VR.LO,
-                tuple.get(rejectionNoteCode.get(CodeEntity_.codeMeaning)));
-        item.setString(Tag.CodingSchemeDesignator, VR.SH,
-                tuple.get(rejectionNoteCode.get(CodeEntity_.codingSchemeDesignator)));
-        return item;
+        }
     }
 
     private void addLocation(InstanceLocations match, Tuple tuple) {

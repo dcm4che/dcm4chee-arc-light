@@ -70,16 +70,11 @@ import java.util.*;
             "left join fetch st.referringPhysicianName " +
             "left join fetch se.performingPhysicianName " +
             "left join fetch i.conceptNameCode " +
-            "left join fetch i.rejectionNoteCode " +
             "join fetch i.attributesBlob " +
             "join fetch se.attributesBlob " +
             "join fetch st.attributesBlob " +
             "join fetch p.attributesBlob " +
             "where i.sopInstanceUID = ?1"),
-@NamedQuery(
-    name=Instance.FIND_BY_SERIES_AND_SOP_IUID,
-    query="select i from Instance i " +
-            "where i.series = ?1 AND i.sopInstanceUID = ?2"),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_STUDY_LEVEL,
         query="SELECT p.updatedTime, st.modifiedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
@@ -120,7 +115,6 @@ import java.util.*;
             "left join fetch st.referringPhysicianName " +
             "left join fetch se.performingPhysicianName " +
             "left join fetch i.conceptNameCode " +
-            "left join fetch i.rejectionNoteCode " +
             "join fetch i.attributesBlob " +
             "join fetch se.attributesBlob " +
             "join fetch st.attributesBlob " +
@@ -159,7 +153,11 @@ import java.util.*;
     name = Instance.IUIDS_OF_SERIES,
     query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID, instance.numberOfFrames " +
             "from Instance instance " +
-            "where instance.series.study.studyInstanceUID = ?1 and instance.series.seriesInstanceUID = ?2")
+            "where instance.series.study.studyInstanceUID = ?1 and instance.series.seriesInstanceUID = ?2"),
+@NamedQuery(
+    name = Instance.IUIDS_OF_SERIES2,
+    query = "select i.sopInstanceUID from Instance i " +
+            "where i.series = ?1")
 })
 @Entity
 @Table(name = "instance",
@@ -179,7 +177,6 @@ import java.util.*;
 public class Instance {
 
     public static final String FIND_BY_SOP_IUID_EAGER = "Instance.findBySopIUIDEager";
-    public static final String FIND_BY_SERIES_AND_SOP_IUID = "Instance.findBySeriesAndSopIUID";
     public static final String FIND_BY_STUDY_SERIES_SOP_IUID_EAGER = "Instance.findByStudySeriesSopIUIDEager";
     public static final String COUNT_INSTANCES_OF_SERIES = "Instance.countInstancesOfSeries";
     public static final String COUNT_REJECTED_INSTANCES_OF_SERIES = "Instance.countRejectedInstancesOfSeries";
@@ -187,6 +184,7 @@ public class Instance {
     public static final String FIND_BY_STUDY_IUID = "Instance.findByStudyIUID";
     public static final String IUIDS_OF_STUDY = "Instance.iuidsOfStudy";
     public static final String IUIDS_OF_SERIES = "Instance.iuidsOfSeries";
+    public static final String IUIDS_OF_SERIES2 = "Instance.iuidsOfSeries2";
     public static final String FIND_LAST_MODIFIED_STUDY_LEVEL = "Instance.findLastModifiedStudyLevel";
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
     public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";
@@ -269,10 +267,6 @@ public class Instance {
     @ManyToOne
     @JoinColumn(name = "srcode_fk")
     private CodeEntity conceptNameCode;
-
-    @ManyToOne
-    @JoinColumn(name = "reject_code_fk")
-    private CodeEntity rejectionNoteCode;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
@@ -408,14 +402,6 @@ public class Instance {
 
     public void setConceptNameCode(CodeEntity conceptNameCode) {
         this.conceptNameCode = conceptNameCode;
-    }
-
-    public CodeEntity getRejectionNoteCode() {
-        return rejectionNoteCode;
-    }
-
-    public void setRejectionNoteCode(CodeEntity rejectionNoteCode) {
-        this.rejectionNoteCode = rejectionNoteCode;
     }
 
     public Collection<VerifyingObserver> getVerifyingObservers() {

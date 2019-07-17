@@ -60,6 +60,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 
 import javax.json.Json;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
@@ -99,7 +100,6 @@ class InstanceQuery extends AbstractQuery {
     private Join<Instance, Series> series;
     private Join<Series, Study> study;
     private Join<Study, Patient> patient;
-    private Join<Instance, CodeEntity> rejectionNoteCode;
     private Path<byte[]> instanceAttrBlob;
     private Long seriesPk;
     private Attributes seriesAttrs;
@@ -122,7 +122,6 @@ class InstanceQuery extends AbstractQuery {
         this.series = instance.join(Instance_.series);
         this.study = series.join(Series_.study);
         this.patient = study.join(Study_.patient);
-        this.rejectionNoteCode = instance.join(Instance_.rejectionNoteCode, JoinType.LEFT);
         return order(restrict(q, patient, study, series, instance)).multiselect(
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
@@ -131,9 +130,6 @@ class InstanceQuery extends AbstractQuery {
                 instance.get(Instance_.availability),
                 instance.get(Instance_.createdTime),
                 instance.get(Instance_.updatedTime),
-                rejectionNoteCode.get(CodeEntity_.codeValue),
-                rejectionNoteCode.get(CodeEntity_.codingSchemeDesignator),
-                rejectionNoteCode.get(CodeEntity_.codeMeaning),
                 instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
 
@@ -144,7 +140,6 @@ class InstanceQuery extends AbstractQuery {
         Join<Instance, Series> series = instance.join(Instance_.series);
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
-        instance.join(Instance_.rejectionNoteCode, JoinType.LEFT);
         return restrict(q, patient, study, series, instance).select(cb.count(instance));
     }
 
@@ -173,21 +168,22 @@ class InstanceQuery extends AbstractQuery {
                 results.get(instance.get(Instance_.createdTime)));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
                 results.get(instance.get(Instance_.updatedTime)));
-        if (results.get(rejectionNoteCode.get(CodeEntity_.codeValue)) != null) {
-            Sequence rejectionCodeSeq = attrs.newSequence(
-                    ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1);
-            Attributes item = new Attributes();
-            item.setString(Tag.CodeValue, VR.SH,
-                    results.get(rejectionNoteCode.get(CodeEntity_.codeValue)));
-            item.setString(Tag.CodeMeaning, VR.LO,
-                    results.get(rejectionNoteCode.get(CodeEntity_.codeMeaning)));
-            item.setString(Tag.CodingSchemeDesignator, VR.SH,
-                    results.get(rejectionNoteCode.get(CodeEntity_.codingSchemeDesignator)));
-            rejectionCodeSeq.add(item);
-        }
+        addRejectionNoteCode(attrs);
         context.getQueryService().addLocationAttributes(attrs, results.get(instance.get(Instance_.pk)));
         return attrs;
     }
+
+    private void addRejectionNoteCode(Attributes attrs) {
+        try {
+            Attributes item = em.createNamedQuery(RejectedInstance.REJECTION_CODE_BY_UIDS, CodeEntity.class)
+                    .setParameter(1, attrs.getString(Tag.StudyInstanceUID))
+                    .setParameter(2, attrs.getString(Tag.SeriesInstanceUID))
+                    .setParameter(3, attrs.getString(Tag.SOPInstanceUID))
+                    .getSingleResult().getCode().toItem();
+            attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1).add(item);
+        } catch (NoResultException ignore) {}
+    }
+
 
     @Override
     public boolean isOptionalKeysNotSupported() {

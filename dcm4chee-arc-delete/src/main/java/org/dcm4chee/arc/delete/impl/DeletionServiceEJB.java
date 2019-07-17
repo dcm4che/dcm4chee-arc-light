@@ -73,7 +73,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -357,8 +356,24 @@ public class DeletionServiceEJB {
         LOG.info("Update Storage IDs of {} from {} to {}", study, studyEncodedStorageIDs, study.getEncodedStorageIDs());
     }
 
-    public int deleteRejectedInstancesOrRejectionNotesBefore(
-            String queryName, Code rejectionCode, Date before, int limit) {
+    @FunctionalInterface
+    interface DeleteRejectedInstancesOrRejectionNotes {
+        int delete(Code rjCode, Date before, int fetchSize);
+    }
+
+    public int deleteRejectedInstances(Code rejectionCode, Date before, int limit) {
+        return deleteRejectedInstancesOrRejectionNotes(
+                before != null ? Location.FIND_BY_REJECTION_CODE_BEFORE : Location.FIND_BY_REJECTION_CODE,
+                rejectionCode, before, limit);
+    }
+
+    public int deleteRejectionNotes(Code rejectionCode, Date before, int limit) {
+        return deleteRejectedInstancesOrRejectionNotes(
+                before != null ? Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE : Location.FIND_BY_CONCEPT_NAME_CODE,
+                rejectionCode, before, limit);
+    }
+
+    private int deleteRejectedInstancesOrRejectionNotes(String queryName, Code rejectionCode, Date before, int limit) {
         CodeEntity codeEntity = codeCache.findOrCreate(rejectionCode);
         TypedQuery<Location> query = em.createNamedQuery(queryName, Location.class).setParameter(1, codeEntity);
         if (before != null)
@@ -413,6 +428,11 @@ public class DeletionServiceEJB {
                 deleteSeriesQueryAttributes(ser);
             }
             em.remove(inst);
+            em.createNamedQuery(RejectedInstance.DELETE_BY_UIDS)
+                    .setParameter(1, ser.getStudy().getStudyInstanceUID())
+                    .setParameter(2, ser.getSeriesInstanceUID())
+                    .setParameter(3, inst.getSopInstanceUID())
+                    .executeUpdate();
         }
         HashMap<Long, Study> studies = new HashMap<>();
         for (Series ser : series.values()) {
@@ -456,6 +476,11 @@ public class DeletionServiceEJB {
             }
             ctx.addInstance(inst);
             em.remove(inst);
+            em.createNamedQuery(RejectedInstance.DELETE_BY_UIDS)
+                    .setParameter(1, ser.getStudy().getStudyInstanceUID())
+                    .setParameter(2, ser.getSeriesInstanceUID())
+                    .setParameter(3, inst.getSopInstanceUID())
+                    .executeUpdate();
         }
         for (Series ser : series.values()) {
             if (study == null) {

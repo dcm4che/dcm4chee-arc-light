@@ -43,7 +43,6 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.AllowDeletePatient;
 import org.dcm4chee.arc.conf.AllowDeleteStudyPermanently;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -64,7 +63,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -100,21 +98,20 @@ public class DeletionServiceImpl implements DeletionService {
 
     @Override
     public int deleteRejectedInstancesBefore(Code rjCode, Date before, int fetchSize) {
-        return delete(before != null ? Location.FIND_BY_REJECTION_CODE_BEFORE : Location.FIND_BY_REJECTION_CODE,
-                rjCode, before, fetchSize);
+        return delete(ejb::deleteRejectedInstances, rjCode, before, fetchSize);
     }
 
     @Override
     public int deleteRejectionNotesBefore(Code rjCode, Date before, int fetchSize) {
-        return delete(before != null ? Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE : Location.FIND_BY_CONCEPT_NAME_CODE,
-                rjCode, before, fetchSize);
+        return delete(ejb::deleteRejectionNotes, rjCode, before, fetchSize);
     }
 
-    private int delete(String queryName, Code rjCode, Date before, int fetchSize) {
+    private int delete(DeletionServiceEJB.DeleteRejectedInstancesOrRejectionNotes cmd,
+            Code rjCode, Date before, int fetchSize) {
         int total = 0;
         int deleted;
         do {
-            total += deleted = ejb.deleteRejectedInstancesOrRejectionNotesBefore(queryName, rjCode, before, fetchSize);
+            total += deleted = cmd.delete(rjCode, before, fetchSize);
         } while (deleted == fetchSize);
         return total;
     }

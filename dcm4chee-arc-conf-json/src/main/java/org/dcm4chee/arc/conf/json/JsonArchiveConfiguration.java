@@ -636,6 +636,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmAcceptPreviousRejectedInstance",
                     rn.getAcceptPreviousRejectedInstance(), RejectionNote.AcceptPreviousRejectedInstance.REJECT);
             writer.writeNotEmpty("dcmOverwritePreviousRejection", rn.getOverwritePreviousRejection());
+            writer.writeNotNullOrDef("dcmAcceptRejectionBeforeStorage", rn.getAcceptRejectionBeforeStorage(), null);
             writer.writeNotNullOrDef("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay(), null);
             writer.writeNotNullOrDef("dcmDeleteRejectionNoteDelay", rn.getDeleteRejectionNoteDelay(), null);
             writer.writeEnd();
@@ -2203,6 +2204,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmOverwritePreviousRejection":
                         rn.setOverwritePreviousRejection(overwritePreviousRejection(reader.stringArray()));
+                        break;
+                    case "dcmAcceptRejectionBeforeStorage":
+                        rn.setAcceptRejectionBeforeStorage(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmDeleteRejectedInstanceDelay":
                         rn.setDeleteRejectedInstanceDelay(Duration.valueOf(reader.stringValue()));

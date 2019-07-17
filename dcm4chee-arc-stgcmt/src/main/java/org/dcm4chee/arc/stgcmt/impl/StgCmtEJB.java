@@ -138,7 +138,7 @@ public class StgCmtEJB {
                                 ? configRetrieveAET
                                 : sopRef.getString(Tag.RetrieveAETitle, defRetrieveAET));
             }
-            if (!isRejectedOrRejectionNoteDataRetentionPolicyExpired(inst)) {
+            if (!isRejected(inst) && !isRejectionNoteDataRetentionPolicyExpired(inst)) {
                 String externalRetrieveAET = inst.getExternalRetrieveAET();
                 Series series = inst.getSeries();
                 Set<String> seriesExternalAETs = seriesExternalAETsMap.get(series);
@@ -157,10 +157,20 @@ public class StgCmtEJB {
             instances.get(0).getSeries().getStudy().setExternalRetrieveAET(studyExternalAETs.iterator().next());
     }
 
-    private boolean isRejectedOrRejectionNoteDataRetentionPolicyExpired(Instance inst) {
-        if (inst.getRejectionNoteCode() != null)
+    private boolean isRejected(Instance inst) {
+        try {
+            em.createNamedQuery(RejectedInstance.FIND_BY_UIDS, RejectedInstance.class)
+                    .setParameter(1, inst.getSeries().getStudy().getStudyInstanceUID())
+                    .setParameter(2, inst.getSeries().getSeriesInstanceUID())
+                    .setParameter(3, inst.getSopInstanceUID())
+                    .getSingleResult();
             return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
 
+    private boolean isRejectionNoteDataRetentionPolicyExpired(Instance inst) {
         if (!inst.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
                 || inst.getConceptNameCode() == null)
             return false;

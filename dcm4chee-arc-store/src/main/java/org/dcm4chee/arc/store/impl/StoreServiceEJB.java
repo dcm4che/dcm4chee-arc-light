@@ -105,6 +105,10 @@ public class StoreServiceEJB {
     private static final String IGNORE_WITH_EQUAL_DIGEST = IGNORE + " with equal digest";
     private static final String REVOKE_REJECTION =
             "{}: Revoke rejection of Instance[studyUID={},seriesUID={},objectUID={}] by {}";
+    private static final String MISSING_REJECTION_NOTE_CONFIGURATION =
+            "{}: No Rejection Note configured with code of {}";
+    private static final String MISSING_ACCEPT_REJECTION_BEFORE_STORAGE_CONFIGURATION =
+            "{}: No Rejection Note with Accept Rejection before Storage configured with code of {}";
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -134,18 +138,21 @@ public class StoreServiceEJB {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         restoreInstances(session, findSeries(ctx), ctx.getStudyInstanceUID(), null, null);
         Instance prevInstance = findPreviousInstance(ctx);
+        RejectedInstance rejectedInstance = findRejectedInstance(
+                ctx.getStudyInstanceUID(),
+                ctx.getSeriesInstanceUID(),
+                ctx.getSopInstanceUID());
         if (prevInstance != null) {
-            Collection<Location> locations = prevInstance.getLocations();
             result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
-            Series prevSeries = prevInstance.getSeries();
-            Study prevStudy = prevSeries.getStudy();
             String callingAET = session.getCallingAET();
             if (callingAET != null && callingAET.equals(prevInstance.getExternalRetrieveAET())) {
-                if (containsDicomFile(locations)) {
+                if (containsDicomFile(prevInstance.getLocations())) {
                     logInfo(IGNORE, ctx);
                     return result;
                 }
+                Series prevSeries = prevInstance.getSeries();
+                Study prevStudy = prevSeries.getStudy();
                 prevStudy.addStorageID(session.getObjectStorageID());
                 prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 createLocation(ctx, prevInstance, result, Location.ObjectType.DICOM_FILE);
@@ -156,28 +163,14 @@ public class StoreServiceEJB {
             }
             if (prevInstance.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
                     && getRejectionNote(arcDev, prevInstance.getConceptNameCode()) != null) {
-                if (containsWithEqualDigest(locations, ctx.getWriteContext(Location.ObjectType.DICOM_FILE).getDigest())) {
+                if (hasLocationWithEqualDigest(ctx, prevInstance)) {
                     logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
                     return result;
                 }
                 throw new DicomServiceException(StoreService.DUPLICATE_REJECTION_NOTE,
                         MessageFormat.format(StoreService.DUPLICATE_REJECTION_NOTE_MSG, prevInstance.getSopInstanceUID()));
             }
-            RejectionNote rjNote = getRejectionNote(arcDev, prevInstance.getRejectionNoteCode());
-            if (rjNote != null) {
-                RejectionNote.AcceptPreviousRejectedInstance accept = rjNote.getAcceptPreviousRejectedInstance();
-                switch(accept) {
-                    case IGNORE:
-                        logInfo(IGNORE_PREVIOUS_REJECTED, ctx, rjNote.getRejectionNoteCode());
-                        return result;
-                    case REJECT:
-                        throw new DicomServiceException(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
-                                MessageFormat.format(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG,
-                                        prevInstance.getSopInstanceUID(), rjNote.getRejectionNoteCode()));
-                    case RESTORE:
-                        break;
-                }
-            } else {
+            if (rejectedInstance == null) {
                 switch (arcAE.overwritePolicy()) {
                     case NEVER:
                         logInfo(IGNORE, ctx);
@@ -189,20 +182,48 @@ public class StoreServiceEJB {
                             return result;
                         }
                 }
-            }
-            if (containsWithEqualDigest(locations, ctx.getWriteContext(Location.ObjectType.DICOM_FILE).getDigest())) {
-                logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
-                if (rjNote != null) {
-                    prevInstance.setRejectionNoteCode(null);
-                    result.setStoredInstance(prevInstance);
-                    deleteQueryAttributes(prevInstance);
-                    prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
-                    prevStudy.setExternalRetrieveAET("*");
-                    prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
-                    logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
+                if (hasLocationWithEqualDigest(ctx, prevInstance)) {
+                    logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
+                    return result;
                 }
-                return result;
             }
+        }
+        if (rejectedInstance != null) {
+            RejectionNote prevRejectionNote = arcDev.getRejectionNote(rejectedInstance.getRejectionNoteCode().getCode());
+            if (prevRejectionNote == null) {
+                LOG.warn(MISSING_REJECTION_NOTE_CONFIGURATION, session, rejectedInstance);
+            } else if (prevInstance != null
+                    || treatAsSubsequentOccurrence(session, rejectedInstance, prevRejectionNote)) {
+                RejectionNote.AcceptPreviousRejectedInstance accept = prevRejectionNote.getAcceptPreviousRejectedInstance();
+                switch (accept) {
+                    case IGNORE:
+                        if (prevInstance == null)
+                            break;
+
+                        logInfo(IGNORE_PREVIOUS_REJECTED, ctx, prevRejectionNote.getRejectionNoteCode());
+                        return result;
+                    case REJECT:
+                        throw new DicomServiceException(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
+                                MessageFormat.format(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG,
+                                        prevInstance.getSopInstanceUID(), prevRejectionNote.getRejectionNoteCode()));
+                    case RESTORE:
+                        logInfo(REVOKE_REJECTION, ctx, prevRejectionNote.getRejectionNoteCode());
+                        em.remove(rejectedInstance);
+                        if (prevInstance != null && hasLocationWithEqualDigest(ctx, prevInstance)) {
+                            result.setStoredInstance(prevInstance);
+                            deleteQueryAttributes(prevInstance);
+                            Series prevSeries = prevInstance.getSeries();
+                            Study prevStudy = prevSeries.getStudy();
+                            prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
+                            prevStudy.setExternalRetrieveAET("*");
+                            prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
+                            return result;
+                        }
+                        break;
+                }
+            }
+        }
+        if (prevInstance != null) {
             LOG.info("{}: Replace previous received {}", session, prevInstance);
             deleteInstance(prevInstance, ctx);
         }
@@ -233,9 +254,9 @@ public class StoreServiceEJB {
         series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
-        if(rjNote == null) {
+        if (rjNote == null) {
             updateSeriesRejectionState(ctx, series);
-            if (createLocations && series.getRejectionState() == RejectionState.NONE) {
+            if (createLocations) {
                 series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
             }
             Study study = series.getStudy();
@@ -249,6 +270,22 @@ public class StoreServiceEJB {
             }
         }
         return result;
+    }
+
+    private static boolean hasLocationWithEqualDigest(StoreContext ctx, Instance prevInstance) {
+        return containsWithEqualDigest(prevInstance.getLocations(),
+                ctx.getWriteContext(Location.ObjectType.DICOM_FILE).getDigest());
+    }
+
+    private boolean treatAsSubsequentOccurrence(StoreSession session, RejectedInstance rejectedInstance,
+            RejectionNote rjNote) {
+        Duration acceptRejectionBeforeStorage = rjNote.getAcceptRejectionBeforeStorage();
+        if (acceptRejectionBeforeStorage == null) {
+            LOG.warn(MISSING_ACCEPT_REJECTION_BEFORE_STORAGE_CONFIGURATION, session, rejectedInstance);
+            return false;
+        }
+        return System.currentTimeMillis() - rejectedInstance.getCreatedTime().getTime() >
+                acceptRejectionBeforeStorage.getSeconds() * 1000L;
     }
 
     private static boolean isPatientVerificationStale(Patient patient, Duration maxStaleness) {
@@ -345,18 +382,30 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         Duration seriesMetadataDelay = arcAE.seriesMetadataDelay();
         Duration purgeInstanceRecordsDelay = arcAE.purgeInstanceRecordsDelay();
+        boolean acceptRejectionBeforeStorage = rjNote.getAcceptRejectionBeforeStorage() != null;
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
             String studyUID = studyRef.getString(Tag.StudyInstanceUID);
             Series series = null;
             for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
                 String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
                 series = findSeries(studyUID, seriesUID);
+                List<String> sopIUIDsOfSeries = null;
+                if (!acceptRejectionBeforeStorage) {
+                    if (series == null)
+                        throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
+                                MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_SERIES_MSG, seriesUID));
+                    sopIUIDsOfSeries = sopIUIDsOfSeries(series);
+                }
                 if (series != null && rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED)
                     checkExpirationDate(series, arcAE);
 
                 for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
                     String classUID = sopRef.getString(Tag.ReferencedSOPClassUID);
                     String objectUID = sopRef.getString(Tag.ReferencedSOPInstanceUID);
+                    if (!acceptRejectionBeforeStorage && !sopIUIDsOfSeries.contains(objectUID))
+                        throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
+                                MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE_MSG, objectUID));
+
                     RejectedInstance rejectedInstance = findRejectedInstance(studyUID, seriesUID, objectUID);
                     if (rejectedInstance != null) {
                         LOG.info("{}: Detect previous {}", session, rejectedInstance);
@@ -569,6 +618,11 @@ public class StoreServiceEJB {
         series.resetSize();
         study.resetSize();
         em.remove(instance);
+        em.createNamedQuery(RejectedInstance.DELETE_BY_UIDS)
+                .setParameter(1, study.getStudyInstanceUID())
+                .setParameter(2, series.getSeriesInstanceUID())
+                .setParameter(3, instance.getSopInstanceUID())
+                .executeUpdate();
         String newStorageID = ctx.getStoreSession().getObjectStorageID();
         if (replaceLocationOnDifferentStorage(locations, newStorageID)) {
             List<String> storageIDs = queryStorageIDsOfStudy(study);
@@ -625,7 +679,7 @@ public class StoreServiceEJB {
         return true;
     }
 
-    private boolean containsDicomFile(Collection<Location> locations) {
+    private static boolean containsDicomFile(Collection<Location> locations) {
         for (Location location : locations) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
                 return true;
@@ -633,7 +687,7 @@ public class StoreServiceEJB {
         return false;
     }
 
-    private boolean containsWithEqualDigest(Collection<Location> locations, byte[] digest) {
+    private static boolean containsWithEqualDigest(Collection<Location> locations, byte[] digest) {
         if (digest == null)
             return false;
 
@@ -648,7 +702,7 @@ public class StoreServiceEJB {
         return false;
     }
 
-    private boolean isSameSource(StoreContext ctx, Instance prevInstance) {
+    private static boolean isSameSource(StoreContext ctx, Instance prevInstance) {
         String sourceAET = ctx.getStoreSession().getCallingAET();
         String prevSourceAET = prevInstance.getSeries().getSourceAET();
         return sourceAET != null && sourceAET.equals(prevSourceAET);
@@ -1047,15 +1101,10 @@ public class StoreServiceEJB {
         }
     }
 
-    private Instance findInstance(Series series, String objectUID) {
-        try {
-            return em.createNamedQuery(Instance.FIND_BY_SERIES_AND_SOP_IUID, Instance.class)
+    private List<String> sopIUIDsOfSeries(Series series) {
+        return em.createNamedQuery(Instance.IUIDS_OF_SERIES2, String.class)
                     .setParameter(1, series)
-                    .setParameter(2, objectUID)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+                    .getResultList();
     }
 
     private Study createStudy(StoreContext ctx, Patient patient) {

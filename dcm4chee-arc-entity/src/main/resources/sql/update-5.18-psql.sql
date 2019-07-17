@@ -23,3 +23,4 @@ insert into rejected_instance (created_time, sop_cuid, sop_iuid, reject_code_fk,
 -- part 2: shall be applied on stopped archive before starting 5.18
 
 -- part 3: can be applied on already running archive 5.18
+alter table instance drop reject_code_fk;

@@ -66,6 +66,7 @@ public class RejectionNote {
     private AcceptPreviousRejectedInstance acceptPreviousRejectedInstance =
             AcceptPreviousRejectedInstance.REJECT;
     private Code[] overwritePreviousRejection = {};
+    private Duration acceptRejectionBeforeStorage;
     private Duration deleteRejectedInstanceDelay;
     private Duration deleteRejectionNoteDelay;
 
@@ -138,6 +139,14 @@ public class RejectionNote {
 
     public void setOverwritePreviousRejection(Code[] overwritePreviousRejection) {
         this.overwritePreviousRejection = overwritePreviousRejection;
+    }
+
+    public Duration getAcceptRejectionBeforeStorage() {
+        return acceptRejectionBeforeStorage;
+    }
+
+    public void setAcceptRejectionBeforeStorage(Duration acceptRejectionBeforeStorage) {
+        this.acceptRejectionBeforeStorage = acceptRejectionBeforeStorage;
     }
 
     public Duration getDeleteRejectedInstanceDelay() {

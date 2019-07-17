@@ -3931,6 +3931,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptPreviousRejectedInstance",
                 rjNote.getAcceptPreviousRejectedInstance(), RejectionNote.AcceptPreviousRejectedInstance.REJECT);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmOverwritePreviousRejection", rjNote.getOverwritePreviousRejection());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptRejectionBeforeStorage", rjNote.getAcceptRejectionBeforeStorage(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteRejectedInstanceDelay", rjNote.getDeleteRejectedInstanceDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteRejectionNoteDelay", rjNote.getDeleteRejectionNoteDelay(), null);
         return attrs;
@@ -3962,6 +3963,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         attrs.get("dcmAcceptPreviousRejectedInstance"),
                         RejectionNote.AcceptPreviousRejectedInstance.REJECT));
                 rjNote.setOverwritePreviousRejection(LdapUtils.codeArray(attrs.get("dcmOverwritePreviousRejection")));
+                rjNote.setAcceptRejectionBeforeStorage(toDuration(attrs.get("dcmAcceptRejectionBeforeStorage"), null));
                 rjNote.setDeleteRejectedInstanceDelay(toDuration(attrs.get("dcmDeleteRejectedInstanceDelay"), null));
                 rjNote.setDeleteRejectionNoteDelay(toDuration(attrs.get("dcmDeleteRejectionNoteDelay"), null));
                 arcdev.addRejectionNote(rjNote);
@@ -4056,6 +4058,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmOverwritePreviousRejection",
                 prev.getOverwritePreviousRejection(),
                 rjNote.getOverwritePreviousRejection());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptRejectionBeforeStorage",
+                prev.getAcceptRejectionBeforeStorage(),
+                rjNote.getAcceptRejectionBeforeStorage(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteRejectedInstanceDelay",
                 prev.getDeleteRejectedInstanceDelay(),
                 rjNote.getDeleteRejectedInstanceDelay(), null);

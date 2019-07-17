@@ -45,7 +45,6 @@ import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.entity.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,12 +85,13 @@ public class DeleteRejectedInstancesScheduler extends Scheduler {
         int fetchSize = arcDev.getDeleteRejectedFetchSize();
         for (RejectionNote rjNote : arcDev.getRejectionNotes()) {
             Code rjCode = rjNote.getRejectionNoteCode();
-            delete(Location.FIND_BY_REJECTION_CODE_BEFORE, rjCode, rjNote.getDeleteRejectedInstanceDelay(), fetchSize);
-            delete(Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE, rjCode, rjNote.getDeleteRejectionNoteDelay(), fetchSize);
+            delete(ejb::deleteRejectedInstances, rjCode, rjNote.getDeleteRejectedInstanceDelay(), fetchSize);
+            delete(ejb::deleteRejectionNotes, rjCode, rjNote.getDeleteRejectionNoteDelay(), fetchSize);
         }
     }
 
-    private void delete(String queryName, Code rjCode, Duration delay, int fetchSize) {
+    private void delete(DeletionServiceEJB.DeleteRejectedInstancesOrRejectionNotes cmd,
+            Code rjCode, Duration delay, int fetchSize) {
         if (delay == null)
             return;
 
@@ -100,7 +100,7 @@ public class DeleteRejectedInstancesScheduler extends Scheduler {
         do {
             if (getPollingInterval() == null)
                 return;
-            deleted = ejb.deleteRejectedInstancesOrRejectionNotesBefore(queryName, rjCode, before, fetchSize);
+            deleted = cmd.delete(rjCode, before, fetchSize);
         } while (deleted == fetchSize);
     }
 

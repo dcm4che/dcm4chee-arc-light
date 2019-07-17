@@ -56,8 +56,18 @@ import java.util.Date;
         name = RejectedInstance.FIND_BY_UIDS,
         query = "select ri from RejectedInstance ri " +
                 "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2 and ri.sopInstanceUID = ?3")
+@NamedQuery(
+        name = RejectedInstance.REJECTION_CODE_BY_UIDS,
+        query = "select ri.rejectionNoteCode from RejectedInstance ri " +
+                "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2 and ri.sopInstanceUID = ?3")
+@NamedQuery(
+        name = RejectedInstance.DELETE_BY_UIDS,
+        query = "delete from RejectedInstance ri " +
+                "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2 and ri.sopInstanceUID = ?3")
 public class RejectedInstance {
     public static final String FIND_BY_UIDS = "RejectedInstance.findByUIDs";
+    public static final String REJECTION_CODE_BY_UIDS = "RejectedInstance.rejectionCodeByUIDs";
+    public static final String DELETE_BY_UIDS = "RejectedInstance.deleteByUIDs";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -107,12 +117,16 @@ public class RejectedInstance {
 
     @Override
     public String toString() {
-        return "RejectedInstance[pk=" + pk + ", code=" + rejectionNoteCode +
+        return "RejectedInstance[pk=" + pk + ", time=" + createdTime + ", code=" + rejectionNoteCode +
                 "] of Instance[uid=" + sopInstanceUID + ", class=" + sopClassUID +
                 "] of Series[uid=" + seriesInstanceUID +
                 "] of Study[uid=" + studyInstanceUID +
                 "]";
 
+    }
+
+    public Date getCreatedTime() {
+        return createdTime;
     }
 
     public CodeEntity getRejectionNoteCode() {
