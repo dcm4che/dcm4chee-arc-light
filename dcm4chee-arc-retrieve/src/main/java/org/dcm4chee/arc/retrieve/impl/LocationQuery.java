@@ -204,7 +204,8 @@ class LocationQuery {
         inst.setAvailability(tuple.get(instance.get(Instance_.availability)));
         inst.setCreatedTime(tuple.get(instance.get(Instance_.createdTime)));
         inst.setUpdatedTime(tuple.get(instance.get(Instance_.updatedTime)));
-        inst.setRejectionCode(rejectionCode(instAttrs));
+        if (ctx.getSeriesMetadataUpdate() != null)
+            inst.setRejectionCode(rejectionCode(instAttrs));
         return inst;
     }
 
