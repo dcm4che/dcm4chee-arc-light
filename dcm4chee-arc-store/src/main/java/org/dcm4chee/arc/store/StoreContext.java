@@ -8,6 +8,7 @@ import org.dcm4chee.arc.conf.ExportPriorsRule;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.RejectedInstance;
 import org.dcm4chee.arc.storage.WriteContext;
 
 import java.time.LocalDate;
@@ -78,6 +79,10 @@ public interface StoreContext {
     RejectionNote getRejectionNote();
 
     void setRejectionNote(RejectionNote rejectionNote);
+
+    RejectedInstance getRejectedInstance();
+
+    void setRejectedInstance(RejectedInstance rejectedInstance);
 
     Exception getException();
 

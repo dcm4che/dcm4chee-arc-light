@@ -224,6 +224,8 @@ public class StoreServiceEJB {
                         em.remove(rejectedInstance);
                         break;
                 }
+            } else {
+                result.setRejectedInstance(rejectedInstance);
             }
         }
         if (prevInstance != null) {

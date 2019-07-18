@@ -279,6 +279,7 @@ class StoreServiceImpl implements StoreService {
         ctx.getLocations().clear();
         ctx.getLocations().addAll(result.getLocations());
         ctx.setRejectionNote(result.getRejectionNote());
+        ctx.setRejectedInstance(result.getRejectedInstance());
         ctx.setPreviousInstance(result.getPreviousInstance());
         ctx.setStoredInstance(result.getStoredInstance());
         ctx.setAttributes(result.getStoredAttributes());

@@ -48,6 +48,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.RejectedInstance;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -81,6 +82,7 @@ class StoreContextImpl implements StoreContext {
     private String seriesInstanceUID;
     private String mppsInstanceUID;
     private RejectionNote rejectionNote;
+    private RejectedInstance rejectedInstance;
     private Instance previousInstance;
     private Instance storedInstance;
     private Exception exception;
@@ -247,6 +249,16 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setRejectionNote(RejectionNote rejectionNote) {
         this.rejectionNote = rejectionNote;
+    }
+
+    @Override
+    public RejectedInstance getRejectedInstance() {
+        return rejectedInstance;
+    }
+
+    @Override
+    public void setRejectedInstance(RejectedInstance rejectedInstance) {
+        this.rejectedInstance = rejectedInstance;
     }
 
     @Override

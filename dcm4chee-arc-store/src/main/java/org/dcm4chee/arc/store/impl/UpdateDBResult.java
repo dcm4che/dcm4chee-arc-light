@@ -58,6 +58,7 @@ class UpdateDBResult {
     private final List<Location> locations = new ArrayList<>();
     private final List<WriteContext> writeContexts = new ArrayList<>(2);
     private RejectionNote rejectionNote;
+    private RejectedInstance rejectedInstance;
     private Instance previousInstance;
     private Instance createdInstance;
     private Patient createdPatient;
@@ -86,6 +87,14 @@ class UpdateDBResult {
 
     public RejectionNote getRejectionNote() {
         return rejectionNote;
+    }
+
+    public RejectedInstance getRejectedInstance() {
+        return rejectedInstance;
+    }
+
+    public void setRejectedInstance(RejectedInstance rejectedInstance) {
+        this.rejectedInstance = rejectedInstance;
     }
 
     public void setPreviousInstance(Instance previousInstance) {
