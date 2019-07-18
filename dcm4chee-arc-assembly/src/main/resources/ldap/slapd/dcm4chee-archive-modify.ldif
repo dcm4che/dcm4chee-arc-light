@@ -1396,7 +1396,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.289 NAME 'dcmStowRetiredTransferSynt
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.290 NAME 'dcmSchedulerMinStartDelay'
-  DESC 'Minimal delay in ms to start schedulers on system start up; 1000 if absent'
+  DESC 'Minimal delay in s to start schedulers on system start up; 60 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )

@@ -295,7 +295,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.isRelationalRetrieveNegotiationLenient(), false);
         writer.writeNotEmpty("dcmRejectConflictingPatientAttribute",
                 TagUtils.toHexStrings(arcDev.getRejectConflictingPatientAttribute()));
-        writer.writeNotDef("dcmSchedulerMinStartDelay", arcDev.getSchedulerMinStartDelay(), 1000);
+        writer.writeNotDef("dcmSchedulerMinStartDelay", arcDev.getSchedulerMinStartDelay(), 60);
         writer.writeNotDef("dcmStowRetiredTransferSyntax", arcDev.isStowRetiredTransferSyntax(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
