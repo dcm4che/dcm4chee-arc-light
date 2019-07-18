@@ -388,6 +388,12 @@ public class AuditService {
 
     void spoolStoreEvent(StoreContext ctx) {
         try {
+            if (ctx.getRejectedInstance() != null) {
+                LOG.info("Suppress audit on receive of instances rejected by a previous received Rejection Note : {}",
+                        ctx.getRejectedInstance());
+                return;
+            }
+
             RejectionNote rejectionNote = ctx.getRejectionNote();
             if (rejectionNote != null && !rejectionNote.isRevokeRejection()) {
                 spoolInstancesDeleted(ctx);
