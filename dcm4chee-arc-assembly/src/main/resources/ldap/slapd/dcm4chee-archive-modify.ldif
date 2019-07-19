@@ -1689,6 +1689,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
     dcmStowRetiredTransferSyntax $
+    dcmStowExcludeAPPMarkers $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $
