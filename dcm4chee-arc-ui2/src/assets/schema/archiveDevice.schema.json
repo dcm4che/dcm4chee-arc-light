@@ -1237,9 +1237,9 @@
     },
     "dcmSchedulerMinStartDelay": {
       "title": "Scheduler Minimum Start Delay",
-      "description": "Minimal delay in ms to start schedulers on system start up.",
+      "description": "Minimal delay in s to start schedulers on system start up.",
       "type": "integer",
-      "default" : 1000,
+      "default" : 60,
       "minimum": 0,
       "exclusiveMinimum": true
     },

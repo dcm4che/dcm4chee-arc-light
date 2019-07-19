@@ -50,11 +50,15 @@ export class UploadDicomService {
     }
     getUrlFromWebApp(webApp){
         try{
+            let networkConnectionKey = "dicomNetworkConnection";
+            if(!_.hasIn(webApp, networkConnectionKey) && _.hasIn(webApp, "dicomNetworkConnectionReference")){
+                networkConnectionKey = "dicomNetworkConnectionReference";
+            }
             let protocol = "http:";
-            if(_.hasIn(webApp, "dicomNetworkConnection[0].dicomTLSCipherSuite") && _.isArray(webApp.dicomNetworkConnection[0].dicomTLSCipherSuite) && webApp.dicomNetworkConnection[0].dicomTLSCipherSuite.length > 0){
+            if(_.hasIn(webApp, `${networkConnectionKey}[0].dicomTLSCipherSuite`) && _.isArray(webApp[networkConnectionKey][0].dicomTLSCipherSuite) && webApp[networkConnectionKey][0].dicomTLSCipherSuite.length > 0){
                 protocol = "https:";
             }
-            return `${protocol}//${webApp.dicomNetworkConnection[0].dicomHostname}:${webApp.dicomNetworkConnection[0].dicomPort}${webApp.dcmWebServicePath}/studies`;
+            return `${protocol}//${webApp[networkConnectionKey][0].dicomHostname}:${webApp[networkConnectionKey][0].dicomPort}${webApp.dcmWebServicePath}/studies`;
         }catch (e){
             return null;
         }

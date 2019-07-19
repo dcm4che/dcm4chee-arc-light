@@ -1392,11 +1392,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.288 NAME 'dcmStoreUpdateDBMinRetryDe
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.289 NAME 'dcmStowRetiredTransferSyntax'
   DESC 'Store received JPEG Full Progression, Non-Hierarchical JPEG images in DICOM images with corresponding (retired) Transfer Syntax UID 1.2.840.10008.1.2.4.55. Otherwise set 1.2.840.10008.1.2.4.50 (= JPEG Baseline) or 1.2.840.10008.1.2.4.51 (= JPEG Extended) as Transfer Syntax UID of the stored DICOM image, without transcoding to JPEG Baseline or JPEG Extended, but including the JPEG image as received; false if absent.'
-  EQUALITY integerMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.290 NAME 'dcmSchedulerMinStartDelay'
-  DESC 'Minimal delay in ms to start schedulers on system start up; 1000 if absent'
+  DESC 'Minimal delay in s to start schedulers on system start up; 60 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1419,6 +1419,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.294 NAME 'dcmAcceptRejectionBeforeSt
   DESC 'Time interval in ISO-8601 duration format PnDTnHnMn.nS after receive of a Rejection Note, in which received object referenced by this Rejection Note are treated as rejected. Referenced objects received afterwards are treated as subsequent occurrence of an already rejected instance. If not present, Rejection Notes which refers not yet received objects will not be accepted.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.295 NAME 'dcmStowExcludeAPPMarkers'
+  DESC 'Indicates if APP markers in JPEG images received in STOW-RS Metadata and Bulkdata requests shall be excluded from the JPEG bit streams encapsulated in created DICOM instances; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 -
 replace: olcObjectClasses
@@ -1596,6 +1601,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
     dcmStowRetiredTransferSyntax $
+    dcmStowExcludeAPPMarkers $
     dcmSchedulerMinStartDelay $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
@@ -1688,6 +1694,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
     dcmStowRetiredTransferSyntax $
+    dcmStowExcludeAPPMarkers $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $

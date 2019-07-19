@@ -3564,6 +3564,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   -webkit-box-shadow: 5px 5px 16px 2px black;
   -moz-box-shadow: 5px 5px 16px 2px black;
   box-shadow: 5px 5px 16px 2px black;
+  overflow: hidden;
   .mat-menu-content{
     padding: 0 !important;
     .dicom_table_buttons{

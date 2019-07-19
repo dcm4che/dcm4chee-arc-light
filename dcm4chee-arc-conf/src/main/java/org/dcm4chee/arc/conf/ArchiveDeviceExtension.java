@@ -238,7 +238,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean relationalQueryNegotiationLenient;
     private volatile boolean relationalRetrieveNegotiationLenient;
     private volatile int[] rejectConflictingPatientAttribute = {};
-    private volatile int schedulerMinStartDelay = 1000;
+    private volatile int schedulerMinStartDelay = 60;
     private volatile boolean stowRetiredTransferSyntax = false;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();

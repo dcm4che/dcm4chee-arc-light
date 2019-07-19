@@ -163,7 +163,7 @@ public class PurgeStorageScheduler extends Scheduler {
     private void process(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
         deleteSeriesMetadata(arcDev, desc);
         deleteObjectsFromStorage(arcDev, desc);
-        if (desc.getStorageDuration() == StorageDuration.PERMANENT || !desc.isNoDeletionConstraint())
+        if (desc.getStorageDuration() == StorageDuration.PERMANENT)
             return;
 
         while (desc.hasRetentionPeriods()
@@ -186,7 +186,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 deleteObjectsFromStorage(arcDev, desc);
                 deleteSize = sizeToDelete(desc, minUsableSpace);
             }
-        } else if (!desc.hasRetentionPeriods()) {
+        } else if (!desc.hasRetentionPeriods() && desc.isNoDeletionConstraint()) {
             LOG.info("Start deleting all objects from {} {}", desc.getStorageDuration(), desc);
             while (arcDev.getPurgeStoragePollingInterval() != null
                     && deleteStudies(arcDev, desc, false) > 0) {

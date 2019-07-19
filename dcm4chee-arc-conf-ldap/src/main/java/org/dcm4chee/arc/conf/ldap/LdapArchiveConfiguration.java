@@ -298,7 +298,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isRelationalQueryNegotiationLenient(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
                 ext.isRelationalRetrieveNegotiationLenient(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmSchedulerMinStartDelay", ext.getSchedulerMinStartDelay(), 1000);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmSchedulerMinStartDelay", ext.getSchedulerMinStartDelay(), 60);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowRetiredTransferSyntax", ext.isStowRetiredTransferSyntax(), false);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
     }
@@ -531,7 +531,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmRelationalQueryNegotiationLenient"), false));
         ext.setRelationalRetrieveNegotiationLenient(LdapUtils.booleanValue(
                 attrs.get("dcmRelationalRetrieveNegotiationLenient"), false));
-        ext.setSchedulerMinStartDelay(LdapUtils.intValue(attrs.get("dcmSchedulerMinStartDelay"), 1000));
+        ext.setSchedulerMinStartDelay(LdapUtils.intValue(attrs.get("dcmSchedulerMinStartDelay"), 60));
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
         ext.setStowRetiredTransferSyntax(LdapUtils.booleanValue(attrs.get("dcmStowRetiredTransferSyntax"), false));
     }
@@ -950,7 +950,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRejectConflictingPatientAttribute(),
                 bb.getRejectConflictingPatientAttribute());
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedulerMinStartDelay",
-                aa.getSchedulerMinStartDelay(), bb.getSchedulerMinStartDelay(), 1000);
+                aa.getSchedulerMinStartDelay(), bb.getSchedulerMinStartDelay(), 60);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStowRetiredTransferSyntax",
                 aa.isStowRetiredTransferSyntax(),
                 bb.isStowRetiredTransferSyntax(),

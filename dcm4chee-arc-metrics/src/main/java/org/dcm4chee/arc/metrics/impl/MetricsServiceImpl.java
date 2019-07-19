@@ -52,8 +52,8 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
@@ -65,7 +65,7 @@ import java.util.function.DoubleSupplier;
 @ApplicationScoped
 public class MetricsServiceImpl implements MetricsService {
     private static final int MILLIS_PER_MIN = 60000;
-    private final Map<String, DataBins> map = new HashMap<>();
+    private final Map<String, DataBins> map = new ConcurrentHashMap<>();
 
     @Inject
     private Device device;
