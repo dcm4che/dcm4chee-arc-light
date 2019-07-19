@@ -1415,6 +1415,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.293 NAME 'dcmUnit'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.294 NAME 'dcmStowExcludeAPPMarkers'
+  DESC 'Indicates if APP markers in JPEG images received in STOW-RS Metadata and Bulkdata requests shall be excluded from the JPEG bit streams encapsulated in created DICOM instances; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1589,6 +1594,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
     dcmStowRetiredTransferSyntax $
+    dcmStowExcludeAPPMarkers $
     dcmSchedulerMinStartDelay $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
