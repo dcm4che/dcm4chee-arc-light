@@ -1392,8 +1392,8 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.288 NAME 'dcmStoreUpdateDBMinRetryDe
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.289 NAME 'dcmStowRetiredTransferSyntax'
   DESC 'Store received JPEG Full Progression, Non-Hierarchical JPEG images in DICOM images with corresponding (retired) Transfer Syntax UID 1.2.840.10008.1.2.4.55. Otherwise set 1.2.840.10008.1.2.4.50 (= JPEG Baseline) or 1.2.840.10008.1.2.4.51 (= JPEG Extended) as Transfer Syntax UID of the stored DICOM image, without transcoding to JPEG Baseline or JPEG Extended, but including the JPEG image as received; false if absent.'
-  EQUALITY integerMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.290 NAME 'dcmSchedulerMinStartDelay'
   DESC 'Minimal delay in s to start schedulers on system start up; 60 if absent'
