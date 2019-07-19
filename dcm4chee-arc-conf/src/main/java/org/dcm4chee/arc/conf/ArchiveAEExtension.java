@@ -129,6 +129,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean relationalQueryNegotiationLenient;
     private Boolean relationalRetrieveNegotiationLenient;
     private Boolean stowRetiredTransferSyntax;
+    private Boolean stowExcludeAPPMarkers;
     private int[] rejectConflictingPatientAttribute = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
@@ -1252,6 +1253,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStowRetiredTransferSyntax();
     }
 
+    public Boolean getStowExcludeAPPMarkers() {
+        return stowExcludeAPPMarkers;
+    }
+
+    public void setStowExcludeAPPMarkers(Boolean stowExcludeAPPMarkers) {
+        this.stowExcludeAPPMarkers = stowExcludeAPPMarkers;
+    }
+
+    public boolean stowExcludeAPPMarkers() {
+        return stowExcludeAPPMarkers != null
+                ? stowExcludeAPPMarkers
+                : getArchiveDeviceExtension().isStowExcludeAPPMarkers();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1323,6 +1338,7 @@ public class ArchiveAEExtension extends AEExtension {
         relationalRetrieveNegotiationLenient = aeExt.relationalRetrieveNegotiationLenient;
         rejectConflictingPatientAttribute = aeExt.rejectConflictingPatientAttribute;
         stowRetiredTransferSyntax = aeExt.stowRetiredTransferSyntax;
+        stowExcludeAPPMarkers = aeExt.stowExcludeAPPMarkers;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();
