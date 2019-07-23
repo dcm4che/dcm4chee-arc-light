@@ -573,12 +573,15 @@ public class StowRS {
             throw new DicomServiceException(0xA922, "Missing Bulkdata: " + bulkdata.getURI());
         if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType))
             bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
-        else {
-            Fragments frags = attrs.newFragments(tag, vr, 2);
-            frags.add(ByteUtils.EMPTY_BYTES);
-            frags.add(new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false));
-        }
+        else
+            addFragments(attrs, bulkdataWithMediaType.bulkData.getURI(), tag, vr);
         return bulkdataWithMediaType;
+    }
+
+    private static void addFragments(Attributes attrs, String uri, int tag, VR vr) {
+        Fragments frags = attrs.newFragments(tag, vr, 2);
+        frags.add(ByteUtils.EMPTY_BYTES);
+        frags.add(new BulkData(null, uri, false));
     }
 
     private enum CompressedPixelData {
@@ -588,6 +591,7 @@ public class StowRS {
                     throws IOException {
                 JPEGParser jpegParser = new JPEGParser(channel);
                 jpegParser.getAttributes(attrs);
+                adjustBulkdata(attrs, jpegParser);
                 return adjustJPEGTransferSyntax(jpegParser.getTransferSyntaxUID(),
                         session.getArchiveAEExtension().stowRetiredTransferSyntax(), attrs);
             }
@@ -623,6 +627,23 @@ public class StowRS {
                         : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MP4_TYPE)
                             ? MP4 : null;
         }
+    }
+
+    private static void adjustBulkdata(Attributes attrs, JPEGParser parser) {
+        long offset = parser.getCodeStreamPosition();
+        if (offset == 0)
+            return;
+
+        String uri = createURI(attrs, offset);
+        attrs.remove(Tag.PixelData);
+        addFragments(attrs, uri, Tag.PixelData, VR.OB);
+    }
+
+    private static String createURI(Attributes attrs, long offset) {
+        String uri = ((BulkData) ((Fragments) attrs.getValue(Tag.PixelData)).get(1)).getURI();
+        return uri.substring(0, uri.indexOf("?"))
+                + "?offset=" + offset
+                + "&length=" + (Integer.parseInt(uri.substring(uri.indexOf("&length=") + 8)) - offset);
     }
 
     private static String adjustJPEGTransferSyntax(String tsuid, boolean allowRetired, Attributes attrs) {
