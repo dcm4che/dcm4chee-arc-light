@@ -240,6 +240,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int[] rejectConflictingPatientAttribute = {};
     private volatile int schedulerMinStartDelay = 60;
     private volatile boolean stowRetiredTransferSyntax = false;
+    private volatile boolean stowExcludeAPPMarkers = false;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -2355,6 +2356,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowRetiredTransferSyntax = stowRetiredTransferSyntax;
     }
 
+    public boolean isStowExcludeAPPMarkers() {
+        return stowExcludeAPPMarkers;
+    }
+
+    public void setStowExcludeAPPMarkers(boolean stowExcludeAPPMarkers) {
+        this.stowExcludeAPPMarkers = stowExcludeAPPMarkers;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2529,6 +2538,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectConflictingPatientAttribute = arcdev.rejectConflictingPatientAttribute;
         schedulerMinStartDelay = arcdev.schedulerMinStartDelay;
         stowRetiredTransferSyntax = arcdev.stowRetiredTransferSyntax;
+        stowExcludeAPPMarkers = arcdev.stowExcludeAPPMarkers;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
