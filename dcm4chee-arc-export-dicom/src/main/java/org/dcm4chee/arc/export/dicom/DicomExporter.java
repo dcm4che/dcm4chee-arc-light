@@ -91,7 +91,9 @@ public class DicomExporter extends AbstractExporter {
                     retrieveContext.remaining() > 0
                             ? QueueMessage.Status.CANCELED
                             : retrieveContext.failed() > 0
-                            ? QueueMessage.Status.WARNING
+                            ? (retrieveContext.missing() > 0
+                                ? QueueMessage.Status.FAILED
+                                : QueueMessage.Status.WARNING)
                             : QueueMessage.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext));
         } finally {
@@ -117,6 +119,7 @@ public class DicomExporter extends AbstractExporter {
         int completed = retrieveContext.completed();
         int warning = retrieveContext.warning();
         int failed = retrieveContext.failed();
+        int missing = retrieveContext.missing();
         StringBuilder sb = new StringBuilder(256);
         sb.append("Export ");
         appendEntity(exportContext, sb);
@@ -130,6 +133,8 @@ public class DicomExporter extends AbstractExporter {
             sb.append(", ").append("warning:").append(warning);
         if (failed > 0)
             sb.append(", ").append("failed:").append(failed);
+        if (missing > 0)
+            sb.append(", ").append("missing:").append(missing);
         return sb.toString();
     }
 

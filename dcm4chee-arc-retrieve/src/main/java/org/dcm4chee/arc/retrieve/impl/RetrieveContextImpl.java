@@ -98,6 +98,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private final AtomicInteger warning = new AtomicInteger();
     private final AtomicInteger failed = new AtomicInteger();
     private final AtomicInteger pendingCStoreForward = new AtomicInteger();
+    private final AtomicInteger missing = new AtomicInteger();
     private final Collection<InstanceLocations> cstoreForwards =
             Collections.synchronizedCollection(new ArrayList<InstanceLocations>());
     private final Collection<String> failedSOPInstanceUIDs =
@@ -507,6 +508,16 @@ class RetrieveContextImpl implements RetrieveContext {
             while (pendingCStoreForward.get() > 0)
                 pendingCStoreForward.wait();
         }
+    }
+
+    @Override
+    public void incrementMissing() {
+        missing.getAndIncrement();
+    }
+
+    @Override
+    public int missing() {
+        return missing.get();
     }
 
     @Override

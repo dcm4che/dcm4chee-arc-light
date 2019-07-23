@@ -111,7 +111,9 @@ import java.util.Date;
         @NamedQuery(name = Location.UPDATE_STATUS_FROM,
                 query = "update Location l set l.status = ?3 where l.pk = ?1 and l.status = ?2"),
         @NamedQuery(name = Location.DELETE_BY_PK,
-                query = "delete from Location l where l.pk = ?1")
+                query = "delete from Location l where l.pk = ?1"),
+        @NamedQuery(name = Location.EXISTS,
+                query = "select l.pk from Location l where l.pk = ?1")
 })
 @NamedNativeQueries({
         @NamedNativeQuery(name = Location.SIZE_OF_SERIES,
@@ -142,6 +144,7 @@ public class Location {
     public static final String UPDATE_STATUS_FROM = "Location.UpdateStatusFrom";
     public static final String DELETE_BY_PK = "Location.DeleteByPk";
     public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
+    public static final String EXISTS = "Location.Exists";
 
     public enum Status {
         OK,                         // 0

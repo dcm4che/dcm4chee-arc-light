@@ -79,6 +79,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
@@ -829,12 +830,27 @@ public class RetrieveServiceImpl implements RetrieveService {
                 LOG.debug("Read {} from {}", inst, location);
                 return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
             } catch (IOException e) {
-                LOG.warn("Failed to read {} from {}", inst, location);
                 ex = e;
-                ctx.getUpdateLocations().add(new UpdateLocation(inst, location, toStatus(e), null));
+                Location.Status errStatus = toStatus(e);
+                if (errStatus == Location.Status.MISSING_OBJECT && !exists(location)) {
+                    LOG.warn("{} of {} no longer exists", location, inst);
+                    ctx.incrementMissing();
+                } else {
+                    LOG.warn("Failed to read {} from {}:\n", inst, location, e);
+                    ctx.getUpdateLocations().add(new UpdateLocation(inst, location, errStatus, null));
+                }
             }
         }
         throw ex;
+    }
+
+    private boolean exists(Location location) {
+        try {
+            em.createNamedQuery(Location.EXISTS).setParameter(1, location.getPk()).getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
     private static Location.Status toStatus(IOException e) {

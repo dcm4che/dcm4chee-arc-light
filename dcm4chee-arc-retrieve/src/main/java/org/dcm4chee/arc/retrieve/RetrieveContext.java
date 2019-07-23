@@ -212,6 +212,10 @@ public interface RetrieveContext extends Closeable {
 
     void waitForPendingCStoreForward() throws InterruptedException;
 
+    void incrementMissing();
+
+    int missing();
+
     void addCStoreForward(InstanceLocations inst);
 
     Collection<InstanceLocations> getCStoreForwards();
