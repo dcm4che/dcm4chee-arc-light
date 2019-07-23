@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.imageio.codec.jpeg.JPEG;
 import org.dcm4che3.imageio.codec.jpeg.JPEGParser;
 import org.dcm4che3.imageio.codec.mp4.MP4Parser;
 import org.dcm4che3.imageio.codec.mpeg.MPEG2Parser;
@@ -56,6 +57,7 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
@@ -81,6 +83,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -389,7 +392,7 @@ public class StowRS {
                 if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_JSON_TYPE))
                     return stowRS.spoolBulkdata(in, mediaType, contentLocation);
 
-                JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+                JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)));
                 reader.readDatasets((fmi, dataset) -> stowRS.instances.add(dataset));
                 return true;
             }
@@ -574,14 +577,17 @@ public class StowRS {
         if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType))
             bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
         else
-            addFragments(attrs, bulkdataWithMediaType.bulkData.getURI(), tag, vr);
+            addFragments(attrs,
+                    new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false),
+                    tag,
+                    vr);
         return bulkdataWithMediaType;
     }
 
-    private static void addFragments(Attributes attrs, String uri, int tag, VR vr) {
+    private static void addFragments(Attributes attrs, BulkData bulkData, int tag, VR vr) {
         Fragments frags = attrs.newFragments(tag, vr, 2);
         frags.add(ByteUtils.EMPTY_BYTES);
-        frags.add(new BulkData(null, uri, false));
+        frags.add(bulkData);
     }
 
     private enum CompressedPixelData {
@@ -591,9 +597,10 @@ public class StowRS {
                     throws IOException {
                 JPEGParser jpegParser = new JPEGParser(channel);
                 jpegParser.getAttributes(attrs);
-                adjustBulkdata(attrs, jpegParser);
+                ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+                adjustBulkdata(attrs, jpegParser, arcAE);
                 return adjustJPEGTransferSyntax(jpegParser.getTransferSyntaxUID(),
-                        session.getArchiveAEExtension().stowRetiredTransferSyntax(), attrs);
+                        arcAE.stowRetiredTransferSyntax(), attrs);
             }
         },
         MPEG {
@@ -629,21 +636,38 @@ public class StowRS {
         }
     }
 
-    private static void adjustBulkdata(Attributes attrs, JPEGParser parser) {
-        long offset = parser.getCodeStreamPosition();
-        if (offset == 0)
+    private static void adjustBulkdata(Attributes attrs, JPEGParser parser, ArchiveAEExtension arcAE) {
+        if (parser.getCodeStreamPosition() > 0) {
+            excludeJP2FileFormatHeader(parser, attrs);
             return;
+        }
 
-        String uri = createURI(attrs, offset);
-        attrs.remove(Tag.PixelData);
-        addFragments(attrs, uri, Tag.PixelData, VR.OB);
+        if (parser.getPositionAfterAPPSegments() != -1 && arcAE.stowExcludeAPPMarkers())
+            excludeAppMarkers(attrs, parser);
     }
 
-    private static String createURI(Attributes attrs, long offset) {
+    private static void excludeJP2FileFormatHeader(JPEGParser parser, Attributes attrs) {
+        BulkData bulkData = createBulkData(attrs, parser.getCodeStreamPosition());
+        attrs.remove(Tag.PixelData);
+        addFragments(attrs, bulkData, Tag.PixelData, VR.OB);
+    }
+
+    private static void excludeAppMarkers(Attributes attrs, JPEGParser parser) {
+        byte[] prefix = new byte[] { -1, (byte) JPEG.SOI, -1 };
+        int offset = (int) parser.getPositionAfterAPPSegments() + 1;
+        BulkData bulkData = createBulkData(attrs, offset, prefix);
+        attrs.remove(Tag.PixelData);
+        addFragments(attrs, bulkData, Tag.PixelData, VR.OB);
+    }
+
+    private static BulkData createBulkData(Attributes attrs, long offset, byte... prefix) {
         String uri = ((BulkData) ((Fragments) attrs.getValue(Tag.PixelData)).get(1)).getURI();
-        return uri.substring(0, uri.indexOf("?"))
-                + "?offset=" + offset
-                + "&length=" + (Integer.parseInt(uri.substring(uri.indexOf("&length=") + 8)) - offset);
+        return new BulkDataWithPrefix(
+                uri.substring(0, uri.indexOf("?")),
+                offset,
+                Integer.parseInt(uri.substring(uri.indexOf("&length=") + 8)) - (int) offset,
+                false,
+                prefix);
     }
 
     private static String adjustJPEGTransferSyntax(String tsuid, boolean allowRetired, Attributes attrs) {
