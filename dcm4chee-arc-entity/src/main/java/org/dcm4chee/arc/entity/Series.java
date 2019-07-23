@@ -849,7 +849,7 @@ public class Series {
 
     public void scheduleStorageVerification(Period delay) {
         if (delay != null && storageVerificationTime == null)
-            storageVerificationTime = new Date(LocalDate.now().plus(delay).toEpochDay() * MILLIS_PER_DAY);
+            storageVerificationTime = new Date(System.currentTimeMillis() + delay.getDays() * MILLIS_PER_DAY);
     }
 
     public int getFailuresOfLastStorageVerification() {
