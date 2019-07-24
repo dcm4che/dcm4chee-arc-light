@@ -647,27 +647,20 @@ public class StowRS {
     }
 
     private static void excludeJP2FileFormatHeader(JPEGParser parser, Attributes attrs) {
-        BulkData bulkData = createBulkData(attrs, parser.getCodeStreamPosition());
-        attrs.remove(Tag.PixelData);
-        addFragments(attrs, bulkData, Tag.PixelData, VR.OB);
+        BulkData bulkData = (BulkData) ((Fragments) attrs.getValue(Tag.PixelData)).get(1);
+        bulkData.setLength(bulkData.length() - parser.getCodeStreamPosition());
+        bulkData.setOffset(parser.getCodeStreamPosition());
     }
 
     private static void excludeAppMarkers(Attributes attrs, JPEGParser parser) {
-        byte[] prefix = new byte[] { -1, (byte) JPEG.SOI, -1 };
-        int offset = (int) parser.getPositionAfterAPPSegments() + 1;
-        BulkData bulkData = createBulkData(attrs, offset, prefix);
-        attrs.remove(Tag.PixelData);
-        addFragments(attrs, bulkData, Tag.PixelData, VR.OB);
-    }
-
-    private static BulkData createBulkData(Attributes attrs, long offset, byte... prefix) {
-        String uri = ((BulkData) ((Fragments) attrs.getValue(Tag.PixelData)).get(1)).getURI();
-        return new BulkDataWithPrefix(
-                uri.substring(0, uri.indexOf("?")),
-                offset,
-                Integer.parseInt(uri.substring(uri.indexOf("&length=") + 8)) - (int) offset,
+        Fragments fragments = (Fragments) attrs.getValue(Tag.PixelData);
+        BulkData bulkData = (BulkData) fragments.remove(1);
+        fragments.add(new BulkDataWithPrefix(
+                bulkData.uriWithoutOffsetAndLength(),
+                parser.getPositionAfterAPPSegments(),
+                (int) (bulkData.length() - parser.getPositionAfterAPPSegments()),
                 false,
-                prefix);
+                (byte) -1, (byte) JPEG.SOI));
     }
 
     private static String adjustJPEGTransferSyntax(String tsuid, boolean allowRetired, Attributes attrs) {
