@@ -62,6 +62,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -172,23 +173,30 @@ class LocationQuery {
     private void execute(Map<Long, StudyInfo> studyInfoMap, Predicate[] predicates) {
         HashMap<Long,InstanceLocations> instMap = new HashMap<>();
         HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
+        HashMap<Long,Map<String, CodeEntity>> rejectedInstancesOfSeriesMap = new HashMap<>();
         for (Tuple tuple : em.createQuery(q.where(predicates)).getResultList()) {
             Long instPk = tuple.get(instance.get(Instance_.pk));
             InstanceLocations match = instMap.get(instPk);
             if (match == null) {
                 Long seriesPk = tuple.get(series.get(Series_.pk));
                 Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
+                Map<String, CodeEntity> rejectedInstancesOfSeries = rejectedInstancesOfSeriesMap.get(seriesPk);
                 if (seriesAttrs == null) {
                     SeriesAttributes seriesAttributes = new SeriesAttributes(em, cb, seriesPk);
                     studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
                     ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
                     ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
                     seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
+                    if (ctx.getSeriesMetadataUpdate() != null)
+                        rejectedInstancesOfSeriesMap.put(
+                                seriesPk, rejectedInstancesOfSeries = getRejectedInstancesOfSeries(seriesAttrs));
                 }
                 Attributes instAttrs = AttributesBlob.decodeAttributes(tuple.get(instanceAttrBlob), null);
                 Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
                 instAttrs.addAll(seriesAttrs, true);
-                match = instanceLocationsFromDB(tuple, instAttrs);
+                match = instanceLocationsFromDB(tuple, instAttrs, rejectedInstancesOfSeries != null
+                        ? rejectedInstancesOfSeries.get(instAttrs.getString(Tag.SOPInstanceUID))
+                        : null);
                 ctx.getMatches().add(match);
                 instMap.put(instPk, match);
             }
@@ -196,7 +204,7 @@ class LocationQuery {
         }
     }
 
-    private InstanceLocations instanceLocationsFromDB(Tuple tuple, Attributes instAttrs) {
+    private InstanceLocations instanceLocationsFromDB(Tuple tuple, Attributes instAttrs, CodeEntity rejectionCode) {
         InstanceLocationsImpl inst = new InstanceLocationsImpl(instAttrs);
         inst.setInstancePk(tuple.get(instance.get(Instance_.pk)));
         inst.setRetrieveAETs(tuple.get(instance.get(Instance_.retrieveAETs)));
@@ -204,21 +212,17 @@ class LocationQuery {
         inst.setAvailability(tuple.get(instance.get(Instance_.availability)));
         inst.setCreatedTime(tuple.get(instance.get(Instance_.createdTime)));
         inst.setUpdatedTime(tuple.get(instance.get(Instance_.updatedTime)));
-        if (ctx.getSeriesMetadataUpdate() != null)
-            inst.setRejectionCode(rejectionCode(instAttrs));
+        if (rejectionCode != null)
+            inst.setRejectionCode(rejectionCode.getCode().toItem());
         return inst;
     }
 
-    private Attributes rejectionCode(Attributes instAttrs) {
-        try {
-            return em.createNamedQuery(RejectedInstance.REJECTION_CODE_BY_UIDS, CodeEntity.class)
-                    .setParameter(1, instAttrs.getString(Tag.StudyInstanceUID))
-                    .setParameter(2, instAttrs.getString(Tag.SeriesInstanceUID))
-                    .setParameter(3, instAttrs.getString(Tag.SOPInstanceUID))
-                    .getSingleResult().getCode().toItem();
-        } catch (NoResultException e) {
-            return null;
-        }
+    private Map<String, CodeEntity> getRejectedInstancesOfSeries(Attributes seriesAttrs) {
+        return em.createNamedQuery(RejectedInstance.FIND_BY_SERIES_UID, RejectedInstance.class)
+                .setParameter(1, seriesAttrs.getString(Tag.StudyInstanceUID))
+                .setParameter(2, seriesAttrs.getString(Tag.SeriesInstanceUID))
+                .getResultStream()
+                .collect(Collectors.toMap(RejectedInstance::getSopInstanceUID, RejectedInstance::getRejectionNoteCode));
     }
 
     private void addLocation(InstanceLocations match, Tuple tuple) {

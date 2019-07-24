@@ -69,6 +69,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -109,6 +110,7 @@ class InstanceQuery extends AbstractQuery {
     private String[] sopInstanceUIDs;
     private int[] instTags;
     private Attributes instQueryKeys;
+    private Map<String, CodeEntity> rejectedInstancesOfSeries;
 
     InstanceQuery(QueryContext context, EntityManager em, CodeCache codeCache) {
         super(context, em);
@@ -150,6 +152,8 @@ class InstanceQuery extends AbstractQuery {
         if (!seriesPk.equals(this.seriesPk)) {
             this.seriesAttrs = context.getQueryService().getSeriesAttributes(context, seriesPk);
             this.seriesPk = seriesPk;
+            if (context.isReturnPrivate())
+                this.rejectedInstancesOfSeries = getRejectedInstancesOfSeries(seriesAttrs);
         }
         Attributes instAttrs = AttributesBlob.decodeAttributes(results.get(instanceAttrBlob), null);
         Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
@@ -168,22 +172,24 @@ class InstanceQuery extends AbstractQuery {
                 results.get(instance.get(Instance_.createdTime)));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
                 results.get(instance.get(Instance_.updatedTime)));
-        addRejectionNoteCode(attrs);
+        addRejectionNoteCode(attrs, rejectedInstancesOfSeries.get(instAttrs.getString(Tag.SOPInstanceUID)));
         context.getQueryService().addLocationAttributes(attrs, results.get(instance.get(Instance_.pk)));
         return attrs;
     }
 
-    private void addRejectionNoteCode(Attributes attrs) {
-        try {
-            Attributes item = em.createNamedQuery(RejectedInstance.REJECTION_CODE_BY_UIDS, CodeEntity.class)
-                    .setParameter(1, attrs.getString(Tag.StudyInstanceUID))
-                    .setParameter(2, attrs.getString(Tag.SeriesInstanceUID))
-                    .setParameter(3, attrs.getString(Tag.SOPInstanceUID))
-                    .getSingleResult().getCode().toItem();
-            attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1).add(item);
-        } catch (NoResultException ignore) {}
+    private Map<String, CodeEntity> getRejectedInstancesOfSeries(Attributes seriesAttrs) {
+            return em.createNamedQuery(RejectedInstance.FIND_BY_SERIES_UID, RejectedInstance.class)
+                    .setParameter(1, seriesAttrs.getString(Tag.StudyInstanceUID))
+                    .setParameter(2, seriesAttrs.getString(Tag.SeriesInstanceUID))
+                    .getResultStream()
+                    .collect(Collectors.toMap(RejectedInstance::getSopInstanceUID, RejectedInstance::getRejectionNoteCode));
     }
 
+    private void addRejectionNoteCode(Attributes attrs, CodeEntity rejectionCode) {
+        if (rejectionCode != null)
+            attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1)
+                    .add(rejectionCode.getCode().toItem());
+    }
 
     @Override
     public boolean isOptionalKeysNotSupported() {

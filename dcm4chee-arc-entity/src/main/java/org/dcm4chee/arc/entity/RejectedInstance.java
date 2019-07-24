@@ -57,16 +57,16 @@ import java.util.Date;
         query = "select ri from RejectedInstance ri " +
                 "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2 and ri.sopInstanceUID = ?3")
 @NamedQuery(
-        name = RejectedInstance.REJECTION_CODE_BY_UIDS,
-        query = "select ri.rejectionNoteCode from RejectedInstance ri " +
-                "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2 and ri.sopInstanceUID = ?3")
+        name = RejectedInstance.FIND_BY_SERIES_UID,
+        query = "select ri from RejectedInstance ri " +
+                "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2")
 @NamedQuery(
         name = RejectedInstance.DELETE_BY_UIDS,
         query = "delete from RejectedInstance ri " +
                 "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2 and ri.sopInstanceUID = ?3")
 public class RejectedInstance {
     public static final String FIND_BY_UIDS = "RejectedInstance.findByUIDs";
-    public static final String REJECTION_CODE_BY_UIDS = "RejectedInstance.rejectionCodeByUIDs";
+    public static final String FIND_BY_SERIES_UID = "RejectedInstance.findBySeriesUID";
     public static final String DELETE_BY_UIDS = "RejectedInstance.deleteByUIDs";
 
     @Id

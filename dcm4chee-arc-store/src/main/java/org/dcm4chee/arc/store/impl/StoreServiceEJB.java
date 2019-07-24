@@ -202,6 +202,7 @@ public class StoreServiceEJB {
                     case RESTORE:
                         logInfo(REVOKE_REJECTION, ctx, prevRejectionNote.getRejectionNoteCode());
                         em.remove(rejectedInstance);
+                        rejectedInstance = null;
                         if (hasLocationWithEqualDigest(ctx, prevInstance)) {
                             result.setStoredInstance(prevInstance);
                             deleteQueryAttributes(prevInstance);
@@ -216,17 +217,19 @@ public class StoreServiceEJB {
                 }
             } else if (treatAsSubsequentOccurrence(session, rejectedInstance, prevRejectionNote)) {
                 switch (prevRejectionNote.getAcceptPreviousRejectedInstance()) {
+                    case IGNORE:
+                        break;
                     case REJECT:
                         result.setException(subsequentOccurenceOfRejectedObject(rejectedInstance));
                         break;
                     case RESTORE:
                         logInfo(REVOKE_REJECTION, ctx, prevRejectionNote.getRejectionNoteCode());
                         em.remove(rejectedInstance);
+                        rejectedInstance = null;
                         break;
                 }
-            } else {
-                result.setRejectedInstance(rejectedInstance);
             }
+            result.setRejectedInstance(rejectedInstance);
         }
         if (prevInstance != null) {
             LOG.info("{}: Replace previous received {}", session, prevInstance);
@@ -260,12 +263,12 @@ public class StoreServiceEJB {
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
         if (rjNote == null) {
-            updateSeriesRejectionState(ctx, series);
+            updateSeriesRejectionState(ctx, series, rejectedInstance);
             if (createLocations) {
                 series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
             }
             Study study = series.getStudy();
-            updateStudyRejectionState(ctx, study);
+            updateStudyRejectionState(ctx, study, rejectedInstance);
             study.setExternalRetrieveAET("*");
             study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
             Patient patient = study.getPatient();
@@ -766,7 +769,7 @@ public class StoreServiceEJB {
                     checkConflictingPatientAttrs(session, ctx, pat);
                     pat = updatePatient(ctx, pat, now, reasonForTheAttributeModification);
                 }
-                study = createStudy(ctx, pat);
+                study = createStudy(ctx, pat, result);
                 if (ctx.getExpirationDate() != null)
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
@@ -1032,16 +1035,25 @@ public class StoreServiceEJB {
                 study.addStorageID(l.getStorageID());
     }
 
-    private void updateStudyRejectionState(StoreContext ctx, Study study) {
-        switch (study.getRejectionState()) {
-            case COMPLETE:
+    private void updateStudyRejectionState(StoreContext ctx, Study study, RejectedInstance rejectedInstance) {
+        if (rejectedInstance == null)
+            switch (study.getRejectionState()) {
+                case COMPLETE:
+                    study.setRejectionState(RejectionState.PARTIAL);
+                    study.getPatient().incrementNumberOfStudies();
+                    setStudyAttributes(ctx, study);
+                    break;
+                case EMPTY:
+                    study.setRejectionState(RejectionState.NONE);
+                    study.getPatient().incrementNumberOfStudies();
+                    break;
+            }
+        else switch (study.getRejectionState()) {
+            case NONE:
                 study.setRejectionState(RejectionState.PARTIAL);
-                study.getPatient().incrementNumberOfStudies();
-                setStudyAttributes(ctx, study);
                 break;
             case EMPTY:
-                study.setRejectionState(RejectionState.NONE);
-                study.getPatient().incrementNumberOfStudies();
+                study.setRejectionState(RejectionState.COMPLETE);
                 break;
         }
     }
@@ -1070,10 +1082,14 @@ public class StoreServiceEJB {
         }
     }
 
-    private void updateSeriesRejectionState(StoreContext ctx, Series series) {
-        if (series.getRejectionState() == RejectionState.COMPLETE) {
+    private void updateSeriesRejectionState(StoreContext ctx, Series series, RejectedInstance rejectedInstance) {
+        if (rejectedInstance == null) {
+            if (series.getRejectionState() == RejectionState.COMPLETE) {
+                series.setRejectionState(RejectionState.PARTIAL);
+                setSeriesAttributes(ctx, series);
+            }
+        } else if (series.getRejectionState() == RejectionState.NONE) {
             series.setRejectionState(RejectionState.PARTIAL);
-            setSeriesAttributes(ctx, series);
         }
     }
 
@@ -1118,7 +1134,7 @@ public class StoreServiceEJB {
                     .getResultList();
     }
 
-    private Study createStudy(StoreContext ctx, Patient patient) {
+    private Study createStudy(StoreContext ctx, Patient patient, UpdateDBResult result) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
@@ -1126,7 +1142,10 @@ public class StoreServiceEJB {
         study.setAccessControlID(arcAE.storeAccessControlID(
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
-        study.setRejectionState(RejectionState.NONE);
+        study.setRejectionState(
+                result.getRejectionNote() == null && result.getRejectedInstance() == null
+                        ? RejectionState.NONE
+                        : RejectionState.COMPLETE);
         study.setExpirationState(ExpirationState.UPDATEABLE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
@@ -1286,7 +1305,7 @@ public class StoreServiceEJB {
             }
             if (ctx.getExpirationDate() == null)
                 applyStudyRetentionPolicy(ctx, series);
-            series.setRejectionState(RejectionState.NONE);
+            series.setRejectionState(result.getRejectedInstance() == null ? RejectionState.NONE : RejectionState.COMPLETE);
         } else {
             series.setCompleteness(Completeness.COMPLETE);
             series.setRejectionState(RejectionState.COMPLETE);

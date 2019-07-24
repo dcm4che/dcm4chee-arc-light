@@ -50,7 +50,9 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Duration;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -849,7 +851,7 @@ public class Series {
 
     public void scheduleStorageVerification(Period delay) {
         if (delay != null && storageVerificationTime == null)
-            storageVerificationTime = new Date(System.currentTimeMillis() + delay.getDays() * MILLIS_PER_DAY);
+            storageVerificationTime = Date.from(Instant.now().plus(delay));
     }
 
     public int getFailuresOfLastStorageVerification() {
