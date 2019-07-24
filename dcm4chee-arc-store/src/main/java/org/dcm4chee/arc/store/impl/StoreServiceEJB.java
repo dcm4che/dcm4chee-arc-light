@@ -1142,14 +1142,15 @@ public class StoreServiceEJB {
         study.setAccessControlID(arcAE.storeAccessControlID(
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
-        study.setRejectionState(
-                result.getRejectionNote() == null && result.getRejectedInstance() == null
-                        ? RejectionState.NONE
-                        : RejectionState.COMPLETE);
         study.setExpirationState(ExpirationState.UPDATEABLE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
-        patient.incrementNumberOfStudies();
+        if (result.getRejectionNote() == null && result.getRejectedInstance() == null) {
+            study.setRejectionState(RejectionState.NONE);
+            patient.incrementNumberOfStudies();
+        } else {
+            study.setRejectionState(RejectionState.COMPLETE);
+        }
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
