@@ -849,7 +849,6 @@ dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
-dcmWebServiceClass: PAM_RS
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: DCM4CHEE
