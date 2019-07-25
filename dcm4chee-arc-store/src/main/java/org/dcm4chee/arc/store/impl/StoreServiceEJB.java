@@ -81,6 +81,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -262,11 +263,11 @@ public class StoreServiceEJB {
         series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
+        if (createLocations) {
+            series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
+        }
         if (rjNote == null) {
             updateSeriesRejectionState(ctx, series, rejectedInstance);
-            if (createLocations) {
-                series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
-            }
             Study study = series.getStudy();
             updateStudyRejectionState(ctx, study, rejectedInstance);
             study.setExternalRetrieveAET("*");
@@ -348,7 +349,8 @@ public class StoreServiceEJB {
                 .openZipInputStream(session, metadata.getStorageID(), metadata.getStoragePath(), studyUID)) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
-                JSONReader jsonReader = new JSONReader(Json.createParser(new InputStreamReader(zip, "UTF-8")));
+                JSONReader jsonReader = new JSONReader(Json.createParser(
+                        new InputStreamReader(zip, StandardCharsets.UTF_8)));
                 jsonReader.setSkipBulkDataURI(true);
                 Instance inst = restoreInstance(session, series, jsonReader.readDataset(null));
                 if (instList != null)
@@ -504,6 +506,7 @@ public class StoreServiceEJB {
                         hasSeriesWithOtherRejectionState(study, RejectionState.NONE)
                                 ? RejectionState.PARTIAL
                                 : RejectionState.NONE);
+                deleteStudyQueryAttributes(study);
             }
         }
     }
