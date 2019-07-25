@@ -36,10 +36,15 @@
           "enum": [
             "QIDO_RS",
             "STOW_RS",
-            "UPS_RS",
             "WADO_RS",
             "WADO_URI",
-            "DCM4CHEE_ARC"
+            "UPS_RS",
+            "DCM4CHEE_ARC",
+            "DCM4CHEE_ARC_AET",
+            "PAM",
+            "MOVE",
+            "MOVE_MATCHING",
+            "ELASTICSEARCH"
           ]
         }
       },
