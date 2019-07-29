@@ -143,7 +143,7 @@ class StorageCommitAuditService {
         return AuditMessages.createMessage(
             EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
             activeParticipants(eventType, auditLogger, auditInfo),
-            ParticipantObjectID.studyPatParticipants(reader, auditInfo));
+            ParticipantObjectID.studyPatParticipants(reader, auditInfo, auditLogger));
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(

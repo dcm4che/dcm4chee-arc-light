@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -108,7 +108,7 @@ public class AuditService {
     private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws Exception {
         AuditUtils.EventType eventType = AuditUtils.EventType.fromFile(path);
         if (path.toFile().length() == 0) {
-            LOG.warn("Attempt to read from an empty file.", eventType, path);
+            LOG.warn("Attempt to read from an empty file {} by {}.", path, eventType);
             return;
         }
         switch (eventType.eventClass) {
@@ -478,7 +478,7 @@ public class AuditService {
         AuditMessage auditMsg = AuditMessages.createMessage(
                 EventID.toEventIdentification(logger, path, eventType, auditInfo),
                 patientMismatchActiveParticipants(logger, auditInfo),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType));
+                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, logger));
         emitAuditMessage(auditMsg, logger);
     }
 
@@ -581,7 +581,7 @@ public class AuditService {
         AuditMessage auditMsg = AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType));
+                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, auditLogger));
         emitAuditMessage(auditMsg, auditLogger);
     }
 
@@ -592,7 +592,7 @@ public class AuditService {
         AuditMessage auditMsg = AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType));
+                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, auditLogger));
         emitAuditMessage(auditMsg, auditLogger);
     }
 
@@ -867,7 +867,7 @@ public class AuditService {
     private void writeSpoolFile(
             AuditInfoBuilder auditInfoBuilder, AuditUtils.EventType eventType, byte[]... data) {
         if (auditInfoBuilder == null) {
-            LOG.warn("Attempt to write empty file : ", eventType);
+            LOG.warn("Attempt to write empty file by : {}", eventType);
             return;
         }
         FileTime eventTime = null;

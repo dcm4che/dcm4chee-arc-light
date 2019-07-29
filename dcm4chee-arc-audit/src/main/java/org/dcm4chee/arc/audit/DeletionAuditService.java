@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -206,7 +206,7 @@ class DeletionAuditService {
         return AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditLogger, eventType, auditInfo),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType));
+                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, auditLogger));
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(

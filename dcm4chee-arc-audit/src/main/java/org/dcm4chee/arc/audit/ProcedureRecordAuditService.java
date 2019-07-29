@@ -203,7 +203,7 @@ class ProcedureRecordAuditService {
         return AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditLogger, auditInfo),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader));
+                ParticipantObjectID.studyPatParticipants(auditInfo, reader, auditLogger));
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {

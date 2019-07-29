@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Patient;
 
@@ -112,13 +113,13 @@ class ParticipantObjectID {
     }
 
     static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
-            AuditInfo auditInfo, List<String> instanceInfoLines, AuditUtils.EventType eventType) {
+            AuditInfo auditInfo, List<String> instanceInfoLines, AuditUtils.EventType eventType, AuditLogger auditLogger) {
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
         ParticipantObjectIdentificationBuilder.Builder studyPOIBuilder = studyPOI(auditInfo)
                 .desc(participantObjDesc(
                         auditInfo,
                         instanceInfoLines,
-                        auditInfo.getField(AuditInfo.OUTCOME) != null)
+                        auditInfo.getField(AuditInfo.OUTCOME) != null || auditLogger.isIncludeInstanceUID())
                         .build());
 
         if ((eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
@@ -144,13 +145,13 @@ class ParticipantObjectID {
     }
 
     static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
-            AuditInfo auditInfo, SpoolFileReader reader) {
+            AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
         InstanceInfo instanceInfo = new InstanceInfo();
         instanceInfo.addAcc(auditInfo);
 
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
         studyPatParticipants[0] = studyPOI(auditInfo)
-                .desc(participantObjDesc(instanceInfo, false).build())
+                .desc(participantObjDesc(instanceInfo, auditLogger.isIncludeInstanceUID()).build())
                 .detail(getHL7ParticipantObjectDetail(reader))
                 .build();
         if (auditInfo.getField(AuditInfo.P_ID) != null)
@@ -158,12 +159,14 @@ class ParticipantObjectID {
         return studyPatParticipants;
     }
 
-    static ParticipantObjectIdentificationBuilder[] studyPatParticipants(SpoolFileReader reader, AuditInfo auditInfo) {
+    static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
+            SpoolFileReader reader, AuditInfo auditInfo, AuditLogger auditLogger) {
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
         String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
         studyPatParticipants[0] = studyPOI(studyUIDs[0], null)
                                     .desc(participantObjDesc(auditInfo, reader.getInstanceLines(),
-                                            studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null)
+                                            studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null
+                                                    || auditLogger.isIncludeInstanceUID())
                                             .pocsStudyUIDs(studyUIDs)
                                             .build())
                                     .lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification)

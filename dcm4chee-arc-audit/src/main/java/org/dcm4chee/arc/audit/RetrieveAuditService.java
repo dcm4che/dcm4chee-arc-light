@@ -232,7 +232,7 @@ class RetrieveAuditService {
             study_instanceInfo.put(studyInstanceUID, instanceInfo);
         }
         List<ParticipantObjectIdentificationBuilder> pois = new ArrayList<>();
-        boolean showIUID = auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null;
+        boolean showIUID = auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null || auditLogger.isIncludeInstanceUID();
         study_instanceInfo.forEach(
                 (studyUID, instanceInfo) -> pois.add(ParticipantObjectID.studyPOI(studyUID, instanceInfo, showIUID)));
         pois.add(ParticipantObjectID.patientPOI(reader));
