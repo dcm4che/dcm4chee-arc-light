@@ -14777,7 +14777,7 @@
         }
       },
       "importInstances": {
-        "description": "List storage paths delimited by line breaks (CRLF)",
+        "description": "List of storage paths delimited by line breaks (CRLF)",
         "content": {
           "text/csv": {
             "schema": {
