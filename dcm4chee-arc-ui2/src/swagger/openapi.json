@@ -14779,7 +14779,7 @@
       "importInstances": {
         "description": "List of storage paths delimited by line breaks (CRLF)",
         "content": {
-          "text/csv": {
+          "text/*": {
             "schema": {
               "type": "string",
               "format": "binary"

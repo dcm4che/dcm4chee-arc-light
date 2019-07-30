@@ -75,7 +75,7 @@ public class ImportStorageRS {
 
     @POST
     @Path("/instances/storage/{StorageID}")
-    @Consumes("text/csv")
+    @Consumes("text/*")
     @Produces("application/dicom+xml")
     public void importInstancesXML(
             @PathParam("StorageID") String storageID,
@@ -86,7 +86,7 @@ public class ImportStorageRS {
 
     @POST
     @Path("/instances/storage/{StorageID}")
-    @Consumes("text/csv")
+    @Consumes("text/*")
     @Produces("application/dicom+json")
     public void importInstancesJSON(
             @PathParam("StorageID") String storageID,
