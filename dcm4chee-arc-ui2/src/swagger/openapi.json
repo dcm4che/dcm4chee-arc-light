@@ -3167,6 +3167,9 @@
             "$ref": "#/components/parameters/dicomAETitle"
           },
           {
+            "$ref": "#/components/parameters/dcmKeycloakClientID"
+          },
+          {
             "$ref": "#/components/parameters/dicomApplicationCluster"
           }
         ],
@@ -13444,6 +13447,14 @@
         "name": "dicomAETitle",
         "in": "query",
         "description": "Application Entity Title",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dcmKeycloakClientID": {
+        "name": "dcmKeycloakClientID",
+        "in": "query",
+        "description": "Keycloak Client ID",
         "schema": {
           "type": "string"
         }

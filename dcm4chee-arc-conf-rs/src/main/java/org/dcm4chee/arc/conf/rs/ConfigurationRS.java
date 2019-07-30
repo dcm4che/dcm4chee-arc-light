@@ -195,13 +195,22 @@ public class ConfigurationRS {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
                     for (WebApplicationInfo webappInfo : webappInfos)
-                        jsonConf.writeTo(webappInfo, gen);
+                        jsonConf.writeTo(webappInfo, gen, keycloakClientID(webappInfo));
                     gen.writeEnd();
                     gen.flush();
                 }).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private String keycloakClientID(WebApplicationInfo webAppInfo) {
+        String authURL = System.getProperty("auth-server-url");
+        KeycloakClient keycloakClient = webAppInfo.getKeycloakClient();
+        return keycloakClient == null || authURL == null
+                || (authURL.equals(keycloakClient.getKeycloakServerURL())
+                    && System.getProperty("realm-name", "dcm4che").equals(keycloakClient.getKeycloakRealm()))
+                ? null : webAppInfo.getKeycloakClientID();
     }
 
     @GET
@@ -632,6 +641,9 @@ public class ConfigurationRS {
                     break;
                 case "dicomApplicationCluster":
                     webappInfo.setApplicationClusters(toArray(value));
+                    break;
+                case "dcmKeycloakClientID":
+                    webappInfo.setKeycloakClientID(firstValueOf(value));
                     break;
             }
         });
