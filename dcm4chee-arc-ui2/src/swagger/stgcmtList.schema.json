@@ -18,7 +18,7 @@
         "description": "A unique name for this device",
         "type": "string"
       },
-      "transactionUID": {
+      "transactionUIDPathParam": {
         "title": "Transaction UID",
         "description": "Transaction UID of Storage Commitment",
         "type": "string"

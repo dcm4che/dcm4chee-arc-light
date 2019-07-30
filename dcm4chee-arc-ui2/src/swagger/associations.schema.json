@@ -13,7 +13,7 @@
       "invokedOps"
     ],
     "properties": {
-      "serialNo": {
+      "serialNoPathParam": {
         "title": "Serial No",
         "description": "serial number of Association",
         "type": "integer"

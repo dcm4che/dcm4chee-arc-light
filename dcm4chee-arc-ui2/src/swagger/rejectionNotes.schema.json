@@ -27,12 +27,12 @@
           "REVOKE_REJECTION"
         ]
       },
-      "codeValue": {
+      "codeValuePathParam": {
         "title": "Code Value",
         "description": "Code Value of Rejection Note",
         "type": "string"
       },
-      "codingSchemeDesignator": {
+      "codingSchemeDesignatorPathParam": {
         "title": "Coding Scheme Designator",
         "description": "Coding Scheme Designator of Rejection Note",
         "type": "string"
