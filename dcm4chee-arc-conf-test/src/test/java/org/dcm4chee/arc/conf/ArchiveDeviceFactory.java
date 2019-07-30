@@ -1070,7 +1070,6 @@ class ArchiveDeviceFactory {
     };
 
     static final String AE_TITLE = "DCM4CHEE";
-    static final String DCM4CHEE_ARC_VERSION = "5.17.1";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String HL7_DCM2ADT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -1331,7 +1330,6 @@ class ArchiveDeviceFactory {
 
         device.setManufacturer("dcm4che.org");
         device.setManufacturerModelName("dcm4chee-arc");
-        device.setSoftwareVersions(DCM4CHEE_ARC_VERSION);
         device.setPrimaryDeviceTypes("ARCHIVE");
 
         configType.configureKeyAndTrustStore(device);

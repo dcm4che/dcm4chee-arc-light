@@ -633,7 +633,7 @@ class StoreServiceImpl implements StoreService {
     private void updateDeviceConfiguration(ArchiveDeviceExtension arcDev) {
         Device device = arcDev.getDevice();
         try {
-            LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
+            LOG.info("Update Storage configuration of Device: {}", device.getDeviceName());
             ConfigurationChanges diffs = conf.merge(device, EnumSet.of(
                     DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
                     DicomConfiguration.Option.PRESERVE_CERTIFICATE,

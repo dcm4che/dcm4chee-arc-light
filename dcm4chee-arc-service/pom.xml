@@ -76,4 +76,35 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>get-the-git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <dotGitDirectory>../.git</dotGitDirectory>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <generateGitPropertiesFilename>${project.build.outputDirectory}/org/dcm4chee/arc/git.properties</generateGitPropertiesFilename>
+          <dateFormat>yyyy-MM-dd</dateFormat>
+          <includeOnlyProperties>
+            <includeOnlyProperty>git.branch</includeOnlyProperty>
+            <includeOnlyProperty>git.build.version</includeOnlyProperty>
+            <includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
+            <includeOnlyProperty>git.commit.time</includeOnlyProperty>
+          </includeOnlyProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

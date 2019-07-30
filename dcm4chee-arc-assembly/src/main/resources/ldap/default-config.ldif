@@ -85,15 +85,14 @@ dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmBulkDataDescriptorID: default
 dcmCompressionAETitle: DCM4CHEE
-dicomSoftwareVersion: 5.17.1
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectionNoteStorageAET: DCM4CHEE
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
 dcmDeleteRejectedPollingInterval: PT5M
 dcmLeadingCFindSCPQueryCacheStaleTimeout: PT5M
-dcmAuditPollingInterval: PT1M
 dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
+dcmAuditPollingInterval: PT1M
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
 dcmHideSPSWithStatusFromMWL: CANCELLED
