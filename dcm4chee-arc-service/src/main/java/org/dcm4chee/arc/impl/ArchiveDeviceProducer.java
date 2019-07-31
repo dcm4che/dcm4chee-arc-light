@@ -40,11 +40,9 @@
 
 package org.dcm4chee.arc.impl;
 
-import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
-import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
@@ -53,30 +51,23 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.imageio.ImageReaderExtension;
 import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.ArchiveService;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -107,9 +98,6 @@ public class ArchiveDeviceProducer {
     @Inject
     private DicomConfiguration conf;
 
-    @Inject
-    private Event<SoftwareConfiguration> softwareConfigurationEvent;
-
     private Device device;
 
     @PostConstruct
@@ -120,44 +108,8 @@ public class ArchiveDeviceProducer {
             initImageReaderFactory();
             initImageWriterFactory();
             extractVendorData();
-            mergeSoftwareVersions();
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private void mergeSoftwareVersions() {
-        Properties gitProps = new Properties();
-        InputStream in = ArchiveService.class.getResourceAsStream("git.properties");
-        if (in == null) {
-            LOG.warn("Missing git.properties");
-            return;
-        }
-        try {
-            gitProps.load(in);
-        } catch (IOException e) {
-            LOG.warn("Failed to read git.properties", e);
-            return;
-        }
-        String[] versions = {
-                "master".equals(gitProps.getProperty("git.branch"))
-                        ? gitProps.getProperty("git.build.version")
-                        : gitProps.getProperty("git.build.version") + '-' + gitProps.getProperty("git.branch"),
-                gitProps.getProperty("git.commit.id.abbrev"),
-                gitProps.getProperty("git.commit.time")
-        };
-        if (!LdapUtils.equals(device.getSoftwareVersions(), versions)) {
-            try {
-                LOG.info("Update Software Version in LDAP to: {}", Arrays.toString(versions));
-                device.setSoftwareVersions(versions);
-                ConfigurationChanges diffs = conf.merge(device, EnumSet.of(
-                        DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
-                        DicomConfiguration.Option.PRESERVE_CERTIFICATE,
-                        DicomConfiguration.Option.CONFIGURATION_CHANGES));
-                softwareConfigurationEvent.fire(new SoftwareConfiguration(null, device.getDeviceName(), diffs));
-            } catch (ConfigurationException e) {
-                LOG.warn("Failed to update Software Version in LDAP:\n", e);
-            }
         }
     }
 
