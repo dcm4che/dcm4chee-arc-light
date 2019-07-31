@@ -329,9 +329,10 @@ class StoreContextImpl implements StoreContext {
         if (availability != null)
             return availability;
 
+        WriteContext writeContext = getWriteContext(Location.ObjectType.DICOM_FILE);
         return StringUtils.maskNull(
-                getWriteContext(Location.ObjectType.DICOM_FILE).getStorage().getStorageDescriptor()
-                        .getInstanceAvailability(),
+                (writeContext != null ? writeContext : readContext)
+                        .getStorage().getStorageDescriptor().getInstanceAvailability(),
                 Availability.ONLINE);
     }
 

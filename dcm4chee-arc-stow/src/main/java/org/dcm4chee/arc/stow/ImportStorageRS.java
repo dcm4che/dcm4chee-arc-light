@@ -41,25 +41,54 @@
 
 package org.dcm4chee.arc.stow;
 
+import org.dcm4che3.data.*;
+import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.SAXTransformer;
+import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.storage.ReadContext;
+import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import java.io.InputStream;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2019
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
 public class ImportStorageRS {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ImportStorageRS.class);
+
+    @Inject
+    private StorageFactory storageFactory;
 
     @Inject
     private StoreService service;
@@ -73,6 +102,11 @@ public class ImportStorageRS {
     @PathParam("AETitle")
     private String aet;
 
+    private final Attributes response = new Attributes();
+    private final Set<String> studyInstanceUIDs = new HashSet<>();
+    private Sequence sopSequence;
+    private Sequence failedSOPSequence;
+
     @POST
     @Path("/instances/storage/{StorageID}")
     @Consumes("text/*")
@@ -80,8 +114,8 @@ public class ImportStorageRS {
     public void importInstancesXML(
             @PathParam("StorageID") String storageID,
             @Suspended AsyncResponse ar,
-            InputStream in) throws Exception {
-        //TODO
+            InputStream in) {
+        importInstanceOnStorage(ar, in, storageID, Output.DICOM_XML);
     }
 
     @POST
@@ -91,7 +125,186 @@ public class ImportStorageRS {
     public void importInstancesJSON(
             @PathParam("StorageID") String storageID,
             @Suspended AsyncResponse ar,
-            InputStream in) throws Exception {
-        //TODO
+            InputStream in) {
+        importInstanceOnStorage(ar, in, storageID, Output.JSON);
+    }
+
+    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, Output output) {
+        logRequest();
+        ApplicationEntity ae = getApplicationEntity();
+        Storage storage = storageFactory.getStorage(getStorageDesc(storageID));
+        final StoreSession session = service.newStoreSession(
+                HttpServletRequestInfo.valueOf(request), ae, null)
+                .withObjectStorageID(storageID);
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            reader.lines().forEach(storagePath -> {
+                ReadContext readContext = createReadContext(storage, storagePath);
+                StoreContext ctx = service.newStoreContext(session);
+                try {
+                    Attributes attrs = getAttributes(storage, session, readContext, ctx);
+                    service.importInstanceOnStorage(ctx, attrs, readContext);
+                    studyInstanceUIDs.add(ctx.getStudyInstanceUID());
+                    sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
+                } catch (DicomServiceException e) {
+                    LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
+                            session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
+                    response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
+                    failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
+                } catch (IOException e) {
+                    LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
+                            session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
+                    response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            throw new WebApplicationException(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
+        response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
+        Response.ResponseBuilder responseBuilder = Response.status(status());
+        ar.resume(responseBuilder
+                .entity(output.entity(response))
+                .header("Warning", response.getString(Tag.ErrorComment))
+                .build());
+    }
+
+    private Attributes getAttributes(Storage storage, StoreSession session, ReadContext readContext, StoreContext ctx)
+            throws IOException {
+        DicomInputStream dicomInputStream = new DicomInputStream(storage.openInputStream(readContext));
+        dicomInputStream.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+        dicomInputStream.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
+        ctx.setReceiveTransferSyntax(dicomInputStream.getTransferSyntax());
+        return dicomInputStream.readDataset(-1, -1);
+    }
+
+    private ReadContext createReadContext(Storage storage, String storagePath) {
+        ReadContext readContext = storage.createReadContext();
+        readContext.setStoragePath(storagePath);
+        return readContext;
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
+    }
+
+    private ApplicationEntity getApplicationEntity() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(errResponse(
+                    "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+        return ae;
+    }
+
+    private StorageDescriptor getStorageDesc(String storageID) {
+        try {
+            return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getStorageDescriptorNotNull(storageID);
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        }
+    }
+
+    private Sequence sopSequence() {
+        if (sopSequence == null)
+            sopSequence = response.newSequence(Tag.ReferencedSOPSequence, 10);
+        return sopSequence;
+    }
+
+    private Sequence failedSOPSequence() {
+        if (failedSOPSequence == null)
+            failedSOPSequence = response.newSequence(Tag.FailedSOPSequence, 10);
+        return failedSOPSequence;
+    }
+
+    private Response.Status status() {
+        return sopSequence == null ? Response.Status.CONFLICT
+                : failedSOPSequence == null ? Response.Status.OK : Response.Status.ACCEPTED;
+    }
+
+    private Attributes mkSOPRefWithRetrieveURL(StoreContext ctx) {
+        Attributes attrs = mkSOPRef(ctx, 3);
+        attrs.setString(Tag.RetrieveURL, VR.UR, retrieveURL(ctx));
+        return attrs;
+    }
+
+    private Attributes mkSOPRefWithFailureReason(StoreContext ctx, DicomServiceException e) {
+        Attributes attrs = mkSOPRef(ctx, 3);
+        attrs.setInt(Tag.FailureReason, VR.US, e.getStatus());
+        return attrs;
+    }
+
+    private String retrieveURL(StoreContext ctx) {
+        StringBuffer requestURL = request.getRequestURL();
+        return requestURL.substring(0, requestURL.indexOf("/rs") + 3)
+                + "/studies/" + ctx.getStudyInstanceUID()
+                + "/series/" + ctx.getSeriesInstanceUID()
+                + "/instances/" + ctx.getSopInstanceUID();
+    }
+
+    private Attributes mkSOPRef(StoreContext ctx, int size) {
+        Attributes attrs = new Attributes(size);
+        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, ctx.getSopClassUID());
+        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, ctx.getSopInstanceUID());
+        return attrs;
+    }
+
+    private String retrieveURL() {
+        if (studyInstanceUIDs.size() != 1)
+            return null;
+
+        StringBuffer requestURL = request.getRequestURL();
+        return requestURL.substring(0, requestURL.indexOf("/rs") + 3)
+                + "/studies/" + studyInstanceUIDs.iterator().next();
+    }
+
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
+    }
+
+    private static Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private static String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
+    private enum Output {
+        DICOM_XML {
+            @Override
+            StreamingOutput entity(final Attributes response) {
+                return out -> {
+                    try {
+                        SAXTransformer.getSAXWriter(new StreamResult(out)).write(response);
+                    } catch (Exception e) {
+                        throw new WebApplicationException(
+                                errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+                    }
+                };
+            }
+        },
+        JSON {
+            @Override
+            StreamingOutput entity(final Attributes response) {
+                return out -> {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    new JSONWriter(gen).write(response);
+                    gen.flush();
+                };
+            }
+        };
+
+        abstract StreamingOutput entity(Attributes response);
     }
 }
