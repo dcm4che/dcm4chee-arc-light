@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.storage.ReadContext;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -108,7 +109,7 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    void importInstanceOnStorage(StoreContext ctx) throws IOException;
+    void importInstanceOnStorage(StoreContext ctx, Attributes attrs, ReadContext readCtx) throws IOException;
 
     Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs)
             throws Exception;

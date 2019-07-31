@@ -362,12 +362,12 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void importInstanceOnStorage(StoreContext ctx) throws IOException {
-        Objects.requireNonNull(ctx.getReadContext(), "Missing StoreContext.readContext");
-        Objects.requireNonNull(ctx.getAttributes(), "Missing StoreContext.attributes");
+    public void importInstanceOnStorage(StoreContext ctx, Attributes attrs, ReadContext readCtx) throws IOException {
+        ctx.setAttributes(Objects.requireNonNull(attrs));
+        ctx.setReadContext(Objects.requireNonNull(readCtx));
         UpdateDBResult result = null;
         try {
-            adjustPixelDataBulkData(ctx.getAttributes());
+            adjustPixelDataBulkData(attrs);
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
