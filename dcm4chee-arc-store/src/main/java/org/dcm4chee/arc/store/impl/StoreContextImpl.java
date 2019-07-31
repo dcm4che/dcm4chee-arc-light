@@ -49,6 +49,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.RejectedInstance;
+import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -76,6 +77,7 @@ class StoreContextImpl implements StoreContext {
     private int moveOriginatorMessageID;
     private String moveOriginatorAETitle;
     private final EnumMap<Location.ObjectType,WriteContext> writeContexts = new EnumMap<>(Location.ObjectType.class);
+    private ReadContext readContext;
     private Attributes attributes;
     private Attributes coercedAttributes = new Attributes();
     private String studyInstanceUID;
@@ -214,6 +216,16 @@ class StoreContextImpl implements StoreContext {
                 ? ppsRef.getString(Tag.ReferencedSOPInstanceUID)
                 : null;
         this.attributes = attrs;
+    }
+
+    @Override
+    public ReadContext getReadContext() {
+        return readContext;
+    }
+
+    @Override
+    public void setReadContext(ReadContext readContext) {
+        this.readContext = readContext;
     }
 
     @Override

@@ -361,6 +361,32 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
+    @Override
+    public void importInstanceOnStorage(StoreContext ctx) throws IOException {
+        Objects.requireNonNull(ctx.getReadContext(), "Missing StoreContext.readContext");
+        Objects.requireNonNull(ctx.getAttributes(), "Missing StoreContext.attributes");
+        UpdateDBResult result = null;
+        try {
+            adjustPixelDataBulkData(ctx.getAttributes());
+            supplementDefaultCharacterSet(ctx);
+            storeMetadata(ctx);
+            coerceAttributes(ctx);
+            result = updateDB(ctx);
+            postUpdateDB(ctx, result);
+        } catch (DicomServiceException e) {
+            ctx.setException(e);
+            throw e;
+        } catch (Exception e) {
+            LOG.info("{}: Unexpected Exception:\n", ctx.getStoreSession(), e);
+            DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
+            ctx.setException(dse);
+            throw dse;
+        } finally {
+            revokeStorage(ctx, result);
+            fireStoreEvent(ctx);
+        }
+    }
+
     public void fireStoreEvent(StoreContext ctx) throws DicomServiceException {
         try {
             LOG.debug("{}: Firing Store Event", ctx.getStoreSession());

@@ -108,6 +108,8 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
+    void importInstanceOnStorage(StoreContext ctx) throws IOException;
+
     Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs)
             throws Exception;
 

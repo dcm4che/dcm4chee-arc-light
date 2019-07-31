@@ -9,6 +9,7 @@ import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.RejectedInstance;
+import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
 
 import java.time.LocalDate;
@@ -61,6 +62,10 @@ public interface StoreContext {
     Attributes getAttributes();
 
     void setAttributes(Attributes dataset);
+
+    ReadContext getReadContext();
+
+    void setReadContext(ReadContext readContext);
 
     Collection<WriteContext> getWriteContexts();
 

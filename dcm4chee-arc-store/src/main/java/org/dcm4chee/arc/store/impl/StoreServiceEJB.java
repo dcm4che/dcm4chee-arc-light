@@ -63,6 +63,7 @@ import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -156,7 +157,7 @@ public class StoreServiceEJB {
                 Study prevStudy = prevSeries.getStudy();
                 prevStudy.addStorageID(session.getObjectStorageID());
                 prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
-                createLocation(ctx, prevInstance, result, Location.ObjectType.DICOM_FILE);
+                createDicomFileLocation(ctx, prevInstance, result);
                 prevSeries.resetSize();
                 prevStudy.resetSize();
                 result.setStoredInstance(prevInstance);
@@ -252,9 +253,10 @@ public class StoreServiceEJB {
         boolean createLocations = ctx.getLocations().isEmpty();
         Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
                 createLocations ? Attributes.COERCE : Attributes.CORRECT);
-        if (createLocations)
-            createLocations(ctx, instance, result);
-        else
+        if (createLocations) {
+            createDicomFileLocation(ctx, instance, result);
+            createMetadataLocation(ctx, instance, result);
+        } else
             copyLocations(ctx, instance, result);
 
         result.setStoredInstance(instance);
@@ -989,7 +991,8 @@ public class StoreServiceEJB {
     public void replaceLocation(StoreContext ctx, InstanceLocations inst) {
         Instance instance = new Instance();
         instance.setPk(inst.getInstancePk());
-        createLocation(ctx, instance, Location.ObjectType.DICOM_FILE);
+        createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
+                ctx.getWriteContext(Location.ObjectType.DICOM_FILE), ctx.getStoreTranferSyntax());
         for (Location location : inst.getLocations()) {
             removeOrMarkToDelete(em.find(Location.class, location.getPk()));
         }
@@ -1415,35 +1418,34 @@ public class StoreServiceEJB {
         return instance;
     }
 
-    private void createLocations(StoreContext ctx, Instance instance, UpdateDBResult result) {
-        createLocation(ctx, instance, result, Location.ObjectType.DICOM_FILE);
-        createLocation(ctx, instance, result, Location.ObjectType.METADATA);
+    private void createDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
+        WriteContext writeContext = ctx.getWriteContext(Location.ObjectType.DICOM_FILE);
+        result.getLocations().add(createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
+                writeContext != null ? writeContext : ctx.getReadContext(), ctx.getStoreTranferSyntax()));
+        instance.getSeries().getStudy().addStorageID(ctx.getStoreSession().getObjectStorageID());
+        if (writeContext != null)
+            result.getWriteContexts().add(writeContext);
     }
 
-    private void createLocation(StoreContext ctx, Instance instance, UpdateDBResult result,
-                                Location.ObjectType objectType) {
-        WriteContext writeContext = ctx.getWriteContext(objectType);
+    private void createMetadataLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
+        WriteContext writeContext = ctx.getWriteContext(Location.ObjectType.METADATA);
         if (writeContext == null)
             return;
 
-        result.getLocations().add(createLocation(ctx, instance, objectType));
-        if (objectType == Location.ObjectType.DICOM_FILE)
-            instance.getSeries().getStudy()
-                    .addStorageID(ctx.getStoreSession().getObjectStorageID());
+        result.getLocations().add(createLocation(ctx, instance, Location.ObjectType.METADATA, writeContext, null));
         result.getWriteContexts().add(writeContext);
     }
 
-    private Location createLocation(StoreContext ctx, Instance instance, Location.ObjectType objectType) {
-        WriteContext writeContext = ctx.getWriteContext(objectType);
-        Storage storage = writeContext.getStorage();
+    private Location createLocation(StoreContext ctx, Instance instance, Location.ObjectType objectType, ReadContext readContext, String transferSyntaxUID) {
+        Storage storage = readContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
         Location location = new Location.Builder()
                 .storageID(descriptor.getStorageID())
-                .storagePath(writeContext.getStoragePath())
-                .transferSyntaxUID(objectType == Location.ObjectType.DICOM_FILE ? ctx.getStoreTranferSyntax() : null)
+                .storagePath(readContext.getStoragePath())
+                .transferSyntaxUID(transferSyntaxUID)
                 .objectType(objectType)
-                .size(writeContext.getSize())
-                .digest(writeContext.getDigest())
+                .size(readContext.getSize())
+                .digest(readContext.getDigest())
                 .build();
         location.setInstance(instance);
         em.persist(location);
