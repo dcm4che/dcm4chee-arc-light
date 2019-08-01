@@ -420,7 +420,7 @@ public class WadoRS {
         if (ctx.getNumberOfMatches() == 0)
             throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
 //            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
-        Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx);
+        Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx, attributePath);
         if (ctx.getMatches().isEmpty()) {
             Response errResp = notAccepted.isEmpty()
                     ? errResponse("No matches found.", Response.Status.NOT_FOUND)
@@ -463,7 +463,8 @@ public class WadoRS {
     private enum Output {
         DICOM {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
+                    int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -474,7 +475,8 @@ public class WadoRS {
         },
         ZIP {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
+                    int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -497,7 +499,7 @@ public class WadoRS {
         },
         BULKDATA_FRAME {
             @Override
-            protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType) {
+            protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
                 return objectType.getPixelDataContentTypes(match);
             }
             @Override
@@ -508,9 +510,12 @@ public class WadoRS {
         },
         BULKDATA_PATH {
             @Override
-            protected MediaType[] mediaTypesFor(InstanceLocations match) {
-                return new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE };
+            protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath) {
+                return isEncapsulatedDocument(attributePath)
+                        ? super.mediaTypesFor(match, attributePath)
+                        : new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE };
             }
+
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                                    InstanceLocations inst, int[] frameList, int[] attributePath) {
@@ -533,7 +538,7 @@ public class WadoRS {
         },
         METADATA_XML {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -548,7 +553,7 @@ public class WadoRS {
         },
         METADATA_JSON {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -582,14 +587,14 @@ public class WadoRS {
             return output;
         }
 
-        public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+        public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] attributePath) {
             Collection<InstanceLocations> matches = ctx.getMatches();
             Collection<InstanceLocations> notAcceptable = new ArrayList<>(matches.size());
             Map<String,MediaType> selectedMediaTypes = new HashMap<>(matches.size() * 4 / 3);
             Iterator<InstanceLocations> iter = matches.iterator();
             while (iter.hasNext()) {
                 InstanceLocations match = iter.next();
-                MediaType[] mediaTypes = mediaTypesFor(match);
+                MediaType[] mediaTypes = mediaTypesFor(match, attributePath);
                 if (mediaTypes == null) {
                     iter.remove();
                     continue;
@@ -607,11 +612,11 @@ public class WadoRS {
             return notAcceptable;
         }
 
-        protected MediaType[] mediaTypesFor(InstanceLocations match) {
-            return mediaTypesFor(match, ObjectType.objectTypeOf(match, null));
+        protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath) {
+            return mediaTypesFor(match, ObjectType.objectTypeOf(match, null), attributePath);
         }
 
-        protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType) {
+        protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
             return objectType.getBulkdataContentTypes(match);
         }
 
@@ -628,6 +633,10 @@ public class WadoRS {
         public Response.ResponseBuilder adjustType(Response.ResponseBuilder builder) {
             return builder;
         }
+    }
+
+    private static boolean isEncapsulatedDocument(int[] attributePath) {
+        return attributePath.length == 1 && attributePath[0] == Tag.EncapsulatedDocument;
     }
 
     private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {
