@@ -14501,6 +14501,12 @@
               "format": "binary"
             }
           },
+          "type=model/stl": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
           "video/mpeg": {
             "schema": {
               "type": "string",
@@ -14997,6 +15003,7 @@
           "multipart/related;type=image/x-dicom+rle",
           "multipart/related;type=image/x-jls",
           "multipart/related;type=text/xml",
+          "multipart/related;type=model/stl",
           "multipart/related;type=video/mpeg",
           "multipart/related;type=video/mp4",
           "application/zip"
@@ -15018,7 +15025,8 @@
         "enum": [
           "multipart/related;type=application/octet-stream",
           "multipart/related;type=application/pdf",
-          "multipart/related;type=text/xml"
+          "multipart/related;type=text/xml",
+          "multipart/related;type=model/stl"
         ]
       },
       "wadoRetrieveMetadataAccept": {

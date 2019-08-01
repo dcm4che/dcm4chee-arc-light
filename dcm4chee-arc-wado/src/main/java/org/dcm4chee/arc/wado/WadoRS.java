@@ -659,6 +659,7 @@ public class WadoRS {
                 break;
             case EncapsulatedPDF:
             case EncapsulatedCDA:
+            case EncapsulatedSTL:
                 entity = new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
                 break;
             default:
