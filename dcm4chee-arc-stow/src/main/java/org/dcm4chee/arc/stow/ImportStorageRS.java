@@ -140,7 +140,7 @@ public class ImportStorageRS {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             reader.lines().forEach(storagePath -> importInstanceOnStorage(storage, session, storagePath));
         } catch (Exception e) {
-            throw new WebApplicationException(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
 
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
