@@ -236,6 +236,8 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setWriteContext(Location.ObjectType objectType, WriteContext writeCtx) {
         writeContexts.put(objectType, writeCtx);
+        if (objectType == Location.ObjectType.DICOM_FILE)
+            readContext = writeCtx;
     }
 
     @Override
@@ -329,10 +331,8 @@ class StoreContextImpl implements StoreContext {
         if (availability != null)
             return availability;
 
-        WriteContext writeContext = getWriteContext(Location.ObjectType.DICOM_FILE);
         return StringUtils.maskNull(
-                (writeContext != null ? writeContext : readContext)
-                        .getStorage().getStorageDescriptor().getInstanceAvailability(),
+                readContext.getStorage().getStorageDescriptor().getInstanceAvailability(),
                 Availability.ONLINE);
     }
 

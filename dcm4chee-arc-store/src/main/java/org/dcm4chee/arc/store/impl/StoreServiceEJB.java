@@ -1419,12 +1419,12 @@ public class StoreServiceEJB {
     }
 
     private void createDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
-        WriteContext writeContext = ctx.getWriteContext(Location.ObjectType.DICOM_FILE);
+        ReadContext readContext = ctx.getReadContext();
         result.getLocations().add(createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
-                writeContext != null ? writeContext : ctx.getReadContext(), ctx.getStoreTranferSyntax()));
+                readContext, ctx.getStoreTranferSyntax()));
         instance.getSeries().getStudy().addStorageID(ctx.getStoreSession().getObjectStorageID());
-        if (writeContext != null)
-            result.getWriteContexts().add(writeContext);
+        if (readContext instanceof WriteContext)
+            result.getWriteContexts().add((WriteContext) readContext);
     }
 
     private void createMetadataLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {

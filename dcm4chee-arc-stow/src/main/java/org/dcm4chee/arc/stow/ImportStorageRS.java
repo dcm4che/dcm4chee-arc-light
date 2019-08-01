@@ -43,8 +43,6 @@ package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.io.SAXTransformer;
-import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -62,16 +60,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -115,7 +109,7 @@ public class ImportStorageRS {
             @PathParam("StorageID") String storageID,
             @Suspended AsyncResponse ar,
             InputStream in) {
-        importInstanceOnStorage(ar, in, storageID, Output.DICOM_XML);
+        importInstanceOnStorage(ar, in, storageID, OutputType.DICOM_XML);
     }
 
     @POST
@@ -126,10 +120,10 @@ public class ImportStorageRS {
             @PathParam("StorageID") String storageID,
             @Suspended AsyncResponse ar,
             InputStream in) {
-        importInstanceOnStorage(ar, in, storageID, Output.JSON);
+        importInstanceOnStorage(ar, in, storageID, OutputType.JSON);
     }
 
-    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, Output output) {
+    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, OutputType output) {
         logRequest();
         ApplicationEntity ae = getApplicationEntity();
         Storage storage = storageFactory.getStorage(getStorageDesc(storageID));
@@ -204,11 +198,13 @@ public class ImportStorageRS {
     }
 
     private StorageDescriptor getStorageDesc(String storageID) {
-        try {
-            return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getStorageDescriptorNotNull(storageID);
-        } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        }
+        StorageDescriptor storageDescriptor =
+                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getStorageDescriptor(storageID);
+        if (storageDescriptor == null)
+            throw new WebApplicationException(errResponse(
+                    "No such Storage: " + storageID, Response.Status.NOT_FOUND));
+
+        return storageDescriptor;
     }
 
     private Sequence sopSequence() {
@@ -280,33 +276,5 @@ public class ImportStorageRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private enum Output {
-        DICOM_XML {
-            @Override
-            StreamingOutput entity(final Attributes response) {
-                return out -> {
-                    try {
-                        SAXTransformer.getSAXWriter(new StreamResult(out)).write(response);
-                    } catch (Exception e) {
-                        throw new WebApplicationException(
-                                errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-                    }
-                };
-            }
-        },
-        JSON {
-            @Override
-            StreamingOutput entity(final Attributes response) {
-                return out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    new JSONWriter(gen).write(response);
-                    gen.flush();
-                };
-            }
-        };
-
-        abstract StreamingOutput entity(Attributes response);
     }
 }

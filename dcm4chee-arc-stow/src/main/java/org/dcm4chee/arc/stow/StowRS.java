@@ -153,7 +153,7 @@ public class StowRS {
     @Consumes("multipart/related;type=application/dicom")
     @Produces("application/dicom+xml")
     public void storeInstancesXML(@Suspended AsyncResponse ar, InputStream in) throws Exception {
-        store(ar, in, Input.DICOM, Output.DICOM_XML);
+        store(ar, in, Input.DICOM, OutputType.DICOM_XML);
     }
 
     @POST
@@ -165,7 +165,7 @@ public class StowRS {
             @Suspended AsyncResponse ar,
             InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        store(ar, in, Input.DICOM, Output.DICOM_XML);
+        store(ar, in, Input.DICOM, OutputType.DICOM_XML);
     }
 
     @POST
@@ -173,7 +173,7 @@ public class StowRS {
     @Consumes("multipart/related;type=application/dicom+xml")
     @Produces("application/dicom+xml")
     public void storeXMLMetadataAndBulkdataXML(@Suspended AsyncResponse ar, InputStream in) throws Exception {
-        store(ar, in, Input.METADATA_XML, Output.DICOM_XML);
+        store(ar, in, Input.METADATA_XML, OutputType.DICOM_XML);
     }
 
     @POST
@@ -185,7 +185,7 @@ public class StowRS {
             @Suspended AsyncResponse ar,
             InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        store(ar, in, Input.METADATA_XML, Output.DICOM_XML);
+        store(ar, in, Input.METADATA_XML, OutputType.DICOM_XML);
     }
 
     @POST
@@ -193,7 +193,7 @@ public class StowRS {
     @Consumes("multipart/related;type=application/dicom+json")
     @Produces("application/dicom+xml")
     public void storeJSONMetadataAndBulkdataXML(@Suspended AsyncResponse ar, InputStream in) throws Exception {
-        store(ar, in, Input.METADATA_JSON, Output.DICOM_XML);
+        store(ar, in, Input.METADATA_JSON, OutputType.DICOM_XML);
     }
 
     @POST
@@ -205,7 +205,7 @@ public class StowRS {
             @Suspended AsyncResponse ar,
             InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        store(ar, in, Input.METADATA_JSON, Output.DICOM_XML);
+        store(ar, in, Input.METADATA_JSON, OutputType.DICOM_XML);
     }
 
     @POST
@@ -213,7 +213,7 @@ public class StowRS {
     @Consumes("multipart/related;type=application/dicom")
     @Produces("application/dicom+json")
     public void storeInstancesJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
-        store(ar, in, Input.DICOM, Output.JSON);
+        store(ar, in, Input.DICOM, OutputType.JSON);
     }
 
     @POST
@@ -225,7 +225,7 @@ public class StowRS {
             @Suspended AsyncResponse ar,
             InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        store(ar, in, Input.DICOM, Output.JSON);
+        store(ar, in, Input.DICOM, OutputType.JSON);
     }
 
     @POST
@@ -233,7 +233,7 @@ public class StowRS {
     @Consumes("multipart/related;type=application/dicom+xml")
     @Produces("application/dicom+json")
     public void storeXMLMetadataAndBulkdataJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
-        store(ar, in, Input.METADATA_XML, Output.JSON);
+        store(ar, in, Input.METADATA_XML, OutputType.JSON);
     }
 
     @POST
@@ -244,7 +244,7 @@ public class StowRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @Suspended AsyncResponse ar, InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        store(ar, in, Input.METADATA_XML, Output.JSON);
+        store(ar, in, Input.METADATA_XML, OutputType.JSON);
     }
 
     @POST
@@ -252,7 +252,7 @@ public class StowRS {
     @Consumes("multipart/related;type=application/dicom+json")
     @Produces("application/dicom+json")
     public void storeJSONMetadataAndBulkdataJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
-        store(ar, in, Input.METADATA_JSON, Output.JSON);
+        store(ar, in, Input.METADATA_JSON, OutputType.JSON);
     }
 
     @POST
@@ -264,7 +264,7 @@ public class StowRS {
             @Suspended AsyncResponse ar,
             InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        store(ar, in, Input.METADATA_JSON, Output.JSON);
+        store(ar, in, Input.METADATA_JSON, OutputType.JSON);
     }
 
     private static String getHeaderParamValue(Map<String, List<String>> headerParams, String key) {
@@ -272,7 +272,7 @@ public class StowRS {
         return list != null && !list.isEmpty() ? list.get(0) : null;
     }
 
-    private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws Exception {
+    private void store(AsyncResponse ar, InputStream in, final Input input, OutputType output)  throws Exception {
         logRequest();
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
@@ -750,34 +750,6 @@ public class StowRS {
     private Response.Status status() {
         return sopSequence == null ? Response.Status.CONFLICT
                 : failedSOPSequence == null ? Response.Status.OK : Response.Status.ACCEPTED;
-    }
-
-    private enum Output {
-        DICOM_XML {
-            @Override
-            StreamingOutput entity(final Attributes response) {
-                return out -> {
-                        try {
-                            SAXTransformer.getSAXWriter(new StreamResult(out)).write(response);
-                        } catch (Exception e) {
-                            throw new WebApplicationException(
-                                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-                        }
-                };
-            }
-        },
-        JSON {
-            @Override
-            StreamingOutput entity(final Attributes response) {
-                return out -> {
-                        JsonGenerator gen = Json.createGenerator(out);
-                        new JSONWriter(gen).write(response);
-                        gen.flush();
-                };
-            }
-        };
-
-        abstract StreamingOutput entity(Attributes response);
     }
 
     private static class BulkDataWithMediaType {
