@@ -138,25 +138,7 @@ public class ImportStorageRS {
                 .withObjectStorageID(storageID);
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            reader.lines().forEach(storagePath -> {
-                ReadContext readContext = createReadContext(storage, storagePath);
-                StoreContext ctx = service.newStoreContext(session);
-                try {
-                    Attributes attrs = getAttributes(storage, session, readContext, ctx);
-                    service.importInstanceOnStorage(ctx, attrs, readContext);
-                    studyInstanceUIDs.add(ctx.getStudyInstanceUID());
-                    sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
-                } catch (DicomServiceException e) {
-                    LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
-                            session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
-                    response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
-                    failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
-                } catch (IOException e) {
-                    LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
-                            session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
-                    response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
-                }
-            });
+            reader.lines().forEach(storagePath -> importInstanceOnStorage(storage, session, storagePath));
         } catch (Exception e) {
             throw new WebApplicationException(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -167,6 +149,26 @@ public class ImportStorageRS {
                 .entity(output.entity(response))
                 .header("Warning", response.getString(Tag.ErrorComment))
                 .build());
+    }
+
+    private void importInstanceOnStorage(Storage storage, StoreSession session, String storagePath) {
+        ReadContext readContext = createReadContext(storage, storagePath);
+        StoreContext ctx = service.newStoreContext(session);
+        try {
+            Attributes attrs = getAttributes(storage, session, readContext, ctx);
+            service.importInstanceOnStorage(ctx, attrs, readContext);
+            studyInstanceUIDs.add(ctx.getStudyInstanceUID());
+            sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
+        } catch (DicomServiceException e) {
+            LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
+                    session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
+            response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
+            failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
+        } catch (IOException e) {
+            LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
+                    session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
+            response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
+        }
     }
 
     private Attributes getAttributes(Storage storage, StoreSession session, ReadContext readContext, StoreContext ctx)
