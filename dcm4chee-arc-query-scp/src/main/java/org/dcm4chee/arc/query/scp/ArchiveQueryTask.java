@@ -183,7 +183,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
 
     private Attributes spanningQueryKeys() {
         Attributes queryKeys = ctx.getQueryKeys();
-        if (!queryKeys.containsValue(uniqueKey)) {
+        if (!queryKeys.contains(uniqueKey)) {
             queryKeys = new Attributes(queryKeys);
             queryKeys.setNull(uniqueKey, vrOfUniqueKey);
             removeUniqueKeyFromSpanningMatch = uniqueKey;
