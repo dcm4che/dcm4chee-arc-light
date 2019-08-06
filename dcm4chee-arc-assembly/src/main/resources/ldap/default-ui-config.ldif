@@ -70,6 +70,7 @@ dcmuiPermissionName: Action - Studies - Count
 dcmuiActionParam: visible
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
 dcmuiAction: action-studies-count
 
 dn: dcmuiPermissionName=Tab - Monitoring Control,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
