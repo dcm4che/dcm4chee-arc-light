@@ -187,7 +187,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 deleteSize = sizeToDelete(desc, minUsableSpace);
             }
         } else if (!desc.hasRetentionPeriods() && desc.isNoDeletionConstraint()) {
-            LOG.info("Start deleting all objects from {} {}", desc.getStorageDuration(), desc);
+            LOG.info("Start deleting objects from {} {}", desc.getStorageDuration(), desc);
             while (arcDev.getPurgeStoragePollingInterval() != null
                     && deleteStudies(arcDev, desc, false) > 0) {
                 deleteObjectsFromStorage(arcDev, desc);

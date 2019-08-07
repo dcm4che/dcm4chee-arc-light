@@ -1815,7 +1815,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThreshold", descriptor.getStorageThreshold(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitle(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitles());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportStorageID", descriptor.getExportStorageID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveCacheStorageID",
                 descriptor.getRetrieveCacheStorageID(), null);
@@ -1858,7 +1858,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
                 desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
-                desc.setExternalRetrieveAETitle(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAET"), null));
+                desc.setExternalRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmExternalRetrieveAET")));
                 desc.setExportStorageID(LdapUtils.stringValue(attrs.get("dcmExportStorageID"), null));
                 desc.setRetrieveCacheStorageID(
                         LdapUtils.stringValue(attrs.get("dcmRetrieveCacheStorageID"), null));
@@ -1933,8 +1933,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreshold",
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAET",
-                prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExternalRetrieveAET",
+                prev.getExternalRetrieveAETitles(), desc.getExternalRetrieveAETitles());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportStorageID",
                 prev.getExportStorageID(), desc.getExportStorageID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveCacheStorageID",

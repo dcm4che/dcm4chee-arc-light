@@ -17,7 +17,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2017
+ *  Portions created by the Initial Developer are Copyright (C) 2017-2019
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -129,7 +129,7 @@ public class StorageRS {
                     if (desc.getStorageThreshold() != null)
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
                     writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
-                    writer.writeNotNullOrDef("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitle(), null);
+                    writer.writeNotEmpty("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitles());
                     writer.writeNotNullOrDef("dcmExportStorageID", desc.getExportStorageID(), null);
                     if (desc.getRetrieveCacheStorageID() != null) {
                         gen.write("dcmRetrieveCacheStorageID", desc.getRetrieveCacheStorageID());

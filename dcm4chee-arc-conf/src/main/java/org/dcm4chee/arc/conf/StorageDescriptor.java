@@ -66,7 +66,7 @@ public final class StorageDescriptor {
     private String retrieveCacheStorageID;
     private int retrieveCacheStorageMaxParallel = 10;
     private int deleterThreads = 1;
-    private String externalRetrieveAETitle;
+    private String[] externalRetrieveAETitles = {};
     private boolean readOnly;
     private boolean noDeletionConstraint;
     private StorageDuration storageDuration = StorageDuration.PERMANENT;
@@ -133,12 +133,12 @@ public final class StorageDescriptor {
         this.instanceAvailability = instanceAvailability;
     }
 
-    public String getExternalRetrieveAETitle() {
-        return externalRetrieveAETitle;
+    public String[] getExternalRetrieveAETitles() {
+        return externalRetrieveAETitles;
     }
 
-    public void setExternalRetrieveAETitle(String externalRetrieveAETitle) {
-        this.externalRetrieveAETitle = externalRetrieveAETitle;
+    public void setExternalRetrieveAETitles(String... externalRetrieveAETitles) {
+        Arrays.sort(this.externalRetrieveAETitles = externalRetrieveAETitles);
     }
 
     public String getExportStorageID() {

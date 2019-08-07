@@ -62,7 +62,7 @@
     },
     "dcmNoDeletionConstraint": {
       "title": "No Deletion Constraint",
-      "description": "Delete all Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured",
+      "description": "Delete Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured.",
       "type": "boolean",
       "default": false
     },
@@ -120,14 +120,17 @@
       "exclusiveMinimum": true
     },
     "dcmExternalRetrieveAET": {
-      "title": "External Retrieve AET",
-      "description": "Constrains deletion of Studies from the Storage System to Studies which objects are retrievable using this AE from an external C-MOVE SCP.",
-      "type": "string",
+      "title": "External Retrieve AETs",
+      "description": "Constrains deletion of Studies, additionally to configured deleter thresholds and/or deletion retention period constraints, from the Storage System to Studies which objects are retrievable using one of the AEs from an external C-MOVE SCP.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
       "format": "dcmAETitle"
     },
     "dcmExportStorageID": {
       "title": "Export Storage ID",
-      "description": "Constrains deletion of Studies from the Storage System to Studies which objects are also accessible from the specified other storage.",
+      "description": "Constrains deletion of Studies, additionally to configured deleter thresholds and/or deletion retention period constraints, from the Storage System to Studies which objects are also accessible from the specified other storage.",
       "type": "string",
       "format": "dcmStorageID"
     },

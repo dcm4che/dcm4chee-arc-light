@@ -144,9 +144,9 @@ public class DeletionServiceEJB {
         Root<Study> study = query.from(Study.class);
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(study.get(Study_.storageIDs).in(studyStorageIDs));
-        String externalRetrieveAETitle = desc.getExternalRetrieveAETitle();
-        if (externalRetrieveAETitle != null)
-            predicates.add(cb.equal(study.get(Study_.externalRetrieveAET), externalRetrieveAETitle));
+        String[] externalRetrieveAETitles = desc.getExternalRetrieveAETitles();
+        if (externalRetrieveAETitles.length > 0)
+            predicates.add(study.get(Study_.externalRetrieveAET).in(Arrays.asList(externalRetrieveAETitles)));
         if (retentionPeriods)
             retentionPeriods(predicates, cb, study, desc);
         return query.select(cb.construct(Study.PKUID.class, study.get(Study_.pk), study.get(Study_.studyInstanceUID)))

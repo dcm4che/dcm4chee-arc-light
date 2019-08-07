@@ -57,13 +57,16 @@
         "type": "number"
       },
       "dcmExternalRetrieveAET": {
-        "title": "External Retrieve AET",
-        "description": "Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are retrievable using this AE from an external C-MOVE SCP.",
-        "type": "string"
+        "title": "External Retrieve AETs",
+        "description": "Constrain deletion of Studies, additionally to configured deleter thresholds and/or deletion retention period constraints, if usable space falls below the configured threshold, to Studies which objects are retrievable using one of the AEs from an external C-MOVE SCP.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
       },
       "dcmExportStorageID": {
         "title": "Export Storage ID",
-        "description": "Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.",
+        "description": "Constrain deletion of Studies, additionally to configured deleter thresholds and/or deletion retention period constraints, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.",
         "type": "string"
       },
       "dcmRetrieveCacheStorageID": {
