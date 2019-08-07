@@ -69,6 +69,11 @@
         "description": "Constrain deletion of Studies, additionally to configured deleter thresholds and/or deletion retention period constraints, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.",
         "type": "string"
       },
+      "dcmNoDeletionConstraint": {
+        "title": "No Deletion Constraint",
+        "description": "Delete Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured.",
+        "type": "boolean"
+      },
       "dcmRetrieveCacheStorageID": {
         "title": "Retrieve Cache Storage ID",
         "description": "Specifies another Storage to which objects are copied in parallel on retrieve to increase the performance on accessing storage systems which provides more bandwidth using multiple connections in parallel.",
