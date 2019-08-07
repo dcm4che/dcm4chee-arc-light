@@ -157,7 +157,8 @@ public class CMoveSCUImpl implements CMoveSCU {
         Association as = ctx.getRequestAssociation();
         PresentationContext rqpc = as.getAAssociateRQ().getPresentationContext(pc.getPCID());
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(callingAET);
+        if (callingAET != null)
+            aarq.setCallingAET(callingAET);
         aarq.addPresentationContext(rqpc);
         aarq.addExtendedNegotiation(new ExtendedNegotiation(rqpc.getAbstractSyntax(),
                 QueryOption.toExtendedNegotiationInformation(EnumSet.of(QueryOption.RELATIONAL))));
