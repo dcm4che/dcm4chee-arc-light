@@ -79,21 +79,21 @@ public class CMoveSCUImpl implements CMoveSCU {
 
     @Override
     public RetrieveTask newForwardRetrieveTask(
-            final RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String otherCMoveSCP,
-            String otherMoveDest) throws DicomServiceException {
+            final RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
+            String callingAET, String otherCMoveSCP, String otherMoveDest) throws DicomServiceException {
         try {
-            Association fwdas = openAssociation(ctx, pc, otherCMoveSCP);
+            Association fwdas = openAssociation(ctx, pc, callingAET, otherCMoveSCP);
             if (otherMoveDest == null) {
                 ctx.setForwardAssociation(fwdas);
                 return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
             }
             ctx.setFallbackAssociation(fwdas);
             rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
-            storeForwardSCU.addRetrieveContext(ctx);
+            storeForwardSCU.addRetrieveContext(ctx, callingAET);
             fwdas.addAssociationListener(new AssociationListener() {
                 @Override
                 public void onClose(Association association) {
-                    storeForwardSCU.removeRetrieveContext(ctx);
+                    storeForwardSCU.removeRetrieveContext(ctx, callingAET);
                 }
             });
             return new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd);
@@ -104,21 +104,21 @@ public class CMoveSCUImpl implements CMoveSCU {
 
     @Override
     public void forwardMoveRQ(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String otherCMoveSCP,
-            String otherMoveDest) throws DicomServiceException {
+            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
+            String callingAET, String otherCMoveSCP, String otherMoveDest) throws DicomServiceException {
         try {
-            Association fwdas = openAssociation(ctx, pc, otherCMoveSCP);
+            Association fwdas = openAssociation(ctx, pc, callingAET, otherCMoveSCP);
             if (otherMoveDest == null) {
                 ctx.setForwardAssociation(fwdas);
                 new ForwardRetrieveTask.UpdateRetrieveCtx(ctx, pc, rq, keys, fwdas).forwardMoveRQ();
             } else {
                 ctx.setFallbackAssociation(fwdas);
                 rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
-                storeForwardSCU.addRetrieveContext(ctx);
+                storeForwardSCU.addRetrieveContext(ctx, callingAET);
                 fwdas.addAssociationListener(new AssociationListener() {
                     @Override
                     public void onClose(Association association) {
-                        storeForwardSCU.removeRetrieveContext(ctx);
+                        storeForwardSCU.removeRetrieveContext(ctx, callingAET);
                     }
                 });
                 new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd).forwardMoveRQ();
@@ -150,14 +150,14 @@ public class CMoveSCUImpl implements CMoveSCU {
                 destAET);
     }
 
-    private Association openAssociation(RetrieveContext ctx, PresentationContext pc, String otherCMoveSCP)
+    private Association openAssociation(RetrieveContext ctx, PresentationContext pc,
+            String callingAET, String otherCMoveSCP)
             throws Exception {
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(otherCMoveSCP);
         Association as = ctx.getRequestAssociation();
         PresentationContext rqpc = as.getAAssociateRQ().getPresentationContext(pc.getPCID());
         AAssociateRQ aarq = new AAssociateRQ();
-        if (!otherCMoveSCP.equals(ctx.getArchiveAEExtension().alternativeCMoveSCP()))
-            aarq.setCallingAET(as.getCallingAET());
+        aarq.setCallingAET(callingAET);
         aarq.addPresentationContext(rqpc);
         aarq.addExtendedNegotiation(new ExtendedNegotiation(rqpc.getAbstractSyntax(),
                 QueryOption.toExtendedNegotiationInformation(EnumSet.of(QueryOption.RELATIONAL))));

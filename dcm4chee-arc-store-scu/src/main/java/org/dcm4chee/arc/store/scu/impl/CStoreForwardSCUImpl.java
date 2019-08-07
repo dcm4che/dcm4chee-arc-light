@@ -62,8 +62,8 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
     private final Map<String,Map<RetrieveContext,CStoreForward>> registry = new HashMap<>();
 
     @Override
-    public synchronized void addRetrieveContext(RetrieveContext ctx) {
-        forMoveOriginatorAET(ctx.getMoveOriginatorAETitle()).put(ctx, new CStoreForward(ctx));
+    public synchronized void addRetrieveContext(RetrieveContext ctx, String callingAET) {
+        forMoveOriginatorAET(callingAET).put(ctx, new CStoreForward(ctx));
     }
 
     private Map<RetrieveContext,CStoreForward> forMoveOriginatorAET(String aet) {
@@ -76,8 +76,8 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
     }
 
     @Override
-    public synchronized boolean removeRetrieveContext(RetrieveContext ctx) {
-        Map<RetrieveContext,CStoreForward> map = forMoveOriginatorAET(ctx.getMoveOriginatorAETitle());
+    public synchronized boolean removeRetrieveContext(RetrieveContext ctx, String callingAET) {
+        Map<RetrieveContext,CStoreForward> map = forMoveOriginatorAET(callingAET);
         return map != null && map.remove(ctx) != null;
     }
 

@@ -102,6 +102,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
 
         RetrieveContext ctx = newRetrieveContext(arcAE, as, rq, qrLevel, keys);
         String fallbackCMoveSCP = arcAE.fallbackCMoveSCP();
+        String fallbackCMoveSCPCallingAET = arcAE.fallbackCMoveSCPCallingAET(as);
         String fallbackCMoveSCPDestination = arcAE.fallbackCMoveSCPDestination();
         if (!retrieveService.calculateMatches(ctx)) {
             if (fallbackCMoveSCP == null)
@@ -110,7 +111,8 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             ctx.setRetryFailedRetrieve(true);
             LOG.info("{}: No objects of study{} found - forward C-MOVE RQ to {}",
                     as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
-            return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
+            return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys,
+                    fallbackCMoveSCPCallingAET, fallbackCMoveSCP, fallbackCMoveSCPDestination);
         }
         Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
         String altCMoveSCP = arcAE.alternativeCMoveSCP();
@@ -133,7 +135,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                     LOG.info("{}: {} objects of study{} not locally accessable - send C-MOVE RQ to {}",
                             as, notAccessableNext.getValue().size(), Arrays.toString(ctx.getStudyInstanceUIDs()),
                             otherCMoveSCP);
-                    moveSCU.forwardMoveRQ(ctx, pc, rq, keys, otherCMoveSCP, otherMoveDest);
+                    moveSCU.forwardMoveRQ(ctx, pc, rq, keys, null, otherCMoveSCP, otherMoveDest);
                     notAccessableNext = notAccessableIter.next();
                     otherCMoveSCP = notAccessableNext.getKey();
                     otherMoveDest = otherCMoveSCP.equals(altCMoveSCP) ? null : arcAE.externalRetrieveAEDestination();
@@ -142,18 +144,20 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                     as, notAccessableNext.getValue().size(), Arrays.toString(ctx.getStudyInstanceUIDs()),
                     otherCMoveSCP);
                 if (!retryFailedRetrieve && ctx.getMatches().isEmpty()) {
-                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, otherCMoveSCP, otherMoveDest);
+                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, null, otherCMoveSCP, otherMoveDest);
                 }
-                moveSCU.forwardMoveRQ(ctx, pc, rq, keys, otherCMoveSCP, otherMoveDest);
+                moveSCU.forwardMoveRQ(ctx, pc, rq, keys, null, otherCMoveSCP, otherMoveDest);
             }
             if (retryFailedRetrieve) {
                 ctx.setRetryFailedRetrieve(true);
                 LOG.info("{}: Some objects of study{} not found - retry forward C-MOVE RQ to {}",
                         as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
                 if (ctx.getMatches().isEmpty())
-                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
+                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys,
+                            fallbackCMoveSCPCallingAET, fallbackCMoveSCP, fallbackCMoveSCPDestination);
 
-                moveSCU.forwardMoveRQ(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
+                moveSCU.forwardMoveRQ(ctx, pc, rq, keys,
+                        fallbackCMoveSCPCallingAET, fallbackCMoveSCP, fallbackCMoveSCPDestination);
             }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);

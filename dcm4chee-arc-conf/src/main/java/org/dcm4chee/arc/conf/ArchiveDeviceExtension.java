@@ -116,6 +116,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile SpanningCFindSCPPolicy spanningCFindSCPPolicy = SpanningCFindSCPPolicy.REPLACE;
     private volatile String fallbackCMoveSCP;
     private volatile String fallbackCMoveSCPDestination;
+    private volatile String fallbackCMoveSCPCallingAET;
     private volatile String fallbackCMoveSCPLeadingCFindSCP;
     private volatile int fallbackCMoveSCPRetries;
     private volatile String externalRetrieveAEDestination;
@@ -666,6 +667,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFallbackCMoveSCPDestination(String fallbackCMoveSCPDestination) {
         this.fallbackCMoveSCPDestination = fallbackCMoveSCPDestination;
+    }
+
+    public String getFallbackCMoveSCPCallingAET() {
+        return fallbackCMoveSCPCallingAET;
+    }
+
+    public void setFallbackCMoveSCPCallingAET(String fallbackCMoveSCPCallingAET) {
+        this.fallbackCMoveSCPCallingAET = fallbackCMoveSCPCallingAET;
     }
 
     public String getFallbackCMoveSCPLeadingCFindSCP() {
@@ -2416,6 +2425,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         spanningCFindSCPPolicy = arcdev.spanningCFindSCPPolicy;
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = arcdev.fallbackCMoveSCPDestination;
+        fallbackCMoveSCPCallingAET = arcdev.fallbackCMoveSCPCallingAET;
         fallbackCMoveSCPLeadingCFindSCP = arcdev.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;

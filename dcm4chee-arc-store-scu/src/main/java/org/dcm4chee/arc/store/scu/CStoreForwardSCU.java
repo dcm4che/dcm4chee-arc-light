@@ -47,7 +47,7 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
  * @since May 2016
  */
 public interface CStoreForwardSCU {
-    void addRetrieveContext(RetrieveContext ctx);
+    void addRetrieveContext(RetrieveContext ctx, String callingAET);
 
-    boolean removeRetrieveContext(RetrieveContext ctx);
+    boolean removeRetrieveContext(RetrieveContext ctx, String callingAET);
 }

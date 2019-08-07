@@ -56,11 +56,11 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 public interface CMoveSCU {
     RetrieveTask newForwardRetrieveTask(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String otherCMoveSCP, String otherMoveDest) throws DicomServiceException;
+            String callingAET, String otherCMoveSCP, String otherMoveDest) throws DicomServiceException;
 
     void forwardMoveRQ(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String otherCMoveSCP, String otherMoveDest) throws DicomServiceException;
+            String callingAET, String otherCMoveSCP, String otherMoveDest) throws DicomServiceException;
 
     Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception;
 

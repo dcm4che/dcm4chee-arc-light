@@ -1424,6 +1424,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.295 NAME 'dcmStowExcludeAPPMarkers'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.296 NAME 'dcmFallbackCMoveSCPCallingAET'
+  DESC 'Calling AE Title used in A-ASSOCIATE-RQ to configured Fallback C-MOVE SCP. If absent, the AE Title of the external C-MOVE SCU is used.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1480,6 +1485,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSpanningCFindSCPRetrieveAET $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
+    dcmFallbackCMoveSCPCallingAET $
     dcmFallbackCMoveSCPLeadingCFindSCP $
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
@@ -1659,6 +1665,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmSpanningCFindSCPRetrieveAET $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
+    dcmFallbackCMoveSCPCallingAET $
     dcmFallbackCMoveSCPLeadingCFindSCP $
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $

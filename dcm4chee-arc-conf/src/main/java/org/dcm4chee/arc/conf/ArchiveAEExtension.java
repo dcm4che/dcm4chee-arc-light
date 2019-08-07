@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.net.AEExtension;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
@@ -91,6 +92,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Integer fallbackCMoveSCPRetries;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
+    private String fallbackCMoveSCPCallingAET;
     private String fallbackCMoveSCPLeadingCFindSCP;
     private String fallbackCMoveSCPStudyOlderThan;
     private String externalRetrieveAEDestination;
@@ -545,6 +547,21 @@ public class ArchiveAEExtension extends AEExtension {
         return fallbackCMoveSCPDestination != null
                 ? fallbackCMoveSCPDestination
                 : getArchiveDeviceExtension().getFallbackCMoveSCPDestination();
+    }
+
+    public String getFallbackCMoveSCPCallingAET() {
+        return fallbackCMoveSCPCallingAET;
+    }
+
+    public void setFallbackCMoveSCPCallingAET(String fallbackCMoveSCPCallingAET) {
+        this.fallbackCMoveSCPCallingAET = fallbackCMoveSCPCallingAET;
+    }
+
+    public String fallbackCMoveSCPCallingAET(Association as) {
+        String aet = fallbackCMoveSCPCallingAET != null
+                ? fallbackCMoveSCPCallingAET
+                : getArchiveDeviceExtension().getFallbackCMoveSCPCallingAET();
+        return aet != null ? aet : as.getCallingAET();
     }
 
     public String getFallbackCMoveSCPLeadingCFindSCP() {
@@ -1299,6 +1316,7 @@ public class ArchiveAEExtension extends AEExtension {
         spanningCFindSCPPolicy = aeExt.spanningCFindSCPPolicy;
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
+        fallbackCMoveSCPCallingAET = aeExt.fallbackCMoveSCPCallingAET;
         fallbackCMoveSCPLeadingCFindSCP = aeExt.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         externalRetrieveAEDestination = aeExt.externalRetrieveAEDestination;
