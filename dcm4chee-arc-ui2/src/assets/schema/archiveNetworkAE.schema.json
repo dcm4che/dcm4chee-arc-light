@@ -501,6 +501,12 @@
       "description": "Indicates if APP markers in JPEG images received in STOW-RS Metadata and Bulkdata requests shall be excluded from the JPEG bit streams encapsulated in created DICOM instances.",
       "type": "boolean"
     },
+    "dcmFallbackCMoveSCPCallingAET": {
+      "title": "Fallback C-Move SCP Calling AE title",
+      "description": "Calling AE Title used in A-ASSOCIATE-RQ to configured Fallback C-MOVE SCP. If absent, the AE Title of the external C-MOVE SCU is used.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rules applied to DICOM objects received by this AE. Supplements Export Rules specified on Device level.",

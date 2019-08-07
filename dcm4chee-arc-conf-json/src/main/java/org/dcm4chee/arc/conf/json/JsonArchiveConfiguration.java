@@ -125,6 +125,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getSpanningCFindSCPPolicy(), SpanningCFindSCPPolicy.REPLACE);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination(), null);
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPCallingAET", arcDev.getFallbackCMoveSCPCallingAET(), null);
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcDev.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPLeadingCFindSCP", arcDev.getFallbackCMoveSCPLeadingCFindSCP(), null);
         writer.writeNotNullOrDef("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP(), null);
@@ -818,6 +819,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmSpanningCFindSCPPolicy", arcAE.getSpanningCFindSCPPolicy(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination(), null);
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPCallingAET", arcAE.getFallbackCMoveSCPCallingAET(), null);
         writer.writeNotNull("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries());
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPLeadingCFindSCP", arcAE.getFallbackCMoveSCPLeadingCFindSCP(), null);
         writer.writeNotNullOrDef("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP(), null);
@@ -1013,6 +1015,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPDestination":
                     arcDev.setFallbackCMoveSCPDestination(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPCallingAET":
+                    arcDev.setFallbackCMoveSCPCallingAET(reader.stringValue());
                     break;
                 case "dcmFallbackCMoveSCPRetries":
                     arcDev.setFallbackCMoveSCPRetries(reader.intValue());
@@ -2663,6 +2668,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPDestination":
                     arcAE.setFallbackCMoveSCPDestination(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPCallingAET":
+                    arcAE.setFallbackCMoveSCPCallingAET(reader.stringValue());
                     break;
                 case "dcmFallbackCMoveSCPRetries":
                     arcAE.setFallbackCMoveSCPRetries(reader.intValue());

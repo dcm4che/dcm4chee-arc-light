@@ -1263,6 +1263,12 @@
       "type": "boolean",
       "default" : false
     },
+    "dcmFallbackCMoveSCPCallingAET": {
+      "title": "Fallback C-Move SCP Calling AE title",
+      "description": "Calling AE Title used in A-ASSOCIATE-RQ to configured Fallback C-MOVE SCP. If absent, the AE Title of the external C-MOVE SCU is used.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",
