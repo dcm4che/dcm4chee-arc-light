@@ -104,8 +104,12 @@
           <xsl:with-param name="seqTag" select="'00321064'"/>
           <xsl:with-param name="codedEntry" select="field[4]"/>
         </xsl:call-template>
-        <!--Requested Procedure ID-->
-        <DicomAttribute tag="00401001" vr="SH"/>
+        <!-- Requested Procedure ID -->
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00401001'"/>
+          <xsl:with-param name="vr" select="'SH'"/>
+          <xsl:with-param name="val" select="string(field[19]/text())"/>
+        </xsl:call-template>
         <!--Placer Order Number / Imaging Service Request-->
         <DicomAttribute tag="00402016" vr="LO">
           <Value number="1"><xsl:value-of select="field[2]"/></Value>
