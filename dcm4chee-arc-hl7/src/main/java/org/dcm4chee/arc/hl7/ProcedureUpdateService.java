@@ -196,10 +196,9 @@ public class ProcedureUpdateService extends DefaultHL7Service {
             LOG.info("StudyInstanceUID missing in HL7 order message {}", msh.getMessageType());
             if (reqProcID != null) {
                 studyIUID = UIDUtils.createNameBasedUID(reqProcID.getBytes());
-                LOG.info("Derived StudyInstanceUID from RequestedProcedureID {} as {} ",
+                LOG.info("Derived StudyInstanceUID from RequestedProcedureID[={}] : {}",
                         reqProcID, studyIUID);
-            } else {
-                switch (arcHL7App.hl7OrderMissingStudyIUIDPolicy()) {
+            } else switch (arcHL7App.hl7OrderMissingStudyIUIDPolicy()) {
                     case REJECT:
                         throw new HL7Exception(
                                 new ERRSegment(msh)
@@ -216,7 +215,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                         else {
                             studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
                             attrs.setString(Tag.RequestedProcedureID, VR.SH, accessionNum);
-                            LOG.info("Derive StudyInstanceUID from AccessionNumber[={}] : {}\n"
+                            LOG.info("Derived StudyInstanceUID from AccessionNumber[={}] : {}\n"
                                             + " RequestedProcedureID shall be equal to AccessionNumber.",
                                     accessionNum, studyIUID);
                         }
@@ -226,7 +225,6 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                         idService.newRequestedProcedureID(attrs);
                         uidsGenerated = true;
                         break;
-                }
             }
             attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
         } else if (reqProcID == null) {

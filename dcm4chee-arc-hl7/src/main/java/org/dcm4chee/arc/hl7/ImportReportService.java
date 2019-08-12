@@ -58,6 +58,8 @@ import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
@@ -74,6 +76,8 @@ import java.util.List;
 @ApplicationScoped
 @Typed(HL7Service.class)
 class ImportReportService extends DefaultHL7Service {
+
+    private final Logger LOG = LoggerFactory.getLogger(ImportReportService.class);
 
     @Inject
     private PatientService patientService;
@@ -144,8 +148,13 @@ class ImportReportService extends DefaultHL7Service {
     private void adjustStudyIUID(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
             throws HL7Exception {
         String accessionNum = attrs.getString(Tag.AccessionNumber);
+        String reqProcID = attrs.getNestedDataset(Tag.ReferencedRequestSequence).getString(Tag.RequestedProcedureID);
         String studyIUID = null;
-        switch (arcHL7App.hl7ImportReportMissingStudyIUIDPolicy()) {
+        if (reqProcID != null) {
+            studyIUID = UIDUtils.createNameBasedUID(reqProcID.getBytes());
+            LOG.info("Derived StudyInstanceUID from RequestedProcedureID[={}] : {} ",
+                    reqProcID, studyIUID);
+        } else switch (arcHL7App.hl7ImportReportMissingStudyIUIDPolicy()) {
             case REJECT:
                 throw new HL7Exception(
                         new ERRSegment(msh)
@@ -159,8 +168,11 @@ class ImportReportService extends DefaultHL7Service {
                                     .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
                                     .setErrorLocation("OBR^1^18")
                                     .setUserMessage("Missing OBR-18"));
-                else
+                else {
                     studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
+                    LOG.info("Derived StudyInstanceUID from AccessionNumber[={}] : {}",
+                            accessionNum, studyIUID);
+                }
                 break;
             case GENERATE:
                 studyIUID = UIDUtils.createUID();
