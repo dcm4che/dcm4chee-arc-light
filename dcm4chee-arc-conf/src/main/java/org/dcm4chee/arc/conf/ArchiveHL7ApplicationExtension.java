@@ -63,6 +63,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
+    private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
     private String hl7DicomCharacterSet;
     private Boolean hl7VeterinaryUsePatientName;
 
@@ -92,6 +93,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
+        hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
         hl7ExportRules.clear();
@@ -433,6 +435,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy) {
         this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
+    }
+
+    public HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy() {
+        return hl7ImportReportMissingStudyIUIDPolicy != null
+                ? hl7ImportReportMissingStudyIUIDPolicy
+                : getArchiveDeviceExtension().getHl7ImportReportMissingStudyIUIDPolicy();
+    }
+
+    public HL7ImportReportMissingStudyIUIDPolicy getHl7ImportReportMissingStudyIUIDPolicy() {
+        return hl7ImportReportMissingStudyIUIDPolicy;
+    }
+
+    public void setHl7ImportReportMissingStudyIUIDPolicy(HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy) {
+        this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
     }
 
     public String hl7DicomCharacterSet() {

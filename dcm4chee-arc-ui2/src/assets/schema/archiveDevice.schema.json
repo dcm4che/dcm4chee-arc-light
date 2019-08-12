@@ -75,7 +75,8 @@
     "hl7TrackChangedPatientID",
     "hl7UseNullValue",
     "hl7VeterinaryUsePatientName",
-    "hl7OrderMissingStudyIUIDPolicy"
+    "hl7OrderMissingStudyIUIDPolicy",
+    "hl7ImportReportMissingStudyIUIDPolicy"
   ],
   "properties": {
     "dcmFuzzyAlgorithmClass": {
@@ -1185,6 +1186,17 @@
     "hl7OrderMissingStudyIUIDPolicy": {
       "title": "HL7 Order Missing Study Instance UID Policy",
       "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages.",
+      "type": "string",
+      "default": "GENERATE",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7ImportReportMissingStudyIUIDPolicy": {
+      "title": "HL7 Import Report Missing Study Instance UID Policy",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Import Report (ORU) messages.",
       "type": "string",
       "default": "GENERATE",
       "enum": [

@@ -232,6 +232,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
+    private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy
+            = HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
     private volatile String hl7DicomCharacterSet;
     private volatile boolean hl7VeterinaryUsePatientName;
     private volatile int csvUploadChunkSize = 100;
@@ -2293,6 +2295,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
     }
 
+    public HL7ImportReportMissingStudyIUIDPolicy getHl7ImportReportMissingStudyIUIDPolicy() {
+        return hl7ImportReportMissingStudyIUIDPolicy;
+    }
+
+    public void setHl7ImportReportMissingStudyIUIDPolicy(
+            HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy) {
+        this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
+    }
+
     public String getHl7DicomCharacterSet() {
         return hl7DicomCharacterSet;
     }
@@ -2541,6 +2552,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
         validateUID = arcdev.validateUID;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
+        hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;
         relationalQueryNegotiationLenient = arcdev.relationalQueryNegotiationLenient;

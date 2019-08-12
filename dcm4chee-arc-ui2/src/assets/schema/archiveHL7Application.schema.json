@@ -90,6 +90,16 @@
         "ACCESSION_BASED"
       ]
     },
+    "hl7ImportReportMissingStudyIUIDPolicy": {
+      "title": "HL7 Import Report Missing Study Instance UID Policy",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Import Report (ORU) messages.",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
     "hl7DicomCharacterSet": {
       "title": "HL7 Dicom Character Set",
       "description": "Indicates to use specified Value of Specific Character Set (0008,0005) in Data Sets transcoded from received HL7 messages. Use Value corresponding to Character Set of the HL7 message specified by MSH-18 if absent.",

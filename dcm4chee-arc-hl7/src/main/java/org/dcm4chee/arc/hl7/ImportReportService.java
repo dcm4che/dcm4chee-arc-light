@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -122,7 +123,7 @@ class ImportReportService extends DefaultHL7Service {
             List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));
             switch (suids.size()) {
                 case 0:
-                    attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+                    adjustStudyIUID(attrs, arcHL7App, msg.msh());
                     break;
                 case 1:
                     attrs.setString(Tag.StudyInstanceUID, VR.UI, suids.get(0));
@@ -138,6 +139,34 @@ class ImportReportService extends DefaultHL7Service {
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
         store(hl7App, s, ae, msg, attrs);
+    }
+
+    private void adjustStudyIUID(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
+            throws HL7Exception {
+        String accessionNum = attrs.getString(Tag.AccessionNumber);
+        String studyIUID = null;
+        switch (arcHL7App.hl7ImportReportMissingStudyIUIDPolicy()) {
+            case REJECT:
+                throw new HL7Exception(
+                        new ERRSegment(msh)
+                                .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                                .setErrorLocation("OBX^3^1")
+                                .setUserMessage("Missing OBX segment with Study Instance UID text in OBX^3^1 and its value in OBX-5"));
+            case ACCESSION_BASED:
+                if (accessionNum == null)
+                    throw new HL7Exception(
+                            new ERRSegment(msh)
+                                    .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                                    .setErrorLocation("OBR^1^18")
+                                    .setUserMessage("Missing OBR-18"));
+                else
+                    studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
+                break;
+            case GENERATE:
+                studyIUID = UIDUtils.createUID();
+                break;
+        }
+        attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
     }
 
     private void store(HL7Application hl7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs)

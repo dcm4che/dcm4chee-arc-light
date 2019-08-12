@@ -47,10 +47,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.conf.json.hl7.JsonHL7ConfigurationExtension;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.HL7OrderMissingStudyIUIDPolicy;
-import org.dcm4chee.arc.conf.ScheduledProtocolCodeInOrder;
-import org.dcm4chee.arc.conf.ScheduledStationAETInOrder;
+import org.dcm4chee.arc.conf.*;
 
 import javax.json.stream.JsonParser;
 
@@ -79,6 +76,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHL7OrderMissingStudyIUIDPolicy(), null);
+        writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy", ext.getHl7ImportReportMissingStudyIUIDPolicy(), null);
         writer.writeNotNullOrDef("hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         writer.writeNotNullOrDef("hl7VeterinaryUsePatientName", ext.getHl7VeterinaryUsePatientName(), null);
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
@@ -144,6 +142,10 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     ext.setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7ImportReportMissingStudyIUIDPolicy":
+                    ext.setHl7ImportReportMissingStudyIUIDPolicy(
+                            HL7ImportReportMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "hl7DicomCharacterSet":
                     ext.setHl7DicomCharacterSet(reader.stringValue());

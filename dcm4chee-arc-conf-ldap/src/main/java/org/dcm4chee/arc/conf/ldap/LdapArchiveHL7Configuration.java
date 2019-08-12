@@ -46,10 +46,7 @@ import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
 import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.conf.ldap.hl7.LdapHL7ConfigurationExtension;
 import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.HL7OrderMissingStudyIUIDPolicy;
-import org.dcm4chee.arc.conf.ScheduledProtocolCodeInOrder;
-import org.dcm4chee.arc.conf.ScheduledStationAETInOrder;
+import org.dcm4chee.arc.conf.*;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -90,6 +87,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7UseNullValue", ext.getHL7UseNullValue(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingStudyIUIDPolicy",
                 ext.getHL7OrderMissingStudyIUIDPolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingStudyIUIDPolicy",
+                ext.getHl7ImportReportMissingStudyIUIDPolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
                 ext.getHl7VeterinaryUsePatientName(), null);
@@ -136,6 +135,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setHL7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), null));
         ext.setHL7OrderMissingStudyIUIDPolicy(LdapUtils.enumValue(HL7OrderMissingStudyIUIDPolicy.class,
                 attrs.get("hl7OrderMissingStudyIUIDPolicy"), null));
+        ext.setHl7ImportReportMissingStudyIUIDPolicy(LdapUtils.enumValue(HL7ImportReportMissingStudyIUIDPolicy.class,
+                attrs.get("hl7ImportReportMissingStudyIUIDPolicy"), null));
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
         ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), null));
     }
@@ -199,6 +200,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHL7UseNullValue(), bb.getHL7UseNullValue(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingStudyIUIDPolicy",
                 aa.getHL7OrderMissingStudyIUIDPolicy(), bb.getHL7OrderMissingStudyIUIDPolicy(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingStudyIUIDPolicy",
+                aa.getHl7ImportReportMissingStudyIUIDPolicy(), bb.getHl7ImportReportMissingStudyIUIDPolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7DicomCharacterSet",
                 aa.getHl7DicomCharacterSet(), bb.getHl7DicomCharacterSet(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7VeterinaryUsePatientName",

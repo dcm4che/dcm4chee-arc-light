@@ -286,6 +286,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationMaxStaleness(), null);
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", arcDev.getHl7OrderMissingStudyIUIDPolicy(),
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);
+        writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy", arcDev.getHl7ImportReportMissingStudyIUIDPolicy(),
+                HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
         writer.writeNotNullOrDef("hl7DicomCharacterSet", arcDev.getHl7DicomCharacterSet(), null);
         writer.writeNotDef("hl7VeterinaryUsePatientName", arcDev.isHl7VeterinaryUsePatientName(), false);
         writer.writeNotDef("dcmCSVUploadChunkSize", arcDev.getCSVUploadChunkSize(), 100);
@@ -1406,6 +1408,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7ImportReportMissingStudyIUIDPolicy":
+                    arcDev.setHl7ImportReportMissingStudyIUIDPolicy(
+                            HL7ImportReportMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "hl7DicomCharacterSet":
                     arcDev.setHl7DicomCharacterSet(reader.stringValue());
