@@ -630,6 +630,11 @@ public class AuditService {
     }
 
     void spoolRetrieve(AuditUtils.EventType eventType, RetrieveContext ctx) {
+        if (ctx.getMatches().size() == 0 && ctx.getCStoreForwards().size() == 0) {
+            LOG.info("Retrieve context has no matches and no C-Store Forwards. Exit spooling retrieve event.");
+            return;
+        }
+
         try {
             RetrieveAuditService retrieveAuditService = new RetrieveAuditService(ctx, getArchiveDevice());
             for (AuditInfoBuilder[] auditInfoBuilder : retrieveAuditService.getAuditInfoBuilder())
