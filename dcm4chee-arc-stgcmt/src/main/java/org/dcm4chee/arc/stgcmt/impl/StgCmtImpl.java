@@ -141,8 +141,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             throws QueueSizeLimitExceededException {
         String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
         if (stgCmtSCPAETitle != null) {
-            Attributes actionInfo = createActionInfo(ctx);
-            scheduleNAction(ctx.getAETitle(), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
+            ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
+            Attributes actionInfo = createActionInfo(ctx, ae);
+            scheduleNAction(ae.getCallingAETitle(stgCmtSCPAETitle), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
         }
     }
 
@@ -151,8 +152,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel)
             throws QueueSizeLimitExceededException {
         ExportContext ctx = createExportContext(localAET, match, batchID, qrLevel);
-        Attributes actionInfo = createActionInfo(ctx);
-        scheduleNAction(ctx.getAETitle(), remoteAET, actionInfo, ctx, null);
+        ApplicationEntity ae = device.getApplicationEntity(localAET, true);
+        Attributes actionInfo = createActionInfo(ctx, ae);
+        scheduleNAction(ae.getCallingAETitle(remoteAET), remoteAET, actionInfo, ctx, null);
     }
 
     private ExportContext createExportContext(String localAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel) {
@@ -169,8 +171,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         return ctx;
     }
 
-    private Attributes createActionInfo(ExportContext ctx) {
-        ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
+    private Attributes createActionInfo(ExportContext ctx, ApplicationEntity ae) {
         return queryService.createActionInfo(
                 ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ae);
     }
