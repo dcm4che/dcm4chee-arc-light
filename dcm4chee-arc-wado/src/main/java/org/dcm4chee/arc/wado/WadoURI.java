@@ -245,14 +245,14 @@ public class WadoURI {
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
 
-        int[] frames = frames(inst.getAttributes());
-        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frames);
+        int frame = frame(inst.getAttributes());
+        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frame);
         MediaType mimeType = selectMimeType(objectType).orElseThrow(() ->
             new WebApplicationException(errResponse(
                     "Supported Media Types for " + objectType + " not acceptable",
                     Response.Status.NOT_ACCEPTABLE)));
 
-        StreamingOutput entity = entityOf(ctx, inst, objectType, mimeType, frames);
+        StreamingOutput entity = entityOf(ctx, inst, objectType, mimeType, frame);
         ar.register((CompletionCallback) throwable -> {
             ctx.getRetrieveService().updateLocations(ctx);
             ctx.setException(throwable);
@@ -274,18 +274,17 @@ public class WadoURI {
     }
 
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
-                            MediaType mimeType, int[] frames)
+                            MediaType mimeType, int frame)
             throws IOException {
         if (mimeType == MediaTypes.APPLICATION_DICOM_TYPE)
                 return new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes(objectType, inst));
 
         switch (objectType) {
-            case CompressedSingleFrameImage:
             case UncompressedSingleFrameImage:
-                return renderImage(ctx, inst, mimeType, frames);
-            case CompressedMultiFrameImage:
+            case CompressedSingleFrameImage:
             case UncompressedMultiFrameImage:
-                return renderImage(ctx, inst, mimeType);
+            case CompressedMultiFrameImage:
+                return renderImage(ctx, inst, mimeType, frame);
             case EncapsulatedCDA:
                 return decapsulateCDA(service.openDicomInputStream(ctx, inst),
                         ctx.getArchiveAEExtension().wadoCDA2HtmlTemplateURI());
@@ -302,7 +301,7 @@ public class WadoURI {
     }
 
     private RenderedImageOutput renderImage(RetrieveContext ctx, InstanceLocations inst,
-                                            MediaType mimeType, int... frames) throws IOException {
+                                            MediaType mimeType, int frame) throws IOException {
         Attributes attrs = inst.getAttributes();
         DicomImageReadParam readParam = new DicomImageReadParam();
         if (windowCenter != null && windowWidth != null) {
@@ -317,19 +316,20 @@ public class WadoURI {
             readParam.setPresentationState(retrievePresentationState());
 
         return new RenderedImageOutput(ctx, inst, readParam, parseInt(rows), parseInt(columns), mimeType, imageQuality,
-                frames);
+                frame);
     }
 
-    private int[] frames(Attributes attrs) {
+    private int frame(Attributes attrs) {
+        int numFrames = attrs.getInt(Tag.NumberOfFrames, 1);
         if (frameNumber == null)
-            return new int[0];
+            return numFrames > 1 ? 0 : 1;
 
         int n = Integer.parseInt(frameNumber);
-        if (n > attrs.getInt(Tag.NumberOfFrames, 1))
+        if (n > numFrames)
                 throw new WebApplicationException(errResponse(
                         "frameNumber=" + frameNumber + " exceeds number of frames of specified resource",
                         Response.Status.NOT_FOUND));
-        return new int[]{n};
+        return n;
     }
 
     private static int parseInt(String s) {

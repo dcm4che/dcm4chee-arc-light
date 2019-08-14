@@ -547,9 +547,9 @@ public class WadoRS {
         },
         BULKDATA_PATH {
             @Override
-            protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int... frames) {
+            protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int frame) {
                 return isEncapsulatedDocument(attributePath)
-                        ? super.mediaTypesFor(match, attributePath)
+                        ? super.mediaTypesFor(match, attributePath, 0)
                         : new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE };
             }
 
@@ -642,9 +642,7 @@ public class WadoRS {
             Iterator<InstanceLocations> iter = matches.iterator();
             while (iter.hasNext()) {
                 InstanceLocations match = iter.next();
-                MediaType[] mediaTypes = frameList == null
-                        ? mediaTypesFor(match, attributePath)
-                        : mediaTypesFor(match, attributePath, frameList);
+                MediaType[] mediaTypes = mediaTypesFor(match, attributePath, frameList == null ? 0 : 1);
                 if (mediaTypes == null) {
                     iter.remove();
                     continue;
@@ -662,8 +660,8 @@ public class WadoRS {
             return notAcceptable;
         }
 
-        protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int... frames) {
-            return mediaTypesFor(match, ObjectType.objectTypeOf(match, frames), attributePath);
+        protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int frame) {
+            return mediaTypesFor(match, ObjectType.objectTypeOf(match, frame), attributePath);
         }
 
         protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
@@ -691,8 +689,12 @@ public class WadoRS {
 
     private void writeRenderedInstance(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {
         MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
+        StringBuffer bulkdataURL = request.getRequestURL();
+        bulkdataURL.setLength(bulkdataURL.length() - 9);
+        mkInstanceURL(bulkdataURL, inst);
+        bulkdataURL.append("/rendered");
         StreamingOutput entity;
-        ObjectType objectType = ObjectType.objectTypeOf(inst);
+        ObjectType objectType = ObjectType.objectTypeOf(inst, 0);
         switch (objectType) {
             case UncompressedSingleFrameImage:
             case CompressedSingleFrameImage:
@@ -700,7 +702,7 @@ public class WadoRS {
                 break;
             case UncompressedMultiFrameImage:
             case CompressedMultiFrameImage:
-                entity = renderImage(ctx, inst, mediaType);
+                entity = renderImage(ctx, inst, mediaType, 0);
                 break;
             case MPEG2Video:
             case MPEG4Video:
@@ -716,7 +718,7 @@ public class WadoRS {
                 throw new AssertionError("Unexpected object type: " + objectType);
         }
         OutputPart outputPart = output.addPart(entity, mediaType);
-        outputPart.getHeaders().putSingle("Content-Location", request.getRequestURL().toString());
+        outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
     }
 
     private String wadoURL() {
@@ -729,20 +731,15 @@ public class WadoRS {
         int numFrames = inst.getAttributes().getInt(Tag.NumberOfFrames, 1);
         frameList = adjustFrameList(frameList, numFrames);
         MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
-        StreamingOutput entity;
-        ObjectType objectType = ObjectType.objectTypeOf(inst, frameList);
-        switch (objectType) {
-            case UncompressedMultiFrameImage:
-            case CompressedMultiFrameImage:
-            case UncompressedSingleFrameImage:
-            case CompressedSingleFrameImage:
-                entity = renderImage(ctx, inst, mediaType, frameList);
-                break;
-            default:
-                throw new AssertionError("Unexpected object type: " + objectType);
+        StringBuffer bulkdataURL = request.getRequestURL();
+        int length = bulkdataURL.lastIndexOf("/frames/") + 8;
+        for (int frame : frameList) {
+            OutputPart outputPart = output.addPart(renderImage(ctx, inst, mediaType, frame), mediaType);
+            bulkdataURL.setLength(length);
+            bulkdataURL.append(frame);
+            bulkdataURL.append("/rendered");
+            outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
         }
-        OutputPart outputPart = output.addPart(entity, mediaType);
-        outputPart.getHeaders().putSingle("Content-Location", request.getRequestURL().toString());
     }
 
     private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {
@@ -750,7 +747,7 @@ public class WadoRS {
         StringBuffer bulkdataURL = request.getRequestURL();
         mkInstanceURL(bulkdataURL, inst);
         StreamingOutput entity;
-        ObjectType objectType = ObjectType.objectTypeOf(inst, null);
+        ObjectType objectType = ObjectType.objectTypeOf(inst, 0);
         switch (objectType) {
             case UncompressedSingleFrameImage:
             case UncompressedMultiFrameImage:
@@ -792,7 +789,7 @@ public class WadoRS {
         StringBuffer bulkdataURL = request.getRequestURL();
         mkInstanceURL(bulkdataURL, inst);
         StreamingOutput entity;
-        ObjectType objectType = ObjectType.objectTypeOf(inst, frameList);
+        ObjectType objectType = ObjectType.objectTypeOf(inst, 0);
         switch (objectType) {
             case UncompressedMultiFrameImage:
                 writeUncompressedFrames(output, ctx, inst, frameList, bulkdataURL);
@@ -1174,7 +1171,7 @@ public class WadoRS {
     }
 
     private RenderedImageOutput renderImage(RetrieveContext ctx, InstanceLocations inst,
-            MediaType mimeType, int... frames) {
+            MediaType mimeType, int frame) {
         Attributes attrs = inst.getAttributes();
         DicomImageReadParam readParam = new DicomImageReadParam();
         if (windowing != null) {
@@ -1192,6 +1189,6 @@ public class WadoRS {
                     attrs.getInt(Tag.Rows, 1),
                     attrs.getInt(Tag.Columns, 1)));
         }
-        return new RenderedImageOutput(ctx, inst, readParam, rows, columns, mimeType, imageQuality, frames);
+        return new RenderedImageOutput(ctx, inst, readParam, rows, columns, mimeType, imageQuality, frame);
     }
 }

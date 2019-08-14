@@ -100,6 +100,11 @@ enum ObjectType {
         public MediaType[] getRenderedContentTypes() {
             return renderedMultiFrameMediaTypes();
         }
+
+        @Override
+        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
+            return octetStreamMediaType();
+        }
     },
     CompressedMultiFrameImage(MediaTypes.APPLICATION_DICOM_TYPE, true, false) {
         @Override
@@ -170,14 +175,14 @@ enum ObjectType {
         this.video = video;
     }
 
-    public static ObjectType objectTypeOf(RetrieveContext ctx, InstanceLocations inst, int... frames) {
+    public static ObjectType objectTypeOf(RetrieveContext ctx, InstanceLocations inst, int frame) {
         ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
         return arcDev.isWadoSupportedSRClass(inst.getSopClassUID())
                 ? SRDocument
-                : objectTypeOf(inst, frames);
+                : objectTypeOf(inst, frame);
     }
 
-    public static ObjectType objectTypeOf(InstanceLocations inst, int... frames) {
+    public static ObjectType objectTypeOf(InstanceLocations inst, int frame) {
         String cuid = inst.getSopClassUID();
         String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
         Attributes attrs = inst.getAttributes();
@@ -204,14 +209,14 @@ enum ObjectType {
                 return MPEG4Video;
             case UID.ImplicitVRLittleEndian:
             case UID.ExplicitVRLittleEndian:
-                return multiframe(frames, attrs) ? UncompressedMultiFrameImage : UncompressedSingleFrameImage;
+                return multiframe(frame, attrs) ? UncompressedMultiFrameImage : UncompressedSingleFrameImage;
             default:
-                return multiframe(frames, attrs) ? CompressedMultiFrameImage : CompressedSingleFrameImage;
+                return multiframe(frame, attrs) ? CompressedMultiFrameImage : CompressedSingleFrameImage;
         }
      }
 
-    private static boolean multiframe(int[] frames, Attributes attrs) {
-        return (frames.length > 0 ? frames.length : attrs.getInt(Tag.NumberOfFrames, 1)) > 1;
+    private static boolean multiframe(int frame, Attributes attrs) {
+        return frame <= 0 && attrs.getInt(Tag.NumberOfFrames, 1) > 1;
     }
 
     public MediaType getDefaultMimeType() {

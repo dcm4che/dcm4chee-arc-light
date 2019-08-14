@@ -81,19 +81,19 @@ public class RenderedImageOutput implements StreamingOutput {
     private final DicomImageReadParam readParam;
     private final int rows;
     private final int columns;
-    private final int[] frames;
+    private final int imageIndex;
     private final ImageWriter writer;
     private final ImageWriteParam writeParam;
 
     public RenderedImageOutput(RetrieveContext ctx, InstanceLocations inst, DicomImageReadParam readParam,
-            int rows, int columns, MediaType mimeType, String imageQuality, int... frames) {
+            int rows, int columns, MediaType mimeType, String imageQuality, int frame) {
         this.ctx = ctx;
         this.inst = inst;
         this.reader = getDicomImageReader();
         this.readParam = readParam;
         this.rows = rows;
         this.columns = columns;
-        this.frames = frames;
+        this.imageIndex = frame - 1;
         this.writer = getImageWriter(mimeType);
         this.writeParam = writer.getDefaultWriteParam();
         if (imageQuality != null) {
@@ -110,12 +110,13 @@ public class RenderedImageOutput implements StreamingOutput {
             ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out);
             writer.setOutput(imageOut);
             BufferedImage bi = null;
-            if (frames.length != 1) {
+            if (imageIndex < 0) {
                 IIOMetadata metadata = null;
+                int numImages = reader.getNumImages(false);
                 writer.prepareWriteSequence(null);
-                for (int frame : frames.length > 0 ? frames : allFrames()) {
+                for (int i = 0; i < numImages; i++) {
                     readParam.setDestination(bi);
-                    bi = reader.read(frame-1, readParam);
+                    bi = reader.read(i, readParam);
                     BufferedImage bi2 = adjust(bi);
                     if (metadata == null)
                         metadata = createAnimatedGIFMetadata(bi2, writeParam, frameTime());
@@ -126,7 +127,7 @@ public class RenderedImageOutput implements StreamingOutput {
                 }
                 writer.endWriteSequence();
             } else {
-                bi = reader.read(frames[0] - 1, readParam);
+                bi = reader.read(imageIndex, readParam);
                 writer.write(null, new IIOImage(adjust(bi), null, null), writeParam);
             }
             imageOut.close();   // does not close out,
@@ -135,13 +136,6 @@ public class RenderedImageOutput implements StreamingOutput {
             writer.dispose();
             reader.dispose();
         }
-    }
-
-    private int[] allFrames() throws IOException {
-        int i = reader.getNumImages(false);
-        int[] allFrames = new int[i];
-        while (i-- > 0) allFrames[i] = i + 1;
-        return allFrames;
     }
 
     private float frameTime() throws IOException {
