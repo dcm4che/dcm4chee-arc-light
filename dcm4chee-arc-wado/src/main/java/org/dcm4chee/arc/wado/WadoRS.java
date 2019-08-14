@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
@@ -72,12 +73,14 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -85,6 +88,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -131,6 +135,29 @@ public class WadoRS {
 
     @QueryParam("accept")
     private List<String> accept;
+
+    @QueryParam("charset")
+    private String charset;
+
+    @QueryParam("annotation")
+    @Pattern(regexp = "patient|technique|patient,technique|technique,patient")
+    private String annotation;
+
+    @QueryParam("quality")
+    @Pattern(regexp = "([1-9]\\d?)|100")
+    private String imageQuality;
+
+    @QueryParam("viewport")
+    @ValidValueOf(type = ViewPort.class)
+    private String viewport;
+
+    @QueryParam("window")
+    @ValidValueOf(type = Windowing.class)
+    private String windowing;
+
+    @QueryParam("iccprofile")
+    @Pattern(regexp = "no|yes|srgb|adobergb|rommrgb")
+    private String iccprofile;
 
     private List<MediaType> acceptableMediaTypes;
     private List<MediaType> acceptableMultipartRelatedMediaTypes;
@@ -255,50 +282,59 @@ public class WadoRS {
                 new FrameList(frameList).frames, null, null, ar, Output.BULKDATA_FRAME);
     }
 
-/*
     @GET
     @Path("/studies/{studyUID}/rendered")
-    @Produces("multipart/related")
     public void retrieveRenderedStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedStudy", null, null, null, null, ar, Output.RENDER);
+        logRequest();
+        checkAET();
+        checkMultipartRelatedAcceptable();
+        retrieve("retrieveRenderedStudy", studyUID, null, null,
+                null, null, null, ar, Output.RENDER);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
-    @Produces("multipart/related")
     public void retrieveRenderedSeries(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedSeries", seriesUID, null, null, null, ar, Output.RENDER);
+        logRequest();
+        checkAET();
+        checkMultipartRelatedAcceptable();
+        retrieve("retrieveRenderedSeries", studyUID, seriesUID, null,
+                null, null, null, ar, Output.RENDER);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/rendered")
-    @Produces("multipart/related")
     public void retrieveRenderedInstance(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedInstance", seriesUID, objectUID, null, null, ar, Output.RENDER);
+        logRequest();
+        checkAET();
+        checkMultipartRelatedAcceptable();
+        retrieve("retrieveRenderedInstance", studyUID, seriesUID, objectUID,
+                null, null, null, ar, Output.RENDER);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}/rendered")
-    @Produces("multipart/related")
     public void retrieveRenderedFrames(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedFrames", seriesUID, objectUID,
-                new FrameList(frameList).frames, null, ar, Output.RENDER_FRAME);
+        logRequest();
+        checkAET();
+        checkMultipartRelatedAcceptable();
+        retrieve("retrieveRenderedFrames", studyUID, seriesUID, objectUID,
+                new FrameList(frameList).frames, null, null, ar, Output.RENDER_FRAME);
     }
-*/
 
     private void logRequest() {
         LOG.info("Process {} {}?{} from {}@{}",
@@ -420,7 +456,7 @@ public class WadoRS {
         if (ctx.getNumberOfMatches() == 0)
             throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
 //            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
-        Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx, attributePath);
+        Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx, frameList, attributePath);
         if (ctx.getMatches().isEmpty()) {
             Response errResp = notAccepted.isEmpty()
                     ? errResponse("No matches found.", Response.Status.NOT_FOUND)
@@ -464,7 +500,7 @@ public class WadoRS {
         DICOM {
             @Override
             public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
-                    int[] attributePath) {
+                    int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -476,7 +512,7 @@ public class WadoRS {
         ZIP {
             @Override
             public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
-                    int[] attributePath) {
+                    int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -500,8 +536,9 @@ public class WadoRS {
         BULKDATA_FRAME {
             @Override
             protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
-                return objectType.getPixelDataContentTypes(match);
+                return objectType.isImage() ? objectType.getBulkdataContentTypes(match) : null;
             }
+
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                                    InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
@@ -510,7 +547,7 @@ public class WadoRS {
         },
         BULKDATA_PATH {
             @Override
-            protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath) {
+            protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int... frames) {
                 return isEncapsulatedDocument(attributePath)
                         ? super.mediaTypesFor(match, attributePath)
                         : new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE };
@@ -524,21 +561,31 @@ public class WadoRS {
         },
         RENDER {
             @Override
+            protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
+                return objectType.getRenderedContentTypes();
+            }
+
+            @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
-                super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                wadoRS.writeRenderedInstance(output, ctx, inst);
             }
         },
         RENDER_FRAME {
             @Override
+            protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
+                return objectType.isImage() ? objectType.getRenderedContentTypes() : null;
+            }
+
+            @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
-                super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                wadoRS.writeRenderedFrames(output, ctx, inst, frameList);
             }
         },
         METADATA_XML {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] attributePath) {
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -553,7 +600,7 @@ public class WadoRS {
         },
         METADATA_JSON {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] attributePath) {
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -587,14 +634,17 @@ public class WadoRS {
             return output;
         }
 
-        public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] attributePath) {
+        public Collection<InstanceLocations> removeNotAcceptedMatches(
+                WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
             Collection<InstanceLocations> matches = ctx.getMatches();
             Collection<InstanceLocations> notAcceptable = new ArrayList<>(matches.size());
             Map<String,MediaType> selectedMediaTypes = new HashMap<>(matches.size() * 4 / 3);
             Iterator<InstanceLocations> iter = matches.iterator();
             while (iter.hasNext()) {
                 InstanceLocations match = iter.next();
-                MediaType[] mediaTypes = mediaTypesFor(match, attributePath);
+                MediaType[] mediaTypes = frameList == null
+                        ? mediaTypesFor(match, attributePath)
+                        : mediaTypesFor(match, attributePath, frameList);
                 if (mediaTypes == null) {
                     iter.remove();
                     continue;
@@ -612,8 +662,8 @@ public class WadoRS {
             return notAcceptable;
         }
 
-        protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath) {
-            return mediaTypesFor(match, ObjectType.objectTypeOf(match, null), attributePath);
+        protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int... frames) {
+            return mediaTypesFor(match, ObjectType.objectTypeOf(match, frames), attributePath);
         }
 
         protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
@@ -637,6 +687,62 @@ public class WadoRS {
 
     private static boolean isEncapsulatedDocument(int[] attributePath) {
         return attributePath.length == 1 && attributePath[0] == Tag.EncapsulatedDocument;
+    }
+
+    private void writeRenderedInstance(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {
+        MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
+        StreamingOutput entity;
+        ObjectType objectType = ObjectType.objectTypeOf(inst);
+        switch (objectType) {
+            case UncompressedSingleFrameImage:
+            case CompressedSingleFrameImage:
+                entity = renderImage(ctx, inst, mediaType, 1);
+                break;
+            case UncompressedMultiFrameImage:
+            case CompressedMultiFrameImage:
+                entity = renderImage(ctx, inst, mediaType);
+                break;
+            case MPEG2Video:
+            case MPEG4Video:
+                entity = new CompressedPixelDataOutput(ctx, inst);
+                break;
+            case EncapsulatedPDF:
+                entity = new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
+                break;
+            case SRDocument:
+                entity = new DicomXSLTOutput(ctx, inst, mediaType, wadoURL());
+                break;
+            default:
+                throw new AssertionError("Unexpected object type: " + objectType);
+        }
+        OutputPart outputPart = output.addPart(entity, mediaType);
+        outputPart.getHeaders().putSingle("Content-Location", request.getRequestURL().toString());
+    }
+
+    private String wadoURL() {
+        StringBuffer sb = device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request);
+        sb.setLength(sb.indexOf("/rs/studies/"));
+        return sb.append("/wado").toString();
+    }
+
+    private void writeRenderedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst, int[] frameList) {
+        int numFrames = inst.getAttributes().getInt(Tag.NumberOfFrames, 1);
+        frameList = adjustFrameList(frameList, numFrames);
+        MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
+        StreamingOutput entity;
+        ObjectType objectType = ObjectType.objectTypeOf(inst, frameList);
+        switch (objectType) {
+            case UncompressedMultiFrameImage:
+            case CompressedMultiFrameImage:
+            case UncompressedSingleFrameImage:
+            case CompressedSingleFrameImage:
+                entity = renderImage(ctx, inst, mediaType, frameList);
+                break;
+            default:
+                throw new AssertionError("Unexpected object type: " + objectType);
+        }
+        OutputPart outputPart = output.addPart(entity, mediaType);
+        outputPart.getHeaders().putSingle("Content-Location", request.getRequestURL().toString());
     }
 
     private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {
@@ -686,7 +792,7 @@ public class WadoRS {
         StringBuffer bulkdataURL = request.getRequestURL();
         mkInstanceURL(bulkdataURL, inst);
         StreamingOutput entity;
-        ObjectType objectType = ObjectType.objectTypeOf(inst, null);
+        ObjectType objectType = ObjectType.objectTypeOf(inst, frameList);
         switch (objectType) {
             case UncompressedMultiFrameImage:
                 writeUncompressedFrames(output, ctx, inst, frameList, bulkdataURL);
@@ -975,7 +1081,6 @@ public class WadoRS {
         } catch (IOException e) {
             LOG.warn("Failed to purge spool directory {}", spoolDirectory, e);
         }
-
     }
 
     private static Response errResponse(String errorMessage, Response.Status status) {
@@ -994,5 +1099,99 @@ public class WadoRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private static final class ViewPort {
+        private final int rows;
+        private final int columns;
+        private final float[] region;
+        public ViewPort(String s) {
+            String[] ss = StringUtils.split(s, ',');
+            switch(ss.length) {
+                case 2:
+                    region = null;
+                    break;
+                case 6:
+                    region = new float[]{0, 0, Float.NaN, Float.NaN};
+                    for (int i = 2; i < 6; i++) {
+                        if (!ss[i].isEmpty())
+                            region[i-2] = Float.parseFloat(ss[i]);
+                    }
+                default:
+                    throw new IllegalArgumentException(s);
+            }
+            rows = Integer.parseUnsignedInt(ss[0]);
+            columns = Integer.parseUnsignedInt(ss[1]);
+        }
+
+        public Rectangle getSourceRegion(int rows, int columns) {
+            if (region == null)
+                return null;
+
+            Rectangle result = new Rectangle();
+            result.x = (int) Math.abs(region[1]);
+            result.y = (int) Math.abs(region[0]);
+            result.width = Float.isNaN(region[3])
+                    ? columns - result.x
+                    : (int) Math.abs(region[3]);
+            result.height = Float.isNaN(region[2])
+                    ? rows - result.y
+                    : (int) Math.abs(region[2]);
+            return result;
+        }
+    }
+
+    private static final class Windowing {
+        private final float center;
+        private final float width;
+        private final String voilutFunction;
+
+        public Windowing(String s) {
+            String[] ss = StringUtils.split(s, ',');
+            if (ss.length != 3)
+                throw new IllegalArgumentException(s);
+
+            center = Float.parseFloat(ss[0]);
+            width = Float.parseFloat(ss[1]);
+            if (width <= 0.f)
+                throw new IllegalArgumentException(s);
+            switch (ss[2]) {
+                case "linear":
+                    if (width < 1.f)
+                        throw new IllegalArgumentException(s);
+                    voilutFunction = "LINEAR";
+                    break;
+                case "linear-exact":
+                    voilutFunction = "LINEAR_EXACT";
+                    break;
+                case "sigmoid":
+                    voilutFunction = "SIGMOID";
+                    break;
+                default:
+                    throw new IllegalArgumentException(s);
+            }
+        }
+    }
+
+    private RenderedImageOutput renderImage(RetrieveContext ctx, InstanceLocations inst,
+            MediaType mimeType, int... frames) {
+        Attributes attrs = inst.getAttributes();
+        DicomImageReadParam readParam = new DicomImageReadParam();
+        if (windowing != null) {
+            Windowing w = new Windowing(this.windowing);
+            readParam.setWindowCenter(w.center);
+            readParam.setWindowWidth(w.width);
+        }
+        int rows = 0;
+        int columns = 0;
+        if (viewport != null) {
+            ViewPort vp = new ViewPort(viewport);
+            rows = vp.rows;
+            columns = vp.columns;
+            readParam.setSourceRegion(vp.getSourceRegion(
+                    attrs.getInt(Tag.Rows, 1),
+                    attrs.getInt(Tag.Columns, 1)));
+        }
+        return new RenderedImageOutput(ctx, inst, readParam, rows, columns, mimeType, imageQuality, frames);
     }
 }

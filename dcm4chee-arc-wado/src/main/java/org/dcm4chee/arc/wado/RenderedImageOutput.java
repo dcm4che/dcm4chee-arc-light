@@ -47,7 +47,9 @@ import org.dcm4che3.image.PixelAspectRatio;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.imageio.plugins.dcm.DicomMetaData;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.util.SafeClose;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.imageio.*;
 import javax.imageio.metadata.IIOMetadata;
@@ -55,11 +57,15 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 import java.awt.geom.AffineTransform;
-import java.awt.image.*;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -69,41 +75,47 @@ public class RenderedImageOutput implements StreamingOutput {
     private static final float DEF_FRAME_TIME = 1000.f;
     private static final byte[] LOOP_FOREVER = { 1, 0, 0 };
 
-    private final DicomInputStream dis;
+    private final RetrieveContext ctx;
+    private final InstanceLocations inst;
     private final ImageReader reader;
     private final DicomImageReadParam readParam;
     private final int rows;
     private final int columns;
-    private final int imageIndex;
+    private final int[] frames;
     private final ImageWriter writer;
     private final ImageWriteParam writeParam;
 
-    public RenderedImageOutput(DicomInputStream dis, ImageReader reader, DicomImageReadParam readParam,
-                               int rows, int columns, int imageIndex, ImageWriter writer, ImageWriteParam writeParam) {
-        this.dis = dis;
-        this.reader = reader;
+    public RenderedImageOutput(RetrieveContext ctx, InstanceLocations inst, DicomImageReadParam readParam,
+            int rows, int columns, MediaType mimeType, String imageQuality, int... frames) {
+        this.ctx = ctx;
+        this.inst = inst;
+        this.reader = getDicomImageReader();
         this.readParam = readParam;
         this.rows = rows;
         this.columns = columns;
-        this.imageIndex = imageIndex;
-        this.writer = writer;
-        this.writeParam = writeParam;
+        this.frames = frames;
+        this.writer = getImageWriter(mimeType);
+        this.writeParam = writer.getDefaultWriteParam();
+        if (imageQuality != null) {
+            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            writeParam.setCompressionQuality(Integer.parseInt(imageQuality) / 100.f);
+        }
     }
 
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
-        try {
+        RetrieveService service = ctx.getRetrieveService();
+        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
             reader.setInput(dis);
             ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out);
             writer.setOutput(imageOut);
             BufferedImage bi = null;
-            if (imageIndex < 0) {
+            if (frames.length != 1) {
                 IIOMetadata metadata = null;
-                int numImages = reader.getNumImages(false);
                 writer.prepareWriteSequence(null);
-                for (int i = 0; i < numImages; i++) {
+                for (int frame : frames.length > 0 ? frames : allFrames()) {
                     readParam.setDestination(bi);
-                    bi = reader.read(i, readParam);
+                    bi = reader.read(frame-1, readParam);
                     BufferedImage bi2 = adjust(bi);
                     if (metadata == null)
                         metadata = createAnimatedGIFMetadata(bi2, writeParam, frameTime());
@@ -114,16 +126,22 @@ public class RenderedImageOutput implements StreamingOutput {
                 }
                 writer.endWriteSequence();
             } else {
-                bi = reader.read(imageIndex, readParam);
+                bi = reader.read(frames[0] - 1, readParam);
                 writer.write(null, new IIOImage(adjust(bi), null, null), writeParam);
             }
             imageOut.close();   // does not close out,
                                 // marks imageOut as closed to prevent finalizer thread to invoke out.flush()
         } finally {
-            SafeClose.close(dis);
             writer.dispose();
             reader.dispose();
         }
+    }
+
+    private int[] allFrames() throws IOException {
+        int i = reader.getNumImages(false);
+        int[] allFrames = new int[i];
+        while (i-- > 0) allFrames[i] = i + 1;
+        return allFrames;
     }
 
     private float frameTime() throws IOException {
@@ -189,5 +207,29 @@ public class RenderedImageOutput implements StreamingOutput {
 
     private Attributes getAttributes() throws IOException {
         return ((DicomMetaData) reader.getStreamMetadata()).getAttributes();
+    }
+
+    private static ImageReader getDicomImageReader() {
+        Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("DICOM");
+        if (!readers.hasNext()) {
+            ImageIO.scanForPlugins();
+            readers = ImageIO.getImageReadersByFormatName("DICOM");
+            if (!readers.hasNext())
+                throw new RuntimeException("DICOM Image Reader not registered");
+        }
+        return readers.next();
+    }
+
+    private static ImageWriter getImageWriter(MediaType mimeType) {
+        String formatName = formatNameOf(mimeType);
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
+        if (!writers.hasNext())
+            throw new RuntimeException(formatName + " Image Writer not registered");
+
+        return writers.next();
+    }
+
+    private static String formatNameOf(MediaType mimeType) {
+        return mimeType.getSubtype().toUpperCase();
     }
 }

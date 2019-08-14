@@ -58,108 +58,126 @@ import java.util.stream.Stream;
  * @since Mar 2016
  */
 enum ObjectType {
-    UncompressedSingleFrameImage(
-            new MediaType[] {
-                MediaTypes.IMAGE_JPEG_TYPE,
-                MediaTypes.APPLICATION_DICOM_TYPE,
-                MediaTypes.IMAGE_GIF_TYPE,
-                MediaTypes.IMAGE_PNG_TYPE
-            },
-            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }, false) {
+    UncompressedSingleFrameImage(MediaTypes.IMAGE_JPEG_TYPE, true, false) {
         @Override
-        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
-            return super.getBulkdataContentTypes(inst);
+        public Optional<MediaType> getCompatibleMimeType(MediaType other) {
+            return findCompatibleSingleFrameMimeType(other);
         }
-    },
-    CompressedSingleFrameImage(
-            new MediaType[] {
-                    MediaTypes.IMAGE_JPEG_TYPE,
-                    MediaTypes.APPLICATION_DICOM_TYPE,
-                    MediaTypes.IMAGE_GIF_TYPE,
-                    MediaTypes.IMAGE_PNG_TYPE
-            },
-            null, false) {
-        @Override
-        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
-            return super.calcPixelDataContentTypes(inst);
-        }
-        @Override
-        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
-            return super.calcPixelDataContentTypes(inst);
-        }
-    },
-    UncompressedMultiFrameImage(
-            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE },
-            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }, false) {
-        @Override
-        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
-            return super.getBulkdataContentTypes(inst);
-        }
-    },
-    CompressedMultiFrameImage(
-            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE },
-            null, false) {
-        @Override
-        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
-            return super.calcPixelDataContentTypes(inst);
-        }
-        @Override
-        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
-            return super.calcPixelDataContentTypes(inst);
-        }
-    },
-    MPEG2Video(
-            new MediaType[] { MediaTypes.VIDEO_MPEG_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.VIDEO_MPEG_TYPE }, true) {
-        @Override
-        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
-            return super.getBulkdataContentTypes(inst);
-        }
-    },
-    MPEG4Video(
-            new MediaType[] { MediaTypes.VIDEO_MP4_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.VIDEO_MP4_TYPE }, true) {
-        @Override
-        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
-            return super.getBulkdataContentTypes(inst);
-        }
-    },
-    SRDocument(
-            new MediaType[] {
-                    MediaType.TEXT_HTML_TYPE,
-                    MediaType.TEXT_PLAIN_TYPE,
-                    MediaTypes.APPLICATION_DICOM_TYPE
-            },
-            null, false),
-    EncapsulatedPDF(
-            new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE }, false),
-    EncapsulatedCDA(
-            new MediaType[] { MediaType.TEXT_XML_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaType.TEXT_XML_TYPE }, false),
-    EncapsulatedSTL(
-            new MediaType[] { MediaTypes.MODEL_STL_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.MODEL_STL_TYPE }, false),
-    Other(new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE }, null, false);
 
-    private final MediaType[] mimeTypes;
-    private final MediaType[] bulkdataContentTypes;
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return ObjectType.renderedSingleFrameMediaTypes();
+        }
+
+        @Override
+        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
+            return octetStreamMediaType();
+        }
+    },
+    CompressedSingleFrameImage(MediaTypes.IMAGE_JPEG_TYPE, true, false) {
+        @Override
+        public Optional<MediaType> getCompatibleMimeType(MediaType other) {
+            return findCompatibleSingleFrameMimeType(other);
+        }
+
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return renderedSingleFrameMediaTypes();
+        }
+
+        @Override
+        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
+            return calcPixelDataContentTypes(inst);
+        }
+    },
+    UncompressedMultiFrameImage(MediaTypes.APPLICATION_DICOM_TYPE, true, false) {
+        @Override
+        public Optional<MediaType> getCompatibleMimeType(MediaType other) {
+            return findCompatibleMultiFrameMimeType(other);
+        }
+
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return renderedMultiFrameMediaTypes();
+        }
+    },
+    CompressedMultiFrameImage(MediaTypes.APPLICATION_DICOM_TYPE, true, false) {
+        @Override
+        public Optional<MediaType> getCompatibleMimeType(MediaType other) {
+            return findCompatibleMultiFrameMimeType(other);
+        }
+
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return renderedMultiFrameMediaTypes();
+        }
+
+        @Override
+        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
+            return calcPixelDataContentTypes(inst);
+        }
+    },
+    MPEG2Video(MediaTypes.VIDEO_MPEG_TYPE, false, true),
+    MPEG4Video(MediaTypes.VIDEO_MP4_TYPE, false, true),
+    SRDocument(MediaType.TEXT_HTML_TYPE, false, false) {
+        @Override
+        public Optional<MediaType> getCompatibleMimeType(MediaType other) {
+            return findCompatibleSRMimeType(other);
+        }
+
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return renderedSRMediaTypes();
+        }
+
+        @Override
+        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
+            return null;
+        }
+    },
+    EncapsulatedPDF(MediaTypes.APPLICATION_PDF_TYPE, false, false),
+    EncapsulatedCDA(MediaType.TEXT_XML_TYPE, false, false){
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return null;
+        }
+    },
+    EncapsulatedSTL(MediaTypes.MODEL_STL_TYPE, false, false){
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return null;
+        }
+    },
+    Other(MediaTypes.APPLICATION_DICOM_TYPE, false, false){
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return null;
+        }
+
+        @Override
+        public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
+            return null;
+        }
+    };
+
+    private final MediaType defaultMimeType;
+    private final boolean image;
     private final boolean video;
 
-    ObjectType(MediaType[] mimeTypes, MediaType[] bulkdataContentTypes, boolean video) {
-        this.mimeTypes = mimeTypes;
-        this.bulkdataContentTypes = bulkdataContentTypes;
+    ObjectType(MediaType defaultMimeType, boolean image, boolean video) {
+        this.defaultMimeType = defaultMimeType;
+        this.image = image;
         this.video = video;
     }
 
-    public static ObjectType objectTypeOf(RetrieveContext ctx, InstanceLocations inst, String frameNumber) {
+    public static ObjectType objectTypeOf(RetrieveContext ctx, InstanceLocations inst, int... frames) {
         ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
         return arcDev.isWadoSupportedSRClass(inst.getSopClassUID())
                 ? SRDocument
-                : objectTypeOf(inst, frameNumber);
+                : objectTypeOf(inst, frames);
     }
 
-    public static ObjectType objectTypeOf(InstanceLocations inst, String frameNumber) {
+    public static ObjectType objectTypeOf(InstanceLocations inst, int... frames) {
         String cuid = inst.getSopClassUID();
         String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
         Attributes attrs = inst.getAttributes();
@@ -172,7 +190,6 @@ enum ObjectType {
         if (!attrs.contains(Tag.BitsAllocated) || cuid.equals(UID.RTDoseStorage))
             return Other;
 
-        boolean multiframe = frameNumber == null && attrs.getInt(Tag.NumberOfFrames, 1) > 1;
         switch (tsuid) {
             case UID.MPEG2:
             case UID.MPEG2MainProfileHighLevel:
@@ -187,35 +204,84 @@ enum ObjectType {
                 return MPEG4Video;
             case UID.ImplicitVRLittleEndian:
             case UID.ExplicitVRLittleEndian:
-                return multiframe ? UncompressedMultiFrameImage : UncompressedSingleFrameImage;
+                return multiframe(frames, attrs) ? UncompressedMultiFrameImage : UncompressedSingleFrameImage;
             default:
-                return multiframe ? CompressedMultiFrameImage : CompressedSingleFrameImage;
+                return multiframe(frames, attrs) ? CompressedMultiFrameImage : CompressedSingleFrameImage;
         }
      }
 
+    private static boolean multiframe(int[] frames, Attributes attrs) {
+        return (frames.length > 0 ? frames.length : attrs.getInt(Tag.NumberOfFrames, 1)) > 1;
+    }
+
     public MediaType getDefaultMimeType() {
-        return mimeTypes[0];
+        return defaultMimeType;
     }
 
     public Optional<MediaType> getCompatibleMimeType(MediaType other) {
+        return findCompatibleMimeType(other, defaultMimeType, MediaTypes.APPLICATION_DICOM_TYPE);
+    }
+
+    private static MediaType[] octetStreamMediaType() {
+        return new MediaType[]{MediaType.APPLICATION_OCTET_STREAM_TYPE};
+    }
+
+    private static MediaType[] renderedSingleFrameMediaTypes() {
+        return new MediaType[]{MediaTypes.IMAGE_JPEG_TYPE, MediaTypes.IMAGE_GIF_TYPE, MediaTypes.IMAGE_PNG_TYPE};
+    }
+
+    private static MediaType[] renderedMultiFrameMediaTypes() {
+        return new MediaType[]{MediaTypes.IMAGE_GIF_TYPE};
+    }
+
+    private static MediaType[] renderedSRMediaTypes() {
+        return new MediaType[]{MediaType.TEXT_HTML_TYPE, MediaType.TEXT_PLAIN_TYPE};
+    }
+
+    private static Optional<MediaType> findCompatibleSingleFrameMimeType(MediaType other) {
+        return findCompatibleMimeType(other,
+                MediaTypes.IMAGE_JPEG_TYPE,
+                MediaTypes.APPLICATION_DICOM_TYPE,
+                MediaTypes.IMAGE_GIF_TYPE,
+                MediaTypes.IMAGE_PNG_TYPE);
+    }
+
+    private static Optional<MediaType> findCompatibleMultiFrameMimeType(MediaType other) {
+        return findCompatibleMimeType(other,
+                MediaTypes.APPLICATION_DICOM_TYPE,
+                MediaTypes.IMAGE_GIF_TYPE);
+    }
+
+    private static Optional<MediaType> findCompatibleSRMimeType(MediaType other) {
+        return findCompatibleMimeType(other,
+                MediaType.TEXT_HTML_TYPE,
+                MediaType.TEXT_PLAIN_TYPE,
+                MediaTypes.APPLICATION_DICOM_TYPE);
+    }
+
+    private static Optional<MediaType> findCompatibleMimeType(MediaType other, MediaType... mimeTypes) {
         return Stream.of(mimeTypes).filter(other::isCompatible).findFirst();
     }
 
-    public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
-        return bulkdataContentTypes;
+    public MediaType[] getRenderedContentTypes() {
+        return new MediaType[]{defaultMimeType};
     }
 
-    public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
-        return null;
+    public MediaType[] getBulkdataContentTypes(InstanceLocations inst) {
+        return new MediaType[]{defaultMimeType};
+    }
+
+    public boolean isImage() {
+        return image;
     }
 
     public boolean isVideo() {
         return video;
     }
 
-    protected MediaType[] calcPixelDataContentTypes(InstanceLocations inst) {
+    private static MediaType[] calcPixelDataContentTypes(InstanceLocations inst) {
         String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
         MediaType mediaType = MediaTypes.forTransferSyntax(tsuid);
-        return new MediaType[] { mediaType, MediaType.APPLICATION_OCTET_STREAM_TYPE };
+        return new MediaType[] {mediaType, MediaType.APPLICATION_OCTET_STREAM_TYPE};
     }
 }

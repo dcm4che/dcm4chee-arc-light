@@ -45,12 +45,11 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -63,10 +62,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.DecimalMin;
@@ -78,7 +73,6 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
-import javax.xml.transform.Templates;
 import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -251,13 +245,14 @@ public class WadoURI {
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
 
-        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
+        int[] frames = frames(inst.getAttributes());
+        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frames);
         MediaType mimeType = selectMimeType(objectType).orElseThrow(() ->
             new WebApplicationException(errResponse(
                     "Supported Media Types for " + objectType + " not acceptable",
                     Response.Status.NOT_ACCEPTABLE)));
 
-        StreamingOutput entity = entityOf(ctx, inst, objectType, mimeType);
+        StreamingOutput entity = entityOf(ctx, inst, objectType, mimeType, frames);
         ar.register((CompletionCallback) throwable -> {
             ctx.getRetrieveService().updateLocations(ctx);
             ctx.setException(throwable);
@@ -279,19 +274,18 @@ public class WadoURI {
     }
 
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
-                            MediaType mimeType)
+                            MediaType mimeType, int[] frames)
             throws IOException {
         if (mimeType == MediaTypes.APPLICATION_DICOM_TYPE)
                 return new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes(objectType, inst));
 
-        int imageIndex = -1;
         switch (objectType) {
             case CompressedSingleFrameImage:
             case UncompressedSingleFrameImage:
-                imageIndex = frameNumber(inst.getAttributes()) - 1;
+                return renderImage(ctx, inst, mimeType, frames);
             case CompressedMultiFrameImage:
             case UncompressedMultiFrameImage:
-                return renderImage(ctx, inst, mimeType, imageIndex);
+                return renderImage(ctx, inst, mimeType);
             case EncapsulatedCDA:
                 return decapsulateCDA(service.openDicomInputStream(ctx, inst),
                         ctx.getArchiveAEExtension().wadoCDA2HtmlTemplateURI());
@@ -302,13 +296,13 @@ public class WadoURI {
             case MPEG4Video:
                 return decapsulateVideo(service.openDicomInputStream(ctx, inst));
             case SRDocument:
-                return renderSRDocument(ctx, inst, mimeType);
+                return new DicomXSLTOutput(ctx, inst, mimeType, wadoURL());
         }
         throw new AssertionError("objectType: " + objectType);
     }
 
     private RenderedImageOutput renderImage(RetrieveContext ctx, InstanceLocations inst,
-                                            MediaType mimeType, int imageIndex) throws IOException {
+                                            MediaType mimeType, int... frames) throws IOException {
         Attributes attrs = inst.getAttributes();
         DicomImageReadParam readParam = new DicomImageReadParam();
         if (windowCenter != null && windowWidth != null) {
@@ -322,59 +316,28 @@ public class WadoURI {
         if (presentationUID != null)
             readParam.setPresentationState(retrievePresentationState());
 
-        ImageWriter imageWriter = getImageWriter(mimeType);
-        ImageWriteParam writeParam = imageWriter.getDefaultWriteParam();
-        if (imageQuality != null) {
-            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            writeParam.setCompressionQuality(parseInt(imageQuality) / 100.f);
-        }
-        ImageReader imageReader = getDicomImageReader();
-        return new RenderedImageOutput(service.openDicomInputStream(ctx, inst),
-                imageReader, readParam, parseInt(rows), parseInt(columns), imageIndex,
-                imageWriter, writeParam);
+        return new RenderedImageOutput(ctx, inst, readParam, parseInt(rows), parseInt(columns), mimeType, imageQuality,
+                frames);
     }
 
-    private int frameNumber(Attributes attrs) {
+    private int[] frames(Attributes attrs) {
         if (frameNumber == null)
-            return 1;
+            return new int[0];
 
         int n = Integer.parseInt(frameNumber);
         if (n > attrs.getInt(Tag.NumberOfFrames, 1))
                 throw new WebApplicationException(errResponse(
                         "frameNumber=" + frameNumber + " exceeds number of frames of specified resource",
                         Response.Status.NOT_FOUND));
-        return n;
+        return new int[]{n};
     }
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private StreamingOutput renderSRDocument(RetrieveContext ctx, InstanceLocations inst, MediaType mimeType)
-            throws IOException {
-        Attributes attrs;
-        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
-            attrs = dis.readDataset(-1, -1);
-        }
-        service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
-        return new DicomXSLTOutput(
-                attrs,
-                getTemplate(ctx, mimeType),
-                transformer -> transformer.setParameter("wadoURL", request.getRequestURL().toString()));
-    }
-
-    private Templates getTemplate(RetrieveContext ctx, MediaType mimeType) {
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        String uri = StringUtils.replaceSystemProperties(
-                mimeType.isCompatible(MediaType.TEXT_HTML_TYPE)
-                    ? arcAE.wadoSR2HtmlTemplateURI()
-                    : arcAE.wadoSR2TextTemplateURI());
-        try {
-            return TemplatesCache.getDefault().get(uri);
-        } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-        }
+    private String wadoURL() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request).toString();
     }
 
     private StreamingOutput decapsulateVideo(DicomInputStream dis) throws IOException {
@@ -403,30 +366,6 @@ public class WadoURI {
         dis.readDataset(-1, Tag.EncapsulatedDocument);
         if (dis.tag() != Tag.EncapsulatedDocument)
             throw new IOException("No encapsulated document in requested object");
-    }
-
-    private static ImageReader getDicomImageReader() {
-        Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("DICOM");
-        if (!readers.hasNext()) {
-            ImageIO.scanForPlugins();
-            readers = ImageIO.getImageReadersByFormatName("DICOM");
-            if (!readers.hasNext())
-                throw new RuntimeException("DICOM Image Reader not registered");
-        }
-        return readers.next();
-    }
-
-    private static ImageWriter getImageWriter(MediaType mimeType) {
-        String formatName = formatNameOf(mimeType);
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
-        if (!writers.hasNext())
-            throw new RuntimeException(formatName + " Image Writer not registered");
-
-        return writers.next();
-    }
-
-    private static String formatNameOf(MediaType mimeType) {
-        return mimeType.getSubtype().toUpperCase();
     }
 
 
