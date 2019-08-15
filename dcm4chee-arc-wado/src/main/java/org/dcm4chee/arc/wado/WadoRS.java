@@ -547,9 +547,9 @@ public class WadoRS {
         },
         BULKDATA_PATH {
             @Override
-            protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int frame) {
+            protected MediaType[] mediaTypesFor(InstanceLocations match, RetrieveContext ctx, int[] attributePath, int frame) {
                 return isEncapsulatedDocument(attributePath)
-                        ? super.mediaTypesFor(match, attributePath, 0)
+                        ? super.mediaTypesFor(match, ctx, attributePath, 0)
                         : new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE };
             }
 
@@ -642,7 +642,7 @@ public class WadoRS {
             Iterator<InstanceLocations> iter = matches.iterator();
             while (iter.hasNext()) {
                 InstanceLocations match = iter.next();
-                MediaType[] mediaTypes = mediaTypesFor(match, attributePath, frameList == null ? 0 : 1);
+                MediaType[] mediaTypes = mediaTypesFor(match, ctx, attributePath, frameList == null ? 0 : 1);
                 if (mediaTypes == null) {
                     iter.remove();
                     continue;
@@ -660,8 +660,8 @@ public class WadoRS {
             return notAcceptable;
         }
 
-        protected MediaType[] mediaTypesFor(InstanceLocations match, int[] attributePath, int frame) {
-            return mediaTypesFor(match, ObjectType.objectTypeOf(match, frame), attributePath);
+        protected MediaType[] mediaTypesFor(InstanceLocations match, RetrieveContext ctx, int[] attributePath, int frame) {
+            return mediaTypesFor(match, ObjectType.objectTypeOf(ctx, match, frame), attributePath);
         }
 
         protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType, int[] attributePath) {
@@ -694,7 +694,7 @@ public class WadoRS {
         mkInstanceURL(bulkdataURL, inst);
         bulkdataURL.append("/rendered");
         StreamingOutput entity;
-        ObjectType objectType = ObjectType.objectTypeOf(inst, 0);
+        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, 0);
         switch (objectType) {
             case UncompressedSingleFrameImage:
             case CompressedSingleFrameImage:
