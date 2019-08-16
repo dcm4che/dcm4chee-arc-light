@@ -212,14 +212,22 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     static class ForwardCStoreRQ extends ForwardRetrieveTask {
         private final Duration pendingRSPInterval;
+        private final Event<RetrieveContext> retrieveStart;
         private final Event<RetrieveContext> retrieveEnd;
         private int rspCount;
 
         public ForwardCStoreRQ(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
-                               Association fwdas, Event<RetrieveContext> retrieveEnd) {
+                Association fwdas, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd) {
             super(ctx, pc, rqCmd, keys, fwdas);
             this.pendingRSPInterval = ctx.getArchiveAEExtension().sendPendingCMoveInterval();
+            this.retrieveStart = retrieveStart;
             this.retrieveEnd = retrieveEnd;
+        }
+
+        @Override
+        public void run() {
+            retrieveStart.fire(ctx);
+            super.run();
         }
 
         @Override

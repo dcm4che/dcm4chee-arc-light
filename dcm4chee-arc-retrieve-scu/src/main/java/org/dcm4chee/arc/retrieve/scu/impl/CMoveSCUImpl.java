@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
+import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 
@@ -73,6 +74,9 @@ public class CMoveSCUImpl implements CMoveSCU {
 
     @Inject
     private CStoreForwardSCU storeForwardSCU;
+
+    @Inject @RetrieveStart
+    private Event<RetrieveContext> retrieveStart;
 
     @Inject @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
@@ -96,7 +100,7 @@ public class CMoveSCUImpl implements CMoveSCU {
                     storeForwardSCU.removeRetrieveContext(ctx, callingAET);
                 }
             });
-            return new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd);
+            return new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveStart, retrieveEnd);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
@@ -121,7 +125,7 @@ public class CMoveSCUImpl implements CMoveSCU {
                         storeForwardSCU.removeRetrieveContext(ctx, callingAET);
                     }
                 });
-                new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd).forwardMoveRQ();
+                new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveStart, retrieveEnd).forwardMoveRQ();
             }
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
