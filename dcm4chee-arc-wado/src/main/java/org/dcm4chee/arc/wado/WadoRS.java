@@ -1155,7 +1155,7 @@ public class WadoRS {
         return sw.toString();
     }
 
-    private static final class ViewPort {
+    public static final class ViewPort {
         private final int rows;
         private final int columns;
         private final float[] region;
@@ -1195,7 +1195,7 @@ public class WadoRS {
         }
     }
 
-    private static final class Windowing {
+    public static final class Windowing {
         private final float center;
         private final float width;
         private final String voilutFunction;
