@@ -246,6 +246,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean stowExcludeAPPMarkers = false;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
+    private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
     private final Map<AttributeSet.Type,Map<String,AttributeSet>> attributeSet = new EnumMap<>(AttributeSet.Type.class);
     private final Map<String, BasicBulkDataDescriptor> bulkDataDescriptorMap = new HashMap<>();
@@ -501,6 +502,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public boolean isWadoSupportedSRClass(String cuid) {
         return wadoSupportedSRClasses.contains(cuid);
+    }
+
+    public String[] getWadoSupportedPRClasses() {
+        return wadoSupportedPRClasses.toArray(StringUtils.EMPTY_STRING);
+    }
+
+    public void setWadoSupportedPRClasses(String... wadoSupportedPRClasses) {
+        this.wadoSupportedPRClasses.clear();
+        this.wadoSupportedPRClasses.addAll(Arrays.asList(wadoSupportedPRClasses));
+    }
+
+    public boolean isWadoSupportedPRClass(String cuid) {
+        return wadoSupportedPRClasses.contains(cuid);
     }
 
     public String getWadoZIPEntryNameFormat() {
@@ -2411,6 +2425,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         wadoSupportedSRClasses.clear();
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
+        wadoSupportedPRClasses.clear();
+        wadoSupportedPRClasses.addAll(arcdev.wadoSupportedPRClasses);
         wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;

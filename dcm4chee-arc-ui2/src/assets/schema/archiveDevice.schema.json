@@ -264,6 +264,13 @@
       "items" : { "type": "string" },
       "format": "dcmSOPClass"
     },
+    "dcmWadoSupportedPRClasses": {
+      "title": "Wado Supported PR Classes",
+      "description": "Supported PR SOP classes for WADO retrieval",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmSOPClass"
+    },
     "dcmWadoSR2HtmlTemplateURI": {
       "title": "Wado SR2 Html Template URI",
       "description": "Specifies URI for the style sheet used to render structured reports to html. May be overwritten by configured values for particular Archive Network AEs.",

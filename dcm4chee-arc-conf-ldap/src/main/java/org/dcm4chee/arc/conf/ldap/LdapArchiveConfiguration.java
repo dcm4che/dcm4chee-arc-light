@@ -130,6 +130,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern", ext.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedPRClasses", ext.getWadoSupportedPRClasses());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryFetchSize", ext.getQueryFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults(), 0);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 100);
@@ -359,6 +360,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
+        ext.setWadoSupportedPRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedPRClasses")));
         ext.setQueryFetchSize(LdapUtils.intValue(attrs.get("dcmQueryFetchSize"), 100));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), 0));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
@@ -656,6 +658,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getUnzipVendorDataToURI(), bb.getUnzipVendorDataToURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedSRClasses",
                 aa.getWadoSupportedSRClasses(), bb.getWadoSupportedSRClasses());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedPRClasses",
+                aa.getWadoSupportedPRClasses(), bb.getWadoSupportedPRClasses());
         LdapUtils.storeDiff(ldapObj, mods, "dcmQueryFetchSize",
                 aa.getQueryFetchSize(), bb.getQueryFetchSize(),  100);
         LdapUtils.storeDiff(ldapObj, mods, "dcmQueryMaxNumberOfResults",

@@ -1551,6 +1551,7 @@ class ArchiveDeviceFactory {
         ext.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
         ext.setDiffTaskProgressUpdateInterval(DIFF_TASK_UPDATE_INTERVAL);
         ext.setWadoSupportedSRClasses(SR_CUIDS);
+        ext.setWadoSupportedPRClasses(UID.GrayscaleSoftcopyPresentationStateStorage);
         ext.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
         ext.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);
         ext.setWadoCDA2HtmlTemplateURI(CDA2HTML_XSL);

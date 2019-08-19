@@ -209,6 +209,7 @@ dcmHideSPSWithStatusFromMWL: DEPARTED
 dcmHideSPSWithStatusFromMWL: CANCELLED
 dcmHideSPSWithStatusFromMWL: DISCONTINUED
 dcmHideSPSWithStatusFromMWL: COMPLETED
+dcmWadoSupportedPRClasses: 1.2.840.10008.5.1.4.1.1.11.1
 dcmAuditAggregateDuration: PT1M
 
 dn: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

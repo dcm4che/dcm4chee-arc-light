@@ -87,8 +87,9 @@ import java.io.StringWriter;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -183,10 +184,7 @@ public class WadoRS {
     public void retrieveStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        Output output = dicomOrBulkdataOrZIP();
-        retrieve("retrieveStudy", studyUID, null, null, null, null, null, ar, output);
+        retrieve(Target.Study, studyUID, null, null, null, null, null, ar);
     }
 
     @GET
@@ -195,10 +193,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        Output output = metadataJSONorXML();
-        retrieve("retrieveStudyMetadata", studyUID, null, null, null, null, includefields, ar, output);
+        retrieve(Target.StudyMetadata, studyUID, null, null, null, null, includefields, ar);
     }
 
     @GET
@@ -207,10 +202,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        Output output = dicomOrBulkdataOrZIP();
-        retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, null, ar, output);
+        retrieve(Target.Series, studyUID, seriesUID, null, null, null, null, ar);
     }
 
     @GET
@@ -220,10 +212,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        Output output = metadataJSONorXML();
-        retrieve("retrieveSeriesMetadata", studyUID, seriesUID, null, null, null, includefields, ar, output);
+        retrieve(Target.SeriesMetadata, studyUID, seriesUID, null, null, null, includefields, ar);
     }
 
     @GET
@@ -233,10 +222,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        Output output = dicomOrBulkdataOrZIP();
-        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, null, ar, output);
+        retrieve(Target.Instance, studyUID, seriesUID, objectUID, null, null, null, ar);
     }
 
     @GET
@@ -246,10 +232,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        Output output = metadataJSONorXML();
-        retrieve("retrieveInstanceMetadata", studyUID, seriesUID, objectUID, null, null, null, ar, output);
+        retrieve(Target.InstanceMetadata, studyUID, seriesUID, objectUID, null, null, null, ar);
     }
 
     @GET
@@ -260,11 +243,8 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @PathParam("attributePath") @ValidValueOf(type = AttributePath.class) String attributePath,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        checkMultipartRelatedAcceptable();
-        retrieve("retrieveBulkdata", studyUID, seriesUID, objectUID,
-                null, new AttributePath(attributePath).path, null, ar, Output.BULKDATA_PATH);
+        retrieve(Target.Bulkdata, studyUID, seriesUID, objectUID,
+                null, new AttributePath(attributePath).path, null, ar);
     }
 
     @GET
@@ -275,11 +255,8 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        checkMultipartRelatedAcceptable();
-        retrieve("retrieveFrames", studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, null, ar, Output.BULKDATA_FRAME);
+        retrieve(Target.Frame, studyUID, seriesUID, objectUID,
+                new FrameList(frameList).frames, null, null, ar);
     }
 
     @GET
@@ -287,11 +264,8 @@ public class WadoRS {
     public void retrieveRenderedStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        checkMultipartRelatedAcceptable();
-        retrieve("retrieveRenderedStudy", studyUID, null, null,
-                null, null, null, ar, Output.RENDER);
+        retrieve(Target.RenderedStudy, studyUID, null, null,
+                null, null, null, ar);
     }
 
     @GET
@@ -300,11 +274,8 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        checkMultipartRelatedAcceptable();
-        retrieve("retrieveRenderedSeries", studyUID, seriesUID, null,
-                null, null, null, ar, Output.RENDER);
+        retrieve(Target.RenderedSeries, studyUID, seriesUID, null,
+                null, null, null, ar);
     }
 
     @GET
@@ -314,11 +285,8 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
-        checkMultipartRelatedAcceptable();
-        retrieve("retrieveRenderedInstance", studyUID, seriesUID, objectUID,
-                null, null, null, ar, Output.RENDER);
+        retrieve(Target.RenderedInstance, studyUID, seriesUID, objectUID,
+                null, null, null, ar);
     }
 
     @GET
@@ -329,11 +297,53 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
-        logRequest();
-        checkAET();
+        retrieve(Target.RenderedFrame, studyUID, seriesUID, objectUID,
+                new FrameList(frameList).frames, null, null, ar);
+    }
+
+    Output bulkdataPath() {
         checkMultipartRelatedAcceptable();
-        retrieve("retrieveRenderedFrames", studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, null, ar, Output.RENDER_FRAME);
+        return Output.BULKDATA_PATH;
+    }
+
+    Output bulkdataFrame() {
+        checkMultipartRelatedAcceptable();
+        return Output.BULKDATA_FRAME;
+    }
+
+    Output render() {
+        checkMultipartRelatedAcceptable();
+        return Output.RENDER;
+    }
+
+    Output renderFrame() {
+        checkMultipartRelatedAcceptable();
+        return Output.RENDER_FRAME;
+    }
+
+    private enum Target {
+        Study(WadoRS::dicomOrBulkdataOrZIP),
+        Series(WadoRS::dicomOrBulkdataOrZIP),
+        Instance(WadoRS::dicomOrBulkdataOrZIP),
+        Frame(WadoRS::bulkdataFrame),
+        Bulkdata(WadoRS::bulkdataPath),
+        StudyMetadata(WadoRS::metadataJSONorXML),
+        SeriesMetadata(WadoRS::metadataJSONorXML),
+        InstanceMetadata(WadoRS::metadataJSONorXML),
+        RenderedStudy(WadoRS::render),
+        RenderedSeries(WadoRS::render),
+        RenderedInstance(WadoRS::render),
+        RenderedFrame(WadoRS::renderFrame);
+
+        final Function<WadoRS,Output> output;
+
+        Target(Function<WadoRS, Output> output) {
+            this.output = output;
+        }
+
+        Output output(WadoRS wadoRS) {
+            return output.apply(wadoRS);
+        }
     }
 
     private void logRequest() {
@@ -404,22 +414,28 @@ public class WadoRS {
                 .findFirst();
     }
 
-    private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
-                          int[] attributePath, String includefields, AsyncResponse ar, Output output) {
+    private void retrieve(Target target, String studyUID, String seriesUID, String objectUID, int[] frameList,
+            int[] attributePath, String includefields, AsyncResponse ar) {
+        logRequest();
+        checkAET();
+        Output output = target.output(this);
         try {
             // @Inject does not work:
             // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
             // s. https://issues.jboss.org/browse/RESTEASY-903
             HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
-            final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
+            final RetrieveContext ctx = service.newRetrieveContextWADO(
+                    HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata()) {
                 ctx.setObjectType(null);
                 ctx.setMetadataFilter(getMetadataFilter(includefields));
             }
 
-            if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
-                    && request.getHeader(HttpHeaders.IF_MATCH) == null && request.getHeader(HttpHeaders.IF_NONE_MATCH) == null) {
-                buildResponse(method, frameList, attributePath, ar, output, ctx, null);
+            if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null
+                    && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
+                    && request.getHeader(HttpHeaders.IF_MATCH) == null
+                    && request.getHeader(HttpHeaders.IF_NONE_MATCH) == null) {
+                buildResponse(target, frameList, attributePath, ar, output, ctx, null);
                 return;
             }
 
@@ -430,7 +446,7 @@ public class WadoRS {
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
             if (respBuilder == null)
-                buildResponse(method, frameList, attributePath, ar, output, ctx, lastModified);
+                buildResponse(target, frameList, attributePath, ar, output, ctx, lastModified);
             else
                 ar.resume(respBuilder.build());
         } catch (Exception e) {
@@ -449,14 +465,20 @@ public class WadoRS {
         return filter;
     }
 
-    private void buildResponse(String method, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
-                               final RetrieveContext ctx, Date lastModified) throws IOException {
+    private void buildResponse(Target target, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
+            final RetrieveContext ctx, Date lastModified) throws IOException {
         service.calculateMatches(ctx);
-        LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
+        LOG.info("retrieve{}: {} Matches", target, ctx.getNumberOfMatches());
         if (ctx.getNumberOfMatches() == 0)
             throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
 //            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
-        Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx, frameList, attributePath);
+        Attributes presentationState = null;
+        if (target == Target.RenderedInstance && matchPresentionState(ctx)) {
+            presentationState = retrievePresentionState(ctx);
+            output = Output.RENDER_FRAME;
+        }
+        Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(
+                this, ctx, frameList, attributePath);
         if (ctx.getMatches().isEmpty()) {
             Response errResp = notAccepted.isEmpty()
                     ? errResponse("No matches found.", Response.Status.NOT_FOUND)
@@ -479,9 +501,40 @@ public class WadoRS {
                 retrieveEnd.fire(ctx);
         });
         responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
-        Object entity = output.entity(this, ctx, frameList, attributePath);
+        Object entity = output.entity(this, ctx, frameList, attributePath, presentationState);
         ar.resume(output.adjustType(Response.status(responseStatus).lastModified(lastModified)
                 .tag(String.valueOf(lastModified.hashCode())).entity(entity)).build());
+    }
+
+    private static boolean matchPresentionState(RetrieveContext ctx) {
+        InstanceLocations inst = ctx.getMatches().iterator().next();
+        ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
+        return arcDev.isWadoSupportedPRClass(inst.getSopClassUID());
+    }
+
+    private Attributes retrievePresentionState(RetrieveContext ctx) throws IOException {
+        InstanceLocations inst = ctx.getMatches().iterator().next();
+        if (ctx.copyToRetrieveCache(inst)) {
+            ctx.copyToRetrieveCache(null);
+            inst = ctx.copiedToRetrieveCache();
+        }
+        Attributes attrs;
+        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
+            attrs = dis.readDataset(-1, -1);
+            service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
+        }
+        Collection<InstanceLocations> matches = new ArrayList<>();
+        for (Attributes series : attrs.getSequence(Tag.ReferencedSeriesSequence)) {
+            ctx.setSeriesInstanceUIDs(series.getString(Tag.SeriesInstanceUID));
+            ctx.setSopInstanceUIDs(series.getSequence(Tag.ReferencedImageSequence)
+                    .stream().map(item -> item.getString(Tag.ReferencedSOPInstanceUID)).toArray(String[]::new));
+            service.calculateMatches(ctx);
+            matches.addAll(ctx.getMatches());
+        }
+        ctx.getMatches().clear();
+        ctx.getMatches().addAll(matches);
+        ctx.setNumberOfMatches(matches.size());
+        return attrs;
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
@@ -505,7 +558,7 @@ public class WadoRS {
             }
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                    InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) {
                 wadoRS.writeDICOM(output, ctx, inst);
             }
         },
@@ -516,7 +569,8 @@ public class WadoRS {
                 return Collections.EMPTY_LIST;
             }
             @Override
-            public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+            public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath,
+                    Attributes presentationState) {
                 return wadoRS.writeZIP(ctx);
             }
 
@@ -529,7 +583,7 @@ public class WadoRS {
         BULKDATA {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                    InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) {
                 wadoRS.writeBulkdata(output, ctx, inst);
             }
         },
@@ -541,7 +595,7 @@ public class WadoRS {
 
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
+                    InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) throws IOException {
                 wadoRS.writeFrames(output, ctx, inst, frameList);
             }
         },
@@ -555,7 +609,7 @@ public class WadoRS {
 
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                    InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) {
                 wadoRS.writeBulkdata(output, ctx, inst, attributePath);
             }
         },
@@ -567,7 +621,7 @@ public class WadoRS {
 
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                    InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) {
                 wadoRS.writeRenderedInstance(output, ctx, inst);
             }
         },
@@ -579,8 +633,8 @@ public class WadoRS {
 
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
-                wadoRS.writeRenderedFrames(output, ctx, inst, frameList);
+                    InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) {
+                wadoRS.writeRenderedFrames(output, ctx, inst, frameList, presentationState);
             }
         },
         METADATA_XML {
@@ -590,7 +644,7 @@ public class WadoRS {
             }
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                    InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) {
                 wadoRS.writeMetadataXML(output, ctx, inst);
             }
             @Override
@@ -604,7 +658,7 @@ public class WadoRS {
                 return Collections.EMPTY_LIST;
             }
             @Override
-            public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+            public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath, Attributes presentationState) {
                 return wadoRS.writeMetadataJSON(ctx);
             }
             @Override
@@ -619,17 +673,17 @@ public class WadoRS {
             }
         };
 
-        public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath)
+        public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath, Attributes presentationState)
                 throws IOException {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
                 if (!ctx.copyToRetrieveCache(inst))
-                    addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+                    addPart(output, wadoRS, ctx, inst, frameList, attributePath, presentationState);
             }
             ctx.copyToRetrieveCache(null);
             InstanceLocations inst;
             while ((inst = ctx.copiedToRetrieveCache()) != null) {
-                addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+                addPart(output, wadoRS, ctx, inst, frameList, attributePath, presentationState);
             }
             return output;
         }
@@ -669,7 +723,7 @@ public class WadoRS {
         }
 
         protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                               InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
+                InstanceLocations inst, int[] frameList, int[] attributePath, Attributes presentationState) throws IOException {
              throw new WebApplicationException(errResponse(
                      name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE));
         }
@@ -698,11 +752,11 @@ public class WadoRS {
         switch (objectType) {
             case UncompressedSingleFrameImage:
             case CompressedSingleFrameImage:
-                entity = renderImage(ctx, inst, mediaType, 1);
+                entity = renderImage(ctx, inst, mediaType, 1, null);
                 break;
             case UncompressedMultiFrameImage:
             case CompressedMultiFrameImage:
-                entity = renderImage(ctx, inst, mediaType, 0);
+                entity = renderImage(ctx, inst, mediaType, 0, null);
                 break;
             case MPEG2Video:
             case MPEG4Video:
@@ -727,14 +781,17 @@ public class WadoRS {
         return sb.append("/wado").toString();
     }
 
-    private void writeRenderedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst, int[] frameList) {
+    private void writeRenderedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+            int[] frameList, Attributes presentationState) {
         int numFrames = inst.getAttributes().getInt(Tag.NumberOfFrames, 1);
-        frameList = adjustFrameList(frameList, numFrames);
+        frameList = frameList != null
+            ? adjustFrameList(frameList, numFrames)
+            : IntStream.rangeClosed(1, numFrames).toArray();
         MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
         StringBuffer bulkdataURL = request.getRequestURL();
         int length = bulkdataURL.lastIndexOf("/frames/") + 8;
         for (int frame : frameList) {
-            OutputPart outputPart = output.addPart(renderImage(ctx, inst, mediaType, frame), mediaType);
+            OutputPart outputPart = output.addPart(renderImage(ctx, inst, mediaType, frame, presentationState), mediaType);
             bulkdataURL.setLength(length);
             bulkdataURL.append(frame);
             bulkdataURL.append("/rendered");
@@ -1117,8 +1174,8 @@ public class WadoRS {
                 default:
                     throw new IllegalArgumentException(s);
             }
-            rows = Integer.parseUnsignedInt(ss[0]);
-            columns = Integer.parseUnsignedInt(ss[1]);
+            columns = Integer.parseUnsignedInt(ss[0]);
+            rows = Integer.parseUnsignedInt(ss[1]);
         }
 
         public Rectangle getSourceRegion(int rows, int columns) {
@@ -1126,14 +1183,14 @@ public class WadoRS {
                 return null;
 
             Rectangle result = new Rectangle();
-            result.x = (int) Math.abs(region[1]);
-            result.y = (int) Math.abs(region[0]);
-            result.width = Float.isNaN(region[3])
+            result.x = (int) Math.abs(region[0]);
+            result.y = (int) Math.abs(region[1]);
+            result.width = Float.isNaN(region[2])
                     ? columns - result.x
-                    : (int) Math.abs(region[3]);
-            result.height = Float.isNaN(region[2])
-                    ? rows - result.y
                     : (int) Math.abs(region[2]);
+            result.height = Float.isNaN(region[3])
+                    ? rows - result.y
+                    : (int) Math.abs(region[3]);
             return result;
         }
     }
@@ -1171,9 +1228,10 @@ public class WadoRS {
     }
 
     private RenderedImageOutput renderImage(RetrieveContext ctx, InstanceLocations inst,
-            MediaType mimeType, int frame) {
+            MediaType mimeType, int frame, Attributes presentationState) {
         Attributes attrs = inst.getAttributes();
         DicomImageReadParam readParam = new DicomImageReadParam();
+        readParam.setPresentationState(presentationState);
         if (windowing != null) {
             Windowing w = new Windowing(this.windowing);
             readParam.setWindowCenter(w.center);

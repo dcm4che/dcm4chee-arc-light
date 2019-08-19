@@ -2159,6 +2159,232 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{study}/rendered": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Rendered Study",
+        "operationId": "RetrieveRenderedStudy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveRenderedAccept"
+          },
+          {
+            "$ref": "#/components/parameters/charset"
+          },
+          {
+            "$ref": "#/components/parameters/annotation"
+          },
+          {
+            "$ref": "#/components/parameters/quality"
+          },
+          {
+            "$ref": "#/components/parameters/viewport"
+          },
+          {
+            "$ref": "#/components/parameters/window"
+          },
+          {
+            "$ref": "#/components/parameters/iccprofile"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedRenderedInstances"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/rendered": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Rendered Series",
+        "operationId": "RetrieveRenderedSeries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveRenderedAccept"
+          },
+          {
+            "$ref": "#/components/parameters/charset"
+          },
+          {
+            "$ref": "#/components/parameters/annotation"
+          },
+          {
+            "$ref": "#/components/parameters/quality"
+          },
+          {
+            "$ref": "#/components/parameters/viewport"
+          },
+          {
+            "$ref": "#/components/parameters/window"
+          },
+          {
+            "$ref": "#/components/parameters/iccprofile"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedRenderedInstances"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/rendered": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Rendered Instance",
+        "operationId": "RetrieveRenderedInstance",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveRenderedAccept"
+          },
+          {
+            "$ref": "#/components/parameters/charset"
+          },
+          {
+            "$ref": "#/components/parameters/annotation"
+          },
+          {
+            "$ref": "#/components/parameters/quality"
+          },
+          {
+            "$ref": "#/components/parameters/viewport"
+          },
+          {
+            "$ref": "#/components/parameters/window"
+          },
+          {
+            "$ref": "#/components/parameters/iccprofile"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedRenderedInstances"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/frames/{frames}/rendered": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Rendered Frames",
+        "operationId": "RetrieveRenderedFrames",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/framesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveRenderedFramesAccept"
+          },
+          {
+            "$ref": "#/components/parameters/charset"
+          },
+          {
+            "$ref": "#/components/parameters/annotation"
+          },
+          {
+            "$ref": "#/components/parameters/quality"
+          },
+          {
+            "$ref": "#/components/parameters/viewport"
+          },
+          {
+            "$ref": "#/components/parameters/window"
+          },
+          {
+            "$ref": "#/components/parameters/iccprofile"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedRenderedFrames"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
     "/aets/{aet}/wado": {
       "get": {
         "tags": [
@@ -13045,6 +13271,22 @@
           "$ref": "#/components/schemas/wadoRetrieveMetadataAccept"
         }
       },
+      "wadoRetrieveRenderedAccept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field for WADO-RS Retrieve Rendered Services",
+        "schema": {
+          "$ref": "#/components/schemas/wadoRetrieveRenderedAccept"
+        }
+      },
+      "wadoRetrieveRenderedFramesAccept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field for WADO-RS Retrieve Rendered Frames Services",
+        "schema": {
+          "$ref": "#/components/schemas/wadoRetrieveRenderedFramesAccept"
+        }
+      },
       "contentType": {
         "name": "contentType",
         "in": "query",
@@ -13109,7 +13351,7 @@
       "region": {
         "name": "region",
         "in": "query",
-        "description": "Region of the Image (not implemented)",
+        "description": "Region of the Image",
         "schema": {
           "type": "string"
         }
@@ -13164,6 +13406,47 @@
         "description": "Unique Identifier of the Series Containing The Presentation Object",
         "schema": {
           "type": "string"
+        }
+      },
+      "quality": {
+        "name": "quality",
+        "in": "query",
+        "description": "Image Quality",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "viewport": {
+        "name": "viewport",
+        "in": "query",
+        "description": "Viewport Scaling of Image in format <vw>,<vh>[,[<sx>],[<sy>],[<sw>],[<sh>]]",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "window": {
+        "name": "window",
+        "in": "query",
+        "description": "Windowing of Images in format <center>,<width>,<function> with <function> = linear, linear-exact or sigmoid",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "iccprofile": {
+        "name": "iccprofile",
+        "in": "query",
+        "description": "ICC Profile (not implemented)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no",
+            "yes",
+            "srgb",
+            "adobergb",
+            "rommrgb"
+          ]
         }
       },
       "attributeMatch": {
@@ -14444,16 +14727,86 @@
           }
         }
       },
-      "retrievedInstance": {
-        "description": "Instance successfully retrieved.",
+      "retrievedRenderedInstances": {
+        "description": "Rendered Instances successfully retrieved.",
         "content": {
-          "application/dicom": {
+          "multipart/related;type=application/pdf": {
             "schema": {
               "type": "string",
               "format": "binary"
             }
           },
-          "multipart/related;type=application/octet-stream": {
+          "multipart/related;type=image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/gif": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=text/html": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=text/plain": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=video/mpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=video/mp4": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "retrievedRenderedFrames": {
+        "description": "Rendered Frames successfully retrieved.",
+        "content": {
+          "multipart/related;type=image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "multipart/related;type=image/gif": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "retrievedInstance": {
+        "description": "Instance successfully retrieved.",
+        "content": {
+          "application/dicom": {
             "schema": {
               "type": "string",
               "format": "binary"
@@ -15034,6 +15387,27 @@
         "enum": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json"
+        ]
+      },
+      "wadoRetrieveRenderedAccept": {
+        "type": "string",
+        "enum": [
+          "multipart/related;type=application/pdf",
+          "multipart/related;type=image/jpeg",
+          "multipart/related;type=image/gif",
+          "multipart/related;type=image/png",
+          "multipart/related;type=text/html",
+          "multipart/related;type=text/plain",
+          "multipart/related;type=video/mpeg",
+          "multipart/related;type=video/mp4"
+        ]
+      },
+      "wadoRetrieveRenderedFramesAccept": {
+        "type": "string",
+        "enum": [
+          "multipart/related;type=image/jpeg",
+          "multipart/related;type=image/gif",
+          "multipart/related;type=image/png"
         ]
       },
       "orderByTime": {

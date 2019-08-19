@@ -104,6 +104,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
         writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval(), null);
         writer.writeNotEmpty("dcmWadoSupportedSRClasses", arcDev.getWadoSupportedSRClasses());
+        writer.writeNotEmpty("dcmWadoSupportedPRClasses", arcDev.getWadoSupportedPRClasses());
         writer.writeNotNullOrDef("dcmWadoZIPEntryNameFormat",
                 arcDev.getWadoZIPEntryNameFormat(), ArchiveDeviceExtension.DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT);
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI(), null);
@@ -960,6 +961,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSupportedSRClasses":
                     arcDev.setWadoSupportedSRClasses(reader.stringArray());
+                    break;
+                case "dcmWadoSupportedPRClasses":
+                    arcDev.setWadoSupportedPRClasses(reader.stringArray());
                     break;
                 case "dcmWadoZIPEntryNameFormat":
                     arcDev.setWadoZIPEntryNameFormat(reader.stringValue());
