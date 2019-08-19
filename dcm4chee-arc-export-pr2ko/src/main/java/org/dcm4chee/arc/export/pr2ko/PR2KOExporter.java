@@ -43,6 +43,7 @@ package org.dcm4chee.arc.export.pr2ko;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -68,25 +69,31 @@ import java.util.List;
  */
 public class PR2KOExporter extends AbstractExporter {
     private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
+    private static final String DOC_TITLE = "(PR2KO, DCM4CHEE, \"Referenced by Presentation State\")";
+    private static final String LANGUAGE = "(en, RFC5646, \"English\")";
 
     private final RetrieveService retrieveService;
     private final StoreService storeService;
     private final Attributes propsAttrs = new Attributes();
 
-    private static final int[] PATIENT_AND_STUDY_ATTRS = {
+    private static final int[] TYPE2_ATTRS = {
             Tag.SpecificCharacterSet,
-            Tag.StudyDate,
-            Tag.StudyTime,
-            Tag.AccessionNumber,
-            Tag.IssuerOfAccessionNumberSequence,
-            Tag.ReferringPhysicianName,
             Tag.PatientName,
             Tag.PatientID,
-            Tag.IssuerOfPatientID,
             Tag.PatientBirthDate,
             Tag.PatientSex,
-            Tag.StudyInstanceUID,
-            Tag.StudyID
+            Tag.StudyDate,
+            Tag.StudyTime,
+            Tag.ReferringPhysicianName,
+            Tag.StudyID,
+            Tag.AccessionNumber,
+            Tag.ReferencedPerformedProcedureStepSequence,
+            Tag.Manufacturer
+    };
+
+    private int[] IUID_TAGS = {
+        Tag.SeriesInstanceUID,
+        Tag.SOPInstanceUID
     };
 
     public PR2KOExporter(ExporterDescriptor descriptor, RetrieveService retrieveService, StoreService storeService) {
@@ -142,23 +149,73 @@ public class PR2KOExporter extends AbstractExporter {
     }
 
     private void createKO(Attributes inst) {
-        Attributes attrs = new Attributes(inst, PATIENT_AND_STUDY_ATTRS);
+        Attributes attrs = new Attributes(inst, TYPE2_ATTRS);
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
-        attrs.setString(
-                Tag.SOPInstanceUID,
-                VR.UI,
-                UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
         attrs.setDate(Tag.ContentDateAndTime, new Date());
+        setUIDs(attrs, inst);
         attrs.setString(Tag.Modality, VR.CS, "KO");
-        attrs.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
-        attrs.setString(
-                Tag.SeriesInstanceUID,
-                VR.UI,
-                UIDUtils.createNameBasedUID(attrs.getString(Tag.SeriesInstanceUID).getBytes()));
-        attrs.setString(Tag.SeriesNumber, VR.IS, propsAttrs.getString(Tag.SeriesNumber, attrs.getString(Tag.SeriesNumber)));
-        //attrs.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
         attrs.setString(Tag.ValueType, VR.CS, "CONTAINER");
         attrs.setString(Tag.ContinuityOfContent, VR.CS, "SEPARATE");
+        attrs.addAll(propsAttrs);
+        setAttribute(attrs, Tag.SeriesDescription, KeyObjectProperty.SeriesDescription, inst);
+        setAttribute(attrs, Tag.SeriesNumber, KeyObjectProperty.SeriesNumber, inst);
+        setAttribute(attrs, Tag.InstanceNumber, KeyObjectProperty.InstanceNumber, inst);
+        attrs.newSequence(Tag.ConceptNameCodeSequence, 1)
+                .add(toCodeItem(descriptor.getProperties().getOrDefault("DocumentTitle", DOC_TITLE)));
+        attrs.newSequence(Tag.ContentTemplateSequence, 1).add(templateIdentifier());
+        attrs.newSequence(Tag.ContentSequence, 1).add(keyObjectDescription(inst));
+        attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1);    //TODO
+    }
+
+    private Attributes templateIdentifier() {
+        Attributes attrs = new Attributes(2);
+        attrs.setString(Tag.MappingResource, VR.CS, "DCMR");
+        attrs.setString(Tag.TemplateIdentifier, VR.CS, "2010");
+        return attrs ;
+    }
+
+    private void setUIDs(Attributes attrs, Attributes inst) {
+        for (int tag : IUID_TAGS)
+            attrs.setString(tag, VR.UI, UIDUtils.createNameBasedUID(inst.getString(tag).getBytes()));
+        attrs.setString(Tag.StudyInstanceUID, VR.UI, inst.getString(Tag.StudyInstanceUID));
+    }
+
+    private Attributes keyObjectDescription(Attributes inst) {
+        Attributes item = new Attributes(4);
+        item.setString(Tag.RelationshipType, VR.CS, "CONTAINS");
+        item.setString(Tag.ValueType, VR.CS, "TEXT");
+        item.newSequence(Tag.ConceptNameCodeSequence, 1).add(toCodeItem("DCM-113012"));
+        setAttribute(item, Tag.TextValue, KeyObjectProperty.KeyObjectDescription, inst);
+        return item;
+    }
+
+    private Attributes toCodeItem(String codeValue) {
+//        if (codes == null)
+//            throw new IllegalStateException("codes not initialized");
+//        String codeMeaning = codes.getProperty(codeValue);
+//        if (codeMeaning == null)
+//            throw new IllegalArgumentException("undefined code value: "
+//                    + codeValue);
+        int endDesignator = codeValue.indexOf('-');
+        Attributes attrs = new Attributes(3);
+        attrs.setString(Tag.CodeValue, VR.SH,
+                endDesignator >= 0
+                        ? codeValue.substring(endDesignator + 1)
+                        : codeValue);
+        attrs.setString(Tag.CodingSchemeDesignator, VR.SH,
+                endDesignator >= 0
+                        ? codeValue.substring(0, endDesignator)
+                        : "DCM");
+        attrs.setString(Tag.CodeMeaning, VR.LO, "");    //TODO
+        return attrs;
+    }
+    
+    private void setAttribute(Attributes attrs, int tag, KeyObjectProperty koProperty, Attributes inst) {
+        String propsAttr = propsAttrs.getString(tag);
+        attrs.setString(
+                tag,
+                koProperty.getVr(),
+                new AttributesFormat(propsAttr != null ? propsAttr : koProperty.getDefVal()).format(inst));
     }
 
     private boolean isPresentationState(InstanceLocations inst) {
@@ -172,6 +229,29 @@ public class PR2KOExporter extends AbstractExporter {
 
     private static String noKeyObjectCreated(ExportContext ctx) {
         return appendEntity(ctx, new StringBuilder("No Key Object created for ")).toString();
+    }
+
+    private enum KeyObjectProperty {
+        KeyObjectDescription("{00700080} - {00700081}", VR.UT),
+        SeriesDescription("{0008103E}", VR.LO),
+        SeriesNumber("{00200011,offset,100}", VR.IS),
+        InstanceNumber("{00200013,offset,100}", VR.IS);
+
+        private String defVal;
+        private VR vr;
+
+        KeyObjectProperty(String defVal, VR vr) {
+            this.defVal = defVal;
+            this.vr = vr;
+        }
+
+        String getDefVal() {
+            return defVal;
+        }
+
+        VR getVr() {
+            return vr;
+        }
     }
 
     private static StringBuilder appendEntity(ExportContext exportContext, StringBuilder sb) {

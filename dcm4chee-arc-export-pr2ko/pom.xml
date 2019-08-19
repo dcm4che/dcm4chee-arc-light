@@ -46,7 +46,7 @@
     <parent>
         <artifactId>dcm4chee-arc-parent</artifactId>
         <groupId>org.dcm4che.dcm4chee-arc</groupId>
-        <version>5.18.0</version>
+        <version>5.18.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -55,38 +55,38 @@
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-conf</artifactId>
-            <version>5.18.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-export</artifactId>
-            <version>5.18.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-qmgt</artifactId>
-            <version>5.18.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-store</artifactId>
-            <version>5.18.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-retrieve</artifactId>
-            <version>5.18.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-entity</artifactId>
-            <version>5.18.0</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
