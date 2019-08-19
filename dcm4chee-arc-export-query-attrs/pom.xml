@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.dcm4che.dcm4chee-arc</groupId>
         <artifactId>dcm4chee-arc-parent</artifactId>
-        <version>5.18.0</version>
+        <version>5.18.1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

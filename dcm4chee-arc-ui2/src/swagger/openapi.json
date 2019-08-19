@@ -13421,7 +13421,7 @@
       "viewport": {
         "name": "viewport",
         "in": "query",
-        "description": "Viewport Scaling of Image in format <vw>,<vh>[,[<sx>],[<sy>],[<sw>],[<sh>]]",
+        "description": "Viewport Scaling of Image in format vw','vh[','[sx]','[sy]','[sw]','[sh]]",
         "schema": {
           "type": "string"
         }
@@ -13429,7 +13429,7 @@
       "window": {
         "name": "window",
         "in": "query",
-        "description": "Windowing of Images in format <center>,<width>,<function> with <function> = linear, linear-exact or sigmoid",
+        "description": "Windowing of Images in format center','width','function with function = 'linear', 'linear-exact' or 'sigmoid'",
         "schema": {
           "type": "string"
         }
