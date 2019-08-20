@@ -59,7 +59,6 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -70,6 +69,7 @@ import java.util.List;
 public class PR2KOExporter extends AbstractExporter {
     private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
     private static final String DOC_TITLE = "(PR2KO, DCM4CHEE, \"Referenced by Presentation State\")";
+    private static final String KO_DESC = "(113012, DCM, \"Key Object Description\")";
     private static final String LANGUAGE = "(en, RFC5646, \"English\")";
 
     private final RetrieveService retrieveService;
@@ -123,32 +123,25 @@ public class PR2KOExporter extends AbstractExporter {
                 return new Outcome(QueueMessage.Status.WARNING, noMatches(ctx));
 
             retrieveContext.getMatches().stream()
-                    .filter(this::isPresentationState)
-                    .forEach(instanceLocation -> pr2ko(retrieveContext, instanceLocation, results));
+                    .filter(instLoc -> isPresentationState(instLoc, descriptor.getExportURI().getSchemeSpecificPart().split(":")))
+                    .forEach(instanceLocation -> pr2ko(instanceLocation, results));
         }
         if (results.isEmpty())
             return new Outcome(QueueMessage.Status.COMPLETED, noKeyObjectCreated(ctx));
 
-        int totInstanceRefs = 0;
-        int instanceRefs;
         try (StoreSession session = storeService.newStoreSession(
                 ctx.getHttpServletRequestInfo(), ae, descriptor.getProperty("SourceAET", null))) {
             for (Attributes ko : results) {
-
-
                 StoreContext storeCtx = storeService.newStoreContext(session);
                 storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
                 storeService.store(storeCtx, ko);
             }
         }
-        return new Outcome(QueueMessage.Status.COMPLETED, toMessage(ctx, results.size(), totInstanceRefs));
+        return new Outcome(QueueMessage.Status.COMPLETED, toMessage(ctx, results.size()));
     }
 
-    private void pr2ko(RetrieveContext ctx, InstanceLocations inst, List<Attributes> results) {
-
-    }
-
-    private void createKO(Attributes inst) {
+    private void pr2ko(InstanceLocations instanceLocation, List<Attributes> results) {
+        Attributes inst = instanceLocation.getAttributes();
         Attributes attrs = new Attributes(inst, TYPE2_ATTRS);
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
         attrs.setDate(Tag.ContentDateAndTime, new Date());
@@ -161,10 +154,57 @@ public class PR2KOExporter extends AbstractExporter {
         setAttribute(attrs, Tag.SeriesNumber, KeyObjectProperty.SeriesNumber, inst);
         setAttribute(attrs, Tag.InstanceNumber, KeyObjectProperty.InstanceNumber, inst);
         attrs.newSequence(Tag.ConceptNameCodeSequence, 1)
-                .add(toCodeItem(descriptor.getProperties().getOrDefault("DocumentTitle", DOC_TITLE)));
+                .add(new Code(descriptor.getProperties().getOrDefault("DocumentTitle", DOC_TITLE)).toItem());
         attrs.newSequence(Tag.ContentTemplateSequence, 1).add(templateIdentifier());
-        attrs.newSequence(Tag.ContentSequence, 1).add(keyObjectDescription(inst));
-        attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1);    //TODO
+        addContentSeq(attrs, inst);
+        addCurrentRequestedProcedureEvidenceSeq(attrs, inst);
+        results.add(attrs);
+    }
+
+    private void addCurrentRequestedProcedureEvidenceSeq(Attributes attrs, Attributes inst) {
+        String studyIUID = inst.getString(Tag.StudyInstanceUID);
+        String seriesIUID = inst.getString(Tag.SeriesInstanceUID);
+        String iuid = inst.getString(Tag.SOPInstanceUID);
+        String cuid = inst.getString(Tag.SOPClassUID);
+        Sequence evidenceSeq = attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 2);
+        refSOPSeq(refSeriesSeq(studyIUID, evidenceSeq), seriesIUID).add(refSOP(cuid, iuid));
+        addPresentationStateRefSerSeq(inst, evidenceSeq);
+    }
+
+    private void addPresentationStateRefSerSeq(Attributes inst, Sequence evidenceSeq) {
+        Sequence presentationStateRefSerSeq = inst.getSequence(Tag.ReferencedSeriesSequence);
+        Sequence refSeriesSeq = refSeriesSeq(inst.getString(Tag.StudyInstanceUID), evidenceSeq);
+        presentationStateRefSerSeq.forEach(presentationStateRefSer -> {
+            String seriesIUID = presentationStateRefSer.getString(Tag.SeriesInstanceUID);
+            Sequence refSOPSeq = refSOPSeq(refSeriesSeq, seriesIUID);
+            presentationStateRefSer.getSequence(Tag.ReferencedImageSequence)
+                    .forEach(prRefSop -> refSOPSeq.add(refSOP(
+                                            prRefSop.getString(Tag.ReferencedSOPClassUID),
+                                            prRefSop.getString(Tag.ReferencedSOPInstanceUID))));
+        });
+    }
+
+    private Sequence refSeriesSeq(String studyIUID, Sequence evidenceSeq) {
+        Attributes refStudy = new Attributes(2);
+        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
+        refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        evidenceSeq.add(refStudy);
+        return refSeriesSeq;
+    }
+
+    private Sequence refSOPSeq(Sequence refSeriesSeq, String seriesIUID) {
+        Attributes refSeries = new Attributes(5);
+        Sequence refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 100);
+        refSeries.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
+        refSeriesSeq.add(refSeries);
+        return refSOPSeq;
+    }
+
+    private Attributes refSOP(String cuid, String iuid) {
+        Attributes item = new Attributes(2);
+        item.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
+        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
+        return item;
     }
 
     private Attributes templateIdentifier() {
@@ -180,36 +220,22 @@ public class PR2KOExporter extends AbstractExporter {
         attrs.setString(Tag.StudyInstanceUID, VR.UI, inst.getString(Tag.StudyInstanceUID));
     }
 
+    private void addContentSeq(Attributes attrs, Attributes inst) {
+        Sequence contentSeq = attrs.newSequence(Tag.ContentSequence, 2);
+        contentSeq.add(new Code(descriptor.getProperties().getOrDefault("Language", LANGUAGE)).toItem());
+        contentSeq.add(keyObjectDescription(inst));
+    }
+
     private Attributes keyObjectDescription(Attributes inst) {
         Attributes item = new Attributes(4);
         item.setString(Tag.RelationshipType, VR.CS, "CONTAINS");
         item.setString(Tag.ValueType, VR.CS, "TEXT");
-        item.newSequence(Tag.ConceptNameCodeSequence, 1).add(toCodeItem("DCM-113012"));
+        item.newSequence(Tag.ConceptNameCodeSequence, 1)
+                .add(new Code(KO_DESC).toItem());
         setAttribute(item, Tag.TextValue, KeyObjectProperty.KeyObjectDescription, inst);
         return item;
     }
 
-    private Attributes toCodeItem(String codeValue) {
-//        if (codes == null)
-//            throw new IllegalStateException("codes not initialized");
-//        String codeMeaning = codes.getProperty(codeValue);
-//        if (codeMeaning == null)
-//            throw new IllegalArgumentException("undefined code value: "
-//                    + codeValue);
-        int endDesignator = codeValue.indexOf('-');
-        Attributes attrs = new Attributes(3);
-        attrs.setString(Tag.CodeValue, VR.SH,
-                endDesignator >= 0
-                        ? codeValue.substring(endDesignator + 1)
-                        : codeValue);
-        attrs.setString(Tag.CodingSchemeDesignator, VR.SH,
-                endDesignator >= 0
-                        ? codeValue.substring(0, endDesignator)
-                        : "DCM");
-        attrs.setString(Tag.CodeMeaning, VR.LO, "");    //TODO
-        return attrs;
-    }
-    
     private void setAttribute(Attributes attrs, int tag, KeyObjectProperty koProperty, Attributes inst) {
         String propsAttr = propsAttrs.getString(tag);
         attrs.setString(
@@ -218,9 +244,25 @@ public class PR2KOExporter extends AbstractExporter {
                 new AttributesFormat(propsAttr != null ? propsAttr : koProperty.getDefVal()).format(inst));
     }
 
-    private boolean isPresentationState(InstanceLocations inst) {
-        return Arrays.asList(descriptor.getExportURI().getSchemeSpecificPart().split(":"))
-                .contains(inst.getAttributes().getString(Tag.SOPClassUID));
+    private boolean isPresentationState(InstanceLocations inst, String... cuids) {
+        String sopCUID = inst.getAttributes().getString(Tag.SOPClassUID);
+        for (String cuidInUri : cuids)
+            if (sopCUID.equals(cuidInUri)
+                    || UID.nameOf(sopCUID).replaceAll(" ", "").equals(cuidInUri))
+                return true;
+
+        return false;
+    }
+
+    private int toTag(String tagOrKeyword) {
+        try {
+            return Integer.parseInt(tagOrKeyword, 16);
+        } catch (IllegalArgumentException e) {
+            int tag = ElementDictionary.tagForKeyword(tagOrKeyword, null);
+            if (tag == -1)
+                throw new IllegalArgumentException(tagOrKeyword);
+            return tag;
+        }
     }
 
     private static String noMatches(ExportContext ctx) {
@@ -265,13 +307,11 @@ public class PR2KOExporter extends AbstractExporter {
         return sb.append("Study[uid=").append(studyInstanceUID).append("]");
     }
 
-    private static String toMessage(ExportContext ctx, int numKOs, int numPRs) {
+    private static String toMessage(ExportContext ctx, int numKOs) {
         return appendEntity(ctx,
                 new StringBuilder("Created ")
                         .append(numKOs)
-                        .append(" Key Object(s) applied to ")
-                        .append(numPRs)
-                        .append(" Presentation States of "))
+                        .append(" Key Object(s)."))
                 .toString();
     }
 }
