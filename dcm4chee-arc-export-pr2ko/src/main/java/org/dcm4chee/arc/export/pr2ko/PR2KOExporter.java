@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.export.pr2ko;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
@@ -129,9 +130,11 @@ public class PR2KOExporter extends AbstractExporter {
         if (results.isEmpty())
             return new Outcome(QueueMessage.Status.COMPLETED, noKeyObjectCreated(ctx));
 
+        String sourceAET = descriptor.getProperty("SourceAET", null);
         try (StoreSession session = storeService.newStoreSession(
-                ctx.getHttpServletRequestInfo(), ae, descriptor.getProperty("SourceAET", null))) {
+                ctx.getHttpServletRequestInfo(), ae, sourceAET)) {
             for (Attributes ko : results) {
+                ko.setString(ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, sourceAET);
                 StoreContext storeCtx = storeService.newStoreContext(session);
                 storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
                 storeService.store(storeCtx, ko);
