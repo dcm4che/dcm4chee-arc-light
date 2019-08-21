@@ -813,7 +813,7 @@ export class StudyService {
                         }
                     ],
                     headerDescription:"Actions",
-                    pxWidth:65
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"value",
@@ -992,7 +992,7 @@ export class StudyService {
                         }
                     ],
                     headerDescription:"Actions",
-                    pxWidth:65
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"value",
@@ -1085,7 +1085,14 @@ export class StudyService {
                                                                 },e);*/
                                 // e.showAttributes = !e.showAttributes;
                             }
-                        },
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    pxWidth:40
+                }),new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
                         {
                             icon:{
                                 tag:'span',
@@ -1099,7 +1106,7 @@ export class StudyService {
                         }
                     ],
                     headerDescription:"Actions",
-                    pxWidth:65
+                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"value",
