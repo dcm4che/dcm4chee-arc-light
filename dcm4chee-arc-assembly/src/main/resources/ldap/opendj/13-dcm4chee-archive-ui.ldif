@@ -308,6 +308,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.111.3.62 NAME 'dcmuiDefaultWidgetAets'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.111.3.63 NAME 'dcmuiXDSInterfaceURL'
+  DESC 'XDS Interface URL'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -316,6 +321,7 @@ objectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   MAY (
     dcmuiModalities $
     dcmuiDefaultWidgetAets $
+    dcmuiXDSInterfaceURL $
     dcmuiWidgetAets ) )
 objectClasses: ( 1.2.40.0.13.1.15.111.4.2 NAME 'dcmuiPermission'
   DESC 'Permission for UI Action'
