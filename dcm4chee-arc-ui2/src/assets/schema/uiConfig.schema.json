@@ -28,6 +28,11 @@
       },
       "format": "dcmAETitle"
     },
+    "dcmuiXDSInterfaceURL": {
+      "title": "XDS Interface URL",
+      "description": "Base URL used for the XDS Services. E.g. http://myXdsSever:8080",
+      "type": "string"
+    },
     "dcmuiDefaultWidgetAets": {
       "title": "Default Widget AETs",
       "description": "Select the AETs that should be preselected on Widget AETs",
