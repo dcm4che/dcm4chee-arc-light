@@ -168,10 +168,10 @@ public class PR2KOExporter extends AbstractExporter {
     }
 
     private Attributes pr2ko(Attributes prAttrs) {
-        Attributes koAttrs = new Attributes();
+        Attributes koAttrs = new Attributes(prAttrs, patStudyTags);
+        koAttrs.setDate(Tag.InstanceCreationDateAndTime, new Date());
+        koAttrs.setDate(Tag.ContentDateAndTime, prAttrs.getDate(Tag.PresentationCreationDateAndTime));
         koAttrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
-        koAttrs.setDate(Tag.ContentDateAndTime, new Date());
-        koAttrs.addSelected(prAttrs, patStudyTags);
         koAttrs.setString(Tag.SOPInstanceUID, VR.UI,
                 UIDUtils.createNameBasedUID(prAttrs.getString(Tag.SOPInstanceUID).getBytes()));
         koAttrs.setString(Tag.SeriesInstanceUID, VR.UI,
