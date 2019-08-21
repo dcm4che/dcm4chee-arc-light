@@ -42,24 +42,29 @@
 package org.dcm4chee.arc.export.pr2ko;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.query.Query;
+import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -73,34 +78,23 @@ public class PR2KOExporter extends AbstractExporter {
     private static final String KO_DESC = "(113012, DCM, \"Key Object Description\")";
     private static final String LANGUAGE = "(en, RFC5646, \"English\")";
 
-    private final RetrieveService retrieveService;
+    private final QueryService queryService;
     private final StoreService storeService;
     private final Attributes propsAttrs = new Attributes();
-
-    private static final int[] TYPE2_ATTRS = {
-            Tag.SpecificCharacterSet,
-            Tag.PatientName,
-            Tag.PatientID,
-            Tag.PatientBirthDate,
-            Tag.PatientSex,
-            Tag.StudyDate,
-            Tag.StudyTime,
-            Tag.ReferringPhysicianName,
-            Tag.StudyID,
-            Tag.AccessionNumber,
-            Tag.ReferencedPerformedProcedureStepSequence,
-            Tag.Manufacturer
-    };
+    private final int[] patStudyTags;
+    private final Device device;
 
     private int[] IUID_TAGS = {
         Tag.SeriesInstanceUID,
         Tag.SOPInstanceUID
     };
 
-    public PR2KOExporter(ExporterDescriptor descriptor, RetrieveService retrieveService, StoreService storeService) {
+    PR2KOExporter(ExporterDescriptor descriptor, QueryService queryService, StoreService storeService, Device device) {
         super(descriptor);
-        this.retrieveService = retrieveService;
+        this.queryService = queryService;
         this.storeService = storeService;
+        this.patStudyTags = patStudyTags(device.getDeviceExtension(ArchiveDeviceExtension.class));
+        this.device = device;
         descriptor.getProperties().entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith("KO"))
                 .forEach(entry -> {
@@ -109,24 +103,27 @@ public class PR2KOExporter extends AbstractExporter {
                 });
     }
 
+    private int[] patStudyTags(ArchiveDeviceExtension arcdev) {
+        int[] patTags = arcdev.getAttributeFilter(Entity.Patient).getSelection(false);
+        int[] studyTags = arcdev.getAttributeFilter(Entity.Study).getSelection(false);
+        int[] dst = new int[patTags.length + studyTags.length - 1];
+        System.arraycopy(patTags, 0, dst, 0, patTags.length);
+        System.arraycopy(studyTags, 1, dst, patTags.length, studyTags.length - 1);
+        Arrays.sort(dst);
+        return dst;
+    }
+
     @Override
     public Outcome export(ExportContext ctx) throws Exception {
-        ApplicationEntity ae;
+        ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
         List<Attributes> results = new ArrayList<>();
-        try (RetrieveContext retrieveContext = retrieveService.newRetrieveContext(
-                ctx.getAETitle(),
-                ctx.getStudyInstanceUID(),
-                ctx.getSeriesInstanceUID(),
-                ctx.getSopInstanceUID())) {
-            ae = retrieveContext.getLocalApplicationEntity();
-            retrieveContext.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
-            if (!retrieveService.calculateMatches(retrieveContext))
-                return new Outcome(QueueMessage.Status.WARNING, noMatches(ctx));
-
-            retrieveContext.getMatches().stream()
-                    .filter(instLoc -> isPresentationState(instLoc, descriptor.getExportURI().getSchemeSpecificPart().split(":")))
-                    .forEach(instanceLocation -> pr2ko(instanceLocation, results));
+        try (Query query = queryService.createInstanceQuery(
+                queryContext(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ae))) {
+            query.executeQuery(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
+            while (query.hasMoreMatches())
+                pr2ko(query.nextMatch(), results);
         }
+
         if (results.isEmpty())
             return new Outcome(QueueMessage.Status.COMPLETED, noKeyObjectCreated(ctx));
 
@@ -134,7 +131,6 @@ public class PR2KOExporter extends AbstractExporter {
         try (StoreSession session = storeService.newStoreSession(
                 ctx.getHttpServletRequestInfo(), ae, sourceAET)) {
             for (Attributes ko : results) {
-                ko.setString(ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, sourceAET);
                 StoreContext storeCtx = storeService.newStoreContext(session);
                 storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
                 storeService.store(storeCtx, ko);
@@ -143,24 +139,50 @@ public class PR2KOExporter extends AbstractExporter {
         return new Outcome(QueueMessage.Status.COMPLETED, toMessage(ctx, results.size()));
     }
 
-    private void pr2ko(InstanceLocations instanceLocation, List<Attributes> results) {
-        Attributes inst = instanceLocation.getAttributes();
-        Attributes attrs = new Attributes(inst, TYPE2_ATTRS);
+    private QueryContext queryContext(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
+        QueryContext ctx = queryService.newQueryContext(ae, new QueryParam(ae));
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.IMAGE);
+        ctx.setQueryKeys(queryKeys(studyIUID, seriesIUID, sopIUID));
+        return ctx;
+    }
+
+    private Attributes queryKeys(String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID) {
+        Attributes keys = new Attributes();
+        keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
+        if (seriesInstanceUID != null)
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+        if (sopInstanceUID != null)
+            keys.setString(Tag.SOPInstanceUID, VR.UI, sopInstanceUID);
+        keys.setString(Tag.SOPClassUID, VR.UI, cuids());
+        return keys;
+    }
+
+    private String[] cuids() {
+        return Arrays.stream(descriptor.getExportURI().getSchemeSpecificPart().split(":"))
+                .map(UID::forName)
+                .toArray(String[]::new);
+    }
+
+    private void pr2ko(Attributes prAttrs, List<Attributes> results) {
+        Attributes attrs = new Attributes();
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
         attrs.setDate(Tag.ContentDateAndTime, new Date());
-        setUIDs(attrs, inst);
+        attrs.addSelected(prAttrs, patStudyTags);
+        setUIDs(attrs, prAttrs);
         attrs.setString(Tag.Modality, VR.CS, "KO");
         attrs.setString(Tag.ValueType, VR.CS, "CONTAINER");
         attrs.setString(Tag.ContinuityOfContent, VR.CS, "SEPARATE");
+        attrs.setString(Tag.Manufacturer, VR.LO, "DCM4CHEE");
+        attrs.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         attrs.addAll(propsAttrs);
-        setAttribute(attrs, Tag.SeriesDescription, KeyObjectProperty.SeriesDescription, inst);
-        setAttribute(attrs, Tag.SeriesNumber, KeyObjectProperty.SeriesNumber, inst);
-        setAttribute(attrs, Tag.InstanceNumber, KeyObjectProperty.InstanceNumber, inst);
+        setAttribute(attrs, Tag.SeriesDescription, KeyObjectProperty.SeriesDescription, prAttrs);
+        setAttribute(attrs, Tag.SeriesNumber, KeyObjectProperty.SeriesNumber, prAttrs);
+        setAttribute(attrs, Tag.InstanceNumber, KeyObjectProperty.InstanceNumber, prAttrs);
         attrs.newSequence(Tag.ConceptNameCodeSequence, 1)
                 .add(new Code(descriptor.getProperties().getOrDefault("DocumentTitle", DOC_TITLE)).toItem());
         attrs.newSequence(Tag.ContentTemplateSequence, 1).add(templateIdentifier());
-        addContentSeq(attrs, inst);
-        addCurrentRequestedProcedureEvidenceSeq(attrs, inst);
+        addContentSeq(attrs, prAttrs);
+        addCurrentRequestedProcedureEvidenceSeq(attrs, prAttrs);
         results.add(attrs);
     }
 
@@ -227,6 +249,13 @@ public class PR2KOExporter extends AbstractExporter {
         Sequence contentSeq = attrs.newSequence(Tag.ContentSequence, 2);
         contentSeq.add(new Code(descriptor.getProperties().getOrDefault("Language", LANGUAGE)).toItem());
         contentSeq.add(keyObjectDescription(inst));
+        inst.getSequence(Tag.ReferencedSeriesSequence)
+                .forEach(presentationStateRefSer ->
+                    presentationStateRefSer.getSequence(Tag.ReferencedImageSequence)
+                            .forEach(prRefSop -> contentSeq.add(
+                                    contentItem(refSOP(
+                                            prRefSop.getString(Tag.ReferencedSOPClassUID),
+                                            prRefSop.getString(Tag.ReferencedSOPInstanceUID))))));
     }
 
     private Attributes keyObjectDescription(Attributes inst) {
@@ -245,31 +274,6 @@ public class PR2KOExporter extends AbstractExporter {
                 tag,
                 koProperty.getVr(),
                 new AttributesFormat(propsAttr != null ? propsAttr : koProperty.getDefVal()).format(inst));
-    }
-
-    private boolean isPresentationState(InstanceLocations inst, String... cuids) {
-        String sopCUID = inst.getAttributes().getString(Tag.SOPClassUID);
-        for (String cuidInUri : cuids)
-            if (sopCUID.equals(cuidInUri)
-                    || UID.nameOf(sopCUID).replaceAll(" ", "").equals(cuidInUri))
-                return true;
-
-        return false;
-    }
-
-    private int toTag(String tagOrKeyword) {
-        try {
-            return Integer.parseInt(tagOrKeyword, 16);
-        } catch (IllegalArgumentException e) {
-            int tag = ElementDictionary.tagForKeyword(tagOrKeyword, null);
-            if (tag == -1)
-                throw new IllegalArgumentException(tagOrKeyword);
-            return tag;
-        }
-    }
-
-    private static String noMatches(ExportContext ctx) {
-        return appendEntity(ctx, new StringBuilder("Could not find ")).toString();
     }
 
     private static String noKeyObjectCreated(ExportContext ctx) {
@@ -316,5 +320,13 @@ public class PR2KOExporter extends AbstractExporter {
                         .append(numKOs)
                         .append(" Key Object(s)."))
                 .toString();
+    }
+
+    private Attributes contentItem(Attributes refSOP) {
+        Attributes item = new Attributes(3);
+        item.setString(Tag.RelationshipType, VR.CS, "CONTAINS");
+        item.setString(Tag.ValueType, VR.CS, "IMAGE");
+        item.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP);
+        return item;
     }
 }

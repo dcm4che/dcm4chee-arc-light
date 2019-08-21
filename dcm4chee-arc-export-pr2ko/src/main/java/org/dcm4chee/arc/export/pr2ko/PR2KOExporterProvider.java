@@ -41,10 +41,11 @@
 
 package org.dcm4chee.arc.export.pr2ko;
 
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
-import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -58,15 +59,17 @@ import javax.inject.Named;
 @ApplicationScoped
 @Named("pr2ko")
 public class PR2KOExporterProvider implements ExporterProvider {
+    @Inject
+    private Device device;
 
     @Inject
-    private RetrieveService retrieveService;
+    private QueryService queryService;
 
     @Inject
     private StoreService storeService;
 
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new PR2KOExporter(descriptor, retrieveService, storeService);
+        return new PR2KOExporter(descriptor, queryService, storeService, device);
     }
 }
