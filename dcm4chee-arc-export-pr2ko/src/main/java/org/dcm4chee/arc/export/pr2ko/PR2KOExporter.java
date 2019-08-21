@@ -191,12 +191,12 @@ public class PR2KOExporter extends AbstractExporter {
         return koAttrs;
     }
 
-    private void setString(Attributes attrs, Map.Entry<String, String> entry, Attributes prAttrs) {
+    private static void setString(Attributes attrs, Map.Entry<String, String> entry, Attributes prAttrs) {
         int tag = TagUtils.forName(entry.getKey().substring(3));
         attrs.setString(tag, dict.vrOf(tag), new AttributesFormat(entry.getValue()).format(prAttrs));
     }
 
-    private void addCurrentRequestedProcedureEvidenceSeq(Attributes attrs, Attributes prAttrs) {
+    private static void addCurrentRequestedProcedureEvidenceSeq(Attributes attrs, Attributes prAttrs) {
         String studyIUID = prAttrs.getString(Tag.StudyInstanceUID);
         String seriesIUID = prAttrs.getString(Tag.SeriesInstanceUID);
         String iuid = prAttrs.getString(Tag.SOPInstanceUID);
@@ -206,7 +206,7 @@ public class PR2KOExporter extends AbstractExporter {
         addPresentationStateRefSerSeq(prAttrs, evidenceSeq);
     }
 
-    private void addPresentationStateRefSerSeq(Attributes prAttrs, Sequence evidenceSeq) {
+    private static void addPresentationStateRefSerSeq(Attributes prAttrs, Sequence evidenceSeq) {
         Sequence presentationStateRefSerSeq = prAttrs.getSequence(Tag.ReferencedSeriesSequence);
         Sequence refSeriesSeq = refSeriesSeq(prAttrs.getString(Tag.StudyInstanceUID), evidenceSeq);
         presentationStateRefSerSeq.forEach(presentationStateRefSer -> {
@@ -219,7 +219,7 @@ public class PR2KOExporter extends AbstractExporter {
         });
     }
 
-    private Sequence refSeriesSeq(String studyIUID, Sequence evidenceSeq) {
+    private static Sequence refSeriesSeq(String studyIUID, Sequence evidenceSeq) {
         Attributes refStudy = new Attributes(2);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
         refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
@@ -227,7 +227,7 @@ public class PR2KOExporter extends AbstractExporter {
         return refSeriesSeq;
     }
 
-    private Sequence refSOPSeq(Sequence refSeriesSeq, String seriesIUID) {
+    private static Sequence refSOPSeq(Sequence refSeriesSeq, String seriesIUID) {
         Attributes refSeries = new Attributes(5);
         Sequence refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 100);
         refSeries.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
@@ -235,14 +235,14 @@ public class PR2KOExporter extends AbstractExporter {
         return refSOPSeq;
     }
 
-    private Attributes refSOP(String cuid, String iuid) {
+    private static Attributes refSOP(String cuid, String iuid) {
         Attributes item = new Attributes(2);
         item.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
         item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
         return item;
     }
 
-    private Attributes templateIdentifier() {
+    private static Attributes templateIdentifier() {
         Attributes attrs = new Attributes(2);
         attrs.setString(Tag.MappingResource, VR.CS, "DCMR");
         attrs.setString(Tag.TemplateIdentifier, VR.CS, "2010");
@@ -256,14 +256,7 @@ public class PR2KOExporter extends AbstractExporter {
         prAttrs.getSequence(Tag.ReferencedSeriesSequence)
                 .forEach(presentationStateRefSer ->
                     presentationStateRefSer.getSequence(Tag.ReferencedImageSequence)
-                            .forEach(prRefSop -> {
-                                Attributes refSOP = refSOP(
-                                        prRefSop.getString(Tag.ReferencedSOPClassUID),
-                                        prRefSop.getString(Tag.ReferencedSOPInstanceUID));
-                                refSOP.newSequence(Tag.ReferencedSOPSequence, 1)
-                                        .add(refSOP(prAttrs.getString(Tag.SOPClassUID), prAttrs.getString(Tag.SOPInstanceUID)));
-                                contentSeq.add(contentItem(refSOP));
-                            }));
+                            .forEach(prRefSop -> contentSeq.add(imageRef(prRefSop, prAttrs))));
     }
 
     private Attributes keyObjectDescription(Attributes prAttrs) {
@@ -303,14 +296,20 @@ public class PR2KOExporter extends AbstractExporter {
         return appendEntity(ctx,
                 new StringBuilder("Created ")
                         .append(numKOs)
-                        .append(" Key Object(s)."))
+                        .append(" Key Object(s) for "))
                 .toString();
     }
 
-    private Attributes contentItem(Attributes refSOP) {
+    private static Attributes imageRef(Attributes prRefSop, Attributes prAttrs) {
         Attributes item = new Attributes(3);
         item.setString(Tag.RelationshipType, VR.CS, "CONTAINS");
         item.setString(Tag.ValueType, VR.CS, "IMAGE");
+        Attributes refSOP = refSOP(
+                prRefSop.getString(Tag.ReferencedSOPClassUID),
+                prRefSop.getString(Tag.ReferencedSOPInstanceUID));
+        refSOP.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP(
+                prAttrs.getString(Tag.SOPClassUID),
+                prAttrs.getString(Tag.SOPInstanceUID)));
         item.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP);
         return item;
     }
