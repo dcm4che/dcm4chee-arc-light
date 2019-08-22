@@ -108,6 +108,8 @@ import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
 import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
 import { MetricsComponent } from './monitoring/metrics/metrics.component';
 import {MetricsService} from "./monitoring/metrics/metrics.service";
+import { WebAppsListComponent } from './configuration/web-apps-list/web-apps-list.component';
+import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.service";
 
 @NgModule({
     declarations: [
@@ -166,7 +168,8 @@ import {MetricsService} from "./monitoring/metrics/metrics.service";
         DicomStudiesTableComponent,
         DynamicPipePipe,
         ArrayToStringPipe,
-        MetricsComponent
+        MetricsComponent,
+        WebAppsListComponent
     ],
     imports: [
         BrowserModule,
@@ -218,6 +221,7 @@ import {MetricsService} from "./monitoring/metrics/metrics.service";
             { path: 'monitoring/metrics', component: MetricsComponent,  canActivate: [AuthGuard] },
             { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
             { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
+            { path: 'device/webappslist', component: WebAppsListComponent,  canActivate: [AuthGuard] },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent,  canActivate: [AuthGuard] },
             { path: 'device/edit/:device', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
             { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
@@ -266,6 +270,7 @@ import {MetricsService} from "./monitoring/metrics/metrics.service";
         KeycloakService,
         KeycloakHttpClient,
         MetricsService,
+        WebAppsListService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent],

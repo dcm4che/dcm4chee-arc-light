@@ -686,6 +686,10 @@ export class Globalvar {
             },
             "/device/aelist":{
                 permissionsAction:"tab-configuration->ae_list",
+                nextCheck:"/device/webappslist"
+            },
+            "/device/webappslist":{
+                permissionsAction:"tab-configuration->web_apps_list",
                 nextCheck:"/device/hl7applications"
             },
             "/device/hl7applications":{
