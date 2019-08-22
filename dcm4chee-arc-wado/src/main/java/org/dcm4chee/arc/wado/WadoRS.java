@@ -928,12 +928,17 @@ public class WadoRS {
     private void writeRenderedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
             int[] frameList, Attributes presentationState) {
         int numFrames = inst.getAttributes().getInt(Tag.NumberOfFrames, 1);
-        frameList = frameList != null
-            ? adjustFrameList(frameList, numFrames)
-            : IntStream.rangeClosed(1, numFrames).toArray();
-        MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
         StringBuffer bulkdataURL = request.getRequestURL();
-        int length = bulkdataURL.lastIndexOf("/frames/") + 8;
+        if (frameList == null) { // render PR
+            frameList = IntStream.rangeClosed(1, numFrames).toArray();
+            bulkdataURL.setLength(bulkdataURL.lastIndexOf("/series/"));
+            mkInstanceURL(bulkdataURL, inst);
+        } else { // render Frames
+            frameList = adjustFrameList(frameList, numFrames);
+            bulkdataURL.setLength(bulkdataURL.lastIndexOf("/frames/"));
+        }
+        int length = bulkdataURL.append("/frames/").length();
+        MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
         for (int frame : frameList) {
             OutputPart outputPart = output.addPart(
                     renderImage(ctx, inst, mediaType, frame, windowing(), viewport(), presentationState),
