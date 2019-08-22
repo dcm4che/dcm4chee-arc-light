@@ -137,6 +137,13 @@ export class WebAppsListService {
                 header:"Services",
                 widthWeight:2,
                 pathToValue:"dcmWebServiceClass"
+            }),
+            new TableSchemaElement({
+                type:"value",
+                title:"URLs",
+                header:"URLs",
+                widthWeight:2,
+                pathToValue:"url"
             })
         ];
     }

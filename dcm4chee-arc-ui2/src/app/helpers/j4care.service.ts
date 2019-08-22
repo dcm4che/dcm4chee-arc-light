@@ -605,6 +605,7 @@ export class j4care {
         else
             return defaultVal || '';
     }
+
 /*    download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
             let token;
@@ -1108,6 +1109,17 @@ export class j4care {
     }
 
     /*
+    * get Url from Dicom network Connection
+    * */
+    static getUrlFromDicomNetworkConnection(conns:DicomNetworkConnection){
+        try{
+            return `${this.getHTTPProtocolFromDicomNetworkConnection(conns)||'http'}://${conns.dicomHostname}:${conns.dicomPort}`;
+        }catch (e) {
+            return "";
+        }
+    }
+
+    /*
     * If the passed connection has the protocol HTTP then return http or https otherwise return ''.
     * */
     static getHTTPProtocolFromDicomNetworkConnection(conn:DicomNetworkConnection):string{
@@ -1127,5 +1139,18 @@ export class j4care {
         }catch (e) {
             this.log("Something went wrong on getting the protocol from a connection",e);
         }
+    }
+
+    /*
+    * get string with prefix and suffix if exist otherwise return empty string
+    * */
+    static meyGetString(object, path:string, prefix:string = "", suffix:string = "",showPrefixSuffixEvenIfEmpty?:boolean){
+        if(_.hasIn(object, path)){
+            return `${prefix}${_.get(object,path)}${suffix}`;
+        }
+        if(showPrefixSuffixEvenIfEmpty){
+            return `${prefix}${suffix}`;
+        }
+        return "";
     }
 }

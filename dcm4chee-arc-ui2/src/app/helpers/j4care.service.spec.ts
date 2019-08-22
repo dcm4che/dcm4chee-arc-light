@@ -432,4 +432,14 @@ describe('j4care', () => {
         expect(j4care.round("",2, true)).toEqual("");
         expect(j4care.round(undefined,2, true)).toEqual(undefined);
     })
+
+    it("Should return the string with prefix and suffix if exist",()=>{
+        expect(j4care.meyGetString(AETS1[0],"dicomAETitle","#",";")).toBe("#DCM4CHEE;")
+        expect(j4care.meyGetString(AETS1[0],"dicomAETitle","#")).toBe("#DCM4CHEE")
+        expect(j4care.meyGetString(AETS1[0],"dicomAETitle")).toBe("DCM4CHEE")
+        expect(j4care.meyGetString(AETS1[0],"dicomAETitle",undefined,":")).toBe("DCM4CHEE:")
+        expect(j4care.meyGetString(AETS1[0],"",undefined,":")).toBe("")
+        expect(j4care.meyGetString(AETS1[0],"",undefined,":",true)).toBe(":")
+        expect(j4care.meyGetString(AETS1[0],"","/",":",true)).toBe("/:")
+    });
 });

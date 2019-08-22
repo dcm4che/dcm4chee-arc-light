@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import {WebAppsListService} from "./web-apps-list.service";
-import {FilterSchema, SelectDropdown} from "../../interfaces";
+import { DicomNetworkConnection, FilterSchema, SelectDropdown} from "../../interfaces";
 import {j4care} from "../../helpers/j4care.service";
-import {DevicesService} from "../devices/devices.service";
-import {Observable} from "rxjs/Observable";
-import {AeListService} from "../ae-list/ae-list.service";
 import {Device} from "../../models/device";
 import {Aet} from "../../models/aet";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import * as _ from "lodash";
+import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'app-web-apps-list',
@@ -39,7 +38,12 @@ export class WebAppsListComponent implements OnInit {
     submit(e){
         this.cfpLoadingBar.start();
         this.service.getWebApps(this.filterObject).subscribe(webApps=>{
-            this.webApps = webApps;
+            this.webApps = webApps.map(webApp=>{
+                webApp["url"] = webApp.dicomNetworkConnection.map((networkConnection:DicomNetworkConnection)=>{
+                    return `${j4care.getUrlFromDicomNetworkConnection(networkConnection)}${j4care.meyGetString(webApp,"dcmWebServicePath")}`;
+                });
+                return webApp;
+            });
             this.cfpLoadingBar.complete();
         },err=>{
             this.httpErrorHandler.handleError(err);
