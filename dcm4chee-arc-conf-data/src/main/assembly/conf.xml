@@ -51,7 +51,19 @@
     <fileSet>
       <directory>${project.basedir}/src/main/resources</directory>
       <outputDirectory>.</outputDirectory>
+      <includes>
+        <include>*.xsl</include>
+        <include>*.css</include>
+      </includes>
       <lineEnding>dos</lineEnding>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/resources</directory>
+      <outputDirectory>.</outputDirectory>
+      <includes>
+        <include>*.png</include>
+      </includes>
+      <lineEnding>keep</lineEnding>
     </fileSet>
   </fileSets>
 </assembly>

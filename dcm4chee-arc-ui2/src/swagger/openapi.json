@@ -2385,6 +2385,172 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{study}/thumbnail": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Study Thumbnail",
+        "operationId": "RetrieveStudyThumbnail",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveThumbnailAccept"
+          },
+          {
+            "$ref": "#/components/parameters/thumbnailViewport"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedThumbnail"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/thumbnail": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Series Thumbnail",
+        "operationId": "RetrieveSeriesThumbnail",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveThumbnailAccept"
+          },
+          {
+            "$ref": "#/components/parameters/thumbnailViewport"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedThumbnail"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/thumbnail": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Instance Thumbnail",
+        "operationId": "RetrieveInstanceThumbnail",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveThumbnailAccept"
+          },
+          {
+            "$ref": "#/components/parameters/thumbnailViewport"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedThumbnail"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/frames/{frames}/thumbnail": {
+      "get": {
+        "tags": [
+          "WADO-RS"
+        ],
+        "summary": "Retrieve Frames Thumbnail",
+        "operationId": "RetrieveFramesThumbnail",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/instancePathParam"
+          },
+          {
+            "$ref": "#/components/parameters/framesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/wadoRetrieveThumbnailAccept"
+          },
+          {
+            "$ref": "#/components/parameters/thumbnailViewport"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/retrievedThumbnail"
+          },
+          "400": {
+            "description": "There was a problem with the request."
+          },
+          "404": {
+            "description": "There is no Archive AE with the specified Title."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
     "/aets/{aet}/wado": {
       "get": {
         "tags": [
@@ -13287,6 +13453,14 @@
           "$ref": "#/components/schemas/wadoRetrieveRenderedFramesAccept"
         }
       },
+      "wadoRetrieveThumbnailAccept": {
+        "name": "accept",
+        "in": "query",
+        "description": "Alternative to Accept header field for WADO-RS Retrieve Thumbnail Services",
+        "schema": {
+          "$ref": "#/components/schemas/wadoRetrieveThumbnailAccept"
+        }
+      },
       "contentType": {
         "name": "contentType",
         "in": "query",
@@ -13422,6 +13596,14 @@
         "name": "viewport",
         "in": "query",
         "description": "Viewport Scaling of Image in format vw','vh[','[sx]','[sy]','[sw]','[sh]]",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "thumbnailViewport": {
+        "name": "viewport",
+        "in": "query",
+        "description": "Viewport Scaling of Thumbnails in format vw','vh",
         "schema": {
           "type": "string"
         }
@@ -14803,6 +14985,29 @@
           }
         }
       },
+      "retrievedThumbnail": {
+        "description": "Thumbnail successfully retrieved.",
+        "content": {
+          "image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/gif": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
       "retrievedInstance": {
         "description": "Instance successfully retrieved.",
         "content": {
@@ -15408,6 +15613,14 @@
           "multipart/related;type=image/jpeg",
           "multipart/related;type=image/gif",
           "multipart/related;type=image/png"
+        ]
+      },
+      "wadoRetrieveThumbnailAccept": {
+        "type": "string",
+        "enum": [
+          "image/png",
+          "image/jpeg",
+          "image/gif"
         ]
       },
       "orderByTime": {

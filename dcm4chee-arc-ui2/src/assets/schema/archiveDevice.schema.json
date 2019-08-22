@@ -18,6 +18,7 @@
     "dcmQueryFetchSize",
     "dcmQueryMaxNumberOfResults",
     "dcmQidoMaxNumberOfResults",
+    "dcmWadoThumbnailViewport",
     "dcmWadoZIPEntryNameFormat",
     "dcmIanOnTimeout",
     "dcmIanTaskFetchSize",
@@ -285,6 +286,13 @@
       "title": "Wado CDA to HTML Template URI",
       "description": "URL to XSL style sheet inserted as <?xml-stylesheet type=\"text/xsl\" href=\"<url>\" > in CDA documents returned by WADO-URI service. If absent, the embedded CDI document is returned verbatim. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
+    },
+    "dcmWadoThumbnailViewport": {
+      "title": "Wado Thumbnail Viewport",
+      "description": "Dimension of Thumbnails returned by WADO retrieve of Instance Thumbnails, if no Viewport is specified in the request. Format: <width>,<height>. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "default": "64,64",
+      "format": "dcmWadoThumbnailViewport"
     },
     "dcmWadoZIPEntryNameFormat": {
       "title": "Wado ZIP Entry Name Format",

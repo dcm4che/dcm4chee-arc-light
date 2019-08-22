@@ -95,6 +95,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int queryFetchSize = 100;
     private volatile int queryMaxNumberOfResults = 0;
     private volatile int qidoMaxNumberOfResults = 0;
+    private volatile String wadoThumbnailViewPort = "64,64";
     private volatile String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
     private volatile String wadoSR2HtmlTemplateURI;
     private volatile String wadoSR2TextTemplateURI;
@@ -515,6 +516,16 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public boolean isWadoSupportedPRClass(String cuid) {
         return wadoSupportedPRClasses.contains(cuid);
+    }
+
+    public String getWadoThumbnailViewPort() {
+        return wadoThumbnailViewPort;
+    }
+
+    public void setWadoThumbnailViewPort(String wadoThumbnailViewPort) {
+        if (!Pattern.matches("[1-9]\\d{0,2},[1-9]\\d{0,2}", wadoThumbnailViewPort))
+            throw new IllegalArgumentException(wadoThumbnailViewPort);
+        this.wadoThumbnailViewPort = wadoThumbnailViewPort;
     }
 
     public String getWadoZIPEntryNameFormat() {
@@ -2427,6 +2438,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
         wadoSupportedPRClasses.clear();
         wadoSupportedPRClasses.addAll(arcdev.wadoSupportedPRClasses);
+        wadoThumbnailViewPort = arcdev.wadoThumbnailViewPort;
         wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;

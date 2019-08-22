@@ -166,6 +166,12 @@
       "description": "URL to XSL style sheet inserted as <?xml-stylesheet type=\"text/xsl\" href=\"<url>\" > in CDA documents returned by WADO-URI service. If absent, the embedded CDI document is returned verbatim. Overwrites value specified on Device level.",
       "type": "string"
     },
+    "dcmWadoThumbnailViewport": {
+      "title": "Wado Thumbnail Viewport",
+      "description": "Dimension of Thumbnails returned by WADO retrieve of Instance Thumbnails, if no Viewport is specified in the request. Format: <width>,<height>. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmWadoThumbnailViewport"
+    },
     "dcmWadoZIPEntryNameFormat": {
       "title": "Wado ZIP Entry Name Format",
       "description": "Format of entry names in ZIP archive returned by WADO-RS. Overwrites value specified on Device level.",

@@ -77,6 +77,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
+    private String wadoThumbnailViewPort;
     private String wadoZIPEntryNameFormat;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
@@ -351,6 +352,20 @@ public class ArchiveAEExtension extends AEExtension {
         return sendPendingCMoveInterval != null
                 ? sendPendingCMoveInterval
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
+    }
+
+    public String getWadoThumbnailViewPort() {
+        return wadoThumbnailViewPort;
+    }
+
+    public void setWadoThumbnailViewPort(String wadoThumbnailViewPort) {
+        this.wadoThumbnailViewPort = wadoThumbnailViewPort;
+    }
+
+    public String wadoThumbnailViewPort() {
+        return wadoThumbnailViewPort != null
+                ? wadoThumbnailViewPort
+                : getArchiveDeviceExtension().getWadoThumbnailViewPort();
     }
 
     public String getWadoZIPEntryNameFormat() {
@@ -1303,6 +1318,8 @@ public class ArchiveAEExtension extends AEExtension {
         personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = aeExt.sendPendingCGet;
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
+        wadoThumbnailViewPort = aeExt.wadoThumbnailViewPort;
+        wadoZIPEntryNameFormat = aeExt.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
         wadoCDA2HtmlTemplateURI = aeExt.wadoCDA2HtmlTemplateURI;

@@ -167,13 +167,10 @@ public class RenderedImageOutput implements StreamingOutput {
     private BufferedImage adjust(BufferedImage bi) throws IOException {
         if (bi.getColorModel().getNumComponents() == 3)
             bi = BufferedImageUtils.convertToIntRGB(bi);
-        return rescale(bi);
+        return rescale(bi, rows, columns, getPixelAspectRatio());
     }
 
-    private BufferedImage rescale(BufferedImage bi) throws IOException {
-        int r = rows;
-        int c = columns;
-        float sy = getPixelAspectRatio();
+    static BufferedImage rescale(BufferedImage bi, int r, int c, float sy) throws IOException {
         if (r == 0 && c == 0 && sy == 1f)
             return bi;
 
@@ -214,7 +211,7 @@ public class RenderedImageOutput implements StreamingOutput {
         return readers.next();
     }
 
-    private static ImageWriter getImageWriter(MediaType mimeType) {
+    static ImageWriter getImageWriter(MediaType mimeType) {
         String formatName = formatNameOf(mimeType);
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
         if (!writers.hasNext())
@@ -223,7 +220,7 @@ public class RenderedImageOutput implements StreamingOutput {
         return writers.next();
     }
 
-    private static String formatNameOf(MediaType mimeType) {
+    static String formatNameOf(MediaType mimeType) {
         return mimeType.getSubtype().toUpperCase();
     }
 }

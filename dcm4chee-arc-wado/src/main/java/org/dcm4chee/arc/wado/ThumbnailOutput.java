@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -39,50 +39,47 @@
  *
  */
 
-package org.dcm4chee.arc.store;
+package org.dcm4chee.arc.wado;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.entity.Location;
-
-import java.util.Date;
-import java.util.List;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Aug 2015
+ * @since Aug 2019
  */
-public interface InstanceLocations {
-    Long getInstancePk();
+public class ThumbnailOutput implements StreamingOutput {
+    private final File file;
+    private final int rows;
+    private final int columns;
+    private final ImageWriter writer;
 
-    void setInstancePk(Long pk);
+    public ThumbnailOutput(File file, int rows, int columns, MediaType mediaType) {
+        this.file = file;
+        this.rows = rows;
+        this.columns = columns;
+        this.writer = RenderedImageOutput.getImageWriter(mediaType);
+    }
 
-    String getSopInstanceUID();
-
-    String getSopClassUID();
-
-    List<Location> getLocations();
-
-    Attributes getAttributes();
-
-    String getRetrieveAETs();
-
-    String getExternalRetrieveAET();
-
-    Availability getAvailability();
-
-    Date getCreatedTime();
-
-    Date getUpdatedTime();
-
-    Attributes getRejectionCode();
-
-    boolean isContainsMetadata();
-
-    boolean isImage();
-
-    boolean isVideo();
-
-    boolean isMultiframe();
+    @Override
+    public void write(OutputStream out) throws IOException, WebApplicationException {
+        BufferedImage bi = ImageIO.read(file);
+        try (ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out)) {
+            writer.setOutput(imageOut);
+            writer.write(new IIOImage(RenderedImageOutput.rescale(bi, rows, columns, 1.f),
+                    null, null));
+        } finally {
+            writer.dispose();
+        }
+    }
 }

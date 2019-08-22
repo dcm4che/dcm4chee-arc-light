@@ -176,47 +176,42 @@ enum ObjectType {
     }
 
     public static ObjectType objectTypeOf(RetrieveContext ctx, InstanceLocations inst, int frame) {
+        if (inst.isImage()) {
+            switch (inst.getLocations().get(0).getTransferSyntaxUID()) {
+                case UID.MPEG2:
+                case UID.MPEG2MainProfileHighLevel:
+                    return MPEG2Video;
+                case UID.MPEG4AVCH264HighProfileLevel41:
+                case UID.MPEG4AVCH264BDCompatibleHighProfileLevel41:
+                case UID.MPEG4AVCH264HighProfileLevel42For2DVideo:
+                case UID.MPEG4AVCH264HighProfileLevel42For3DVideo:
+                case UID.MPEG4AVCH264StereoHighProfileLevel42:
+                case UID.HEVCH265MainProfileLevel51:
+                case UID.HEVCH265Main10ProfileLevel51:
+                    return MPEG4Video;
+                case UID.ImplicitVRLittleEndian:
+                case UID.ExplicitVRLittleEndian:
+                    return frame <= 0 && inst.isMultiframe()
+                            ? UncompressedMultiFrameImage
+                            : UncompressedSingleFrameImage;
+                default:
+                    return frame <= 0 && inst.isMultiframe()
+                            ? CompressedMultiFrameImage
+                            : CompressedSingleFrameImage;
+            }
+        }
+        switch (inst.getSopClassUID()) {
+            case UID.EncapsulatedPDFStorage:
+                return EncapsulatedPDF;
+            case UID.EncapsulatedCDAStorage:
+                return EncapsulatedCDA;
+            case UID.EncapsulatedSTLStorage:
+                return EncapsulatedSTL;
+        }
         ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
         return arcDev.isWadoSupportedSRClass(inst.getSopClassUID())
                 ? SRDocument
-                : objectTypeOf(inst, frame);
-    }
-
-    public static ObjectType objectTypeOf(InstanceLocations inst, int frame) {
-        String cuid = inst.getSopClassUID();
-        String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
-        Attributes attrs = inst.getAttributes();
-        if (cuid.equals(UID.EncapsulatedPDFStorage))
-            return EncapsulatedPDF;
-        if (cuid.equals(UID.EncapsulatedCDAStorage))
-            return EncapsulatedCDA;
-        if (cuid.equals(UID.EncapsulatedSTLStorage))
-            return EncapsulatedSTL;
-        if (!attrs.contains(Tag.BitsAllocated) || cuid.equals(UID.RTDoseStorage))
-            return Other;
-
-        switch (tsuid) {
-            case UID.MPEG2:
-            case UID.MPEG2MainProfileHighLevel:
-                return MPEG2Video;
-            case UID.MPEG4AVCH264HighProfileLevel41:
-            case UID.MPEG4AVCH264BDCompatibleHighProfileLevel41:
-            case UID.MPEG4AVCH264HighProfileLevel42For2DVideo:
-            case UID.MPEG4AVCH264HighProfileLevel42For3DVideo:
-            case UID.MPEG4AVCH264StereoHighProfileLevel42:
-            case UID.HEVCH265MainProfileLevel51:
-            case UID.HEVCH265Main10ProfileLevel51:
-                return MPEG4Video;
-            case UID.ImplicitVRLittleEndian:
-            case UID.ExplicitVRLittleEndian:
-                return multiframe(frame, attrs) ? UncompressedMultiFrameImage : UncompressedSingleFrameImage;
-            default:
-                return multiframe(frame, attrs) ? CompressedMultiFrameImage : CompressedSingleFrameImage;
-        }
-     }
-
-    private static boolean multiframe(int frame, Attributes attrs) {
-        return frame <= 0 && attrs.getInt(Tag.NumberOfFrames, 1) > 1;
+                : Other;
     }
 
     public MediaType getDefaultMimeType() {
