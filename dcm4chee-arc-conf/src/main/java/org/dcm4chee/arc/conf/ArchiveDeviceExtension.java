@@ -69,6 +69,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
     public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
             "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+    public static final String WADO_THUMBNAIL_VIEWPORT = "64,64";
 
     private volatile String defaultCharacterSet;
     private volatile String fuzzyAlgorithmClass;
@@ -95,7 +96,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int queryFetchSize = 100;
     private volatile int queryMaxNumberOfResults = 0;
     private volatile int qidoMaxNumberOfResults = 0;
-    private volatile String wadoThumbnailViewPort = "64,64";
+    private volatile String wadoThumbnailViewPort = WADO_THUMBNAIL_VIEWPORT;
     private volatile String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
     private volatile String wadoSR2HtmlTemplateURI;
     private volatile String wadoSR2TextTemplateURI;
