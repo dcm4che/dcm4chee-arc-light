@@ -845,28 +845,28 @@ public class WadoRS {
 
     private String thumbnailURL(InstanceLocations inst) {
         if (inst.isVideo())
-            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-video.png";
+            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/video.png";
 
         String cuid = inst.getSopClassUID();
         switch (cuid) {
             case UID.EncapsulatedPDFStorage:
-                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-pdf.png";
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/pdf.png";
             case UID.EncapsulatedCDAStorage:
-                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-cda.png";
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/cda.png";
             case UID.EncapsulatedSTLStorage:
-                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-stl.png";
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/stl.png";
             case UID.KeyObjectSelectionDocumentStorage:
-                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-ko.png";
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/ko.png";
             case UID.RawDataStorage:
-                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-rawdata.png";
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/rawdata.png";
         }
         if (cuid.startsWith("1.2.840.10008.5.1.4.1.1.88."))
-            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-sr.png";
+            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/sr.png";
         if (cuid.startsWith("1.2.840.10008.5.1.4.1.1.9."))
-            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-waveform.png";
+            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/waveform.png";
         if (cuid.startsWith("1.2.840.10008.5.1.4.1.1.11."))
-            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-pr.png";
-        return "${jboss.server.temp.url}/dcm4chee-arc/thumbnail-other.png";
+            return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/pr.png";
+        return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/other.png";
     }
 
     private Windowing windowing() {
