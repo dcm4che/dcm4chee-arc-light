@@ -1027,6 +1027,7 @@ export class StudyComponent implements OnInit {
                         this.initExporters(retries - 1);
                 });
     }
+    //TODO How should trash work with the webApps concept?
     trashActive:boolean = false;
     rejectStudy(study) {
         let $this = this;
