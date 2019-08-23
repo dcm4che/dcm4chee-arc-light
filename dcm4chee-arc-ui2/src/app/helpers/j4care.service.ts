@@ -677,13 +677,17 @@ export class j4care {
         return paramString ? '?' + paramString : '';
     };
     static objToUrlParams(filter){
-        let filterMaped = Object.keys(filter).map((key) => {
-            if (filter[key] || filter[key] === false || filter[key] === 0){
-                return key + '=' + filter[key];
-            }
-        });
-        let filterCleared = _.compact(filterMaped);
-        return filterCleared.join('&');
+        try{
+            let filterMaped = Object.keys(filter).map((key) => {
+                if (filter[key] || filter[key] === false || filter[key] === 0){
+                    return key + '=' + filter[key];
+                }
+            });
+            let filterCleared = _.compact(filterMaped);
+            return filterCleared.join('&');
+        }catch (e) {
+            return "";
+        }
     }
     static param(filter){
         let paramString = j4care.objToUrlParams(filter);

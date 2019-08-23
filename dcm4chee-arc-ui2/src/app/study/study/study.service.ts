@@ -440,6 +440,24 @@ export class StudyService {
         return queryParams;
     }
 
+    studyURL(attrs, webApp:DcmWebApp){
+        return `${this.getDicomURL("study", webApp)}/${attrs['0020000D'].Value[0]}`;
+    }
+    seriesURL(attrs, webApp:DcmWebApp) {
+        return this.studyURL(attrs, webApp) + '/series/' + attrs['0020000E'].Value[0];
+    }
+    instanceURL(attrs, webApp:DcmWebApp) {
+        return this.seriesURL(attrs, webApp) + '/instances/' + attrs['00080018'].Value[0];
+    }
+    studyFileName(attrs) {
+        return attrs['0020000D'].Value[0];
+    }
+    seriesFileName(attrs) {
+        return this.studyFileName(attrs) + '_' + attrs['0020000E'].Value[0];
+    }
+    instanceFileName(attrs) {
+        return this.seriesFileName(attrs) + '_' + attrs['00080018'].Value[0];
+    }
     isVideo(attrs):boolean {
         let sopClass = j4care.valueOf(attrs['00080016']);
         return [
@@ -774,6 +792,50 @@ export class StudyService {
                                         event:"click",
                                         level:"study",
                                         action:"upload_file"
+                                    },e);
+                                }
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-save',
+                                    text:'',
+                                    description:'Retrieve Study uncompressed',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"download",
+                                        mode:"uncompressed"
+                                    },e);
+                                }
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-download-alt',
+                                    text:'',
+                                    description:'Retrieve Study as stored at the archive',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"download",
+                                        mode:"compressed",
+                                    },e);
+                                }
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-trash',
+                                    text:'',
+                                    description:'Reject study',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"reject"
                                     },e);
                                 }
                             },{
@@ -1415,10 +1477,15 @@ export class StudyService {
         }
         return this.$http.put(`${url}/${studyUID}/expire/${expiredDate}${localParams}`,{})
     }
-    getExporters(){
-        return this.$http.get('../export')
-    }
+    getExporters = () => this.$http.get('../export');
 
+    rejectStudy(studyAttr, webApp:DcmWebApp, rejectionCode){
+        return this.$http.post(
+            `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
+            {},
+            new HttpHeaders({'Accept': 'application/dicom+json'})
+        )
+    }
     mapCode(m,i,newObject,mapCodes){
         if(_.hasIn(mapCodes,i)){
             if(_.isArray(mapCodes[i])){
@@ -1433,5 +1500,6 @@ export class StudyService {
         }
     }
 
+    getRejectNotes = (params?:any) => this.$http.get(`../reject/${j4care.param(params)}`);
 
 }
