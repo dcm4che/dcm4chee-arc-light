@@ -129,9 +129,16 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setUserMessage("Missing PID-3"));
         Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
         if (mrg == null) {
-            Patient patient = patientService.updatePatient(ctx);
-            archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
-            return patient;
+            try {
+                Patient patient = patientService.updatePatient(ctx);
+                archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
+                return patient;
+            } catch (Exception e) {
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.ApplicationInternalError)
+                                .setUserMessage(e.getMessage()));
+            }
         }
 
         ctx.setPreviousAttributes(mrg);
