@@ -42,6 +42,7 @@ import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component"
 import {EditStudyComponent} from "../../widgets/dialogs/edit-study/edit-study.component";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 import {UploadFilesComponent} from "../../widgets/dialogs/upload-files/upload-files.component";
+import {DcmWebApp} from "../../models/dcm-web-app";
 
 
 @Component({
@@ -124,9 +125,15 @@ export class StudyComponent implements OnInit {
         aets:[],
         aetsAreSet:false
     };
+    trash:{reject:any;rjnotes:any;rjcode:any;active:boolean} = {
+        reject:undefined,
+        rjnotes:undefined,
+        rjcode:undefined,
+        active:false
+    };
 
     tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
-        tableSchema:this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions),
+        tableSchema:this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash}),
         config:{
             offset:0
         }
@@ -134,6 +141,8 @@ export class StudyComponent implements OnInit {
     // studyDevice:StudyDevice;
     testModel;
     deviceWebservice:StudyDeviceWebserviceModel;
+    private _selectedWebAppService:DcmWebApp;
+    webApps:DcmWebApp[];
     dialogRef: MatDialogRef<any>;
     lastPressedCode;
     moreFunctionConfig = {
@@ -165,7 +174,7 @@ export class StudyComponent implements OnInit {
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
-          this.getDevices();
+          this.initWebApps();
         });
     }
     testShow = true;
@@ -203,7 +212,7 @@ export class StudyComponent implements OnInit {
     actions(id, model){
         console.log("id",id);
         console.log("model",model);
-        if(this.deviceWebservice.selectedWebApp){
+        if(this._selectedWebAppService){ //selectedWebAppService
             if(id.action === "toggle_studies"){
                 if(!model.studies){
                     // this.getStudies(model);
@@ -473,7 +482,7 @@ export class StudyComponent implements OnInit {
             if(ok)
                 semicolon = true;
             let token;
-            let url = this.service.getDicomURL("study",this.deviceWebservice.selectedWebApp);
+            let url = this.service.getDicomURL("study",this._selectedWebAppService);
             this._keycloakService.getToken().subscribe((response)=>{
                 if(!this.appService.global.notSecure){
                     token = response.token;
@@ -507,14 +516,14 @@ export class StudyComponent implements OnInit {
     downloadZip(object, level, mode){
         let token;
         let param = 'accept=application/zip';
-        console.log("url",this.service.getDicomURL(mode, this.deviceWebservice.selectedWebApp));
-        let url = this.service.studyURL(object.attrs, this.deviceWebservice.selectedWebApp);
+        console.log("url",this.service.getDicomURL(mode, this._selectedWebAppService));
+        let url = this.service.studyURL(object.attrs, this._selectedWebAppService);
         let fileName = this.service.studyFileName(object.attrs);
         if(mode === 'compressed'){
             param += ';transfer-syntax=*';
         }
         if(level === 'serie'){
-            url = this.service.seriesURL(object.attrs, this.deviceWebservice.selectedWebApp);
+            url = this.service.seriesURL(object.attrs, this._selectedWebAppService);
             fileName = this.service.seriesFileName(object.attrs);
         }
         this._keycloakService.getToken().subscribe((response)=>{
@@ -557,12 +566,10 @@ export class StudyComponent implements OnInit {
         return filter;
     }
     search(mode?:('next'|'prev'|'current')){
-        if(this.deviceWebservice.selectedWebApp){
-            // if (this._filter.filterModel.aet){
-            // let callingAet = new Aet(this._filter.filterModel.aet);
-            console.log("this",this.filter);
-            console.log("deviceWebservice",this.deviceWebservice);
-            let filterModel =  _.clone(this._filter.filterModel);
+        console.log("this",this.filter);
+        if(this._selectedWebAppService){
+
+            let filterModel =  this.getFilterClone();
             if(filterModel.limit){
                 filterModel.limit++;
             }
@@ -586,11 +593,16 @@ export class StudyComponent implements OnInit {
             this.appService.showError("No web app service was selected!");
         }
     }
+    getFilterClone():any{
+        let filterModel =  _.clone(this._filter.filterModel);
+        delete filterModel.webApp;
+        return filterModel;
+    }
 
     getStudies(filterModel){
         this.cfpLoadingBar.start();
         filterModel['includefield'] = 'all';
-        this.service.getStudies(filterModel, this.deviceWebservice.selectedWebApp)
+        this.service.getStudies(filterModel, this._selectedWebAppService)
             .subscribe(res => {
                 this.patients = [];
                 if(res){
@@ -640,14 +652,14 @@ export class StudyComponent implements OnInit {
         this.cfpLoadingBar.start();
         if (study.offset < 0) study.offset = 0;
         // let callingAet = new Aet(this._filter.filterModel.aet);
-        let filters = _.clone(this._filter.filterModel);
+        let filters = this.getFilterClone();
         if(filters.limit){
             filters.limit++;
         }
         filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
-        this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.deviceWebservice.selectedWebApp)
+        this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this._selectedWebAppService)
             .subscribe((res)=>{
             if (res){
                 if (res.length === 0){
@@ -690,14 +702,14 @@ export class StudyComponent implements OnInit {
         this.cfpLoadingBar.start();
         if (series.offset < 0) series.offset = 0;
         // let callingAet = new Aet(this._filter.filterModel.aet);
-        let filters = _.clone(this._filter.filterModel);
+        let filters = this.getFilterClone();
         if(filters.limit){
             filters.limit++;
         }
         filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'InstanceNumber';
-        this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this.deviceWebservice.selectedWebApp)
+        this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this._selectedWebAppService)
             .subscribe((res)=>{
             if (res){
                 series.instances = res.map((attrs, index) => {
@@ -742,7 +754,8 @@ export class StudyComponent implements OnInit {
     entryFilterChanged(e?){
         console.log("e",e);
         console.log("this.deviceWebservice",this.deviceWebservice);
-        if(this.deviceWebservice.selectedDevice.dicomDeviceName != this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] != ''){
+        // this.selectedWebAppService = _.get(this.filter,"filterModel.webApp");
+/*        if(this.deviceWebservice.selectedDevice.dicomDeviceName != this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] != ''){
             this.deviceConfigurator.getDevice(this.filter.filterEntryModel["device"]).subscribe(device=>{
                 this.deviceWebservice.selectedDeviceObject = device;
                 this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.getDcmWebAppServicesDropdown(["QIDO_RS"]));
@@ -750,23 +763,24 @@ export class StudyComponent implements OnInit {
             this._filter.filterEntryModel["webService"] = undefined;
             this.deviceWebservice.dcmWebAppServices = undefined;
         }
-        if(!this.deviceWebservice.selectedWebApp || this.deviceWebservice.selectedWebApp.dcmWebAppName != this.filter.filterEntryModel["webService"]){
+        if(!this.selectedWebAppService || this.selectedWebAppService.dcmWebAppName != this.filter.filterEntryModel["webService"]){
             this.deviceWebservice.setSelectedWebAppByString(this.filter.filterEntryModel["webService"]);
-        }
+        }*/
     }
 
     filterChanged(){
-
+        this.selectedWebAppService = _.get(this.filter,"filterModel.webApp");
+        // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
 
     setSchema(){
         this._filter.filterSchemaMain.lineLength = undefined;
         this._filter.filterSchemaExpand.lineLength = undefined;
-        this._filter.filterSchemaEntry.lineLength = undefined;
+        // this._filter.filterSchemaEntry.lineLength = undefined;
         // this._filter.filterSchemaEntry  = this.service.getEntrySchema(this.devices,this.selectedDeviceWebserviceAet);
-        this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes, this._filter.quantityText,'main');
+        this._filter.filterSchemaMain  = this.service.getFilterSchema(this.studyConfig.tab,  this.applicationEntities.aes, this._filter.quantityText,'main', this.webApps);
         this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
-        this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.getDcmWebAppServicesDropdown(["QIDO_RS"]));
+        // this._filter.filterSchemaEntry = this.service.getEntrySchema(this.deviceWebservice.devicesDropdown, this.deviceWebservice.getDcmWebAppServicesDropdown(["QIDO_RS"]));
     }
 
     accessLocationChange(e){
@@ -1006,12 +1020,38 @@ export class StudyComponent implements OnInit {
                         }
                     );
                 }else{
-                    this.appService.showError("Expired date is requred!");
+                    this.appService.showError("Expired date is required!");
                 }
             }
         });
     }
 
+    initWebApps(){
+        this.service.getWebApps()
+            .map((webApps:DcmWebApp[])=>{
+                this.webApps = webApps;
+            })
+            .switchMap(res=>{
+                return this.service.getAets()
+            })
+            .subscribe(
+                (aets)=> {
+                    this.webApps = this.webApps.map((webApp:DcmWebApp)=>{
+                        aets.forEach((aet)=>{
+                            if(webApp.dicomAETitle && webApp.dicomAETitle === aet.dicomAETitle){
+                                if(aet.dcmHideNotRejectedInstances){
+                                    webApp["dcmHideNotRejectedInstances"] = aet.dcmHideNotRejectedInstances;
+                                }
+                            }
+                        });
+                        return webApp;
+                    });
+                    this.getDevices();
+                },
+                (res)=> {
+
+                });
+    }
     initExporters(retries) {
         this.service.getExporters()
             .subscribe(
@@ -1027,12 +1067,10 @@ export class StudyComponent implements OnInit {
                         this.initExporters(retries - 1);
                 });
     }
-    //TODO How should trash work with the webApps concept?
-    trashActive:boolean = false;
     rejectStudy(study) {
         let $this = this;
-        if (this.trashActive) {
-            this.service.rejectStudy(study.attrs, this.deviceWebservice.selectedWebApp, this.rjcode.codeValue + '^' + this.rjcode.codingSchemeDesignator )
+        if (this.trash.active) {
+            this.service.rejectStudy(study.attrs, this._selectedWebAppService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
             .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
@@ -1050,7 +1088,7 @@ export class StudyComponent implements OnInit {
             );
         }else{
             let select: any = [];
-            _.forEach(this.rjnotes, (m, i) => {
+            _.forEach(this.trash.rjnotes, (m, i) => {
                 select.push({
                     title: m.codeMeaning,
                     value: m.codeValue + '^' + m.codingSchemeDesignator,
@@ -1060,13 +1098,13 @@ export class StudyComponent implements OnInit {
             let parameters: any = {
                 content: 'Select rejected type',
                 select: select,
-                result: {select: this.rjnotes[0].codeValue + '^' + this.rjnotes[0].codingSchemeDesignator},
+                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
                 saveButton: 'REJECT'
             };
             this.confirm(parameters).subscribe(result => {
                 if (result) {
                     $this.cfpLoadingBar.start();
-                    this.service.rejectStudy(study.attrs, this.deviceWebservice.selectedWebApp, parameters.result.select )
+                    this.service.rejectStudy(study.attrs, this._selectedWebAppService, parameters.result.select )
 /*
                     $this.$http.post(
                         $this.studyURL(study.attrs) + '/reject/' + parameters.result.select,
@@ -1097,41 +1135,37 @@ export class StudyComponent implements OnInit {
             });
         }
     };
-    reject;
-    rjnotes;
+
     initRjNotes(retries) {
         this.service.getRejectNotes()
             .subscribe(res => {
-                    this.rjnotes = res.sort(function (a, b) {
+                    this.trash.rjnotes = res.sort(function (a, b) {
                         if (a.codeValue === '113039' && a.codingSchemeDesignator === 'DCM')
                             return -1;
                         if (b.codeValue === '113039' && b.codingSchemeDesignator === 'DCM')
                             return 1;
                         return 0;
                     });
-                    this.reject = this.rjnotes[0].codeValue + '^' + this.rjnotes[0].codingSchemeDesignator;
+                    this.trash.reject = this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator;
                 },
                 err => {
                     if (retries)
                         this.initRjNotes(retries - 1);
             });
     }
-    rjcode;
     setTrash(){
-/*        if (this.aetmodel.dcmHideNotRejectedInstances === true){
-            if (this.rjcode === null){
+        if (this.selectedWebAppService.dcmHideNotRejectedInstances === true){
+            if (!this.trash.rjcode){
                 this.service.getRejectNotes({dcmRevokeRejection:true})
-                // this.$http.get('../reject?dcmRevokeRejection=true')
                     .subscribe((res)=>{
-                        this.rjcode = res[0];
+                        this.trash.rjcode = res[0];
                     });
             }
-            // this.filter.returnempty = false;
-            this.trashActive = true;
+            this.trash.active = true;
+            this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash});
         }else{
-            this.trashActive = false;
-        }*/
-        this.trashActive = false;
+            this.trash.active = false;
+        }
     };
     /*exportStudy(study) {
         this.exporter(
@@ -1266,21 +1300,28 @@ export class StudyComponent implements OnInit {
     }
 
     testAet(){
-
-        this.service.testAet("http://test-ng:8080/dcm4chee-arc/ui2/rs/aets", this.deviceWebservice.selectedWebApp).subscribe(res=>{
+        this.service.testAet("http://test-ng:8080/dcm4chee-arc/ui2/rs/aets", this._selectedWebAppService).subscribe(res=>{
             console.log("res",res);
         },err=>{
             console.log("err",err);
         });
-        // this.service.test(this.deviceWebservice.selectedWebApp);
+        // this.service.test(this.selectedWebAppService);
     }
     testStudy(){
-        this.service.testAet("http://test-ng:8080/dcm4chee-arc/aets/TEST/rs/studies?limit=21&offset=0&includefield=all", this.deviceWebservice.selectedWebApp).subscribe(res=>{
+        this.service.testAet("http://test-ng:8080/dcm4chee-arc/aets/TEST/rs/studies?limit=21&offset=0&includefield=all", this._selectedWebAppService).subscribe(res=>{
             console.log("res",res);
         },err=>{
             console.log("err",err);
         });
-        // this.service.test(this.deviceWebservice.selectedWebApp);
+        // this.service.test(this.selectedWebAppService);
     }
 
+    get selectedWebAppService(): DcmWebApp {
+        return this._selectedWebAppService;
+    }
+
+    set selectedWebAppService(value: DcmWebApp) {
+        this._selectedWebAppService = value;
+        this.setTrash();
+    }
 }

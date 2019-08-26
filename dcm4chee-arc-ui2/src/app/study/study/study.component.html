@@ -12,7 +12,7 @@
       </j4care-select>-->
       <!--<button (click)="testSecure()">test</button>-->
       <h2>Studies {{studyConfig.tab}}</h2>
-      <h4 [@showHide]="fixedHeader ? 'hide':'show'">Select device and web service</h4>
+      <!--<h4 [@showHide]="fixedHeader ? 'hide':'show'">Select device and web service</h4>-->
 <!--      <div class="controll_header" *ngIf="studyDevice">
         <j4care-select [(model)]="studyDevice.selectedDevice" [placeholder]="'Select Device'">
           <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
@@ -33,11 +33,11 @@
           <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
         </div>
       </div>-->
-      <div class="filter_line" [@showHide]="fixedHeader ? 'hide':'show'">
+<!--      <div class="filter_line" [@showHide]="fixedHeader ? 'hide':'show'">
         <div class="filter_block">
           <filter-generator *ngIf="filter.filterSchemaEntry.lineLength" [schema]="filter.filterSchemaEntry.schema" [filterID]="'study-filter'" [model]="filter.filterEntryModel" [filterTreeHeight]="filter.filterSchemaEntry.lineLength" (onChange)="entryFilterChanged($event)"></filter-generator>
         </div>
-      </div>
+      </div>-->
       <div class="filter_line">
         <div class="filter_block">
           <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>

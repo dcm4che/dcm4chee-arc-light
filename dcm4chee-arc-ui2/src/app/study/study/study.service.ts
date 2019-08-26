@@ -18,6 +18,7 @@ import {DicomTableSchema, DynamicPipe} from "../../helpers/dicom-studies-table/d
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
 declare var DCM4CHE: any;
 
 @Injectable()
@@ -32,7 +33,8 @@ export class StudyService {
       private aeListService:AeListService,
       private $http:J4careHttpService,
       private storageSystems:StorageSystemsService,
-      private devicesService:DevicesService
+      private devicesService:DevicesService,
+      private webAppListService:WebAppsListService
     ) { }
 
     get patientIod() {
@@ -57,6 +59,10 @@ export class StudyService {
 
     set studyIod(value) {
         this._studyIod = value;
+    }
+
+    getWebApps(){
+        return this.webAppListService.getWebApps();
     }
 
     getEntrySchema(devices, aetWebService):{schema:FilterSchema, lineLength:number}{
@@ -208,7 +214,7 @@ export class StudyService {
         return dropdown;
     };
 
-    getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, filterMode:('main'| 'expand')){
+    getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, filterMode:('main'| 'expand'), webApps?:DcmWebApp[]){
         let schema:FilterSchema;
         let lineLength:number = 3;
         switch(tab){
@@ -241,7 +247,21 @@ export class StudyService {
                         }),
                     filterKey:'orderby',
                     text:"Order By",
+                    title:"Order By",
                     placeholder:"Order By",
+                    cssClass:'study_order'
+
+                });
+                schema.push({
+                    tag:"html-select",
+                    options:webApps
+                        .map((webApps:DcmWebApp)=>{
+                            return new SelectDropdown(webApps ,webApps.dcmWebAppName,webApps.dicomDescription);
+                        }),
+                    filterKey:'webApp',
+                    text:"Web App Service",
+                    title:"Web App Service",
+                    placeholder:"Web App Service",
                     cssClass:'study_order'
 
                 });
@@ -485,7 +505,7 @@ export class StudyService {
     getDevices(){
         return this.devicesService.getDevices();
     }
-    PATIENT_STUDIES_TABLE_SCHEMA($this, actions):DicomTableSchema{
+    PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options):DicomTableSchema{
         return {
             patient:[
                 new TableSchemaElement({
@@ -827,9 +847,9 @@ export class StudyService {
                             },{
                                 icon:{
                                     tag:'span',
-                                    cssClass:'glyphicon glyphicon-trash',
+                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
                                     text:'',
-                                    description:'Reject study',
+                                    description:options.trash.active ? 'Restore study' : 'Reject study',
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -1483,7 +1503,7 @@ export class StudyService {
         return this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
-            new HttpHeaders({'Accept': 'application/dicom+json'})
+            new HttpHeaders({ 'Content-Type': 'application/json' })
         )
     }
     mapCode(m,i,newObject,mapCodes){

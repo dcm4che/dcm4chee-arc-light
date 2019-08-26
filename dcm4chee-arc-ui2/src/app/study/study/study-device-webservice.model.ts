@@ -48,7 +48,7 @@ export class StudyDeviceWebserviceModel {
     set devices(value: any[]) {
         this._devices = value;
         this._devicesDropdown = value.map((device:Device)=>{
-            return new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription,undefined,undefined, device);
+            return new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription || device.dicomDescription,undefined,undefined, device);
         }) || [];
         if(this._selectedDeviceObject && _.hasIn(this._selectedDeviceObject,"dicomDeviceName")){
             this.selectDeviceByName(this._selectedDeviceObject.dicomDeviceName);
@@ -84,8 +84,10 @@ export class StudyDeviceWebserviceModel {
     }
 
     set selectedDeviceObject(value: any) {
+        //TODO add the information of trash in the webapp
         this._selectedDeviceObject = value;
         this.mapAppServicesToConnections(this._selectedDeviceObject);
+        this.mapAetToWebApp(this._selectedDeviceObject);
         if(value && _.hasIn(value,"dicomDeviceName")){
             this.selectDeviceByName(value.dicomDeviceName)
         }else{
@@ -110,6 +112,11 @@ export class StudyDeviceWebserviceModel {
                     webApp.dicomNetworkConnectionReference[i] = <DicomNetworkConnection>j4care.getConnectionFromReference(webApp.dicomNetworkConnectionReference[i], deviceConnections);
                 })
             });
+        }
+    }
+    mapAetToWebApp(deviceObject:any){
+        if(_.hasIn(deviceObject,"dcmDevice.dcmWebApp") && _.hasIn(deviceObject, "dicomNetworkConnection")){
+
         }
     }
     get dcmWebAppServicesDropdown(): SelectDropdown<DcmWebApp>[] {

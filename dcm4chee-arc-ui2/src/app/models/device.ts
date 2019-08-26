@@ -6,6 +6,7 @@ import * as _ from "lodash";
 export class Device{
     private _dicomDeviceName:string;
     private _dicomDeviceDescription?:string;
+    private _dicomDescription?:string;
     private _dicomNetworkAE?:Aet[];
     private _dcmWebApp?:DcmWebApp[];
     private _dicomInstalled:boolean;
@@ -21,6 +22,7 @@ export class Device{
         device:{
                 dicomDeviceName?:string;
                 dicomDeviceDescription?:string;
+                dicomDescription?:string,
                 dicomInstalled?:boolean;
                 hasArcDevExt?:boolean;
                 dicomManufacturer?:string;
@@ -34,7 +36,7 @@ export class Device{
         ){
             this._wholeObject = device;
             this._dicomDeviceName = this._wholeObject.dicomDeviceName;
-            this._dicomDeviceDescription = this._wholeObject.dicomDeviceDescription || '';
+            this._dicomDeviceDescription = this._wholeObject.dicomDeviceDescription || this._wholeObject.dicomDescription  || '';
             this._dicomInstalled = device.dicomInstalled;
             this._hasArcDevExt = device.hasArcDevExt;
             this._dicomManufacturer = device.dicomManufacturer;
@@ -61,6 +63,14 @@ export class Device{
 
     set dicomDeviceDescription(value: string) {
         this._dicomDeviceDescription = value;
+    }
+
+    get dicomDescription(): string {
+        return this._dicomDescription;
+    }
+
+    set dicomDescription(value: string) {
+        this._dicomDescription = value;
     }
 
     get dicomNetworkAE(): Aet[] {

@@ -20,7 +20,7 @@ export class WebAppsListService {
         private aeListService:AeListService
     ) { }
 
-    getWebApps(filter){
+    getWebApps(filter?:any){
         return this.$http.get(`${this.webAppsUrl}/${j4care.param(filter)}`);
     }
 
