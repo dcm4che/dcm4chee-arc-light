@@ -150,10 +150,19 @@ export class StudyComponent implements OnInit {
         options:[
             new SelectDropdown("create_patient","Create patient"),
             new SelectDropdown("upload_dicom","Upload DICOM Object"),
+            new SelectDropdown("export_multiple","Export multiple studies"),
+            new SelectDropdown("permanent_delete","Permanent delete"),
+            new SelectDropdown("retrieve_multiple","Retrieve multiple studies"),
+            new SelectDropdown("storage_verification","Storage Verification"),
+            new SelectDropdown("download_studies","Download Studies as CSV"),
         ],
         model:undefined
     };
     exporters;
+    testShow = true;
+    fixedHeader = false;
+    patients:PatientDicom[] = [];
+    moreStudies:boolean = false;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -177,10 +186,6 @@ export class StudyComponent implements OnInit {
           this.initWebApps();
         });
     }
-    testShow = true;
-    fixedHeader = false;
-    patients:PatientDicom[] = [];
-    moreStudies:boolean = false;
 
     @HostListener("window:scroll", [])
     onWindowScroll(e) {
@@ -247,6 +252,17 @@ export class StudyComponent implements OnInit {
             if(id.action === "reject"){
                 if(id.level === "study"){
                     this.rejectStudy(model);
+                }
+            }
+            if(id.action === "export"){
+                if(id.level === "study"){
+                    this.exportStudy(model);
+                }
+                if(id.level === "instance"){
+                    this.exportInstance(model);
+                }
+                if(id.level === "series"){
+                    this.exportSeries(model);
                 }
             }
             if(id.action === "edit_study"){
@@ -372,7 +388,6 @@ export class StudyComponent implements OnInit {
             saveLabel:'CREATE',
             titleLabel:'Create new MWL'
         };
-        // modifyStudy(patient, "create");
         this.modifyMWL(patient, 'create', '', '', mwl, config);
     };
     modifyMWL(patient, mode, patientkey, mwlkey, mwl, config:{saveLabel:string, titleLabel:string}){
@@ -549,14 +564,14 @@ export class StudyComponent implements OnInit {
         }
 
         for (let key in filter){
-            if ((filter[key] || filter[key] === false) && key != "onlyDefault"){
+            if ((filter[key] || filter[key] === false) && key != "onlyDefault" && key != "webApp"){
                 params[key] = filter[key];
             }
         }
         return params;
     }
     createStudyFilterParams() {
-        let filter = Object.assign({}, this._filter.filterModel);
+        let filter = this.getFilterClone();
         delete filter["onlyDefault"];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
@@ -564,6 +579,11 @@ export class StudyComponent implements OnInit {
             filter["includefield"] = 'all';
         }
         return filter;
+    }
+    getFilterClone():any{
+        let filterModel =  _.clone(this._filter.filterModel);
+        delete filterModel.webApp;
+        return filterModel;
     }
     search(mode?:('next'|'prev'|'current')){
         console.log("this",this.filter);
@@ -593,11 +613,7 @@ export class StudyComponent implements OnInit {
             this.appService.showError("No web app service was selected!");
         }
     }
-    getFilterClone():any{
-        let filterModel =  _.clone(this._filter.filterModel);
-        delete filterModel.webApp;
-        return filterModel;
-    }
+
 
     getStudies(filterModel){
         this.cfpLoadingBar.start();
@@ -769,7 +785,10 @@ export class StudyComponent implements OnInit {
     }
 
     filterChanged(){
-        this.selectedWebAppService = _.get(this.filter,"filterModel.webApp");
+        if(this.selectedWebAppService != _.get(this.filter,"filterModel.webApp")){
+            this.selectedWebAppService = _.get(this.filter,"filterModel.webApp");
+            // this.patients = [];
+        }
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
 
@@ -1047,6 +1066,7 @@ export class StudyComponent implements OnInit {
                         return webApp;
                     });
                     this.getDevices();
+                    this.getQueueNames();
                 },
                 (res)=> {
 
@@ -1073,7 +1093,6 @@ export class StudyComponent implements OnInit {
             this.service.rejectStudy(study.attrs, this._selectedWebAppService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
             .subscribe(
                 (res) => {
-                    // $scope.queryStudies($scope.studies[0].offset);
                     $this.appService.setMessage({
                         'title': 'Info',
                         'text': 'Study restored successfully!',
@@ -1105,12 +1124,6 @@ export class StudyComponent implements OnInit {
                 if (result) {
                     $this.cfpLoadingBar.start();
                     this.service.rejectStudy(study.attrs, this._selectedWebAppService, parameters.result.select )
-/*
-                    $this.$http.post(
-                        $this.studyURL(study.attrs) + '/reject/' + parameters.result.select,
-                        {},
-                        $this.jsonHeader
-                    )*/
                         .subscribe(
                         (response) => {
                             $this.appService.setMessage({
@@ -1162,14 +1175,14 @@ export class StudyComponent implements OnInit {
                     });
             }
             this.trash.active = true;
-            this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash});
         }else{
             this.trash.active = false;
         }
+        this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash});
     };
-    /*exportStudy(study) {
+    exportStudy(study) {
         this.exporter(
-            this.studyURL(study.attrs),
+            this.service.studyURL(study.attrs, this._selectedWebAppService),
             'Export study',
             'Study will not be sent!',
             'single',
@@ -1179,7 +1192,7 @@ export class StudyComponent implements OnInit {
     };
     exportSeries(series) {
         this.exporter(
-            this.seriesURL(series.attrs),
+            this.service.seriesURL(series.attrs, this._selectedWebAppService),
             'Export series',
             'Series will not be sent!',
             'single',
@@ -1189,7 +1202,7 @@ export class StudyComponent implements OnInit {
     };
     exportInstance(instance) {
         this.exporter(
-            this.instanceURL(instance.attrs),
+            this.service.instanceURL(instance.attrs, this._selectedWebAppService),
             'Export instance',
             'Instance will not be sent!',
             'single',
@@ -1203,13 +1216,17 @@ export class StudyComponent implements OnInit {
         let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
-/!*        _.forEach(this.exporters, (m, i) => {
+        let inernal = true;
+        if(this.appService.archiveDeviceName && this._selectedWebAppService.dicomDeviceName && this._selectedWebAppService.dicomDeviceName != this.appService.archiveDeviceName){
+            inernal = false;
+        }
+        _.forEach(this.exporters, (m, i) => {
             if (m.id.indexOf(':') > -1){
                 dicomPrefixes.push(m);
             }else{
                 noDicomExporters.push(m);
             }
-        });*!/
+        });
         this.config.viewContainerRef = this.viewContainerRef;
         let config = {
             height: 'auto',
@@ -1224,15 +1241,16 @@ export class StudyComponent implements OnInit {
         this.dialogRef = this.dialog.open(ExportDialogComponent, config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
-        // this.dialogRef.componentInstance.externalInternalAetMode = this.externalInternalAetMode;
+        this.dialogRef.componentInstance.externalInternalAetMode = inernal ? "internal" : "external";
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.mode = mode;
-        // this.dialogRef.componentInstance.queues = this.queues;
+        this.dialogRef.componentInstance.queues = this.queues;
         this.dialogRef.componentInstance.warning = warning;
+        this.dialogRef.componentInstance.newStudyPage = true;
         // this.dialogRef.componentInstance.count = this.count;
-/!*        if($this.externalInternalAetMode === 'external') {
+ /*       if(!inernal) {
             this.dialogRef.componentInstance.preselectedExternalAET = this.externalInternalAetModel.dicomAETitle;
-        }*!/
+        }*/
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
                 let batchID = "";
@@ -1241,15 +1259,18 @@ export class StudyComponent implements OnInit {
                     batchID = `batchID=${result.batchID}&`;
                 $this.cfpLoadingBar.start();
                 if(mode === "multiple"){
-                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.mainservice.param(this.createStudyFilterParams())}` ;
+                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.appService.param(this.createStudyFilterParams())}` ;
                 }else{
                     if(mode === 'multipleExport'){
                         let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
                         if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
                             checkbox = '&' + checkbox;
-                        urlRest = `../aets/${this.aet}/export/${result.selectedExporter}/studies?${batchID}${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
+                        urlRest = `${this.service.getDicomURL("export",this._selectedWebAppService)}/${result.selectedExporter}/studies?${batchID}${this.appService.param(this.createStudyFilterParams())}${checkbox}`;
                     }else{
-                        if($this.externalInternalAetMode === 'external'){
+                        console.log("deviceName",this.appService.archiveDeviceName);
+                        console.log("deviceName",this._selectedWebAppService.dicomDeviceName);
+                        if(this.appService.archiveDeviceName && this._selectedWebAppService.dicomDeviceName && this._selectedWebAppService.dicomDeviceName != this.appService.archiveDeviceName){
+                        // if(this._selectedWebAppService){
                             // let param = result.dcmQueueName ? `?${batchID}dcmQueueName=${result.dcmQueueName}` : '';
                             if(result.dcmQueueName){
                                 params['dcmQueueName'] = result.dcmQueueName
@@ -1262,17 +1283,14 @@ export class StudyComponent implements OnInit {
                             }else{
                                 id = result.selectedExporter;
                             }
-                            urlRest = url  + '/export/' + id + '?'+ batchID + this.mainservice.param(result.checkboxes);
+                            urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                         }
                     }
                 }
-                $this.$http.post(
-                    urlRest,
-                    undefined,
-                    $this.jsonHeader
-                ).subscribe(
+                this.service.export(urlRest)
+                    .subscribe(
                     (result) => {
-                        $this.mainservice.setMessage({
+                        $this.appService.setMessage({
                             'title': 'Info',
                             'text': $this.service.getMsgFromResponse(result,'Command executed successfully!'),
                             'status': 'info'
@@ -1281,7 +1299,7 @@ export class StudyComponent implements OnInit {
                     },
                     (err) => {
                         console.log("err",err);
-                        $this.mainservice.setMessage({
+                        $this.appService.setMessage({
                             'title': 'Error ' + err.status,
                             'text': $this.service.getMsgFromResponse(err),
                             'status': 'error'
@@ -1291,8 +1309,15 @@ export class StudyComponent implements OnInit {
                 );
             }
         });
-    }*/
-
+    }
+    queues;
+    getQueueNames(){
+        this.service.getQueueNames().subscribe(names=>{
+            this.queues = names.map(name=> new SelectDropdown(name.name, name.description));
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        })
+    }
     testSecure(){
         this.appService.isSecure().subscribe((res)=>{
             console.log("secured",res);

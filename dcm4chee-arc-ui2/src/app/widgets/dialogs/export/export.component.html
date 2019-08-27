@@ -79,9 +79,9 @@
                 </mat-select>
             </div>
             <div class="dicomBlock">
-                <p *ngIf="mode ==='single'">Select the external AETitle (C-MOVE SCP):</p>
+                <p *ngIf="mode ==='single' && !newStudyPage">Select the external AETitle (C-MOVE SCP):</p>
                 <p *ngIf="mode ==='multiple'">Select the external AETitle:</p>
-                <mat-select class="aes" [(ngModel)]="result.externalAET">
+                <mat-select class="aes" [(ngModel)]="result.externalAET" *ngIf="!newStudyPage">
                     <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                 </mat-select>
             </div>

@@ -127,7 +127,7 @@ export interface FilterSchemaElement {
     cssClass?:string;
 }
 
-export type DicomMode = "study" | "patient" | "mwl" | "diff";
+export type DicomMode = "study" | "patient" | "mwl" | "diff" | "export";
 export type AccessLocation = "internal" | "external";
 
 export interface StudyFilterConfig {

@@ -13,6 +13,7 @@ export class DcmWebApp{
     private _dicomInstalled:boolean;
     private _dcmKeycloakClientID:string;
     private _dcmHideNotRejectedInstances:boolean;
+    private _dicomDeviceName:string;
 
     constructor(
         webApp:{
@@ -26,6 +27,7 @@ export class DcmWebApp{
             dicomInstalled?:boolean;
             dcmKeycloakClientID?:string;
             dcmHideNotRejectedInstances?:boolean;
+            dicomDeviceName?:string;
         } = {}
     ){
         this._dcmWebAppName = webApp.dcmWebAppName;
@@ -38,6 +40,7 @@ export class DcmWebApp{
         this._dicomInstalled = webApp.dicomInstalled;
         this._dcmKeycloakClientID = webApp.dcmKeycloakClientID;
         this._dcmHideNotRejectedInstances = webApp.dcmHideNotRejectedInstances;
+        this._dicomDeviceName = webApp.dicomDeviceName;
     }
 
     get dcmWebAppName(): string {
@@ -119,5 +122,13 @@ export class DcmWebApp{
 
     set dcmHideNotRejectedInstances(value: boolean) {
         this._dcmHideNotRejectedInstances = value;
+    }
+
+    get dicomDeviceName(): string {
+        return this._dicomDeviceName;
+    }
+
+    set dicomDeviceName(value: string) {
+        this._dicomDeviceName = value;
     }
 }

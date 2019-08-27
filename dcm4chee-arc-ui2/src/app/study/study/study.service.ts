@@ -19,6 +19,7 @@ import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
+import {RetrieveMonitoringService} from "../../monitoring/external-retrieve/retrieve-monitoring.service";
 declare var DCM4CHE: any;
 
 @Injectable()
@@ -34,7 +35,8 @@ export class StudyService {
       private $http:J4careHttpService,
       private storageSystems:StorageSystemsService,
       private devicesService:DevicesService,
-      private webAppListService:WebAppsListService
+      private webAppListService:WebAppsListService,
+      private retrieveMonitoringService:RetrieveMonitoringService
     ) { }
 
     get patientIod() {
@@ -363,6 +365,9 @@ export class StudyService {
                     break;
                 case "mwl":
                     url += '/mwlitems';
+                    break;
+                case "export":
+                    url += '/export';
                     break;
     /*            case "diff":
                     url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
@@ -782,7 +787,7 @@ export class StudyService {
                                     actions.call($this, {
                                         event:"click",
                                         level:"study",
-                                        action:"export_study"
+                                        action:"export"
                                     },e);
                                 }
                             },{
@@ -1052,6 +1057,21 @@ export class StudyService {
                                     },e);
                                 }
                             }
+                            ,{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-export',
+                                    text:'',
+                                    description:'Export series',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"series",
+                                        action:"export"
+                                    },e);
+                                }
+                            }
                         ]
                     },
                     headerDescription:"Actions",
@@ -1184,6 +1204,28 @@ export class StudyService {
                             click:(e)=>{
                                 console.log("e",e);
                                 e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    pxWidth:40
+                }),new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-export',
+                                text:'',
+                                description:'Export instance',
+                            },
+                            click:(e)=>{
+                                actions.call($this, {
+                                    event:"click",
+                                    level:"instance",
+                                    action:"export"
+                                },e);
                             }
                         }
                     ],
@@ -1519,6 +1561,42 @@ export class StudyService {
             }
         }
     }
+    getMsgFromResponse(res,defaultMsg = null){
+        let msg;
+        let endMsg = '';
+        try{
+            msg = res.json();
+            if(_.hasIn(msg,"completed")){
+                endMsg = `Completed: ${msg.completed}<br>`;
+            }
+            if(_.hasIn(msg,"warning")){
+                endMsg = endMsg + `Warning: ${msg.warning}<br>`;
+            }
+            if(_.hasIn(msg,"failed")){
+                endMsg = endMsg + `Failed: ${msg.failed}<br>`;
+            }
+            if(_.hasIn(msg,"errorMessage")){
+                endMsg = endMsg + `${msg.errorMessage}<br>`;
+            }
+            if(_.hasIn(msg,"error")){
+                endMsg = endMsg + `${msg.error}<br>`;
+            }
+            if(endMsg === ""){
+                endMsg = defaultMsg;
+            }
+        }catch (e){
+            if(defaultMsg){
+                endMsg = defaultMsg;
+            }else{
+                endMsg = res.statusText;
+            }
+        }
+        return endMsg;
+    }
+
+    export = (url) => this.$http.post(url,undefined,new HttpHeaders({ 'Content-Type': 'application/json' }));
+
+    getQueueNames = () => this.retrieveMonitoringService.getQueueNames();
 
     getRejectNotes = (params?:any) => this.$http.get(`../reject/${j4care.param(params)}`);
 
