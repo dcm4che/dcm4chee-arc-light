@@ -96,7 +96,8 @@ public class Curve2PRExporter extends AbstractExporter {
             "PR.SeriesDescription", "{0008103E}",
             "PR.SeriesNumber", "{00200011,offset,100}",
             "PR.InstanceNumber", "1",
-            "PR.ContentLabel", "CURVEDATA"
+            "PR.ContentLabel", "CURVEDATA",
+            "PR.ContentDescription", "Created from Curve Data in Image(s)"
     };
 
     private final RetrieveService retrieveService;
@@ -236,7 +237,6 @@ public class Curve2PRExporter extends AbstractExporter {
         Attributes pr = new Attributes();
         pr.setNull(Tag.Manufacturer, VR.LO);
         pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
-        pr.setNull(Tag.ContentDescription, VR.LO);
         pr.setNull(Tag.ContentCreatorName, VR.PN);
         properties.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith("PR"))
