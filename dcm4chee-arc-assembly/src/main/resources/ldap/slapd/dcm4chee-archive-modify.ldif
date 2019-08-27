@@ -1443,6 +1443,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.299 NAME 'dcmWadoThumbnailViewport'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.300 NAME 'dcmTrimISO2022CharacterSet'
+  DESC 'Replace single code for Single-Byte Character Sets with Code Extensions by code for Single-Byte Character Sets without Code Extensions'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1872,6 +1877,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmLeadingCFindSCP $
     dcmTag $
     dcmAttributeUpdatePolicy $
+    dcmTrimISO2022CharacterSet $
     dcmNullifyTag $
     dcmNullifyIssuerOfPatientID $
     dcmIssuerOfPatientID $

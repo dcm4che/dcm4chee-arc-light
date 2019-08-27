@@ -9,7 +9,8 @@
     "dcmRulePriority",
     "dcmRetrieveAsReceived",
     "dcmNoKeywords",
-    "dcmAttributeUpdatePolicy"
+    "dcmAttributeUpdatePolicy",
+    "dcmTrimISO2022CharacterSet"
   ],
   "properties": {
     "cn": {
@@ -134,6 +135,12 @@
         "REPLACE",
         "OVERWRITE"
       ]
+    },
+    "dcmTrimISO2022CharacterSet": {
+      "title": "Trim ISO 2022 Character Set",
+      "description": "Replace single code for Single-Byte Character Sets with Code Extensions by code for Single-Byte Character Sets without Code Extensions. Only effective with DIMSE = C_STORE_RQ and DICOM Transfer Role = SCU.",
+      "type": "boolean",
+      "default": false
     },
     "dcmNullifyTag": {
       "title": "Nullify Attribute Tag",

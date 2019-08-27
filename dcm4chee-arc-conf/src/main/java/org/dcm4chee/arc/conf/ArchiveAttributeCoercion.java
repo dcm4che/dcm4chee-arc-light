@@ -70,6 +70,7 @@ public class ArchiveAttributeCoercion {
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
+    private boolean trimISO2022CharacterSet;
     private int[] nullifyTags = {};
     private NullifyIssuer nullifyIssuerOfPatientID;
     private Issuer[] issuerOfPatientIDs = {};
@@ -217,6 +218,14 @@ public class ArchiveAttributeCoercion {
         return this;
     }
 
+    public boolean isTrimISO2022CharacterSet() {
+        return trimISO2022CharacterSet;
+    }
+
+    public void setTrimISO2022CharacterSet(boolean trimISO2022CharacterSet) {
+        this.trimISO2022CharacterSet = trimISO2022CharacterSet;
+    }
+
     public int[] getNullifyTags() {
         return nullifyTags;
     }
@@ -362,6 +371,8 @@ public class ArchiveAttributeCoercion {
                 + ", mergeMWLMatchingKey=" + mergeMWLMatchingKey
                 + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
+                + ", trimISO2022CharacterSet=" + trimISO2022CharacterSet
+                + ", nullifyTags=" + Arrays.toString(nullifyTags)
                 + ", nullifyIssuerOfPatientID=" + nullifyIssuerOfPatientID
                 + ", issuerOfPatientIDs=" + Arrays.toString(issuerOfPatientIDs)
                 + ", issuerOfPatientIDFormat=" + issuerOfPatientIDFormat
