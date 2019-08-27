@@ -238,10 +238,10 @@ public class Curve2PRExporter extends AbstractExporter {
         pr.setNull(Tag.Manufacturer, VR.LO);
         pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
         pr.setNull(Tag.ContentCreatorName, VR.PN);
+        pr.addSelected(metadata, patStudyTags);
         properties.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith("PR"))
                 .forEach(entry -> setString(pr, entry, metadata));
-        pr.addSelected(metadata, patStudyTags);
         pr.setString(Tag.SOPClassUID, VR.UI, UID.GrayscaleSoftcopyPresentationStateStorage);
         pr.setString(Tag.SOPInstanceUID, VR.UI, sopInstanceUID);
         pr.setString(Tag.Modality, VR.CS, "PR");
