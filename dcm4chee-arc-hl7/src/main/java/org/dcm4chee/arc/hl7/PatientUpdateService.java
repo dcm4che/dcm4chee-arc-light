@@ -54,10 +54,7 @@ import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.patient.CircularPatientMergeException;
-import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.patient.PatientTrackingNotAllowedException;
+import org.dcm4chee.arc.patient.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
@@ -133,6 +130,16 @@ class PatientUpdateService extends DefaultHL7Service {
                 Patient patient = patientService.updatePatient(ctx);
                 archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
                 return patient;
+            } catch (PatientMergedException e) {
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.UnknownKeyIdentifier)
+                                .setUserMessage(e.getMessage()));
+            } catch (NonUniquePatientException e) {
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.DuplicateKeyIdentifier)
+                                .setUserMessage(e.getMessage()));
             } catch (Exception e) {
                 throw new HL7Exception(
                         new ERRSegment(msg.msh())
