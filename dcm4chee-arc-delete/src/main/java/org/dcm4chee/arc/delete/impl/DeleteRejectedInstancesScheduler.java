@@ -102,6 +102,9 @@ public class DeleteRejectedInstancesScheduler extends Scheduler {
                 return;
             deleted = cmd.delete(rjCode, before, fetchSize);
         } while (deleted == fetchSize);
+
+        if (deleted > 0)
+            LOG.info("Deleted {} instances of type {} permanently.", deleted, rjCode);
     }
 
 }
