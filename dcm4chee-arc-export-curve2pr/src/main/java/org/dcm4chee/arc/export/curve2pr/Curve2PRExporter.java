@@ -44,6 +44,7 @@ package org.dcm4chee.arc.export.curve2pr;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -85,22 +86,33 @@ public class Curve2PRExporter extends AbstractExporter {
             Tag.ModalityLUTSequence
     };
 
+    private static final String GraphicLayer = "GraphicLayer";
+    private static final String GraphicLayerOrder = "GraphicLayerOrder";
+    private static final String GraphicLayerRecommendedDisplayGrayscaleValue = "GraphicLayerRecommendedDisplayGrayscaleValue";
+    private static final String[] DEF_PROPS = {
+            GraphicLayer, "CURVEDATA",
+            GraphicLayerOrder, "1",
+            GraphicLayerRecommendedDisplayGrayscaleValue, "65535",
+            "PR.SeriesDescription", "{0008103E}",
+            "PR.SeriesNumber", "{00200011,offset,100}",
+            "PR.InstanceNumber", "1",
+            "PR.ContentLabel", "CURVEDATA"
+    };
+
     private final RetrieveService retrieveService;
     private final StoreService storeService;
     private final int[] patStudyTags;
-    private final Attributes propsAttrs = new Attributes();
+    private final Map<String,String> properties = new HashMap<>();
 
     Curve2PRExporter(ExporterDescriptor descriptor, RetrieveService retrieveService, StoreService storeService) {
         super(descriptor);
         this.retrieveService = retrieveService;
         this.storeService = storeService;
         this.patStudyTags = patStudyTags(retrieveService.getArchiveDeviceExtension());
-        for (Map.Entry<String, String> prop : descriptor.getProperties().entrySet()) {
-            if (prop.getKey().startsWith("PR.")) {
-                int tag = TagUtils.forName(prop.getKey().substring(3));
-                propsAttrs.setString(tag, dict.vrOf(tag), prop.getValue());
-            }
+        for (int i = 1; i < DEF_PROPS.length; i++, i++) {
+            properties.put(DEF_PROPS[i-1], DEF_PROPS[i]);
         }
+        descriptor.getProperties().forEach(properties::put);
     }
 
     private int[] patStudyTags(ArchiveDeviceExtension arcdev) {
@@ -139,7 +151,7 @@ public class Curve2PRExporter extends AbstractExporter {
         int totInstanceRefs = 0;
         int instanceRefs;
         try (StoreSession session = storeService.newStoreSession(
-                ctx.getHttpServletRequestInfo(), ae, descriptor.getProperty("SourceAET", null))) {
+                ctx.getHttpServletRequestInfo(), ae, properties.get("SourceAET"))) {
             for (Attributes pr : results) {
                 totInstanceRefs += instanceRefs = countInstanceRefs(pr);
                 trimSoftcopyVOILUT(pr, instanceRefs);
@@ -205,8 +217,7 @@ public class Curve2PRExporter extends AbstractExporter {
         Attributes graphicAnnotationItem = new Attributes(4);
         pr.ensureSequence(Tag.GraphicAnnotationSequence, 10).add(graphicAnnotationItem);
         imageRef(graphicAnnotationItem, inst);
-        graphicAnnotationItem.setString(Tag.GraphicLayer, VR.CS,
-                descriptor.getProperty("GraphicLayer", "CURVEDATA"));
+        graphicAnnotationItem.setString(Tag.GraphicLayer, VR.CS, properties.get(GraphicLayer));
         imageRef(displayAreaSelectionItem(
                     pr, metadata.getInt(Tag.Rows, 1), metadata.getInt(Tag.Columns, 1)),
                 inst);
@@ -224,12 +235,12 @@ public class Curve2PRExporter extends AbstractExporter {
         String sopInstanceUID = sopInstanceUID(instanceNumber, seriesInstanceUID);
         Attributes pr = new Attributes();
         pr.setNull(Tag.Manufacturer, VR.LO);
-        pr.setString(Tag.SeriesNumber, VR.IS, "0");
         pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
-        pr.setString(Tag.ContentLabel, VR.CS, "CURVEDATA");
         pr.setNull(Tag.ContentDescription, VR.LO);
         pr.setNull(Tag.ContentCreatorName, VR.PN);
-        pr.addAll(propsAttrs);
+        properties.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith("PR"))
+                .forEach(entry -> setString(pr, entry, metadata));
         pr.addSelected(metadata, patStudyTags);
         pr.setString(Tag.SOPClassUID, VR.UI, UID.GrayscaleSoftcopyPresentationStateStorage);
         pr.setString(Tag.SOPInstanceUID, VR.UI, sopInstanceUID);
@@ -243,6 +254,11 @@ public class Curve2PRExporter extends AbstractExporter {
         pr.setDate(Tag.PresentationCreationDateAndTime, now);
         results.add(pr);
         return pr;
+    }
+
+    private static void setString(Attributes pr, Map.Entry<String, String> entry, Attributes metadata) {
+        int tag = TagUtils.forName(entry.getKey().substring(3));
+        pr.setString(tag, dict.vrOf(tag), new AttributesFormat(entry.getValue()).format(metadata));
     }
 
     private static String seriesInstanceUID(RetrieveContext ctx, List<Attributes> results) {
@@ -259,10 +275,10 @@ public class Curve2PRExporter extends AbstractExporter {
 
     private Attributes graphicLayerItem() {
         Attributes item = new Attributes(3);
-        item.setString(Tag.GraphicLayer, VR.CS, descriptor.getProperty("GraphicLayer", "CURVEDATA"));
-        item.setString(Tag.GraphicLayerOrder, VR.IS, descriptor.getProperty("GraphicLayerOrder", "1"));
+        item.setString(Tag.GraphicLayer, VR.CS, properties.get(GraphicLayer));
+        item.setString(Tag.GraphicLayerOrder, VR.IS, properties.get(GraphicLayerOrder));
         item.setString(Tag.GraphicLayerRecommendedDisplayGrayscaleValue, VR.US,
-                descriptor.getProperty("GraphicLayerRecommendedDisplayGrayscaleValue", "65535"));
+                properties.get(GraphicLayerRecommendedDisplayGrayscaleValue));
         return item;
     }
 
