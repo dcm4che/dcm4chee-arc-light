@@ -93,9 +93,10 @@ public class Curve2PRExporter extends AbstractExporter {
             GraphicLayer, "CURVEDATA",
             GraphicLayerOrder, "1",
             GraphicLayerRecommendedDisplayGrayscaleValue, "65535",
+            "PR.Manufacturer", "",
+            "PR.ContentCreatorName", "",
             "PR.SeriesDescription", "{0008103E}",
             "PR.SeriesNumber", "{00200011,offset,100}",
-            "PR.InstanceNumber", "1",
             "PR.ContentLabel", "CURVEDATA",
             "PR.ContentDescription", "Created from Curve Data in Image(s)"
     };
@@ -235,9 +236,7 @@ public class Curve2PRExporter extends AbstractExporter {
         String seriesInstanceUID = seriesInstanceUID(ctx, results);
         String sopInstanceUID = sopInstanceUID(instanceNumber, seriesInstanceUID);
         Attributes pr = new Attributes();
-        pr.setNull(Tag.Manufacturer, VR.LO);
         pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
-        pr.setNull(Tag.ContentCreatorName, VR.PN);
         pr.addSelected(metadata, patStudyTags);
         properties.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith("PR"))
