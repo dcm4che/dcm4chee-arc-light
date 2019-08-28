@@ -369,11 +369,14 @@ export class StudyService {
                 case "export":
                     url += '/export';
                     break;
+                case "study":
+                    url += '/studies';
+                    break;
     /*            case "diff":
                     url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
                     break;*/
                 default:
-                    url += '/studies';
+                    url;
             }
             if(mode != "diff" && responseType){
                if(responseType === "count")
@@ -385,6 +388,19 @@ export class StudyService {
         }catch (e) {
             j4care.log("Error on getting dicomURL in study.service.ts",e);
         }
+    }
+
+    wadoURL(webService:DcmWebApp,...args: any[]): any {
+        //TODO get webservice with the clas WADO_URI
+        let i, url = `${j4care.getUrlFromDcmWebApplication(webService)}/wado?requestType=WADO`;
+        for (i = 1; i < arguments.length; i++) {
+            _.forEach(arguments[i], (value, key) => {
+                url += '&' + key.replace(/^(_){1}(\w*)/, (match,p1,p2)=>{
+                    return p2;
+                }); + '=' + value;
+            });
+        }
+        return url;
     }
 
     private diffUrl(callingAet:Aet,  firstExternalAet?:Aet, secondExternalAet?:Aet, baseUrl?:string){
@@ -582,8 +598,6 @@ export class StudyService {
                                         description:'Edit this Patient',
                                     },
                                     click:(e)=>{
-                                        console.log("e",e);
-                                        //TODO edit patient
                                         actions.call($this, {
                                             event:"click",
                                             level:"patient",
@@ -598,8 +612,6 @@ export class StudyService {
                                         description:'Add new MWL',
                                     },
                                     click:(e)=>{
-                                        console.log("e",e);
-                                        //TODO create mwl
                                         actions.call($this, {
                                             event:"click",
                                             level:"patient",
@@ -614,8 +626,6 @@ export class StudyService {
                                         description:'Download as CSV',
                                     },
                                     click:(e)=>{
-                                        console.log("e",e);
-                                        //TODO download csv
                                         actions.call($this, {
                                             event:"click",
                                             level:"study",
@@ -1056,6 +1066,20 @@ export class StudyService {
                                         action:"download_csv"
                                     },e);
                                 }
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
+                                    text:'',
+                                    description:options.trash.active ? 'Restore series' : 'Reject series',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"series",
+                                        action:"reject"
+                                    },e);
+                                }
                             }
                             ,{
                                 icon:{
@@ -1169,26 +1193,78 @@ export class StudyService {
                     pxWidth:40
                 }),
                 new TableSchemaElement({
-                    type:"actions",
+                    type:"actions-menu",
                     header:"",
-                    actions:[
-                        {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-option-vertical',
-                                text:''
+                    menu:{
+                        toggle:(e)=>{
+                            console.log("e",e);
+                            e.showMenu = !e.showMenu;
+                        },
+                        actions:[
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-export',
+                                    text:'',
+                                    description:'Export instance',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"instance",
+                                        action:"export"
+                                    },e);
+                                }
                             },
-                            click:(e)=>{
-                                console.log("e",e);
-                                /*                                actions.call($this, {
-                                                                    event:"click",
-                                                                    level:"patient",
-                                                                    action:"toggle_studies"
-                                                                },e);*/
-                                // e.showAttributes = !e.showAttributes;
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
+                                    text:'',
+                                    description:options.trash.active ? 'Restore instance' : 'Reject instance',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"instance",
+                                        action:"reject"
+                                    },e);
+                                }
+                            },
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-save',
+                                    text:'',
+                                    description:'Download Uncompressed DICOM Object',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"instance",
+                                        action:"download",
+                                        mode:"uncompressed"
+                                    },e);
+                                }
+                            },
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-download-alt',
+                                    text:'',
+                                    description:'Download DICOM Object',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"instance",
+                                        action:"download",
+                                        mode:"compressed",
+                                    },e);
+                                }
                             }
-                        }
-                    ],
+                        ]
+                    },
                     headerDescription:"Actions",
                     pxWidth:40
                 }),new TableSchemaElement({
@@ -1204,28 +1280,6 @@ export class StudyService {
                             click:(e)=>{
                                 console.log("e",e);
                                 e.showAttributes = !e.showAttributes;
-                            }
-                        }
-                    ],
-                    headerDescription:"Actions",
-                    pxWidth:40
-                }),new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
-                        {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-export',
-                                text:'',
-                                description:'Export instance',
-                            },
-                            click:(e)=>{
-                                actions.call($this, {
-                                    event:"click",
-                                    level:"instance",
-                                    action:"export"
-                                },e);
                             }
                         }
                     ],
@@ -1544,6 +1598,20 @@ export class StudyService {
     rejectStudy(studyAttr, webApp:DcmWebApp, rejectionCode){
         return this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
+            {},
+            new HttpHeaders({ 'Content-Type': 'application/json' })
+        )
+    }
+    rejectSeries(studyAttr, webApp:DcmWebApp, rejectionCode){
+        return this.$http.post(
+            `${this.seriesURL(studyAttr, webApp)}/reject/${rejectionCode}`,
+            {},
+            new HttpHeaders({ 'Content-Type': 'application/json' })
+        )
+    }
+    rejectInstance(studyAttr, webApp:DcmWebApp, rejectionCode){
+        return this.$http.post(
+            `${this.instanceURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
             new HttpHeaders({ 'Content-Type': 'application/json' })
         )

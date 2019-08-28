@@ -251,11 +251,25 @@ export class StudyComponent implements OnInit {
                 this.editPatient(model);
             }
             if(id.action === "download"){
-                this.downloadZip(model,id.level,id.mode);
+                if(id.level === "instance"){
+                    if(id.mode === "uncompressed"){
+                        this.downloadURL(model);
+                    }else{
+                        this.downloadURL(model, "*");
+                    }
+                }else{
+                    this.downloadZip(model,id.level,id.mode);
+                }
             }
             if(id.action === "reject"){
                 if(id.level === "study"){
                     this.rejectStudy(model);
+                }
+                if(id.level === "series"){
+                    this.rejectSeries(model);
+                }
+                if(id.level === "instance"){
+                    this.rejectInstance(model);
                 }
             }
             if(id.action === "export"){
@@ -556,7 +570,35 @@ export class StudyComponent implements OnInit {
             }
         });
     };
-
+    downloadURL(inst, transferSyntax?:string) {
+        let token;
+        let url = "";
+        let fileName = "dcm4che.dcm";
+        this._keycloakService.getToken().subscribe((response)=>{
+            if(!this.appService.global.notSecure){
+                token = response.token;
+            }
+            let exQueryParams = { contentType: 'application/dicom'};
+            if (transferSyntax){
+                exQueryParams["transferSyntax"] = {};
+                exQueryParams["transferSyntax"] = transferSyntax;
+            }
+            console.log("keys",Object.keys(inst.wadoQueryParams));
+            console.log("keys",Object.getOwnPropertyNames(inst.wadoQueryParams));
+            console.log("keys",inst.wadoQueryParams);
+            if(!this.appService.global.notSecure){
+                // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+                url = this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`;
+            }else{
+                // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
+                url = this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams);
+            }
+            if(j4care.hasSet(inst, "attrs[00080018].Value[0]")){
+                fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
+            }
+            j4care.downloadFile(url,fileName);
+        });
+    };
 
     createQueryParams(offset, limit, filter) {
         let params = {
@@ -1115,7 +1157,137 @@ export class StudyComponent implements OnInit {
             });
         }
     };
+    rejectSeries(series) {
+        let $this = this;
+        if (this.trash.active) {
+            this.service.rejectSeries(series.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+            .subscribe(
+                (res) => {
+                    // $scope.queryStudies($scope.studies[0].offset);
+                    $this.appService.setMessage({
+                        'title': 'Info',
+                        'text': 'Series restored successfully!',
+                        'status': 'info'
+                    });
+                    // $this.queryStudies($this.patients[0].offset);
+                },
+                (response) => {
+                    $this.httpErrorHandler.handleError(response);
+                    console.log('response', response);
+                }
+            );
+        }else{
+            let select: any = [];
+            _.forEach(this.trash.rjnotes, (m, i) => {
+                select.push({
+                    title: m.codeMeaning,
+                    value: m.codeValue + '^' + m.codingSchemeDesignator,
+                    label: m.label
+                });
+            });
+            let parameters: any = {
+                content: 'Select rejected type',
+                select: select,
+                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
+                saveButton: 'REJECT'
+            };
 
+            console.log('parameters', parameters);
+            this.confirm(parameters).subscribe(result => {
+                if (result) {
+                    console.log('result', result);
+                    console.log('parameters', parameters);
+                    $this.cfpLoadingBar.start();
+                    this.service.rejectSeries(series.attrs, this.studyWebService.selectedWebService, parameters.result.select )
+                        .subscribe(
+                        (response) => {
+                            $this.appService.setMessage({
+                                'title': 'Info',
+                                'text': 'Series rejected successfully!',
+                                'status': 'info'
+                            });
+
+                            // patients.splice(patientkey,1);
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.httpErrorHandler.handleError(err);
+                            // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                } else {
+                    console.log('else', result);
+                    console.log('parameters', parameters);
+                }
+            });
+        }
+    };
+    rejectInstance(instance) {
+        let $this = this;
+        if (this.trash.active) {
+            this.service.rejectInstance(instance.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+                .subscribe(
+                (res) => {
+                    // $scope.queryStudies($scope.studies[0].offset);
+                    $this.appService.setMessage({
+                        'title': 'Info',
+                        'text': 'Instance restored successfully!',
+                        'status': 'info'
+                    });
+                    // $this.queryStudies($this.patients[0].offset);
+                },
+                (response) => {
+                    $this.httpErrorHandler.handleError(response);
+                    console.log('response', response);
+                }
+            );
+        }else{
+
+            let select: any = [];
+            _.forEach(this.trash.rjnotes, (m, i) => {
+                select.push({
+                    title: m.codeMeaning,
+                    value: m.codeValue + '^' + m.codingSchemeDesignator,
+                    label: m.label
+                });
+            });
+            let parameters: any = {
+                content: 'Select rejected type',
+                select: select,
+                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
+                saveButton: 'REJECT'
+            };
+            console.log('parameters', parameters);
+            this.confirm(parameters).subscribe(result => {
+                if (result) {
+                    console.log('result', result);
+                    console.log('parameters', parameters);
+                    $this.cfpLoadingBar.start();
+                    this.service.rejectInstance(instance.attrs, this.studyWebService.selectedWebService, parameters.result.select ).subscribe(
+                        (response) => {
+                            $this.appService.setMessage({
+                                'title': 'Info',
+                                'text': 'Instance rejected successfully!',
+                                'status': 'info'
+                            });
+
+                            // patients.splice(patientkey,1);
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.httpErrorHandler.handleError(err);
+                            // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                } else {
+                    console.log('else', result);
+                    console.log('parameters', parameters);
+                }
+            });
+        }
+    };
 
     setTrash(){
         if (this.studyWebService.selectedWebService.dcmHideNotRejectedInstances === true){

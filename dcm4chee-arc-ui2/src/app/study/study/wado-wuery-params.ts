@@ -8,9 +8,9 @@ export class WadoQueryParams{
         seriesUID:string,
         objectUID:string
     ){
-        this._studyUID = studyUID;
-        this._seriesUID = seriesUID;
-        this._objectUID = objectUID;
+        this.studyUID = studyUID;
+        this.seriesUID = seriesUID;
+        this.objectUID = objectUID;
     }
 
     get studyUID(): string {
