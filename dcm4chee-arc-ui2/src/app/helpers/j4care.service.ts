@@ -1076,7 +1076,7 @@ export class j4care {
     * */
     static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp):string{
         try{
-            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference) || ''}${dcmWebApp.dcmWebServicePath}`;
+            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || ''}${dcmWebApp.dcmWebServicePath}`;
         }catch (e) {
             this.log("Error on getting Url from DcmWebApplication",e);
         }

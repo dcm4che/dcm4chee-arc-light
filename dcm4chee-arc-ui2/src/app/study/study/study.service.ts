@@ -11,7 +11,6 @@ import * as _ from 'lodash'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
-import {StudyDeviceWebserviceModel} from "./study-device-webservice.model";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {DicomTableSchema, DynamicPipe} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
@@ -20,6 +19,7 @@ import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
 import {RetrieveMonitoringService} from "../../monitoring/external-retrieve/retrieve-monitoring.service";
+import {StudyWebService} from "./study-web-service.model";
 declare var DCM4CHE: any;
 
 @Injectable()
@@ -1283,43 +1283,43 @@ export class StudyService {
             ]
         }
     }
-    modifyStudy(study,deviceWebservice:StudyDeviceWebserviceModel, header:HttpHeaders){
+    modifyStudy(study,deviceWebservice:StudyWebService, header:HttpHeaders){
         const url = this.getModifyStudyUrl(deviceWebservice);
         if(url){
             return this.$http.post(url,study, header);
         }
         return Observable.throw({error:"Error on getting the WebApp URL"});
     }
-    getModifyStudyUrl(deviceWebservice:StudyDeviceWebserviceModel){
+    getModifyStudyUrl(deviceWebservice:StudyWebService){
         return this.getDicomURL("study", this.getModifyStudyWebApp(deviceWebservice));
     }
-    getModifyStudyWebApp(deviceWebservice:StudyDeviceWebserviceModel):DcmWebApp{
-        if(deviceWebservice.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
-            return deviceWebservice.selectedWebApp;
+    getModifyStudyWebApp(deviceWebservice:StudyWebService):DcmWebApp{
+        if(deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+            return deviceWebservice.selectedWebService;
         }else{
             return undefined;
         }
     }
 
-    modifyMWL(mwl,deviceWebservice:StudyDeviceWebserviceModel, header:HttpHeaders){
+    modifyMWL(mwl,deviceWebservice:StudyWebService, header:HttpHeaders){
         const url = this.getModifyMWLUrl(deviceWebservice);
         if(url){
             return this.$http.post(url,mwl, header);
         }
         return Observable.throw({error:"Error on getting the WebApp URL"});
     }
-    getModifyMWLUrl(deviceWebservice:StudyDeviceWebserviceModel){
+    getModifyMWLUrl(deviceWebservice:StudyWebService){
         return this.getDicomURL("mwl", this.getModifyMWLWebApp(deviceWebservice));
     }
-    getModifyMWLWebApp(deviceWebservice:StudyDeviceWebserviceModel):DcmWebApp{
-        if(deviceWebservice.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
-            return deviceWebservice.selectedWebApp;
+    getModifyMWLWebApp(deviceWebservice:StudyWebService):DcmWebApp{
+        if(deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+            return deviceWebservice.selectedWebService;
         }else{
             return undefined;
         }
     }
 
-    modifyPatient(patientId:string,patientObject,deviceWebservice:StudyDeviceWebserviceModel){
+    modifyPatient(patientId:string,patientObject,deviceWebservice:StudyWebService){
         const url = this.getModifyPatientUrl(deviceWebservice);
         if(url){
             if(patientId){
@@ -1333,23 +1333,23 @@ export class StudyService {
         return Observable.throw({error:"Error on getting the WebApp URL"});
     }
 
-    getModifyPatientUrl(deviceWebService:StudyDeviceWebserviceModel){
+    getModifyPatientUrl(deviceWebService:StudyWebService){
         return this.getDicomURLFromWebService(deviceWebService, "patient");
     }
-    getModifyPatientWebApp(deviceWebService:StudyDeviceWebserviceModel):DcmWebApp{
+    getModifyPatientWebApp(deviceWebService:StudyWebService):DcmWebApp{
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService,"DCM4CHEE_ARC_AET",  "PAM_RS");
     }
 
-    getDicomURLFromWebService(deviceWebService:StudyDeviceWebserviceModel, mode:("patient"|"study")){
+    getDicomURLFromWebService(deviceWebService:StudyWebService, mode:("patient"|"study")){
         return this.getDicomURL(mode, this.getModifyPatientWebApp(deviceWebService));
     }
-    getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService:StudyDeviceWebserviceModel, neededWebServiceClass:string, alternativeWebServiceClass:string){
-        if(deviceWebService.selectedWebApp.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1){
-            return deviceWebService.selectedWebApp;
+    getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService:StudyWebService, neededWebServiceClass:string, alternativeWebServiceClass:string){
+        if(deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1){
+            return deviceWebService.selectedWebService;
         }else{
             try{
-                return deviceWebService.dcmWebAppServices.filter((webService:DcmWebApp)=>{
-                    if(webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebApp.dicomAETitle){
+                return deviceWebService.webServices.filter((webService:DcmWebApp)=>{
+                    if(webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebService.dicomAETitle){
                         return true;
                     }
                     return false;
@@ -1361,7 +1361,7 @@ export class StudyService {
         }
     }
 
-    getUploadFileWebApp(deviceWebService:StudyDeviceWebserviceModel){
+    getUploadFileWebApp(deviceWebService:StudyWebService){
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService,"STOW_RS",  "STOW_RS");
     }
     appendPatientIdTo(patient, obj){
@@ -1524,7 +1524,7 @@ export class StudyService {
             saveButton: 'SAVE'
         };
     }
-    setExpiredDate(deviceWebservice:StudyDeviceWebserviceModel,studyUID, expiredDate, exporter, params?:any){
+    setExpiredDate(deviceWebservice:StudyWebService,studyUID, expiredDate, exporter, params?:any){
         const url = this.getModifyStudyUrl(deviceWebservice);
         let localParams = "";
         if(exporter){

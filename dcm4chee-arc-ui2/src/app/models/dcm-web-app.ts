@@ -5,6 +5,7 @@ export type WebServiceClass = "QIDO_RS" | "STOW_RS" | "WADO_RS" | "WADO_URI" | "
 export class DcmWebApp{
     private _dcmWebAppName:string;
     private _dicomNetworkConnectionReference:any[];
+    private _dicomNetworkConnection:any[];
     private _dicomDescription:string;
     private _dcmWebServicePath:string;
     private _dcmWebServiceClass:WebServiceClass[];
@@ -22,6 +23,7 @@ export class DcmWebApp{
             dcmWebServicePath?:string;
             dcmWebServiceClass?:WebServiceClass[];
             dicomNetworkConnectionReference?:any[];
+            dicomNetworkConnection?:any[];
             dicomAETitle?:string;
             dicomApplicationCluster?:any[];
             dicomInstalled?:boolean;
@@ -32,6 +34,7 @@ export class DcmWebApp{
     ){
         this._dcmWebAppName = webApp.dcmWebAppName;
         this._dicomNetworkConnectionReference = webApp.dicomNetworkConnectionReference;
+        this._dicomNetworkConnection = webApp.dicomNetworkConnection;
         this._dicomDescription = webApp.dicomDescription;
         this._dcmWebServicePath = webApp.dcmWebServicePath;
         this._dcmWebServiceClass = webApp.dcmWebServiceClass;
@@ -57,6 +60,14 @@ export class DcmWebApp{
 
     set dicomNetworkConnectionReference(value: any[]) {
         this._dicomNetworkConnectionReference = value;
+    }
+
+    get dicomNetworkConnection(): any[] {
+        return this._dicomNetworkConnection;
+    }
+
+    set dicomNetworkConnection(value: any[]) {
+        this._dicomNetworkConnection = value;
     }
 
     get dicomDescription(): string {
