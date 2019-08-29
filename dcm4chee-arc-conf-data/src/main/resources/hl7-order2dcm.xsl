@@ -180,65 +180,39 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
   <xsl:template match="ORC" mode="sps">
-    <xsl:param name="itemNo" select="position()"/>
-    <xsl:variable name="ipc-sps" select="following-sibling::IPC[1]"/>
-    <xsl:variable name="obr-sps" select="following-sibling::OBR[1]"/>
-    <xsl:variable name="addItem">
+    <Item number="1">
       <xsl:choose>
-        <xsl:when test="$itemNo = 1">
-          <xsl:value-of select="'true'"/>
+        <xsl:when test="$hl7ScheduledStationAETInOrder = 'ORC_18'">
+          <!-- Scheduled Station AE Title -->
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'00400001'"/>
+            <xsl:with-param name="vr" select="'AE'"/>
+            <xsl:with-param name="val">
+              <xsl:call-template name="multiValue">
+                <xsl:with-param name="field" select="field[18]"/>
+              </xsl:call-template>
+            </xsl:with-param>
+          </xsl:call-template>
         </xsl:when>
-        <xsl:when test="$ipc-sps and string($ipc-sps/field[4]/text()) != string(preceding-sibling::IPC[1]/field[4]/text())">
-          <xsl:value-of select="'true'"/>
-        </xsl:when>
-        <xsl:when test="not($ipc-sps) and $obr-sps
-              and string($obr-sps/field[20]/text()) != string(preceding-sibling::OBR[1]/field[20]/text())">
-          <xsl:value-of select="'true'"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="'false'"/>
-        </xsl:otherwise>
+        <xsl:otherwise/>
       </xsl:choose>
-    </xsl:variable>
-    <xsl:if test="$addItem = 'true'">
-      <Item number="{$itemNo}">
-        <xsl:choose>
-          <xsl:when test="$hl7ScheduledStationAETInOrder = 'ORC_18'">
-            <!-- Scheduled Station AE Title -->
-            <xsl:call-template name="attr">
-              <xsl:with-param name="tag" select="'00400001'"/>
-              <xsl:with-param name="vr" select="'AE'"/>
-              <xsl:with-param name="val">
-                <xsl:call-template name="multiValue">
-                  <xsl:with-param name="field" select="field[18]"/>
-                </xsl:call-template>
-              </xsl:with-param>
-            </xsl:call-template>
-          </xsl:when>
-          <xsl:otherwise/>
-        </xsl:choose>
-        <!-- Scheduled Procedure Step Start Date/Time -->
-        <xsl:call-template name="attrDATM">
-          <xsl:with-param name="datag" select="'00400002'"/>
-          <xsl:with-param name="tmtag" select="'00400003'"/>
-          <xsl:with-param name="val" select="string(field[7]/component[3]/text())"/>
-        </xsl:call-template>
-        <!-- Scheduled Procedure Step Status -->
-        <xsl:call-template name="attr">
-          <xsl:with-param name="tag" select="'00400020'"/>
-          <xsl:with-param name="vr" select="'CS'"/>
-          <xsl:with-param name="val" select="concat(string(field[1]), '_', string(field[5]))"/>
-        </xsl:call-template>
-        <xsl:apply-templates select="following-sibling::TQ1[1]" mode="sps"/>
-        <xsl:apply-templates select="$obr-sps" mode="sps">
-          <xsl:with-param name="ipc-sps" select="$ipc-sps"/>
-        </xsl:apply-templates>
-      </Item>
-    </xsl:if>
+      <!-- Scheduled Procedure Step Start Date/Time -->
+      <xsl:call-template name="attrDATM">
+        <xsl:with-param name="datag" select="'00400002'"/>
+        <xsl:with-param name="tmtag" select="'00400003'"/>
+        <xsl:with-param name="val" select="string(field[7]/component[3]/text())"/>
+      </xsl:call-template>
+      <!-- Scheduled Procedure Step Status -->
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00400020'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="concat(string(field[1]), '_', string(field[5]))"/>
+      </xsl:call-template>
+      <xsl:apply-templates select="following-sibling::TQ1[1]" mode="sps"/>
+      <xsl:apply-templates select="following-sibling::OBR[1]" mode="sps"/>
+    </Item>
   </xsl:template>
-
   <xsl:template match="TQ1" mode="sps">
     <!-- Scheduled Procedure Step Start Date/Time -->
     <xsl:call-template name="attrDATM">
@@ -248,20 +222,21 @@
     </xsl:call-template>
   </xsl:template>
   <xsl:template match="OBR" mode="sps">
-    <xsl:param name="ipc-sps"/>
     <!-- Scheduled Performing Physican Name -->
     <xsl:call-template name="cn2pnAttr">
       <xsl:with-param name="tag" select="'00400006'"/>
       <xsl:with-param name="cn" select="field[34]"/>
     </xsl:call-template>
+    <xsl:variable name="ipc-sps" select="following-sibling::IPC[1]"/>
     <xsl:choose>
       <xsl:when test="$ipc-sps">
         <xsl:apply-templates select="$ipc-sps" mode="sps"/>
       </xsl:when>
       <xsl:otherwise>
         <!-- Scheduled Protocol Step Description and Code Sequence -->
-        <xsl:call-template name="spsDescProtocolCode">
-          <xsl:with-param name="itemNo" select="position()"/>
+        <xsl:call-template name="ce2codeItemWithDesc">
+          <xsl:with-param name="descTag" select="'00400007'"/>
+          <xsl:with-param name="seqTag" select="'00400008'"/>
           <xsl:with-param name="codedEntry" select="field[4]"/>
           <xsl:with-param name="offset">
             <xsl:choose>
@@ -285,53 +260,6 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
-  <xsl:template name="spsDescProtocolCode">
-    <xsl:param name="itemNo"/>
-    <xsl:param name="codedEntry"/>
-    <xsl:param name="offset" select="0"/>
-    <xsl:variable name="desc" select="$codedEntry/component[$offset+1]/text()"/>
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00400007'"/>
-      <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val">
-        <xsl:choose>
-          <xsl:when test="$desc">
-            <xsl:value-of select="substring($desc,1,64)"/>
-          </xsl:when>
-          <xsl:when test="$offset = 0">
-            <xsl:value-of select="$codedEntry/text()"/>
-          </xsl:when>
-        </xsl:choose>
-      </xsl:with-param>
-    </xsl:call-template>
-    <!-- Scheduled Protocol Step Description and Code Sequence -->
-    <DicomAttribute tag="00400008" vr="SQ">
-      <xsl:call-template name="sps-protocol">
-        <xsl:with-param name="itemNo" select="$itemNo"/>
-        <xsl:with-param name="codedEntry" select="$codedEntry"/>
-        <xsl:with-param name="offset" select="$offset"/>
-      </xsl:call-template>
-    </DicomAttribute>
-  </xsl:template>
-
-  <xsl:template name="sps-protocol">
-    <xsl:param name="itemNo"/>
-    <xsl:param name="codedEntry"/>
-    <xsl:param name="offset"/>
-    <xsl:call-template name="codeItem1">
-      <xsl:with-param name="itemNo" select="$itemNo"/>
-      <xsl:with-param name="code">
-        <xsl:choose>
-          <xsl:when test="$offset != 0"><xsl:value-of select="$codedEntry/component[$offset]"/></xsl:when>
-          <xsl:otherwise><xsl:value-of select="$codedEntry/text()"/></xsl:otherwise>
-        </xsl:choose>
-      </xsl:with-param>
-      <xsl:with-param name="scheme" select="$codedEntry/component[$offset+2]"/>
-      <xsl:with-param name="meaning" select="$codedEntry/component[$offset+1]"/>
-    </xsl:call-template>
-  </xsl:template>
-
   <xsl:template match="ZDS">
     <!-- Study Instance UID -->
     <xsl:call-template name="attr">
@@ -376,8 +304,9 @@
       <xsl:with-param name="val" select="string(field[4]/text())"/>
     </xsl:call-template>
     <!-- Scheduled Protocol Step Description and Code Sequence -->
-    <xsl:call-template name="spsDescProtocolCode">
-      <xsl:with-param name="itemNo" select="position()"/>
+    <xsl:call-template name="ce2codeItemWithDesc">
+      <xsl:with-param name="descTag" select="'00400007'"/>
+      <xsl:with-param name="seqTag" select="'00400008'"/>
       <xsl:with-param name="codedEntry" select="field[6]"/>
     </xsl:call-template>
     <!-- Scheduled Station Name -->

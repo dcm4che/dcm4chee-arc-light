@@ -218,42 +218,27 @@
     <xsl:param name="meaning"/>
     <xsl:if test="$code and $scheme and $meaning">
       <DicomAttribute tag="{$sqtag}" vr="SQ">
-        <xsl:call-template name="codeItem1">
-          <xsl:with-param name="itemNo" select="'1'"/>
-          <xsl:with-param name="code" select="$code"/>
-          <xsl:with-param name="scheme" select="$scheme"/>
-          <xsl:with-param name="meaning" select="$meaning"/>
-        </xsl:call-template>
+        <Item number="1">
+          <!-- Code Value -->
+          <DicomAttribute tag="00080100" vr="SH">
+            <Value number="1">
+              <xsl:value-of select="substring($code,1,16)"/>
+            </Value>
+          </DicomAttribute>
+          <!-- Coding Scheme Designator -->
+          <DicomAttribute tag="00080102" vr="SH">
+            <Value number="1">
+              <xsl:value-of select="substring($scheme,1,16)"/>
+            </Value>
+          </DicomAttribute>
+          <!-- Code Meaning -->
+          <DicomAttribute tag="00080104" vr="LO">
+            <Value number="1">
+              <xsl:value-of select="substring($meaning,1,64)"/>
+            </Value>
+          </DicomAttribute>
+        </Item>
       </DicomAttribute>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template name="codeItem1">
-    <xsl:param name="itemNo"/>
-    <xsl:param name="code"/>
-    <xsl:param name="scheme"/>
-    <xsl:param name="meaning"/>
-    <xsl:if test="$code and $scheme and $meaning">
-      <Item number="{$itemNo}">
-        <!-- Code Value -->
-        <DicomAttribute tag="00080100" vr="SH">
-          <Value number="1">
-            <xsl:value-of select="substring($code,1,16)"/>
-          </Value>
-        </DicomAttribute>
-        <!-- Coding Scheme Designator -->
-        <DicomAttribute tag="00080102" vr="SH">
-          <Value number="1">
-            <xsl:value-of select="substring($scheme,1,16)"/>
-          </Value>
-        </DicomAttribute>
-        <!-- Code Meaning -->
-        <DicomAttribute tag="00080104" vr="LO">
-          <Value number="1">
-            <xsl:value-of select="substring($meaning,1,64)"/>
-          </Value>
-        </DicomAttribute>
-      </Item>
     </xsl:if>
   </xsl:template>
 
