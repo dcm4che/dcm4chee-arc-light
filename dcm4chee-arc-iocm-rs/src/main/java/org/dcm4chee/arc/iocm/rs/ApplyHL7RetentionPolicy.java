@@ -44,7 +44,7 @@ package org.dcm4chee.arc.iocm.rs;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -195,7 +195,7 @@ public class ApplyHL7RetentionPolicy {
     }
 
     private LocalDate studyExpirationDateOf(Attributes match) {
-        String s = match.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate);
+        String s = match.getString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate);
         return s != null ? LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE) : null;
     }
 

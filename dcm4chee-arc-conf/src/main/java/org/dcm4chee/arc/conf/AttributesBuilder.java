@@ -45,7 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.TagUtils;
 
 /**
@@ -72,8 +72,8 @@ public class AttributesBuilder {
         int tag = tagPath[tagPath.length-1];
         Attributes item = nestedKeys(tagPath);
         if (TagUtils.groupNumber(tag) == 0x7777) {
-            if (!item.contains(ArchiveTag.PrivateCreator, tag))
-                item.setNull(ArchiveTag.PrivateCreator, tag, ElementDictionary.vrOf(tag, ArchiveTag.PrivateCreator));
+            if (!item.contains(PrivateTag.PrivateCreator, tag))
+                item.setNull(PrivateTag.PrivateCreator, tag, ElementDictionary.vrOf(tag, PrivateTag.PrivateCreator));
         } else {
             if (!item.contains(tag)) {
                 VR vr = DICT.vrOf(tag);

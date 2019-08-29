@@ -44,7 +44,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONReader;
@@ -444,7 +444,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                     Attributes metadata = parseJSON(zip, !ctx.isRetrieveMetadata());
                     if (qrView == null
                             || !qrView.hideRejectedInstance(
-                                metadata.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence))
+                                metadata.getNestedDataset(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence))
                             && !qrView.hideRejectionNote(metadata)) {
                         Attributes.unifyCharacterSets(seriesAttrs, metadata);
                         metadata.addAll(seriesAttrs);
@@ -471,30 +471,30 @@ public class RetrieveServiceImpl implements RetrieveService {
         InstanceLocationsImpl inst = new InstanceLocationsImpl(attrs);
         inst.setRetrieveAETs(StringUtils.concat(attrs.getStrings(Tag.RetrieveAETitle), '\\'));
         inst.setAvailability(Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
-        inst.setCreatedTime(attrs.getDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime));
-        inst.setUpdatedTime(attrs.getDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime));
-        inst.setRejectionCode(attrs.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence));
+        inst.setCreatedTime(attrs.getDate(PrivateTag.PrivateCreator, PrivateTag.InstanceReceiveDateTime));
+        inst.setUpdatedTime(attrs.getDate(PrivateTag.PrivateCreator, PrivateTag.InstanceUpdateDateTime));
+        inst.setRejectionCode(attrs.getNestedDataset(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence));
         inst.setExternalRetrieveAET(
-                attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle));
+                attrs.getString(PrivateTag.PrivateCreator, PrivateTag.InstanceExternalRetrieveAETitle));
         inst.setContainsMetadata(true);
         addLocationFromMetadata(inst, attrs);
-        Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+        Sequence otherStorageSeq = attrs.getSequence(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence);
         if (otherStorageSeq != null)
             for (Attributes otherStorageItem : otherStorageSeq)
                 addLocationFromMetadata(inst, otherStorageItem);
         if (ctx.getSeriesMetadataUpdate() == null)
-            attrs.removePrivateAttributes(ArchiveTag.PrivateCreator, 0x7777);
+            attrs.removePrivateAttributes(PrivateTag.PrivateCreator, 0x7777);
         return inst;
     }
 
     private void addLocationFromMetadata(InstanceLocationsImpl inst, Attributes attrs) {
         inst.getLocations().add(new Location.Builder()
-                .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
-                .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
-                .transferSyntaxUID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID))
-                .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
-                .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
-                .status(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus))
+                .storageID(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageID))
+                .storagePath(StringUtils.concat(attrs.getStrings(PrivateTag.PrivateCreator, PrivateTag.StoragePath), '/'))
+                .transferSyntaxUID(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageTransferSyntaxUID))
+                .digest(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest))
+                .size(attrs.getInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, -1))
+                .status(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus))
                 .build());
     }
 

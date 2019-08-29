@@ -43,7 +43,7 @@ package org.dcm4chee.arc.query.util;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.data.PersonName;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
@@ -451,7 +451,7 @@ public class QueryBuilder {
         wildCard(predicates, study.get(Study_.studyCustomAttribute3),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
         dateRange(predicates, study.get(Study_.createdTime),
-                keys.getDateRange(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT));
+                keys.getDateRange(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT));
         if (queryParam.getExternalRetrieveAET() != null)
             predicates.add(cb.equal(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAET()));
         if (queryParam.getExternalRetrieveAETNot() != null)
@@ -534,7 +534,7 @@ public class QueryBuilder {
         if (queryParam.isCompressionFailed())
             predicates.add(cb.greaterThan(series.get(Series_.compressionFailures), 0));
         anyOf(predicates, series.get(Series_.sourceAET),
-                keys.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE),
+                keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE),
                 false);
         if (queryParam.getExpirationDate() != null)
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
@@ -837,7 +837,7 @@ public class QueryBuilder {
             anyOf(y, series.get(Series_.laterality),
                     toUpperCase(keys.getStrings(Tag.Laterality)), false);
             anyOf(y, series.get(Series_.sourceAET),
-                    keys.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE),
+                    keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE),
                     false);
             if (queryParam.isStorageVerificationFailed())
                 y.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));

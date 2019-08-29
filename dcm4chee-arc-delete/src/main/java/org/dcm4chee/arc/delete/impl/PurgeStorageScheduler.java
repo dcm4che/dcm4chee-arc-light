@@ -42,7 +42,7 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.Scheduler;
@@ -324,7 +324,7 @@ public class PurgeStorageScheduler extends Scheduler {
         if (predicate.test(attrs, storageID))
             return true;
 
-        Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+        Sequence otherStorageSeq = attrs.getSequence(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence);
         if (otherStorageSeq != null)
             for (Attributes otherStorageItem : otherStorageSeq)
                 if (predicate.test(otherStorageItem, storageID))
@@ -334,14 +334,14 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private static boolean matchStorageID(Attributes attrs, String storageID) {
-        return storageID.equals(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID));
+        return storageID.equals(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageID));
     }
 
     private static boolean matchStorageIDAndCheckStatus(Attributes attrs, String storageID) {
         if (!matchStorageID(attrs, storageID))
             return false;
 
-        String status = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus);
+        String status = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus);
         return status == null || status.equals(Location.Status.OK.name());
     }
 

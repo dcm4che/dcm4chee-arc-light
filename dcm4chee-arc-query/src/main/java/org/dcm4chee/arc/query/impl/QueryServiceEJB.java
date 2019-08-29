@@ -45,7 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
@@ -226,21 +226,21 @@ public class QueryServiceEJB {
                 if (item == null)
                     item = attrs;
                 else
-                    attrs.ensureSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence, 1)
+                    attrs.ensureSequence(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence, 1)
                             .add(item = new Attributes(5));
-                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageID, VR.LO,
                         results.get(location.get(Location_.storageID)));
-                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StoragePath, VR.LO,
                         StringUtils.split(results.get(location.get(Location_.storagePath)), '/'));
-                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageTransferSyntaxUID, VR.UI,
                         results.get(location.get(Location_.transferSyntaxUID)));
-                item.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
+                item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, VR.UL,
                         results.get(location.get(Location_.size)).intValue());
                 if (results.get(location.get(Location_.digest)) != null)
-                    item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
                             results.get(location.get(Location_.digest)));
                 if (results.get(location.get(Location_.status)) != Location.Status.OK)
-                    attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus, VR.CS,
+                    attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
                             results.get(location.get(Location_.status)).name());
             }
         }

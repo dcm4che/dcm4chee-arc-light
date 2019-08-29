@@ -42,7 +42,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.AttributeSet;
@@ -144,15 +144,15 @@ public class QueryAttributes {
                 case "ExpirationState":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
-                    keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
                 case "StudyReceiveDateTime":
-                    keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
                 case "StudyAccessDateTime":
-                    keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT,
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessDateTime, VR.DT,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
                 default:
