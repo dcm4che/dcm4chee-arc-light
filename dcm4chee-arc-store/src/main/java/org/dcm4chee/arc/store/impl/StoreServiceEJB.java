@@ -41,7 +41,7 @@
 package org.dcm4chee.arc.store.impl;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
@@ -370,7 +370,7 @@ public class StoreServiceEJB {
         Instance inst = createInstance(session, series, findOrCreateCode(attrs, Tag.ConceptNameCodeSequence), attrs,
                 attrs.getStrings(Tag.RetrieveAETitle), Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
         restoreLocation(session, inst, attrs);
-        Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+        Sequence otherStorageSeq = attrs.getSequence(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence);
         if (otherStorageSeq != null) {
             for (Attributes otherStorageItem : otherStorageSeq) {
                 restoreLocation(session, inst, otherStorageItem);
@@ -381,12 +381,12 @@ public class StoreServiceEJB {
 
     private void restoreLocation(StoreSession session, Instance inst, Attributes attrs) {
         Location location = new Location.Builder()
-                .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
-                .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
-                .transferSyntaxUID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID))
-                .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
-                .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
-                .status(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus))
+                .storageID(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageID))
+                .storagePath(StringUtils.concat(attrs.getStrings(PrivateTag.PrivateCreator, PrivateTag.StoragePath), '/'))
+                .transferSyntaxUID(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageTransferSyntaxUID))
+                .digest(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest))
+                .size(attrs.getInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, -1))
+                .status(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus))
                 .build();
         location.setInstance(inst);
         inst.getLocations().add(location);

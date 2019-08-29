@@ -44,7 +44,7 @@ package org.dcm4chee.arc.query.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 
@@ -120,23 +120,23 @@ class PatientQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return;
 
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientCreateDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientCreateDateTime, VR.DT,
                 results.get(patient.get(Patient_.createdTime)));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientUpdateDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientUpdateDateTime, VR.DT,
                 results.get(patient.get(Patient_.updatedTime)));
         Date verificationTime = results.get(patient.get(Patient_.verificationTime));
         if (verificationTime != null) {
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientVerificationDateTime, VR.DT,
+            attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientVerificationDateTime, VR.DT,
                     verificationTime);
         }
         Patient.VerificationStatus verificationStatus = results.get(patient.get(Patient_.verificationStatus));
         if (verificationStatus != Patient.VerificationStatus.UNVERIFIED || verificationTime != null) {
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.PatientVerificationStatus, VR.CS,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.PatientVerificationStatus, VR.CS,
                     verificationStatus.name());
         }
         int failures = results.get(patient.get(Patient_.failedVerifications));
         if (failures > 0) {
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedVerificationsOfPatient, VR.US, failures);
+            attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedVerificationsOfPatient, VR.US, failures);
         }
     }
 

@@ -43,7 +43,7 @@ package org.dcm4chee.arc.query.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
@@ -223,64 +223,64 @@ class SeriesQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return;
 
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.SeriesReceiveDateTime, VR.DT,
                 results.get(series.get(Series_.createdTime)));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.SeriesUpdateDateTime, VR.DT,
                 results.get(series.get(Series_.updatedTime)));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationState, VR.CS,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationState, VR.CS,
                 results.get(series.get(Series_.expirationState)).toString());
         if (results.get(series.get(Series_.expirationDate)) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationDate, VR.DA,
                     results.get(series.get(Series_.expirationDate)));
         if (results.get(series.get(Series_.expirationExporterID)) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationExporterID, VR.LO,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationExporterID, VR.LO,
                     results.get(series.get(Series_.expirationExporterID)));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesRejectionState, VR.CS,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesRejectionState, VR.CS,
                 results.get(series.get(Series_.rejectionState)).toString());
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesCompleteness, VR.CS,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesCompleteness, VR.CS,
                 results.get(series.get(Series_.completeness)).toString());
         if (results.get(series.get(Series_.failedRetrieves)) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
+            attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedRetrievesOfSeries, VR.US,
                     results.get(series.get(Series_.failedRetrieves)));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                 results.get(series.get(Series_.sourceAET)));
         if (results.get(series.get(Series_.metadataScheduledUpdateTime))!= null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledMetadataUpdateDateTimeOfSeries, VR.DT,
+            attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.ScheduledMetadataUpdateDateTimeOfSeries, VR.DT,
                     results.get(series.get(Series_.metadataScheduledUpdateTime)));
         if (results.get(series.get(Series_.metadataUpdateFailures))!= 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataUpdateFailures, VR.US,
+            attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataUpdateFailures, VR.US,
                     results.get(series.get(Series_.metadataUpdateFailures)));
         if (results.get(series.get(Series_.instancePurgeTime)) != null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledInstanceRecordPurgeDateTimeOfSeries, VR.DT,
+            attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.ScheduledInstanceRecordPurgeDateTimeOfSeries, VR.DT,
                     results.get(series.get(Series_.instancePurgeTime)));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 results.get(series.get(Series_.instancePurgeState)).name());
         if (results.get(series.get(Series_.storageVerificationTime)) != null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledStorageVerificationDateTimeOfSeries, VR.DT,
+            attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.ScheduledStorageVerificationDateTimeOfSeries, VR.DT,
                     results.get(series.get(Series_.storageVerificationTime)));
         if (results.get(series.get(Series_.failuresOfLastStorageVerification)) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastStorageVerificationOfSeries, VR.US,
+            attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailuresOfLastStorageVerificationOfSeries, VR.US,
                     results.get(series.get(Series_.failuresOfLastStorageVerification)));
         if (results.get(series.get(Series_.compressionTime)) != null)
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledCompressionDateTimeOfSeries, VR.DT,
+            attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.ScheduledCompressionDateTimeOfSeries, VR.DT,
                     results.get(series.get(Series_.compressionTime)));
         if (results.get(series.get(Series_.compressionFailures)) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailuresOfLastCompressionOfSeries, VR.US,
+            attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailuresOfLastCompressionOfSeries, VR.US,
                     results.get(series.get(Series_.compressionFailures)));
         if (results.get(metadata.get(Metadata_.storageID)) != null) {
-            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataCreationDateTime, VR.DT,
+            attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataCreationDateTime, VR.DT,
                     results.get(metadata.get(Metadata_.createdTime)));
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataStorageID, VR.LO,
                     results.get(metadata.get(Metadata_.storageID)));
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStoragePath, VR.LO,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataStoragePath, VR.LO,
                     StringUtils.split(results.get(metadata.get(Metadata_.storagePath)), '/'));
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectSize, VR.UL,
+            attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataStorageObjectSize, VR.UL,
                     results.get(metadata.get(Metadata_.size)).intValue());
             if (results.get(metadata.get(Metadata_.digest)) != null)
-                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
+                attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         results.get(metadata.get(Metadata_.digest)));
             if (results.get(metadata.get(Metadata_.status)) != Metadata.Status.OK)
-                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectStatus, VR.CS,
+                attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataStorageObjectStatus, VR.CS,
                         results.get(metadata.get(Metadata_.status)).name());
         }
     }

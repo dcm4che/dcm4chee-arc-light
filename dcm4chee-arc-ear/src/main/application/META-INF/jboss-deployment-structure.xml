@@ -54,7 +54,7 @@
             <module name="org.dcm4che.core" export="TRUE"/>
             <module name="org.dcm4che.dcmr" export="TRUE"/>
             <module name="org.dcm4che.deident" export="TRUE"/>
-            <module name="org.dcm4che.dict-arc" export="TRUE" services="export"/>
+            <module name="org.dcm4che.dict-priv" export="TRUE" services="export"/>
             <module name="org.dcm4che.json" export="TRUE"/>
             <module name="org.dcm4che.mime" export="TRUE"/>
             <module name="org.dcm4che.ws-rs" export="TRUE"/>

@@ -45,7 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -83,17 +83,17 @@ import java.util.zip.ZipInputStream;
 class InstanceQuery extends AbstractQuery {
 
     private static final int[] ARCHIVE_INST_TAGS = {
-            (ArchiveTag.InstanceReceiveDateTime & 0xffff0000) | 0x0010,
-            ArchiveTag.InstanceReceiveDateTime | 0x1000,
-            ArchiveTag.InstanceUpdateDateTime | 0x1000,
-            ArchiveTag.RejectionCodeSequence | 0x1000,
-            ArchiveTag.InstanceExternalRetrieveAETitle | 0x1000,
-            ArchiveTag.StorageID | 0x1000,
-            ArchiveTag.StoragePath | 0x1000,
-            ArchiveTag.StorageTransferSyntaxUID | 0x1000,
-            ArchiveTag.StorageObjectSize | 0x1000,
-            ArchiveTag.StorageObjectDigest | 0x1000,
-            ArchiveTag.StorageObjectStatus | 0x1000
+            (PrivateTag.InstanceReceiveDateTime & 0xffff0000) | 0x0010,
+            PrivateTag.InstanceReceiveDateTime | 0x1000,
+            PrivateTag.InstanceUpdateDateTime | 0x1000,
+            PrivateTag.RejectionCodeSequence | 0x1000,
+            PrivateTag.InstanceExternalRetrieveAETitle | 0x1000,
+            PrivateTag.StorageID | 0x1000,
+            PrivateTag.StoragePath | 0x1000,
+            PrivateTag.StorageTransferSyntaxUID | 0x1000,
+            PrivateTag.StorageObjectSize | 0x1000,
+            PrivateTag.StorageObjectDigest | 0x1000,
+            PrivateTag.StorageObjectStatus | 0x1000
     };
 
     private final CodeCache codeCache;
@@ -168,9 +168,9 @@ class InstanceQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return attrs;
 
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceReceiveDateTime, VR.DT,
                 results.get(instance.get(Instance_.createdTime)));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceUpdateDateTime, VR.DT,
                 results.get(instance.get(Instance_.updatedTime)));
         addRejectionNoteCode(attrs, rejectedInstancesOfSeries.get(instAttrs.getString(Tag.SOPInstanceUID)));
         context.getQueryService().addLocationAttributes(attrs, results.get(instance.get(Instance_.pk)));
@@ -187,7 +187,7 @@ class InstanceQuery extends AbstractQuery {
 
     private void addRejectionNoteCode(Attributes attrs, CodeEntity rejectionCode) {
         if (rejectionCode != null)
-            attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1)
+            attrs.newSequence(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence, 1)
                     .add(rejectionCode.getCode().toItem());
     }
 
@@ -310,7 +310,7 @@ class InstanceQuery extends AbstractQuery {
                     jsonReader.setSkipBulkDataURI(true);
                     Attributes metadata = jsonReader.readDataset(null);
                     if (!qrView.hideRejectedInstance(
-                            metadata.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence))
+                            metadata.getNestedDataset(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence))
                             && !qrView.hideRejectionNote(metadata)
                             && metadata.matches(instQueryKeys, false, false)) {
                         seriesMetadataStream.closeEntry();

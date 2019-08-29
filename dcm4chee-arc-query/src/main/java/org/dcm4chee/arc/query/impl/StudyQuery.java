@@ -44,7 +44,7 @@ package org.dcm4chee.arc.query.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
@@ -230,34 +230,34 @@ class StudyQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return;
 
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
                 results.get(study.get(Study_.createdTime)));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyUpdateDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.StudyUpdateDateTime, VR.DT,
                 results.get(study.get(Study_.updatedTime)));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.StudyAccessDateTime, VR.DT,
                 results.get(study.get(Study_.accessTime)));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState, VR.CS,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationState, VR.CS,
                 results.get(study.get(Study_.expirationState)).toString());
         if (results.get(study.get(Study_.expirationDate)) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate, VR.DA,
                     results.get(study.get(Study_.expirationDate)));
         if (results.get(study.get(Study_.expirationExporterID)) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationExporterID, VR.LO,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationExporterID, VR.LO,
                     results.get(study.get(Study_.expirationExporterID)));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyRejectionState, VR.CS,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyRejectionState, VR.CS,
                 results.get(study.get(Study_.rejectionState)).toString());
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyCompleteness, VR.CS,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyCompleteness, VR.CS,
                 results.get(study.get(Study_.completeness)).toString());
         if (results.get(study.get(Study_.failedRetrieves)) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
+            attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedRetrievesOfStudy, VR.US,
                     results.get(study.get(Study_.failedRetrieves)));
         if (!results.get(study.get(Study_.accessControlID)).equals("*"))
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID, VR.LO,
                     results.get(study.get(Study_.accessControlID)));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StorageIDsOfStudy, VR.LO,
                 StringUtils.split(results.get(study.get(Study_.storageIDs)), '\\'));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
+        attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
+        attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
     }
 
     @Override

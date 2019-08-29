@@ -52,7 +52,7 @@
             <module name="org.dcm4che.conf.ldap-hl7" export="TRUE"/>
             <module name="org.dcm4che.conf.ldap-imageio" export="TRUE"/>
             <module name="org.dcm4che.core" export="TRUE"/>
-            <module name="org.dcm4che.dict-arc" export="TRUE"/>
+            <module name="org.dcm4che.dict-priv" export="TRUE"/>
             <module name="org.dcm4che.json" export="TRUE"/>
             <module name="org.dcm4che.mime" export="TRUE"/>
             <module name="org.dcm4che.ws-rs" export="TRUE"/>

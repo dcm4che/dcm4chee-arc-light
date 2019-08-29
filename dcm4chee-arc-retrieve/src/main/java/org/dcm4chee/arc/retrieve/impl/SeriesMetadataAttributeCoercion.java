@@ -44,7 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -77,28 +77,28 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
 
         StudyInfo studyInfo = ctx.getStudyInfos().get(0);
         if (studyInfo.getExpirationDate() != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate, VR.DA,
                     studyInfo.getExpirationDate());
         if (!studyInfo.getAccessControlID().equals("*"))
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID, VR.LO,
                     studyInfo.getAccessControlID());
 
         SeriesInfo seriesInfo = ctx.getSeriesInfos().get(0);
         if (seriesInfo.getExpirationDate() != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationDate, VR.DA,
                     seriesInfo.getExpirationDate());
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                 seriesInfo.getSourceAET());
 
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceReceiveDateTime, VR.DT,
                 inst.getCreatedTime());
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
+        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceUpdateDateTime, VR.DT,
                 inst.getUpdatedTime());
         if (inst.getRejectionCode() != null)
-            attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1).
+            attrs.newSequence(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence, 1).
                     add(inst.getRejectionCode());
         if (inst.getExternalRetrieveAET() != null) {
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle, VR.AE,
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.InstanceExternalRetrieveAETitle, VR.AE,
                     inst.getExternalRetrieveAET());
         }
         Attributes item = null;
@@ -107,21 +107,21 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
                 if (item == null)
                     item = attrs;
                 else
-                    attrs.ensureSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence, 1)
+                    attrs.ensureSequence(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence, 1)
                             .add(item = new Attributes(5));
-                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageID, VR.LO,
                         location.getStorageID());
-                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StoragePath, VR.LO,
                         StringUtils.split(location.getStoragePath(), '/'));
-                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageTransferSyntaxUID, VR.UI,
                         location.getTransferSyntaxUID());
-                item.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
+                item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, VR.UL,
                         (int) location.getSize());
                 if (location.getDigestAsHexString() != null)
-                    item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
                             location.getDigestAsHexString());
                 if (location.getStatus() != Location.Status.OK)
-                    item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus, VR.CS,
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
                             location.getStatus().name());
             }
         }

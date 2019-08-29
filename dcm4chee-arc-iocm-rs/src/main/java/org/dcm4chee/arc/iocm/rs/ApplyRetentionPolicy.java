@@ -45,7 +45,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
@@ -142,12 +142,12 @@ public class ApplyRetentionPolicy {
                         StudyRetentionPolicy retentionPolicy =
                                 arcAE.findStudyRetentionPolicy(
                                         null,
-                                        attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries),
+                                        attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries),
                                         aet,
                                         attrs);
 
-                        String studyExpirationState = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationState);
-                        String studyExpirationDate = attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate);
+                        String studyExpirationState = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationState);
+                        String studyExpirationDate = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate);
                         String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
 
                         if (retentionPolicy == null
