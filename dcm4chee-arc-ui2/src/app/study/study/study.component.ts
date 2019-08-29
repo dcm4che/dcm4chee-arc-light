@@ -977,7 +977,7 @@ export class StudyComponent implements OnInit {
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
-                        this.service.modifyPatient(this.service.getPatientId(patient.attrs),patient.attrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyPatient(this.service.getPatientId(originalPatientObject.attrs),patient.attrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg("Patient updated successfully");
                         },err=>{
                             _.assign(patient, originalPatientObject);

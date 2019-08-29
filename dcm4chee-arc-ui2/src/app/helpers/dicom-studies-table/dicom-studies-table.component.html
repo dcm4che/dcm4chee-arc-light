@@ -145,6 +145,7 @@
                                         <ng-container *ngSwitchCase="'value'">{{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}</ng-container>
                                     </div>
                                     <attribute-list *ngIf="instance.showAttributes" [attrs]="instance.attrs"></attribute-list>
+                                    <!--<attribute-list *ngIf="instance.showFileAttributes"></attribute-list>-->
                                 </div>
                             </div>
                         </div>

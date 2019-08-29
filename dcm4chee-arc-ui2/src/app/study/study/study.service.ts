@@ -1274,11 +1274,29 @@ export class StudyService {
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-th-list',
-                                text:''
+                                text:'Show attributes'
                             },
                             click:(e)=>{
                                 console.log("e",e);
                                 e.showAttributes = !e.showAttributes;
+                            }
+                        }
+                    ],
+                    headerDescription:"Actions",
+                    pxWidth:40
+                }),new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-list',
+                                text:'Show Attributes from file'
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showFileAttributes = !e.showFileAttributes;
                             }
                         }
                     ],
