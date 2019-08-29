@@ -72,7 +72,7 @@
     },
     "hl7UseNullValue": {
       "title": "Use HL7 Null Value",
-      "description": "Specifies if HL7 v2 null values (|\"\"|) are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. Overwrites value specified on Device level.",
+      "description": "Specifies if HL7 v2 null values `(|\"\"|)` are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. Overwrites value specified on Device level.",
       "type": "boolean"
     },
     "hl7VeterinaryUsePatientName": {
