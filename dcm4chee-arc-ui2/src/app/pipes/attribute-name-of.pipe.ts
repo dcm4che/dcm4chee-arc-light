@@ -1,3 +1,4 @@
+/*
 import { Pipe, PipeTransform } from '@angular/core';
 declare var DCM4CHE: any;
 @Pipe({
@@ -12,3 +13,4 @@ export class AttributeNameOfPipe implements PipeTransform {
   }
 
 }
+*/

@@ -1,4 +1,5 @@
-/* tslint:disable:no-unused-variable */
+/*
+/!* tslint:disable:no-unused-variable *!/
 
 import { TestBed, async } from '@angular/core/testing';
 import { AttributeNameOfPipe } from './attribute-name-of.pipe';
@@ -9,3 +10,4 @@ describe('Pipe: AttributeNameOf', () => {
     expect(pipe).toBeTruthy();
   });
 });
+*/

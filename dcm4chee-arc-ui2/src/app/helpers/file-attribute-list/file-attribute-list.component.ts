@@ -7,6 +7,7 @@ import {WindowRefService} from "../window-ref.service";
 import {HttpErrorHandler} from "../http-error-handler";
 import {J4careHttpService} from "../j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+declare var DCM4CHE: any;
 
 @Component({
   selector: 'file-attribute-list',
@@ -59,12 +60,23 @@ export class FileAttributeListComponent implements OnInit {
     };
 
     attrs2rows(level, attrs, rows) {
+        function privateCreator(tag) {
+            if ('02468ACE'.indexOf(tag.charAt(3)) < 0) {
+                let block = tag.slice(4, 6);
+                if (block !== '00') {
+                    let el = attrs[tag.slice(0, 4) + '00' + block];
+                    return el && el.Value && el.Value[0];
+                }
+            }
+            return undefined;
+        }
         let keys = Object.keys(attrs);
         keys.sort();
         let $this = this;
         keys.forEach(function (tag) {
             let el = attrs[tag];
-            rows.push({ level: level, tag: tag, el: el });
+            rows.push({ level: level, tag: tag, name: DCM4CHE.elementName.forTag(tag, privateCreator(tag)), el: el });
+            // rows.push({ level: level, tag: tag, el: el });
             if (el.vr === 'SQ') {
                 let itemLevel = level + '>';
                 _.forEach(el.Value, function (item, index) {

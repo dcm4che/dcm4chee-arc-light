@@ -29,7 +29,6 @@ import { FormatTMPipe } from './pipes/format-tm.pipe';
 import { FormatTagPipe } from './pipes/format-tag.pipe';
 import { ContentDescriptionPipe } from './pipes/content-description.pipe';
 import { FormatAttributeValuePipe } from './pipes/format-attribute-value.pipe';
-import { AttributeNameOfPipe } from './pipes/attribute-name-of.pipe';
 import { RemovedotsPipe } from './pipes/removedots.pipe';
 import {StudiesService} from './studies/studies.service';
 import {AppService} from './app.service';
@@ -126,7 +125,6 @@ import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.se
         FormatTagPipe,
         ContentDescriptionPipe,
         FormatAttributeValuePipe,
-        AttributeNameOfPipe,
         RemovedotsPipe,
         AttributeListComponent,
         FileAttributeListComponent,
