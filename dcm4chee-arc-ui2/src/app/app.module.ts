@@ -32,8 +32,7 @@ import { FormatAttributeValuePipe } from './pipes/format-attribute-value.pipe';
 import { RemovedotsPipe } from './pipes/removedots.pipe';
 import {StudiesService} from './studies/studies.service';
 import {AppService} from './app.service';
-import { AttributeListComponent } from './helpers/attribute-list/attribute-list.component';
-import { FileAttributeListComponent } from './helpers/file-attribute-list/file-attribute-list.component';
+import {AttributeListComponent} from "./helpers/attribute-list/attribute-list.component";
 import {DropdownModule} from 'primeng/components/dropdown/dropdown';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SearchPipe } from './pipes/search.pipe';
@@ -127,7 +126,6 @@ import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.se
         FormatAttributeValuePipe,
         RemovedotsPipe,
         AttributeListComponent,
-        FileAttributeListComponent,
         TrimPipe,
         SearchPipe,
         KeysPipe,
