@@ -4,9 +4,8 @@
   "type": "object",
   "required": [
     "dcmuiColumnName",
-    "dcmuiElasticsearchURL",
-    "dcmuiElasticsearchIsDefault",
-    "dcmuiElasticsearchInstalled"
+    "dcmuiValuePath",
+    "dcmuiValueType"
   ],
   "properties": {
     "dcmuiColumnName": {
