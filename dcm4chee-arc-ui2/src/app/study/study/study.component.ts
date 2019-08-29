@@ -588,10 +588,10 @@ export class StudyComponent implements OnInit {
             console.log("keys",inst.wadoQueryParams);
             if(!this.appService.global.notSecure){
                 // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
-                url = this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`;
+                url = this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`;
             }else{
                 // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
-                url = this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams);
+                url = this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams);
             }
             if(j4care.hasSet(inst, "attrs[00080018].Value[0]")){
                 fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`

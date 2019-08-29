@@ -390,14 +390,13 @@ export class StudyService {
         }
     }
 
-    wadoURL(webService:DcmWebApp,...args: any[]): any {
-        //TODO get webservice with the clas WADO_URI
-        let i, url = `${j4care.getUrlFromDcmWebApplication(webService)}/wado?requestType=WADO`;
+    wadoURL(webService:StudyWebService,...args: any[]): any {
+        let i, url = `${j4care.getUrlFromDcmWebApplication(this.getWebAppFromWebServiceClassAndSelectedWebApp(webService,"WADO_URI",  "WADO_URI"))}?requestType=WADO`;
         for (i = 1; i < arguments.length; i++) {
             _.forEach(arguments[i], (value, key) => {
                 url += '&' + key.replace(/^(_){1}(\w*)/, (match,p1,p2)=>{
                     return p2;
-                }); + '=' + value;
+                }) + '=' + value;
             });
         }
         return url;
