@@ -1448,6 +1448,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.300 NAME 'dcmTrimISO2022CharacterSet
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.301 NAME 'dcmStorePermissionServiceResponse'
+  DESC 'Emulate Store Permission Service Response on receive of the first object of a study by any AE. {<dicomTag>} will be replaced by the value of the attribute in the object.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1562,6 +1567,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRejectExpiredSeriesFetchSize $
     dcmRejectExpiredStudiesAETitle $
     dcmStorePermissionServiceURL $
+    dcmStorePermissionServiceResponse $
     dcmStorePermissionServiceResponsePattern $
     dcmStorePermissionServiceExpirationDatePattern $
     dcmStorePermissionServiceErrorCommentPattern $
@@ -1699,6 +1705,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAltCMoveSCP $
     dcmDiffStudiesIncludefieldAll $
     dcmStorePermissionServiceURL $
+    dcmStorePermissionServiceResponse $
     dcmStorePermissionServiceResponsePattern $
     dcmStorePermissionServiceExpirationDatePattern $
     dcmStorePermissionServiceErrorCommentPattern $
