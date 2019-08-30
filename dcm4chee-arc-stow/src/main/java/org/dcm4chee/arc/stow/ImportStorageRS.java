@@ -167,11 +167,12 @@ public class ImportStorageRS {
 
     private Attributes getAttributes(Storage storage, StoreSession session, ReadContext readContext, StoreContext ctx)
             throws IOException {
-        DicomInputStream dicomInputStream = new DicomInputStream(storage.openInputStream(readContext));
-        dicomInputStream.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
-        dicomInputStream.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
-        ctx.setReceiveTransferSyntax(dicomInputStream.getTransferSyntax());
-        return dicomInputStream.readDataset(-1, -1);
+        try (DicomInputStream dicomInputStream = new DicomInputStream(storage.openInputStream(readContext))) {
+            dicomInputStream.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            dicomInputStream.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
+            ctx.setReceiveTransferSyntax(dicomInputStream.getTransferSyntax());
+            return dicomInputStream.readDataset(-1, -1);
+        }
     }
 
     private ReadContext createReadContext(Storage storage, String storagePath) {
