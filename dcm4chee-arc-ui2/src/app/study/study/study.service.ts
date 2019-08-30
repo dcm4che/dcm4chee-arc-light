@@ -1114,6 +1114,20 @@ export class StudyService {
                                     },e);
                                 },
                                 title:options.trash.active ? 'Restore series' : 'Reject series',
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-ok',
+                                    text:''
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"series",
+                                        action:"verify_storage"
+                                    },e);
+                                },
+                                title:'Verify storage commitment',
                             }
                             ,{
                                 icon:{
@@ -1264,6 +1278,20 @@ export class StudyService {
                                     },e);
                                 },
                                 title:options.trash.active ? 'Restore instance' : 'Reject instance',
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-ok',
+                                    text:''
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"instance",
+                                        action:"verify_storage"
+                                    },e);
+                                },
+                                title:'Verify storage commitment',
                             },
                             {
                                 icon:{
