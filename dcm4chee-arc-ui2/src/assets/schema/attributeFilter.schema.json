@@ -29,17 +29,17 @@
     },
     "dcmCustomAttribute1": {
       "title": "Custom Attribute 1",
-      "description": "Custom Attribute 1",
+      "description": "Configure any attribute from the DICOM object which shall be inserted in database as Custom Attribute 1. Eg. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] or for a Private attribute DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
       "type": "string"
     },
     "dcmCustomAttribute2": {
       "title": "Custom Attribute 2",
-      "description": "Custom Attribute 2",
+      "description": "Configure any attribute from the DICOM object which shall be inserted in database as Custom Attribute 2. Eg. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] or for a Private attribute DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
       "type": "string"
     },
     "dcmCustomAttribute3": {
       "title": "Custom Attribute 3",
-      "description": "Custom Attribute 3",
+      "description": "Configure any attribute from the DICOM object which shall be inserted in database as Custom Attribute 3. Eg. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] or for a Private attribute DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
       "type": "string"
     },
     "dcmAttributeUpdatePolicy": {
