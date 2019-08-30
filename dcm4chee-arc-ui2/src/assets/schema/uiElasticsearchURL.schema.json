@@ -16,7 +16,7 @@
     },
     "dcmuiElasticsearchURL": {
       "title": "Elasticsearch URL",
-      "description": "Access URL of Elastic Search. E.g. http://elasticsearch:9200",
+      "description": "Access URL of Elastic Search. E.g. http(s)://<elasticsearch-host>:<elasticsearch-port>",
       "type": "string"
     },
     "dcmuiElasticsearchURLKeycloakServer": {

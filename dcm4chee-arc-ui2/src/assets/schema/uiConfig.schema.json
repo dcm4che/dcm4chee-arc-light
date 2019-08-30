@@ -30,7 +30,7 @@
     },
     "dcmuiXDSInterfaceURL": {
       "title": "XDS Interface URL",
-      "description": "Base URL used for the XDS Services. E.g. http://myXdsSever:8080",
+      "description": "Base URL used for the XDS Services. E.g. http(s)://<xds-server-host>:<xds-server-port>",
       "type": "string"
     },
     "dcmuiDefaultWidgetAets": {

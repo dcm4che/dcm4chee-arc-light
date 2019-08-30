@@ -15,7 +15,7 @@
     },
     "dcmuiDeviceURL": {
       "title": "Device URL",
-      "description": "Access URL of Device. E.g. http://myDevice:8080",
+      "description": "Access URL of Device. E.g. http(s)://<myDevice-host>:<myDevice-port>",
       "type": "string"
     },
     "dcmuiDeviceURLDescription": {
