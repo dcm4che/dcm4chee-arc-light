@@ -10,6 +10,7 @@ export class Aet {
     private _dicomAssociationAcceptor:boolean;
     private _dicomAssociationInitiator:boolean;
     private _dicomNetworkConnection:any;
+    private _dcmHideNotRejectedInstances:boolean;
     private _value;
     private _text;
     private _title;
@@ -105,6 +106,14 @@ export class Aet {
 
     set dicomNetworkConnection(value: any) {
         this._dicomNetworkConnection = value;
+    }
+
+    get dcmHideNotRejectedInstances(): boolean {
+        return this._dcmHideNotRejectedInstances;
+    }
+
+    set dcmHideNotRejectedInstances(value: boolean) {
+        this._dcmHideNotRejectedInstances = value;
     }
 
     get value() {

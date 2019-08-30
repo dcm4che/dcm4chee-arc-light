@@ -1,4 +1,5 @@
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {DcmWebApp} from "../../models/dcm-web-app";
 
 export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu";
 
@@ -30,10 +31,28 @@ export interface Icon{
     showIf?:Function
 }
 
+export interface PermissionParam{
+    id:string;
+    param:string;
+}
+
+export interface StudyTrash {
+    reject:any;
+    rjnotes:any;
+    rjcode:any;
+    active:boolean;
+}
+
+export interface StudySchemaOptions{
+    trash?:StudyTrash;
+    selectedWebService?:DcmWebApp;
+}
 export interface TableAction{
     icon:Icon;
     click:Function;
     title?:string;
+    permission?:PermissionParam;
+    showIf?:Function;
 }
 
 export interface ActionsMenu{

@@ -26,18 +26,22 @@
             >
                 <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
-                  <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" *ngFor="let action of patient_table.actions" title="{{action.title || ''}}">
-                      <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                      <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-                  </a>
+                    <ng-container *ngFor="let action of patient_table.actions">
+                      <a class="pointer dicom_table_buttons" *ngIf="(!action.showIf || action.showIf(patient))" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
+                          <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                          <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                      </a>
+                    </ng-container>
                 </ng-container>
                 <ng-container *ngSwitchCase="'actions-menu'">
                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                     <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                        <a *ngFor="let action of patient_table.menu.actions" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
-                            <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                            <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(patient))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-                        </a>
+                        <ng-container *ngFor="let action of patient_table.menu.actions">
+                            <a *ngIf="(!action.showIf || action.showIf(patient))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
+                                <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                            </a>
+                        </ng-container>
                     </mat-menu>
                 </ng-container>
                 <ng-container *ngSwitchCase="'pipe'">{{patient.attrs | dynamicPipe:patient_table.pipe}}</ng-container>
@@ -60,18 +64,22 @@
                     >
                         <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
-                            <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study)" *ngFor="let action of studies_table.actions" title="{{action.title || ''}}">
-                                <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-                            </a>
+                            <ng-container *ngFor="let action of studies_table.actions">
+                                <a *ngIf="(!action.showIf || action.showIf(study))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
+                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                </a>
+                            </ng-container>
                         </ng-container>
                         <ng-container *ngSwitchCase="'actions-menu'">
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                             <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                                <a *ngFor="let action of studies_table.menu.actions" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
-                                    <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                    <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(study))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-                                </a>
+                                <ng-container *ngFor="let action of studies_table.menu.actions">
+                                    <a *ngIf="(!action.showIf || action.showIf(study))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
+                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                    </a>
+                                </ng-container>
                             </mat-menu>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">{{study.attrs | dynamicPipe:studies_table.pipe}}</ng-container>
@@ -93,18 +101,22 @@
                             >
                                 <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
-                                    <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie)" *ngFor="let action of serie_table.actions" title="{{action.title || ''}}">
-                                        <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                        <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-                                    </a>
+                                    <ng-container *ngFor="let action of serie_table.actions">
+                                        <a *ngIf="(!action.showIf || action.showIf(serie))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
+                                            <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                        </a>
+                                    </ng-container>
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'actions-menu'">
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                     <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                                        <a *ngFor="let action of serie_table.menu.actions" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
-                                            <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                            <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(serie))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-                                        </a>
+                                        <ng-container *ngFor="let action of serie_table.menu.actions">
+                                            <a *ngIf="(!action.showIf || action.showIf(serie))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
+                                                <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                            </a>
+                                        </ng-container>
                                     </mat-menu>
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'pipe'">{{serie.attrs | dynamicPipe:serie_table.pipe}}</ng-container>
@@ -127,18 +139,22 @@
                                     >
                                         <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
                                         <ng-container *ngSwitchCase="'actions'">
-                                            <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance)" *ngFor="let action of instance_table.actions" title="{{action.title || ''}}">
-                                                <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                                <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-                                            </a>
+                                            <ng-container *ngFor="let action of instance_table.actions">
+                                                <a *ngIf="(!action.showIf || action.showIf(instance))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
+                                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                                </a>
+                                            </ng-container>
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'actions-menu'">
                                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                             <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                                                <a *ngFor="let action of instance_table.menu.actions" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
-                                                    <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                    <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(instance))" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-                                                </a>
+                                                <ng-container *ngFor="let action of instance_table.menu.actions">
+                                                    <a *ngIf="(!action.showIf || action.showIf(instance))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
+                                                        <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                    </a>
+                                                </ng-container>
                                             </mat-menu>
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'pipe'">{{instance.attrs | dynamicPipe:instance_table.pipe}}</ng-container>

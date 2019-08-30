@@ -1,4 +1,5 @@
 import {DicomNetworkConnection} from "../interfaces";
+import {Aet} from "./aet";
 
 export type WebServiceClass = "QIDO_RS" | "STOW_RS" | "WADO_RS" | "WADO_URI" | "UPS_RS" | "DCM4CHEE_ARC" | "DCM4CHEE_ARC_AET"|string;
 
@@ -13,8 +14,8 @@ export class DcmWebApp{
     private _dicomApplicationCluster:any[]
     private _dicomInstalled:boolean;
     private _dcmKeycloakClientID:string;
-    private _dcmHideNotRejectedInstances:boolean;
     private _dicomDeviceName:string;
+    private _dicomAETitleObject:Aet;
 
     constructor(
         webApp:{
@@ -42,7 +43,6 @@ export class DcmWebApp{
         this._dicomApplicationCluster = webApp.dicomApplicationCluster;
         this._dicomInstalled = webApp.dicomInstalled;
         this._dcmKeycloakClientID = webApp.dcmKeycloakClientID;
-        this._dcmHideNotRejectedInstances = webApp.dcmHideNotRejectedInstances;
         this._dicomDeviceName = webApp.dicomDeviceName;
     }
 
@@ -126,20 +126,19 @@ export class DcmWebApp{
         this._dcmKeycloakClientID = value;
     }
 
-
-    get dcmHideNotRejectedInstances(): boolean {
-        return this._dcmHideNotRejectedInstances;
-    }
-
-    set dcmHideNotRejectedInstances(value: boolean) {
-        this._dcmHideNotRejectedInstances = value;
-    }
-
     get dicomDeviceName(): string {
         return this._dicomDeviceName;
     }
 
     set dicomDeviceName(value: string) {
         this._dicomDeviceName = value;
+    }
+
+    get dicomAETitleObject(): Aet {
+        return this._dicomAETitleObject;
+    }
+
+    set dicomAETitleObject(value: Aet) {
+        this._dicomAETitleObject = value;
     }
 }

@@ -13,7 +13,11 @@ import {StorageSystemsService} from "../../monitoring/storage-systems/storage-sy
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {DicomTableSchema, DynamicPipe} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {
+    DicomTableSchema,
+    DynamicPipe,
+    StudySchemaOptions
+} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
@@ -537,10 +541,13 @@ export class StudyService {
         return this.$http.post(url,{}, this.dicomHeader);
     };
 
+    //TODO issiue is open to change/unify the URLs
+    // scheduleStorageVerification = (param, studyWebService:StudyWebService) => this.$http.post(`../aets/${aet}/stgver/studies?${j4care.param(param)}`,{});
+
     getDevices(){
         return this.devicesService.getDevices();
     }
-    PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options):DicomTableSchema{
+    PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options:StudySchemaOptions):DicomTableSchema{
         return {
             patient:[
                 new TableSchemaElement({
@@ -551,10 +558,7 @@ export class StudyService {
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-chevron-down',
-                                text:'',
-                                showIf:(e)=>{
-                                    return e.showStudies
-                                }
+                                text:''
                             },
                             click:(e)=>{
                                 console.log("e",e);
@@ -563,17 +567,16 @@ export class StudyService {
                                     level:"patient",
                                     action:"toggle_studies"
                                 },e);
-                                // e.showStudies = !e.showStudies;
                             },
-                            title:"Hide Studies"
+                            title:"Hide Studies",
+                            showIf:(e)=>{
+                                return e.showStudies
+                            }
                         },{
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-chevron-right',
-                                text:'',
-                                showIf:(e)=>{
-                                    return !e.showStudies
-                                }
+                                text:''
                             },
                             click:(e)=>{
                                 console.log("e",e);
@@ -585,7 +588,10 @@ export class StudyService {
                                 },e);
                                 // actions.call(this, 'study_arrow',e);
                             },
-                            title:"Show Studies"
+                            title:"Show Studies",
+                            showIf:(e)=>{
+                                return !e.showStudies
+                            }
                         }
                     ],
                     headerDescription:"Show studies",
@@ -619,7 +625,11 @@ export class StudyService {
                                             action:"edit_patient"
                                         },e);
                                     },
-                                    title:'Edit this Patient'
+                                    title:'Edit this Patient',
+                                    permission:{
+                                        id:'action-studies-patient',
+                                        param:'edit'
+                                    }
                                 },{
                                     icon:{
                                         tag:'span',
@@ -633,7 +643,11 @@ export class StudyService {
                                             action:"create_mwl"
                                         },e);
                                     },
-                                    title:'Add new MWL'
+                                    title:'Add new MWL',
+                                    permission:{
+                                        id:'action-studies-mwl',
+                                        param:'create'
+                                    }
                                 },{
                                     icon:{
                                         tag:'span',
@@ -740,10 +754,7 @@ export class StudyService {
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-chevron-down',
-                                text:'',
-                                showIf:(e)=>{
-                                    return e.showSeries
-                                }
+                                text:''
                             },
                             click:(e)=>{
                                 actions.call($this, {
@@ -752,15 +763,15 @@ export class StudyService {
                                     action:"toggle_series"
                                 },e);
                             },
-                            title:"Hide Series"
+                            title:"Hide Series",
+                            showIf:(e)=>{
+                                return e.showSeries
+                            }
                         },{
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-chevron-right',
-                                text:'',
-                                showIf:(e)=>{
-                                    return !e.showSeries
-                                }
+                                text:''
                             },
                             click:(e)=>{
                                 actions.call($this, {
@@ -769,7 +780,10 @@ export class StudyService {
                                     action:"toggle_series"
                                 },e);
                             },
-                            title:"Show Series"
+                            title:"Show Series",
+                            showIf:(e)=>{
+                                return !e.showSeries
+                            }
                         }
                     ],
                     headerDescription:"Show studies",
@@ -804,7 +818,11 @@ export class StudyService {
                                         action:"edit_study"
                                     },e);
                                 },
-                                title:'Edit this study'
+                                title:'Edit this study',
+                                permission:{
+                                    id:'action-studies-study',
+                                    param:'edit'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -818,7 +836,11 @@ export class StudyService {
                                         action:"export"
                                     },e);
                                 },
-                                title:'Export study'
+                                title:'Export study',
+                                permission:{
+                                    id:'action-studies-study',
+                                    param:'export'
+                                }
                             },{
                                 icon:{
                                     tag:'i',
@@ -832,7 +854,11 @@ export class StudyService {
                                         action:"modify_expired_date"
                                     },e);
                                 },
-                                title:'Set/Change expired date'
+                                title:'Set/Change expired date',
+                                permission:{
+                                    id:'action-studies-study',
+                                    param:'edit'
+                                }
                             },{
                             //<i class="material-icons">file_upload</i>
                                 icon:{
@@ -847,7 +873,11 @@ export class StudyService {
                                         action:"upload_file"
                                     },e);
                                 },
-                                title:'Upload file'
+                                title:'Upload file',
+                                permission:{
+                                    id:'action-studies-study',
+                                    param:'upload'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -862,7 +892,11 @@ export class StudyService {
                                         mode:"uncompressed"
                                     },e);
                                 },
-                                title:'Retrieve Study uncompressed'
+                                title:'Retrieve Study uncompressed',
+                                permission:{
+                                    id:'action-studies-download',
+                                    param:'visible'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -878,6 +912,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:'Retrieve Study as stored at the archive',
+                                permission:{
+                                    id:'action-studies-download',
+                                    param:'visible'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -892,6 +930,28 @@ export class StudyService {
                                     },e);
                                 },
                                 title:options.trash.active ? 'Restore study' : 'Reject study',
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass: 'glyphicon glyphicon-remove',
+                                    text:''
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"delete"
+                                    },e);
+                                },
+                                title:'Delete study permanently',
+                                showIf:(e)=>{
+                                    return options.trash.active ||
+                                        (
+                                            options.selectedWebService &&
+                                            options.selectedWebService.dicomAETitleObject &&
+                                            options.selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently === "ALWAYS"
+                                        )
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -1035,10 +1095,7 @@ export class StudyService {
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-chevron-down',
-                                text:'',
-                                showIf:(e)=>{
-                                    return e.showInstances
-                                }
+                                text:''
                             },
                             click:(e)=>{
                                 actions.call($this, {
@@ -1047,15 +1104,15 @@ export class StudyService {
                                     action:"toggle_instances"
                                 },e);
                             },
-                            title:"Hide Instances"
+                            title:"Hide Instances",
+                            showIf:(e)=>{
+                                return e.showInstances
+                            }
                         },{
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-chevron-right',
-                                text:'',
-                                showIf:(e)=>{
-                                    return !e.showInstances
-                                }
+                                text:''
                             },
                             click:(e)=>{
                                 actions.call($this, {
@@ -1064,7 +1121,10 @@ export class StudyService {
                                     action:"toggle_instances"
                                 },e);
                             },
-                            title:"Show Instaces"
+                            title:"Show Instaces",
+                            showIf:(e)=>{
+                                return !e.showInstances
+                            }
                         }
                     ],
                     headerDescription:"Show Instances",
@@ -1675,7 +1735,12 @@ export class StudyService {
         }
         return this.$http.put(`${url}/${studyUID}/expire/${expiredDate}${localParams}`,{})
     }
+
     getExporters = () => this.$http.get('../export');
+
+    deleteStudy = (studyInstanceUID:string, dcmWebApp:DcmWebApp) => this.$http.delete(`${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}`);
+
+    deleteRejectedInstances = (reject, params) => this.$http.delete(`../reject/${reject}${j4care.param(params)}`);
 
     rejectStudy(studyAttr, webApp:DcmWebApp, rejectionCode){
         return this.$http.post(

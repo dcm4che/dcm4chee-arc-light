@@ -23,7 +23,11 @@ import {PatientDicom} from "../../models/patient-dicom";
 import {StudyDicom} from "../../models/study-dicom";
 import * as _  from "lodash";
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import {DicomTableSchema, TableSchemaConfig} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {
+    DicomTableSchema,
+    StudyTrash,
+    TableSchemaConfig
+} from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {SeriesDicom} from "../../models/series-dicom";
 import {InstanceDicom} from "../../models/instance-dicom";
 import {WadoQueryParams} from "./wado-wuery-params";
@@ -43,6 +47,8 @@ import {ExportDialogComponent} from "../../widgets/dialogs/export/export.compone
 import {UploadFilesComponent} from "../../widgets/dialogs/upload-files/upload-files.component";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {StudyWebService} from "./study-web-service.model";
+import {RequestOptionsArgs} from "@angular/http";
+import {DeleteRejectedInstancesComponent} from "../../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 
 
 @Component({
@@ -125,15 +131,16 @@ export class StudyComponent implements OnInit {
         aets:[],
         aetsAreSet:false
     };
-    trash:{reject:any;rjnotes:any;rjcode:any;active:boolean} = {
+    trash:StudyTrash = {
         reject:undefined,
         rjnotes:undefined,
         rjcode:undefined,
         active:false
     };
+    studyWebService:StudyWebService;
 
     tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
-        tableSchema:this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash}),
+        tableSchema:this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash, selectedWebService:_.get(this.studyWebService,"selectedWebService")}),
         config:{
             offset:0
         }
@@ -143,9 +150,8 @@ export class StudyComponent implements OnInit {
     // studyWebService:StudystudyWebServiceModel;
 /*    private _selectedWebAppService:DcmWebApp;
     webApps:DcmWebApp[];*/
-    
-    studyWebService:StudyWebService;
-    
+
+
     dialogRef: MatDialogRef<any>;
     lastPressedCode;
     moreFunctionConfig = {
@@ -154,7 +160,7 @@ export class StudyComponent implements OnInit {
             new SelectDropdown("create_patient","Create patient"),
             new SelectDropdown("upload_dicom","Upload DICOM Object"),
             new SelectDropdown("export_multiple","Export multiple studies"),
-            new SelectDropdown("permanent_delete","Permanent delete"),
+            new SelectDropdown("permanent_delete","Permanent delete", "Delete Rejected Instances permanently"),
             new SelectDropdown("retrieve_multiple","Retrieve multiple studies"),
             new SelectDropdown("storage_verification","Storage Verification"),
             new SelectDropdown("download_studies","Download Studies as CSV"),
@@ -209,10 +215,27 @@ export class StudyComponent implements OnInit {
     moreFunctionChanged(e){
         console.log("e",e);
         switch (e){
-            case "create_patient":{
+            case "create_patient":
                 this.createPatient();
                 break;
-            }
+            case "permanent_delete":
+                this.deleteRejectedInstances();
+                break;
+            case "upload_dicom":
+//
+               break;
+            case "export_multiple":
+//
+               break;
+            case "retrieve_multiple":
+//
+               break;
+            case "storage_verification":
+                this.storageVerification();
+               break;
+            case "download_studies":
+                this.downloadCSV();
+               break;
         }
         setTimeout(()=>{
             this.moreFunctionConfig.model = undefined;
@@ -270,6 +293,11 @@ export class StudyComponent implements OnInit {
                 }
                 if(id.level === "instance"){
                     this.rejectInstance(model);
+                }
+            }
+            if(id.action === "delete"){
+                if(id.level === "study"){
+                    this.deleteStudy(model);
                 }
             }
             if(id.action === "verify_storage"){
@@ -544,7 +572,7 @@ export class StudyComponent implements OnInit {
                     filterClone["access_token"] = token;
                 }
                 j4care.downloadFile(`${url}?${this.appService.param(filterClone)}`,fileName);
-                // WindowRefService.nativeWindow.open(`${url}?${this.mainservice.param(filterClone)}`);
+                // WindowRefService.nativeWindow.open(`${url}?${this.appService.param(filterClone)}`);
             });
         })
     }
@@ -1097,7 +1125,89 @@ export class StudyComponent implements OnInit {
             }
         });
     }
+    deleteRejectedInstances(){
+        let result = {
+            reject: undefined
+        };
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.rjnotes = this.trash.rjnotes;
+        this.dialogRef.componentInstance.results = result;
+        this.dialogRef.afterClosed().subscribe(re => {
+            console.log('afterclose re', re);
+            this.cfpLoadingBar.start();
+            if (re) {
 
+                let params = {};
+                if (re.rejectedBefore){
+                    params['rejectedBefore'] = re.rejectedBefore;
+                }
+                if (re.keepRejectionNote === true){
+                    params['keepRejectionNote'] = re.keepRejectionNote;
+                }
+                console.log('params1', this.appService.param(params));
+                console.log('params', params);
+
+                this.service.deleteRejectedInstances(re.reject, params)
+                .subscribe(
+                        (res) => {
+                            console.log('in res', res);
+                            this.cfpLoadingBar.complete();
+                            // this.fireRightQuery();
+                            if (_.hasIn(res, 'deleted')){
+                                this.appService.setMessage({
+                                    'title': 'Info',
+                                    'text': res.deleted + ' instances deleted successfully!',
+                                    'status': 'info'
+                                });
+                            }else{
+                                this.appService.setMessage({
+                                    'title': 'Warning',
+                                    'text': 'Process executed successfully',
+                                    'status': 'warning'
+                                });
+                            }
+                        },
+                        (err) => {
+                            console.log('error', err);
+                            this.httpErrorHandler.handleError(err);
+                        });
+            }
+            this.cfpLoadingBar.complete();
+            this.dialogRef = null;
+        });
+
+    }
+
+    deleteStudy(study){
+        console.log('study', study);
+        // if(study.attrs['00201208'].Value[0] === 0){
+        this.confirm({
+            content: 'Are you sure you want to delete this study?'
+        }).subscribe(result => {
+            this.cfpLoadingBar.start();
+            if (result){
+                this.service.deleteStudy(_.get(study,"attrs['0020000D'].Value[0]"),this.studyWebService.selectedWebService)
+/*                this.$http.delete(
+                    '../aets/' + this.aet + '/rs/studies/' + study.attrs['0020000D'].Value[0]
+                )*/
+                .subscribe(
+                    (response) => {
+                        this.appService.showMsg('Study deleted successfully!');
+                        this.cfpLoadingBar.complete();
+                    },
+                    (response) => {
+                        this.httpErrorHandler.handleError(response);
+                        this.cfpLoadingBar.complete();
+                    }
+                );
+            }
+            this.cfpLoadingBar.complete();
+        });
+    };
 
     rejectStudy(study) {
         let $this = this;
@@ -1293,7 +1403,7 @@ export class StudyComponent implements OnInit {
     };
 
     setTrash(){
-        if (this.studyWebService.selectedWebService.dcmHideNotRejectedInstances === true){
+        if (this.studyWebService.selectedWebService.dicomAETitleObject && this.studyWebService.selectedWebService.dicomAETitleObject.dcmHideNotRejectedInstances){
             if (!this.trash.rjcode){
                 this.service.getRejectNotes({dcmRevokeRejection:true})
                     .subscribe((res)=>{
@@ -1304,7 +1414,7 @@ export class StudyComponent implements OnInit {
         }else{
             this.trash.active = false;
         }
-        this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash});
+        this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash, selectedWebService:this.studyWebService.selectedWebService});
     };
     exportStudy(study) {
         this.exporter(
@@ -1385,6 +1495,7 @@ export class StudyComponent implements OnInit {
                     batchID = `batchID=${result.batchID}&`;
                 $this.cfpLoadingBar.start();
                 if(mode === "multiple"){
+                    //TODO Calling Aet 'selectedAet' is probably wrong here
                     urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.appService.param(this.createStudyFilterParams())}` ;
                 }else{
                     if(mode === 'multipleExport'){
@@ -1436,6 +1547,113 @@ export class StudyComponent implements OnInit {
             }
         });
     }
+    storageVerification(){
+        this.confirm({
+            content: 'Schedule Storage Verification of matching Studies',
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:"Failed storage verification"
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"storageVerificationFailed"
+                        }
+                    ],[
+                    {
+                        tag:"label",
+                        text:"Verification Policy"
+                    },
+                    {
+                        tag:"select",
+                        options:[
+                            {
+                                value:"DB_RECORD_EXISTS",
+                                text:"DB_RECORD_EXISTS",
+                                title:"Check for existence of DB records"
+                            },
+                            {
+                                value:"OBJECT_EXISTS",
+                                text:"OBJECT_EXISTS",
+                                title:"check if object exists on Storage System"
+                            },
+                            {
+                                value:"OBJECT_SIZE",
+                                text:"OBJECT_SIZE",
+                                title:"check size of object on Storage System"
+                            },
+                            {
+                                value:"OBJECT_FETCH",
+                                text:"OBJECT_FETCH",
+                                title:"Fetch object from Storage System"
+                            },
+                            {
+                                value:"OBJECT_CHECKSUM",
+                                text:"OBJECT_CHECKSUM",
+                                title:"recalculate checksum of object on Storage System"
+                            },
+                            {
+                                value:"S3_MD5SUM",
+                                text:"S3_MD5SUM",
+                                title:"Check MD5 checksum of object on S3 Storage System"
+                            }
+                        ],
+                        showStar:true,
+                        filterKey:"storageVerificationPolicy",
+                        description:"Verification Policy",
+                        placeholder:"Verification Policy"
+                    }
+                ],[
+                    {
+                        tag:"label",
+                        text:"Update Location DB"
+                    },
+                    {
+                        tag:"checkbox",
+                        filterKey:"storageVerificationUpdateLocationStatus"
+                    }
+                ],[
+                    {
+                        tag:"label",
+                        text:"Batch ID"
+                    },
+                    {
+                        tag:"input",
+                        type:"text",
+                        filterKey:"batchID",
+                        description:"Batch ID",
+                        placeholder:"Batch ID"
+                    }
+                ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: 'SAVE'
+        }).subscribe((ok)=>{
+            if(ok){
+                //TODO
+/*                this.cfpLoadingBar.start();
+                this.service.scheduleStorageVerification(_.merge(ok.schema_model , this.createStudyFilterParams()), this.studyWebService).subscribe(res=>{
+                    console.log("res");
+                    this.cfpLoadingBar.complete();
+                    this.appService.setMessage({
+                        'title': 'Info',
+                        'text': 'Storage Verification scheduled successfully!',
+                        'status': 'info'
+                    });
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });*/
+            }
+        });
+    }
+
     storageCommitmen(mode, object){
         console.log('object', object);
         this.service.getStorageSystems().subscribe(storages=>{
@@ -1630,9 +1848,7 @@ export class StudyComponent implements OnInit {
                         webServices:webApps.map((webApp:DcmWebApp)=>{
                             aetsTemp.forEach((aet)=>{
                                 if(webApp.dicomAETitle && webApp.dicomAETitle === aet.dicomAETitle){
-                                    if(aet.dcmHideNotRejectedInstances){
-                                        webApp["dcmHideNotRejectedInstances"] = aet.dcmHideNotRejectedInstances;
-                                    }
+                                    webApp.dicomAETitleObject = aet;
                                 }
                             });
                             return webApp;
@@ -1656,7 +1872,7 @@ export class StudyComponent implements OnInit {
                     /*                    if (res && res[0] && res[0].id){
                                             $this.exporterID = res[0].id;
                                         }*/
-                    // $this.mainservice.setGlobal({exporterID:$this.exporterID});
+                    // $this.appService.setGlobal({exporterID:$this.exporterID});
                 },
                 (res)=> {
                     if (retries)
