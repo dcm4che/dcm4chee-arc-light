@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {AccessLocation, DicomMode, DicomResponseType, FilterSchema, SelectDropdown} from "../../interfaces";
+import {AccessLocation, DicomLevel, DicomMode, DicomResponseType, FilterSchema, SelectDropdown} from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
@@ -30,6 +30,8 @@ export class StudyService {
     private _studyIod;
     integerVr = ['DS', 'FL', 'FD', 'IS', 'SL', 'SS', 'UL', 'US'];
 
+    dicomHeader = new HttpHeaders({'Content-Type': 'application/dicom+json'});
+    jsonHeader = new HttpHeaders({'Content-Type': 'application/json'});
     constructor(
       private aeListService:AeListService,
       private $http:J4careHttpService,
@@ -301,7 +303,7 @@ export class StudyService {
     getStudies(filterModel, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header:HttpHeaders;
         if(!responseType || responseType === "object"){
-            header =  new HttpHeaders({'Accept': 'application/dicom+json'});
+            header =  this.dicomHeader
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
@@ -317,7 +319,7 @@ export class StudyService {
     getSeries(studyInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header;
         if(!responseType || responseType === "object"){
-            header =  new HttpHeaders({'Accept': 'application/dicom+json'});
+            header =  this.dicomHeader
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
@@ -331,11 +333,9 @@ export class StudyService {
     }
 
     testAet( url, dcmWebApp:DcmWebApp){
-        let header:HttpHeaders;
-            header =  new HttpHeaders({'Accept': 'application/json'});
         return this.$http.get(
             url,//`http://test-ng:8080/dcm4chee-arc/ui2/rs/aets`,
-            header,
+            this.jsonHeader,
             false,
             dcmWebApp
         ).map(res => j4care.redirectOnAuthResponse(res));
@@ -343,7 +343,7 @@ export class StudyService {
     getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
         let header:HttpHeaders;
         if(!responseType || responseType === "object"){
-            header =  new HttpHeaders({'Accept': 'application/dicom+json'});
+            header =  this.dicomHeader
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}`:params;
@@ -489,6 +489,15 @@ export class StudyService {
     instanceURL(attrs, webApp:DcmWebApp) {
         return this.seriesURL(attrs, webApp) + '/instances/' + attrs['00080018'].Value[0];
     }
+
+    getURL(attrs, webApp:DcmWebApp, dicomLevel:DicomLevel){
+        if(dicomLevel === "series")
+              return this.seriesURL(attrs, webApp);
+        if(dicomLevel === "instance")
+              return this.instanceURL(attrs, webApp);
+        return this.studyURL(attrs, webApp);
+    }
+
     studyFileName(attrs) {
         return attrs['0020000D'].Value[0];
     }
@@ -522,6 +531,12 @@ export class StudyService {
         return this.storageSystems.search({},0);
     }
 
+    verifyStorage = (attrs, studyWebService:StudyWebService, level:DicomLevel, params:any) => {
+        let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgver`;
+
+        return this.$http.post(url,{}, this.dicomHeader);
+    };
+
     getDevices(){
         return this.devicesService.getDevices();
     }
@@ -549,7 +564,8 @@ export class StudyService {
                                     action:"toggle_studies"
                                 },e);
                                 // e.showStudies = !e.showStudies;
-                            }
+                            },
+                            title:"Hide Studies"
                         },{
                             icon:{
                                 tag:'span',
@@ -568,7 +584,8 @@ export class StudyService {
                                     action:"toggle_studies"
                                 },e);
                                 // actions.call(this, 'study_arrow',e);
-                            }
+                            },
+                            title:"Show Studies"
                         }
                     ],
                     headerDescription:"Show studies",
@@ -593,8 +610,7 @@ export class StudyService {
                                     icon:{
                                         tag:'span',
                                         cssClass:'glyphicon glyphicon-pencil',
-                                        text:'',
-                                        description:'Edit this Patient',
+                                        text:''
                                     },
                                     click:(e)=>{
                                         actions.call($this, {
@@ -602,13 +618,13 @@ export class StudyService {
                                             level:"patient",
                                             action:"edit_patient"
                                         },e);
-                                    }
+                                    },
+                                    title:'Edit this Patient'
                                 },{
                                     icon:{
                                         tag:'span',
                                         cssClass:'glyphicon glyphicon-plus',
-                                        text:'',
-                                        description:'Add new MWL',
+                                        text:''
                                     },
                                     click:(e)=>{
                                         actions.call($this, {
@@ -616,13 +632,13 @@ export class StudyService {
                                             level:"patient",
                                             action:"create_mwl"
                                         },e);
-                                    }
+                                    },
+                                    title:'Add new MWL'
                                 },{
                                     icon:{
                                         tag:'span',
                                         cssClass:'custom_icon csv_icon_black',
-                                        text:'',
-                                        description:'Download as CSV',
+                                        text:''
                                     },
                                     click:(e)=>{
                                         actions.call($this, {
@@ -630,7 +646,8 @@ export class StudyService {
                                             level:"study",
                                             action:"download_csv"
                                         },e);
-                                    }
+                                    },
+                                    title:'Download as CSV'
                                 }
                             ]
                     },
@@ -650,7 +667,8 @@ export class StudyService {
                             click:(e)=>{
                                 console.log("e",e);
                                 e.showAttributes = !e.showAttributes;
-                            }
+                            },
+                            title:"Toggle Attributes"
                         }
                     ],
                     headerDescription:"Actions",
@@ -730,10 +748,11 @@ export class StudyService {
                             click:(e)=>{
                                 actions.call($this, {
                                     event:"click",
-                                    level:"studies",
+                                    level:"study",
                                     action:"toggle_series"
                                 },e);
-                            }
+                            },
+                            title:"Hide Series"
                         },{
                             icon:{
                                 tag:'span',
@@ -746,10 +765,11 @@ export class StudyService {
                             click:(e)=>{
                                 actions.call($this, {
                                     event:"click",
-                                    level:"studies",
+                                    level:"study",
                                     action:"toggle_series"
                                 },e);
-                            }
+                            },
+                            title:"Show Series"
                         }
                     ],
                     headerDescription:"Show studies",
@@ -775,8 +795,7 @@ export class StudyService {
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-pencil',
-                                    text:'',
-                                    description:'Edit this study',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -784,13 +803,13 @@ export class StudyService {
                                         level:"study",
                                         action:"edit_study"
                                     },e);
-                                }
+                                },
+                                title:'Edit this study'
                             },{
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-export',
-                                    text:'',
-                                    description:'Export study',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -798,13 +817,13 @@ export class StudyService {
                                         level:"study",
                                         action:"export"
                                     },e);
-                                }
+                                },
+                                title:'Export study'
                             },{
                                 icon:{
                                     tag:'i',
                                     cssClass:'material-icons',
-                                    text:'history',
-                                    description:'Set/Change expired date',
+                                    text:'history'
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -812,14 +831,14 @@ export class StudyService {
                                         level:"study",
                                         action:"modify_expired_date"
                                     },e);
-                                }
+                                },
+                                title:'Set/Change expired date'
                             },{
                             //<i class="material-icons">file_upload</i>
                                 icon:{
                                     tag:'i',
                                     cssClass:'material-icons',
-                                    text:'file_upload',
-                                    description:'Upload file',
+                                    text:'file_upload'
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -827,13 +846,13 @@ export class StudyService {
                                         level:"study",
                                         action:"upload_file"
                                     },e);
-                                }
+                                },
+                                title:'Upload file'
                             },{
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-save',
-                                    text:'',
-                                    description:'Retrieve Study uncompressed',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -842,13 +861,13 @@ export class StudyService {
                                         action:"download",
                                         mode:"uncompressed"
                                     },e);
-                                }
+                                },
+                                title:'Retrieve Study uncompressed'
                             },{
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-download-alt',
-                                    text:'',
-                                    description:'Retrieve Study as stored at the archive',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -857,13 +876,13 @@ export class StudyService {
                                         action:"download",
                                         mode:"compressed",
                                     },e);
-                                }
+                                },
+                                title:'Retrieve Study as stored at the archive',
                             },{
                                 icon:{
                                     tag:'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
-                                    text:'',
-                                    description:options.trash.active ? 'Restore study' : 'Reject study',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -871,13 +890,27 @@ export class StudyService {
                                         level:"study",
                                         action:"reject"
                                     },e);
-                                }
+                                },
+                                title:options.trash.active ? 'Restore study' : 'Reject study',
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-ok',
+                                    text:''
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"study",
+                                        action:"verify_storage"
+                                    },e);
+                                },
+                                title:'Verify storage commitment',
                             },{
                                 icon:{
                                     tag:'span',
                                     cssClass:'custom_icon csv_icon_black',
-                                    text:'',
-                                    description:'Download as CSV',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -885,7 +918,8 @@ export class StudyService {
                                         level:"series",
                                         action:"download_csv"
                                     },e);
-                                }
+                                },
+                                title:"Download as CSV"
                             }
                         ]
                     },
@@ -905,7 +939,8 @@ export class StudyService {
                             click:(e)=>{
                                 console.log("e",e);
                                 e.showAttributes = !e.showAttributes;
-                            }
+                            },
+                            title:"Toggle Attributes"
                         }
                     ],
                     headerDescription:"Actions",
@@ -1011,7 +1046,8 @@ export class StudyService {
                                     level:"series",
                                     action:"toggle_instances"
                                 },e);
-                            }
+                            },
+                            title:"Hide Instances"
                         },{
                             icon:{
                                 tag:'span',
@@ -1027,7 +1063,8 @@ export class StudyService {
                                     level:"series",
                                     action:"toggle_instances"
                                 },e);
-                            }
+                            },
+                            title:"Show Instaces"
                         }
                     ],
                     headerDescription:"Show Instances",
@@ -1045,7 +1082,6 @@ export class StudyService {
                     header:"",
                     menu:{
                         toggle:(e)=>{
-                            console.log("e",e);
                             e.showMenu = !e.showMenu;
                         },
                         actions:[
@@ -1053,24 +1089,22 @@ export class StudyService {
                                 icon:{
                                     tag:'span',
                                     cssClass:'custom_icon csv_icon_black',
-                                    text:'',
-                                    description:'Download as CSV',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     console.log("e",e);
-                                    //TODO download csv
                                     actions.call($this, {
                                         event:"click",
                                         level:"instance",
                                         action:"download_csv"
                                     },e);
-                                }
+                                },
+                                title:'Download as CSV'
                             },{
                                 icon:{
                                     tag:'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
-                                    text:'',
-                                    description:options.trash.active ? 'Restore series' : 'Reject series',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -1078,14 +1112,14 @@ export class StudyService {
                                         level:"series",
                                         action:"reject"
                                     },e);
-                                }
+                                },
+                                title:options.trash.active ? 'Restore series' : 'Reject series',
                             }
                             ,{
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-export',
-                                    text:'',
-                                    description:'Export series',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -1093,7 +1127,8 @@ export class StudyService {
                                         level:"series",
                                         action:"export"
                                     },e);
-                                }
+                                },
+                                title:'Export series',
                             }
                         ]
                     },
@@ -1111,9 +1146,9 @@ export class StudyService {
                                 text:''
                             },
                             click:(e)=>{
-                                console.log("e",e);
                                 e.showAttributes = !e.showAttributes;
-                            }
+                            },
+                            title:"Show attributes"
                         }
                     ],
                     headerDescription:"Actions",
@@ -1204,8 +1239,7 @@ export class StudyService {
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-export',
-                                    text:'',
-                                    description:'Export instance',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -1213,14 +1247,14 @@ export class StudyService {
                                         level:"instance",
                                         action:"export"
                                     },e);
-                                }
+                                },
+                                title:'Export instance',
                             },
                             {
                                 icon:{
                                     tag:'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
-                                    text:'',
-                                    description:options.trash.active ? 'Restore instance' : 'Reject instance',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -1228,14 +1262,14 @@ export class StudyService {
                                         level:"instance",
                                         action:"reject"
                                     },e);
-                                }
+                                },
+                                title:options.trash.active ? 'Restore instance' : 'Reject instance',
                             },
                             {
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-save',
-                                    text:'',
-                                    description:'Download Uncompressed DICOM Object',
+                                    text:''
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -1244,14 +1278,14 @@ export class StudyService {
                                         action:"download",
                                         mode:"uncompressed"
                                     },e);
-                                }
+                                },
+                                title:'Download Uncompressed DICOM Object'
                             },
                             {
                                 icon:{
                                     tag:'span',
                                     cssClass:'glyphicon glyphicon-download-alt',
                                     text:'',
-                                    description:'Download DICOM Object',
                                 },
                                 click:(e)=>{
                                     actions.call($this, {
@@ -1260,7 +1294,8 @@ export class StudyService {
                                         action:"download",
                                         mode:"compressed",
                                     },e);
-                                }
+                                },
+                                title:'Download DICOM Object'
                             }
                         ]
                     },
@@ -1274,12 +1309,13 @@ export class StudyService {
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-th-list',
-                                text:'Show attributes'
+                                text:''
                             },
                             click:(e)=>{
                                 console.log("e",e);
                                 e.showAttributes = !e.showAttributes;
-                            }
+                            },
+                            title:'Show attributes'
                         }
                     ],
                     headerDescription:"Actions",
@@ -1292,12 +1328,13 @@ export class StudyService {
                             icon:{
                                 tag:'span',
                                 cssClass:'glyphicon glyphicon-list',
-                                text:'Show Attributes from file'
+                                text:''
                             },
                             click:(e)=>{
                                 console.log("e",e);
                                 e.showFileAttributes = !e.showFileAttributes;
-                            }
+                            },
+                            title:'Show attributes from file'
                         }
                     ],
                     headerDescription:"Actions",
@@ -1616,21 +1653,21 @@ export class StudyService {
         return this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
-            new HttpHeaders({ 'Content-Type': 'application/json' })
+            this.jsonHeader
         )
     }
     rejectSeries(studyAttr, webApp:DcmWebApp, rejectionCode){
         return this.$http.post(
             `${this.seriesURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
-            new HttpHeaders({ 'Content-Type': 'application/json' })
+            this.jsonHeader
         )
     }
     rejectInstance(studyAttr, webApp:DcmWebApp, rejectionCode){
         return this.$http.post(
             `${this.instanceURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
-            new HttpHeaders({ 'Content-Type': 'application/json' })
+            this.jsonHeader
         )
     }
     mapCode(m,i,newObject,mapCodes){
@@ -1679,7 +1716,7 @@ export class StudyService {
         return endMsg;
     }
 
-    export = (url) => this.$http.post(url,undefined,new HttpHeaders({ 'Content-Type': 'application/json' }));
+    export = (url) => this.$http.post(url,{}, this.jsonHeader);
 
     getQueueNames = () => this.retrieveMonitoringService.getQueueNames();
 

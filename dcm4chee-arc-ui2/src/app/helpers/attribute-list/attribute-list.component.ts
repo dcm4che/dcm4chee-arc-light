@@ -7,6 +7,8 @@ import {WindowRefService} from "../window-ref.service";
 import {HttpErrorHandler} from "../http-error-handler";
 import {J4careHttpService} from "../j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {StudyWebService} from "../../study/study/study-web-service.model";
+import {StudyService} from "../../study/study/study.service";
 declare var DCM4CHE: any;
 
 @Component({
@@ -20,12 +22,15 @@ export class AttributeListComponent implements OnInit {
     @Input() objectuid;
     @Input() aet;
     @Input() attrs;
+    @Input() studyWebService:StudyWebService;
+
     rows = [];
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: LoadingBarService,
         public mainservice: AppService,
-        public httpErrorHandler:HttpErrorHandler
+        public httpErrorHandler:HttpErrorHandler,
+        private studyService:StudyService
     ) { }
     ngOnInit() {
         this.init();
@@ -35,15 +40,21 @@ export class AttributeListComponent implements OnInit {
             this.attrs2rows('', this.attrs, this.rows);
         }else{
             this.cfpLoadingBar.start();
-            let url = '../aets/' +
-                this.aet +
-                '/rs/studies/' +
-                this.studyuid +
-                '/series/' +
-                this.seriesuid +
-                '/instances/' +
-                this.objectuid +
-                '/metadata';
+            let url = "";
+            if(this.aet){
+                url = '../aets/' +
+                    this.aet +
+                    '/rs/studies/' +
+                    this.studyuid +
+                    '/series/' +
+                    this.seriesuid +
+                    '/instances/' +
+                    this.objectuid +
+                    '/metadata';
+            }else{
+                console.log("urlbase",this.studyService.getDicomURL("study", this.studyWebService.selectedWebService));
+                url = `${this.studyService.getDicomURL("study", this.studyWebService.selectedWebService)}/${this.studyuid}/series/${this.seriesuid}/instances/${this.objectuid}/metadata`
+            }
             this.$http.get(url)
                 // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {

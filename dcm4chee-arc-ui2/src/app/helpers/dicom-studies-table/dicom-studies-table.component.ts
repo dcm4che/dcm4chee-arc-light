@@ -3,6 +3,7 @@ import {DicomTableSchema, TableSchemaConfig} from "./dicom-studies-table.interfa
 import {PatientDicom} from "../../models/patient-dicom";
 import * as _ from "lodash";
 import {j4care} from "../j4care.service";
+import {StudyWebService} from "../../study/study/study-web-service.model";
 
 @Component({
   selector: 'dicom-studies-table',
@@ -15,6 +16,7 @@ export class DicomStudiesTableComponent implements OnInit {
     private _config:TableSchemaConfig;
     @Input() patients:PatientDicom[];
     @Input() title:string;
+    @Input() studyWebService:StudyWebService;
 
     hover_mode = 'patient';
     active_td = '';
