@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -95,6 +96,9 @@ public class ImportStorageRS {
 
     @PathParam("AETitle")
     private String aet;
+
+    @QueryParam("readPixelData")
+    private boolean readPixelData;
 
     private final Attributes response = new Attributes();
     private final Set<String> studyInstanceUIDs = new HashSet<>();
@@ -171,7 +175,7 @@ public class ImportStorageRS {
             dicomInputStream.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
             dicomInputStream.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
             ctx.setReceiveTransferSyntax(dicomInputStream.getTransferSyntax());
-            return dicomInputStream.readDataset(-1, -1);
+            return dicomInputStream.readDataset(-1, readPixelData ? -1 : Tag.PixelData);
         }
     }
 
