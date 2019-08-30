@@ -1,6 +1,6 @@
 {
-  "title": "UI Elasticsearch URL Configuration",
-  "description": "Elasticsearch URL",
+  "title": "UI Study Table Columns Configuration",
+  "description": "Study Table Columns",
   "type": "object",
   "required": [
     "dcmuiColumnName",

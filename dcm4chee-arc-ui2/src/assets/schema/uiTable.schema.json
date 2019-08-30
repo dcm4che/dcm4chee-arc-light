@@ -30,7 +30,7 @@
     "dcmuiStudyTableColumnConfigObjects": {
       "title": "Study Table Columns",
       "description": "Define Study Table Columns",
-      "titleKey":"{dcmuiElasticsearchURLName}",
+      "titleKey":"{dcmuiColumnName}",
       "type": "array",
       "items" : {
         "$ref": "uiTableColumns.schema.json"
