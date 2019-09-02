@@ -1739,6 +1739,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.300 NAME 'dcmTrimISO2022CharacterSet'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.301 NAME 'dcmStorePermissionServiceResponse'
+  DESC 'Emulate Store Permission Service Response on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. Only effective if no Store Permission Service URL is configured.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1857,6 +1863,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorePermissionServiceErrorCodePattern $
     dcmStorePermissionCacheStaleTimeout $
     dcmStorePermissionCacheSize $
+    dcmStorePermissionServiceResponse $
     dcmMergeMWLCacheStaleTimeout $
     dcmMergeMWLCacheSize $
     dcmStoreUpdateDBMaxRetries $
@@ -1993,6 +2000,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorePermissionServiceExpirationDatePattern $
     dcmStorePermissionServiceErrorCommentPattern $
     dcmStorePermissionServiceErrorCodePattern $
+    dcmStorePermissionServiceResponse $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAcceptedUserRole $
     dcmAllowDeleteStudyPermanently $

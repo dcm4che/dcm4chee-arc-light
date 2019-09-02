@@ -156,6 +156,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String rejectExpiredStudiesAETitle;
     private volatile String fallbackCMoveSCPStudyOlderThan;
     private volatile String storePermissionServiceURL;
+    private volatile String storePermissionServiceResponse;
     private volatile Pattern storePermissionServiceResponsePattern;
     private volatile Pattern storePermissionServiceExpirationDatePattern;
     private volatile Pattern storePermissionServiceErrorCommentPattern;
@@ -1042,6 +1043,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setStorePermissionServiceURL(String storePermissionServiceURL) {
         this.storePermissionServiceURL = storePermissionServiceURL;
+    }
+
+    public String getStorePermissionServiceResponse() {
+        return storePermissionServiceResponse;
+    }
+
+    public void setStorePermissionServiceResponse(String storePermissionServiceResponse) {
+        this.storePermissionServiceResponse = storePermissionServiceResponse;
     }
 
     public Pattern getStorePermissionServiceResponsePattern() {
@@ -2503,6 +2512,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectExpiredStudiesAETitle = arcdev.rejectExpiredStudiesAETitle;
         fallbackCMoveSCPStudyOlderThan = arcdev.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = arcdev.storePermissionServiceURL;
+        storePermissionServiceResponse = arcdev.storePermissionServiceResponse;
         storePermissionServiceResponsePattern = arcdev.storePermissionServiceResponsePattern;
         storePermissionServiceExpirationDatePattern = arcdev.storePermissionServiceExpirationDatePattern;
         storePermissionServiceErrorCommentPattern = arcdev.storePermissionServiceErrorCommentPattern;

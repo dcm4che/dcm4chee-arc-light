@@ -724,6 +724,11 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmStorePermissionServiceResponse": {
+      "title": "Store Permission Service Response",
+      "description": "Emulate Store Permission Service Response on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. Only effective if no Store Permission Service URL is configured.",
+      "type": "string"
+    },
     "dcmMergeMWLCacheStaleTimeout": {
       "title": "Merge MWL Cache Stale Timeout",
       "description": "Maximal staleness of Request Attributes extracted from matching DICOM MWL items in ISO-8601 duration format PnDTnHnMnS. If absent, cached Request Attributes are only removed on reaching the maximal cache size.",

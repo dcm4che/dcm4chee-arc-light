@@ -171,6 +171,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPStudyOlderThan", arcDev.getFallbackCMoveSCPStudyOlderThan(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceURL", arcDev.getStorePermissionServiceURL(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceResponse",
+                arcDev.getStorePermissionServiceResponse(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceResponsePattern",
                 arcDev.getStorePermissionServiceResponsePattern(), null);
         writer.writeNotNullOrDef("dcmStorePermissionCacheStaleTimeout", arcDev.getStorePermissionCacheStaleTimeout(), null);
@@ -831,6 +833,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceURL", arcAE.getStorePermissionServiceURL(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceResponse",
+                arcAE.getStorePermissionServiceResponse(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceResponsePattern",
                 arcAE.getStorePermissionServiceResponsePattern(), null);
         writer.writeNotNullOrDef("dcmAllowRejectionForDataRetentionPolicyExpired",
@@ -1142,6 +1146,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceURL":
                     arcDev.setStorePermissionServiceURL(reader.stringValue());
+                    break;
+                case "dcmStorePermissionServiceResponse":
+                    arcDev.setStorePermissionServiceResponse(reader.stringValue());
                     break;
                 case "dcmStorePermissionServiceResponsePattern":
                     arcDev.setStorePermissionServiceResponsePattern(Pattern.compile(reader.stringValue()));
@@ -2706,6 +2713,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceURL":
                     arcAE.setStorePermissionServiceURL(reader.stringValue());
+                    break;
+                case "dcmStorePermissionServiceResponse":
+                    arcAE.setStorePermissionServiceResponse(reader.stringValue());
                     break;
                 case "dcmStorePermissionServiceResponsePattern":
                     arcAE.setStorePermissionServiceResponsePattern(Pattern.compile(reader.stringValue()));

@@ -102,6 +102,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Integer qidoMaxNumberOfResults;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private String storePermissionServiceURL;
+    private String storePermissionServiceResponse;
     private Pattern storePermissionServiceResponsePattern;
     private Pattern storePermissionServiceExpirationDatePattern;
     private Pattern storePermissionServiceErrorCommentPattern;
@@ -717,6 +718,20 @@ public class ArchiveAEExtension extends AEExtension {
         return storePermissionServiceResponsePattern != null
                 ? storePermissionServiceResponsePattern
                 : getArchiveDeviceExtension().getStorePermissionServiceResponsePattern();
+    }
+
+    public String getStorePermissionServiceResponse() {
+        return storePermissionServiceResponse;
+    }
+
+    public void setStorePermissionServiceResponse(String storePermissionServiceResponse) {
+        this.storePermissionServiceResponse = storePermissionServiceResponse;
+    }
+
+    public String storePermissionServiceResponse() {
+        return storePermissionServiceResponse != null
+                ? storePermissionServiceResponse
+                : getArchiveDeviceExtension().getStorePermissionServiceResponse();
     }
 
     public Pattern getStorePermissionServiceExpirationDatePattern() {
@@ -1343,6 +1358,7 @@ public class ArchiveAEExtension extends AEExtension {
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = aeExt.storePermissionServiceURL;
+        storePermissionServiceResponse = aeExt.storePermissionServiceResponse;
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
         storePermissionServiceExpirationDatePattern = aeExt.storePermissionServiceExpirationDatePattern;
         storePermissionServiceErrorCommentPattern = aeExt.storePermissionServiceErrorCommentPattern;

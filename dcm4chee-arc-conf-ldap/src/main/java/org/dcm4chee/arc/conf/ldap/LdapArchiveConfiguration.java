@@ -175,6 +175,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesAETitle", ext.getRejectExpiredStudiesAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceResponse",
+                ext.getStorePermissionServiceResponse(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceResponsePattern",
                 ext.getStorePermissionServiceResponsePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionCacheStaleTimeout",
@@ -406,6 +408,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRejectExpiredStudiesAETitle(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesAETitle"), null));
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
         ext.setStorePermissionServiceURL(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceURL"), null));
+        ext.setStorePermissionServiceResponse(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceResponse"), null));
         ext.setStorePermissionServiceResponsePattern(toPattern(attrs.get("dcmStorePermissionServiceResponsePattern")));
         ext.setStorePermissionCacheStaleTimeout(toDuration(attrs.get("dcmStorePermissionCacheStaleTimeout"), null));
         ext.setStorePermissionCacheSize(LdapUtils.intValue(attrs.get("dcmStorePermissionCacheSize"), 10));
@@ -740,6 +743,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceURL",
                 aa.getStorePermissionServiceURL(), bb.getStorePermissionServiceURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceResponse",
+                aa.getStorePermissionServiceResponse(), bb.getStorePermissionServiceResponse(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceResponsePattern",
                 aa.getStorePermissionServiceResponsePattern(), bb.getStorePermissionServiceResponsePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionCacheStaleTimeout",
@@ -1111,31 +1116,47 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmObjectStorageID", ext.getObjectStorageIDs());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmObjectStorageCount", ext.getObjectStorageCount(), 1);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMetadataStorageID", ext.getMetadataStorageIDs());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataDescriptorID", ext.getBulkDataDescriptorID(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsDelay", ext.getPurgeInstanceRecordsDelay(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataDescriptorID",
+                ext.getBulkDataDescriptorID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay",
+                ext.getSeriesMetadataDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsDelay",
+                ext.getPurgeInstanceRecordsDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID",
+                ext.getStoreAccessControlID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAccessControlID", ext.getAccessControlIDs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
+                ext.getBulkDataSpoolDirectory(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueryRetrieveViewID",
+                ext.getQueryRetrieveViewID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
                 ext.getPersonNameComponentOrderInsensitiveMatching(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSendPendingCGet", ext.getSendPendingCGet(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSendPendingCMoveInterval",
+                ext.getSendPendingCMoveInterval(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSpanningCFindSCP", ext.getSpanningCFindSCP(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSpanningCFindSCPRetrieveAET", ext.getSpanningCFindSCPRetrieveAETitles());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSpanningCFindSCPPolicy", ext.getSpanningCFindSCPPolicy(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSpanningCFindSCPRetrieveAET",
+                ext.getSpanningCFindSCPRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSpanningCFindSCPPolicy",
+                ext.getSpanningCFindSCPPolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPCallingAET", ext.getFallbackCMoveSCPCallingAET(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPDestination",
+                ext.getFallbackCMoveSCPDestination(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPCallingAET",
+                ext.getFallbackCMoveSCPCallingAET(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPLeadingCFindSCP",
+                ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoZIPEntryNameFormat", ext.getWadoZIPEntryNameFormat(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoCDA2HtmlTemplateURI", ext.getWadoCDA2HtmlTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoZIPEntryNameFormat",
+                ext.getWadoZIPEntryNameFormat(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2HtmlTemplateURI",
+                ext.getWadoSR2HtmlTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2TextTemplateURI",
+                ext.getWadoSR2TextTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoCDA2HtmlTemplateURI",
+                ext.getWadoCDA2HtmlTemplateURI(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults());
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
@@ -1144,24 +1165,40 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanOnTimeout", ext.getIanOnTimeout(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan",
+                ext.getFallbackCMoveSCPStudyOlderThan(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceURL",
+                ext.getStorePermissionServiceURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceResponse",
+                ext.getStorePermissionServiceResponse(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceResponsePattern",
+                ext.getStorePermissionServiceResponsePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowRejectionForDataRetentionPolicyExpired",
+                ext.getAllowRejectionForDataRetentionPolicyExpired(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", ext.getAcceptedUserRoles());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeletePatient", ext.getAllowDeletePatient(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptMissingPatientID",
+                ext.getAcceptMissingPatientID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently",
+                ext.getAllowDeleteStudyPermanently(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeletePatient",
+                ext.getAllowDeletePatient(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceExpirationDatePattern",
+                ext.getStorePermissionServiceExpirationDatePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet",
+                ext.getDefaultCharacterSet(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern",
+                ext.getStorePermissionServiceErrorCommentPattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCodePattern",
+                ext.getStorePermissionServiceErrorCodePattern(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmReturnRetrieveAET", ext.getReturnRetrieveAETitles());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAEDestination",
+                ext.getExternalRetrieveAEDestination(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedMoveDestination", ext.getAcceptedMoveDestinations());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmValidateCallingAEHostname", ext.getValidateCallingAEHostname(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication", ext.getHL7PSUSendingApplication(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmValidateCallingAEHostname",
+                ext.getValidateCallingAEHostname(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication",
+                ext.getHL7PSUSendingApplication(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHL7PSUReceivingApplications());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHL7PSUDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHL7PSUTimeout(), null);
@@ -1193,10 +1230,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getRelationalQueryNegotiationLenient(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalRetrieveNegotiationLenient",
                 ext.getRelationalRetrieveNegotiationLenient(), null);
-        storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute", ext.getRejectConflictingPatientAttribute());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowRetiredTransferSyntax", ext.getStowRetiredTransferSyntax(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowExcludeAPPMarkers", ext.getStowExcludeAPPMarkers(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport", ext.getWadoThumbnailViewPort(), null);
+        storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
+                ext.getRejectConflictingPatientAttribute());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowRetiredTransferSyntax",
+                ext.getStowRetiredTransferSyntax(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowExcludeAPPMarkers",
+                ext.getStowExcludeAPPMarkers(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport",
+                ext.getWadoThumbnailViewPort(), null);
     }
 
     @Override
@@ -1226,10 +1267,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setSpanningCFindSCPPolicy(LdapUtils.enumValue(
                 SpanningCFindSCPPolicy.class, attrs.get("dcmSpanningCFindSCPPolicy"), null));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
-        ext.setFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPDestination"), null));
+        ext.setFallbackCMoveSCPDestination(LdapUtils.stringValue(
+                attrs.get("dcmFallbackCMoveSCPDestination"), null));
         ext.setFallbackCMoveSCPCallingAET(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPCallingAET"), null));
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), null));
-        ext.setFallbackCMoveSCPLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPLeadingCFindSCP"), null));
+        ext.setFallbackCMoveSCPLeadingCFindSCP(LdapUtils.stringValue(
+                attrs.get("dcmFallbackCMoveSCPLeadingCFindSCP"), null));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
         ext.setWadoZIPEntryNameFormat(LdapUtils.stringValue(attrs.get("dcmWadoZIPEntryNameFormat"), null));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
@@ -1243,8 +1286,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanTimeout(toDuration(attrs.get("dcmIanTimeout"), null));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
         ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
-        ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
+        ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(
+                attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
         ext.setStorePermissionServiceURL(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceURL"), null));
+        ext.setStorePermissionServiceResponse(LdapUtils.stringValue(
+                attrs.get("dcmStorePermissionServiceResponse"), null));
         ext.setStorePermissionServiceResponsePattern(toPattern(attrs.get("dcmStorePermissionServiceResponsePattern")));
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
@@ -1253,16 +1299,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptMissingPatientID(
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
         ext.setAllowDeleteStudyPermanently(
-                LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
+                LdapUtils.enumValue(AllowDeleteStudyPermanently.class,
+                        attrs.get("dcmAllowDeleteStudyPermanently"), null));
         ext.setAllowDeletePatient(
                 LdapUtils.enumValue(AllowDeletePatient.class, attrs.get("dcmAllowDeletePatient"), null));
-        ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
+        ext.setStorePermissionServiceExpirationDatePattern(toPattern(
+                attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
-        ext.setStorePermissionServiceErrorCommentPattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
+        ext.setStorePermissionServiceErrorCommentPattern(toPattern(
+                attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
         ext.setReturnRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmReturnRetrieveAET")));
-        ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
+        ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(
+                attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setAcceptedMoveDestinations(LdapUtils.stringArray(attrs.get("dcmAcceptedMoveDestination")));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), null));
         ext.setHL7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
@@ -1272,27 +1322,35 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
         ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
         ext.setAcceptConflictingPatientID(
-                LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
+                LdapUtils.enumValue(AcceptConflictingPatientID.class,
+                        attrs.get("dcmAcceptConflictingPatientID"), null));
         ext.setCopyMoveUpdatePolicy(
-                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
+                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
+                        attrs.get("dcmCopyMoveUpdatePolicy"), null));
         ext.setLinkMWLEntryUpdatePolicy(
-                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmLinkMWLEntryUpdatePolicy"), null));
-        ext.setStorageVerificationPolicy(LdapUtils.enumValue(StorageVerificationPolicy.class, attrs.get("dcmStorageVerificationPolicy"), null));
-        ext.setStorageVerificationUpdateLocationStatus(LdapUtils.booleanValue(attrs.get("dcmStorageVerificationUpdateLocationStatus"), null));
+                LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
+                        attrs.get("dcmLinkMWLEntryUpdatePolicy"), null));
+        ext.setStorageVerificationPolicy(LdapUtils.enumValue(StorageVerificationPolicy.class,
+                attrs.get("dcmStorageVerificationPolicy"), null));
+        ext.setStorageVerificationUpdateLocationStatus(LdapUtils.booleanValue(
+                attrs.get("dcmStorageVerificationUpdateLocationStatus"), null));
         ext.setStorageVerificationStorageIDs(LdapUtils.stringArray(attrs.get("dcmStorageVerificationStorageID")));
         ext.setStorageVerificationInitialDelay(toPeriod(attrs.get("dcmStorageVerificationInitialDelay")));
         ext.setUpdateLocationStatusOnRetrieve(
                 LdapUtils.booleanValue(attrs.get("dcmUpdateLocationStatusOnRetrieve"), null));
         ext.setStorageVerificationOnRetrieve(
                 LdapUtils.booleanValue(attrs.get("dcmStorageVerificationOnRetrieve"), null));
-        ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
-        ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
+        ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(
+                attrs.get("dcmInvokeImageDisplayPatientURL"), null));
+        ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(
+                attrs.get("dcmInvokeImageDisplayStudyURL"), null));
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
         ext.setRelationalQueryNegotiationLenient(LdapUtils.booleanValue(
                 attrs.get("dcmRelationalQueryNegotiationLenient"), null));
         ext.setRelationalRetrieveNegotiationLenient(LdapUtils.booleanValue(
                 attrs.get("dcmRelationalRetrieveNegotiationLenient"), null));
-        ext.setStowRetiredTransferSyntax(LdapUtils.booleanValue(attrs.get("dcmStowRetiredTransferSyntax"), null));
+        ext.setStowRetiredTransferSyntax(LdapUtils.booleanValue(
+                attrs.get("dcmStowRetiredTransferSyntax"), null));
         ext.setStowExcludeAPPMarkers(LdapUtils.booleanValue(attrs.get("dcmStowExcludeAPPMarkers"), null));
         ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"), null));
     }
@@ -1393,6 +1451,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceURL",
                 aa.getStorePermissionServiceURL(), bb.getStorePermissionServiceURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceResponse",
+                aa.getStorePermissionServiceResponse(), bb.getStorePermissionServiceResponse(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceResponsePattern",
                 aa.getStorePermissionServiceResponsePattern(),
                 bb.getStorePermissionServiceResponsePattern(), null);

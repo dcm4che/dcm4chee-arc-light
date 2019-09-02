@@ -304,6 +304,11 @@
       "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". Overwrites value specified on Device level.",
       "type": "string"
     },
+    "dcmStorePermissionServiceResponse": {
+      "title": "Store Permission Service Response",
+      "description": "Emulate Store Permission Service Response on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. Only effective if no Store Permission Service URL is configured.",
+      "type": "string"
+    },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
       "title": "Allow Rejection For Data Retention Policy Expired",
       "description": "Allow Rejection For Data Retention Policy Expired. Overwrites value specified on Device level.",
