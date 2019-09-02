@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
@@ -106,8 +107,8 @@ public class ExportManagerMDB implements MessageListener {
             exportContext.setMessageID(msgID);
             exportContext.setBatchID(queueMessage.getBatchID());
             exportContext.setStudyInstanceUID(exportTask.getStudyInstanceUID());
-            exportContext.setSeriesInstanceUID(exportTask.getSeriesInstanceUID());
-            exportContext.setSopInstanceUID(exportTask.getSopInstanceUID());
+            exportContext.setSeriesInstanceUID(StringUtils.nullify(exportTask.getSeriesInstanceUID(), "*"));
+            exportContext.setSopInstanceUID(StringUtils.nullify(exportTask.getSopInstanceUID(), "*"));
             exportContext.setAETitle(exporterDesc.getAETitle());
             exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
             outcome = exporter.export(exportContext);
