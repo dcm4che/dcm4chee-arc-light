@@ -160,8 +160,8 @@ export class StudyComponent implements OnInit {
             new SelectDropdown("create_patient","Create patient"),
             new SelectDropdown("upload_dicom","Upload DICOM Object"),
             new SelectDropdown("export_multiple","Export multiple studies"),
-            new SelectDropdown("permanent_delete","Permanent delete", "Delete Rejected Instances permanently"),
             new SelectDropdown("retrieve_multiple","Retrieve multiple studies"),
+            new SelectDropdown("permanent_delete","Permanent delete", "Delete Rejected Instances permanently"),
             new SelectDropdown("storage_verification","Storage Verification"),
             new SelectDropdown("download_studies","Download Studies as CSV"),
         ],
@@ -225,10 +225,10 @@ export class StudyComponent implements OnInit {
 //
                break;
             case "export_multiple":
-//
+                this.exportMultipleStudies();
                break;
             case "retrieve_multiple":
-//
+                this.retrieveMultipleStudies();
                break;
             case "storage_verification":
                 this.storageVerification();
@@ -1416,6 +1416,30 @@ export class StudyComponent implements OnInit {
         }
         this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash, selectedWebService:this.studyWebService.selectedWebService});
     };
+
+
+    retrieveMultipleStudies(){
+        this.exporter(
+            // `/aets/${this.aet}/dimse/${this.externalAET}/studies/query:${this.queryAET}/export/dicom:${destinationAET}`,
+            '',
+            'Retrieve matching studies depending on selected filters, from external C-MOVE SCP',
+            '',
+            'multiple-retrieve',
+            {},
+            ""
+        );
+    }
+    exportMultipleStudies(){
+        this.exporter(
+            '',
+            'Export all matching studies',
+            'Studies will not be sent!',
+            'multipleExport',
+            {},
+            "study"
+        );
+    }
+
     exportStudy(study) {
         this.exporter(
             this.service.studyURL(study.attrs, this.studyWebService.selectedWebService),
@@ -1452,9 +1476,9 @@ export class StudyComponent implements OnInit {
         let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
-        let inernal = true;
+        let internal = true;
         if(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName){
-            inernal = false;
+            internal = false;
         }
         _.forEach(this.exporters, (m, i) => {
             if (m.id.indexOf(':') > -1){
@@ -1468,7 +1492,7 @@ export class StudyComponent implements OnInit {
             height: 'auto',
             width: '500px'
         };
-        if(mode === "multiple"){
+        if(mode === "multiple-retrieve"){
             config = {
                 height: 'auto',
                 width: '600px'
@@ -1477,14 +1501,14 @@ export class StudyComponent implements OnInit {
         this.dialogRef = this.dialog.open(ExportDialogComponent, config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
-        this.dialogRef.componentInstance.externalInternalAetMode = inernal ? "internal" : "external";
+        this.dialogRef.componentInstance.externalInternalAetMode = internal ? "internal" : "external";
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.componentInstance.queues = this.queues;
         this.dialogRef.componentInstance.warning = warning;
         this.dialogRef.componentInstance.newStudyPage = true;
         // this.dialogRef.componentInstance.count = this.count;
- /*       if(!inernal) {
+ /*       if(!internal) {
             this.dialogRef.componentInstance.preselectedExternalAET = this.externalInternalAetModel.dicomAETitle;
         }*/
         this.dialogRef.afterClosed().subscribe(result => {
@@ -1494,15 +1518,28 @@ export class StudyComponent implements OnInit {
                 if(result.batchID)
                     batchID = `batchID=${result.batchID}&`;
                 $this.cfpLoadingBar.start();
-                if(mode === "multiple"){
-                    //TODO Calling Aet 'selectedAet' is probably wrong here
-                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.appService.param(this.createStudyFilterParams())}` ;
+                if(mode === "multiple-retrieve"){
+                     urlRest = `${
+                        j4care.getUrlFromDcmWebApplication(
+                            this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                                this.studyWebService, 
+                                "MOVE_MATCHING", 
+                                "MOVE_MATCHING"
+                            )
+                        )}/studies/export/dicom:${
+                            result.selectedAet
+                        }?${
+                            batchID
+                        }${
+                            this.appService.param(this.createStudyFilterParams())
+                        }`;
+                    console.log("urlrest",urlRest);
                 }else{
                     if(mode === 'multipleExport'){
                         let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
                         if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
                             checkbox = '&' + checkbox;
-                        urlRest = `${this.service.getDicomURL("export",this.studyWebService.selectedWebService)}/${result.selectedExporter}/studies?${batchID}${this.appService.param(this.createStudyFilterParams())}${checkbox}`;
+                        urlRest = `${this.service.getDicomURL("export",this.studyWebService.selectedWebService)}/${result.selectedExporter}?${batchID}${this.appService.param(this.createStudyFilterParams())}${checkbox}`;
                     }else{
                         console.log("deviceName",this.appService.archiveDeviceName);
                         console.log("deviceName",this.studyWebService.selectedWebService.dicomDeviceName);

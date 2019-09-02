@@ -371,7 +371,7 @@ export class StudyService {
                     url += '/mwlitems';
                     break;
                 case "export":
-                    url += '/export';
+                    url += '/studies/export';
                     break;
                 case "study":
                     url += '/studies';
@@ -662,6 +662,8 @@ export class StudyService {
                                         },e);
                                     },
                                     title:'Download as CSV'
+                                    //No permission, if you can see the study/patient than you should have the permission
+                                    //to download the CSV if the user should not be allowed to see the study than he should not be allowed to call the page
                                 }
                             ]
                     },
@@ -766,6 +768,10 @@ export class StudyService {
                             title:"Hide Series",
                             showIf:(e)=>{
                                 return e.showSeries
+                            },
+                            permission: {
+                                id: 'action-studies-serie',
+                                param: 'visible'
                             }
                         },{
                             icon:{
@@ -783,6 +789,10 @@ export class StudyService {
                             title:"Show Series",
                             showIf:(e)=>{
                                 return !e.showSeries
+                            },
+                            permission: {
+                                id: 'action-studies-serie',
+                                param: 'visible'
                             }
                         }
                     ],
@@ -930,6 +940,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:options.trash.active ? 'Restore study' : 'Reject study',
+                                permission:{
+                                    id:'action-studies-study',
+                                    param:options.trash.active ? 'restore': 'reject'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -951,6 +965,10 @@ export class StudyService {
                                             options.selectedWebService.dicomAETitleObject &&
                                             options.selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently === "ALWAYS"
                                         )
+                                },
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'delete'
                                 }
                             },{
                                 icon:{
@@ -966,6 +984,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:'Verify storage commitment',
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -1174,6 +1196,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:options.trash.active ? 'Restore series' : 'Reject series',
+                                permission: {
+                                    id: 'action-studies-serie',
+                                    param: options.trash.active ? 'restore' : 'reject'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
