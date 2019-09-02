@@ -10455,7 +10455,7 @@
         }
       }
     },
-    "/aets/{aet}/stgver/studies": {
+    "/aets/{aet}/rs/studies/stgver": {
       "post": {
         "tags": [
           "STGVER-RS"
@@ -10546,7 +10546,7 @@
         }
       }
     },
-    "/aets/{aet}/stgver/series": {
+    "/aets/{aet}/rs/series/stgver": {
       "post": {
         "tags": [
           "STGVER-RS"
@@ -10637,7 +10637,7 @@
         }
       }
     },
-    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/stgver": {
       "post": {
         "tags": [
           "STGVER-RS"
@@ -10731,7 +10731,7 @@
         }
       }
     },
-    "/aets/{aet}/stgver/instances": {
+    "/aets/{aet}/rs/instances/stgver": {
       "post": {
         "tags": [
           "STGVER-RS"
@@ -10822,7 +10822,7 @@
         }
       }
     },
-    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/instances": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/stgver": {
       "post": {
         "tags": [
           "STGVER-RS"
@@ -10916,7 +10916,7 @@
         }
       }
     },
-    "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgver": {
       "post": {
         "tags": [
           "STGVER-RS"
