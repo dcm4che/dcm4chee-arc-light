@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -97,7 +98,8 @@ public class ImportStorageRS {
     private String aet;
 
     @QueryParam("readPixelData")
-    private boolean readPixelData;
+    @Pattern(regexp = "true|false")
+    private String readPixelData;
 
     private final Attributes response = new Attributes();
     private final Set<String> studyInstanceUIDs = new HashSet<>();
@@ -174,12 +176,14 @@ public class ImportStorageRS {
             dicomInputStream.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
             dicomInputStream.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
             ctx.setReceiveTransferSyntax(dicomInputStream.getTransferSyntax());
-            return dicomInputStream.readDataset(-1, readPixelData(storage) ? -1 : Tag.PixelData);
+            return dicomInputStream.readDataset(-1, stopTag(storage));
         }
     }
 
-    private boolean readPixelData(Storage storage) {
-        return readPixelData || storage.getStorageDescriptor().getDigestAlgorithm() != null;
+    private int stopTag(Storage storage) {
+        return Boolean.parseBoolean(readPixelData) || storage.getStorageDescriptor().getDigestAlgorithm() != null
+                ? -1
+                : Tag.PixelData;
     }
 
     private ReadContext createReadContext(Storage storage, String storagePath) {
