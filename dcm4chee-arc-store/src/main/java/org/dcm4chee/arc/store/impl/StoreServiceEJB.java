@@ -1173,8 +1173,10 @@ public class StoreServiceEJB {
     private void checkStorePermission(StoreContext ctx, Patient pat) throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         String serviceURL = session.getArchiveAEExtension().storePermissionServiceURL();
-        if (serviceURL == null)
+        if (serviceURL == null) {
+            emulateStorePermissionResponse(ctx, pat);
             return;
+        }
 
         Attributes attrs = ctx.getAttributes();
         if (pat != null)
@@ -1192,6 +1194,24 @@ public class StoreServiceEJB {
             throw storePermission.exception;
 
         ctx.setExpirationDate(storePermission.expirationDate);
+    }
+
+    private void emulateStorePermissionResponse(StoreContext ctx, Patient pat) throws DicomServiceException {
+        StoreSession session = ctx.getStoreSession();
+        String storePermissionServiceResponse = session.getArchiveAEExtension().storePermissionServiceResponse();
+        if (storePermissionServiceResponse == null)
+            return;
+
+        Attributes attrs = ctx.getAttributes();
+        if (pat != null)
+            attrs.addAll(pat.getAttributes());
+
+        String response = new AttributesFormat(storePermissionServiceResponse).format(attrs);
+        Pattern responsePattern = session.getArchiveAEExtension().storePermissionServiceResponsePattern();
+        if (responsePattern != null && !responsePattern.matcher(response).find())
+            throw selectErrorCodeComment(session, null, response);
+        else
+            ctx.setExpirationDate(selectExpirationDate(session, null, response));
     }
 
     private StorePermission queryStorePermission(StoreSession session, String urlspec) throws DicomServiceException {
@@ -1241,7 +1261,9 @@ public class StoreServiceEJB {
                             session, url, s);
                 }
             } else
-                LOG.info("{}: Store Permission Service {} response does not contains expiration date", session, url);
+                LOG.info("{}: Store Permission Service [{}] response does not contains expiration date",
+                        session,
+                        url != null ? url : response);
         }
         return null;
     }
@@ -1252,7 +1274,9 @@ public class StoreServiceEJB {
             if (matcher.find())
                 return matcher.group(1);
             else
-                LOG.info("{}: Store Permission Service {} response does not contain error comment", session, url);
+                LOG.info("{}: Store Permission Service [{}] response does not contain error comment",
+                        session,
+                        url != null ? url : response);
         }
         return StoreService.NOT_AUTHORIZED;
     }
@@ -1263,7 +1287,9 @@ public class StoreServiceEJB {
             if (matcher.find())
                 return Integer.parseInt(matcher.group(1), 16);
             else
-                LOG.info("{}: Store Permission Service {} response does not contain error code ", session, url);
+                LOG.info("{}: Store Permission Service [{}] response does not contain error code ",
+                        session,
+                        url != null ? url : response);
         }
         return Status.NotAuthorized;
     }
