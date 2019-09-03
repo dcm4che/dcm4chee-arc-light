@@ -42,94 +42,28 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.*;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Dec 2017
+ * @since Sep 2019
  */
 @RequestScoped
-@Path("aets/{AETitle}/rs")
-@InvokeValidate(type = ExportMatchingRS.class)
-public class ExportMatchingRS extends ExportMatching {
+@Path("aets/{AETitle}/export/{ExporterID}")
+@InvokeValidate(type = ExportMatching.class)
+public class ExportMatchingLegacyRS extends ExportMatching {
     @PathParam("AETitle")
     private String aet;
 
-    @POST
-    @Path("/studies/export/{ExporterID}")
-    @Produces("application/json")
-    public Response exportMatchingStudies(@PathParam("ExporterID") String exporterID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingStudies",
-                QueryRetrieveLevel2.STUDY,
-                null,
-                null);
-    }
+    @PathParam("ExporterID")
+    private String exporterID;
 
     @POST
-    @Path("/series/export/{ExporterID}")
-    @Produces("application/json")
-    public Response exportMatchingSeries(@PathParam("ExporterID") String exporterID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingSeries",
-                QueryRetrieveLevel2.SERIES,
-                null,
-                null);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/export/{ExporterID}")
-    @Produces("application/json")
-    public Response exportMatchingSeriesOfStudy(
-            @PathParam("ExporterID") String exporterID,
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingSeriesOfStudy",
-                QueryRetrieveLevel2.SERIES,
-                studyInstanceUID,
-                null);
-    }
-
-    @POST
-    @Path("/instances/export/{ExporterID}")
-    @Produces("application/json")
-    public Response exportMatchingInstances(@PathParam("ExporterID") String exporterID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingInstances",
-                QueryRetrieveLevel2.IMAGE,
-                null,
-                null);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/instances/export/{ExporterID}")
-    @Produces("application/json")
-    public Response exportMatchingInstancesOfStudy(
-            @PathParam("ExporterID") String exporterID,
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingInstancesOfStudy",
-                QueryRetrieveLevel2.IMAGE, studyInstanceUID,
-                null);
-    }
-
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/{ExporterID}")
-    @Produces("application/json")
-    public Response exportMatchingInstancesOfSeries(
-            @PathParam("ExporterID") String exporterID,
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingInstancesOfSeries",
-                QueryRetrieveLevel2.IMAGE,
-                studyInstanceUID,
-                seriesInstanceUID);
-    }
-
-    @POST
-    @Path("/export/{ExporterID}/studies")
+    @Path("/studies")
     @Produces("application/json")
     public Response exportMatchingStudies1(@PathParam("ExporterID") String exporterID) {
         return exportMatching(exporterID, aet,
@@ -140,7 +74,7 @@ public class ExportMatchingRS extends ExportMatching {
     }
 
     @POST
-    @Path("/export/{ExporterID}/series")
+    @Path("/series")
     @Produces("application/json")
     public Response exportMatchingSeries1(@PathParam("ExporterID") String exporterID) {
         return exportMatching(exporterID, aet,
@@ -151,7 +85,7 @@ public class ExportMatchingRS extends ExportMatching {
     }
 
     @POST
-    @Path("/export/{ExporterID}/studies/{StudyInstanceUID}/series")
+    @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
     public Response exportMatchingSeriesOfStudy1(
             @PathParam("ExporterID") String exporterID,
@@ -164,7 +98,7 @@ public class ExportMatchingRS extends ExportMatching {
     }
 
     @POST
-    @Path("/export/{ExporterID}/instances")
+    @Path("/instances")
     @Produces("application/json")
     public Response exportMatchingInstances1(@PathParam("ExporterID") String exporterID) {
         return exportMatching(exporterID, aet,
@@ -175,7 +109,7 @@ public class ExportMatchingRS extends ExportMatching {
     }
 
     @POST
-    @Path("/export/{ExporterID}/studies/{StudyInstanceUID}/instances")
+    @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
     public Response exportMatchingInstancesOfStudy1(
             @PathParam("ExporterID") String exporterID,
@@ -186,7 +120,7 @@ public class ExportMatchingRS extends ExportMatching {
                 null);
     }
 
-    @Path("/export/{ExporterID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
     public Response exportMatchingInstancesOfSeries1(
             @PathParam("ExporterID") String exporterID,
@@ -198,5 +132,4 @@ public class ExportMatchingRS extends ExportMatching {
                 studyInstanceUID,
                 seriesInstanceUID);
     }
-
 }
