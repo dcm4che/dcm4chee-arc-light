@@ -120,7 +120,7 @@ public class RejectRS {
     @POST
     @Path("/studies/{StudyUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     @Produces("application/json")
-    public Response exportStudy(
+    public Response rejectStudy(
             @PathParam("StudyUID") String studyUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
@@ -130,7 +130,7 @@ public class RejectRS {
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     @Produces("application/json")
-    public Response exportSeries(
+    public Response rejectSeries(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("CodeValue") String codeValue,
@@ -141,7 +141,7 @@ public class RejectRS {
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     @Produces("application/json")
-    public Response exportSeries(
+    public Response rejectSeries(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ObjectUID") String objectUID,

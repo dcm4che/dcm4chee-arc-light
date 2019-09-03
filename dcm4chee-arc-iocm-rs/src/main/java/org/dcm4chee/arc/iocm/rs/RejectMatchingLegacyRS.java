@@ -48,21 +48,25 @@ import javax.ws.rs.core.Response;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jan 2019
+ * @since Sep 2019
  */
 @RequestScoped
-@Path("aets/{AETitle}/rs")
-public class RejectMatchingRS extends RejectMatching {
+@Path("aets/{AETitle}/reject/{codeValue}^{codingSchemeDesignator}")
+public class RejectMatchingLegacyRS extends RejectMatching {
 
     @PathParam("AETitle")
     private String aet;
 
+    @PathParam("codeValue")
+    String codeValue;
+
+    @PathParam("codingSchemeDesignator")
+    String designator;
+
     @POST
-    @Path("/studies/reject/{codeValue}^{codingSchemeDesignator}")
+    @Path("/studies")
     @Produces("application/json")
-    public Response rejectMatchingStudies(
-            @PathParam("codeValue") String codeValue,
-            @PathParam("codingSchemeDesignator") String designator) {
+    public Response rejectMatchingStudies() {
         return rejectMatching(aet, codeValue, designator,
                 "rejectMatchingStudies",
                 QueryRetrieveLevel2.STUDY,
@@ -71,11 +75,9 @@ public class RejectMatchingRS extends RejectMatching {
     }
 
     @POST
-    @Path("/series/reject/{codeValue}^{codingSchemeDesignator}")
+    @Path("/series")
     @Produces("application/json")
-    public Response rejectMatchingSeries(
-            @PathParam("codeValue") String codeValue,
-            @PathParam("codingSchemeDesignator") String designator) {
+    public Response rejectMatchingSeries() {
         return rejectMatching(aet, codeValue, designator,
                 "rejectMatchingSeries",
                 QueryRetrieveLevel2.SERIES,
@@ -84,12 +86,10 @@ public class RejectMatchingRS extends RejectMatching {
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/reject/{codeValue}^{codingSchemeDesignator}")
+    @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
     public Response rejectMatchingSeriesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("codeValue") String codeValue,
-            @PathParam("codingSchemeDesignator") String designator) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID){
         return rejectMatching(aet, codeValue, designator,
                 "rejectMatchingSeriesOfStudy",
                 QueryRetrieveLevel2.SERIES,
@@ -98,11 +98,9 @@ public class RejectMatchingRS extends RejectMatching {
     }
 
     @POST
-    @Path("/instances/reject/{codeValue}^{codingSchemeDesignator}")
+    @Path("/instances")
     @Produces("application/json")
-    public Response rejectMatchingInstances(
-            @PathParam("codeValue") String codeValue,
-            @PathParam("codingSchemeDesignator") String designator) {
+    public Response rejectMatchingInstances() {
         return rejectMatching(aet, codeValue, designator,
                 "rejectMatchingInstances",
                 QueryRetrieveLevel2.IMAGE,
@@ -111,25 +109,21 @@ public class RejectMatchingRS extends RejectMatching {
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/instances/reject/{codeValue}^{codingSchemeDesignator}")
+    @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
     public Response rejectMatchingInstancesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("codeValue") String codeValue,
-            @PathParam("codingSchemeDesignator") String designator) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return rejectMatching(aet, codeValue, designator,
                 "rejectMatchingInstancesOfStudy",
                 QueryRetrieveLevel2.IMAGE, studyInstanceUID,
                 null);
     }
 
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/reject/{codeValue}^{codingSchemeDesignator}")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
     public Response rejectMatchingInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("codeValue") String codeValue,
-            @PathParam("codingSchemeDesignator") String designator) {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return rejectMatching(aet, codeValue, designator,
                 "rejectMatchingInstancesOfSeries",
                 QueryRetrieveLevel2.IMAGE,

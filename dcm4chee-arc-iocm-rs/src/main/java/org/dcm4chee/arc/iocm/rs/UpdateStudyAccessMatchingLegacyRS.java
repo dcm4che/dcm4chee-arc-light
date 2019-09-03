@@ -41,25 +41,26 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.*;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Mar 2019
+ * @since Sep 2019
  */
 @RequestScoped
-@Path("aets/{AETitle}/rs")
-public class UpdateStudyAccessMatchingRS extends UpdateStudyAccessMatching {
+@Path("aets/{AETitle}")
+public class UpdateStudyAccessMatchingLegacyRS extends UpdateStudyAccessMatching {
 
     @PathParam("AETitle")
     private String aet;
 
     @POST
-    @Path("/studies/access/{accessControlID}")
+    @Path("/access/{accessControlID}/studies")
     public Response updateStudyAccessControlID(
             @PathParam("accessControlID") String accessControlID) {
         return updateStudyAccessControlID(aet, accessControlID);
     }
-
 }

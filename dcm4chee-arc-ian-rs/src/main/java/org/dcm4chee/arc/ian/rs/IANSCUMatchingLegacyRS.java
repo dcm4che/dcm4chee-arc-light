@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.stgcmt.rs;
+package org.dcm4chee.arc.ian.rs;
 
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 
@@ -48,66 +48,67 @@ import javax.ws.rs.core.Response;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Mar 2019
+ * @since Sep 2019
  */
 @RequestScoped
-@Path("aets/{aet}/dimse/{stgcmtscp}")
-public class StgCmtSCUMatchingRS extends StgCmtSCUMatching {
+@Path("aets/{aet}/ian/{ianscp}")
+public class IANSCUMatchingLegacyRS extends IANSCUMatching {
 
     @PathParam("aet")
     private String aet;
 
-    @PathParam("stgcmtscp")
-    private String stgcmtscp;
-
+    @PathParam("ianscp")
+    private String ianscp;
+    
     @POST
-    @Path("/studies/stgcmt")
+    @Path("/studies")
     @Produces("application/json")
-    public Response matchingStudyStorageCommit() {
-        return storageCommitMatching(aet, stgcmtscp,"matchingStudyStorageCommit",
+    public Response matchingStudyIAN() {
+        return ianMatching(aet, ianscp,"matchingStudyIAN",
                 QueryRetrieveLevel2.STUDY, null, null);
     }
 
     @POST
-    @Path("/series/stgcmt")
+    @Path("/series")
     @Produces("application/json")
-    public Response matchingSeriesStorageCommit() {
-        return storageCommitMatching(aet, stgcmtscp,"matchingSeriesStorageCommit",
+    public Response matchingSeriesIAN() {
+        return ianMatching(aet, ianscp,"matchingSeriesIAN",
                 QueryRetrieveLevel2.SERIES, null, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
-    public Response matchingSeriesOfStudyStorageCommit(
+    public Response matchingSeriesOfStudyIAN(
             @PathParam("StudyInstanceUID") String studyUID) {
-        return storageCommitMatching(aet, stgcmtscp,"matchingSeriesOfStudyStorageCommit",
+        return ianMatching(aet, ianscp,"matchingSeriesOfStudyIAN",
                 QueryRetrieveLevel2.SERIES, studyUID, null);
     }
 
     @POST
-    @Path("/instances/stgcmt")
+    @Path("/instances")
     @Produces("application/json")
-    public Response matchingInstancesStorageCommit() {
-        return storageCommitMatching(aet, stgcmtscp,"matchingInstancesStorageCommit",
+    public Response matchingInstancesIAN() {
+        return ianMatching(aet, ianscp,"matchingInstancesIAN",
                 QueryRetrieveLevel2.IMAGE, null, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/instances/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
-    public Response matchingInstancesOfStudyStorageCommit(@PathParam("StudyInstanceUID") String studyUID) {
-        return storageCommitMatching(aet, stgcmtscp,"matchingInstancesOfStudyStorageCommit",
+    public Response matchingInstancesOfStudyIAN(
+            @PathParam("StudyInstanceUID") String studyUID) {
+        return ianMatching(aet, ianscp,"matchingInstancesOfStudyIAN",
                 QueryRetrieveLevel2.IMAGE, studyUID, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
-    public Response matchingInstancesOfSeriesStorageCommit(
+    public Response matchingInstancesOfSeriesIAN(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID) {
-        return storageCommitMatching(aet, stgcmtscp,"matchingInstancesOfSeriesStorageCommit",
+        return ianMatching(aet, ianscp,"matchingInstancesOfSeriesIAN",
                 QueryRetrieveLevel2.IMAGE, studyUID, seriesUID);
     }
 }
