@@ -49,6 +49,8 @@ import {DcmWebApp} from "../../models/dcm-web-app";
 import {StudyWebService} from "./study-web-service.model";
 import {RequestOptionsArgs} from "@angular/http";
 import {DeleteRejectedInstancesComponent} from "../../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
+import {ViewerComponent} from "../../widgets/dialogs/viewer/viewer.component";
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 
 @Component({
@@ -140,7 +142,7 @@ export class StudyComponent implements OnInit {
     studyWebService:StudyWebService;
 
     tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
-        tableSchema:this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash, selectedWebService:_.get(this.studyWebService,"selectedWebService")}),
+        tableSchema:this.getSchema(),
         config:{
             offset:0
         }
@@ -231,6 +233,7 @@ export class StudyComponent implements OnInit {
                 this.retrieveMultipleStudies();
                break;
             case "storage_verification":
+                //TODO waiting for issue for unification of URLs of the services to finish
                 this.storageVerification();
                break;
             case "download_studies":
@@ -248,7 +251,7 @@ export class StudyComponent implements OnInit {
             if(id.action === "toggle_studies"){
                 if(!model.studies){
                     // this.getStudies(model);
-                    //TODO getStudies
+                    //TODO getStudies (needed for patient mode)
                 }else{
                     model.showStudies = !model.showStudies;
                 }
@@ -328,6 +331,9 @@ export class StudyComponent implements OnInit {
             }
             if(id.action === "upload_file"){
                 this.uploadFile(model, id.level);
+            }
+            if(id.action === "view"){
+                this.viewInstance(model);
             }
         }else{
             this.appService.showError("No Web Application Service was selected!");
@@ -533,7 +539,58 @@ export class StudyComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
-
+    viewInstance(inst) {
+        let token;
+        let url;
+        let contentType;
+        this._keycloakService.getToken().subscribe((response)=>{
+            if(!this.appService.global.notSecure){
+                token = response.token;
+            }
+            // this.select_show = false;
+            if(inst.video || inst.image || inst.numberOfFrames || inst.gspsQueryParams.length){
+                if (inst.gspsQueryParams.length){
+                    url =  this.service.wadoURL(this.studyWebService,inst.gspsQueryParams[inst.view - 1]);
+                }
+                if (inst.numberOfFrames || (inst.image && !inst.video)){
+                    contentType = 'image/jpeg';
+                    url =  this.service.wadoURL(this.studyWebService,inst.wadoQueryParams, { contentType: 'image/jpeg'});
+                }
+                if (inst.video){
+                    contentType = 'video/*';
+                    url =  this.service.wadoURL(this.studyWebService,inst.wadoQueryParams, { contentType: 'video/*' });
+                }
+            }else{
+                url = this.service.wadoURL(this.studyWebService,inst.wadoQueryParams);
+            }
+            if(!contentType){
+                if(_.hasIn(inst,"attrs.00420012.Value.0") && inst.attrs['00420012'].Value[0] != ''){
+                    contentType = inst.attrs['00420012'].Value[0];
+                }
+            }
+            if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf("video") > -1 || contentType.toLowerCase() === 'text/xml'){
+                // this.j4care.download(url);
+                if(!this.appService.global.notSecure){
+                    WindowRefService.nativeWindow.open(this.service.renderURL(inst) + `&access_token=${token}`);
+                }else{
+                    WindowRefService.nativeWindow.open(this.service.renderURL(inst));
+                }
+            }else{
+                this.config.viewContainerRef = this.viewContainerRef;
+                this.dialogRef = this.dialog.open(ViewerComponent, {
+                    height: 'auto',
+                    width: 'auto',
+                    panelClass:"viewer_dialog"
+                });
+                this.dialogRef.componentInstance.views = inst.views;
+                this.dialogRef.componentInstance.view = inst.view;
+                this.dialogRef.componentInstance.contentType = contentType;
+                this.dialogRef.componentInstance.url = url;
+                this.dialogRef.afterClosed().subscribe();
+            }
+            // window.open(this.renderURL(inst));
+        });
+    };
     downloadCSV(attr?, mode?){
         let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
         this.confirm({
@@ -1414,8 +1471,15 @@ export class StudyComponent implements OnInit {
         }else{
             this.trash.active = false;
         }
-        this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trash:this.trash, selectedWebService:this.studyWebService.selectedWebService});
+        this.tableParam.tableSchema  = this.getSchema();
     };
+
+    getSchema(){
+        return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
+            trash:this.trash,
+            selectedWebService: _.get(this.studyWebService,"selectedWebService")
+        }));
+    }
 
 
     retrieveMultipleStudies(){
@@ -1774,40 +1838,7 @@ export class StudyComponent implements OnInit {
             }).subscribe(ok=> {
                 if (ok) {
                     this.cfpLoadingBar.start();
-/*                    let url = '../aets/' + this.aet + '/rs/studies/';
-                    switch (mode) {
-                        case 'study':
-                            url += object.attrs['0020000D'].Value[0] + '/stgver';
-                            break;
-                        case 'series':
-                            url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/stgver';
-                            break;
-                        default:
-                        case 'instance':
-                            url += object.attrs['0020000D'].Value[0] + '/series/' + object.attrs['0020000E'].Value[0] + '/instances/' + object.attrs['00080018'].Value[0] + '/stgver';
-                            break;
-                    }
-                    if (ok && ok.schema_model) {
-                        url += j4care.getUrlParams(ok.schema_model);
-                    }
-                    let $this = this;
-
-                    let headers = new HttpHeaders({'Content-Type': 'application/dicom+json'});*/
                     this.service.verifyStorage(object.attrs, this.studyWebService, mode, ok.schema_model)
-   /*                 this.$http.post(
-                        url,
-                        {},
-                        headers
-                    )
-                        .map(res => {
-                            let resjson;
-                            try {
-                                resjson = res;
-                            } catch (e) {
-                                resjson = {};
-                            }
-                            return resjson;
-                        })*/
                         .subscribe(
                             (response) => {
                                 // console.log("response",response);

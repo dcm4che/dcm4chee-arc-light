@@ -322,6 +322,9 @@ p-calendar{
     width:25px;
     background-position: center center;
     float: left;
+    &:hover{
+      background-image: url("assets/img/csv_icon.png");
+    }
   }
 }
 .checkbox_button{
@@ -3561,10 +3564,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
 .study_action_buttons.mat-menu-panel{
   min-width: 30px !important;
   max-width: 96px !important;
-  -webkit-box-shadow: 5px 5px 16px 2px black;
-  -moz-box-shadow: 5px 5px 16px 2px black;
-  box-shadow: 5px 5px 16px 2px black;
-  overflow: hidden;
+  overflow: visible;
   .mat-menu-content{
     padding: 0 !important;
     .dicom_table_buttons{
@@ -3575,9 +3575,12 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       text-align: center;
       line-height: 25px;
       margin: 1px;
-      background: rgba(204, 204, 204, 0.65);
+      background: rgba(204, 204, 204, 1);
       //background: rgba(28, 36, 43, 0.92);
       //color: rgba(255, 255, 255, 0.9);
+      -webkit-box-shadow: 3px 3px 12px 0px black;
+      -moz-box-shadow: 3px 3px 12px 0px black;
+      box-shadow: 3px 3px 12px 0px black;
       &:hover{
         background: #161d23;
         color: white;

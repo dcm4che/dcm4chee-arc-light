@@ -183,19 +183,23 @@ export class PermissionService {
         else
             if((this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0) || (this.mainservice.global && this.mainservice.global.notSecure))
                 return true; //not secured
-            else
-                return this.getConfig(()=>{
-                    try{
-
-                        let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
-                            return element.dcmuiAction === permissionObject.id && element.dcmuiActionParam.indexOf(permissionObject.param) > -1;
-                        });
-                        return this.comparePermissionObjectWithRoles(checkObject);
-                    }catch (e){
-                        console.warn("Error on permission check",e);
-                        return false;
-                    }
-                })
+            else{
+                if(permissionObject){
+                    return this.getConfig(()=>{
+                        try{
+                            let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
+                                return element.dcmuiAction === permissionObject.id && element.dcmuiActionParam.indexOf(permissionObject.param) > -1;
+                            });
+                            return this.comparePermissionObjectWithRoles(checkObject);
+                        }catch (e){
+                            console.warn("Error on permission check",e);
+                            return false;
+                        }
+                    })
+                }else{
+                    return true;
+                }
+            }
     }
     comparePermissionObjectWithRoles(object){
         if(this.mainservice.global && this.mainservice.global.notSecure){

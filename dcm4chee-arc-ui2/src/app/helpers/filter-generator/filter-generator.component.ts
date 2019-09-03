@@ -81,7 +81,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
             let parsedFilter = JSON.parse(savedFilters);
             if(this.doNotSave){
                 this.doNotSave.forEach(f=>{
-                    if(parsedFilter[f]){
+                    if(parsedFilter && parsedFilter[f]){
                         delete parsedFilter[f];
                     }
                 })

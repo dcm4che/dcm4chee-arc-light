@@ -26,6 +26,7 @@
         "menu-move_data",
         "menu-statistics",
         "menu-monitoring",
+        "tab-study-study",
         "tab-monitoring->queues",
         "tab-monitoring->export",
         "tab-monitoring->external_retrieve",

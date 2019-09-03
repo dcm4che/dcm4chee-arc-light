@@ -680,6 +680,9 @@ export class Globalvar {
             "/audit-record-repository/*":{
                 permissionsAction:"menu-audit_record_repository"
             },
+            "/study/study":{
+                permissionsAction:"tab-study-study"
+            },
             "/device/devicelist":{
                 permissionsAction:"tab-configuration->devices",
                 nextCheck:"/device/aelist"

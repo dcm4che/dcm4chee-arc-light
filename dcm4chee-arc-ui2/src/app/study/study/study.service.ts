@@ -16,7 +16,7 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {
     DicomTableSchema,
     DynamicPipe,
-    StudySchemaOptions
+    StudySchemaOptions, TableAction
 } from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
@@ -24,6 +24,7 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
 import {RetrieveMonitoringService} from "../../monitoring/external-retrieve/retrieve-monitoring.service";
 import {StudyWebService} from "./study-web-service.model";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 declare var DCM4CHE: any;
 
 @Injectable()
@@ -42,7 +43,8 @@ export class StudyService {
       private storageSystems:StorageSystemsService,
       private devicesService:DevicesService,
       private webAppListService:WebAppsListService,
-      private retrieveMonitoringService:RetrieveMonitoringService
+      private retrieveMonitoringService:RetrieveMonitoringService,
+      private permissionService:PermissionService
     ) { }
 
     get patientIod() {
@@ -406,6 +408,16 @@ export class StudyService {
         return url;
     }
 
+    renderURL(inst) {
+        if (inst.video)
+            return this.wadoURL(inst.wadoQueryParams, { contentType: 'video/*' });
+        if (inst.numberOfFrames)
+            return this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg', frameNumber: inst.view });
+        if (inst.gspsQueryParams.length)
+            return this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
+        return this.wadoURL(inst.wadoQueryParams);
+    }
+
     private diffUrl(callingAet:Aet,  firstExternalAet?:Aet, secondExternalAet?:Aet, baseUrl?:string){
 
         return `${
@@ -546,6 +558,31 @@ export class StudyService {
 
     getDevices(){
         return this.devicesService.getDevices();
+    }
+
+    checkSchemaPermission(schema:DicomTableSchema):DicomTableSchema{
+        Object.keys(schema).forEach(levelKey =>{
+            schema[levelKey].forEach((element:TableSchemaElement)=>{
+                if(element.type === "actions" || element.type === "actions-menu"){
+                    let key = "actions";
+                    if(_.hasIn(element, "menu") && element.menu){
+                        key = "menu.actions";
+                    }
+                    if(_.get(element,key) && (<any[]>_.get(element,key)).length > 0){
+                        (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
+                            console.log("menu",menu);
+                            console.log("menu.permission",menu.permission);
+                            console.log("checkVisibility",this.permissionService.checkVisibility(menu.permission));
+                            if(menu.permission){
+                                return this.permissionService.checkVisibility(menu.permission);
+                            }
+                            return true
+                        });
+                    }
+                }
+            })
+        });
+        return schema;
     }
     PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options:StudySchemaOptions):DicomTableSchema{
         return {
