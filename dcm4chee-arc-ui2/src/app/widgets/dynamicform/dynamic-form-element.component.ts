@@ -460,8 +460,13 @@ export class DynamicFormElementComponent implements OnDestroy{
                         formcontrol[i].setValue(e);
                         formelement.value[i] = e;
                     }else{
-                        formcontrol.setValue(e);
-                        formelement.value = e;
+                        if(e === "empty"){
+                            formcontrol.setValue('');
+                            formelement.value = '';
+                        }else{
+                            formcontrol.setValue(e);
+                            formelement.value = e;
+                        }
                     }
                 }
             }

@@ -86,17 +86,22 @@ export class DynamicFieldComponent implements OnInit {
                 }
             });
         }
-          this.ref.detectChanges();
-          if(this.type === 'array'){
+          this.detectChanges();
+          if(this.type === 'array' && this.elementView && this.elementView.nativeElement){
               let height = this.elementView.nativeElement.offsetHeight;
               if(height > 200){
                   this.longMode = true;
-                  this.ref.detectChanges();
+                  this.detectChanges();
               }
           }
         },(err)=>{
           this.loader = false;
         });
+    }
+    detectChanges(){
+        if(!(_.hasIn(this.ref, "destroyed") && _.get(this.ref,"destroyed"))){
+            this.ref.detectChanges();
+        }
     }
 /*    update(){
         console.log("this.checked",this.checked);

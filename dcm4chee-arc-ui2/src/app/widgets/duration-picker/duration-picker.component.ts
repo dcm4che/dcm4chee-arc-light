@@ -85,6 +85,9 @@ export class DurationPickerComponent implements OnInit {
     addDuration(){
         this.onValueSet.emit(this.generateDuration());
     }
+    clear(){
+        this.onValueSet.emit('empty');
+    }
     generateDuration(){
         let duration = 'P';
         if(this.mode === "dcmPeriod" && this._isset(this.week) ){

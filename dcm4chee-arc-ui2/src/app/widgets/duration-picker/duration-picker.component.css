@@ -24,3 +24,7 @@
 .durationpicker .btn_content{
     width: 100%;
 }
+
+.duration-picker-element {
+    margin-left: 5px;
+}
