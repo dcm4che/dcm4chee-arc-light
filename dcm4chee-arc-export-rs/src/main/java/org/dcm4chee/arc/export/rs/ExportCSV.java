@@ -65,7 +65,7 @@ import java.util.List;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
-public class ExportCSV {
+class ExportCSV {
     private static final Logger LOG = LoggerFactory.getLogger(ExportCSV.class);
 
     @Context
