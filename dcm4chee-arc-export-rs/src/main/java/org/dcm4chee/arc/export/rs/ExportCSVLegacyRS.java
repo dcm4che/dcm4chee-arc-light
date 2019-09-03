@@ -16,7 +16,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -45,18 +45,17 @@ import java.io.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Nov 2018
+ * @since Sep 2019
  */
 @RequestScoped
-@Path("aets/{AETitle}/rs")
-public class ExportCSVRS extends ExportCSV {
+@Path("aets/{AETitle}/export/{ExporterID}")
+public class ExportCSVLegacyRS extends ExportCSV {
 
     @PathParam("AETitle")
     private String aet;
 
-
     @POST
-    @Path("/studies/csv:{field}/export/{ExporterID}")
+    @Path("/studies/csv:{field}")
     @Consumes("text/csv")
     @Produces("application/json")
     public Response exportStudies(
@@ -65,4 +64,5 @@ public class ExportCSVRS extends ExportCSV {
             InputStream in) {
         return exportStudiesFromCSV(aet, exporterID, field, in);
     }
+
 }
