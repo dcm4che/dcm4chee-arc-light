@@ -661,9 +661,11 @@ export class StudyService {
                                             action:"download_csv"
                                         },e);
                                     },
-                                    title:'Download as CSV'
-                                    //No permission, if you can see the study/patient than you should have the permission
-                                    //to download the CSV if the user should not be allowed to see the study than he should not be allowed to call the page
+                                    title:'Download as CSV',
+                                    permission: {
+                                        id: 'action-studies-download',
+                                        param: 'visible'
+                                    }
                                 }
                             ]
                     },
@@ -1001,7 +1003,11 @@ export class StudyService {
                                         action:"download_csv"
                                     },e);
                                 },
-                                title:"Download as CSV"
+                                title:"Download as CSV",
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             }
                         ]
                     },
@@ -1129,6 +1135,10 @@ export class StudyService {
                             title:"Hide Instances",
                             showIf:(e)=>{
                                 return e.showInstances
+                            },
+                            permission: {
+                                id: 'action-studies-serie',
+                                param: 'visible'
                             }
                         },{
                             icon:{
@@ -1146,6 +1156,10 @@ export class StudyService {
                             title:"Show Instaces",
                             showIf:(e)=>{
                                 return !e.showInstances
+                            },
+                            permission:{
+                                id: 'action-studies-serie',
+                                param: 'visible'
                             }
                         }
                     ],
@@ -1181,7 +1195,11 @@ export class StudyService {
                                         action:"download_csv"
                                     },e);
                                 },
-                                title:'Download as CSV'
+                                title:'Download as CSV',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -1214,6 +1232,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:'Verify storage commitment',
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
                             }
                             ,{
                                 icon:{
@@ -1229,6 +1251,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:'Export series',
+                                permission: {
+                                    id: 'action-studies-serie',
+                                    param: 'export'
+                                }
                             }
                         ]
                     },
@@ -1349,6 +1375,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:'Export instance',
+                                permission: {
+                                    id: 'action-studies-instance',
+                                    param: 'export'
+                                }
                             },
                             {
                                 icon:{
@@ -1364,6 +1394,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:options.trash.active ? 'Restore instance' : 'Reject instance',
+                                permission: {
+                                    id: 'action-studies-instance',
+                                    param: options.trash.active ? 'restore' : 'reject'
+                                }
                             },{
                                 icon:{
                                     tag:'span',
@@ -1378,6 +1412,10 @@ export class StudyService {
                                     },e);
                                 },
                                 title:'Verify storage commitment',
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
                             },
                             {
                                 icon:{
@@ -1393,7 +1431,11 @@ export class StudyService {
                                         mode:"uncompressed"
                                     },e);
                                 },
-                                title:'Download Uncompressed DICOM Object'
+                                title:'Download Uncompressed DICOM Object',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             },
                             {
                                 icon:{
@@ -1409,7 +1451,30 @@ export class StudyService {
                                         mode:"compressed",
                                     },e);
                                 },
-                                title:'Download DICOM Object'
+                                title:'Download DICOM Object',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
+                            },
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-picture',
+                                    text:'',
+                                },
+                                click:(e)=>{
+                                    actions.call($this, {
+                                        event:"click",
+                                        level:"instance",
+                                        action:"view"
+                                    },e);
+                                },
+                                title:'View DICOM Object',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             }
                         ]
                     },
