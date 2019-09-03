@@ -559,10 +559,13 @@ public class DeletionServiceEJB {
         }
         calculateMissingSeriesQueryAttributes(seriesPk);
         long size = 0L;
+        Set<String> iuids = new HashSet<>();
         for (Location location : locations) {
             switch (location.getObjectType()) {
                 case DICOM_FILE:
-                    size += location.getSize();
+                    if (iuids.add(location.getInstance().getSopInstanceUID())) {
+                        size += location.getSize();
+                    }
                     em.remove(location);
                     em.remove(location.getInstance());
                     break;
