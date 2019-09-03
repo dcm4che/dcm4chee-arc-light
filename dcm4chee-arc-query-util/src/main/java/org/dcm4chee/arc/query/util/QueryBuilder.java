@@ -343,7 +343,7 @@ public class QueryBuilder {
                 toUpperCase(keys.getStrings(Tag.PatientSex)), false);
         dateRange(predicates, patient.get(Patient_.patientBirthDate),
                 keys.getDateRange(Tag.PatientBirthDate), FormatDate.DA);
-        personName(predicates, q, patient, Patient_.patientName,
+        personName(predicates, q, patient, Patient_.responsiblePerson,
                 keys.getString(Tag.ResponsiblePerson, "*"), queryParam);
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
         wildCard(predicates, patient.get(Patient_.patientCustomAttribute1),
