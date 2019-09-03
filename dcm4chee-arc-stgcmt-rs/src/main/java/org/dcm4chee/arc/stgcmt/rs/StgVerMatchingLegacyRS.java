@@ -1,4 +1,5 @@
 /*
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -12,7 +13,7 @@
  * License.
  *
  * The Original Code is part of dcm4che, an implementation of DICOM(TM) in
- * Java(TM), hosted at https://github.com/gunterze/dcm4che.
+ * Java(TM), hosted at https://github.com/dcm4che.
  *
  * The Initial Developer of the Original Code is
  * J4Care.
@@ -34,18 +35,16 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.export.rs;
+package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 /**
@@ -53,21 +52,18 @@ import javax.ws.rs.core.Response;
  * @since Sep 2019
  */
 @RequestScoped
-@Path("aets/{AETitle}/export/{ExporterID}")
-@InvokeValidate(type = ExportMatchingLegacyRS.class)
-public class ExportMatchingLegacyRS extends ExportMatching {
+@Path("aets/{AETitle}/stgver")
+public class StgVerMatchingLegacyRS extends StgVerMatching {
+
     @PathParam("AETitle")
     private String aet;
-
-    @PathParam("ExporterID")
-    private String exporterID;
 
     @POST
     @Path("/studies")
     @Produces("application/json")
-    public Response exportMatchingStudies1(@PathParam("ExporterID") String exporterID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingStudies",
+    public Response verifyStorageOfStudies1() {
+        return verifyStorageOf(aet,
+                "verifyStorageOfStudies",
                 QueryRetrieveLevel2.STUDY,
                 null,
                 null);
@@ -76,9 +72,9 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/series")
     @Produces("application/json")
-    public Response exportMatchingSeries1(@PathParam("ExporterID") String exporterID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingSeries",
+    public Response verifyStorageOfSeries1() {
+        return verifyStorageOf(aet,
+                "verifyStorageOfSeries",
                 QueryRetrieveLevel2.SERIES,
                 null,
                 null);
@@ -87,11 +83,10 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
-    public Response exportMatchingSeriesOfStudy1(
-            @PathParam("ExporterID") String exporterID,
+    public Response verifyStorageOfSeriesOfStudy1(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingSeriesOfStudy",
+        return verifyStorageOf(aet,
+                "verifyStorageOfSeriesOfStudy",
                 QueryRetrieveLevel2.SERIES,
                 studyInstanceUID,
                 null);
@@ -100,9 +95,9 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/instances")
     @Produces("application/json")
-    public Response exportMatchingInstances1(@PathParam("ExporterID") String exporterID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingInstances",
+    public Response verifyStorageOfInstances1() {
+        return verifyStorageOf(aet,
+                "verifyStorageOfInstances",
                 QueryRetrieveLevel2.IMAGE,
                 null,
                 null);
@@ -111,23 +106,91 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
-    public Response exportMatchingInstancesOfStudy1(
-            @PathParam("ExporterID") String exporterID,
+    public Response verifyStorageOfInstancesOfStudy1(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingInstancesOfStudy",
+        return verifyStorageOf(aet,
+                "verifyStorageOfInstancesOfStudy",
                 QueryRetrieveLevel2.IMAGE, studyInstanceUID,
                 null);
     }
 
+    @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
-    public Response exportMatchingInstancesOfSeries1(
-            @PathParam("ExporterID") String exporterID,
+    public Response verifyStorageOfInstancesOfSeries1(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return exportMatching(exporterID, aet,
-                "exportMatchingInstancesOfSeries",
+        return verifyStorageOf(aet,
+                "verifyStorageOfInstancesOfSeries",
+                QueryRetrieveLevel2.IMAGE,
+                studyInstanceUID,
+                seriesInstanceUID);
+    }
+
+    @POST
+    @Path("/rs/studies/stgver")
+    @Produces("application/json")
+    public Response verifyStorageOfStudies() {
+        return verifyStorageOf(aet,
+                "verifyStorageOfStudies",
+                QueryRetrieveLevel2.STUDY,
+                null,
+                null);
+    }
+
+    @POST
+    @Path("/rs/series/stgver")
+    @Produces("application/json")
+    public Response verifyStorageOfSeries() {
+        return verifyStorageOf(aet,
+                "verifyStorageOfSeries",
+                QueryRetrieveLevel2.SERIES,
+                null,
+                null);
+    }
+
+    @POST
+    @Path("/rs/studies/{StudyInstanceUID}/series/stgver")
+    @Produces("application/json")
+    public Response verifyStorageOfSeriesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+        return verifyStorageOf(aet,
+                "verifyStorageOfSeriesOfStudy",
+                QueryRetrieveLevel2.SERIES,
+                studyInstanceUID,
+                null);
+    }
+
+    @POST
+    @Path("/rs/instances/stgver")
+    @Produces("application/json")
+    public Response verifyStorageOfInstances() {
+        return verifyStorageOf(aet,
+                "verifyStorageOfInstances",
+                QueryRetrieveLevel2.IMAGE,
+                null,
+                null);
+    }
+
+    @POST
+    @Path("/rs/studies/{StudyInstanceUID}/instances/stgver")
+    @Produces("application/json")
+    public Response verifyStorageOfInstancesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+        return verifyStorageOf(aet,
+                "verifyStorageOfInstancesOfStudy",
+                QueryRetrieveLevel2.IMAGE, studyInstanceUID,
+                null);
+    }
+
+    @POST
+    @Path("/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgver")
+    @Produces("application/json")
+    public Response verifyStorageOfInstancesOfSeries(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
+        return verifyStorageOf(aet,
+                "verifyStorageOfInstancesOfSeries",
                 QueryRetrieveLevel2.IMAGE,
                 studyInstanceUID,
                 seriesInstanceUID);

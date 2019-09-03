@@ -1,4 +1,5 @@
 /*
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -12,7 +13,7 @@
  * License.
  *
  * The Original Code is part of dcm4che, an implementation of DICOM(TM) in
- * Java(TM), hosted at https://github.com/gunterze/dcm4che.
+ * Java(TM), hosted at https://github.com/dcm4che.
  *
  * The Initial Developer of the Original Code is
  * J4Care.
@@ -34,9 +35,11 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.export.rs;
+package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -45,23 +48,19 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.exporter.ExportContext;
-import org.dcm4chee.arc.exporter.Exporter;
-import org.dcm4chee.arc.exporter.ExporterFactory;
-import org.dcm4chee.arc.ian.scu.IANScheduler;
+import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.stgcmt.StgCmtSCU;
-import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,15 +73,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
-
-class ExportMatching {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ExportMatching.class);
+class StgVerMatching {
+    private static final Logger LOG = LoggerFactory.getLogger(StgVerMatching.class);
 
     @Context
     private HttpServletRequest request;
@@ -97,24 +95,7 @@ class ExportMatching {
     private QueryService queryService;
 
     @Inject
-    private ExportManager exportManager;
-
-    @Inject
-    private ExporterFactory exporterFactory;
-
-    @Inject
-    private IANScheduler ianScheduler;
-
-    @Inject
-    private StgCmtSCU stgCmtSCU;
-
-    @QueryParam("only-stgcmt")
-    @Pattern(regexp = "true|false")
-    private String onlyStgCmt;
-
-    @QueryParam("only-ian")
-    @Pattern(regexp = "true|false")
-    private String onlyIAN;
+    private StgCmtManager stgCmtMgr;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
@@ -156,20 +137,16 @@ class ExportMatching {
     @QueryParam("batchID")
     private String batchID;
 
-    @QueryParam("storageID")
-    private String storageID;
+    @QueryParam("storageVerificationPolicy")
+    @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
+    private String storageVerificationPolicy;
 
-    @QueryParam("storageClustered")
+    @QueryParam("storageVerificationUpdateLocationStatus")
     @Pattern(regexp = "true|false")
-    private String storageClustered;
+    private String storageVerificationUpdateLocationStatus;
 
-    @QueryParam("storageExported")
-    @Pattern(regexp = "true|false")
-    private String storageExported;
-
-    @QueryParam("allOfModalitiesInStudy")
-    @Pattern(regexp = "true|false")
-    private String allOfModalitiesInStudy;
+    @QueryParam("storageVerificationStorageID")
+    private List<String> storageVerificationStorageIDs;
 
     @QueryParam("StudySizeInKB")
     @Pattern(regexp = "\\d{1,9}(-\\d{0,9})?|-\\d{1,9}")
@@ -184,33 +161,15 @@ class ExportMatching {
         return request.getRequestURI() + '?' + request.getQueryString();
     }
 
-    public void validate() {
+    Response verifyStorageOf(String aet,
+            String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
         logRequest();
-        new QueryAttributes(uriInfo, null);
-    }
-
-    Response exportMatching(String exporterID, String aet,
-                                    String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-            if (exporter == null)
-                return errResponse(Response.Status.NOT_FOUND, "No such Exporter: " + exporterID);
-
-            boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
-            if (bOnlyIAN && exporter.getIanDestinations().length == 0)
-                return errResponse(Response.Status.NOT_FOUND,
-                        "No IAN Destinations configured in Exporter: " + exporterID);
-
-            boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
-            if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
-                return errResponse(Response.Status.NOT_FOUND,
-                        "No Storage Commitment SCP configured in Exporter: " + exporterID);
-
             QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
             String warning = null;
             int count = 0;
@@ -220,15 +179,10 @@ class ExportMatching {
                     query.executeQuery(arcDev.getQueryFetchSize());
                     while (query.hasMoreMatches()) {
                         Attributes match = query.nextMatch();
-                        if (bOnlyIAN || bOnlyStgCmt) {
-                            ExportContext exportContext = createExportContext(aet, match, qrlevel, exporter);
-                            if (bOnlyIAN)
-                                ianScheduler.scheduleIAN(exportContext, exporter);
-                            if (bOnlyStgCmt)
-                                stgCmtSCU.scheduleStorageCommit(exportContext, exporter);
-                        } else
-                            scheduleExportTask(exporter, match, qrlevel);
-                        count++;
+                        if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, match, qrlevel),
+                                HttpServletRequestInfo.valueOf(request), batchID)) {
+                            count++;
+                        }
                     }
                 } catch (QueueSizeLimitExceededException e) {
                     status = Response.Status.SERVICE_UNAVAILABLE;
@@ -260,9 +214,8 @@ class ExportMatching {
                 request.getRemoteHost());
     }
 
-
-    private Response errResponse(Response.Status status, String msg) {
-        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    private Response errResponse(Response.Status status, String message) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + message + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
@@ -310,7 +263,6 @@ class ExportMatching {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
@@ -321,43 +273,30 @@ class ExportMatching {
         queryParam.setExpirationDate(expirationDate);
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
-        if (storageID != null)
-            queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
         queryParam.setStudySizeRange(studySizeInKB);
         if (expirationState != null)
             queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
         return queryParam;
     }
 
-    private static Boolean parseBoolean(String s) {
-        return s != null ? Boolean.valueOf(s) : null;
-    }
-
-    private ExportContext createExportContext(String aet,
-            Attributes match, QueryRetrieveLevel2 qrlevel, ExporterDescriptor exporter) {
-        Exporter e = exporterFactory.getExporter(exporter);
-        ExportContext ctx = e.createExportContext();
-        ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
-        switch (qrlevel) {
-            case IMAGE:
-                ctx.setSopInstanceUID(match.getString(Tag.SOPInstanceUID));
-            case SERIES:
-                ctx.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
+    private StorageVerificationTask createStgVerTask(String aet, Attributes match, QueryRetrieveLevel2 qrlevel) {
+        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
+        storageVerificationTask.setLocalAET(aet);
+        if (storageVerificationPolicy != null) {
+            storageVerificationTask.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(storageVerificationPolicy));
         }
-        ctx.setAETitle(aet);
-        ctx.setBatchID(batchID);
-        return ctx;
-    }
-
-    private void scheduleExportTask(ExporterDescriptor exporter, Attributes match, QueryRetrieveLevel2 qrlevel)
-            throws QueueSizeLimitExceededException {
-        exportManager.scheduleExportTask(
-                match.getString(Tag.StudyInstanceUID),
-                qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,
-                qrlevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : null,
-                exporter,
-                HttpServletRequestInfo.valueOf(request),
-                batchID);
+        if (storageVerificationUpdateLocationStatus != null) {
+            storageVerificationTask.setUpdateLocationStatus(Boolean.valueOf(storageVerificationUpdateLocationStatus));
+        }
+        if (!storageVerificationStorageIDs.isEmpty()) {
+            storageVerificationTask.setStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
+        }
+        storageVerificationTask.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
+        if (qrlevel != QueryRetrieveLevel2.STUDY) {
+            storageVerificationTask.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
+            if (qrlevel == QueryRetrieveLevel2.IMAGE)
+                storageVerificationTask.setSOPInstanceUID(match.getString(Tag.SOPInstanceUID));
+        }
+        return storageVerificationTask;
     }
 }
