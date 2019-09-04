@@ -15715,13 +15715,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
         ],
-        "summary": "Retrieve matching Studies from external C-MOVE SCP",
-        "operationId": "RetrieveMatchingStudies",
+        "summary": "Query from C-FIND SCP and Retrieve matching Studies from external C-MOVE SCP",
+        "operationId": "QueryCFindRetrieveMatchingStudies",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -15730,7 +15730,7 @@
             "$ref": "#/components/parameters/moveSCPPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -15779,13 +15779,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{StudyInstanceUID}/series/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
         ],
-        "summary": "Retrieve matching Series of Study from external C-MOVE SCP",
-        "operationId": "RetrieveMatchingSeriesOfStudy",
+        "summary": "Query from C-FIND SCP and Retrieve matching Series of Study from external C-MOVE SCP",
+        "operationId": "QueryCFindRetrieveMatchingSeriesOfStudy",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -15797,7 +15797,7 @@
             "$ref": "#/components/parameters/studyPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -15846,13 +15846,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
         ],
-        "summary": "Retrieve matching Instances of Series from external C-MOVE SCP",
-        "operationId": "RetrieveMatchingInstancesOfSeries",
+        "summary": "Query from C-FIND SCP and Retrieve matching Instances of Series from external C-MOVE SCP",
+        "operationId": "QueryCFindRetrieveMatchingInstancesOfSeries",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -15867,7 +15867,7 @@
             "$ref": "#/components/parameters/seriesPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -15916,13 +15916,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
         ],
-        "summary": "Mark matching Studies for retrieve from external C-MOVE SCP",
-        "operationId": "MarkMatchingStudiesForRetrieve",
+        "summary": "Query from C-FIND SCP and Mark matching Studies for retrieve from external C-MOVE SCP",
+        "operationId": "QueryCFindMarkMatchingStudiesForRetrieve",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -15931,7 +15931,7 @@
             "$ref": "#/components/parameters/moveSCPPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -15974,13 +15974,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
         ],
-        "summary": "Mark matching Series for retrieve from external C-MOVE SCP",
-        "operationId": "MarkMatchingSeriesForRetrieve",
+        "summary": "Query from C-FIND SCP and Mark matching Series for retrieve from external C-MOVE SCP",
+        "operationId": "QueryCFindMarkMatchingSeriesForRetrieve",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -15992,7 +15992,7 @@
             "$ref": "#/components/parameters/studyPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -16035,13 +16035,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-RS"
         ],
-        "summary": "Mark matching Instances for retrieve from external C-MOVE SCP",
-        "operationId": "MarkMatchingInstancesForRetrieve",
+        "summary": "Query from C-FIND SCP and Mark matching Instances for retrieve from external C-MOVE SCP",
+        "operationId": "QueryCFindMarkMatchingInstancesForRetrieve",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -16056,7 +16056,7 @@
             "$ref": "#/components/parameters/seriesPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -16099,22 +16099,19 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/studies/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
-          "MOVE-LEGACY-RS"
+          "MOVE-RS"
         ],
-        "summary": "Retrieve matching Studies from external C-MOVE SCP Legacy",
-        "operationId": "RetrieveMatchingStudiesLegacy",
+        "summary": "Query and Retrieve matching Studies from external C-MOVE SCP",
+        "operationId": "QueryRetrieveMatchingStudies",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
           },
           {
             "$ref": "#/components/parameters/moveSCPPathParam"
-          },
-          {
-            "$ref": "#/components/parameters/queryAETPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -16149,7 +16146,7 @@
             "description": "Validation for one of the query parameters failed"
           },
           "404": {
-            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
           },
           "500": {
             "description": "Internal Server Error"
@@ -16163,13 +16160,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
-          "MOVE-LEGACY-RS"
+          "MOVE-RS"
         ],
-        "summary": "Retrieve matching Series of Study from external C-MOVE SCP Legacy",
-        "operationId": "RetrieveMatchingSeriesOfStudyLegacy",
+        "summary": "Query and Retrieve matching Series of Study from external C-MOVE SCP",
+        "operationId": "QueryRetrieveMatchingSeriesOfStudy",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -16181,9 +16178,6 @@
             "$ref": "#/components/parameters/studyPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
-          },
-          {
             "$ref": "#/components/parameters/destinationAETPathParam"
           },
           {
@@ -16216,7 +16210,7 @@
             "description": "Validation for one of the query parameters failed"
           },
           "404": {
-            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
           },
           "500": {
             "description": "Internal Server Error"
@@ -16230,13 +16224,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/export/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
-          "MOVE-LEGACY-RS"
+          "MOVE-RS"
         ],
-        "summary": "Retrieve matching Instances of Series from external C-MOVE SCP Legacy",
-        "operationId": "RetrieveMatchingInstancesOfSeriesLegacy",
+        "summary": "Query and Retrieve matching Instances of Series from external C-MOVE SCP",
+        "operationId": "QueryRetrieveMatchingInstancesOfSeries",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -16251,7 +16245,242 @@
             "$ref": "#/components/parameters/seriesPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Query and Mark matching Studies for retrieve from external C-MOVE SCP",
+        "operationId": "QueryAndMarkMatchingStudiesForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Query and Mark matching Series for retrieve from external C-MOVE SCP",
+        "operationId": "QueryAndMarkMatchingSeriesForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-RS"
+        ],
+        "summary": "Query and Mark matching Instances for retrieve from external C-MOVE SCP",
+        "operationId": "QueryAndMarkMatchingInstancesForRetrieve",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-LEGACY-RS"
+        ],
+        "summary": "Query from C-FIND SCP and Retrieve matching Studies from external C-MOVE SCP Legacy",
+        "operationId": "QueryCFindRetrieveMatchingStudiesLegacy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -16300,71 +16529,13 @@
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{findscp}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-LEGACY-RS"
         ],
-        "summary": "Mark matching Studies for retrieve from external C-MOVE SCP Legacy",
-        "operationId": "MarkMatchingStudiesForRetrieveLegacy",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/archiveAETPathParam"
-          },
-          {
-            "$ref": "#/components/parameters/moveSCPPathParam"
-          },
-          {
-            "$ref": "#/components/parameters/queryAETPathParam"
-          },
-          {
-            "$ref": "#/components/parameters/destinationAETPathParam"
-          },
-          {
-            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
-          },
-          {
-            "$ref": "#/components/parameters/batchID"
-          },
-          {
-            "$ref": "#/components/parameters/dicomDeviceName"
-          },
-          {
-            "$ref": "#/components/parameters/attributeMatch"
-          },
-          {
-            "$ref": "#/components/parameters/fuzzymatching"
-          },
-          {
-            "$ref": "#/components/parameters/SplitStudyDateRange"
-          }
-        ],
-        "responses": {
-          "202": {
-            "$ref": "#/components/responses/countResults"
-          },
-          "400": {
-            "description": "Validation for one of the query parameters failed"
-          },
-          "404": {
-            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          },
-          "502": {
-            "$ref": "#/components/responses/countResults"
-          }
-        }
-      }
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
-      "post": {
-        "tags": [
-          "MOVE-LEGACY-RS"
-        ],
-        "summary": "Mark matching Series for retrieve from external C-MOVE SCP Legacy",
-        "operationId": "MarkMatchingSeriesForRetrieveLegacy",
+        "summary": "Query from C-FIND SCP and Retrieve matching Series of Study from external C-MOVE SCP Legacy",
+        "operationId": "QueryCFindRetrieveMatchingSeriesOfStudyLegacy",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -16376,7 +16547,7 @@
             "$ref": "#/components/parameters/studyPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -16389,6 +16560,9 @@
           },
           {
             "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
           },
           {
             "$ref": "#/components/parameters/attributeMatch"
@@ -16415,17 +16589,20 @@
           },
           "502": {
             "$ref": "#/components/responses/countResults"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
           }
         }
       }
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/mark4retrieve/dicom:{destinationAET}": {
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{findscp}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "MOVE-LEGACY-RS"
         ],
-        "summary": "Mark matching Instances for retrieve from external C-MOVE SCP Legacy",
-        "operationId": "MarkMatchingInstancesForRetrieveLegacy",
+        "summary": "Query from C-FIND SCP and Retrieve matching Instances of Series from external C-MOVE SCP Legacy",
+        "operationId": "QueryCFindRetrieveMatchingInstancesOfSeriesLegacy",
         "parameters": [
           {
             "$ref": "#/components/parameters/archiveAETPathParam"
@@ -16440,7 +16617,196 @@
             "$ref": "#/components/parameters/seriesPathParam"
           },
           {
-            "$ref": "#/components/parameters/queryAETPathParam"
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/priority"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue reached"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-LEGACY-RS"
+        ],
+        "summary": "Query from C-FIND SCP and Mark matching Studies for retrieve from external C-MOVE SCP Legacy",
+        "operationId": "QueryCFindMarkMatchingStudiesForRetrieveLegacy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{findscp}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-LEGACY-RS"
+        ],
+        "summary": "Query from C-FIND SCP and Mark matching Series for retrieve from external C-MOVE SCP Legacy",
+        "operationId": "QueryCFindMarkMatchingSeriesForRetrieveLegacy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/destinationAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/dcmQueueNameRetrieve"
+          },
+          {
+            "$ref": "#/components/parameters/batchID"
+          },
+          {
+            "$ref": "#/components/parameters/dicomDeviceName"
+          },
+          {
+            "$ref": "#/components/parameters/attributeMatch"
+          },
+          {
+            "$ref": "#/components/parameters/fuzzymatching"
+          },
+          {
+            "$ref": "#/components/parameters/SplitStudyDateRange"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/countResults"
+          },
+          "400": {
+            "description": "Validation for one of the query parameters failed"
+          },
+          "404": {
+            "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/countResults"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{findscp}/mark4retrieve/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "MOVE-LEGACY-RS"
+        ],
+        "summary": "Query from C-FIND SCP and Mark matching Instances for retrieve from external C-MOVE SCP Legacy",
+        "operationId": "QueryCFindMarkMatchingInstancesForRetrieveLegacy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/archiveAETPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/moveSCPPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/studyPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/seriesPathParam"
+          },
+          {
+            "$ref": "#/components/parameters/findSCPPathParam"
           },
           {
             "$ref": "#/components/parameters/destinationAETPathParam"
@@ -16598,15 +16964,6 @@
         "name": "DestinationAET",
         "in": "path",
         "description": "Destination AE Title",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      "queryAETPathParam": {
-        "name": "queryAET",
-        "in": "path",
-        "description": "AE Title of C-FIND SCP to query for matching Studies",
         "required": true,
         "schema": {
           "type": "string"
