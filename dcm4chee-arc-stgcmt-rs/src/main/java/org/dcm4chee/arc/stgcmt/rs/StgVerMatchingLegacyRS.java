@@ -61,7 +61,7 @@ public class StgVerMatchingLegacyRS extends StgVerMatching {
     @POST
     @Path("/studies")
     @Produces("application/json")
-    public Response verifyStorageOfStudies1() {
+    public Response verifyStorageOfStudies() {
         return verifyStorageOf(aet,
                 "verifyStorageOfStudies",
                 QueryRetrieveLevel2.STUDY,
@@ -72,75 +72,6 @@ public class StgVerMatchingLegacyRS extends StgVerMatching {
     @POST
     @Path("/series")
     @Produces("application/json")
-    public Response verifyStorageOfSeries1() {
-        return verifyStorageOf(aet,
-                "verifyStorageOfSeries",
-                QueryRetrieveLevel2.SERIES,
-                null,
-                null);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series")
-    @Produces("application/json")
-    public Response verifyStorageOfSeriesOfStudy1(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return verifyStorageOf(aet,
-                "verifyStorageOfSeriesOfStudy",
-                QueryRetrieveLevel2.SERIES,
-                studyInstanceUID,
-                null);
-    }
-
-    @POST
-    @Path("/instances")
-    @Produces("application/json")
-    public Response verifyStorageOfInstances1() {
-        return verifyStorageOf(aet,
-                "verifyStorageOfInstances",
-                QueryRetrieveLevel2.IMAGE,
-                null,
-                null);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/instances")
-    @Produces("application/json")
-    public Response verifyStorageOfInstancesOfStudy1(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return verifyStorageOf(aet,
-                "verifyStorageOfInstancesOfStudy",
-                QueryRetrieveLevel2.IMAGE, studyInstanceUID,
-                null);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
-    @Produces("application/json")
-    public Response verifyStorageOfInstancesOfSeries1(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return verifyStorageOf(aet,
-                "verifyStorageOfInstancesOfSeries",
-                QueryRetrieveLevel2.IMAGE,
-                studyInstanceUID,
-                seriesInstanceUID);
-    }
-
-    @POST
-    @Path("/rs/studies/stgver")
-    @Produces("application/json")
-    public Response verifyStorageOfStudies() {
-        return verifyStorageOf(aet,
-                "verifyStorageOfStudies",
-                QueryRetrieveLevel2.STUDY,
-                null,
-                null);
-    }
-
-    @POST
-    @Path("/rs/series/stgver")
-    @Produces("application/json")
     public Response verifyStorageOfSeries() {
         return verifyStorageOf(aet,
                 "verifyStorageOfSeries",
@@ -150,7 +81,7 @@ public class StgVerMatchingLegacyRS extends StgVerMatching {
     }
 
     @POST
-    @Path("/rs/studies/{StudyInstanceUID}/series/stgver")
+    @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
     public Response verifyStorageOfSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
@@ -162,7 +93,7 @@ public class StgVerMatchingLegacyRS extends StgVerMatching {
     }
 
     @POST
-    @Path("/rs/instances/stgver")
+    @Path("/instances")
     @Produces("application/json")
     public Response verifyStorageOfInstances() {
         return verifyStorageOf(aet,
@@ -173,7 +104,7 @@ public class StgVerMatchingLegacyRS extends StgVerMatching {
     }
 
     @POST
-    @Path("/rs/studies/{StudyInstanceUID}/instances/stgver")
+    @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
     public Response verifyStorageOfInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
@@ -184,7 +115,7 @@ public class StgVerMatchingLegacyRS extends StgVerMatching {
     }
 
     @POST
-    @Path("/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgver")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
     public Response verifyStorageOfInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
@@ -195,4 +126,5 @@ public class StgVerMatchingLegacyRS extends StgVerMatching {
                 studyInstanceUID,
                 seriesInstanceUID);
     }
+
 }
