@@ -123,10 +123,8 @@ public class PR2KOExporter extends AbstractExporter {
             query.executeQuery(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
             while (query.hasMoreMatches()) {
                 Attributes match = query.nextMatch();
-                if (match == null)
-                    continue;
-
-                matches.add(match);
+                if (match != null)
+                    matches.add(match);
             }
         }
 
