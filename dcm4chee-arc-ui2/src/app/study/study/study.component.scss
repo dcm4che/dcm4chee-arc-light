@@ -15,12 +15,31 @@
   height: 1000px;
 }
 .fixed_header{
-  width: calc(100% - 80px);
+  //width: calc(100% - 80px);
   background: white;
-  position: fixed;
-  top: 0;
+  //position: fixed;
+  //top: 0;
+  float: left;
   z-index: 10;
 }
 .tab_content_with_fixed_header{
-  margin-top: 226px;
+  //margin-top: 226px;
+}
+.sticky{
+  position: sticky;
+  top: 0;
+  z-index: 14;
+}
+.main_content .tab_content_with_fixed_header .j4care_dynamic_table .th{
+  position: sticky;
+  width: 100%;
+}
+
+.more_function_block{
+  position: relative;
+}
+.filter_line{
+  -webkit-box-shadow:    4px 0px 13px -3px rgba(68, 68, 68, 0.93);
+  -moz-box-shadow:    4px 0px 13px -3px rgba(68, 68, 68, 0.93);
+  box-shadow:    4px 0px 13px -3px rgba(68, 68, 68, 0.93);
 }

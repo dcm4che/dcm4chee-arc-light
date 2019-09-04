@@ -65,6 +65,7 @@ export interface TableSchemaConfig {
     cssTdClass?:string;
     cssThClass?:string;
     cssTrClass?:string;
+    headerTop?:string;
     offset?:number;
 }
 

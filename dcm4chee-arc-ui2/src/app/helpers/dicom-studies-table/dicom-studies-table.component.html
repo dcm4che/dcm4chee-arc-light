@@ -1,7 +1,7 @@
 <h3 *ngIf="title">{{title}}</h3>
 <div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" *ngIf="patients && patients.length > 0" (mouseleave)="active_td = ''">
     <!--Headers 1:-->
-        <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass">
+        <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass" [ngStyle]="{top:config.headerTop || '186px'}">
             <div class="td"
                  *ngFor="let table of tableSchema[hover_mode]"
                  [ngClass]="[config?.cssTdClass || '',(table.type != 'value' && table.type != 'pipe')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"

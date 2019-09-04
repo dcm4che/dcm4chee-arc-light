@@ -1,4 +1,13 @@
-import {Component, HostListener, OnInit, ViewContainerRef} from '@angular/core';
+import {
+    AfterViewChecked,
+    AfterViewInit,
+    Component,
+    ElementRef,
+    HostListener,
+    OnInit,
+    ViewChild,
+    ViewContainerRef
+} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {
     AccessLocation,
@@ -71,7 +80,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
                 margin:"0"
             })),
             transition("show => hide",[
-                animate('0.4s')
+                animate('0.2s')
             ]),
             transition("hide => show",[
                 animate('0.3s')
@@ -79,7 +88,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
         ])
     ]
 })
-export class StudyComponent implements OnInit {
+export class StudyComponent implements OnInit{
 
     test = Globalvar.ORDERBY;
     // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
@@ -175,6 +184,8 @@ export class StudyComponent implements OnInit {
     patients:PatientDicom[] = [];
     moreStudies:boolean = false;
     queues;
+    @ViewChild('stickyHeader') stickyHeaderView: ElementRef;
+
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -197,6 +208,13 @@ export class StudyComponent implements OnInit {
           this.studyConfig.tab = params.tab;
           this.initWebApps();
         });
+        console.log("")
+    }
+
+    setTopToTableHeder(){
+        if(this.stickyHeaderView.nativeElement.scrollHeight && this.stickyHeaderView.nativeElement.scrollHeight > 0 && this.tableParam.config.headerTop != `${this.stickyHeaderView.nativeElement.scrollHeight}px`){
+            this.tableParam.config.headerTop = `${this.stickyHeaderView.nativeElement.scrollHeight}px`;
+        }
     }
 
     @HostListener("window:scroll", [])
@@ -756,6 +774,7 @@ export class StudyComponent implements OnInit {
             .subscribe(res => {
                 this.patients = [];
                 if(res){
+                    this.setTopToTableHeder();
                     let index = 0;
                     let patient: PatientDicom;
                     let study: StudyDicom;
@@ -1473,7 +1492,6 @@ export class StudyComponent implements OnInit {
         }
         this.tableParam.tableSchema  = this.getSchema();
     };
-
     getSchema(){
         return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
             trash:this.trash,

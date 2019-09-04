@@ -35,6 +35,8 @@ $pink:rgba(82, 36, 88, 0.85);
       }
       &.not_empty_td{
         border-left: 1px solid white;
+        overflow: hidden;
+        max-height: 30px;
       }
       &.value.active, &.pipe.active{
         background: $pink;

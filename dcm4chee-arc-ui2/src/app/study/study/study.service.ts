@@ -569,7 +569,7 @@ export class StudyService {
                         key = "menu.actions";
                     }
                     if(_.get(element,key) && (<any[]>_.get(element,key)).length > 0){
-                        (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
+                        let result = (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
                             console.log("menu",menu);
                             console.log("menu.permission",menu.permission);
                             console.log("checkVisibility",this.permissionService.checkVisibility(menu.permission));
@@ -578,10 +578,15 @@ export class StudyService {
                             }
                             return true
                         });
+                        console.log("element",element);
+                        console.log("result",result);
+                        _.set(element, key, result);
+                        console.log("result",result);
                     }
                 }
             })
         });
+        console.log("schema",schema);
         return schema;
     }
     PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options:StudySchemaOptions):DicomTableSchema{

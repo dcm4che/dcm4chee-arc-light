@@ -3,8 +3,8 @@
 <!--  <pre>
     studyDevice:{{studyDevice|json}}
   </pre>-->
-  <div class="tab-content" [ngClass]="{'tab_content_with_fixed_header':fixedHeader}">
-    <div [ngClass]="{'fixed_header':fixedHeader}">
+  <div class="tab-content tab_content_with_fixed_header">
+    <div class="sticky" #stickyHeader [ngClass]="{'fixed_header':fixedHeader}">
         <!--model2:{{model|json}}-->
 <!--      <j4care-select [(model)]="model" [placeholder]="'Test placeholder'">
           <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
@@ -61,7 +61,8 @@
           </mat-radio-group>
         </div>
       </ng-container>-->
-      <div class="filter_line" [@showHide]="fixedHeader ? 'hide':'show'">
+  </div>
+      <div class="filter_line more_function_block">
         <div class="filter single_block" [permission]="{id:'action-monitoring->diff_monitor-all_action',param:'visible'}">
           <div class="filter_block">
             <div class="line">
@@ -81,7 +82,6 @@
           </div>
         </div>
       </div>
-  </div>
     <div class="left_arrow arrow"  *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
     <div class="right_arrow arrow" *ngIf="patients" [ngClass]="{'active':moreStudies}" (click)="search('next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
     <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService"></dicom-studies-table>

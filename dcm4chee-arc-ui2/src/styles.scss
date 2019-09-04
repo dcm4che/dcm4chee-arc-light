@@ -2630,10 +2630,10 @@ dicom-list{
 .tab_content_with_fixed_header{
   .j4care_dynamic_table{
     .th{
-      position: fixed;
+      position: sticky;
       z-index: 10;
       top: 186px;
-      width: calc(100% - 80px) !important;
+      //width: calc(100% - 80px) !important;
     }
   }
 
