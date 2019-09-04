@@ -184,6 +184,9 @@ class RejectMatching {
                     query.executeQuery(arcDev().getQueryFetchSize());
                     while (query.hasMoreMatches()) {
                         Attributes match = query.nextMatch();
+                        if (match == null)
+                            continue;
+
                         rejectMatching(aet, rjNoteCode, match, qrlevel, httpRequestInfo);
                         count++;
                     }

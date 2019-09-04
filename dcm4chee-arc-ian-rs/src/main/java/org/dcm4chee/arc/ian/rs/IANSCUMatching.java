@@ -184,6 +184,9 @@ class IANSCUMatching {
                     query.executeQuery(arcDev.getQueryFetchSize());
                     while (query.hasMoreMatches()) {
                         Attributes match = query.nextMatch();
+                        if (match == null)
+                            continue;
+
                         ianScheduler.scheduleIAN(ae, ianscp,
                                 match.getString(Tag.StudyInstanceUID),
                                 match.getString(Tag.SeriesInstanceUID));

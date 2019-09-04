@@ -184,6 +184,9 @@ class StgCmtSCUMatching {
                     query.executeQuery(arcDev.getQueryFetchSize());
                     while (query.hasMoreMatches()) {
                         Attributes match = query.nextMatch();
+                        if (match == null)
+                            continue;
+
                         stgCmtSCU.scheduleStorageCommit(aet, stgcmtscp, match, batchID, qrlevel);
                         count++;
                     }

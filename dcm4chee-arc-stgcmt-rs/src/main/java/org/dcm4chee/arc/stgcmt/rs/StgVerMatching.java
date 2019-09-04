@@ -179,6 +179,9 @@ class StgVerMatching {
                     query.executeQuery(arcDev.getQueryFetchSize());
                     while (query.hasMoreMatches()) {
                         Attributes match = query.nextMatch();
+                        if (match == null)
+                            continue;
+
                         if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, match, qrlevel),
                                 HttpServletRequestInfo.valueOf(request), batchID)) {
                             count++;

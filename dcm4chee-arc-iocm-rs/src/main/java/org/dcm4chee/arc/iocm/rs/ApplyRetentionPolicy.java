@@ -139,6 +139,9 @@ public class ApplyRetentionPolicy {
                     LocalDate prevStudyExpirationDate = null;
                     while (query.hasMoreMatches()) {
                         Attributes attrs = query.nextMatch();
+                        if (attrs == null)
+                            continue;
+
                         StudyRetentionPolicy retentionPolicy =
                                 arcAE.findStudyRetentionPolicy(
                                         null,

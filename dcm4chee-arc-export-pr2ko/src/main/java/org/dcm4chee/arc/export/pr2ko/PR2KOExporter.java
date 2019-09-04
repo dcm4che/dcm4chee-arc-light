@@ -121,8 +121,13 @@ public class PR2KOExporter extends AbstractExporter {
         try (Query query = queryService.createInstanceQuery(
                 queryContext(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ae))) {
             query.executeQuery(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
-            while (query.hasMoreMatches())
-                matches.add(query.nextMatch());
+            while (query.hasMoreMatches()) {
+                Attributes match = query.nextMatch();
+                if (match == null)
+                    continue;
+
+                matches.add(match);
+            }
         }
 
         if (matches.isEmpty())

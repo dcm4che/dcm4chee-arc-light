@@ -171,6 +171,9 @@ class UpdateStudyAccessMatching {
                 query.executeQuery(arcDev.getQueryFetchSize());
                 while (query.hasMoreMatches()) {
                     Attributes match = query.nextMatch();
+                    if (match == null)
+                        continue;
+
                     StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
                     ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
                     ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
