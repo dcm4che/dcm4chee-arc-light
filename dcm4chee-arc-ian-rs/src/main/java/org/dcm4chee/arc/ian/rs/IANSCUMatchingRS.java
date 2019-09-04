@@ -51,63 +51,63 @@ import javax.ws.rs.core.Response;
  * @since Mar 2019
  */
 @RequestScoped
-@Path("aets/{aet}/dimse/{ianscp}")
+@Path("aets/{aet}/rs")
 public class IANSCUMatchingRS extends IANSCUMatching {
 
     @PathParam("aet")
     private String aet;
-
-    @PathParam("ianscp")
-    private String ianscp;
     
     @POST
-    @Path("/studies/ian")
+    @Path("/studies/ian/{ianscp}")
     @Produces("application/json")
-    public Response matchingStudyIAN() {
+    public Response matchingStudyIAN(@PathParam("ianscp") String ianscp) {
         return ianMatching(aet, ianscp,"matchingStudyIAN",
                 QueryRetrieveLevel2.STUDY, null, null);
     }
 
     @POST
-    @Path("/series/ian")
+    @Path("/series/ian/{ianscp}")
     @Produces("application/json")
-    public Response matchingSeriesIAN() {
+    public Response matchingSeriesIAN(@PathParam("ianscp") String ianscp) {
         return ianMatching(aet, ianscp,"matchingSeriesIAN",
                 QueryRetrieveLevel2.SERIES, null, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/ian")
+    @Path("/studies/{StudyInstanceUID}/series/ian/{ianscp}")
     @Produces("application/json")
     public Response matchingSeriesOfStudyIAN(
-            @PathParam("StudyInstanceUID") String studyUID) {
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("ianscp") String ianscp) {
         return ianMatching(aet, ianscp,"matchingSeriesOfStudyIAN",
                 QueryRetrieveLevel2.SERIES, studyUID, null);
     }
 
     @POST
-    @Path("/instances/ian")
+    @Path("/instances/ian/{ianscp}")
     @Produces("application/json")
-    public Response matchingInstancesIAN() {
+    public Response matchingInstancesIAN(@PathParam("ianscp") String ianscp) {
         return ianMatching(aet, ianscp,"matchingInstancesIAN",
                 QueryRetrieveLevel2.IMAGE, null, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/instances/ian")
+    @Path("/studies/{StudyInstanceUID}/instances/ian/{ianscp}")
     @Produces("application/json")
     public Response matchingInstancesOfStudyIAN(
-            @PathParam("StudyInstanceUID") String studyUID) {
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("ianscp") String ianscp) {
         return ianMatching(aet, ianscp,"matchingInstancesOfStudyIAN",
                 QueryRetrieveLevel2.IMAGE, studyUID, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/ian")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/ian/{ianscp}")
     @Produces("application/json")
     public Response matchingInstancesOfSeriesIAN(
             @PathParam("StudyInstanceUID") String studyUID,
-            @PathParam("SeriesInstanceUID") String seriesUID) {
+            @PathParam("SeriesInstanceUID") String seriesUID,
+            @PathParam("ianscp") String ianscp) {
         return ianMatching(aet, ianscp,"matchingInstancesOfSeriesIAN",
                 QueryRetrieveLevel2.IMAGE, studyUID, seriesUID);
     }

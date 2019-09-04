@@ -7274,7 +7274,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/ian/{ianscp}": {
+    "/aets/{aet}/rs/studies/ian/{ianscp}": {
       "post": {
         "tags": [
           "IAN-RS"
@@ -7368,7 +7368,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/series/ian/{ianscp}": {
+    "/aets/{aet}/rs/series/ian/{ianscp}": {
       "post": {
         "tags": [
           "IAN-RS"
@@ -7462,7 +7462,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/instances/ian/{ianscp}": {
+    "/aets/{aet}/rs/instances/ian/{ianscp}": {
       "post": {
         "tags": [
           "IAN-RS"
@@ -7556,7 +7556,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/{StudyInstanceUID}/series/ian/{ianscp}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/ian/{ianscp}": {
       "post": {
         "tags": [
           "IAN-RS"
@@ -7653,7 +7653,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/{StudyInstanceUID}/instances/ian/{ianscp}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/ian/{ianscp}": {
       "post": {
         "tags": [
           "IAN-RS"
@@ -7750,7 +7750,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/ian/{ianscp}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/ian/{ianscp}": {
       "post": {
         "tags": [
           "IAN-RS"
@@ -9041,7 +9041,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/stgcmt/{stgCmtSCP}": {
+    "/aets/{aet}/rs/studies/stgcmt/{stgCmtSCP}": {
       "post": {
         "tags": [
           "STGCMT-RS"
@@ -9135,7 +9135,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/series/stgcmt/{stgCmtSCP}": {
+    "/aets/{aet}/rs/series/stgcmt/{stgCmtSCP}": {
       "post": {
         "tags": [
           "STGCMT-RS"
@@ -9229,7 +9229,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/instances/stgcmt/{stgCmtSCP}": {
+    "/aets/{aet}/rs/instances/stgcmt/{stgCmtSCP}": {
       "post": {
         "tags": [
           "STGCMT-RS"
@@ -9323,7 +9323,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/{StudyInstanceUID}/series/stgcmt/{stgCmtSCP}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/stgcmt/{stgCmtSCP}": {
       "post": {
         "tags": [
           "STGCMT-RS"
@@ -9420,7 +9420,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/{StudyInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
       "post": {
         "tags": [
           "STGCMT-RS"
@@ -9517,7 +9517,7 @@
         }
       }
     },
-    "/aets/{aet}/dimse/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
       "post": {
         "tags": [
           "STGCMT-RS"

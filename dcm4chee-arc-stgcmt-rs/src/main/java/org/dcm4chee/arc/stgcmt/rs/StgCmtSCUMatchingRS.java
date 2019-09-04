@@ -51,62 +51,63 @@ import javax.ws.rs.core.Response;
  * @since Mar 2019
  */
 @RequestScoped
-@Path("aets/{aet}/dimse/{stgcmtscp}")
+@Path("aets/{aet}/rs")
 public class StgCmtSCUMatchingRS extends StgCmtSCUMatching {
 
     @PathParam("aet")
     private String aet;
 
-    @PathParam("stgcmtscp")
-    private String stgcmtscp;
-
     @POST
-    @Path("/studies/stgcmt")
+    @Path("/studies/stgcmt/{stgcmtscp}")
     @Produces("application/json")
-    public Response matchingStudyStorageCommit() {
+    public Response matchingStudyStorageCommit(@PathParam("stgcmtscp") String stgcmtscp) {
         return storageCommitMatching(aet, stgcmtscp,"matchingStudyStorageCommit",
                 QueryRetrieveLevel2.STUDY, null, null);
     }
 
     @POST
-    @Path("/series/stgcmt")
+    @Path("/series/stgcmt/{stgcmtscp}")
     @Produces("application/json")
-    public Response matchingSeriesStorageCommit() {
+    public Response matchingSeriesStorageCommit(@PathParam("stgcmtscp") String stgcmtscp) {
         return storageCommitMatching(aet, stgcmtscp,"matchingSeriesStorageCommit",
                 QueryRetrieveLevel2.SERIES, null, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/series/stgcmt/{stgcmtscp}")
     @Produces("application/json")
     public Response matchingSeriesOfStudyStorageCommit(
-            @PathParam("StudyInstanceUID") String studyUID) {
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("stgcmtscp") String stgcmtscp) {
         return storageCommitMatching(aet, stgcmtscp,"matchingSeriesOfStudyStorageCommit",
                 QueryRetrieveLevel2.SERIES, studyUID, null);
     }
 
     @POST
-    @Path("/instances/stgcmt")
+    @Path("/instances/stgcmt/{stgcmtscp}")
     @Produces("application/json")
-    public Response matchingInstancesStorageCommit() {
+    public Response matchingInstancesStorageCommit(@PathParam("stgcmtscp") String stgcmtscp) {
         return storageCommitMatching(aet, stgcmtscp,"matchingInstancesStorageCommit",
                 QueryRetrieveLevel2.IMAGE, null, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/instances/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/instances/stgcmt/{stgcmtscp}")
     @Produces("application/json")
-    public Response matchingInstancesOfStudyStorageCommit(@PathParam("StudyInstanceUID") String studyUID) {
+    public Response matchingInstancesOfStudyStorageCommit(
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("stgcmtscp") String stgcmtscp) {
         return storageCommitMatching(aet, stgcmtscp,"matchingInstancesOfStudyStorageCommit",
                 QueryRetrieveLevel2.IMAGE, studyUID, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgcmt")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgcmt/{stgcmtscp}")
     @Produces("application/json")
     public Response matchingInstancesOfSeriesStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
-            @PathParam("SeriesInstanceUID") String seriesUID) {
+            @PathParam("SeriesInstanceUID") String seriesUID,
+            @PathParam("stgcmtscp") String stgcmtscp) {
         return storageCommitMatching(aet, stgcmtscp,"matchingInstancesOfSeriesStorageCommit",
                 QueryRetrieveLevel2.IMAGE, studyUID, seriesUID);
     }
