@@ -267,9 +267,10 @@ class QueryServiceImpl implements QueryService {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         if (seriesIUID == null || seriesIUID.equals("*"))
             return ejb.queryStudyExportTaskInfo(studyIUID, qrView);
-        if (sopIUID == null || sopIUID.equals("*"))
-            return ejb.querySeriesExportTaskInfo(studyIUID, seriesIUID, qrView);
-        return ejb.queryObjectExportTaskInfo(studyIUID, seriesIUID, sopIUID);
+        Attributes attrs = ejb.querySeriesExportTaskInfo(studyIUID, seriesIUID, qrView);
+        if (sopIUID != null && !sopIUID.equals("*"))
+            attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
+        return attrs;
     }
 
     @Override

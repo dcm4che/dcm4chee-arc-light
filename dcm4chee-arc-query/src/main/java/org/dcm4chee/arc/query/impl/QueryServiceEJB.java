@@ -321,26 +321,6 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public Attributes queryObjectExportTaskInfo(String studyIUID, String seriesIUID, String sopIUID) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        Root<Instance> instance = q.from(Instance.class);
-        Join<Instance, Series> series = instance.join(Instance_.series);
-        Join<Series, Study> study = series.join(Series_.study);
-        String modality = em.createQuery(q
-                .select(series.get(Series_.modality))
-                .where(
-                        cb.equal(study.get(Study_.studyInstanceUID), studyIUID),
-                        cb.equal(series.get(Series_.seriesInstanceUID), seriesIUID),
-                        cb.equal(instance.get(Instance_.sopInstanceUID), sopIUID)))
-                .getSingleResult();
-
-        Attributes attrs = new Attributes(2);
-        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
-        attrs.setString(Tag.ModalitiesInStudy, VR.CS, modality);
-        return attrs;
-    }
-
     public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
