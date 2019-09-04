@@ -312,11 +312,19 @@ public class StgCmtEJB {
                 .executeUpdate();
     }
 
-    public int updateSeries(String studyIUID, String seriesIUID, int failures) {
+    public int updateSeries(String studyIUID, String seriesIUID, int failures, long size) {
         return em.createNamedQuery(Series.UPDATE_STGVER_FAILURES)
                 .setParameter(1, studyIUID)
                 .setParameter(2, seriesIUID)
                 .setParameter(3, failures)
+                .setParameter(4, size)
+                .executeUpdate();
+    }
+
+    public int updateStudySize(Long studyPk, long studySize) {
+        return em.createNamedQuery(Study.SET_STUDY_SIZE)
+                .setParameter(1, studyPk)
+                .setParameter(2, studySize)
                 .executeUpdate();
     }
 

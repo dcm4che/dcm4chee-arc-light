@@ -65,4 +65,8 @@ public interface StudyInfo {
     String getExpirationDate();
 
     String getAccessControlID();
+
+    long getStudySize();
+
+    void setStudySize(long studySize);
 }

@@ -52,7 +52,6 @@ import org.dcm4chee.arc.conf.Duration;
 import javax.persistence.*;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -121,7 +120,7 @@ import java.util.stream.Stream;
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(
     name=Series.UPDATE_STGVER_FAILURES,
-    query="update Series ser set ser.failuresOfLastStorageVerification = ?3 " +
+    query="update Series ser set ser.failuresOfLastStorageVerification = ?3, ser.size = ?4 " +
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(

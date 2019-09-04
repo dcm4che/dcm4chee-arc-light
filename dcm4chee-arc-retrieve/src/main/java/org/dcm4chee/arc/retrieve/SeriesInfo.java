@@ -64,4 +64,6 @@ public interface SeriesInfo {
     String getExpirationDate();
 
     String getSourceAET();
+
+    long getSeriesSize();
 }

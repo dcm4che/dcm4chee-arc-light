@@ -81,12 +81,14 @@ class SeriesAttributes {
                         study.get(Study_.modifiedTime),
                         study.get(Study_.expirationDate),
                         study.get(Study_.accessControlID),
+                        study.get(Study_.size),
                         series.get(Series_.seriesInstanceUID),
                         series.get(Series_.failedRetrieves),
                         series.get(Series_.completeness),
                         series.get(Series_.updatedTime),
                         series.get(Series_.expirationDate),
                         series.get(Series_.sourceAET),
+                        series.get(Series_.size),
                         patientAttrBlob,
                         studyAttrBlob,
                         seriesAttrBlob))
@@ -99,7 +101,8 @@ class SeriesAttributes {
                 tuple.get(study.get(Study_.completeness)),
                 tuple.get(study.get(Study_.modifiedTime)),
                 tuple.get(study.get(Study_.expirationDate)),
-                tuple.get(study.get(Study_.accessControlID)));
+                tuple.get(study.get(Study_.accessControlID)),
+                tuple.get(study.get(Study_.size)));
         seriesInfo = new SeriesInfoImpl(
                 studyInfo.getStudyInstanceUID(),
                 tuple.get(series.get(Series_.seriesInstanceUID)),
@@ -107,7 +110,8 @@ class SeriesAttributes {
                 tuple.get(series.get(Series_.completeness)),
                 tuple.get(series.get(Series_.updatedTime)),
                 tuple.get(series.get(Series_.expirationDate)),
-                tuple.get(series.get(Series_.sourceAET)));
+                tuple.get(series.get(Series_.sourceAET)),
+                tuple.get(series.get(Series_.size)));
         patientUpdatedTime = tuple.get(patient.get(Patient_.updatedTime));
         Attributes patAttrs = AttributesBlob.decodeAttributes(tuple.get(patientAttrBlob), null);
         Attributes studyAttrs = AttributesBlob.decodeAttributes(tuple.get(studyAttrBlob), null);

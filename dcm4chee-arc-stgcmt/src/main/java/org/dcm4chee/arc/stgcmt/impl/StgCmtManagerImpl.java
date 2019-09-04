@@ -59,9 +59,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveFailures;
-import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.*;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
@@ -164,20 +162,42 @@ public class StgCmtManagerImpl implements StgCmtManager {
             if (!retrieveService.calculateMatches(retrCtx)) {
                 return false;
             }
-            Map<String, int[]> failuresBySeries = sopIUID == null ? new HashMap<>() : null;
-            checkLocations(ctx, retrCtx, failuresBySeries);
-            if (failuresBySeries != null) {
-                failuresBySeries.forEach((iuid, failures) -> {
-                    try {
-                        ejb.updateSeries(studyIUID, iuid, failures[0]);
-                    } catch (Exception e) {
-                        LOG.warn("Failed to update failures[={}] of last Storage Commitment of Series[uid={}] of Study[uid={}]\n",
-                                failures[0], iuid, studyIUID, e);
-                    }
-                });
+            Map<String, SeriesResult> seriesResultMap = sopIUID == null ? new HashMap<>() : null;
+            checkLocations(ctx, retrCtx, seriesResultMap);
+            if (seriesResultMap != null) {
+                seriesResultMap.forEach((iuid, seriesResult) -> updateSeries(retrCtx, iuid, seriesResult));
             }
         }
         return true;
+    }
+
+    private void updateSeries(RetrieveContext retrCtx, String seriesIUID, SeriesResult seriesResult) {
+        try {
+            SeriesInfo seriesInfo = retrCtx.getSeriesInfos().stream()
+                    .filter(x -> seriesIUID.equals(x.getSeriesInstanceUID())).findFirst()
+                    .get();
+            if (seriesInfo.getSeriesSize() > 0 && seriesInfo.getSeriesSize() != seriesResult.size) {
+                LOG.warn("Correct size of Series[uid={}] of Study[uid={}] from {} to {}",
+                        seriesIUID, retrCtx.getStudyInstanceUID(), seriesInfo.getSeriesSize(), seriesResult.size);
+                StudyInfo studyInfo = retrCtx.getStudyInfos().get(0);
+                if (studyInfo.getStudySize() > 0) {
+                    long studySize = studyInfo.getStudySize() - seriesInfo.getSeriesSize() + seriesResult.size;
+                    LOG.warn("Correct size of Study[uid={}] from {} to {}",
+                            retrCtx.getStudyInstanceUID(), studyInfo.getStudySize(), studySize);
+                    try {
+                        ejb.updateStudySize(studyInfo.getStudyPk(), studySize);
+                    } catch (Exception e) {
+                        LOG.warn("Failed to update size[={}] of Study[uid={}]\n",
+                                studySize, retrCtx.getStudyInstanceUID(), e);
+                    }
+                    studyInfo.setStudySize(studySize);
+                }
+            }
+            ejb.updateSeries(retrCtx.getStudyInstanceUID(), seriesIUID, seriesResult.failures, seriesResult.size);
+        } catch (Exception e) {
+            LOG.warn("Failed to update size[={}] and failures[={}] of Storage Verification of Series[uid={}] of Study[uid={}]\n",
+                    seriesResult.size, seriesResult.failures, seriesIUID, retrCtx.getStudyInstanceUID(), e);
+        }
     }
 
     @Override
@@ -363,7 +383,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 .add(failedSOP(cuid, iuid, failureReason));
     }
 
-    private void checkLocations(StgCmtContext ctx, RetrieveContext retrCtx, Map<String,int[]> failuresBySeries) {
+    private void checkLocations(StgCmtContext ctx, RetrieveContext retrCtx, Map<String,SeriesResult> seriesResultMap) {
         List<InstanceLocations> matches = retrCtx.getMatches();
         Attributes eventInfo = ctx.getEventInfo();
         String commonRetrieveAET = commonRetrieveAET(matches);
@@ -375,11 +395,13 @@ public class StgCmtManagerImpl implements StgCmtManager {
             String cuid = inst.getSopClassUID();
             String iuid = inst.getSopInstanceUID();
             Attributes attr = inst.getAttributes();
-            int[] failures = failuresBySeries != null
-                    ? failuresBySeries.computeIfAbsent(
-                    attr.getString(Tag.SeriesInstanceUID),
-                    key -> new int[1])
+            SeriesResult seriesResult = seriesResultMap != null
+                    ? seriesResultMap.computeIfAbsent(
+                            attr.getString(Tag.SeriesInstanceUID), key -> new SeriesResult())
                     : null;
+            if (seriesResult != null) {
+                seriesResult.size += inst.getLocations().stream().mapToLong(Location::getSize).max().getAsLong();
+            }
             if (ctx.getStorageVerificationPolicy() == StorageVerificationPolicy.DB_RECORD_EXISTS
                     || checkLocationsOfInstance(ctx, retrCtx, inst)) {
                 eventInfo.ensureSequence(Tag.ReferencedSOPSequence, retrCtx.getNumberOfMatches())
@@ -387,8 +409,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
             } else {
                 eventInfo.ensureSequence(Tag.FailedSOPSequence, retrCtx.getNumberOfMatches())
                         .add(failedSOP(cuid, iuid, Status.ProcessingFailure));
-                if (failures != null) {
-                    failures[0]++;
+                if (seriesResult != null) {
+                    seriesResult.failures++;
                 }
             }
             if (studyInstanceUIDs.isEmpty()) {
@@ -610,5 +632,10 @@ public class StgCmtManagerImpl implements StgCmtManager {
     @Override
     public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         return ejb.countTasks(queueTaskQueryParam, stgVerTaskQueryParam);
+    }
+
+    private static class SeriesResult {
+        public int failures;
+        public int size;
     }
 }

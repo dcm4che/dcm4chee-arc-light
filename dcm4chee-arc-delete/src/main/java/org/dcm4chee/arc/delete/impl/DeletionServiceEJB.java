@@ -558,14 +558,12 @@ public class DeletionServiceEJB {
             return false;
         }
         calculateMissingSeriesQueryAttributes(seriesPk);
-        long size = 0L;
-        Set<String> iuids = new HashSet<>();
+        Map<String,Long> sizeOfInst = new HashMap<>();
         for (Location location : locations) {
             switch (location.getObjectType()) {
                 case DICOM_FILE:
-                    if (iuids.add(location.getInstance().getSopInstanceUID())) {
-                        size += location.getSize();
-                    }
+                    sizeOfInst.merge(location.getInstance().getSopInstanceUID(), location.getSize(),
+                            (v1,v2) -> Math.max(v1, v2));
                     em.remove(location);
                     em.remove(location.getInstance());
                     break;
@@ -575,7 +573,7 @@ public class DeletionServiceEJB {
                     break;
             }
         }
-        series.setSize(size);
+        series.setSize(sizeOfInst.values().stream().mapToLong(Long::longValue).sum());
         series.setInstancePurgeTime(null);
         series.setInstancePurgeState(Series.InstancePurgeState.PURGED);
         return true;
