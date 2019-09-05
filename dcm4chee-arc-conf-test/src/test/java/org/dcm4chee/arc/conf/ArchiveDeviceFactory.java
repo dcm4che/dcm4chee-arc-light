@@ -1117,7 +1117,7 @@ class ArchiveDeviceFactory {
     static final String CALC_STUDY_SIZE_EXPORTER_ID = "CalculateStudySize";
     static final String CALC_STUDY_SIZE_EXPORTER_DESC = "Calculate Study Size";
     static final URI CALC_STUDY_SIZE_EXPORTER_URI = URI.create("study-size:dummyPath");
-    static final Duration CALC_STUDY_SIZE_DELAY = Duration.valueOf("PT5M");
+    static final Duration CALC_STUDY_SIZE_DELAY = Duration.valueOf("PT6M");
 
     static final String CALC_QUERY_ATTRS_EXPORTER_ID = "CalculateQueryAttributes";
     static final String CALC_QUERY_ATTRS_EXPORTER_DESC = "Calculate Query Attributes";

@@ -1480,7 +1480,7 @@ dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
 
 dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: CalculateStudySize
-dcmDuration: PT5M
+dcmDuration: PT6M
 dcmEntity: Study
 objectClass: dcmExportRule
 cn: Calculate Study Size
