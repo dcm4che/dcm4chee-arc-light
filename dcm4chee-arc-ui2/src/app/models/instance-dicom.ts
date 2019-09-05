@@ -16,6 +16,7 @@ export class InstanceDicom {
     private _views:any[];
     private _view:number;
     private _selected:boolean;
+    private _limit:number;
 
     constructor(
         series:SeriesDicom,
@@ -28,6 +29,7 @@ export class InstanceDicom {
         gspsQueryParams:GSPSQueryParams[],
         views:any[],
         view:number,
+        limit?:number,
         showAttributes?:boolean,
         showFileAttributes?:boolean,
         selected?:boolean
@@ -45,6 +47,7 @@ export class InstanceDicom {
         this._showAttributes = showAttributes || false;
         this._showFileAttributes = showFileAttributes || false;
         this._selected = selected || false;
+        this._limit = limit || 20;
     }
 
     get series(): SeriesDicom {
@@ -149,5 +152,13 @@ export class InstanceDicom {
 
     set selected(value: boolean) {
         this._selected = value;
+    }
+
+    get limit(): number {
+        return this._limit;
+    }
+
+    set limit(value: number) {
+        this._limit = value;
     }
 }

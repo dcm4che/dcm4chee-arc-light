@@ -754,7 +754,7 @@ export class StudyComponent implements OnInit{
                     this.getStudies(filterModel);
                 }
                 if(mode === "prev" && filterModel.offset > 0){
-                    filterModel.offset = filterModel.filterModel.offset - this._filter.filterModel.offset;
+                    filterModel.offset = filterModel.offset - this._filter.filterModel.offset;
                     this.getStudies(filterModel);
                 }
             }
@@ -773,6 +773,7 @@ export class StudyComponent implements OnInit{
         this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
             .subscribe(res => {
                 this.patients = [];
+                this._filter.filterModel.offset = filterModel.offset;
                 if(res){
                     this.setTopToTableHeder();
                     let index = 0;
@@ -807,7 +808,6 @@ export class StudyComponent implements OnInit{
                 }else{
                     this.appService.showMsg("No Studies found!");
                 }
-                this._filter.filterModel.offset = filterModel.offset;
                 this.cfpLoadingBar.complete();
                 console.log("this.patients", this.patients);
             }, err => {
@@ -851,7 +851,6 @@ export class StudyComponent implements OnInit{
                     // StudiesService.trim(this);
                     study.showSeries = true;
                 }
-                this.cfpLoadingBar.complete();
             }else{
                 this.appService.setMessage( {
                     'title': 'Info',
@@ -859,6 +858,7 @@ export class StudyComponent implements OnInit{
                     'status': 'info'
                 });
             }
+            this.cfpLoadingBar.complete();
         },(err)=>{
                 j4care.log("Something went wrong on search", err);
                 this.httpErrorHandler.handleError(err);
@@ -896,7 +896,8 @@ export class StudyComponent implements OnInit{
                         numberOfFrames,
                         gspsQueryParams,
                         this.service.createArray(video || numberOfFrames || gspsQueryParams.length || 1),
-                        1
+                        1,
+                        this._filter.filterModel.limit || 20
                     )
                 });
                 console.log(series);

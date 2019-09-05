@@ -32,6 +32,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     @Input() doNotSave;
     @Output() submit  = new EventEmitter();
     @Output() onChange  = new EventEmitter();
+    @Input() defaultSubmitId:string;
     dialogRef: MatDialogRef<any>;
     cssBlockClass = '';
     hideLoader = false;
@@ -100,6 +101,14 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
            }
         }
     }
+
+    onKeyUp(e){
+        console.log("e",e.code);
+        if(e.keyCode === 13){
+            this.submitEmit(this.defaultSubmitId);
+        }
+    }
+
     submitEmit(id){
         this.model = j4care.clearEmptyObject(this.model);
       if(id){
@@ -110,6 +119,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     }
     filterChange(test){
         this.onChange.emit(this.model);
+
     }
     clear(){
         // this.model = {};

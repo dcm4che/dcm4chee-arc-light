@@ -3,7 +3,7 @@
         <i class="fa fa-circle-o-notch fa-spin"></i>
     </div>
 </div>
-<div [hidden]="!hideLoader"  class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()" >
+<div [hidden]="!hideLoader"  class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()"  (keyup)="onKeyUp($event)">
     <div class="filter_template_function">
         <span class="clearform_button" *ngIf="showFilterButtons && !hideClearButtons">
             <ul class="buttons">

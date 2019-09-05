@@ -158,4 +158,11 @@ $pink:rgba(82, 36, 88, 0.85);
 
     }
   }
+  .td_with_centered_child{
+    text-align: center;
+    width: 100%;
+    .centered_child{
+      display: inline-block;
+    }
+  }
 }

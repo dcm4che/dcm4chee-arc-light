@@ -170,8 +170,28 @@
                                     </attribute-list>
                                 </div>
                             </div>
+                            <div class="tr" *ngIf="serie.instances && serie.instances.length > 0 && serie.instances.length > serie.instances[0].limit">
+                                <div class="instance_block table_item">
+                                    <div class="td td_with_centered_child">
+                                        <div class="centered_child">
+                                            <button title="Preview page of instances" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                            <button title="Next page of instances" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!--4:END;-->
+                    </div>
+                    <div class="tr" *ngIf="study.series && study.series.length > 0 && study.series.length > study.series[0].limit">
+                        <div class="instance_block table_item">
+                            <div class="td td_with_centered_child">
+                                <div class="centered_child">
+                                    <button title="Preview page of series" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                    <button title="Next page of series" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!--3:END;-->
