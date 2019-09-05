@@ -77,6 +77,7 @@ import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -292,14 +293,15 @@ public class StgCmtEJB {
         if (storageVerificationTask.getStorageIDsAsString() != null)
             predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.storageIDs),
                     storageVerificationTask.getStorageIDsAsString()));
-        Iterator<Long> iterator = em.createQuery(q
+        try (Stream<Long> resultStream = em.createQuery(q
                 .where(predicates.toArray(new Predicate[0]))
                 .select(stgVerTask.get(StorageVerificationTask_.pk)))
-                .getResultStream()
-                .iterator();
-        if (iterator.hasNext()) {
-            LOG.info("Previous {} found - suppress duplicate storage verification", iterator.next());
-            return true;
+                .getResultStream()) {
+            Optional<Long> prev = resultStream.findFirst();
+            if (prev.isPresent()) {
+                LOG.info("Previous {} found - suppress duplicate storage verification", prev.get());
+                return true;
+            }
         }
         return false;
     }
