@@ -285,7 +285,7 @@ export class StudyComponent implements OnInit{
             }
             if(id.action === "toggle_instances"){
                 if(!model.instances){
-                    this.getInstances(model);
+                    this.getInstances(model, 0);
                 }else{
                     model.showInstances = !model.showInstances;
                 }
@@ -732,6 +732,21 @@ export class StudyComponent implements OnInit{
         }
         return filter;
     }
+
+    onSubPaginationClick(e){
+        console.log("e",e);
+        if(e.level === "instance"){
+            console.log("e.object",e.object);
+            if(e.direction === "next"){
+                this.getInstances(e.object,e.object.instances[0].offset + e.object.instances[0].limit);
+            }
+            if(e.direction === "prev"){
+                this.getInstances(e.object,e.object.instances[0].offset - e.object.instances[0].limit);
+            }
+
+        }
+    }
+
     getFilterClone():any{
         let filterModel =  _.clone(this._filter.filterModel);
         delete filterModel.webApp;
@@ -866,55 +881,63 @@ export class StudyComponent implements OnInit{
         });
     }
 
-    getInstances(series:SeriesDicom){
-        console.log('in query Instances serie=', series);
+    getInstances(series:SeriesDicom, offset){
+        // console.log('in query Instances serie=', series);
         this.cfpLoadingBar.start();
-        if (series.offset < 0) series.offset = 0;
+        // if (series.offset < 0) series.offset = 0;
+        if (offset < 0) offset = 0;
         // let callingAet = new Aet(this._filter.filterModel.aet);
         let filters = this.getFilterClone();
         if(filters.limit){
             filters.limit++;
         }
+        filters["offset"] = offset;
         filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'InstanceNumber';
         this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this.studyWebService.selectedWebService)
             .subscribe((res)=>{
-            if (res){
-                series.instances = res.map((attrs, index) => {
-                    let numberOfFrames = j4care.valueOf(attrs['00280008']),
-                        gspsQueryParams:GSPSQueryParams[] = this.service.createGSPSQueryParams(attrs),
-                        video = this.service.isVideo(attrs),
-                        image = this.service.isImage(attrs);
-                    return new InstanceDicom(
-                        series,
-                        series.offset + index,
-                        attrs,
-                        new WadoQueryParams(attrs['0020000D'].Value[0],attrs['0020000E'].Value[0], attrs['00080018'].Value[0]),
-                        video,
-                        image,
-                        numberOfFrames,
-                        gspsQueryParams,
-                        this.service.createArray(video || numberOfFrames || gspsQueryParams.length || 1),
-                        1,
-                        this._filter.filterModel.limit || 20
-                    )
-                });
-                console.log(series);
-                console.log(this.patients);
-                series.showInstances = true;
-            }else{
-                series.instances = [];
-                if (series.moreInstances = (series.instances.length > this._filter.filterModel.limit)) {
-                    series.instances.pop();
-                    this.appService.setMessage( {
-                        'title': 'Info',
-                        'text': 'No matching Instancess found!',
-                        'status': 'info'
+                if (res){
+                    let hasMore = res.length > this._filter.filterModel.limit;
+                    series.instances = res.map((attrs, index) => {
+                        let numberOfFrames = j4care.valueOf(attrs['00280008']),
+                            gspsQueryParams:GSPSQueryParams[] = this.service.createGSPSQueryParams(attrs),
+                            video = this.service.isVideo(attrs),
+                            image = this.service.isImage(attrs);
+                        return new InstanceDicom(
+                            series,
+                            offset + index,
+                            attrs,
+                            new WadoQueryParams(attrs['0020000D'].Value[0],attrs['0020000E'].Value[0], attrs['00080018'].Value[0]),
+                            video,
+                            image,
+                            numberOfFrames,
+                            gspsQueryParams,
+                            this.service.createArray(video || numberOfFrames || gspsQueryParams.length || 1),
+                            1,
+                            this._filter.filterModel.limit || 20,
+                            hasMore,
+                            hasMore || offset > 0
+                        )
                     });
+                    if(hasMore){
+                        series.instances.pop();
+                    }
+                    console.log(series);
+                    console.log(this.patients);
+                    series.showInstances = true;
+                }else{
+                    series.instances = [];
+                    if (series.moreInstances = (series.instances.length > this._filter.filterModel.limit)) {
+                        series.instances.pop();
+                        this.appService.setMessage( {
+                            'title': 'Info',
+                            'text': 'No matching Instancess found!',
+                            'status': 'info'
+                        });
+                    }
                 }
-            }
-            this.cfpLoadingBar.complete();
+                this.cfpLoadingBar.complete();
         },(err)=>{
                 j4care.log("Something went wrong on search", err);
                 this.httpErrorHandler.handleError(err);

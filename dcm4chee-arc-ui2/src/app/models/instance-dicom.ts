@@ -17,6 +17,8 @@ export class InstanceDicom {
     private _view:number;
     private _selected:boolean;
     private _limit:number;
+    private _hasMore:boolean;
+    private _showPaginations:boolean;
 
     constructor(
         series:SeriesDicom,
@@ -30,6 +32,8 @@ export class InstanceDicom {
         views:any[],
         view:number,
         limit?:number,
+        hasMore?:boolean,
+        showPaginations?:boolean,
         showAttributes?:boolean,
         showFileAttributes?:boolean,
         selected?:boolean
@@ -48,6 +52,8 @@ export class InstanceDicom {
         this._showFileAttributes = showFileAttributes || false;
         this._selected = selected || false;
         this._limit = limit || 20;
+        this._hasMore = hasMore || false;
+        this._showPaginations = showPaginations || false;
     }
 
     get series(): SeriesDicom {
@@ -160,5 +166,23 @@ export class InstanceDicom {
 
     set limit(value: number) {
         this._limit = value;
+    }
+
+
+    get hasMore(): boolean {
+        return this._hasMore;
+    }
+
+    set hasMore(value: boolean) {
+        this._hasMore = value;
+    }
+
+
+    get showPaginations(): boolean {
+        return this._showPaginations;
+    }
+
+    set showPaginations(value: boolean) {
+        this._showPaginations = value;
     }
 }

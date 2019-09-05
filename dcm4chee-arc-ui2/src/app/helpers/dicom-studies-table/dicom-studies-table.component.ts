@@ -1,9 +1,10 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {DicomTableSchema, TableSchemaConfig} from "./dicom-studies-table.interfaces";
 import {PatientDicom} from "../../models/patient-dicom";
 import * as _ from "lodash";
 import {j4care} from "../j4care.service";
 import {StudyWebService} from "../../study/study/study-web-service.model";
+import {DicomLevel, PaginationDirection} from "../../interfaces";
 
 @Component({
   selector: 'dicom-studies-table',
@@ -17,6 +18,7 @@ export class DicomStudiesTableComponent implements OnInit {
     @Input() patients:PatientDicom[];
     @Input() title:string;
     @Input() studyWebService:StudyWebService;
+    @Output() onPaginationClick = new EventEmitter();
 
     hover_mode = 'patient';
     active_td = '';
@@ -47,5 +49,13 @@ export class DicomStudiesTableComponent implements OnInit {
     set config(config: TableSchemaConfig) {
         config.offset = config.offset || 0;
         this._config = config;
+    }
+
+    paginationClick(object, level:DicomLevel, direction:PaginationDirection){
+        this.onPaginationClick.emit({
+            object:object,
+            level:level,
+            direction:direction
+        });
     }
 }

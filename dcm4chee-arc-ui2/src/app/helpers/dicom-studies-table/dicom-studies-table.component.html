@@ -137,7 +137,7 @@
                                          (mouseenter)="active_td = instance_table.elementId"
                                          tooltip="{{ instance_table.type === 'value' ? _.get(instance.attrs, instance_table.pathToValue) : (instance_table.type === 'pipe' ? (instance.attrs | dynamicPipe:instance_table.pipe):'')}}"
                                     >
-                                        <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
+                                        <ng-container *ngSwitchCase="'index'">{{instance.offset + 1}}</ng-container>
                                         <ng-container *ngSwitchCase="'actions'">
                                             <ng-container *ngFor="let action of instance_table.actions">
                                                 <a *ngIf="(!action.showIf || action.showIf(instance))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
@@ -170,12 +170,22 @@
                                     </attribute-list>
                                 </div>
                             </div>
-                            <div class="tr" *ngIf="serie.instances && serie.instances.length > 0 && serie.instances.length > serie.instances[0].limit">
+                            <div class="tr" *ngIf="serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations">
                                 <div class="instance_block table_item">
                                     <div class="td td_with_centered_child">
                                         <div class="centered_child">
-                                            <button title="Preview page of instances" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                                            <button title="Next page of instances" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                            <button
+                                                    title="Preview page of instances"
+                                                    class="transparent_button"
+                                                    (click)="paginationClick(serie, 'instance', 'prev')"
+                                                    [disabled]="serie.instances[0].offset === 0"
+                                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                            <button
+                                                    title="Next page of instances"
+                                                    class="transparent_button"
+                                                    (click)="paginationClick(serie, 'instance', 'next')"
+                                                    [disabled]="!serie.instances[0].hasMore"
+                                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
                                         </div>
                                     </div>
                                 </div>
@@ -183,13 +193,23 @@
                         </div>
                         <!--4:END;-->
                     </div>
-                    <div class="tr" *ngIf="study.series && study.series.length > 0 && study.series.length > study.series[0].limit">
-                        <div class="instance_block table_item">
+                    <div class="tr" *ngIf="study.series && study.series.length > 0  && (study.series[0].offset > 0 || study.series.length === study.series[0].limit)">
+                        <div class="series_block table_item">
                             <div class="td td_with_centered_child">
                                 <div class="centered_child">
-                                    <button title="Preview page of series" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                                    <button title="Next page of series" class="transparent_button"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                    <button title="Preview page of series" class="transparent_button" (click)="paginationClick(study, 'series', 'prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                    <button title="Next page of series" class="transparent_button" (click)="paginationClick(study, 'series', 'next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies.length > patient.studies[0].limit">
+                    <div class="instance_block table_item">
+                        <div class="td td_with_centered_child">
+                            <div class="centered_child">
+                                <button title="Preview page of series" class="transparent_button" (click)="paginationClick(patient, 'study', 'prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                <button title="Next page of series" class="transparent_button" (click)="paginationClick(patient, 'study', 'next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
                             </div>
                         </div>
                     </div>
