@@ -172,8 +172,9 @@ public class PR2KOExporter extends AbstractExporter {
 
     private Attributes pr2ko(Attributes prAttrs) {
         Attributes koAttrs = new Attributes(prAttrs, patStudyTags);
-        koAttrs.setDate(Tag.InstanceCreationDateAndTime, new Date());
-        koAttrs.setDate(Tag.ContentDateAndTime, prAttrs.getDate(Tag.PresentationCreationDateAndTime));
+        Date now = new Date();
+        koAttrs.setDate(Tag.InstanceCreationDateAndTime, now);
+        koAttrs.setDate(Tag.ContentDateAndTime, contentDateAndTime(prAttrs, now));
         koAttrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
         koAttrs.setString(Tag.SOPInstanceUID, VR.UI,
                 UIDUtils.createNameBasedUID(prAttrs.getString(Tag.SOPInstanceUID).getBytes()));
@@ -192,6 +193,17 @@ public class PR2KOExporter extends AbstractExporter {
         addContentSeq(koAttrs, prAttrs);
         addCurrentRequestedProcedureEvidenceSeq(koAttrs, prAttrs);
         return koAttrs;
+    }
+
+    private static Date contentDateAndTime(Attributes prAttrs, Date now) {
+        Date date = prAttrs.getDate(Tag.PresentationCreationDateAndTime);
+        if (date == null) {
+            date = prAttrs.getDate(Tag.ContentDateAndTime);
+            if (date == null) {
+                date = now;
+            }
+        }
+        return date;
     }
 
     private static void setString(Attributes attrs, Map.Entry<String, String> entry, Attributes prAttrs) {
