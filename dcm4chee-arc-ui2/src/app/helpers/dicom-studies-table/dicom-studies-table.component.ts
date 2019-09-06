@@ -19,6 +19,7 @@ export class DicomStudiesTableComponent implements OnInit {
     @Input() title:string;
     @Input() studyWebService:StudyWebService;
     @Output() onPaginationClick = new EventEmitter();
+    @Input() searchList;
 
     hover_mode = 'patient';
     active_td = '';

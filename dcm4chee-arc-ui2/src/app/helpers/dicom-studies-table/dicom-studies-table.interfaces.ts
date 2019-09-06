@@ -67,6 +67,7 @@ export interface TableSchemaConfig {
     cssTrClass?:string;
     headerTop?:string;
     offset?:number;
+    showCheckboxes?:boolean;
 }
 
 export class DynamicPipe{

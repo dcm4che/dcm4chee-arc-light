@@ -14,8 +14,8 @@
     <!--1:END;-->
 
     <!--Patient Table 1:-->
-    <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let patient of patients;let i = index">
-        <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'">
+    <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let patient of patients|searchDicom:searchList;let i = index">
+        <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'" [ngClass]="{'selected':patient.selected}">
             <div class="td"
                  *ngFor="let patient_table of tableSchema.patient"
                  [ngClass]="[config?.cssTdClass || '', patient_table.type || '']"
@@ -26,6 +26,10 @@
             >
                 <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
+<!--                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
+                        <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
+                        <span *ngIf="patient.selected" class="glyphicon glyphicon-check"></span>
+                    </button>-->
                     <ng-container *ngFor="let action of patient_table.actions">
                       <a class="pointer dicom_table_buttons" *ngIf="(!action.showIf || action.showIf(patient))" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
                           <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
@@ -36,6 +40,10 @@
                 <ng-container *ngSwitchCase="'actions-menu'">
                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                     <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
+                            <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
+                            <span *ngIf="patient.selected" class="glyphicon glyphicon-check"></span>
+                        </button>
                         <ng-container *ngFor="let action of patient_table.menu.actions">
                             <a *ngIf="(!action.showIf || action.showIf(patient))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
                                 <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
@@ -53,7 +61,7 @@
         <!--Studies 2:-->
         <div *ngIf="patient.showStudies" class="study_main_block">
             <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let study of patient.studies;let i = index">
-                <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'">
+                <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'" [ngClass]="{'selected':study.selected}">
                     <div class="td"
                          *ngFor="let studies_table of tableSchema.studies"
                          [ngClass]="[config?.cssTdClass || '', studies_table.type || '']"
@@ -64,6 +72,10 @@
                     >
                         <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
+<!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
+                                <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
+                                <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
+                            </button>-->
                             <ng-container *ngFor="let action of studies_table.actions">
                                 <a *ngIf="(!action.showIf || action.showIf(study))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
@@ -74,6 +86,10 @@
                         <ng-container *ngSwitchCase="'actions-menu'">
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                             <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
+                                    <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
+                                    <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
+                                </button>
                                 <ng-container *ngFor="let action of studies_table.menu.actions">
                                     <a *ngIf="(!action.showIf || action.showIf(study))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
@@ -90,7 +106,7 @@
                 <!--Series 3:-->
                 <div *ngIf="study.showSeries" class="series_main_block">
                     <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let serie of study.series;let i = index">
-                        <div class="series_block table_item" (mouseenter)="hover_mode = 'series'">
+                        <div class="series_block table_item" (mouseenter)="hover_mode = 'series'" [ngClass]="{'selected':serie.selected}">
                             <div class="td"
                                  *ngFor="let serie_table of tableSchema.series"
                                  [ngClass]="[config?.cssTdClass || '', serie_table.type || '']"
@@ -99,8 +115,12 @@
                                  (mouseenter)="active_td = serie_table.elementId"
                                  tooltip="{{ serie_table.type === 'value' ? _.get(serie.attrs,serie_table.pathToValue) : (serie_table.type === 'pipe' ? (serie.attrs | dynamicPipe:serie_table.pipe):'')}}"
                             >
-                                <ng-container *ngSwitchCase="'index'">{{i + 1}}</ng-container>
+                                <ng-container *ngSwitchCase="'index'">{{serie.offset + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
+<!--                                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
+                                        <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
+                                        <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
+                                    </button>-->
                                     <ng-container *ngFor="let action of serie_table.actions">
                                         <a *ngIf="(!action.showIf || action.showIf(serie))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
                                             <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
@@ -111,6 +131,10 @@
                                 <ng-container *ngSwitchCase="'actions-menu'">
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                     <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
+                                            <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
+                                            <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
+                                        </button>
                                         <ng-container *ngFor="let action of serie_table.menu.actions">
                                             <a *ngIf="(!action.showIf || action.showIf(serie))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
                                                 <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
@@ -128,7 +152,7 @@
                         <!--Instance 4:-->
                         <div *ngIf="serie.showInstances" class="instance_main_block">
                             <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let instance of serie.instances;let i = index">
-                                <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'">
+                                <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'" [ngClass]="{'selected':instance.selected}">
                                     <div class="td"
                                          *ngFor="let instance_table of tableSchema.instance"
                                          [ngClass]="[config?.cssTdClass || '', instance_table.type || '']"
@@ -138,6 +162,12 @@
                                          tooltip="{{ instance_table.type === 'value' ? _.get(instance.attrs, instance_table.pathToValue) : (instance_table.type === 'pipe' ? (instance.attrs | dynamicPipe:instance_table.pipe):'')}}"
                                     >
                                         <ng-container *ngSwitchCase="'index'">{{instance.offset + 1}}</ng-container>
+<!--                                        <ng-container *ngSwitchCase="'selected-checkbox'">
+                                            <a class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
+                                                <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
+                                            </a>
+                                        </ng-container>-->
                                         <ng-container *ngSwitchCase="'actions'">
                                             <ng-container *ngFor="let action of instance_table.actions">
                                                 <a *ngIf="(!action.showIf || action.showIf(instance))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
@@ -149,6 +179,10 @@
                                         <ng-container *ngSwitchCase="'actions-menu'">
                                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                             <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
+                                                    <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                    <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
+                                                </button>
                                                 <ng-container *ngFor="let action of instance_table.menu.actions">
                                                     <a *ngIf="(!action.showIf || action.showIf(instance))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
                                                         <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
@@ -193,27 +227,45 @@
                         </div>
                         <!--4:END;-->
                     </div>
-                    <div class="tr" *ngIf="study.series && study.series.length > 0  && (study.series[0].offset > 0 || study.series.length === study.series[0].limit)">
+                    <div class="tr" *ngIf="study.series && study.series.length > 0 && study.series[0].showPaginations">
                         <div class="series_block table_item">
                             <div class="td td_with_centered_child">
                                 <div class="centered_child">
-                                    <button title="Preview page of series" class="transparent_button" (click)="paginationClick(study, 'series', 'prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                                    <button title="Next page of series" class="transparent_button" (click)="paginationClick(study, 'series', 'next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                    <button
+                                            title="Preview page of series"
+                                            class="transparent_button"
+                                            (click)="paginationClick(study, 'series', 'prev')"
+                                            [disabled]="study.series[0].offset === 0"
+                                    ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                    <button
+                                            title="Next page of series"
+                                            class="transparent_button"
+                                            (click)="paginationClick(study, 'series', 'next')"
+                                            [disabled]="!study.series[0].hasMore"
+                                    ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies.length > patient.studies[0].limit">
+<!--                <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies.length > patient.studies[0].limit">
                     <div class="instance_block table_item">
                         <div class="td td_with_centered_child">
                             <div class="centered_child">
-                                <button title="Preview page of series" class="transparent_button" (click)="paginationClick(patient, 'study', 'prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                                <button title="Next page of series" class="transparent_button" (click)="paginationClick(patient, 'study', 'next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                <button
+                                        title="Preview page of series"
+                                        class="transparent_button"
+                                        (click)="paginationClick(patient, 'study', 'prev')"
+                                ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                <button
+                                        title="Next page of series"
+                                        class="transparent_button"
+                                        (click)="paginationClick(patient, 'study', 'next')"
+                                ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 <!--3:END;-->
             </div>
         </div>

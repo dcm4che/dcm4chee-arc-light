@@ -108,6 +108,7 @@ import { MetricsComponent } from './monitoring/metrics/metrics.component';
 import {MetricsService} from "./monitoring/metrics/metrics.service";
 import { WebAppsListComponent } from './configuration/web-apps-list/web-apps-list.component';
 import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.service";
+import {SearchDicomPipe} from "./pipes/search-dicom.pipe";
 
 @NgModule({
     declarations: [
@@ -128,6 +129,7 @@ import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.se
         AttributeListComponent,
         TrimPipe,
         SearchPipe,
+        SearchDicomPipe,
         KeysPipe,
         IodFormGeneratorComponent,
         TooltipDirective,

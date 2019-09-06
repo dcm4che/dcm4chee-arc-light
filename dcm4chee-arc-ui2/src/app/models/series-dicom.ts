@@ -10,11 +10,15 @@ export class SeriesDicom {
     private _showAttributes:boolean;
     private _selected:boolean;
     private _showInstances:boolean;
+    private _hasMore:boolean;
+    private _showPaginations:boolean;
 
     constructor(
         study:StudyDicom,
         attrs:any[],
         offset?:number,
+        hasMore?:boolean,
+        showPaginations?:boolean,
         instances?:InstanceDicom[],
         moreInstances?:boolean,
         showAttributes?:boolean,
@@ -24,6 +28,9 @@ export class SeriesDicom {
         this._study = study;
         this._attrs = attrs;
         this._offset = offset || 0;
+        this._hasMore = hasMore || false;
+        this._showPaginations = showPaginations || false;
+        this._showInstances = showInstances || false;
         this._instances = instances;
         this._moreInstances = moreInstances || false;
         this._showAttributes = showAttributes || false;
@@ -53,6 +60,22 @@ export class SeriesDicom {
 
     set attrs(value: any[]) {
         this._attrs = value;
+    }
+
+    get hasMore(): boolean {
+        return this._hasMore;
+    }
+
+    set hasMore(value: boolean) {
+        this._hasMore = value;
+    }
+
+    get showPaginations(): boolean {
+        return this._showPaginations;
+    }
+
+    set showPaginations(value: boolean) {
+        this._showPaginations = value;
     }
 
     get instances(): InstanceDicom[] {

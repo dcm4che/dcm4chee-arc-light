@@ -80,10 +80,25 @@
               ></dcm-drop-down>
             </div>
           </div>
+          <div class="filter_block">
+            <div class="line">
+              <dcm-drop-down
+                      [placeholder]="actionsSelections.placeholder"
+                      [options]="actionsSelections.options"
+                      [editable]="false"
+                      [(model)]="actionsSelections.model"
+                      [showSearchField]="false"
+                      [multiSelectMode]="false"
+                      (modelChange)="actionsSelectionsChanged($event)"
+                      [showStar]="false"
+              ></dcm-drop-down>
+              <input title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList" placeholder="Search current list">
+            </div>
+          </div>
         </div>
       </div>
     <div class="left_arrow arrow"  title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
     <div class="right_arrow arrow" title="Next page" *ngIf="patients" [ngClass]="{'active':moreStudies}" (click)="search('next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-    <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)"></dicom-studies-table>
+    <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
   </div>
 </div>

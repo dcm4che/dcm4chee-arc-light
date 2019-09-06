@@ -272,7 +272,8 @@ export class StudyService {
                     text:"Web App Service",
                     title:"Web App Service",
                     placeholder:"Web App Service",
-                    cssClass:'study_order'
+                    cssClass:'study_order',
+                    showSearchField:true
 
                 });
             }

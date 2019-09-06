@@ -153,7 +153,8 @@ export class StudyComponent implements OnInit{
     tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
         tableSchema:this.getSchema(),
         config:{
-            offset:0
+            offset:0,
+            showCheckboxes:false
         }
     };
     // studyDevice:StudyDevice;
@@ -178,12 +179,25 @@ export class StudyComponent implements OnInit{
         ],
         model:undefined
     };
+    actionsSelections = {
+        placeholder: "Actions for selections",
+        options:[
+            new SelectDropdown("export_object","Export selections", "Export selected studies, series or instances"),
+            new SelectDropdown("reject_object","Reject selections", "Reject selected studies, series or instances"),
+            new SelectDropdown("restore_object","Restore selections", "Restore selected studies, series or instances"),
+            new SelectDropdown("delete_object","Delete selections", "Delete selected studies, series or instances permanently"),
+            new SelectDropdown("toggle_checkboxes","Toggle checkboxes", "Toggle checkboxes for selection")
+        ],
+        model:undefined
+    };
     exporters;
     testShow = true;
     fixedHeader = false;
     patients:PatientDicom[] = [];
     moreStudies:boolean = false;
     queues;
+
+    searchCurrentList = '';
     @ViewChild('stickyHeader') stickyHeaderView: ElementRef;
 
     constructor(
@@ -262,6 +276,14 @@ export class StudyComponent implements OnInit{
             this.moreFunctionConfig.model = undefined;
         },1);
     }
+    actionsSelectionsChanged(e){
+        if(e === "toggle_checkboxes"){
+            this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
+        }
+        setTimeout(()=>{
+            this.actionsSelections.model = undefined;
+        },1);
+    }
     actions(id, model){
         console.log("id",id);
         console.log("model",model);
@@ -277,7 +299,7 @@ export class StudyComponent implements OnInit{
             }
             if(id.action === "toggle_series"){
                 if(!model.series){
-                    this.getSeries(model);
+                    this.getSeries(model, 0);
                 }else{
                     model.showSeries = !model.showSeries;
                 }
@@ -738,10 +760,20 @@ export class StudyComponent implements OnInit{
         if(e.level === "instance"){
             console.log("e.object",e.object);
             if(e.direction === "next"){
-                this.getInstances(e.object,e.object.instances[0].offset + e.object.instances[0].limit);
+                this.getInstances(e.object,e.object.instances[0].offset + this._filter.filterModel.limit);
             }
             if(e.direction === "prev"){
-                this.getInstances(e.object,e.object.instances[0].offset - e.object.instances[0].limit);
+                this.getInstances(e.object,e.object.instances[0].offset - this._filter.filterModel.limit);
+            }
+
+        }
+        if(e.level === "series"){
+            console.log("e.object",e.object);
+            if(e.direction === "next"){
+                this.getSeries(e.object,e.object.series[0].offset + this._filter.filterModel.limit);
+            }
+            if(e.direction === "prev"){
+                this.getSeries(e.object,e.object.series[0].offset - this._filter.filterModel.limit);
             }
 
         }
@@ -784,6 +816,7 @@ export class StudyComponent implements OnInit{
 
     getStudies(filterModel){
         this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
         filterModel['includefield'] = 'all';
         this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
             .subscribe(res => {
@@ -810,7 +843,11 @@ export class StudyComponent implements OnInit{
                             patient = new PatientDicom(patAttrs, [], false, true);
                             this.patients.push(patient);
                         }
-                        study = new StudyDicom(studyAttrs, patient, this._filter.filterModel.offset + index);
+                        study = new StudyDicom(
+                            studyAttrs,
+                            patient,
+                            this._filter.filterModel.offset + index
+                        );
                         patient.studies.push(study);
                     });
                     if (this.moreStudies = (res.length > this._filter.filterModel.limit)) {
@@ -831,12 +868,14 @@ export class StudyComponent implements OnInit{
                 this.cfpLoadingBar.complete();
             });
     }
-    getSeries(study:StudyDicom){
+    getSeries(study:StudyDicom, offset){
         console.log('in query sersies study=', study);
         this.cfpLoadingBar.start();
-        if (study.offset < 0) study.offset = 0;
-        // let callingAet = new Aet(this._filter.filterModel.aet);
         let filters = this.getFilterClone();
+
+        if (offset < 0) offset = 0;
+        filters["offset"] = offset;
+
         if(filters.limit){
             filters.limit++;
         }
@@ -846,6 +885,7 @@ export class StudyComponent implements OnInit{
         this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.studyWebService.selectedWebService)
             .subscribe((res)=>{
             if (res){
+                let hasMore = res.length > this._filter.filterModel.limit;
                 if (res.length === 0){
                     this.appService.setMessage( {
                         'title': 'Info',
@@ -856,9 +896,15 @@ export class StudyComponent implements OnInit{
                 }else{
 
                     study.series = res.map((attrs, index) =>{
-                        return new SeriesDicom(study, attrs, study.offset + index);
+                        return new SeriesDicom(
+                            study,
+                            attrs,
+                            offset + index,
+                            hasMore,
+                            hasMore || offset > 0
+                        );
                     });
-                    if (study.moreSeries = (study.series.length > this._filter.filterModel.limit)) {
+                    if (hasMore) {
                         study.series.pop();
                     }
                     console.log("study",study);

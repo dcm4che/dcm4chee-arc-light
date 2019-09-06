@@ -121,6 +121,9 @@ $pink:rgba(82, 36, 88, 0.85);
       box-shadow:  4px 3px 6px rgba(68, 68, 68, 0.57);
       z-index: 4;
       position: relative;
+      &.selected{
+        background:rgba(67, 139, 173, 0.88);
+      }
     }
     &.study_block{
       -webkit-box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
@@ -132,6 +135,9 @@ $pink:rgba(82, 36, 88, 0.85);
       padding-left: 13px;
       position: relative;
       z-index: 3;
+      &.selected{
+        background:rgba(67, 139, 173, 0.78);
+      }
     }
     &.series_block{
       -webkit-box-shadow:  1px 1px 8px 0px rgba(68, 68, 68, 0.7);
@@ -143,6 +149,9 @@ $pink:rgba(82, 36, 88, 0.85);
       padding-left: 30px;
       position: relative;
       z-index: 2;
+      &.selected{
+        background:rgba(67, 139, 173, 0.68);
+      }
 
     }
     &.instance_block{
@@ -155,6 +164,9 @@ $pink:rgba(82, 36, 88, 0.85);
       padding-left: 93px;
       position: relative;
       z-index: 1;
+      &.selected{
+        background:rgba(67, 139, 173, 0.58);
+      }
 
     }
   }
@@ -163,6 +175,16 @@ $pink:rgba(82, 36, 88, 0.85);
     width: 100%;
     .centered_child{
       display: inline-block;
+      button{
+        color: rgba(28, 36, 43, 0.85);
+        &:hover{
+          color:#1c242b;
+          cursor: pointer;
+        }
+      }
+      button[disabled], button[disabled]:hover{
+        color: rgba(28, 36, 43, 0.6);
+      }
     }
   }
 }
