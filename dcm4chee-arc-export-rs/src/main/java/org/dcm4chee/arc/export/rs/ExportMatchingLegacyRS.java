@@ -65,7 +65,7 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/studies")
     @Produces("application/json")
-    public Response exportMatchingStudies1(@PathParam("ExporterID") String exporterID) {
+    public Response exportMatchingStudies(@PathParam("ExporterID") String exporterID) {
         return exportMatching(exporterID, aet,
                 "exportMatchingStudies",
                 QueryRetrieveLevel2.STUDY,
@@ -76,7 +76,7 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/series")
     @Produces("application/json")
-    public Response exportMatchingSeries1(@PathParam("ExporterID") String exporterID) {
+    public Response exportMatchingSeries(@PathParam("ExporterID") String exporterID) {
         return exportMatching(exporterID, aet,
                 "exportMatchingSeries",
                 QueryRetrieveLevel2.SERIES,
@@ -87,7 +87,7 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
-    public Response exportMatchingSeriesOfStudy1(
+    public Response exportMatchingSeriesOfStudy(
             @PathParam("ExporterID") String exporterID,
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return exportMatching(exporterID, aet,
@@ -100,7 +100,7 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/instances")
     @Produces("application/json")
-    public Response exportMatchingInstances1(@PathParam("ExporterID") String exporterID) {
+    public Response exportMatchingInstances(@PathParam("ExporterID") String exporterID) {
         return exportMatching(exporterID, aet,
                 "exportMatchingInstances",
                 QueryRetrieveLevel2.IMAGE,
@@ -111,7 +111,7 @@ public class ExportMatchingLegacyRS extends ExportMatching {
     @POST
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
-    public Response exportMatchingInstancesOfStudy1(
+    public Response exportMatchingInstancesOfStudy(
             @PathParam("ExporterID") String exporterID,
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return exportMatching(exporterID, aet,
@@ -122,7 +122,7 @@ public class ExportMatchingLegacyRS extends ExportMatching {
 
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
-    public Response exportMatchingInstancesOfSeries1(
+    public Response exportMatchingInstancesOfSeries(
             @PathParam("ExporterID") String exporterID,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
