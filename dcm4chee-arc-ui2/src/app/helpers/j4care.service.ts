@@ -1157,4 +1157,39 @@ export class j4care {
         }
         return "";
     }
+
+    static changed(object, base, ignoreEmpty?:boolean) {
+        function changes(object, base) {
+            return _.transform(object, function(result, value, key) {
+                if (!_.isEqual(value, base[key])) {
+                    if(ignoreEmpty){
+                        if(_.isObject(value) && _.isObject(base[key])){
+                            result[key] = changes(value, base[key])
+                        }else{
+                           if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != "" && value != [""]){
+                                result[key] = value;
+                           }
+                        }
+                    }else{
+                        result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+                    }
+                }
+            });
+        }
+        return changes(object, base);
+    }
+
+    static diffObjects(object, base, ignoreEmpty?:boolean, splited?:boolean){
+        if(splited){
+            const first = j4care.changed(object,base,ignoreEmpty);
+            const second = j4care.changed(base, object, ignoreEmpty);
+            return {
+                first: first,
+                second: second,
+                diff:{...first,...second}
+            }
+        }else{
+            return _.mergeWith(j4care.changed(object,base,ignoreEmpty), j4care.changed(base, object, ignoreEmpty));
+        }
+    }
 }

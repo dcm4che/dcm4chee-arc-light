@@ -1075,4 +1075,19 @@ export class DeviceConfiguratorService{
             }
 
     }
+
+    /*
+    * @param key:string key of the element
+    * @param value:ay the new value of the element
+    * @param use:string[] references where the new value should be changed elsewhere
+    * */
+    setValueToReferences(value:any, use:string[]){
+        try{
+            use.forEach(ref=>{
+
+            })
+        }catch (e) {
+            j4care.log("Trying to update the new value in the device according to 'use' array, (device-cofigurator.service.ts)",e);
+        }
+    }
 }

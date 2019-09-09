@@ -442,4 +442,63 @@ describe('j4care', () => {
         expect(j4care.meyGetString(AETS1[0],"",undefined,":",true)).toBe(":")
         expect(j4care.meyGetString(AETS1[0],"","/",":",true)).toBe("/:")
     });
+
+    it("Should return diff object from two objects",()=>{
+        expect(j4care.diffObjects(
+            {
+                a:1,
+                b:2
+        },{
+                b:2,
+                a:1
+        })).toEqual({});
+
+        expect(j4care.diffObjects(
+            {
+                a:1,
+                b:2,
+                c:[]
+        },{
+                b:2,
+                a:1
+        })).toEqual({c:[]});
+
+        expect(j4care.diffObjects(
+            {
+                a:1,
+                b:2,
+                c:{}
+        },{
+                b:2,
+                a:1
+        },false)).toEqual({c:{}});
+
+        console.log("diff",j4care.diffObjects(
+            {
+                a:1,
+                b:2
+            },{
+                b:2,
+                a:1,
+                c:{}
+            }));
+        console.log("diff",j4care.diffObjects(
+            {
+                b:2,
+                a:1,
+                c:{}
+            },{
+                a:1,
+                b:2
+            }));
+        expect(j4care.diffObjects(
+            {
+                a:1,
+                b:2
+        },{
+                b:2,
+                a:1,
+                c:{}
+        },false)).toEqual({c:{}})
+    });
 });
