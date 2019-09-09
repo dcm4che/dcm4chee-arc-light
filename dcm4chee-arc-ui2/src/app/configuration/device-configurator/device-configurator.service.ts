@@ -1084,7 +1084,7 @@ export class DeviceConfiguratorService{
     setValueToReferences(value:any, use:string[]){
         try{
             use.forEach(ref=>{
-
+                //TODO set function need that's supports * instead of array index
             })
         }catch (e) {
             j4care.log("Trying to update the new value in the device according to 'use' array, (device-cofigurator.service.ts)",e);
