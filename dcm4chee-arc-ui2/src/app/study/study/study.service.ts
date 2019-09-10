@@ -641,6 +641,42 @@ export class StudyService {
                     pxWidth:40
                 }),
                 new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-unchecked',
+                                text:''
+                            },
+                            click:(e)=>{
+                                e.selected = !e.selected;
+                            },
+                            title:"Select",
+                            showIf:(e, config)=>{
+                                return config.showCheckboxes && !e.selected;
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-check',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.selected = !e.selected;
+                            },
+                            title:"Unselect",
+                            showIf:(e, config)=>{
+                                return config.showCheckboxes && e.selected;
+                            }
+                        }
+                    ],
+                    headerDescription:"Select",
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
                     type:"index",
                     header:'',
                     pathToValue:'',
@@ -655,6 +691,34 @@ export class StudyService {
                                 e.showMenu = !e.showMenu;
                             },
                             actions:[
+                                {
+                                    icon:{
+                                        tag:'span',
+                                        cssClass:'glyphicon glyphicon-unchecked',
+                                        text:''
+                                    },
+                                    click:(e)=>{
+                                        e.selected = !e.selected;
+                                    },
+                                    title:"Select",
+                                    showIf:(e, config)=>{
+                                        return !config.showCheckboxes && !e.selected;
+                                    }
+                                },{
+                                    icon:{
+                                        tag:'span',
+                                        cssClass:'glyphicon glyphicon-check',
+                                        text:''
+                                    },
+                                    click:(e)=>{
+                                        console.log("e",e);
+                                        e.selected = !e.selected;
+                                    },
+                                    title:"Unselect",
+                                    showIf:(e, config)=>{
+                                        return !config.showCheckboxes && e.selected;
+                                    }
+                                },
                                 {
                                     icon:{
                                         tag:'span',
@@ -846,6 +910,42 @@ export class StudyService {
                     calculatedWidth:"6%"
                 }),
                 new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-unchecked',
+                                text:''
+                            },
+                            click:(e)=>{
+                                e.selected = !e.selected;
+                            },
+                            title:"Select",
+                            showIf:(e, config)=>{
+                                return config.showCheckboxes && !e.selected;
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-check',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.selected = !e.selected;
+                            },
+                            title:"Unselect",
+                            showIf:(e, config)=>{
+                                return config.showCheckboxes && e.selected;
+                            }
+                        }
+                    ],
+                    headerDescription:"Select",
+                    pxWidth:40
+                }),
+                new TableSchemaElement({
                     type:"index",
                     header:'',
                     pathToValue:'',
@@ -860,6 +960,34 @@ export class StudyService {
                             e.showMenu = !e.showMenu;
                         },
                         actions:[
+                            {
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-unchecked',
+                                    text:''
+                                },
+                                click:(e)=>{
+                                    e.selected = !e.selected;
+                                },
+                                title:"Select",
+                                showIf:(e, config)=>{
+                                    return !config.showCheckboxes && !e.selected;
+                                }
+                            },{
+                                icon:{
+                                    tag:'span',
+                                    cssClass:'glyphicon glyphicon-check',
+                                    text:''
+                                },
+                                click:(e)=>{
+                                    console.log("e",e);
+                                    e.selected = !e.selected;
+                                },
+                                title:"Unselect",
+                                showIf:(e, config)=>{
+                                    return !config.showCheckboxes && e.selected;
+                                }
+                            },
                             {
                                 icon:{
                                     tag:'span',

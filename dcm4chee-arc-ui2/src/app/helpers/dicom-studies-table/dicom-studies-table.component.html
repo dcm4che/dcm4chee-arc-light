@@ -31,7 +31,7 @@
                         <span *ngIf="patient.selected" class="glyphicon glyphicon-check"></span>
                     </button>-->
                     <ng-container *ngFor="let action of patient_table.actions">
-                      <a class="pointer dicom_table_buttons" *ngIf="(!action.showIf || action.showIf(patient))" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
+                      <a class="pointer dicom_table_buttons" *ngIf="(!action.showIf || action.showIf(patient, config))" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
                           <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                           <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                       </a>
@@ -40,12 +40,12 @@
                 <ng-container *ngSwitchCase="'actions-menu'">
                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                     <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
+<!--                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
                             <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
                             <span *ngIf="patient.selected" class="glyphicon glyphicon-check"></span>
-                        </button>
+                        </button>-->
                         <ng-container *ngFor="let action of patient_table.menu.actions">
-                            <a *ngIf="(!action.showIf || action.showIf(patient))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
+                            <a *ngIf="(!action.showIf || action.showIf(patient, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient)" title="{{action.title || ''}}">
                                 <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                             </a>
@@ -77,7 +77,7 @@
                                 <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
                             </button>-->
                             <ng-container *ngFor="let action of studies_table.actions">
-                                <a *ngIf="(!action.showIf || action.showIf(study))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
+                                <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                                 </a>
@@ -86,12 +86,12 @@
                         <ng-container *ngSwitchCase="'actions-menu'">
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                             <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
+<!--                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
                                     <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
                                     <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
-                                </button>
+                                </button-->
                                 <ng-container *ngFor="let action of studies_table.menu.actions">
-                                    <a *ngIf="(!action.showIf || action.showIf(study))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
+                                    <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                     </a>
@@ -122,7 +122,7 @@
                                         <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
                                     </button>-->
                                     <ng-container *ngFor="let action of serie_table.actions">
-                                        <a *ngIf="(!action.showIf || action.showIf(serie))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
+                                        <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
                                             <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                             <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                                         </a>
@@ -131,12 +131,12 @@
                                 <ng-container *ngSwitchCase="'actions-menu'">
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                     <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
+<!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
                                             <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
                                             <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
-                                        </button>
+                                        </button>-->
                                         <ng-container *ngFor="let action of serie_table.menu.actions">
-                                            <a *ngIf="(!action.showIf || action.showIf(serie))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
+                                            <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie)" title="{{action.title || ''}}">
                                                 <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                             </a>
@@ -170,7 +170,7 @@
                                         </ng-container>-->
                                         <ng-container *ngSwitchCase="'actions'">
                                             <ng-container *ngFor="let action of instance_table.actions">
-                                                <a *ngIf="(!action.showIf || action.showIf(instance))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
+                                                <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
                                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                                                 </a>
@@ -179,12 +179,12 @@
                                         <ng-container *ngSwitchCase="'actions-menu'">
                                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                             <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
-                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
+<!--                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
                                                     <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
                                                     <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
-                                                </button>
+                                                </button>-->
                                                 <ng-container *ngFor="let action of instance_table.menu.actions">
-                                                    <a *ngIf="(!action.showIf || action.showIf(instance))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
+                                                    <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance)" title="{{action.title || ''}}">
                                                         <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                                     </a>
