@@ -15,7 +15,11 @@
     "dcmQueueName": {
       "title": "Queue Name",
       "description": "JMS Queue Name",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiQueueName[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCompareSideObjects[*].dcmuiCompareSideQueueName"
+      ]
     },
     "dcmJndiName": {
       "title": "JNDI Name",

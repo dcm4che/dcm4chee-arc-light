@@ -225,33 +225,6 @@
       "type": "array",
       "titleKey":"{dicomAETitle}",
       "order":26,
-      "use": [
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmSpanningCFindSCPRetrieveAET[*]",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackCMoveSCPDestination",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmRetrieveAET[*]",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExternalRetrieveAEDestination",
-        "$.dcmDevice.dcmWebApp[*].dicomAETitle",
-        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.dicomAETitle",
-        "$.dcmDevice.dcmArchiveDevice.dcmSpanningCFindSCPRetrieveAET[*]",
-        "$.dcmDevice.dcmArchiveDevice.dcmFallbackCMoveSCPDestination",
-        "$.dcmDevice.dcmArchiveDevice.dcmRejectExpiredStudiesAETitle",
-        "$.dcmDevice.dcmArchiveDevice.dcmRetrieveAET[*]",
-        "$.dcmDevice.dcmArchiveDevice.dcmExternalRetrieveAEDestination",
-        "$.dcmDevice.dcmArchiveDevice.dcmXDSiImagingDocumentSourceAETitle",
-        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationAETitle",
-        "$.dcmDevice.dcmArchiveDevice.dcmCompressionAETitle",
-        "$.dcmDevice.dcmArchiveDevice.dcmRejectionNoteStorageAET",
-        "$.dcmDevice.dcmArchiveDevice.hl7StudyRetentionPolicy[*].dicomAETitle",
-        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7StudyRetentionPolicy[*].dicomAETitle",
-        "$.dcmDevice.dcmArchiveDevice.hl7PrefetchRule[*].dicomAETitle",
-        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle",
-        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dicomAETitle",
-        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dcmRetrieveAET[*]",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dicomAETitle",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dcmRetrieveAET[*]",
-        "$.dcmDevice.dcmuiConfig[*].dcmuiDiffConfig[*].dcmuiDiffCallingAET",
-        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCountAET"
-      ],
       "items": {
         "$ref": "networkAE.schema.json"
       }

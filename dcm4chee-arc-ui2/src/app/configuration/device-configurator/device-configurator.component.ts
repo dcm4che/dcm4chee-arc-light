@@ -78,13 +78,6 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
                 let title = this.service.getPaginationTitleFromModel(value, newSchema);
                 this.service.pagination[this.service.pagination.length - 1].title = title;
-                //TODO check if the element with the attribute "use" was changed and update the use references
-/*                console.log("device",this.service.device);
-                console.log("device",_.get(deviceClone, this.recentParams.devicereff));
-                console.log("queal", j4care.diffObjects(_.get(deviceClone, this.recentParams.devicereff), value, true, true));
-                console.log("recenParam",this.recentParams);
-                console.log("newSchema",newSchema);
-                console.log("value",value);
                 let key;
                 let diff = j4care.diffObjects(_.get(deviceClone, this.recentParams.devicereff), value, true, true);
                 if(_.hasIn(newSchema, "properties") || _.hasIn(newSchema, "items.properties")){
@@ -99,18 +92,10 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 let schemaBase = _.get(newSchema, key);
 
                 Object.keys(schemaBase).forEach(k=>{
-                    console.log("k",k);
-                    console.log("schemabase",schemaBase[k]);
-                    if(_.hasIn(schemaBase[k],"use") && _.hasIn(diff,k)){
-                        console.log("value",value[k]);
-                        console.log("use",schemaBase[k]["use"]);
-                        //set value of diff[k] in use
-                        this.service.setValueToReferences(value[k], schemaBase[k]["use"]);
+                    if(_.hasIn(schemaBase[k],"use") && _.hasIn(diff,`diff.${k}`)){
+                        this.service.setValueToReferences(_.get(diff,`first.${k}`), value[k], schemaBase[k]["use"]);
                     }
-                });*/
-
-
-                //items.properties, properties
+                });
 
                 //Adding archive extension to the network ae if the device has archive extension
                 if(

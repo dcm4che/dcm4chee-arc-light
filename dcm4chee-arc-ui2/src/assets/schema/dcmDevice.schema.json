@@ -101,9 +101,6 @@
       "type": "array",
       "titleKey":"{dcmKeycloakClientID}",
       "order":27,
-      "use": [
-        "$.dcmWebApp[*].dcmKeycloakClientID"
-      ],
       "items": {
         "$ref": "keycloakClient.schema.json"
       }
@@ -114,17 +111,6 @@
       "type": "array",
       "titleKey":"{hl7ApplicationName}",
       "order":28,
-      "use": [
-        "$dcmArchiveDevice.hl7ADTSendingApplication",
-        "$dcmArchiveDevice.hl7ADTReceivingApplication[*]",
-        "$dcmArchiveDevice.hl7PSUSendingApplication",
-        "$dcmArchiveDevice.hl7PSUReceivingApplication[*]",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.hl7PSUSendingApplication",
-        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.hl7PSUReceivingApplication[*]",
-        "$.dicomNetworkAE[*].dcmNetworkAE.hl7ApplicationName",
-        "$dcmArchiveDevice.hl7ForwardRule[*].hl7FwdApplicationName[*]",
-        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7ForwardRule[*].hl7FwdApplicationName[*]"
-      ],
       "items": {
         "$ref": "hl7Application.schema.json"
       }

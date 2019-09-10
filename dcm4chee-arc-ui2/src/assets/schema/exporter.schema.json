@@ -15,7 +15,16 @@
     "dcmExporterID": {
       "title": "Exporter ID",
       "description": "Exporter ID",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmExportPriorsRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmArchiveDevice.hl7ExportRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportPriorsRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7ExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiExportName[*]"
+      ]
     },
     "dcmURI": {
       "title": "URI",

@@ -17,6 +17,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import {DevicesService} from "../devices/devices.service";
+import {element} from "protractor";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -1081,11 +1082,49 @@ export class DeviceConfiguratorService{
     * @param value:ay the new value of the element
     * @param use:string[] references where the new value should be changed elsewhere
     * */
-    setValueToReferences(value:any, use:string[]){
+    setValueToReferences(oldValue:any, newValue:any, use:string[]){
+        console.log("oldValue",oldValue);
+        console.log("newValue",newValue);
+        console.log("use",use);
+        const regex = /([\w.]+)(\[\*\])|([\w.]+)/g;
+        let m;
         try{
             use.forEach(ref=>{
-                //TODO set function need that's supports * instead of array index
-            })
+                let regexPaths = [];
+                while ((m = regex.exec(ref)) !== null) {
+                    if (m.index === regex.lastIndex) {
+                        regex.lastIndex++;
+                    }
+                    regexPaths.push(m);
+                }
+                function set(devicePart, paths, pathsCurrentIndex){
+                    // if(_.has(devicePart, paths[pathsCurrentIndex])){
+                        if(paths[pathsCurrentIndex][1] && _.hasIn(devicePart, paths[pathsCurrentIndex][1].slice(1))){
+                            (<any[]>_.get(devicePart, paths[pathsCurrentIndex][1].slice(1))).forEach((element,i)=>{
+                                if(typeof element === "string"){
+                                    if(element === oldValue){
+                                        _.set(devicePart, `${paths[pathsCurrentIndex][1].slice(1)}[${i}]`, newValue);
+                                    }
+                                }else{
+                                    set(element,paths, pathsCurrentIndex + 1);
+                                }
+                            });
+                        }
+                        if(paths[pathsCurrentIndex][3] && _.hasIn(devicePart, paths[pathsCurrentIndex][3].slice(1))){
+                            let returnedElement = _.get(devicePart, paths[pathsCurrentIndex][3].slice(1));
+                            if(typeof returnedElement === "string"){
+                                if(returnedElement === oldValue){
+                                    _.set(devicePart, paths[pathsCurrentIndex][3].slice(1), newValue);
+                                }
+                            }else{
+                                set(_.get(devicePart, paths[pathsCurrentIndex][3].slice(1)), paths,pathsCurrentIndex + 1);
+                            }
+                        }
+                    // }
+                }
+                set(this.device,regexPaths,0);
+            });
+            console.log("device",this.device);
         }catch (e) {
             j4care.log("Trying to update the new value in the device according to 'use' array, (device-cofigurator.service.ts)",e);
         }

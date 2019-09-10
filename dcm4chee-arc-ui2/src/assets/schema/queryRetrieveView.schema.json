@@ -10,7 +10,10 @@
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
       "description": "Query/Retrieve View Identifier",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmQueryRetrieveViewID"
+      ]
     },
     "dcmShowInstancesRejectedByCode": {
       "title": "Show Instances Rejected By Code",

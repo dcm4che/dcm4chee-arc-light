@@ -11,7 +11,10 @@
     "dcmRejectionNoteLabel": {
       "title": "Rejection Note Label",
       "description": "Rejection Note Label",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmQueryRetrieveView[*].dcmShowInstancesRejectedByCode[*]"
+      ]
     },
     "dcmRejectionNoteType": {
       "title": "Rejection Note Type",

@@ -15,7 +15,11 @@
     "dcmKeycloakServerID": {
       "title": "Keycloak Server ID",
       "description": "Identifier for this Keycloak Server.",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDeviceClusterObject[*].dcmuiDeviceClusterKeycloakServer[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiElasticsearchConfig[*].dcmuiElasticsearchURLObjects[*].dcmuiElasticsearchURLKeycloakServer[*]"
+      ]
     },
     "dcmURI": {
       "title": "Server URL",

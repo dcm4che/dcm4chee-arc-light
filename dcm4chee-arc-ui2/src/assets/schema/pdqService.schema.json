@@ -11,7 +11,10 @@
     "dcmPDQServiceID": {
       "title": "PDQ Service ID",
       "description": "PDQ Service ID",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmPatientVerificationPDQServiceID"
+      ]
     },
     "dcmURI": {
       "title": "PDQ Service URI",

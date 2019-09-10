@@ -14,7 +14,10 @@
     "dcmKeycloakClientID": {
       "title": "Keycloak Client ID",
       "description": "Client ID used in token requests.",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dcmWebApp[*].dcmKeycloakClientID"
+      ]
     },
     "dcmURI": {
       "title": "Server URL",

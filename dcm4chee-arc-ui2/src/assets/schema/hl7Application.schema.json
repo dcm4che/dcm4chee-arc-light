@@ -12,7 +12,18 @@
     "hl7ApplicationName": {
       "title": "HL7 Application name",
       "description": "HL7 Application and Facility name (Application|Facility)",
-      "type": "string"
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.hl7ADTSendingApplication",
+        "$.dcmDevice.dcmArchiveDevice.hl7ADTReceivingApplication[*]",
+        "$.dcmDevice.dcmArchiveDevice.hl7PSUSendingApplication",
+        "$.dcmDevice.dcmArchiveDevice.hl7PSUReceivingApplication[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.hl7PSUSendingApplication",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.hl7PSUReceivingApplication[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.hl7ApplicationName",
+        "$.dcmDevice.dcmArchiveDevice.hl7ForwardRule[*].hl7FwdApplicationName[*]",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7ForwardRule[*].hl7FwdApplicationName[*]"
+      ]
     },
     "dicomNetworkConnectionReference": {
       "title": "Network Connection Reference",

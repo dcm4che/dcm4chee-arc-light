@@ -18,6 +18,9 @@ const DEVICE = {
 };
 describe("DeviceConfiguratorService",()=> {
     let service:DeviceConfiguratorService;
+
+
+
     beforeEach(() => {
         TestBed.configureTestingModule({
             providers: [
@@ -30,6 +33,87 @@ describe("DeviceConfiguratorService",()=> {
             ],
         });
         service = TestBed.get(DeviceConfiguratorService);
+        //"$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle"
+        service.device = {
+            "dicomDeviceName": "dcm4chee-arc",
+            "dicomNetworkAE": [
+                {
+                    "dicomAETitle": "DCM4CHEE",
+                    "dicomAssociationInitiator": true,
+                    "dicomAssociationAcceptor": true,
+                    "dicomNetworkConnectionReference": [
+                        "/dicomNetworkConnection/2"
+                    ],
+                    "dicomTransferCapability": [],
+                    "dcmNetworkAE": {}
+                }
+            ],
+            //dcmDevice.dcmWebApp[*].dicomAETitle
+            "dcmDevice": {
+                "dcmWebApp": [
+                    {
+                        "dcmWebAppName": "DCM4CHEE",
+                        "dicomDescription": "Hide instances rejected for Quality Reasons",
+                        "dcmWebServicePath": "/dcm4chee-arc/aets/DCM4CHEE/rs",
+                        "dcmWebServiceClass": [
+                            "STOW_RS",
+                        ],
+                        "dicomAETitle": "DCM4CHEE",
+                        "dicomNetworkConnectionReference": [
+                            "/dicomNetworkConnection/1"
+                        ],
+                        "testSubArray2":[
+                            "DCM4CHEE",
+                            "TEST"
+                        ]
+                    }
+                ],
+                "dcmAuditLogger": [
+                    {
+                        "cn": "Audit Logger",
+                        "dcmAuditSuppressCriteria": [
+                            {
+                                "cn": "Suppress Query from own Archive AE",
+                                "dcmAuditEventID": [
+                                    "(110112, DCM, \"Query\")"
+                                ],
+                                "dcmAuditUserID": [
+                                    "DCM4CHEE"
+                                ],
+                                "dcmAuditUserIsRequestor": true
+                            }
+                        ]
+                    }
+                ],
+                "hl7Application": [
+                    {
+                        "dcmArchiveHL7Application": {
+                            "dicomAETitle": "DCM4CHEE",
+                            "hl7PrefetchRule":[{
+                                "dicomAETitle": "DCM4CHEE"
+                            }]
+                        }
+                    }
+                ],
+                "dcmArchiveDevice": {
+                    "dcmRejectExpiredStudiesAETitle": "DCM4CHEE",
+                    "dcmStorageVerificationAETitle": "DCM4CHEE",
+                    "dcmRejectionNoteStorageAET": "DCM4CHEE",
+                    "dcmCompressionAETitle": "DCM4CHEE",
+                    "dcmExporter": [
+                        {
+                            "dicomAETitle": "DCM4CHEE"
+                        }
+                    ],
+                },
+                "testArray":[
+                    "TEST",
+                    "SELAM",
+                    "DCM4CHEE",
+                    "TEST2"
+                ]
+            }
+        };
     });
 
     it("Should add addChangesToDevice() Network AE to device",()=>{
@@ -120,5 +204,95 @@ describe("DeviceConfiguratorService",()=> {
                 }
             }
         })
+    });
+
+    it("Should update the new value according to ref",()=>{
+        service.setValueToReferences("DCM4CHEE", "DCM4CHEE2",[
+            "$.dicomNetworkAE[*].dicomAETitle",
+            "$.dcmDevice.dcmWebApp[*].dicomAETitle",
+            "$.dcmDevice.testArray[*]",
+            "$.dcmDevice.dcmWebApp[*].testSubArray2[*]",
+            "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle"
+        ]);
+        expect(service.device).toEqual({
+            "dicomDeviceName": "dcm4chee-arc",
+            "dicomNetworkAE": [
+                {
+                    "dicomAETitle": "DCM4CHEE2",
+                    "dicomAssociationInitiator": true,
+                    "dicomAssociationAcceptor": true,
+                    "dicomNetworkConnectionReference": [
+                        "/dicomNetworkConnection/2"
+                    ],
+                    "dicomTransferCapability": [],
+                    "dcmNetworkAE": {}
+                }
+            ],
+            //dcmDevice.dcmWebApp[*].dicomAETitle
+            "dcmDevice": {
+                "dcmWebApp": [
+                    {
+                        "dcmWebAppName": "DCM4CHEE",
+                        "dicomDescription": "Hide instances rejected for Quality Reasons",
+                        "dcmWebServicePath": "/dcm4chee-arc/aets/DCM4CHEE/rs",
+                        "dcmWebServiceClass": [
+                            "STOW_RS",
+                        ],
+                        "dicomAETitle": "DCM4CHEE2",
+                        "dicomNetworkConnectionReference": [
+                            "/dicomNetworkConnection/1"
+                        ],
+                        "testSubArray2":[
+                            "DCM4CHEE2",
+                            "TEST"
+                        ]
+                    }
+                ],
+                "dcmAuditLogger": [
+                    {
+                        "cn": "Audit Logger",
+                        "dcmAuditSuppressCriteria": [
+                            {
+                                "cn": "Suppress Query from own Archive AE",
+                                "dcmAuditEventID": [
+                                    "(110112, DCM, \"Query\")"
+                                ],
+                                "dcmAuditUserID": [
+                                    "DCM4CHEE"
+                                ],
+                                "dcmAuditUserIsRequestor": true
+                            }
+                        ]
+                    }
+                ],
+                "hl7Application": [
+                    {
+                        "dcmArchiveHL7Application": {
+                            "dicomAETitle": "DCM4CHEE",
+                            "hl7PrefetchRule":[{
+                                "dicomAETitle": "DCM4CHEE2"
+                            }]
+                        }
+                    }
+                ],
+                "dcmArchiveDevice": {
+                    "dcmRejectExpiredStudiesAETitle": "DCM4CHEE",
+                    "dcmStorageVerificationAETitle": "DCM4CHEE",
+                    "dcmRejectionNoteStorageAET": "DCM4CHEE",
+                    "dcmCompressionAETitle": "DCM4CHEE",
+                    "dcmExporter": [
+                        {
+                            "dicomAETitle": "DCM4CHEE"
+                        }
+                    ],
+                },
+                "testArray":[
+                    "TEST",
+                    "SELAM",
+                    "DCM4CHEE2",
+                    "TEST2"
+                ]
+            }
+        })
     })
-})
+});
