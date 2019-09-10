@@ -66,7 +66,7 @@
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
-    <keycloak.version>6.0.1</keycloak.version>
+    <keycloak.version>7.0.0</keycloak.version>
     <jclouds.version>2.1.2</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
@@ -338,10 +338,16 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.jws</groupId>
-      <artifactId>jsr181-api</artifactId>
+      <groupId>org.jboss.spec.javax.ws.rs</groupId>
+      <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+
+   <dependency>
+      <groupId>org.jboss.spec.javax.websocket</groupId>
+      <artifactId>jboss-websocket-api_1.1_spec</artifactId>
+     <scope>provided</scope>
+   </dependency>
 
     <dependency>
       <groupId>org.jboss.spec.javax.xml.ws</groupId>
@@ -530,6 +536,8 @@
     <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-stow</module>
     <module>dcm4chee-arc-study</module>
+    <module>dcm4chee-arc-ups</module>
+    <module>dcm4chee-arc-ups-rs</module>
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>

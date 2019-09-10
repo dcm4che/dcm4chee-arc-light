@@ -1,0 +1,72 @@
+{
+  "get": {
+    "tags": [
+      "UPS-RS"
+    ],
+    "summary": "Retrieve Workitem",
+    "operationId": "RetrieveWorkitem",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/workitemPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/acceptJsonOrXml"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/workitem"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "The origin server has no knowledge of the Target Workitem."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "post": {
+    "tags": [
+      "UPS-RS"
+    ],
+    "summary": "Update existing Workitem",
+    "operationId": "UpdateWorkitem",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/workitem"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../requestBodies.json#/workitem"
+    },
+    "responses": {
+      "201": {
+        "description": "The Target Workitem was updated."
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "The Target Workitem was not found."
+      },
+      "409": {
+        "description": "The request is inconsistent with the current state of the Target Workitem."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

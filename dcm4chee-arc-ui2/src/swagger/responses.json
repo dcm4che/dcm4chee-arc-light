@@ -1,0 +1,876 @@
+{
+  "searchResults": {
+    "description": "The search completed successfully, and the results are contained in the payload",
+    "content": {
+      "multipart/related;type=application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "searchResultsJSON": {
+    "description": "The search completed successfully, and the results are contained in the payload",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "searchResultsCSV": {
+    "description": "The search completed successfully, and the results are contained in the payload",
+    "content": {
+      "multipart/related;type=application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "text/csv": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "countResults": {
+    "description": "Count of corresponding operation",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "deletedCount": {
+    "description": "Count of corresponding Delete operation",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "deleted"
+          ],
+          "properties": {
+            "deleted": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "accepted": {
+    "description": "Number of Reschedule Tasks Accepted",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count",
+            "failed"
+          ],
+          "properties": {
+            "count": {
+              "type": "integer"
+            },
+            "failed": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "failed": {
+    "description": "Reschedule of all tasks failed",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "faield"
+          ],
+          "properties": {
+            "failed": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "Size": {
+    "description": "Size of matching studies",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "size"
+          ],
+          "properties": {
+            "size": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "compareStudiesCount": {
+    "description": "Compare Studies Count",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count",
+            "missing",
+            "different"
+          ],
+          "properties": {
+            "count": {
+              "type": "integer"
+            },
+            "missing": {
+              "type": "integer"
+            },
+            "different": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "exported": {
+    "description": "Exported Instances",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "completed": {
+              "type": "integer"
+            },
+            "warning": {
+              "type": "integer"
+            },
+            "failed": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "storeInstancesSuccessful": {
+    "description": "Successfully stored all Instances.",
+    "content": {
+      "application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "storeInstancesWarnings": {
+    "description": "Stored some of the Instances but warnings or failures exist for others.",
+    "content": {
+      "application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "createUpdateSPSSuccessful": {
+    "description": "Create Update SPS completed successfully, and the attributes are contained in the payload",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedInstances": {
+    "description": "Instance(s) successfully retrieved.",
+    "content": {
+      "multipart/related;type=application/dicom": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=application/octet-stream": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=application/pdf": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jp2": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpx": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/x-dicom+rle": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/x-jls": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=text/xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mp4": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/zip": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedFrames": {
+    "description": "Frame(s) successfully retrieved.",
+    "content": {
+      "multipart/related;type=application/octet-stream": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jp2": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpx": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/x-dicom+rle": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/x-jls": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mp4": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/zip": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedBulkdata": {
+    "description": "Bulkdata successfully retrieved.",
+    "content": {
+      "multipart/related;type=application/octet-stream": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=application/pdf": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=text/xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedMetadata": {
+    "description": "Metadata successfully retrieved.",
+    "content": {
+      "multipart/related;type=application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedRenderedInstances": {
+    "description": "Rendered Instances successfully retrieved.",
+    "content": {
+      "multipart/related;type=application/pdf": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/png": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/gif": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=text/html": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=text/plain": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mp4": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedRenderedFrames": {
+    "description": "Rendered Frames successfully retrieved.",
+    "content": {
+      "multipart/related;type=image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/png": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/gif": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedThumbnail": {
+    "description": "Thumbnail successfully retrieved.",
+    "content": {
+      "image/png": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/gif": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedInstance": {
+    "description": "Instance successfully retrieved.",
+    "content": {
+      "application/dicom": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/pdf": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/png": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/gif": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "text/html": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "text/plain": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "type=text/xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "type=model/stl": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "video/mpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "video/mp4": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "workitem": {
+    "description": "Workitem successfully retrieved.",
+    "content": {
+      "application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "workitemState": {
+    "description": "The update was successful, and the response payload contains a Status Report document.",
+    "content": {
+      "application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "deviceList": {
+    "description": "device list",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "deviceList.schema.json"
+        }
+      }
+    }
+  },
+  "DeviceName": {
+    "description": "Device Name",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "dicomDeviceName",
+            "super-user-role"
+          ],
+          "properties": {
+            "dicomDeviceName": {
+              "type": "string"
+            },
+            "super-user-role": {
+              "type": "string"
+            },
+            "xRoad": {
+              "type": "boolean"
+            },
+            "impaxReport": {
+              "type": "boolean"
+            },
+            "UIConfigurationDeviceName": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "aeList": {
+    "description": "Application Entities list",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "aeList.schema.json"
+        }
+      }
+    }
+  },
+  "webAppList": {
+    "description": "Web Applications list",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "webappList.schema.json"
+        }
+      }
+    }
+  },
+  "hl7AppList": {
+    "description": "HL7 Applications list",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "hl7appList.schema.json"
+        }
+      }
+    }
+  },
+  "modalities": {
+    "description": "List of Distinct Modalities",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "Modalities"
+          ],
+          "properties": {
+            "Modalities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "PatientID": {
+    "description": "Patient ID of created Patient",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "PatientID"
+          ],
+          "properties": {
+            "PatientID": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "ServerTime": {
+    "description": "Server Time with Timezone",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "serverTimeWithTimezone"
+          ],
+          "properties": {
+            "serverTimeWithTimezone": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "Status": {
+    "description": "archive status",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "title": "status",
+              "description": "status of archive",
+              "type": "string",
+              "enum": [
+                "STARTED",
+                "STOPPED"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "KeycloakJSON": {
+    "description": "Keycloak Adapter Configuration",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "realm": {
+              "type": "string"
+            },
+            "resource": {
+              "type": "string"
+            },
+            "auth-server-url": {
+              "type": "string"
+            },
+            "ssl-required": {
+              "type": "string",
+              "enum": [
+                "all",
+                "external",
+                "none"
+              ]
+            },
+            "public-client": {
+              "type": "boolean"
+            },
+            "confidential-port": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "AccessToken": {
+    "description": "Access Token",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "title": "token",
+              "description": "OAuth Bearer Token",
+              "type": "string"
+            },
+            "expiration": {
+              "title": "expiration",
+              "description": "Access token lifetime in seconds",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "HL7ACK": {
+    "description": "Message rejected by Receiving HL7 Application",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "msa-1"
+          ],
+          "properties": {
+            "msa-1": {
+              "title": "Acknowledgement code",
+              "type": "string"
+            },
+            "msa-3": {
+              "title": "Text Message",
+              "type": "string"
+            },
+            "err-3": {
+              "title": "HL7 Error Code",
+              "type": "string"
+            },
+            "err-7": {
+              "title": "Diagnostic Information",
+              "type": "string"
+            },
+            "err-8": {
+              "title": "User Message",
+              "type": "string"
+            },
+            "message": {
+              "title": "Error Message",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

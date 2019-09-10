@@ -1,0 +1,212 @@
+{
+  "storeInstances": {
+    "content": {
+      "multipart/related;type=application/dicom": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=application/dicom+xml": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "multipart/related;type=application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
+  "importInstances": {
+    "description": "List of storage paths delimited by line breaks (CRLF)",
+    "content": {
+      "text/*": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "createUpdateSPS": {
+    "description": "MWL Item Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
+  "workitem": {
+    "description": "Unified Procedure Step Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
+  "workitemState": {
+    "description": "Change UPS State Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
+  "workitemCancelrequest": {
+    "description": "Request UPS Cancel Action Information.",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
+  "patientAttributes": {
+    "description": "Patient Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
+  "studyAttributes": {
+    "description": "Study Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
+  "HierarchicalSOPInstanceReference": {
+    "description": "References to Source Instances",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "StudyInstanceUID"
+          ],
+          "properties": {
+            "StudyInstanceUID": {
+              "type": "string"
+            },
+            "ReferencedSeriesSequence": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "SeriesInstanceUID"
+                ],
+                "properties": {
+                  "SeriesInstanceUID": {
+                    "type": "string"
+                  },
+                  "ReferencedSOPSequence": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "ReferencedSOPClassUID",
+                        "ReferencedSOPInstanceUID"
+                      ],
+                      "properties": {
+                        "ReferencedSOPClassUID": {
+                          "type": "string"
+                        },
+                        "ReferencedSOPInstanceUID": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "PriorPatientIDs": {
+    "description": "Prior Patient IDs and Issuers of Patient IDs with Qualifiers Sequence",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "PatientID"
+            ],
+            "properties": {
+              "PatientID": {
+                "type": "string"
+              },
+              "IssuerOfPatientID": {
+                "type": "string"
+              },
+              "IssuerOfPatientIDQualifiers": {
+                "type": "object",
+                "required": [
+                  "UniversalEntityID",
+                  "UniversalEntityIDType"
+                ],
+                "properties": {
+                  "UniversalEntityID": {
+                    "type": "string"
+                  },
+                  "UniversalEntityIDType": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

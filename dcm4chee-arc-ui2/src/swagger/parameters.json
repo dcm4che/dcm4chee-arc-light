@@ -1,0 +1,1537 @@
+{
+  "devicePathParam": {
+    "name": "DeviceName",
+    "in": "path",
+    "description": "Device Name",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "archiveAETPathParam": {
+    "name": "aet",
+    "in": "path",
+    "description": "Archive AE Title",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "aetPathParam": {
+    "name": "aet",
+    "in": "path",
+    "description": "AE Title to register or unregister",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "webAppPathParam": {
+    "name": "webAppName",
+    "in": "path",
+    "description": "Web Application Name",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "hl7AppPathParam": {
+    "name": "hl7AppName",
+    "in": "path",
+    "description": "HL7 Application Name",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "externalHL7AppPathParam": {
+    "name": "externalHL7AppName",
+    "in": "path",
+    "description": "External HL7 Application Name",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "findSCPPathParam": {
+    "name": "ExternalAET",
+    "in": "path",
+    "description": "AE Title of primary C-FIND SCP",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "secondaryFindSCPPathParam": {
+    "name": "OriginalAET",
+    "in": "path",
+    "description": "AE Title of secondary C-FIND SCP to query for Studies returned from externalAET",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "ianSCPPathParam": {
+    "name": "ianscp",
+    "in": "path",
+    "description": "IAN SCP AE Title",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "stgCmtSCPPathParam": {
+    "name": "stgcmtscp",
+    "in": "path",
+    "description": "Storage Commitment SCP AE Title",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "moveSCPPathParam": {
+    "name": "ExternalAET",
+    "in": "path",
+    "description": "AE Title of C-MOVE SCP",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "remoteAETPathParam": {
+    "name": "externalAET",
+    "in": "path",
+    "description": "Remote AE Title",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "destinationAETPathParam": {
+    "name": "DestinationAET",
+    "in": "path",
+    "description": "Destination AE Title",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "patientPathParam": {
+    "name": "patientID",
+    "in": "path",
+    "description": "Patient ID and Issuer encoded as HL7 CX",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "priorPatientPathParam": {
+    "name": "priorPatientID",
+    "in": "path",
+    "description": "Prior Patient ID and Issuer encoded as HL7 CX",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "studyPathParam": {
+    "name": "study",
+    "in": "path",
+    "description": "Study Instance UID for a single Study",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "seriesPathParam": {
+    "name": "series",
+    "in": "path",
+    "description": "Series Instance UID for a single Series",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "instancePathParam": {
+    "name": "instance",
+    "in": "path",
+    "description": "SOP Instance UID for a single Instance",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "bulkdataPathParam": {
+    "name": "bulkdata",
+    "in": "path",
+    "description": "{dicomTag} or {dicomTag}/{itemIndex}/{AttributePath}",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "framesPathParam": {
+    "name": "frames",
+    "in": "path",
+    "description": "comma or %2C separated list of one or more non duplicate frame numbers",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "workitemPathParam": {
+    "name": "workitem",
+    "in": "path",
+    "description": "Workitem UID",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "subscriptionPathParam": {
+    "name": "workitem",
+    "in": "path",
+    "description": "Workitem UID, or 1.2.840.10008.5.1.4.34.5 for Global Subscription, or 1.2.840.10008.5.1.4.34.5.1 for Filtered Global Subscription",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "subscriberPathParam": {
+    "name": "subscriber",
+    "in": "path",
+    "description": "AET of a Subscriber",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "spsIDPathParam": {
+    "name": "spsID",
+    "in": "path",
+    "description": "Scheduled Procedure Step ID of a MWL Item",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "entityPathParam": {
+    "name": "Entity",
+    "in": "path",
+    "description": "Entity of which Attribute Filter is to be returned",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "typePathParam": {
+    "name": "Attribute Set Type",
+    "in": "path",
+    "description": "Type of which Attribute Set is to be returned",
+    "required": true,
+    "schema": {
+      "type": "string",
+      "enum": [
+        "DIFF_RS",
+        "WADO_RS"
+      ]
+    }
+  },
+  "serialNoPathParam": {
+    "name": "Association Serial No",
+    "in": "path",
+    "description": "Association Serial No",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "accessControlIDPathParam": {
+    "name": "accessControlID",
+    "in": "path",
+    "description": "Access Control ID or 'null'",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "keycloakIDPathParam": {
+    "name": "keycloakID",
+    "in": "path",
+    "description": "Keycloak Server ID",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "pdqServiceIDPathParam": {
+    "name": "pdqServiceID",
+    "in": "path",
+    "description": "PDQ Service ID",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "transactionUIDPathParam": {
+    "name": "transactionUID",
+    "in": "path",
+    "description": "Transaction UID of Storage Commitment",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "codeValuePathParam": {
+    "name": "codeValue",
+    "in": "path",
+    "description": "Code Value of Rejection Note",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "codingSchemeDesignatorPathParam": {
+    "name": "codingSchemeDesignator",
+    "in": "path",
+    "description": "Coding Scheme Designator of Rejection Note",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "expirationDatePathParam": {
+    "name": "expirationDate",
+    "in": "path",
+    "description": "Expiration Date",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "queuePathParam": {
+    "name": "queueName",
+    "in": "path",
+    "description": "Name of Queue",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "taskIDPathParam": {
+    "name": "taskID",
+    "in": "path",
+    "description": "JMS Message ID of queue message",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "taskPkPathParam": {
+    "name": "taskPk",
+    "in": "path",
+    "description": "Primary Key of a task",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "newExporterIDPathParam": {
+    "name": "newExporterID",
+    "in": "path",
+    "description": "New Exporter ID where task(s) shall be rescheduled",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "csvFieldPathParam": {
+    "name": "field",
+    "in": "path",
+    "description": "CSV field which contains the Study Instance UID",
+    "required": true,
+    "schema": {
+      "type": "integer"
+    }
+  },
+  "ExporterIDPathParam": {
+    "name": "ExporterID",
+    "in": "path",
+    "description": "Exporter ID",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "batchIDPathParam": {
+    "name": "batchID",
+    "in": "path",
+    "description": "Batch ID to filter by",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "storageIDPathParam": {
+    "name": "storageID",
+    "in": "path",
+    "required": true,
+    "description": "Storage ID of Storage System with on which referenced instance are located",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "requestType": {
+    "name": "requestType",
+    "in": "query",
+    "description": "Request Type",
+    "required": true,
+    "schema": {
+      "type": "string",
+      "enum": [
+        "WADO"
+      ]
+    }
+  },
+  "studyUID": {
+    "name": "studyUID",
+    "in": "query",
+    "description": "Study Instance UID for a single Study",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "seriesUID": {
+    "name": "seriesUID",
+    "in": "query",
+    "description": "Series Instance UID for a single Series",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "objectUID": {
+    "name": "objectUID",
+    "in": "query",
+    "description": "SOP Instance UID for a single Instance",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
+  "accept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field",
+    "schema": {
+      "$ref": "schemas.json#/accept"
+    }
+  },
+   "acceptJsonOrMultipartXml": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field",
+    "schema": {
+      "$ref": "schemas.json#/jsonOrMultiPartXml"
+    }
+  },
+   "acceptJsonOrXml": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field",
+    "schema": {
+      "$ref": "schemas.json#/jsonOrXml"
+    }
+  },
+  "wadoRetrieveAccept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field for WADO-RS Retrieve Services",
+    "schema": {
+      "$ref": "schemas.json#/wadoRetrieveAccept"
+    }
+  },
+  "wadoRetrieveFramesAccept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field for WADO-RS Retrieve Frames Service",
+    "schema": {
+      "$ref": "schemas.json#/wadoRetrieveFramesAccept"
+    }
+  },
+  "wadoRetrieveBulkdataAccept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field for WADO-RS Retrieve Bulkdata Service",
+    "schema": {
+      "$ref": "schemas.json#/wadoRetrieveBulkdataAccept"
+    }
+  },
+  "wadoRetrieveMetadataAccept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field for WADO-RS Retrieve Metadata Services",
+    "schema": {
+      "$ref": "schemas.json#/wadoRetrieveMetadataAccept"
+    }
+  },
+  "wadoRetrieveRenderedAccept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field for WADO-RS Retrieve Rendered Services",
+    "schema": {
+      "$ref": "schemas.json#/wadoRetrieveRenderedAccept"
+    }
+  },
+  "wadoRetrieveRenderedFramesAccept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field for WADO-RS Retrieve Rendered Frames Services",
+    "schema": {
+      "$ref": "schemas.json#/wadoRetrieveRenderedFramesAccept"
+    }
+  },
+  "wadoRetrieveThumbnailAccept": {
+    "name": "accept",
+    "in": "query",
+    "description": "Alternative to Accept header field for WADO-RS Retrieve Thumbnail Services",
+    "schema": {
+      "$ref": "schemas.json#/wadoRetrieveThumbnailAccept"
+    }
+  },
+  "contentType": {
+    "name": "contentType",
+    "in": "query",
+    "description": "Alternative to Accept header field",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "transferSyntax": {
+    "name": "transferSyntax",
+    "in": "query",
+    "description": "Transfer Syntax UID",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "charset": {
+    "name": "charset",
+    "in": "query",
+    "description": "Charset of the Response (not implemented)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "anonymize": {
+    "name": "anonymize",
+    "in": "query",
+    "description": "Anonymize Object (not implemented)",
+    "schema": {
+      "type": "string",
+      "enum": [
+        "yes"
+      ]
+    }
+  },
+  "annotation": {
+    "name": "annotation",
+    "in": "query",
+    "description": "Annotation On The Object (not implemented)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "rows": {
+    "name": "rows",
+    "in": "query",
+    "description": "Number of Pixel Rows",
+    "schema": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "columns": {
+    "name": "columns",
+    "in": "query",
+    "description": "Number of Pixel Columns",
+    "schema": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "region": {
+    "name": "region",
+    "in": "query",
+    "description": "Region of the Image",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "windowCenter": {
+    "name": "windowCenter",
+    "in": "query",
+    "description": "Window Center of the Image",
+    "schema": {
+      "type": "number"
+    }
+  },
+  "windowWidth": {
+    "name": "windowWidth",
+    "in": "query",
+    "description": "Window Width of the Image",
+    "schema": {
+      "type": "number",
+      "minimum": 1
+    }
+  },
+  "frameNumber": {
+    "name": "frameNumber",
+    "in": "query",
+    "description": "Frame Number",
+    "schema": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "imageQuality": {
+    "name": "imageQuality",
+    "in": "query",
+    "description": "Image Quality",
+    "schema": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    }
+  },
+  "presentationUID": {
+    "name": "presentationUID",
+    "in": "query",
+    "description": "Unique Identifier of the Presentation Object",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "presentationSeriesUID": {
+    "name": "presentationSeriesUID",
+    "in": "query",
+    "description": "Unique Identifier of the Series Containing The Presentation Object",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "quality": {
+    "name": "quality",
+    "in": "query",
+    "description": "Image Quality",
+    "schema": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    }
+  },
+  "viewport": {
+    "name": "viewport",
+    "in": "query",
+    "description": "Viewport Scaling of Image in format vw','vh[','[sx]','[sy]','[sw]','[sh]]",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "thumbnailViewport": {
+    "name": "viewport",
+    "in": "query",
+    "description": "Viewport Scaling of Thumbnails in format vw','vh",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "window": {
+    "name": "window",
+    "in": "query",
+    "description": "Windowing of Images in format center','width','function with function = 'linear', 'linear-exact' or 'sigmoid'",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "iccprofile": {
+    "name": "iccprofile",
+    "in": "query",
+    "description": "ICC Profile (not implemented)",
+    "schema": {
+      "type": "string",
+      "enum": [
+        "no",
+        "yes",
+        "srgb",
+        "adobergb",
+        "rommrgb"
+      ]
+    }
+  },
+  "workitem": {
+    "name": "workitem",
+    "in": "query",
+    "description": "Workitem UID, which corresponds to the Affected SOP Instance UID of the UPS DIMSE N-CREATE operation.",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "deletionlock": {
+    "name": "deletionlock",
+    "in": "query",
+    "description": "If present with a value of true the Subscription will be created with a Deletion Lock.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "filter": {
+    "name": "filter",
+    "in": "query",
+    "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "includefield": {
+    "name": "includefield",
+    "in": "query",
+    "description": "includefield={attributeID} | all",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "fuzzymatching": {
+    "name": "fuzzymatching",
+    "in": "query",
+    "description": "fuzzy semantic matching of person names",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "limit": {
+    "name": "limit",
+    "in": "query",
+    "description": "limit={maximumResults}",
+    "schema": {
+      "type": "integer"
+    }
+  },
+  "offset": {
+    "name": "offset",
+    "in": "query",
+    "description": "offset={skippedResults}",
+    "schema": {
+      "type": "integer",
+      "default": 0
+    }
+  },
+  "orderBy": {
+    "name": "orderby",
+    "in": "query",
+    "description": "orderby=[-]{attributeID} (proprietary extension)",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "orderByTime": {
+    "name": "orderby",
+    "in": "query",
+    "description": "specifies sort direction and field of tasks in returned list",
+    "schema": {
+      "$ref": "schemas.json#/orderByTime"
+    }
+  },
+  "includedefaults": {
+    "name": "includedefaults",
+    "in": "query",
+    "description": "include the default set of attributes specified by DICOM Part 18 (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "withoutstudies": {
+    "name": "withoutstudies",
+    "in": "query",
+    "description": "return Patient w/o Studies (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "patientVerificationStatus": {
+    "name": "patientVerificationStatus",
+    "in": "query",
+    "description": "return only Patients with given Verification Status (proprietary extension)",
+    "schema": {
+      "$ref": "schemas.json#/patientVerificationStatus"
+    }
+  },
+  "returnempty": {
+    "name": "returnempty",
+    "in": "query",
+    "description": "return also empty Studies (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "incomplete": {
+    "name": "incomplete",
+    "in": "query",
+    "description": "return only Studies which are marked as incomplete (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "retrievefailed": {
+    "name": "retrievefailed",
+    "in": "query",
+    "description": "return only Studies which failed to be retrieved from fallback C-MOVE SCP (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "storageVerificationFailed": {
+    "name": "storageVerificationFailed",
+    "in": "query",
+    "description": "return only Studies which includes at least one Series with Failures of Last Storage Commitment (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "compressionfailed": {
+    "name": "compressionfailed",
+    "in": "query",
+    "description": "return only Studies which includes at least one Series with Failures of Last Compression (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "metadataUpdateFailed": {
+    "name": "metadataUpdateFailed",
+    "in": "query",
+    "description": "return only Studies which includes at least one Series with Failures to update its Metadata (proprietary extension)",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "SplitStudyDateRange": {
+    "name": "SplitStudyDateRange",
+    "in": "query",
+    "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "SendingApplicationEntityTitleOfSeries": {
+    "name": "SendingApplicationEntityTitleOfSeries",
+    "in": "query",
+    "description": "return Instances of Series of Studies received from this <AE Title> (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "StudyReceiveDateTime": {
+    "name": "StudyReceiveDateTime",
+    "in": "query",
+    "description": "return Instances of Series of Studies which were created between <datetime1>-<datetime2> (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "StudyAccessDateTime": {
+    "name": "StudyAccessDateTime",
+    "in": "query",
+    "description": "return Instances of Series of Studies which were accessed between <datetime1>-<datetime2> (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "StudySizeInKB": {
+    "name": "StudySizeInKB",
+    "in": "query",
+    "description": "return Instances of Series of Studies whose size is <min>-|-<max>|<min>-<max> (proprietary extension)",
+    "schema": {
+      "type": "string",
+      "pattern": "\\d{1,6}(-\\d{0,6})?|-\\d{1,6}"
+    }
+  },
+  "ExternalRetrieveAET": {
+    "name": "ExternalRetrieveAET",
+    "in": "query",
+    "description": "return Studies which are retrieveable from external <AE Title> (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "ExternalRetrieveAET!": {
+    "name": "ExternalRetrieveAET!",
+    "in": "query",
+    "description": "return Studies which are not retrieveable from external <AE Title> (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "ExpirationDate": {
+    "name": "ExpirationDate",
+    "in": "query",
+    "description": "list Instances of Series which have expiration date between <datetime1>-<datetime2> (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "ExpirationState": {
+    "name": "ExpirationState",
+    "in": "query",
+    "description": "return Studies with given Expiration State",
+    "schema": {
+      "$ref": "schemas.json#/ExpirationState"
+    }
+  },
+  "allOfModalitiesInStudy": {
+    "name": "allOfModalitiesInStudy",
+    "in": "query",
+    "description": "return Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy' (proprietary extension).",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "storageID": {
+    "name": "storageID",
+    "in": "query",
+    "description": "return Instances of Studies which have objects on a particular Storage System (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "storageClustered": {
+    "name": "storageClustered",
+    "in": "query",
+    "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on an other Storage System of the Storage Cluster to which Storage System storageID belongs (proprietary extension)",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "storageExported": {
+    "name": "storageExported",
+    "in": "query",
+    "description": "return Instances of Studies with objects on Storage System storageID which have also(=true)/no(=false) objects on the Storage System which is configured as Export Storage System of Storage System storageID (proprietary extension)",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "newDeviceName": {
+    "name": "newDeviceName",
+    "in": "query",
+    "description": "New Device Name on which task(s) shall be rescheduled",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dicomDeviceName": {
+    "name": "dicomDeviceName",
+    "in": "query",
+    "description": "Device Name",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dicomDescription": {
+    "name": "dicomDescription",
+    "in": "query",
+    "description": "Device Description",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dicomAETitle": {
+    "name": "dicomAETitle",
+    "in": "query",
+    "description": "Application Entity Title",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dcmKeycloakClientID": {
+    "name": "dcmKeycloakClientID",
+    "in": "query",
+    "description": "Keycloak Client ID",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dicomManufacturer": {
+    "name": "dicomManufacturer",
+    "in": "query",
+    "description": "Manufacturer",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dicomManufacturerModelName": {
+    "name": "dicomManufacturerModelName",
+    "in": "query",
+    "description": "Manufacturer Model Name",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dicomStationName": {
+    "name": "dicomStationName",
+    "in": "query",
+    "description": "Station Name",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dicomPrimaryDeviceType": {
+    "name": "dicomPrimaryDeviceType",
+    "in": "query",
+    "description": "Primary Device Type",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "dicomInstitutionName": {
+    "name": "dicomInstitutionName",
+    "in": "query",
+    "description": "Institution Name",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "dicomInstitutionDepartmentName": {
+    "name": "dicomInstitutionDepartmentName",
+    "in": "query",
+    "description": "Institution Department Name",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "dicomInstalled": {
+    "name": "dicomInstalled",
+    "in": "query",
+    "description": "Boolean to indicate whether this device is presently installed on the network",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "dicomSoftwareVersion": {
+    "name": "dicomSoftwareVersion",
+    "in": "query",
+    "description": "Software Versions",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "hasArcDevExt": {
+    "name": "hasArcDevExt",
+    "in": "query",
+    "description": "Boolean to indicate whether this device has an archive device extension",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "dicomAssociationAcceptor": {
+    "name": "dicomAssociationAcceptor",
+    "in": "query",
+    "description": "Boolean to indicate whether this Application Entity can accept associations",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "dicomAssociationInitiator": {
+    "name": "dicomAssociationInitiator",
+    "in": "query",
+    "description": "Boolean to indicate whether this Application Entity can initiate associations",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "dicomApplicationCluster": {
+    "name": "dicomApplicationCluster",
+    "in": "query",
+    "description": "Application Cluster",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "dcmWebAppName": {
+    "name": "dcmWebAppName",
+    "in": "query",
+    "description": "Web Application Name",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dcmWebServicePath": {
+    "name": "dcmWebServicePath",
+    "in": "query",
+    "description": "Web Service Path",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dcmWebServiceClass": {
+    "name": "dcmWebServiceClass",
+    "in": "query",
+    "description": "Web Service Class",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "hl7ApplicationName": {
+    "name": "hl7ApplicationName",
+    "in": "query",
+    "description": "HL7 Application Name",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "register": {
+    "name": "register",
+    "in": "query",
+    "description": "indicates to register/unregister added/removed AE Titles, HL7 Application names and Web Application Names of added/updated Device",
+    "schema": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "dcmRevokeRejection": {
+    "name": "dcmRevokeRejection",
+    "in": "query",
+    "description": "return Rejection Note(s) used to revoke rejection",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "storageClusterID": {
+    "name": "dcmStorageClusterID",
+    "in": "query",
+    "description": "only return Storage Systems belonging to a particular Storage Cluster",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "uriScheme": {
+    "name": "uriScheme",
+    "in": "query",
+    "description": "only return Storage Systems of a particular type",
+    "schema": {
+      "$ref": "schemas.json#/storageURIScheme"
+    }
+  },
+  "usage": {
+    "name": "usage",
+    "in": "query",
+    "description": "only return Storage Systems used for the specified content",
+    "schema": {
+      "$ref": "schemas.json#/usage"
+    }
+  },
+  "usableSpaceBelow": {
+    "name": "usableSpaceBelow",
+    "in": "query",
+    "description": "only return Storage Systems which have usable space below specified value",
+    "schema": {
+      "type": "integer"
+    }
+  },
+  "host": {
+    "name": "host",
+    "in": "query",
+    "description": "remote connection host",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "port": {
+    "name": "port",
+    "in": "query",
+    "description": "remote connection port",
+    "schema": {
+      "type": "integer"
+    }
+  },
+  "queue": {
+    "name": "queue",
+    "in": "query",
+    "description": "Queue the request",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "adjustIssuerOfPatientID": {
+    "name": "adjustIssuerOfPatientID",
+    "in": "query",
+    "description": "Adjust Issuer Of Patient ID",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "different": {
+    "name": "different",
+    "in": "query",
+    "description": "include Patients with different Patient Demographics / secondary C-FIND SCP",
+    "schema": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "missing": {
+    "name": "missing",
+    "in": "query",
+    "description": "include Patients missing at the PDQ Service / secondary C-FIND SCP",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "stgcmtStatus": {
+    "name": "status",
+    "in": "query",
+    "description": "Storage Commitment Status to filter by",
+    "schema": {
+      "$ref": "schemas.json#/stgCmtStatus"
+    }
+  },
+  "ExporterID": {
+    "name": "ExporterID",
+    "in": "query",
+    "description": "Exporter ID to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "ExporterIDs": {
+    "name": "ExporterID",
+    "in": "query",
+    "description": "Exporter ID to filter by",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "JMSMessageID": {
+    "name": "JMSMessageID",
+    "in": "query",
+    "description": "JMS Message ID to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "batchID": {
+    "name": "batchID",
+    "in": "query",
+    "description": "Batch ID to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "updatedBefore": {
+    "name": "updatedBefore",
+    "in": "query",
+    "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
+    "schema": {
+      "type": "string",
+      "pattern": "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}"
+    }
+  },
+  "rejectedBefore": {
+    "name": "rejectedBefore",
+    "in": "query",
+    "description": "maximum reject date of instances to delete. Format: YYYY-MM-DD",
+    "schema": {
+      "type": "string",
+      "pattern": "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}"
+    }
+  },
+  "keepRejectionNote": {
+    "name": "keepRejectionNote",
+    "in": "query",
+    "description": "indicates to keep rejection note instances - only delete rejected instances",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "storescp": {
+    "name": "storescp",
+    "in": "query",
+    "description": "AE Title of C-STORE SCP to which the Rejection Note is send. If absent, the AE Title of C-FIND SCP will be used",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "priority": {
+    "name": "priority",
+    "in": "query",
+    "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+    "schema": {
+      "$ref": "schemas.json#/priority"
+    }
+  },
+  "FreezeExpirationDate": {
+    "name": "FreezeExpirationDate",
+    "in": "query",
+    "description": "Shall be set to true to freeze(=FROZEN) or false to unfreeze(=UPDATEABLE) Expiration Date of the Study. If the query param is absent, keep the ExpirationDate unchanged for FROZEN studies.",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "queueMsgStatus": {
+    "name": "status",
+    "in": "query",
+    "description": "status of tasks to filter by",
+    "schema": {
+      "$ref": "schemas.json#/queueMsgStatus"
+    }
+  },
+  "cancelTaskStatus": {
+    "name": "status",
+    "in": "query",
+    "description": "status of tasks to filter by",
+    "required": true,
+    "schema": {
+      "$ref": "schemas.json#/cancelTaskStatus"
+    }
+  },
+  "status": {
+    "name": "status",
+    "in": "query",
+    "description": "status of tasks to filter by",
+    "schema": {
+      "$ref": "schemas.json#/status"
+    }
+  },
+  "createdTime": {
+    "name": "createdTime",
+    "in": "query",
+    "description": "tasks in queue which were created between <datetime1>-<datetime2>",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "updatedTime": {
+    "name": "updatedTime",
+    "in": "query",
+    "description": "tasks in queue which were updated between <datetime1>-<datetime2>",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "StudyInstanceUID": {
+    "name": "StudyInstanceUID",
+    "in": "query",
+    "description": "Study Instance UID to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "localAET": {
+    "name": "localAET",
+    "in": "query",
+    "description": "Archive AE Title to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "remoteAET": {
+    "name": "remoteAET",
+    "in": "query",
+    "description": "C-MOVE SCP AE Title to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "destinationAET": {
+    "name": "destinationAET",
+    "in": "query",
+    "description": "Destination AE Title to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "dcmQueueName": {
+    "name": "dcmQueueName",
+    "in": "query",
+    "description": "name of retrieve queue to filter by",
+    "schema": {
+      "type": "array",
+      "items": {
+        "$ref": "schemas.json#/dcmQueueName"
+      }
+    }
+  },
+  "dcmQueueNameRetrieve": {
+    "name": "dcmQueueName",
+    "in": "query",
+    "description": "name of retrieve queue to filter by",
+    "schema": {
+      "$ref": "schemas.json#/dcmQueueNameRetrieve"
+    }
+  },
+  "newQueueName": {
+    "name": "newQueueName",
+    "in": "query",
+    "description": "New Retrieve Queue on which task(s) shall be rescheduled",
+    "schema": {
+      "$ref": "schemas.json#/newQueueName"
+    }
+  },
+  "primaryAET": {
+    "name": "primaryAET",
+    "in": "query",
+    "description": "AE Title of the primary C-FIND SCP to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "secondaryAET": {
+    "name": "secondaryAET",
+    "in": "query",
+    "description": "AE Title of the Secondary C-FIND SCP to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "checkDifferent": {
+    "name": "checkDifferent",
+    "in": "query",
+    "description": "include/exclude tasks which check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "checkMissing": {
+    "name": "checkMissing",
+    "in": "query",
+    "description": "include/exclude tasks which check for studies only available at the primary C-FIND SCP",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "comparefield": {
+    "name": "comparefield",
+    "in": "query",
+    "description": "compare attribute set id to filter by",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "comparefields": {
+    "name": "comparefield",
+    "in": "query",
+    "description": "compare attribute set id to filter by",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "storageVerificationPolicy": {
+    "name": "storageVerificationPolicy",
+    "in": "query",
+    "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+    "schema": {
+      "$ref": "schemas.json#/storageVerificationPolicy"
+    }
+  },
+  "storageVerificationUpdateLocationStatus": {
+    "name": "storageVerificationUpdateLocationStatus",
+    "in": "query",
+    "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "storageVerificationStorageID": {
+    "name": "storageVerificationStorageID",
+    "in": "query",
+    "description": "Indicates that the object must be stored on (one of) the specified Storage System for successful Storage Verification.",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "ForceQueryByStudyUID": {
+    "name": "ForceQueryByStudyUID",
+    "in": "query",
+    "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "only-stgcmt": {
+    "name": "only-stgcmt",
+    "in": "query",
+    "description": "Only enable storage commitment without export",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "only-ian": {
+    "name": "only-ian",
+    "in": "query",
+    "description": "Only enable Instance Availability Notification without export",
+    "schema": {
+      "type": "boolean"
+    }
+  },
+  "merge": {
+    "name": "merge",
+    "in": "query",
+    "description": "Merge Patient",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

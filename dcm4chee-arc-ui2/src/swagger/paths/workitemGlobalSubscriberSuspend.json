@@ -1,0 +1,31 @@
+{
+  "put": {
+    "tags": [
+      "UPS-RS"
+    ],
+    "summary": "Suspend Subscription from Worklist",
+    "operationId": "SuspendSubscriptionWorklist",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/subscriberPathParam"
+      }
+    ],
+    "responses": {
+      "201": {
+        "description": "The Worklist Subscription was suspended."
+      },
+      "400": {
+        "description": "There was a problem with the syntax of the request."
+      },
+      "404": {
+        "description": "The target Subscription was not found."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

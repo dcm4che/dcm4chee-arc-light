@@ -1,0 +1,63 @@
+{
+  "put": {
+    "tags": [
+      "UPS-RS"
+    ],
+    "summary": "Subscribe to Worklist",
+    "operationId": "SubscribeWorklist",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/subscriberPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/deletionlock"
+      }
+    ],
+    "responses": {
+      "201": {
+        "description": "The Subscription was created."
+      },
+      "400": {
+        "description": "There was a problem with the syntax of the request."
+      },
+      "404": {
+        "description": "There is no Archive AE with the specified Title."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "UPS-RS"
+    ],
+    "summary": "Unsubscribe from Worklist",
+    "operationId": "UnsubscribeWorklist",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/subscriberPathParam"
+      }
+    ],
+    "responses": {
+      "201": {
+        "description": "The Subscriptions were removed."
+      },
+      "400": {
+        "description": "There was a problem with the syntax of the request."
+      },
+      "404": {
+        "description": "The target Subscription was not found."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

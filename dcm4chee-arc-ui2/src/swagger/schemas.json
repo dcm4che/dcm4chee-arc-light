@@ -1,0 +1,284 @@
+{
+  "attributes": {
+    "type": "object",
+    "example": {
+      "externalDocs": {
+        "description": "Attributes in DICOM JSON Model Format",
+        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_F"
+      }
+    }
+  },
+  "patientVerificationStatus": {
+    "type": "string",
+    "enum": [
+      "UNVERIFIED",
+      "VERIFIED",
+      "NOT_FOUND",
+      "VERIFICATION_FAILED"
+    ]
+  },
+  "ExpirationState": {
+    "type": "string",
+    "enum": [
+      "UPDATEABLE",
+      "FROZEN",
+      "REJECTED",
+      "EXPORT_SCHEDULED",
+      "FAILED_TO_EXPORT",
+      "FAILED_TO_REJECT"
+    ]
+  },
+  "dcmWebServiceClass": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "enum": [
+        "WADO_URI",
+        "WADO_RS",
+        "STOW_RS",
+        "QIDO_RS",
+        "UPS_RS",
+        "DCM4CHEE_ARC",
+        "DCM4CHEE_ARC_AET"
+      ]
+    }
+  },
+  "accept": {
+    "type": "string",
+    "enum": [
+      "application/dicom+json",
+      "multipart/related;type=application/dicom+xml",
+      "text/csv"
+    ]
+  },
+  "jsonOrMultiPartXml": {
+    "type": "string",
+    "enum": [
+      "application/dicom+json",
+      "multipart/related;type=application/dicom+xml"
+    ]
+  },
+  "jsonOrXml": {
+    "type": "string",
+    "enum": [
+      "application/dicom+json",
+      "application/dicom+xml"
+    ]
+  },
+  "wadoRetrieveAccept": {
+    "type": "string",
+    "enum": [
+      "multipart/related;type=application/dicom",
+      "multipart/related;type=application/octet-stream",
+      "multipart/related;type=application/pdf",
+      "multipart/related;type=image/jpeg",
+      "multipart/related;type=image/jp2",
+      "multipart/related;type=image/jpx",
+      "multipart/related;type=image/x-dicom+rle",
+      "multipart/related;type=image/x-jls",
+      "multipart/related;type=text/xml",
+      "multipart/related;type=model/stl",
+      "multipart/related;type=video/mpeg",
+      "multipart/related;type=video/mp4",
+      "application/zip"
+    ]
+  },
+  "wadoRetrieveFramesAccept": {
+    "type": "string",
+    "enum": [
+      "multipart/related;type=application/octet-stream",
+      "multipart/related;type=image/jpeg",
+      "multipart/related;type=image/jp2",
+      "multipart/related;type=image/jpx",
+      "multipart/related;type=image/x-dicom+rle",
+      "multipart/related;type=image/x-jls"
+    ]
+  },
+  "wadoRetrieveBulkdataAccept": {
+    "type": "string",
+    "enum": [
+      "multipart/related;type=application/octet-stream",
+      "multipart/related;type=application/pdf",
+      "multipart/related;type=text/xml",
+      "multipart/related;type=model/stl"
+    ]
+  },
+  "wadoRetrieveMetadataAccept": {
+    "type": "string",
+    "enum": [
+      "multipart/related;type=application/dicom+xml",
+      "application/dicom+json"
+    ]
+  },
+  "wadoRetrieveRenderedAccept": {
+    "type": "string",
+    "enum": [
+      "multipart/related;type=application/pdf",
+      "multipart/related;type=image/jpeg",
+      "multipart/related;type=image/gif",
+      "multipart/related;type=image/png",
+      "multipart/related;type=text/html",
+      "multipart/related;type=text/plain",
+      "multipart/related;type=video/mpeg",
+      "multipart/related;type=video/mp4"
+    ]
+  },
+  "wadoRetrieveRenderedFramesAccept": {
+    "type": "string",
+    "enum": [
+      "multipart/related;type=image/jpeg",
+      "multipart/related;type=image/gif",
+      "multipart/related;type=image/png"
+    ]
+  },
+  "wadoRetrieveThumbnailAccept": {
+    "type": "string",
+    "enum": [
+      "image/png",
+      "image/jpeg",
+      "image/gif"
+    ]
+  },
+  "orderByTime": {
+    "type": "string",
+    "enum": [
+      "createdTime",
+      "-createdTime",
+      "updatedTime",
+      "-updatedTime"
+    ],
+    "default": "-updatedTime"
+  },
+  "newQueueName": {
+    "type": "string",
+    "enum": [
+      "Retrieve1",
+      "Retrieve2",
+      "Retrieve3",
+      "Retrieve4",
+      "Retrieve5",
+      "Retrieve6",
+      "Retrieve7",
+      "Retrieve8",
+      "Retrieve9",
+      "Retrieve10",
+      "Retrieve11",
+      "Retrieve12",
+      "Retrieve13"
+    ]
+  },
+  "dcmQueueName": {
+    "type": "string",
+    "enum": [
+      "Retrieve1",
+      "Retrieve2",
+      "Retrieve3",
+      "Retrieve4",
+      "Retrieve5",
+      "Retrieve6",
+      "Retrieve7",
+      "Retrieve8",
+      "Retrieve9",
+      "Retrieve10",
+      "Retrieve11",
+      "Retrieve12",
+      "Retrieve13"
+    ]
+  },
+  "dcmQueueNameRetrieve": {
+    "type": "string",
+    "enum": [
+      "Retrieve1",
+      "Retrieve2",
+      "Retrieve3",
+      "Retrieve4",
+      "Retrieve5",
+      "Retrieve6",
+      "Retrieve7",
+      "Retrieve8",
+      "Retrieve9",
+      "Retrieve10",
+      "Retrieve11",
+      "Retrieve12",
+      "Retrieve13"
+    ],
+    "default": "Retrieve1"
+  },
+  "storageVerificationPolicy": {
+    "type": "string",
+    "enum": [
+      "DB_RECORD_EXISTS",
+      "OBJECT_EXISTS",
+      "OBJECT_SIZE",
+      "OBJECT_FETCH",
+      "OBJECT_CHECKSUM",
+      "S3_MD5SUM"
+    ]
+  },
+  "storageURIScheme": {
+    "type": "string",
+    "enum": [
+      "file",
+      "jclouds",
+      "emc-ecs-s3",
+      "hcp",
+      "documentum"
+    ]
+  },
+  "usage": {
+    "type": "string",
+    "enum": [
+      "dcmObjectStorageID",
+      "dcmMetadataStorageID",
+      "dcmSeriesMetadataStorageID"
+    ]
+  },
+  "priority": {
+    "type": "integer",
+    "enum": [
+      0,
+      1,
+      2
+    ],
+    "default": 0
+  },
+  "stgCmtStatus": {
+    "type": "string",
+    "enum": [
+      "PENDING",
+      "COMPLETED",
+      "WARNING",
+      "FAILED"
+    ]
+  },
+  "cancelTaskStatus": {
+    "type": "string",
+    "enum": [
+      "SCHEDULED",
+      "IN PROCESS"
+    ]
+  },
+  "queueMsgStatus": {
+    "type": "string",
+    "enum": [
+      "SCHEDULED",
+      "IN PROCESS",
+      "COMPLETED",
+      "WARNING",
+      "FAILED",
+      "CANCELED"
+    ]
+  },
+  "status": {
+    "type": "string",
+    "enum": [
+      "TO SCHEDULE",
+      "SCHEDULED",
+      "IN PROCESS",
+      "COMPLETED",
+      "WARNING",
+      "FAILED",
+      "CANCELED"
+    ]
+  }
+}
