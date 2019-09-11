@@ -1014,31 +1014,31 @@
       }
     },
     "/aets/{aet}/rs/workitems": {
-      "$ref": "paths/workitems.json"
+      "$ref": "paths/ups-rs/workitems.json"
     },
     "/aets/{aet}/rs/workitems/{workitem}": {
-      "$ref": "paths/workitem.json"
+      "$ref": "paths/ups-rs/workitem.json"
     },
     "/aets/{aet}/rs/workitems/{workitem}/state": {
-      "$ref": "paths/workitemState.json"
+      "$ref": "paths/ups-rs/workitemState.json"
     },
     "/aets/{aet}/rs/workitems/{workitem}/cancelrequest": {
-      "$ref": "paths/workitemCancelrequest.json"
+      "$ref": "paths/ups-rs/workitemCancelrequest.json"
     },
     "/aets/{aet}/rs/workitems/{workitem}/subscribers/{subscriber}": {
-      "$ref": "paths/workitemSubscriber.json"
+      "$ref": "paths/ups-rs/workitemSubscriber.json"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5/subscribers/{subscriber}": {
-      "$ref": "paths/workitemGlobalSubscriber.json"
+      "$ref": "paths/ups-rs/workitemGlobalSubscriber.json"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5.1/subscribers/{subscriber}": {
-      "$ref": "paths/workitemFilteredSubscriber.json"
+      "$ref": "paths/ups-rs/workitemFilteredSubscriber.json"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5/subscribers/{subscriber}/suspend": {
-      "$ref": "paths/workitemGlobalSubscriberSuspend.json"
+      "$ref": "paths/ups-rs/workitemGlobalSubscriberSuspend.json"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5.1/subscribers/{subscriber}/suspend": {
-      "$ref": "paths/workitemFilteredSubscriberSuspend.json"
+      "$ref": "paths/ups-rs/workitemFilteredSubscriberSuspend.json"
     },
     "/aets/{aet}/rs/mwlitems": {
       "get": {
