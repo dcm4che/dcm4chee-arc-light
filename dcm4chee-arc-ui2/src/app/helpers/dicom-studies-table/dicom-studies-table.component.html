@@ -84,8 +84,17 @@
                             </ng-container>
                         </ng-container>
                         <ng-container *ngSwitchCase="'actions-menu'">
+<!--                            <button (click)="showStudyMenu = !showStudyMenu"><span class="glyphicon glyphicon-option-vertical"></span></button>
+                            <div class="study_action_buttons" *ngIf="showStudyMenu">
+                                <ng-container *ngFor="let action of studies_table.menu.actions">
+                                    <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
+                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                    </a>
+                                </ng-container>
+                            </div>-->
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons'" (click)="$event.stopPropagation()">
 <!--                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
                                     <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
                                     <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>

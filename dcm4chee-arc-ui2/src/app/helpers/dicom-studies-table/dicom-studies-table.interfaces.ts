@@ -43,9 +43,15 @@ export interface StudyTrash {
     active:boolean;
 }
 
+export interface TableParam{
+    tableSchema?:DicomTableSchema;
+    config?:TableSchemaConfig;
+}
+
 export interface StudySchemaOptions{
     trash?:StudyTrash;
     selectedWebService?:DcmWebApp;
+    tableParam?:TableParam;
 }
 export interface TableAction{
     icon:Icon;

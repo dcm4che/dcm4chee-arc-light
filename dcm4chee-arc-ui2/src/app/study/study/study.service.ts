@@ -564,26 +564,30 @@ export class StudyService {
     checkSchemaPermission(schema:DicomTableSchema):DicomTableSchema{
         Object.keys(schema).forEach(levelKey =>{
             schema[levelKey].forEach((element:TableSchemaElement)=>{
-                if(element.type === "actions" || element.type === "actions-menu"){
-                    let key = "actions";
-                    if(_.hasIn(element, "menu") && element.menu){
-                        key = "menu.actions";
+                if(element && element.type){
+                    if(element.type === "actions" || element.type === "actions-menu"){
+                        let key = "actions";
+                        if(_.hasIn(element, "menu") && element.menu){
+                            key = "menu.actions";
+                        }
+                        if(_.get(element,key) && (<any[]>_.get(element,key)).length > 0){
+                            let result = (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
+                                console.log("menu",menu);
+                                console.log("menu.permission",menu.permission);
+                                console.log("checkVisibility",this.permissionService.checkVisibility(menu.permission));
+                                if(menu.permission){
+                                    return this.permissionService.checkVisibility(menu.permission);
+                                }
+                                return true
+                            });
+                            console.log("element",element);
+                            console.log("result",result);
+                            _.set(element, key, result);
+                            console.log("result",result);
+                        }
                     }
-                    if(_.get(element,key) && (<any[]>_.get(element,key)).length > 0){
-                        let result = (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
-                            console.log("menu",menu);
-                            console.log("menu.permission",menu.permission);
-                            console.log("checkVisibility",this.permissionService.checkVisibility(menu.permission));
-                            if(menu.permission){
-                                return this.permissionService.checkVisibility(menu.permission);
-                            }
-                            return true
-                        });
-                        console.log("element",element);
-                        console.log("result",result);
-                        _.set(element, key, result);
-                        console.log("result",result);
-                    }
+                }else{
+                    return false;
                 }
             })
         });
@@ -591,7 +595,7 @@ export class StudyService {
         return schema;
     }
     PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options:StudySchemaOptions):DicomTableSchema{
-        return {
+        let schema:DicomTableSchema = {
             patient:[
                 new TableSchemaElement({
                     type:"actions",
@@ -638,42 +642,6 @@ export class StudyService {
                         }
                     ],
                     headerDescription:"Show studies",
-                    pxWidth:40
-                }),
-                new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
-                        {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-unchecked',
-                                text:''
-                            },
-                            click:(e)=>{
-                                e.selected = !e.selected;
-                            },
-                            title:"Select",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && !e.selected;
-                            }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-check',
-                                text:''
-                            },
-                            click:(e)=>{
-                                console.log("e",e);
-                                e.selected = !e.selected;
-                            },
-                            title:"Unselect",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && e.selected;
-                            }
-                        }
-                    ],
-                    headerDescription:"Select",
                     pxWidth:40
                 }),
                 new TableSchemaElement({
@@ -908,42 +876,6 @@ export class StudyService {
                     headerDescription:"Show studies",
                     widthWeight:0.3,
                     calculatedWidth:"6%"
-                }),
-                new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
-                        {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-unchecked',
-                                text:''
-                            },
-                            click:(e)=>{
-                                e.selected = !e.selected;
-                            },
-                            title:"Select",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && !e.selected;
-                            }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-check',
-                                text:''
-                            },
-                            click:(e)=>{
-                                console.log("e",e);
-                                e.selected = !e.selected;
-                            },
-                            title:"Unselect",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && e.selected;
-                            }
-                        }
-                    ],
-                    headerDescription:"Select",
-                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"index",
@@ -1739,7 +1671,53 @@ export class StudyService {
                     calculatedWidth:"20%"
                 })
             ]
+        };
+
+        if(_.hasIn(options,"tableParam.config.showCheckboxes") && options.tableParam.config.showCheckboxes){
+            Object.keys(schema).forEach(mode=>{
+                schema[mode].splice(1,0, new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-unchecked',
+                                text:''
+                            },
+                            click:(e)=>{
+                                e.selected = !e.selected;
+                            },
+                            title:"Select",
+                            showIf:(e, config)=>{
+                                return !e.selected;
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-check',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.selected = !e.selected;
+                            },
+                            title:"Unselect",
+                            showIf:(e, config)=>{
+                                return e.selected;
+                            }
+                        }
+                    ],
+                    headerDescription:"Select",
+                    pxWidth:40,
+                    showIf:()=>{
+                        return options.tableParam.config.showCheckboxes;
+                    }
+                }))
+            });
         }
+
+        return schema;
     }
     modifyStudy(study,deviceWebservice:StudyWebService, header:HttpHeaders){
         const url = this.getModifyStudyUrl(deviceWebservice);

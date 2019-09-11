@@ -23,6 +23,7 @@ export class DicomStudiesTableComponent implements OnInit {
 
     hover_mode = 'patient';
     active_td = '';
+    showStudyMenu = false;
     constructor() { }
     ngOnInit() {
         this._config.offset = this._config.offset || 0;

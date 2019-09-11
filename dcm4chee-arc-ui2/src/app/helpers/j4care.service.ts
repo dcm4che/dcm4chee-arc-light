@@ -782,24 +782,28 @@ export class j4care {
         let pxWidths = 0;
         let check = 0;
         table.forEach((m)=>{
-            if(_.hasIn(m,'pxWidth') && m.pxWidth){
-                pxWidths += m.pxWidth;
-            }else{
-                sum += m.widthWeight;
+            if(m){
+                if(_.hasIn(m,'pxWidth') && m.pxWidth){
+                    pxWidths += m.pxWidth;
+                }else{
+                    sum += m.widthWeight;
+                }
             }
         });
         table.forEach((m)=>{
-            let procentualPart = (m.widthWeight * 100)/sum;
-            if(pxWidths > 0){
-                if(_.hasIn(m, "pxWidth") && m.pxWidth){
-                    m.calculatedWidth = `${m.pxWidth}px`;
+            if(m){
+                let procentualPart = (m.widthWeight * 100)/sum;
+                if(pxWidths > 0){
+                    if(_.hasIn(m, "pxWidth") && m.pxWidth){
+                        m.calculatedWidth = `${m.pxWidth}px`;
+                    }else{
+                        let pxPart = (procentualPart * 0.01 * pxWidths);
+                        m.calculatedWidth = `calc(${procentualPart}% - ${pxPart}px)`;
+                        check += pxPart;
+                    }
                 }else{
-                    let pxPart = (procentualPart * 0.01 * pxWidths);
-                    m.calculatedWidth = `calc(${procentualPart}% - ${pxPart}px)`;
-                    check += pxPart;
+                    m.calculatedWidth =  procentualPart + "%";
                 }
-            }else{
-                m.calculatedWidth =  procentualPart + "%";
             }
         });
         return table;

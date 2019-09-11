@@ -34,7 +34,7 @@ import * as _  from "lodash";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {
     DicomTableSchema,
-    StudyTrash,
+    StudyTrash, TableParam,
     TableSchemaConfig
 } from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {SeriesDicom} from "../../models/series-dicom";
@@ -150,7 +150,7 @@ export class StudyComponent implements OnInit{
     };
     studyWebService:StudyWebService;
 
-    tableParam:{tableSchema:DicomTableSchema,config:TableSchemaConfig} = {
+    tableParam:TableParam = {
         tableSchema:this.getSchema(),
         config:{
             offset:0,
@@ -279,6 +279,7 @@ export class StudyComponent implements OnInit{
     actionsSelectionsChanged(e){
         if(e === "toggle_checkboxes"){
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
+            this.tableParam.tableSchema  = this.getSchema();
         }
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
@@ -1565,7 +1566,8 @@ export class StudyComponent implements OnInit{
     getSchema(){
         return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
             trash:this.trash,
-            selectedWebService: _.get(this.studyWebService,"selectedWebService")
+            selectedWebService: _.get(this.studyWebService,"selectedWebService"),
+            tableParam:this.tableParam
         }));
     }
 
