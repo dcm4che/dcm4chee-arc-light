@@ -172,11 +172,12 @@ public class ImportStorageRS {
 
     private Attributes getAttributes(Storage storage, StoreSession session, ReadContext readContext, StoreContext ctx)
             throws IOException {
-        try (DicomInputStream dicomInputStream = new DicomInputStream(storage.openInputStream(readContext))) {
-            dicomInputStream.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
-            dicomInputStream.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
-            ctx.setReceiveTransferSyntax(dicomInputStream.getTransferSyntax());
-            return dicomInputStream.readDataset(-1, stopTag(storage));
+        try (DicomInputStream dis = new DicomInputStream(storage.openInputStream(readContext))) {
+            dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            dis.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
+            dis.setURI("java:iis"); // avoid copy of bulkdata to temporary file
+            ctx.setReceiveTransferSyntax(dis.getTransferSyntax());
+            return dis.readDataset(-1, stopTag(storage));
         }
     }
 
