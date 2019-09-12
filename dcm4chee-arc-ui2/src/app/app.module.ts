@@ -109,6 +109,7 @@ import {MetricsService} from "./monitoring/metrics/metrics.service";
 import { WebAppsListComponent } from './configuration/web-apps-list/web-apps-list.component';
 import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.service";
 import {SearchDicomPipe} from "./pipes/search-dicom.pipe";
+import {ClickOutsideDirective2} from "./helpers/click-outside2.directive";
 
 @NgModule({
     declarations: [
@@ -153,6 +154,7 @@ import {SearchDicomPipe} from "./pipes/search-dicom.pipe";
         RetrieveMonitoringComponent,
         FilterGeneratorComponent,
         ClickOutsideDirective,
+        ClickOutsideDirective2,
         PermissionDirective,
         PermissionDeniedComponent,
         StackedProgressComponent,

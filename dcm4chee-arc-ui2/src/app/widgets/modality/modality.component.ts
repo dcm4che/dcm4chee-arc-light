@@ -24,7 +24,16 @@ export class ModalityComponent implements OnInit {
         this.modelChange.emit(this.model);
         this.showModalitySelector = false;
     };
-    closeFromOutside(){
+    clear(){
+        this.model = "";
+        this.modelChange.emit(this.model);
+        this.showModalitySelector = false;
+    }
+    closeFromOutside(e){
+        this.showModalitySelector = false;
+    }
+    add(){
+        this.modelChange.emit(this.model);
         this.showModalitySelector = false;
     }
     ngOnInit() {

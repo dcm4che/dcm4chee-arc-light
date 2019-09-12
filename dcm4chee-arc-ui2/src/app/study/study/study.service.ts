@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import {AccessLocation, DicomLevel, DicomMode, DicomResponseType, FilterSchema, SelectDropdown} from "../../interfaces";
+import {
+    AccessLocation,
+    DicomLevel,
+    DicomMode,
+    DicomResponseType,
+    FilterSchema,
+    SelectDropdown,
+    UniqueSelectIdObject
+} from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
@@ -292,10 +300,14 @@ export class StudyService {
                     tag: "button",
                     id: "count",
                     text: quantityText.count,
+                    showRefreshIcon:true,
+                    showDynamicLoader:false,
                     description: "QUERY ONLY THE COUNT"
                 },{
                     tag: "button",
                     id: "size",
+                    showRefreshIcon:true,
+                    showDynamicLoader:false,
                     text: quantityText.size,
                     description: "QUERY ONLY THE SIZE"
                 });
@@ -505,6 +517,25 @@ export class StudyService {
     }
     instanceURL(attrs, webApp:DcmWebApp) {
         return this.seriesURL(attrs, webApp) + '/instances/' + attrs['00080018'].Value[0];
+    }
+    getObjectUniqueId(attrs:any[], dicomLevel:DicomLevel):UniqueSelectIdObject{
+        let idObject = {
+            id:this.getPatientId(attrs),
+            idParts:[this.getPatientId(attrs)]
+        };
+        if(dicomLevel != "patient"){
+            idObject.id += `_${attrs['0020000D'].Value[0]}`;
+            idObject.idParts.push(attrs['0020000D'].Value[0]);
+        }
+        if(dicomLevel === "series" || dicomLevel === "instance"){
+            idObject.id += `_${attrs['0020000D'].Value[0]}`;
+            idObject.idParts.push(attrs['0020000E'].Value[0]);
+        }
+        if(dicomLevel === "instance"){
+            idObject.id += `_${attrs['00080018'].Value[0]}`;
+            idObject.idParts.push(attrs['00080018'].Value[0]);
+        }
+        return idObject;
     }
 
     getURL(attrs, webApp:DcmWebApp, dicomLevel:DicomLevel){
@@ -1685,8 +1716,13 @@ export class StudyService {
                                 cssClass:'glyphicon glyphicon-unchecked',
                                 text:''
                             },
-                            click:(e)=>{
+                            click:(e,level)=>{
                                 e.selected = !e.selected;
+                                actions.call($this, {
+                                    event:"click",
+                                    level:level,
+                                    action:"select"
+                                },e);
                             },
                             title:"Select",
                             showIf:(e, config)=>{
@@ -1698,9 +1734,14 @@ export class StudyService {
                                 cssClass:'glyphicon glyphicon-check',
                                 text:''
                             },
-                            click:(e)=>{
+                            click:(e, level)=>{
                                 console.log("e",e);
                                 e.selected = !e.selected;
+                                actions.call($this, {
+                                    event:"click",
+                                    level:level,
+                                    action:"select"
+                                },e);
                             },
                             title:"Unselect",
                             showIf:(e, config)=>{
@@ -1709,10 +1750,7 @@ export class StudyService {
                         }
                     ],
                     headerDescription:"Select",
-                    pxWidth:40,
-                    showIf:()=>{
-                        return options.tableParam.config.showCheckboxes;
-                    }
+                    pxWidth:40
                 }))
             });
         }

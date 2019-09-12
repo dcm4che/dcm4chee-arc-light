@@ -160,7 +160,10 @@
                   </ng-container>
                     <div *ngSwitchCase="'dummy'"></div>
                     <label *ngSwitchCase="'label_large'" class="label_large">{{line[index].text}}</label>
-                  <button (click)="submitEmit(line[index].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[index].description}}"><span class="glyphicon glyphicon-refresh"></span>  {{line[index].text}}</button>
+                    <button (click)="submitEmit(line[index].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[index].description}}">
+                        <span *ngIf="line[index].showRefreshIcon" class="glyphicon glyphicon-refresh"></span>
+                        <span *ngIf="line[index].showDynamicLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
+                        {{line[index].text}}</button>
                 </ng-container>
               </ng-container>
             </div>

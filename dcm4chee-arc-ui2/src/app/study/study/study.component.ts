@@ -15,7 +15,7 @@ import {
     StudyFilterConfig,
     StudyPageConfig,
     DicomMode,
-    SelectDropdown
+    SelectDropdown, DicomLevel, UniqueSelectIdObject, DicomSelectObject, Quantity, DicomResponseType
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {Observable} from "rxjs/Observable";
@@ -60,6 +60,8 @@ import {RequestOptionsArgs} from "@angular/http";
 import {DeleteRejectedInstancesComponent} from "../../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {ViewerComponent} from "../../widgets/dialogs/viewer/viewer.component";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
+import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
 
 
 @Component({
@@ -149,7 +151,7 @@ export class StudyComponent implements OnInit{
         active:false
     };
     studyWebService:StudyWebService;
-
+    selectedElements:SelectionsDicomObjects;
     tableParam:TableParam = {
         tableSchema:this.getSchema(),
         config:{
@@ -199,7 +201,11 @@ export class StudyComponent implements OnInit{
 
     searchCurrentList = '';
     @ViewChild('stickyHeader') stickyHeaderView: ElementRef;
-
+    largeIntFormat;
+    filterButtonPath = {
+        count:[],
+        size:[]
+    };
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -212,17 +218,26 @@ export class StudyComponent implements OnInit{
         private dialog: MatDialog,
         private config: MatDialogConfig,
         private _keycloakService:KeycloakService
-    ) { }
+    ) {}
 
     ngOnInit() {
         console.log("this.service",this.appService);
-
+        this.largeIntFormat = new LargeIntFormatPipe();
+        this.resetSelectionObject();
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
           this.initWebApps();
         });
-        console.log("")
+    }
+
+    resetSelectionObject(){
+        this.selectedElements = new SelectionsDicomObjects({
+            instance:{},
+            series:{},
+            patient:{},
+            study:{}
+        });
     }
 
     setTopToTableHeder(){
@@ -281,14 +296,56 @@ export class StudyComponent implements OnInit{
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
             this.tableParam.tableSchema  = this.getSchema();
         }
+
+        // if(_.size(this.selectedElements) > 0){
+            if(e === "export_object"){
+                // Object.keys(this.selectedElements).forEach((id)=>{
+                //     let object:DicomSelectObject = <DicomSelectObject>this.selectedElements[e.dicomLevel];
+/*                    if(object.dicomLevel === "instance"){
+                        this.exportInstance(object.object);
+                    }
+                    if(object.dicomLevel === "study"){
+                        this.exportStudy(object.object);
+                    }
+                    if(object.dicomLevel === "series"){
+                        this.exportSeries(object.object);
+                    }*/
+                // });
+            }
+        // }
+
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
         },1);
+    }
+
+
+    select(object, dicomLevel:DicomLevel){
+        this.selectedElements.toggle(dicomLevel, this.service.getObjectUniqueId(object.attrs, dicomLevel), object);
+/*        let idObject:UniqueSelectIdObject = this.service.getObjectUniqueId(object.attrs, dicomLevel);
+        if(_.hasIn(this.selectedElements,`${dicomLevel}["${idObject.id}"]`)){
+            delete this.selectedElements[dicomLevel][idObject.id];
+            object.selected = false;
+        }else{
+            this.selectedElements[dicomLevel][idObject.id] = {
+                idObject:idObject,
+                object:object,
+                dicomLevel:dicomLevel
+            };
+            object.selected = true;
+        }*/
     }
     actions(id, model){
         console.log("id",id);
         console.log("model",model);
         if(this.studyWebService.selectedWebService){ //selectedWebAppService
+
+            if(id.action === "select"){
+                // console.log("getid",this.service.getObjectUniqueId(model.attrs, id.level));
+                this.select(model, id.level);
+                console.log("this.selectedElement",this.selectedElements);
+            }
+
             if(id.action === "toggle_studies"){
                 if(!model.studies){
                     // this.getStudies(model);
@@ -785,7 +842,8 @@ export class StudyComponent implements OnInit{
         delete filterModel.webApp;
         return filterModel;
     }
-    search(mode?:('next'|'prev'|'current')){
+    search(mode:('next'|'prev'|'current'), e){
+        console.log("e",e);
         console.log("this",this.filter);
         if(this.studyWebService.selectedWebService){
 
@@ -793,18 +851,28 @@ export class StudyComponent implements OnInit{
             if(filterModel.limit){
                 filterModel.limit++;
             }
-            if(!mode || mode === "current"){
-                filterModel.offset = 0;
-                this.getStudies(filterModel);
-            }else{
-                if(mode === "next" && this.moreStudies){
-                    filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
+            if(e.id === "submit"){
+                if(!mode || mode === "current"){
+                    filterModel.offset = 0;
                     this.getStudies(filterModel);
+                }else{
+                    if(mode === "next" && this.moreStudies){
+                        filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
+                        this.getStudies(filterModel);
+                    }
+                    if(mode === "prev" && filterModel.offset > 0){
+                        filterModel.offset = filterModel.offset - this._filter.filterModel.offset;
+                        this.getStudies(filterModel);
+                    }
                 }
-                if(mode === "prev" && filterModel.offset > 0){
-                    filterModel.offset = filterModel.offset - this._filter.filterModel.offset;
-                    this.getStudies(filterModel);
-                }
+            }
+            if(e.id === "count"){
+                console.log("filter",this._filter.filterSchemaMain);
+                this.getQuantity("count")
+            }
+            if(e.id === "size"){
+                console.log("filter",this._filter.filterSchemaMain);
+                this.getQuantity("size")
             }
     /*        }else{
                 this.appService.showError("Calling AET is missing!");
@@ -812,6 +880,91 @@ export class StudyComponent implements OnInit{
         }else{
             this.appService.showError("No web app service was selected!");
         }
+    }
+    showNoFilterWarning(queryParameters){
+        let param =  _.clone(queryParameters);
+        if (param['orderby'] == '-StudyDate,-StudyTime'){
+            if (_.hasIn(param, ['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'])){
+                delete param['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
+            }
+            if (_.hasIn(param, 'includefield')){
+                delete param['includefield'];
+            }
+            if (_.hasIn(param, 'limit')){
+                delete param['limit'];
+            }
+            if (_.hasIn(param, 'offset')){
+                delete param['offset'];
+            }
+            if (_.hasIn(param, 'orderby')){
+                delete param['orderby'];
+            }
+            if(_.size(param) < 1){
+                return true
+            }else{
+                for(let p in param){
+                    if(param[p] == "")
+                        delete param[p];
+                }
+            }
+            return (_.size(param) < 1) ? true : false;
+        }else{
+            return false;
+        }
+    }
+    getQuantity(quantity:Quantity){
+        ///schema[3][2][""0""]
+        let filterModel =  this.getFilterClone();
+/*        if(this.queryMode === "queryStudies"){
+            mode = "studies"
+            filters = this.createStudyFilterParams();
+        }
+        if(this.queryMode === "queryPatients"){
+            mode = "patients"
+            filters = this.createPatientFilterParams();
+        }
+        if(this.queryMode === "queryMWL"){
+            mode = "mwlitems"
+            filters = this.createMwlFilterParams();
+        }*/
+        if (this.showNoFilterWarning(filterModel)) {
+            this.confirm({
+                content: 'No filter are set, are you sure you want to continue?'
+            }).subscribe(result => {
+                if (result){
+                    this.getQuantityService(filterModel, quantity);
+                }
+            });
+        }else{
+            this.getQuantityService(filterModel, quantity);
+        }
+    }
+    getQuantityService(filterModel, quantity:Quantity){
+        // let clonedFilters = _.cloneDeep(filters);
+        delete filterModel.orderby;
+        delete filterModel.limit;
+        delete filterModel.offset;
+        let quantityText = quantity === "count" ? "COUNT": "SIZE";
+
+        _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["quantityText"]], false);
+        _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["text"]], quantityText);
+        _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showDynamicLoader"]], true);
+        this.service.getStudies(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity).subscribe(studyCount=>{
+            console.log("studyCount",studyCount);
+            let value = studyCount[quantity];
+            if(quantity === "size"){
+                value = j4care.convertBtoHumanReadable(value,1);
+            }
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showRefreshIcon"]], false);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showDynamicLoader"]], false);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["text"]], `( ${this.largeIntFormat.transform(value)} ) ${quantityText}`);
+        },err=>{
+            j4care.log("Something went wrong on search", err);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showRefreshIcon"]], true);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showDynamicLoader"]], false);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["text"]], quantityText);
+            this.httpErrorHandler.handleError(err);
+        })
     }
 
 
@@ -1028,6 +1181,10 @@ export class StudyComponent implements OnInit{
             this.studyWebService.webServices.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
         );
         this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
+        this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
+        this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
+        this.filterButtonPath.count.pop();
+        this.filterButtonPath.size.pop();
     }
 
     accessLocationChange(e){

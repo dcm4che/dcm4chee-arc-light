@@ -40,7 +40,7 @@
       </div>-->
       <div class="filter_line">
         <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [doNotSave]="['webApp']" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
+          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [doNotSave]="['webApp']" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
         </div>
       </div>
       <div class="filter_line" [hidden]="!filter.expand">

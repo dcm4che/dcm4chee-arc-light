@@ -1552,7 +1552,7 @@ table{
     display: block;
     height: auto;
     position: absolute;
-    width: 380px;
+    width: 395px;
     border: 1px solid #ccc;
     z-index: 999999999;
     margin-top: 35px;
@@ -1632,6 +1632,10 @@ table{
     	color: #404040;
     	text-decoration: none;
     }
+	.more_buttons_block{
+		overflow: auto;
+		max-height: 110px;
+	}
 }
 .block-1-1, .block-1-2, .block-2-1, .block-2-2{
     border: 1px solid #ccc;
