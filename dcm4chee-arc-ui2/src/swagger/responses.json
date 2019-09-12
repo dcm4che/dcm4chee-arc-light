@@ -630,7 +630,7 @@
     "content": {
       "application/json": {
         "schema": {
-          "$ref": "deviceList.schema.json"
+          "$ref": "schemas/deviceList.schema.json"
         }
       }
     }
@@ -671,7 +671,7 @@
     "content": {
       "application/json": {
         "schema": {
-          "$ref": "aeList.schema.json"
+          "$ref": "schemas/aeList.schema.json"
         }
       }
     }
@@ -681,7 +681,7 @@
     "content": {
       "application/json": {
         "schema": {
-          "$ref": "webappList.schema.json"
+          "$ref": "schemas/webappList.schema.json"
         }
       }
     }
@@ -691,7 +691,7 @@
     "content": {
       "application/json": {
         "schema": {
-          "$ref": "hl7appList.schema.json"
+          "$ref": "schemas/hl7appList.schema.json"
         }
       }
     }
