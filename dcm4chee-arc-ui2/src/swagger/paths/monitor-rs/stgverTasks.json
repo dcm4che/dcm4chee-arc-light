@@ -1,0 +1,106 @@
+{
+  "get": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "List Storage Verification Tasks",
+    "operationId": "listStorageVerificationTasks",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/accept"
+      },
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/StudyInstanceUID"
+      },
+      {
+        "$ref": "../../parameters.json#/localAET"
+      },
+      {
+        "$ref": "../../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../../parameters.json#/offset"
+      },
+      {
+        "$ref": "../../parameters.json#/limit"
+      },
+      {
+        "$ref": "../../parameters.json#/orderByTime"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Storage Verification Tasks",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/stgverTaskList.schema.json"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "406": {
+        "description": "Media type in Accept Header of Http Request Not Acceptable."
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Delete Storage Verification Tasks",
+    "operationId": "deleteStorageVerificationTasks",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/StudyInstanceUID"
+      },
+      {
+        "$ref": "../../parameters.json#/localAET"
+      },
+      {
+        "$ref": "../../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/deletedCount"
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "get": {
+    "tags": [
+      "QUEUE-RS"
+    ],
+    "summary": "List Tasks in Queue",
+    "operationId": "listTasks",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/queuePathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../../parameters.json#/JMSMessageID"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../../parameters.json#/offset"
+      },
+      {
+        "$ref": "../../parameters.json#/limit"
+      },
+      {
+        "$ref": "../../parameters.json#/orderByTime"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Queue Messages",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/messageList.schema.json"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "404": {
+        "description": "Queue not found"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "QUEUE-RS"
+    ],
+    "summary": "Delete Tasks in Queue",
+    "operationId": "deleteTasks",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/queuePathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../../parameters.json#/JMSMessageID"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/deletedCount"
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "404": {
+        "description": "Queue not found"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

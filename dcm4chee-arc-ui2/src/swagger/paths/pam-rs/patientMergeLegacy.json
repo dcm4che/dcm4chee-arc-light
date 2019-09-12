@@ -1,0 +1,34 @@
+{
+  "post": {
+    "tags": [
+      "PAM-RS"
+    ],
+    "summary": "Merge Patient",
+    "operationId": "MergePatient",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/priorPatientPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/patientPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "No such Application Entity or Patient."
+      },
+      "409": {
+        "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

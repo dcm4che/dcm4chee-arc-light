@@ -1,0 +1,51 @@
+{
+  "post": {
+    "tags": [
+      "IMPAX-REPORT-RS"
+    ],
+    "summary": "Import Reports of Study",
+    "operationId": "importReportsOfStudy",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/studyPathParam"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "202": {
+        "description": "This indicates that some reports returned by the Impax Report Service were stored, but failures exist for others.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "no such Archive AET or Study"
+      },
+      "409": {
+        "description": "Impax Report Service returns no report for the study"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      },
+      "502": {
+        "description": "Connection to remote side fails"
+      }
+    }
+  }
+}

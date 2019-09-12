@@ -1,0 +1,70 @@
+{
+  "post": {
+    "tags": [
+      "STGVER-RS"
+    ],
+    "summary": "Verify Storage of Study",
+    "operationId": "VerifyStorageOfStudy",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/storageVerificationPolicy"
+      },
+      {
+        "$ref": "../../parameters.json#/storageVerificationUpdateLocationStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/storageVerificationStorageID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Storage Verification successful for all objects of the Series",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "202": {
+        "description": "Storage Verification successful for some objects of the Series, but failures exist for others.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed."
+      },
+      "404": {
+        "description": "No such Archive AE title, Study or Series"
+      },
+      "409": {
+        "description": "Storage Verification failed for all objects of the Series",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

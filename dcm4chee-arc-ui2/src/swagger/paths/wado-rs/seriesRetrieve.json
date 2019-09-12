@@ -1,0 +1,37 @@
+{
+  "get": {
+    "tags": [
+      "WADO-RS"
+    ],
+    "summary": "Retrieve Series",
+    "operationId": "RetrieveSeries",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/wadoRetrieveAccept"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/retrievedInstances"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "Series does not exists."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

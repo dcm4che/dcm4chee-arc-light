@@ -1,0 +1,25 @@
+{
+  "get": {
+    "tags": [
+      "AUTH-RS"
+    ],
+    "summary": "Get Access token from Keycloak",
+    "operationId": "getAccessTokenFromKeycloak",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/keycloakIDPathParam"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/AccessToken"
+      },
+      "404": {
+        "description": "No such Keycloak Server in Archive Device configuration"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

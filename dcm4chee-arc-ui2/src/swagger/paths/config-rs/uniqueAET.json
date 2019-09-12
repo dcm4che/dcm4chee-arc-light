@@ -1,0 +1,48 @@
+{
+  "post": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Register Application Entity Title",
+    "operationId": "registerAET",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/aetPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "409": {
+        "description": "AE Title already registered"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Unregister Application Entity Title",
+    "operationId": "unregisterAET",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/aetPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "AE Title not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

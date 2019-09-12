@@ -1,0 +1,31 @@
+{
+  "post": {
+    "tags": [
+      "QUEUE-RS"
+    ],
+    "summary": "Cancel Task",
+    "operationId": "cancelTask",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/queuePathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/taskIDPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "No such queue or task"
+      },
+      "409": {
+        "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

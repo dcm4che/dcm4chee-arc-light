@@ -1,0 +1,46 @@
+{
+  "get": {
+    "tags": [
+      "WADO-RS"
+    ],
+    "summary": "Retrieve Frames Thumbnail",
+    "operationId": "RetrieveFramesThumbnail",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/instancePathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/framesPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/wadoRetrieveThumbnailAccept"
+      },
+      {
+        "$ref": "../../parameters.json#/thumbnailViewport"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/retrievedThumbnail"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "There is no Archive AE with the specified Title."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

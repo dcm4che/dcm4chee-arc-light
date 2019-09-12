@@ -1,0 +1,15 @@
+{
+  "get": {
+    "tags": [
+      "CTRL-RS"
+    ],
+    "summary": "Get Archive Status",
+    "operationId": "status",
+    "parameters": [],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/Status"
+      }
+    }
+  }
+}

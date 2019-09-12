@@ -1,0 +1,32 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Get Attribute Filter",
+    "operationId": "getAttributeFilter",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/entityPathParam"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Attribute Filter of Entity",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../../assets/schema/attributeFilter.schema.json"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "entity not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

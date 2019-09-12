@@ -1,0 +1,49 @@
+{
+  "post": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Reschedule Export Tasks to original Exporter",
+    "operationId": "rescheduleExportTasks",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/newDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/ExporterIDs"
+      },
+      {
+        "$ref": "../../parameters.json#/StudyInstanceUID"
+      },
+      {
+        "$ref": "../../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/countResults"
+      },
+      "400": {
+        "description": "Missing status or Validation for one of the query parameters failed."
+      },
+      "409": {
+        "description": "Cannot reschedule tasks with status TO SCHEDULE"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

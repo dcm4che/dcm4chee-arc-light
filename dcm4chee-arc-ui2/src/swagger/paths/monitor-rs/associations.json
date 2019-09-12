@@ -1,0 +1,24 @@
+{
+  "get": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "List Open Associations",
+    "operationId": "listOpenAssociations",
+    "parameters": [
+
+    ],
+    "responses": {
+      "200": {
+        "description": "Open Associations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/associations.schema.json"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,21 +7,21 @@
     "operationId": "RetrieveWorkitem",
     "parameters": [
       {
-        "$ref": "../parameters.json#/archiveAETPathParam"
+        "$ref": "../../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../parameters.json#/archiveAETPathParam"
+        "$ref": "../../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../parameters.json#/workitemPathParam"
+        "$ref": "../../parameters.json#/workitemPathParam"
       },
       {
-        "$ref": "../parameters.json#/acceptJsonOrXml"
+        "$ref": "../../parameters.json#/acceptJsonOrXml"
       }
     ],
     "responses": {
       "200": {
-        "$ref": "../responses.json#/workitem"
+        "$ref": "../../responses.json#/workitem"
       },
       "400": {
         "description": "There was a problem with the request."
@@ -42,14 +42,14 @@
     "operationId": "UpdateWorkitem",
     "parameters": [
       {
-        "$ref": "../parameters.json#/archiveAETPathParam"
+        "$ref": "../../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../parameters.json#/workitem"
+        "$ref": "../../parameters.json#/workitem"
       }
     ],
     "requestBody": {
-      "$ref": "../requestBodies.json#/workitem"
+      "$ref": "../../requestBodies.json#/workitem"
     },
     "responses": {
       "201": {

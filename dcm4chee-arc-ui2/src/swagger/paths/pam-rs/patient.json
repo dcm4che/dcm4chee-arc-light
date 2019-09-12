@@ -1,0 +1,72 @@
+{
+  "put": {
+    "tags": [
+      "PAM-RS"
+    ],
+    "summary": "Update, Create, Merge or Change Patient ID of patient",
+    "operationId": "UpdatePatient",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/patientPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/merge"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../../requestBodies.json#/patientAttributes"
+    },
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "400": {
+        "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed."
+      },
+      "404": {
+        "description": "There is no Archive AE with the specified Title."
+      },
+      "409": {
+        "description": "Patient Tracking Not Allowed or Circular Patient Merge exception"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "PAM-RS"
+    ],
+    "summary": "Delete Patient Permanently",
+    "operationId": "DeletePatient",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/patientPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "403": {
+        "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies"
+      },
+      "404": {
+        "description": "No such Application Entity or Patient."
+      },
+      "409": {
+        "description": "Non Unique Patient or Patient is already merged exception."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

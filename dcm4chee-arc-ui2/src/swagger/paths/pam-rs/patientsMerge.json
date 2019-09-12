@@ -1,0 +1,37 @@
+{
+  "post": {
+    "tags": [
+      "PAM-RS"
+    ],
+    "summary": "Merge Patients",
+    "operationId": "MergePatients",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/patientPathParam"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../../requestBodies.json#/PriorPatientIDs"
+    },
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "400": {
+        "description": "JSON request body was not well formed"
+      },
+      "404": {
+        "description": "No such Application Entity or Patient."
+      },
+      "409": {
+        "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

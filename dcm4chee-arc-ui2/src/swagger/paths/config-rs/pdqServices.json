@@ -1,0 +1,25 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "List PDQ Services",
+    "operationId": "listPDQServices",
+    "parameters": [],
+    "responses": {
+      "200": {
+        "description": "PDQ Services",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/pdqServices.schema.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

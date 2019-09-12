@@ -1,0 +1,28 @@
+{
+  "get": {
+    "tags": [
+      "AUTH-RS"
+    ],
+    "summary": "Get Access token from Keycloak for given Web Application",
+    "operationId": "getAccessToken",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/webAppPathParam"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/AccessToken"
+      },
+      "204": {
+        "description": "No Keycloak Client ID configured for Web Application"
+      },
+      "404": {
+        "description": "No such Web Application or Keycloak Client for given Web Application identifier in Device configuration"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

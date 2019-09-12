@@ -1,0 +1,61 @@
+{
+  "post": {
+    "tags": [
+      "IOCM-RS"
+    ],
+    "summary": "Copy Instances to Study",
+    "operationId": "CopyInstances",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/studyPathParam"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../../requestBodies.json#/HierarchicalSOPInstanceReference"
+    },
+    "responses": {
+      "200": {
+        "description": "All referenced instances copied to target study",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "202": {
+        "description": "This indicates that some Instances were copied to target study, but failures exist for others.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+      },
+      "404": {
+        "description": "No such Application Entity, Study."
+      },
+      "409": {
+        "description": "Copy Instances to target study failed for all.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

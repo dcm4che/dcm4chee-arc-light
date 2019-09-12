@@ -1,0 +1,15 @@
+{
+  "post": {
+    "tags": [
+      "CTRL-RS"
+    ],
+    "summary": "Reload Archive Configuration",
+    "operationId": "reload",
+    "parameters": [],
+    "responses": {
+      "204": {
+        "description": "configuration reloaded"
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "post": {
+    "tags": [
+      "IOCM-RS"
+    ],
+    "description": "URL shall be without '_'. Open API does not allow matching URLs with same HTTP request methods to be defined twice! Clashes with STOW-RS URL",
+    "summary": "Create Or Update Study",
+    "operationId": "CreateOrUpdateStudy",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../../requestBodies.json#/studyAttributes"
+    },
+    "responses": {
+      "200": {
+        "description": "Created / Updated Study",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "JSON request body not well formed or Missing Patient ID in request body"
+      },
+      "404": {
+        "description": "No such Application Entity or Patient not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

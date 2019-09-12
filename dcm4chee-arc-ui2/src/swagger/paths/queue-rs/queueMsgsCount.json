@@ -1,0 +1,46 @@
+{
+  "get": {
+    "tags": [
+      "QUEUE-RS"
+    ],
+    "summary": "Count Tasks in Queue",
+    "operationId": "countTasks",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/queuePathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../../parameters.json#/JMSMessageID"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/countResults"
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "404": {
+        "description": "Queue not found"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

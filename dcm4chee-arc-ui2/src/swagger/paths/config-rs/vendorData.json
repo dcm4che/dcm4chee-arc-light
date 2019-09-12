@@ -1,0 +1,92 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Get Device Vendor Data",
+    "operationId": "getDeviceVendorData",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/devicePathParam"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "successful operation",
+        "content": {
+          "application/zip": {
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      },
+      "204": {
+        "description": "successful operation - device has no vendor data"
+      },
+      "404": {
+        "description": "Device not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "put": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Update Device Vendor Data",
+    "operationId": "updateDeviceVendorData",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/devicePathParam"
+      }
+    ],
+    "requestBody": {
+      "description": "Vendor Data",
+      "required": true,
+      "content": {
+        "application/zip": {
+          "schema": {
+            "type": "file"
+          }
+        }
+      }
+    },
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "Device not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Delete Device Vendor Data",
+    "operationId": "deleteDeviceVendorData",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/devicePathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "Device not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

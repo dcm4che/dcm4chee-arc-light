@@ -1,0 +1,69 @@
+{
+  "get": {
+    "tags": [
+      "WADO-RS"
+    ],
+    "summary": "Retrieve Study",
+    "operationId": "RetrieveStudy",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/wadoRetrieveAccept"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/retrievedInstances"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "Study does not exists."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "post": {
+    "tags": [
+      "STOW-RS"
+    ],
+    "summary": "Store Instances to a Study",
+    "operationId": "StoreInstancesToStudy",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../requestBodies.json#/storeInstances"
+    },
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/storeInstancesSuccessful"
+      },
+      "204": {
+        "$ref": "../responses.json#/storeInstancesWarnings"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "There is no Archive AE with the specified Title."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

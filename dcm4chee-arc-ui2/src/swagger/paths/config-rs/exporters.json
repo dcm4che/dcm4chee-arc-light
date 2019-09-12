@@ -1,0 +1,25 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "List Exporters",
+    "operationId": "listExporters",
+    "parameters": [],
+    "responses": {
+      "200": {
+        "description": "Exporter Descriptors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/exporters.schema.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

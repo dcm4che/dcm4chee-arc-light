@@ -1,0 +1,73 @@
+{
+  "get": {
+    "tags": [
+      "STGCMT-RS"
+    ],
+    "summary": "List Storage Commitment Results",
+    "operationId": "listStgCmts",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/stgcmtStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/studyUID"
+      },
+      {
+        "$ref": "../../parameters.json#/ExporterID"
+      },
+      {
+        "$ref": "../../parameters.json#/JMSMessageID"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedBefore"
+      },
+      {
+        "$ref": "../../parameters.json#/offset"
+      },
+      {
+        "$ref": "../../parameters.json#/limit"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Storage Commitment Result List",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas/stgcmtList.schema.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "STGCMT-RS"
+    ],
+    "summary": "Delete Storage Commitment Results",
+    "operationId": "deleteStgCmts",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/stgcmtStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedBefore"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/deletedCount"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "get": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Count Retrieve Tasks",
+    "operationId": "countRetrieveTasks",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/StudyInstanceUID"
+      },
+      {
+        "$ref": "../../parameters.json#/localAET"
+      },
+      {
+        "$ref": "../../parameters.json#/remoteAET"
+      },
+      {
+        "$ref": "../../parameters.json#/destinationAET"
+      },
+      {
+        "$ref": "../../parameters.json#/dcmQueueName"
+      },
+      {
+        "$ref": "../../parameters.json#/status"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/countResults"
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "post": {
+    "tags": [
+      "MOVE-RS"
+    ],
+    "summary": "Mark Instance from external C-MOVE SCP",
+    "operationId": "MarkInstanceForRetrieve",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/moveSCPPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/instancePathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/destinationAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/dcmQueueNameRetrieve"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "Retrieve Task created for Instance"
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "404": {
+        "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

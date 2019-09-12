@@ -1,0 +1,34 @@
+{
+  "get": {
+    "tags": [
+      "WADO-RS"
+    ],
+    "summary": "Retrieve Study Metadata",
+    "operationId": "RetrieveStudyMetadata",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/wadoRetrieveMetadataAccept"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/retrievedMetadata"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "Study does not exists."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

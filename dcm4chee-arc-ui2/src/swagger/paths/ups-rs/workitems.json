@@ -7,33 +7,33 @@
     "operationId": "SearchForWorkitems",
     "parameters": [
       {
-        "$ref": "../parameters.json#/archiveAETPathParam"
+        "$ref": "../../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../parameters.json#/acceptJsonOrMultipartXml"
+        "$ref": "../../parameters.json#/acceptJsonOrMultipartXml"
       },
       {
-        "$ref": "../parameters.json#/filter"
+        "$ref": "../../parameters.json#/filter"
       },
       {
-        "$ref": "../parameters.json#/includefield"
+        "$ref": "../../parameters.json#/includefield"
       },
       {
-        "$ref": "../parameters.json#/fuzzymatching"
+        "$ref": "../../parameters.json#/fuzzymatching"
       },
       {
-        "$ref": "../parameters.json#/limit"
+        "$ref": "../../parameters.json#/limit"
       },
       {
-        "$ref": "../parameters.json#/offset"
+        "$ref": "../../parameters.json#/offset"
       },
       {
-        "$ref": "../parameters.json#/orderBy"
+        "$ref": "../../parameters.json#/orderBy"
       }
     ],
     "responses": {
       "200": {
-        "$ref": "../responses.json#/searchResults"
+        "$ref": "../../responses.json#/searchResults"
       },
       "204": {
         "description": "The search completed successfully, but there were zero results."
@@ -57,14 +57,14 @@
     "operationId": "CreateWorkitem",
     "parameters": [
       {
-        "$ref": "../parameters.json#/archiveAETPathParam"
+        "$ref": "../../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../parameters.json#/workitem"
+        "$ref": "../../parameters.json#/workitem"
       }
     ],
     "requestBody": {
-      "$ref": "../requestBodies.json#/workitem"
+      "$ref": "../../requestBodies.json#/workitem"
     },
     "responses": {
       "201": {

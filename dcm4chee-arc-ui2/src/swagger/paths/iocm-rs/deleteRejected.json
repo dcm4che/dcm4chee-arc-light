@@ -1,0 +1,37 @@
+{
+  "delete": {
+    "tags": [
+      "IOCM-RS"
+    ],
+    "summary": "Delete Rejected Instances Permanently",
+    "operationId": "deleteRejectedInstancesPermanently",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/codeValuePathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/codingSchemeDesignatorPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/rejectedBefore"
+      },
+      {
+        "$ref": "../../parameters.json#/keepRejectionNote"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../../responses.json#/deletedCount"
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed"
+      },
+      "404": {
+        "description": "No such Rejection Note"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

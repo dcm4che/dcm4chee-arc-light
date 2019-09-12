@@ -1,0 +1,48 @@
+{
+  "post": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Register Web Application Name",
+    "operationId": "registerWebApp",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/webAppPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "409": {
+        "description": "Web Application already registered"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Unregister Web Application Name",
+    "operationId": "unregisterWebApp",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/webAppPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "Web Application not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

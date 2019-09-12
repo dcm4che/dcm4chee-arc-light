@@ -1,0 +1,71 @@
+{
+  "get": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Get Compare Studies Batch Result",
+    "operationId": "getCompareStudiesBatchResult",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/batchIDPathParam"
+      },
+      {
+        "$ref": "../../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../../parameters.json#/localAET"
+      },
+      {
+        "$ref": "../../parameters.json#/primaryAET"
+      },
+      {
+        "$ref": "../../parameters.json#/secondaryAET"
+      },
+      {
+        "$ref": "../../parameters.json#/checkMissing"
+      },
+      {
+        "$ref": "../../parameters.json#/checkDifferent"
+      },
+      {
+        "$ref": "../../parameters.json#/comparefield"
+      },
+      {
+        "$ref": "../../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../../parameters.json#/offset"
+      },
+      {
+        "$ref": "../../parameters.json#/limit"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "different/missing studies as JSON array with DICOM JSON objects - may be empty if no study differs",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "no task with specified batchID"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

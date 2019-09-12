@@ -1,0 +1,22 @@
+{
+  "delete": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Abort Associations",
+    "operationId": "abortAssociation",
+    "parameters": [
+      {
+        "$ref": "../../parameters.json#/serialNoPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "no open Association with given serialNo found"
+      }
+    }
+  }
+}
