@@ -1,0 +1,43 @@
+{
+  "get": {
+    "tags": [
+      "WADO-RS"
+    ],
+    "summary": "Retrieve Bulkdata",
+    "operationId": "RetrieveIBulkdata",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/instancePathParam"
+      },
+      {
+        "$ref": "../parameters.json#/bulkdataPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/wadoRetrieveBulkdataAccept"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/retrievedBulkdata"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "Bulkdata does not exists."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "post": {
+    "tags": [
+      "QUEUE-RS"
+    ],
+    "summary": "Cancel Tasks in Queue",
+    "operationId": "cancelTasks",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/queuePathParam"
+      },
+      {
+        "$ref": "../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/cancelTaskStatus"
+      },
+      {
+        "$ref": "../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../parameters.json#/JMSMessageID"
+      },
+      {
+        "$ref": "../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../parameters.json#/updatedTime"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/countResults"
+      },
+      "400": {
+        "description": "Cannot cancel tasks with status CANCELED, COMPLETED, WARNING or FAILED or Validation for one of the query parameters failed."
+      },
+      "404": {
+        "description": "Queue not found"
+      },
+      "409": {
+        "description": "Invalid Queue Message status"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

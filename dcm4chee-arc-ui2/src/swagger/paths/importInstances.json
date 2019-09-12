@@ -1,0 +1,37 @@
+{
+  "post": {
+    "tags": [
+      "IMPORT-RS"
+    ],
+    "summary": "Import Instances",
+    "operationId": "ImportInstances",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/storageIDPathParam"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../requestBodies.json#/importInstances"
+    },
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/storeInstancesSuccessful"
+      },
+      "204": {
+        "$ref": "../responses.json#/storeInstancesWarnings"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "There is no Archive AE with the specified Title or no Storage with the specified StorageID."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

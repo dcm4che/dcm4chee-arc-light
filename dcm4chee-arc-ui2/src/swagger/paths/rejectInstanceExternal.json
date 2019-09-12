@@ -1,0 +1,66 @@
+{
+  "post": {
+    "tags": [
+      "IOCM-RS"
+    ],
+    "summary": "Reject Instance external",
+    "operationId": "RejectInstanceExternal",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/remoteAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/instancePathParam"
+      },
+      {
+        "$ref": "../parameters.json#/codeValuePathParam"
+      },
+      {
+        "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/storescp"
+      },
+      {
+        "$ref": "../parameters.json#/priority"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/reject.schema.json"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "No such Application Entity, External Application Entity, Study, Series, Instance or Rejection Note."
+      },
+      "500": {
+        "description": "Internal Server Error"
+      },
+      "502": {
+        "description": "C-FIND-SCP or C-STORE SCP Failure",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/reject.schema.json"
+            }
+          }
+        }
+      }
+    }
+  }
+}

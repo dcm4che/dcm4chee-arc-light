@@ -1,0 +1,34 @@
+{
+  "post": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Reschedule Export Task to potential different Exporter",
+    "operationId": "rescheduleExportTask",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/taskPkPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/newExporterIDPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/newDeviceName"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "No such task or Exporter configuration not found"
+      },
+      "409": {
+        "description": "tasks with status TO SCHEDULE cannot be rescheduled"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "List devices",
+    "operationId": "listDevices",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/dicomDescription"
+      },
+      {
+        "$ref": "../parameters.json#/dicomManufacturer"
+      },
+      {
+        "$ref": "../parameters.json#/dicomManufacturerModelName"
+      },
+      {
+        "$ref": "../parameters.json#/dicomStationName"
+      },
+      {
+        "$ref": "../parameters.json#/dicomPrimaryDeviceType"
+      },
+      {
+        "$ref": "../parameters.json#/dicomInstitutionName"
+      },
+      {
+        "$ref": "../parameters.json#/dicomInstitutionDepartmentName"
+      },
+      {
+        "$ref": "../parameters.json#/dicomInstalled"
+      },
+      {
+        "$ref": "../parameters.json#/dicomSoftwareVersion"
+      },
+      {
+        "$ref": "../parameters.json#/hasArcDevExt"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/deviceList"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

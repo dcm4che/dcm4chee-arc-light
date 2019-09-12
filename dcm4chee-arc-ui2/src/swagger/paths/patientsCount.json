@@ -1,0 +1,37 @@
+{
+  "get": {
+    "tags": [
+      "STAT-RS"
+    ],
+    "summary": "Count Patients",
+    "operationId": "CountPatients",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/filter"
+      },
+      {
+        "$ref": "../parameters.json#/fuzzymatching"
+      },
+      {
+        "$ref": "../parameters.json#/withoutstudies"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/countResults"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "There is no Archive AE with the specified Title."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

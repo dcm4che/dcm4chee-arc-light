@@ -1,0 +1,26 @@
+{
+  "get": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "List Metrics Descriptors",
+    "operationId": "listMetricsDescriptors",
+    "parameters": [
+    ],
+    "responses": {
+      "200": {
+        "description": "Metrics Descriptors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../assets/schema/metrics.schema.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

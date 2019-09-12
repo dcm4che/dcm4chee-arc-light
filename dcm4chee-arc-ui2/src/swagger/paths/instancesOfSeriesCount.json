@@ -1,0 +1,94 @@
+{
+  "get": {
+    "tags": [
+      "STAT-RS"
+    ],
+    "summary": "Count Instances of Series of Study",
+    "operationId": "CountStudySeriesInstances",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/filter"
+      },
+      {
+        "$ref": "../parameters.json#/fuzzymatching"
+      },
+      {
+        "$ref": "../parameters.json#/patientVerificationStatus"
+      },
+      {
+        "$ref": "../parameters.json#/incomplete"
+      },
+      {
+        "$ref": "../parameters.json#/retrievefailed"
+      },
+      {
+        "$ref": "../parameters.json#/storageVerificationFailed"
+      },
+      {
+        "$ref": "../parameters.json#/compressionfailed"
+      },
+      {
+        "$ref": "../parameters.json#/metadataUpdateFailed"
+      },
+      {
+        "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+      },
+      {
+        "$ref": "../parameters.json#/StudyReceiveDateTime"
+      },
+      {
+        "$ref": "../parameters.json#/StudyAccessDateTime"
+      },
+      {
+        "$ref": "../parameters.json#/StudySizeInKB"
+      },
+      {
+        "$ref": "../parameters.json#/ExternalRetrieveAET"
+      },
+      {
+        "$ref": "../parameters.json#/ExternalRetrieveAET!"
+      },
+      {
+        "$ref": "../parameters.json#/ExpirationDate"
+      },
+      {
+        "$ref": "../parameters.json#/ExpirationState"
+      },
+      {
+        "$ref": "../parameters.json#/allOfModalitiesInStudy"
+      },
+      {
+        "$ref": "../parameters.json#/storageID"
+      },
+      {
+        "$ref": "../parameters.json#/storageClustered"
+      },
+      {
+        "$ref": "../parameters.json#/storageExported"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/countResults"
+      },
+      "400": {
+        "description": "There was a problem with the request."
+      },
+      "404": {
+        "description": "There is no Archive AE with the specified Title."
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

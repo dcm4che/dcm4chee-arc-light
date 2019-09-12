@@ -1,0 +1,25 @@
+{
+  "get": {
+    "tags": [
+      "QUEUE-RS"
+    ],
+    "summary": "List Configured Queues",
+    "operationId": "listQueues",
+    "parameters": [],
+    "responses": {
+      "200": {
+        "description": "Queues",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/queueList.schema.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

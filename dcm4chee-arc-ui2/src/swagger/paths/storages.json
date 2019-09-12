@@ -1,0 +1,41 @@
+{
+  "get": {
+    "tags": [
+      "STORAGE-RS"
+    ],
+    "summary": "List Storage Systems",
+    "operationId": "listStorageSystems",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/uriScheme"
+      },
+      {
+        "$ref": "../parameters.json#/dicomAETitle"
+      },
+      {
+        "$ref": "../parameters.json#/usage"
+      },
+      {
+        "$ref": "../parameters.json#/storageClusterID"
+      },
+      {
+        "$ref": "../parameters.json#/usableSpaceBelow"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Storage Systems",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/storageList.schema.json"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

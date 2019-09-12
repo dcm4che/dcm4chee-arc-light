@@ -1,0 +1,25 @@
+{
+  "delete": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Delete Compare Studies Task",
+    "operationId": "deleteCompareStudiesTask",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/taskPkPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "task not found"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "post": {
+    "tags": [
+      "PAM-RS"
+    ],
+    "summary": "Create Patient in external archive",
+    "operationId": "CreatePatientExternal",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/hl7AppPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/externalHL7AppPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/queue"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../requestBodies.json#/patientAttributes"
+    },
+    "responses": {
+      "202": {
+        "description": "Request successfully queued for processing"
+      },
+      "204": {
+        "description": "Message accepted by Receiving HL7 Application"
+      },
+      "400": {
+        "description": "JSON request body was not well formed."
+      },
+      "404": {
+        "description": "HL7 Application or External HL7 Application not configured"
+      },
+      "409": {
+        "$ref": "../responses.json#/HL7ACK"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      },
+      "502": {
+        "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+      },
+      "504": {
+        "description": "Failed to connect to Receiving HL7 Application"
+      }
+    }
+  },
+  "put": {
+    "tags": [
+      "PAM-RS"
+    ],
+    "summary": "Update Patient in external archive Legacy",
+    "operationId": "UpdatePatientExternalLegacy",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/hl7AppPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/externalHL7AppPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/queue"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../requestBodies.json#/patientAttributes"
+    },
+    "responses": {
+      "202": {
+        "description": "Request successfully queued for processing"
+      },
+      "204": {
+        "description": "Message accepted by Receiving HL7 Application"
+      },
+      "400": {
+        "description": "JSON request body was not well formed."
+      },
+      "404": {
+        "description": "HL7 Application or External HL7 Application not configured"
+      },
+      "409": {
+        "$ref": "../responses.json#/HL7ACK"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      },
+      "502": {
+        "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+      },
+      "504": {
+        "description": "Failed to connect to Receiving HL7 Application"
+      }
+    }
+  }
+}

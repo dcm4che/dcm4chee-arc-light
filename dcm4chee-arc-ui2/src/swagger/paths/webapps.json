@@ -1,0 +1,43 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "List Web Applications",
+    "operationId": "listWebApplications",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/dicomDescription"
+      },
+      {
+        "$ref": "../parameters.json#/dcmWebAppName"
+      },
+      {
+        "$ref": "../parameters.json#/dcmWebServicePath"
+      },
+      {
+        "$ref": "../parameters.json#/dcmWebServiceClass"
+      },
+      {
+        "$ref": "../parameters.json#/dicomAETitle"
+      },
+      {
+        "$ref": "../parameters.json#/dcmKeycloakClientID"
+      },
+      {
+        "$ref": "../parameters.json#/dicomApplicationCluster"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/webAppList"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

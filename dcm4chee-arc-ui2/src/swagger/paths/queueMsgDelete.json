@@ -1,0 +1,28 @@
+{
+  "delete": {
+    "tags": [
+      "QUEUE-RS"
+    ],
+    "summary": "Delete Task",
+    "operationId": "deleteTask",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/queuePathParam"
+      },
+      {
+        "$ref": "../parameters.json#/taskIDPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "No such queue or task"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "get": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "List Storage Verification Batches",
+    "operationId": "listStorageVerificationBatches",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../parameters.json#/localAET"
+      },
+      {
+        "$ref": "../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../parameters.json#/offset"
+      },
+      {
+        "$ref": "../parameters.json#/limit"
+      },
+      {
+        "$ref": "../parameters.json#/orderByTime"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Storage Verification Batches",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/stgverBatchList.schema.json"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed."
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

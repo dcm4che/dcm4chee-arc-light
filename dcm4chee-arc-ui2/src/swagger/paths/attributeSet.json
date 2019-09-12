@@ -1,0 +1,32 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Get Attribute Set",
+    "operationId": "getAttributeSet",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/typePathParam"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Attribute Set of Type",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/attributeSets.schema.json"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Attribute Set type not found"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}
