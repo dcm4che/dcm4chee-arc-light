@@ -7,14 +7,14 @@
     "operationId": "RequestWorkitemCancellation",
     "parameters": [
       {
-        "$ref": "../../parameters.json#/archiveAETPathParam"
+        "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../../parameters.json#/workitemPathParam"
+        "$ref": "../parameters.json#/workitemPathParam"
       }
     ],
     "requestBody": {
-      "$ref": "../../requestBodies.json#/workitemCancelrequest"
+      "$ref": "../requestBodies.json#/workitemCancelrequest"
     },
     "responses": {
       "202": {

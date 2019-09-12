@@ -7,16 +7,16 @@
     "operationId": "SubscribeWorkitem",
     "parameters": [
       {
-        "$ref": "../../parameters.json#/archiveAETPathParam"
+        "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../../parameters.json#/workitemPathParam"
+        "$ref": "../parameters.json#/workitemPathParam"
       },
       {
-        "$ref": "../../parameters.json#/subscriberPathParam"
+        "$ref": "../parameters.json#/subscriberPathParam"
       },
       {
-        "$ref": "../../parameters.json#/deletionlock"
+        "$ref": "../parameters.json#/deletionlock"
       }
     ],
     "responses": {
@@ -42,13 +42,13 @@
     "operationId": "UnsubscribeWorkitem",
     "parameters": [
       {
-        "$ref": "../../parameters.json#/archiveAETPathParam"
+        "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../../parameters.json#/workitemPathParam"
+        "$ref": "../parameters.json#/workitemPathParam"
       },
       {
-        "$ref": "../../parameters.json#/subscriberPathParam"
+        "$ref": "../parameters.json#/subscriberPathParam"
       }
     ],
     "responses": {

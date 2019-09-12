@@ -7,16 +7,16 @@
     "operationId": "SubscribeFilteredWorklist",
     "parameters": [
       {
-        "$ref": "../../parameters.json#/archiveAETPathParam"
+        "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../../parameters.json#/subscriberPathParam"
+        "$ref": "../parameters.json#/subscriberPathParam"
       },
       {
-        "$ref": "../../parameters.json#/filter"
+        "$ref": "../parameters.json#/filter"
       },
       {
-        "$ref": "../../parameters.json#/deletionlock"
+        "$ref": "../parameters.json#/deletionlock"
       }
     ],
     "responses": {
@@ -42,10 +42,10 @@
     "operationId": "UnsubscribeFilteredWorklist",
     "parameters": [
       {
-        "$ref": "../../parameters.json#/archiveAETPathParam"
+        "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../../parameters.json#/subscriberPathParam"
+        "$ref": "../parameters.json#/subscriberPathParam"
       }
     ],
     "responses": {

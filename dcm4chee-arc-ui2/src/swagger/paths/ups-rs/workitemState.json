@@ -7,18 +7,18 @@
     "operationId": "ChangeWorkitemState",
     "parameters": [
       {
-        "$ref": "../../parameters.json#/archiveAETPathParam"
+        "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../../parameters.json#/workitemPathParam"
+        "$ref": "../parameters.json#/workitemPathParam"
       }
     ],
     "requestBody": {
-      "$ref": "../../requestBodies.json#/workitemState"
+      "$ref": "../requestBodies.json#/workitemState"
     },
     "responses": {
       "200": {
-        "$ref": "../../responses.json#/workitemState"
+        "$ref": "../responses.json#/workitemState"
       },
       "400": {
         "description": "The request cannot be performed, because it is invalid given the current state of the Target Workitem, or the Transaction UID is missing or incorrect."

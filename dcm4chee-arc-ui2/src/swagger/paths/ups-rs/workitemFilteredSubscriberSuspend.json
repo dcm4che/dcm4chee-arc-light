@@ -7,10 +7,10 @@
     "operationId": "SuspendSubscriptionFilteredWorklist",
     "parameters": [
       {
-        "$ref": "../../parameters.json#/archiveAETPathParam"
+        "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../../parameters.json#/subscriberPathParam"
+        "$ref": "../parameters.json#/subscriberPathParam"
       }
     ],
     "responses": {
