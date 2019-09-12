@@ -948,7 +948,7 @@
       "$ref": "paths/queryRetrieveMatchingInstanceOfSeries.json"
     },
     "/aets/{aet}/dimse/{movescp}/studies/mark4retrieve/dicom:{destinationAET}": {
-      "$ref": "paths//queryMarkForRetrieveMatchingStudies.json"
+      "$ref": "paths/queryMarkForRetrieveMatchingStudies.json"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{destinationAET}": {
       "$ref": "paths/queryMarkForRetrieveMatchingSeriesOfStudy.json"
