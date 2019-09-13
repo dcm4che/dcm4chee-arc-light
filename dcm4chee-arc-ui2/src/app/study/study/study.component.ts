@@ -62,6 +62,7 @@ import {ViewerComponent} from "../../widgets/dialogs/viewer/viewer.component";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
 import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
+import {UploadDicomComponent} from "../../widgets/dialogs/upload-dicom/upload-dicom.component";
 
 
 @Component({
@@ -173,9 +174,9 @@ export class StudyComponent implements OnInit{
         options:[
             new SelectDropdown("create_patient","Create patient"),
             new SelectDropdown("upload_dicom","Upload DICOM Object"),
+            new SelectDropdown("permanent_delete","Permanent delete", "Delete Rejected Instances permanently"),
             new SelectDropdown("export_multiple","Export multiple studies"),
             new SelectDropdown("retrieve_multiple","Retrieve multiple studies"),
-            new SelectDropdown("permanent_delete","Permanent delete", "Delete Rejected Instances permanently"),
             new SelectDropdown("storage_verification","Storage Verification"),
             new SelectDropdown("download_studies","Download Studies as CSV"),
         ],
@@ -206,6 +207,7 @@ export class StudyComponent implements OnInit{
         count:[],
         size:[]
     };
+    internal = true;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -229,6 +231,14 @@ export class StudyComponent implements OnInit{
           this.studyConfig.tab = params.tab;
           this.initWebApps();
         });
+        this.moreFunctionConfig.options.filter(option=>{
+            console.log("option",option);
+            if(option.value === "retrieve_multiple"){
+                return !this.internal;
+            }else{
+                return true;
+            }
+        })
     }
 
     resetSelectionObject(){
@@ -271,7 +281,7 @@ export class StudyComponent implements OnInit{
                 this.deleteRejectedInstances();
                 break;
             case "upload_dicom":
-//
+                this.uploadDicom();
                break;
             case "export_multiple":
                 this.exportMultipleStudies();
@@ -280,7 +290,6 @@ export class StudyComponent implements OnInit{
                 this.retrieveMultipleStudies();
                break;
             case "storage_verification":
-                //TODO waiting for issue for unification of URLs of the services to finish
                 this.storageVerification();
                break;
             case "download_studies":
@@ -296,7 +305,7 @@ export class StudyComponent implements OnInit{
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
             this.tableParam.tableSchema  = this.getSchema();
         }
-
+        //TODO
         // if(_.size(this.selectedElements) > 0){
             if(e === "export_object"){
                 // Object.keys(this.selectedElements).forEach((id)=>{
@@ -438,6 +447,21 @@ export class StudyComponent implements OnInit{
         }
     }
 
+    uploadDicom(){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(UploadDicomComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+/*        this.dialogRef.componentInstance.aes = this.aes;
+        this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
+        this.dialogRef.componentInstance.selectedWebApp = this.studyWebService.selectedWebService;
+        this.dialogRef.afterClosed().subscribe((result) => {
+            console.log('result', result);
+            if (result){
+            }
+        });
+    };
     uploadFile(object,mode){
         if(mode === "mwl"){
             //perpare mwl object for study upload
@@ -802,13 +826,17 @@ export class StudyComponent implements OnInit{
         }
         return params;
     }
-    createStudyFilterParams() {
+    createStudyFilterParams(withoutPagination?:boolean) {
         let filter = this.getFilterClone();
         delete filter["onlyDefault"];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
         if(!this._filter.filterModel["onlyDefault"]){
             filter["includefield"] = 'all';
+        }
+        if(withoutPagination){
+            delete filter["size"];
+            delete filter["offset"];
         }
         return filter;
     }
@@ -913,20 +941,7 @@ export class StudyComponent implements OnInit{
         }
     }
     getQuantity(quantity:Quantity){
-        ///schema[3][2][""0""]
         let filterModel =  this.getFilterClone();
-/*        if(this.queryMode === "queryStudies"){
-            mode = "studies"
-            filters = this.createStudyFilterParams();
-        }
-        if(this.queryMode === "queryPatients"){
-            mode = "patients"
-            filters = this.createPatientFilterParams();
-        }
-        if(this.queryMode === "queryMWL"){
-            mode = "mwlitems"
-            filters = this.createMwlFilterParams();
-        }*/
         if (this.showNoFilterWarning(filterModel)) {
             this.confirm({
                 content: 'No filter are set, are you sure you want to continue?'
@@ -1164,10 +1179,39 @@ export class StudyComponent implements OnInit{
     filterChanged(){
         if(this.studyWebService.selectedWebService != _.get(this.filter,"filterModel.webApp")){
             this.studyWebService.selectedWebService = _.get(this.filter,"filterModel.webApp");
+            this.internal = !(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
+/*            this.moreFunctionConfig.options = this.moreFunctionConfig.options.filter(option=>{
+                console.log("option",option);
+                if(option.value === "retrieve_multiple"){
+                    return !this.internal;
+                }else{
+                    return true;
+                }
+            });*/
+            // console.log("test",test);
             this.setTrash();
             // this.patients = [];
         }
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
+    }
+    moreFunctionFilterPipe(value, internal){
+        console.log("value",value);
+        return value.filter(option=>{
+            console.log("option",option);
+            switch (option.value) {
+                case "retrieve_multiple":
+                    return !internal;
+                case "export_multiple":
+                    return internal;
+                case "upload_dicom":
+                    return internal;
+                case "permanent_delete":
+                    return internal;
+                case "export_multiple":
+                    return internal;
+            }
+            return true;
+        });
     }
 
     setSchema(){
@@ -1787,10 +1831,6 @@ export class StudyComponent implements OnInit{
         let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
-        let internal = true;
-        if(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName){
-            internal = false;
-        }
         _.forEach(this.exporters, (m, i) => {
             if (m.id.indexOf(':') > -1){
                 dicomPrefixes.push(m);
@@ -1812,7 +1852,7 @@ export class StudyComponent implements OnInit{
         this.dialogRef = this.dialog.open(ExportDialogComponent, config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
-        this.dialogRef.componentInstance.externalInternalAetMode = internal ? "internal" : "external";
+        this.dialogRef.componentInstance.externalInternalAetMode = this.internal ? "internal" : "external";
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.componentInstance.queues = this.queues;
@@ -1852,6 +1892,7 @@ export class StudyComponent implements OnInit{
                             checkbox = '&' + checkbox;
                         urlRest = `${this.service.getDicomURL("export",this.studyWebService.selectedWebService)}/${result.selectedExporter}?${batchID}${this.appService.param(this.createStudyFilterParams())}${checkbox}`;
                     }else{
+                        //SINGLE
                         console.log("deviceName",this.appService.archiveDeviceName);
                         console.log("deviceName",this.studyWebService.selectedWebService.dicomDeviceName);
                         if(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName){
@@ -1984,20 +2025,15 @@ export class StudyComponent implements OnInit{
             saveButton: 'SAVE'
         }).subscribe((ok)=>{
             if(ok){
-                //TODO
-/*                this.cfpLoadingBar.start();
-                this.service.scheduleStorageVerification(_.merge(ok.schema_model , this.createStudyFilterParams()), this.studyWebService).subscribe(res=>{
-                    console.log("res");
+                this.cfpLoadingBar.start();
+                this.service.scheduleStorageVerification(_.merge(ok.schema_model , this.createStudyFilterParams(true)), this.studyWebService).subscribe(res=>{
+                    console.log("res",res);
                     this.cfpLoadingBar.complete();
-                    this.appService.setMessage({
-                        'title': 'Info',
-                        'text': 'Storage Verification scheduled successfully!',
-                        'status': 'info'
-                    });
+                    this.appService.showMsg('Storage Verification scheduled successfully!');
                 },err=>{
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);
-                });*/
+                });
             }
         });
     }

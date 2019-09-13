@@ -70,17 +70,18 @@
               <a href="" (click)="$event.preventDefault();filter.expand=false" *ngIf="filter.expand" class="more [hidden] pull-left">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
               <dcm-drop-down
                   [placeholder]="moreFunctionConfig.placeholder"
-                  [options]="moreFunctionConfig.options"
+                  [options]="moreFunctionConfig.options | dynamicPipe:undefined:moreFunctionFilterPipe:internal"
                   [editable]="false"
                   [(model)]="moreFunctionConfig.model"
                   [showSearchField]="false"
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
+                  *ngIf="studyWebService && studyWebService.selectedWebService"
               ></dcm-drop-down>
             </div>
           </div>
-          <div class="filter_block">
+          <div class="filter_block" *ngIf="((patients && patients.length > 0) || (studyWebService && studyWebService.selectedWebService))">
             <div class="line">
               <dcm-drop-down
                       [placeholder]="actionsSelections.placeholder"
@@ -91,8 +92,9 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
+                      *ngIf="studyWebService && studyWebService.selectedWebService"
               ></dcm-drop-down>
-              <input title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList" placeholder="Search current list">
+              <input *ngIf="patients && patients.length > 0" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList" placeholder="Search current list">
             </div>
           </div>
         </div>

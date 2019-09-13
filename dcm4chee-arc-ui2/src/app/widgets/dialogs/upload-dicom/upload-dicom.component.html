@@ -2,14 +2,18 @@
     <div class="vex-dialog-form">
         <h5>Upload DICOM data</h5>
         <div class="content">
-            <label>Select the ae title:</label>
-<!--            <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
-                <mat-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
-            </mat-select>-->
-            <label>Select the STOW-RS server:</label>
-            <mat-select [ngModel]="selectedWebApp" (ngModelChange)="selectedWebApp = $event">
-                <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
-            </mat-select>
+            <ng-container *ngIf="!selectedWebApp">
+                <label>Select the ae title:</label>
+                <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
+                    <mat-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+                </mat-select>
+            </ng-container>
+            <ng-container *ngIf="selectedWebApp">
+                <label>Select the STOW-RS server:</label>
+                <mat-select [ngModel]="selectedWebApp" (ngModelChange)="selectedWebApp = $event">
+                    <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
+                </mat-select>
+            </ng-container>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
             <label>Chose DICOM Files to upload:</label>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  multiple>

@@ -10,13 +10,17 @@ export class DynamicPipePipe implements PipeTransform {
     public constructor(private injector: Injector) {
     }
 
-    transform(value: any, dynamicPipe:DynamicPipe): any {
+    transform(value: any, dynamicPipe:DynamicPipe, func:Function, param): any {
         if (!value) {
             return value;
         }
         else {
-            let pipe = this.injector.get(dynamicPipe.pipeToken);
-            return pipe.transform(value, ...dynamicPipe.pipeArgs);
+            if(dynamicPipe && _.hasIn(dynamicPipe, "pipeToken")){
+                let pipe = this.injector.get(dynamicPipe.pipeToken);
+                return pipe.transform(value, ...dynamicPipe.pipeArgs);
+            }else{
+                return func.call(this, value, param);
+            }
         }
     }
 }

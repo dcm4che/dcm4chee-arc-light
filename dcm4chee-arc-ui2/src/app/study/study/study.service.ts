@@ -585,8 +585,7 @@ export class StudyService {
         return this.$http.post(url,{}, this.dicomHeader);
     };
 
-    //TODO issiue is open to change/unify the URLs
-    // scheduleStorageVerification = (param, studyWebService:StudyWebService) => this.$http.post(`../aets/${aet}/stgver/studies?${j4care.param(param)}`,{});
+    scheduleStorageVerification = (param, studyWebService:StudyWebService) => this.$http.post(`${this.getDicomURL("study",studyWebService.selectedWebService)}/stgver${j4care.param(param)}`,{});
 
     getDevices(){
         return this.devicesService.getDevices();
