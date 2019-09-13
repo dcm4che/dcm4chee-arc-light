@@ -45,7 +45,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

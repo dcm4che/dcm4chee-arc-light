@@ -68,7 +68,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

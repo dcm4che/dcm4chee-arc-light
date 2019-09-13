@@ -298,9 +298,13 @@ class ArchiveDeviceFactory {
             Tag.PatientName,
             Tag.PatientID,
             Tag.IssuerOfPatientID,
+            Tag.TypeOfPatientID,
             Tag.IssuerOfPatientIDQualifiersSequence,
             Tag.PatientBirthDate,
             Tag.PatientBirthTime,
+            Tag.PatientBirthDateInAlternativeCalendar,
+            Tag.PatientDeathDateInAlternativeCalendar,
+            Tag.PatientAlternativeCalendar,
             Tag.PatientSex,
             Tag.PatientInsurancePlanCodeSequence,
             Tag.PatientPrimaryLanguageCodeSequence,
@@ -312,6 +316,7 @@ class ArchiveDeviceFactory {
             Tag.MilitaryRank,
             Tag.BranchOfService,
             Tag.MedicalRecordLocator,
+            Tag.ReferencedPatientPhotoSequence,
             Tag.CountryOfResidence,
             Tag.RegionOfResidence,
             Tag.PatientTelephoneNumbers,
@@ -636,6 +641,51 @@ class ArchiveDeviceFactory {
             Tag.PlacerOrderNumberImagingServiceRequest,
             Tag.FillerOrderNumberImagingServiceRequest,
             Tag.ImagingServiceRequestComments
+    };
+    static final int[] UPS_ATTRS = {
+            Tag.SpecificCharacterSet,
+            Tag.SOPClassUID,
+            Tag.SOPInstanceUID,
+            Tag.AdmittingDiagnosesDescription,
+            Tag.AdmittingDiagnosesCodeSequence,
+            Tag.MeasuredAPDimension,
+            Tag.MeasuredLateralDimension,
+            Tag.Occupation,
+            Tag.AdditionalPatientHistory,
+            Tag.PatientSexNeutered,
+            Tag.MedicalAlerts,
+            Tag.Allergies,
+            Tag.SmokingStatus,
+            Tag.PregnancyStatus,
+            Tag.LastMenstrualDate,
+            Tag.StudyInstanceUID,
+            Tag.ReasonForVisit,
+            Tag.ReasonForVisitCodeSequence,
+            Tag.AdmissionID,
+            Tag.IssuerOfAdmissionIDSequence,
+            Tag.SpecialNeeds,
+            Tag.PertinentDocumentsSequence,
+            Tag.PertinentResourcesSequence,
+            Tag.PatientState,
+            Tag.PatientClinicalTrialParticipationSequence,
+            Tag.ScheduledProcedureStepStartDateTime,
+            Tag.ScheduledProcedureStepExpirationDateTime,
+            Tag.ExpectedCompletionDateTime,
+            Tag.ScheduledWorkitemCodeSequence,
+            Tag.InputInformationSequence,
+            Tag.ScheduledStationNameCodeSequence,
+            Tag.ScheduledStationClassCodeSequence,
+            Tag.ScheduledStationGeographicLocationCodeSequence,
+            Tag.ScheduledHumanPerformersSequence,
+            Tag.InputReadinessState,
+            Tag.OutputDestinationSequence,
+            Tag.ReferencedRequestSequence,
+            Tag.ScheduledProcedureStepPriority,
+            Tag.WorklistLabel,
+            Tag.ProcedureStepLabel,
+            Tag.ScheduledProcessingParametersSequence,
+            Tag.UnifiedProcedureStepPerformedProcedureSequence,
+            Tag.ReplacedProcedureStepSequence,
     };
     static final String[] IMAGE_CUIDS = {
             UID.ComputedRadiographyImageStorage,
@@ -1592,6 +1642,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
+        ext.setAttributeFilter(Entity.UPS, new AttributeFilter(UPS_ATTRS));
 
         ext.addHL7OrderScheduledStation(newScheduledStation(scheduledStation));
 

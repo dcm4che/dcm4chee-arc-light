@@ -47,7 +47,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 

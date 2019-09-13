@@ -51,7 +51,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.store.StoreService;

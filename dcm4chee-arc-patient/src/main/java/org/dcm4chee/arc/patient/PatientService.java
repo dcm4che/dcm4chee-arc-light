@@ -45,7 +45,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.net.Socket;
 import java.util.List;

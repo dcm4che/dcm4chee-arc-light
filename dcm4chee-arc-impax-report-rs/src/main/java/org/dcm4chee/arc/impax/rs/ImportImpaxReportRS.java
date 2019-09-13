@@ -50,7 +50,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.impax.report.ImpaxReportConverter;
 import org.dcm4chee.arc.impax.report.ReportServiceProvider;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;

@@ -60,9 +60,9 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.issuer.IssuerService;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -1308,8 +1308,7 @@ public class StoreServiceEJB {
     private void setStudyAttributes(StoreContext ctx, Study study) {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
-        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr()
-        );
+        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
     }

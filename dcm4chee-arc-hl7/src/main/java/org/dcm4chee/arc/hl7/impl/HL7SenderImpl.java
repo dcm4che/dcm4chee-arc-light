@@ -55,7 +55,7 @@ import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7ForwardRule;
 import org.dcm4chee.arc.hl7.HL7Sender;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;

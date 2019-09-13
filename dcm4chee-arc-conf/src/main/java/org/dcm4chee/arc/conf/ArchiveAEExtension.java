@@ -62,6 +62,7 @@ import java.util.stream.Stream;
  */
 public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
+    private String defaultWorklistLabel;
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
     private String[] metadataStorageIDs = {};
@@ -157,6 +158,20 @@ public class ArchiveAEExtension extends AEExtension {
         return defaultCharacterSet != null
                 ? defaultCharacterSet
                 : getArchiveDeviceExtension().getDefaultCharacterSet();
+    }
+
+    public String getDefaultWorklistLabel() {
+        return defaultWorklistLabel;
+    }
+
+    public void setDefaultWorklistLabel(String defaultWorklistLabel) {
+        this.defaultWorklistLabel = defaultWorklistLabel;
+    }
+
+    public String defaultWorklistLabel() {
+        return Objects.requireNonNull(defaultWorklistLabel,
+                () -> Objects.requireNonNull(getArchiveDeviceExtension().getDefaultWorklistLabel(),
+                        ae::getAETitle));
     }
 
     public String[] getObjectStorageIDs() {
@@ -1318,6 +1333,7 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
+        defaultWorklistLabel = aeExt.defaultWorklistLabel;
         objectStorageIDs = aeExt.objectStorageIDs;
         objectStorageCount = aeExt.objectStorageCount;
         metadataStorageIDs = aeExt.metadataStorageIDs;

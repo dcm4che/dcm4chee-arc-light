@@ -50,7 +50,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;

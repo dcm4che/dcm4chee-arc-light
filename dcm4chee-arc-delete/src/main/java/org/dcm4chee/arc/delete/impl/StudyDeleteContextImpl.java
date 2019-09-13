@@ -44,7 +44,7 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.util.ArrayList;
 import java.util.List;

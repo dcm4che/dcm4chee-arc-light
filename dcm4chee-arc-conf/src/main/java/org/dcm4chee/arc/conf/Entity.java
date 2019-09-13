@@ -49,5 +49,6 @@ public enum Entity {
     Series,
     Instance,
     MPPS,
-    MWL
+    MWL,
+    UPS
 }

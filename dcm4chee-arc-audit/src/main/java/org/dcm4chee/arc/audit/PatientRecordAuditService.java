@@ -54,7 +54,7 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.nio.file.Path;
 

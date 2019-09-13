@@ -72,6 +72,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String WADO_THUMBNAIL_VIEWPORT = "64,64";
 
     private volatile String defaultCharacterSet;
+    private volatile String defaultWorklistLabel;
     private volatile String fuzzyAlgorithmClass;
     private volatile String bulkDataDescriptorID;
     private volatile String[] seriesMetadataStorageIDs = {};
@@ -288,6 +289,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDefaultCharacterSet(String defaultCharacterSet) {
         this.defaultCharacterSet = defaultCharacterSet;
+    }
+
+    public String getDefaultWorklistLabel() {
+        return defaultWorklistLabel;
+    }
+
+    public void setDefaultWorklistLabel(String defaultWorklistLabel) {
+        this.defaultWorklistLabel = defaultWorklistLabel;
     }
 
     public String getFuzzyAlgorithmClass() {
@@ -2423,6 +2432,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
         defaultCharacterSet = arcdev.defaultCharacterSet;
+        defaultWorklistLabel = arcdev.defaultWorklistLabel;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
         bulkDataDescriptorID = arcdev.bulkDataDescriptorID;

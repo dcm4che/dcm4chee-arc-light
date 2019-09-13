@@ -51,6 +51,7 @@ import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.TaskQueryParam;

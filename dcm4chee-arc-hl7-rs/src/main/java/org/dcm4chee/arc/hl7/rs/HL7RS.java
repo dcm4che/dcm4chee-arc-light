@@ -53,9 +53,9 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

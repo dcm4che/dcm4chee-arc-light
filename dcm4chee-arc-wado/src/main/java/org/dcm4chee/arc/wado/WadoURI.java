@@ -50,7 +50,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;

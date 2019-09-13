@@ -53,7 +53,7 @@ import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.ExportContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;

@@ -49,7 +49,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;

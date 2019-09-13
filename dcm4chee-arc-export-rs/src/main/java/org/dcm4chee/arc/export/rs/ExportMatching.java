@@ -54,14 +54,13 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.ian.scu.IANScheduler;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
-import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

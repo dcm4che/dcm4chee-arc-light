@@ -48,7 +48,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;

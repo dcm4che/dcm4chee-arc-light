@@ -51,7 +51,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;

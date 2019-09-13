@@ -44,7 +44,7 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;

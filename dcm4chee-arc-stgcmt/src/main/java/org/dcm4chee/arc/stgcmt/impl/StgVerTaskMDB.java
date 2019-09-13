@@ -42,7 +42,7 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;

@@ -48,11 +48,11 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -41,10 +41,7 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-
-import javax.servlet.http.HttpServletRequest;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 
 /**

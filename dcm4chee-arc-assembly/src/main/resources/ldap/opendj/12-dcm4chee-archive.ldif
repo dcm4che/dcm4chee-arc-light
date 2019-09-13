@@ -1450,8 +1450,13 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.300 NAME 'dcmTrimISO2022CharacterSet'
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.301 NAME 'dcmStorePermissionServiceResponse'
   DESC 'Emulate Store Permission Service Response on receive of the first object of a study by any AE. {<dicomTag>} will be replaced by the value of the attribute in the object.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.302 NAME 'dcmDefaultWorklistLabel'
+  DESC 'Value of Worklist Label (0074,1202) added to Workitems of N-CREATE RQs without Worklist Label (0074,1202) attribute received by any AE. If absent, the AE Title of the receiving AE will be used.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -1464,6 +1469,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRetrieveAET $
     dcmReturnRetrieveAET $
     dcmDefaultCharacterSet $
+    dcmDefaultWorklistLabel $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $
@@ -1572,6 +1578,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorePermissionServiceErrorCodePattern $
     dcmStorePermissionCacheStaleTimeout $
     dcmStorePermissionCacheSize $
+    dcmStorePermissionServiceResponse $
     dcmMergeMWLCacheStaleTimeout $
     dcmMergeMWLCacheSize $
     dcmStoreUpdateDBMaxRetries $
@@ -1656,6 +1663,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRetrieveAET $
     dcmReturnRetrieveAET $
     dcmDefaultCharacterSet $
+    dcmDefaultWorklistLabel $
     dcmStorageID $
     dcmObjectStorageID $
     dcmObjectStorageCount $
@@ -1708,6 +1716,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorePermissionServiceExpirationDatePattern $
     dcmStorePermissionServiceErrorCommentPattern $
     dcmStorePermissionServiceErrorCodePattern $
+    dcmStorePermissionServiceResponse $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAcceptedUserRole $
     dcmAllowDeleteStudyPermanently $

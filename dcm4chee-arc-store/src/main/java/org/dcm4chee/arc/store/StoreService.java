@@ -49,7 +49,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.ReadContext;
 
 import java.io.IOException;

@@ -49,7 +49,7 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 

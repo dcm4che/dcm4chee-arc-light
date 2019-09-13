@@ -5,7 +5,7 @@
     <parent>
         <artifactId>dcm4chee-arc-parent</artifactId>
         <groupId>org.dcm4che.dcm4chee-arc</groupId>
-        <version>5.18.1</version>
+        <version>5.19.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,6 +19,18 @@
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-entity</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-keycloak</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-patient</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -26,12 +38,6 @@
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-qmgt</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-entity</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

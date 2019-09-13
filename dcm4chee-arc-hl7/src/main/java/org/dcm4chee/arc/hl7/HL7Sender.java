@@ -43,8 +43,8 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

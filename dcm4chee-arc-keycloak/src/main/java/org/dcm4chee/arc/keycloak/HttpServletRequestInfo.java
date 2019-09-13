@@ -1,4 +1,5 @@
 /*
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -16,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -34,14 +35,14 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.qmgt;
-
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
+package org.dcm4chee.arc.keycloak;
 
 import javax.jms.JMSException;
+import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.servlet.http.HttpServletRequest;
 
@@ -81,7 +82,7 @@ public class HttpServletRequestInfo {
                         msg.getStringProperty("RequestURI"))
                     : null;
         } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }
     }
 
@@ -91,7 +92,7 @@ public class HttpServletRequestInfo {
             msg.setStringProperty( "RequesterHostName", requesterHost);
             msg.setStringProperty( "RequestURI", requestURI);
         } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }
     }
 

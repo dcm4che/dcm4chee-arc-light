@@ -43,7 +43,7 @@ package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

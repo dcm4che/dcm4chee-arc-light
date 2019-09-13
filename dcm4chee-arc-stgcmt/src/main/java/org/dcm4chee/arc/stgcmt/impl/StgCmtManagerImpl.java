@@ -54,7 +54,7 @@ import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;

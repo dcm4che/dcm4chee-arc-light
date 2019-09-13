@@ -54,7 +54,7 @@ import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;

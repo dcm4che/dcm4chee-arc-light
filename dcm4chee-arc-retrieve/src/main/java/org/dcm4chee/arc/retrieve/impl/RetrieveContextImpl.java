@@ -54,7 +54,7 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.UpdateLocation;
 

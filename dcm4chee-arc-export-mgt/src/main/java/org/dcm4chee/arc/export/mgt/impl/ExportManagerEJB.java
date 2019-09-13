@@ -54,7 +54,7 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;

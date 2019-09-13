@@ -59,7 +59,7 @@ import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.metrics.MetricsService;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
 import org.dcm4chee.arc.query.util.QueryBuilder;

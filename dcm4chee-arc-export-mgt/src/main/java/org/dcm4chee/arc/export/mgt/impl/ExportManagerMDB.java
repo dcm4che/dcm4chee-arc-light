@@ -51,7 +51,7 @@ import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

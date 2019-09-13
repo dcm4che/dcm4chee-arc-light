@@ -56,7 +56,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffSCU;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;

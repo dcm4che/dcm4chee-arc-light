@@ -48,8 +48,8 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

@@ -47,7 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

@@ -401,4 +401,24 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.Workitem">
+    <sequence-generator name="workitem_pk_seq" sequence-name="workitem_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="workitem_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.WorkitemRequest">
+    <sequence-generator name="workitem_request_pk_seq" sequence-name="workitem_request_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="workitem_request_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
 </entity-mappings>

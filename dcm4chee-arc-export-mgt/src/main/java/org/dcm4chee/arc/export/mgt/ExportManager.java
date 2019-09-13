@@ -43,6 +43,7 @@ package org.dcm4chee.arc.export.mgt;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
