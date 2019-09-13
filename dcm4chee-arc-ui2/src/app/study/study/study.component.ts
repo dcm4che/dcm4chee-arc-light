@@ -1190,7 +1190,7 @@ export class StudyComponent implements OnInit{
             });*/
             // console.log("test",test);
             this.setTrash();
-            // this.patients = [];
+            this.patients = [];
         }
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
