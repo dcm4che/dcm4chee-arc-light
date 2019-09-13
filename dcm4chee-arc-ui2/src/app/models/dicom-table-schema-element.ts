@@ -21,6 +21,7 @@ export class TableSchemaElement {
     pipe?:DynamicPipe;
     pxWidth?:number;
     menu?:ActionsMenu;
+    showIf:Function;
     private _elementId:string;
 
     constructor(
@@ -38,7 +39,8 @@ export class TableSchemaElement {
             pipe?:DynamicPipe,
             title?:string,
             menu?:ActionsMenu,
-            description?:string
+            description?:string,
+            showIf?:Function
         } = {}
     ){
         this.type = options.type;
@@ -55,6 +57,7 @@ export class TableSchemaElement {
         this.title = options.title;
         this.menu = options.menu;
         this.description = options.description;
+        this.showIf = options.showIf;
 
         this.calculateElementID();
     }

@@ -1,0 +1,28 @@
+{
+  "post": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Cancel Storage Verification Task",
+    "operationId": "cancelStorageVerificationTask",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/taskPkPathParam"
+      }
+    ],
+    "responses": {
+      "204": {
+        "description": "successful operation"
+      },
+      "404": {
+        "description": "No such task"
+      },
+      "409": {
+        "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

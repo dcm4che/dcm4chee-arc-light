@@ -125,6 +125,8 @@ export interface FilterSchemaElement {
     convert?:Function;
     disabled?:boolean;
     cssClass?:string;
+    showRefreshIcon?:boolean;
+    showDynamicLoader?:boolean;
 }
 
 export type DicomMode = "study" | "patient" | "mwl" | "diff" | "export";
@@ -144,6 +146,15 @@ export interface StudyFilterConfig {
     }
 }
 
+export interface UniqueSelectIdObject {
+    id:string;
+    idParts:string[];
+}
+export interface DicomSelectObject {
+    idObject?:UniqueSelectIdObject,
+    object?:any,
+    dicomLevel?:DicomLevel
+}
 export interface StudyPageConfig {
     tab:DicomMode;
 }

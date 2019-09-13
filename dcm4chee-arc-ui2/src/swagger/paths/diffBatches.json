@@ -1,0 +1,71 @@
+{
+  "get": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "List Compare Studies Batches",
+    "operationId": "listCompareStudiesBatches",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../parameters.json#/localAET"
+      },
+      {
+        "$ref": "../parameters.json#/primaryAET"
+      },
+      {
+        "$ref": "../parameters.json#/secondaryAET"
+      },
+      {
+        "$ref": "../parameters.json#/checkMissing"
+      },
+      {
+        "$ref": "../parameters.json#/checkDifferent"
+      },
+      {
+        "$ref": "../parameters.json#/comparefield"
+      },
+      {
+        "$ref": "../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../parameters.json#/batchID"
+      },
+      {
+        "$ref": "../parameters.json#/offset"
+      },
+      {
+        "$ref": "../parameters.json#/limit"
+      },
+      {
+        "$ref": "../parameters.json#/orderByTime"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Compare Studies Batches",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/diffBatchList.schema.json"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Validation for one of the query parameters failed."
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

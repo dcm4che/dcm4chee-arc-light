@@ -33,17 +33,42 @@ export class j4care {
         public config: MatDialogConfig,
         private router: Router
     ) {}
-    static traverse(object,func){
+    static traverse(object,func, savedKeys?:string){
+        if(savedKeys != undefined){
+            savedKeys += `[${savedKeys}]`;
+        }
         for(let key in object){
             if(object.hasOwnProperty(key)) {
                 if(typeof object[key] === "object"){
-                    this.traverse(object[key],func);
+                    this.traverse(object[key],func, key);
                 }else{
-                    object[key] = func.apply(object,[object[key],key,object]);
+                    object[key] = func.apply(object,[object[key],key,object, savedKeys]);
                 }
             }
         }
         return object;
+    }
+    static getPath(obj, searchKey:string, value:string) {
+        for(let key in obj) {
+            if(obj[key] && typeof obj[key] === "object") {
+
+                let result = this.getPath(obj[key], searchKey, value);
+                if(result) {
+                    result.unshift(key);
+                    return result;
+                }
+            }else{
+                if(searchKey){
+                    if(key === searchKey && obj[key] === value){
+                        return [key];
+                    }
+                }else{
+                    if(obj[key] === value) {
+                        return [key];
+                    }
+                }
+            }
+        }
     }
     static downloadFile(url, filename?){
         if(filename){
@@ -782,24 +807,28 @@ export class j4care {
         let pxWidths = 0;
         let check = 0;
         table.forEach((m)=>{
-            if(_.hasIn(m,'pxWidth') && m.pxWidth){
-                pxWidths += m.pxWidth;
-            }else{
-                sum += m.widthWeight;
+            if(m){
+                if(_.hasIn(m,'pxWidth') && m.pxWidth){
+                    pxWidths += m.pxWidth;
+                }else{
+                    sum += m.widthWeight;
+                }
             }
         });
         table.forEach((m)=>{
-            let procentualPart = (m.widthWeight * 100)/sum;
-            if(pxWidths > 0){
-                if(_.hasIn(m, "pxWidth") && m.pxWidth){
-                    m.calculatedWidth = `${m.pxWidth}px`;
+            if(m){
+                let procentualPart = (m.widthWeight * 100)/sum;
+                if(pxWidths > 0){
+                    if(_.hasIn(m, "pxWidth") && m.pxWidth){
+                        m.calculatedWidth = `${m.pxWidth}px`;
+                    }else{
+                        let pxPart = (procentualPart * 0.01 * pxWidths);
+                        m.calculatedWidth = `calc(${procentualPart}% - ${pxPart}px)`;
+                        check += pxPart;
+                    }
                 }else{
-                    let pxPart = (procentualPart * 0.01 * pxWidths);
-                    m.calculatedWidth = `calc(${procentualPart}% - ${pxPart}px)`;
-                    check += pxPart;
+                    m.calculatedWidth =  procentualPart + "%";
                 }
-            }else{
-                m.calculatedWidth =  procentualPart + "%";
             }
         });
         return table;

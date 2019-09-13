@@ -1,0 +1,52 @@
+{
+  "post": {
+    "tags": [
+      "MONITOR-RS"
+    ],
+    "summary": "Reschedule Storage Verification Tasks",
+    "operationId": "rescheduleStorageVerificationTasks",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/newDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/StudyInstanceUID"
+      },
+      {
+        "$ref": "../parameters.json#/localAET"
+      },
+      {
+        "$ref": "../parameters.json#/queueMsgStatus"
+      },
+      {
+        "$ref": "../parameters.json#/createdTime"
+      },
+      {
+        "$ref": "../parameters.json#/updatedTime"
+      },
+      {
+        "$ref": "../parameters.json#/batchID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/countResults"
+      },
+      "202": {
+        "$ref": "../responses.json#/accepted"
+      },
+      "400": {
+        "description": "Missing status or Validation for one of the query parameters failed."
+      },
+      "409": {
+        "$ref": "../responses.json#/failed"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+}

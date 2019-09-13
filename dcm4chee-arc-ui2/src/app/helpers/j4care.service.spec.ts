@@ -501,4 +501,27 @@ describe('j4care', () => {
                 c:{}
         },false)).toEqual({c:{}})
     });
+
+    it("Should traverse the object",()=>{
+        expect(j4care.traverse([
+            [
+                [
+                    {
+                    test:"selam"
+                    }
+                ],
+                [
+                    {
+                        test:"button",
+                        id:"count"
+                    }
+                ]
+            ]
+        ],(m,i,t,s)=>{
+            console.log("m",m);
+            console.log("i",i);
+            console.log("t",t);
+            console.log("s",s);
+        },""))
+    })
 });

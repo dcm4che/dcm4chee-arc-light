@@ -1,0 +1,55 @@
+{
+  "post": {
+    "tags": [
+      "PDQ-RS"
+    ],
+    "summary": "Update Patient Demographics",
+    "operationId": "updatePatientDemographics",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/patientPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/pdqServiceIDPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/adjustIssuerOfPatientID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "title": "action",
+                  "description": "Event Action Code",
+                  "type": "string",
+                  "enum": [ "C", "R", "U"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "202": {
+        "description": "Patient was not found by the specified PDQ Service"
+      },
+      "404": {
+        "description": "no such PDQ Service"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      },
+      "502": {
+        "description": "PDQ Service failure"
+      }
+    }
+  }
+}

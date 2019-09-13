@@ -8,6 +8,7 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
 import {RetrieveMonitoringService} from "../../monitoring/external-retrieve/retrieve-monitoring.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
+import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
 
 class StudyServiceDependenc{
 }
@@ -23,7 +24,8 @@ describe('StudyService', () => {
           {provide:DevicesService, useClass:StudyServiceDependenc},
           {provide:WebAppsListService, useClass:StudyServiceDependenc},
           {provide:RetrieveMonitoringService, useClass:StudyServiceDependenc},
-          {provide:PermissionService, useClass:StudyServiceDependenc}
+          {provide:PermissionService, useClass:StudyServiceDependenc},
+          {provide:LargeIntFormatPipe, useClass:StudyServiceDependenc}
       ]
     });
   });

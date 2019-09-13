@@ -1,0 +1,37 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "List Application Entities",
+    "operationId": "listApplicationEntities",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/dicomDeviceName"
+      },
+      {
+        "$ref": "../parameters.json#/dicomDescription"
+      },
+      {
+        "$ref": "../parameters.json#/dicomAETitle"
+      },
+      {
+        "$ref": "../parameters.json#/dicomAssociationAcceptor"
+      },
+      {
+        "$ref": "../parameters.json#/dicomAssociationInitiator"
+      },
+      {
+        "$ref": "../parameters.json#/dicomApplicationCluster"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/aeList"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

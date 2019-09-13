@@ -1,0 +1,27 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "List Registered HL7 Application and Facility Names",
+    "operationId": "listRegisteredHL7Apps",
+    "responses": {
+      "200": {
+        "description": "Registered HL7 Application and Facility Names",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

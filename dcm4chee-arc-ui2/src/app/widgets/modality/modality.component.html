@@ -1,19 +1,27 @@
 <input type="text" [(ngModel)]="model" (keyup)="selectModality(model)" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12 input_field"/>
-<div class="modality_selector [hidden]" *ngIf="showModalitySelector"  (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['form-group','more_block','more','input_field']">
+<div class="modality_selector [hidden]" *ngIf="showModalitySelector"  (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['form-group','more_block','more','input_field', 'no-closing-on-click']">
   <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
   <div class="common">
     <a href="" *ngFor="let value of modalities.common | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
   </div>
-  <button (click)="model='';showModalitySelector=false;" class="clear custom_button">Clear</button>
+  <button (click)="clear()" class="clear custom_button">Clear</button>
   <!-- <div class="col-md-12"></div> -->
-  <a href="" (click)="$event.preventDefault();showMore=true" *ngIf="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-  <a href="" (click)="$event.preventDefault();showMore=false" *ngIf="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
+  <a class="no-closing-on-click" (click)="$event.preventDefault();showMore=!showMore" class="more">
+      <span class="no-closing-on-click" *ngIf="!showMore" class="">
+          <span class="no-closing-on-click">more</span><i class="no-closing-on-click glyphicon glyphicon-triangle-bottom"></i>
+      </span>
+      <span class="no-closing-on-click" *ngIf="showMore" >
+          <span class="no-closing-on-click">less</span><i class="no-closing-on-click glyphicon glyphicon-triangle-top"></i>
+      </span>
+  </a>
   <div class="more_block" *ngIf="showMore">
-    <a href="" *ngFor="let value of modalities.more | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
+    <div class="more_buttons_block">
+      <a href="" *ngFor="let value of modalities.more | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
+    </div>
     <div class="form-group">
       <label>Custom modality code:</label>
       <input [(ngModel)]="model" />
-      <button (click)="showModalitySelector=false" class="custom_button">Add</button>
+      <button (click)="add()" class="custom_button">Add</button>
     </div>
   </div>
 </div>

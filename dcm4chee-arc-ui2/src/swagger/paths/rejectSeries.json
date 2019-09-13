@@ -1,0 +1,49 @@
+{
+  "post": {
+    "tags": [
+      "IOCM-RS"
+    ],
+    "summary": "Reject Series",
+    "operationId": "RejectSeries",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/codeValuePathParam"
+      },
+      {
+        "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/queue"
+      },
+      {
+        "$ref": "../parameters.json#/batchID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/countResults"
+      },
+      "202": {
+        "description": "Rejection of Series queued"
+      },
+      "404": {
+        "description": "No such Archive AE Title, Study, Series or Rejection Note"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      },
+      "503": {
+        "description": "Maximal number of Tasks in Queue reached"
+      }
+    }
+  }
+}

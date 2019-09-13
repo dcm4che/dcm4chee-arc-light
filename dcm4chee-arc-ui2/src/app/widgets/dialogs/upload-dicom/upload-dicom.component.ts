@@ -9,6 +9,8 @@ import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {StudiesService} from "../../../studies/studies.service";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
+import {j4care} from "../../../helpers/j4care.service";
+import {DcmWebApp} from "../../../models/dcm-web-app";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -110,7 +112,12 @@ export class UploadDicomComponent implements OnInit{
 
                         let xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
-                        let url = this.service.getUrlFromWebApp(this.selectedWebApp);
+                        let url;
+                        if(this.selectedWebApp){
+                            url = this.service.getUrlFromWebApp(this.selectedWebApp);
+                        }else{
+                            url = `../aets/${$this._selectedAe}/rs/studies`;
+                        }
                         xmlHttpRequest.open('POST', url, true);
                         let dashes = '--';
                         let crlf = '\r\n';
@@ -197,12 +204,13 @@ export class UploadDicomComponent implements OnInit{
     getWebApps(){
         this.studieService.getWebApps().subscribe((res)=>{
             this.webApps = res;
-            this.webApps.forEach(webApp=>{
-               if(webApp.dicomAETitle === this._selectedAe)
+            this.webApps.forEach((webApp:DcmWebApp)=>{
+               if(webApp.dicomAETitle === this._selectedAe || (this.selectedWebApp && this.selectedWebApp.dcmWebAppName === webApp.dcmWebAppName))
                  this.selectedWebApp = webApp;
             });
         },(err)=>{
-
+            j4care.log("Something went wrong on getting webApps", err);
+            this.httpErrorHandler.handleError(err);
         });
     }
 }

@@ -1,0 +1,67 @@
+{
+  "post": {
+    "tags": [
+      "IOCM-RS"
+    ],
+    "summary": "Move Instances to Study",
+    "operationId": "MoveInstances",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/codeValuePathParam"
+      },
+      {
+        "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+      }
+    ],
+    "requestBody": {
+      "$ref": "../requestBodies.json#/HierarchicalSOPInstanceReference"
+    },
+    "responses": {
+      "200": {
+        "description": "All referenced instances moved to target study",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "202": {
+        "description": "This indicates that some Instances were moved to target study, but failures exist for others.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+      },
+      "404": {
+        "description": "No such Application Entity, Study or Rejection Note."
+      },
+      "409": {
+        "description": "Move Instances to target study failed for all.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas.json#/attributes"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

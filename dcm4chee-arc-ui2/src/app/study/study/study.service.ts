@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import {AccessLocation, DicomLevel, DicomMode, DicomResponseType, FilterSchema, SelectDropdown} from "../../interfaces";
+import {
+    AccessLocation,
+    DicomLevel,
+    DicomMode,
+    DicomResponseType,
+    FilterSchema,
+    SelectDropdown,
+    UniqueSelectIdObject
+} from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
@@ -292,10 +300,14 @@ export class StudyService {
                     tag: "button",
                     id: "count",
                     text: quantityText.count,
+                    showRefreshIcon:true,
+                    showDynamicLoader:false,
                     description: "QUERY ONLY THE COUNT"
                 },{
                     tag: "button",
                     id: "size",
+                    showRefreshIcon:true,
+                    showDynamicLoader:false,
                     text: quantityText.size,
                     description: "QUERY ONLY THE SIZE"
                 });
@@ -506,6 +518,25 @@ export class StudyService {
     instanceURL(attrs, webApp:DcmWebApp) {
         return this.seriesURL(attrs, webApp) + '/instances/' + attrs['00080018'].Value[0];
     }
+    getObjectUniqueId(attrs:any[], dicomLevel:DicomLevel):UniqueSelectIdObject{
+        let idObject = {
+            id:this.getPatientId(attrs),
+            idParts:[this.getPatientId(attrs)]
+        };
+        if(dicomLevel != "patient"){
+            idObject.id += `_${attrs['0020000D'].Value[0]}`;
+            idObject.idParts.push(attrs['0020000D'].Value[0]);
+        }
+        if(dicomLevel === "series" || dicomLevel === "instance"){
+            idObject.id += `_${attrs['0020000D'].Value[0]}`;
+            idObject.idParts.push(attrs['0020000E'].Value[0]);
+        }
+        if(dicomLevel === "instance"){
+            idObject.id += `_${attrs['00080018'].Value[0]}`;
+            idObject.idParts.push(attrs['00080018'].Value[0]);
+        }
+        return idObject;
+    }
 
     getURL(attrs, webApp:DcmWebApp, dicomLevel:DicomLevel){
         if(dicomLevel === "series")
@@ -554,8 +585,7 @@ export class StudyService {
         return this.$http.post(url,{}, this.dicomHeader);
     };
 
-    //TODO issiue is open to change/unify the URLs
-    // scheduleStorageVerification = (param, studyWebService:StudyWebService) => this.$http.post(`../aets/${aet}/stgver/studies?${j4care.param(param)}`,{});
+    scheduleStorageVerification = (param, studyWebService:StudyWebService) => this.$http.post(`${this.getDicomURL("study",studyWebService.selectedWebService)}/stgver${j4care.param(param)}`,{});
 
     getDevices(){
         return this.devicesService.getDevices();
@@ -564,26 +594,30 @@ export class StudyService {
     checkSchemaPermission(schema:DicomTableSchema):DicomTableSchema{
         Object.keys(schema).forEach(levelKey =>{
             schema[levelKey].forEach((element:TableSchemaElement)=>{
-                if(element.type === "actions" || element.type === "actions-menu"){
-                    let key = "actions";
-                    if(_.hasIn(element, "menu") && element.menu){
-                        key = "menu.actions";
+                if(element && element.type){
+                    if(element.type === "actions" || element.type === "actions-menu"){
+                        let key = "actions";
+                        if(_.hasIn(element, "menu") && element.menu){
+                            key = "menu.actions";
+                        }
+                        if(_.get(element,key) && (<any[]>_.get(element,key)).length > 0){
+                            let result = (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
+                                console.log("menu",menu);
+                                console.log("menu.permission",menu.permission);
+                                console.log("checkVisibility",this.permissionService.checkVisibility(menu.permission));
+                                if(menu.permission){
+                                    return this.permissionService.checkVisibility(menu.permission);
+                                }
+                                return true
+                            });
+                            console.log("element",element);
+                            console.log("result",result);
+                            _.set(element, key, result);
+                            console.log("result",result);
+                        }
                     }
-                    if(_.get(element,key) && (<any[]>_.get(element,key)).length > 0){
-                        let result = (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
-                            console.log("menu",menu);
-                            console.log("menu.permission",menu.permission);
-                            console.log("checkVisibility",this.permissionService.checkVisibility(menu.permission));
-                            if(menu.permission){
-                                return this.permissionService.checkVisibility(menu.permission);
-                            }
-                            return true
-                        });
-                        console.log("element",element);
-                        console.log("result",result);
-                        _.set(element, key, result);
-                        console.log("result",result);
-                    }
+                }else{
+                    return false;
                 }
             })
         });
@@ -591,7 +625,7 @@ export class StudyService {
         return schema;
     }
     PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options:StudySchemaOptions):DicomTableSchema{
-        return {
+        let schema:DicomTableSchema = {
             patient:[
                 new TableSchemaElement({
                     type:"actions",
@@ -638,42 +672,6 @@ export class StudyService {
                         }
                     ],
                     headerDescription:"Show studies",
-                    pxWidth:40
-                }),
-                new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
-                        {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-unchecked',
-                                text:''
-                            },
-                            click:(e)=>{
-                                e.selected = !e.selected;
-                            },
-                            title:"Select",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && !e.selected;
-                            }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-check',
-                                text:''
-                            },
-                            click:(e)=>{
-                                console.log("e",e);
-                                e.selected = !e.selected;
-                            },
-                            title:"Unselect",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && e.selected;
-                            }
-                        }
-                    ],
-                    headerDescription:"Select",
                     pxWidth:40
                 }),
                 new TableSchemaElement({
@@ -908,42 +906,6 @@ export class StudyService {
                     headerDescription:"Show studies",
                     widthWeight:0.3,
                     calculatedWidth:"6%"
-                }),
-                new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
-                        {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-unchecked',
-                                text:''
-                            },
-                            click:(e)=>{
-                                e.selected = !e.selected;
-                            },
-                            title:"Select",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && !e.selected;
-                            }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-check',
-                                text:''
-                            },
-                            click:(e)=>{
-                                console.log("e",e);
-                                e.selected = !e.selected;
-                            },
-                            title:"Unselect",
-                            showIf:(e, config)=>{
-                                return config.showCheckboxes && e.selected;
-                            }
-                        }
-                    ],
-                    headerDescription:"Select",
-                    pxWidth:40
                 }),
                 new TableSchemaElement({
                     type:"index",
@@ -1739,7 +1701,60 @@ export class StudyService {
                     calculatedWidth:"20%"
                 })
             ]
+        };
+
+        if(_.hasIn(options,"tableParam.config.showCheckboxes") && options.tableParam.config.showCheckboxes){
+            Object.keys(schema).forEach(mode=>{
+                schema[mode].splice(1,0, new TableSchemaElement({
+                    type:"actions",
+                    header:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-unchecked',
+                                text:''
+                            },
+                            click:(e,level)=>{
+                                e.selected = !e.selected;
+                                actions.call($this, {
+                                    event:"click",
+                                    level:level,
+                                    action:"select"
+                                },e);
+                            },
+                            title:"Select",
+                            showIf:(e, config)=>{
+                                return !e.selected;
+                            }
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-check',
+                                text:''
+                            },
+                            click:(e, level)=>{
+                                console.log("e",e);
+                                e.selected = !e.selected;
+                                actions.call($this, {
+                                    event:"click",
+                                    level:level,
+                                    action:"select"
+                                },e);
+                            },
+                            title:"Unselect",
+                            showIf:(e, config)=>{
+                                return e.selected;
+                            }
+                        }
+                    ],
+                    headerDescription:"Select",
+                    pxWidth:40
+                }))
+            });
         }
+
+        return schema;
     }
     modifyStudy(study,deviceWebservice:StudyWebService, header:HttpHeaders){
         const url = this.getModifyStudyUrl(deviceWebservice);

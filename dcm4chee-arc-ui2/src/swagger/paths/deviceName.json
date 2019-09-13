@@ -1,0 +1,18 @@
+{
+  "get": {
+    "tags": [
+      "CONFIG-RS"
+    ],
+    "summary": "Get Archive Device",
+    "operationId": "getArchiveDevice",
+    "parameters": [],
+    "responses": {
+      "200": {
+        "$ref": "../responses.json#/DeviceName"
+      },
+      "500": {
+        "description": "Internal Server Error."
+      }
+    }
+  }
+}

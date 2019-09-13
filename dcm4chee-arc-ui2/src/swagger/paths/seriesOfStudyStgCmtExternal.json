@@ -1,0 +1,51 @@
+{
+  "post": {
+    "tags": [
+      "STGCMT-RS"
+    ],
+    "summary": "Request Storage Commitment of Series from external Storage Commitment SCP",
+    "operationId": "RequestStorageCommitmentOfSeriesExternal",
+    "parameters": [
+      {
+        "$ref": "../parameters.json#/archiveAETPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/seriesPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/stgCmtSCPPathParam"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/stgcmtscu.schema.json"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "No such Archive AE Title, Study, Series or external AE Title"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      },
+      "502": {
+        "description": "Storage Commitment SCP Failure",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../schemas/stgcmtscu.schema.json"
+            }
+          }
+        }
+      }
+    }
+  }
+}
