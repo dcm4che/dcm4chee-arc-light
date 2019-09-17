@@ -2,6 +2,7 @@ import {Aet} from "./models/aet";
 import {Device} from "./models/device";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {HttpHeaders} from "@angular/common/http";
+import {SelectionsDicomObjects} from "./study/study/selections-dicom-objects.model";
 
 export interface J4careDateTime {
     FullYear:string;
@@ -146,6 +147,12 @@ export interface StudyFilterConfig {
     }
 }
 
+export interface SelectedDetailObject{
+    uniqueSelectIdObject:UniqueSelectIdObject;
+    object:any;
+    dicomLevel:DicomLevel;
+}
+
 export interface UniqueSelectIdObject {
     id:string;
     idParts:string[];
@@ -256,3 +263,5 @@ export interface MetricsDescriptors{
     dcmUnit:string;
     dicomDescription:string;
 }
+
+export type SelectionAction = "copy" | "move" | "merge";

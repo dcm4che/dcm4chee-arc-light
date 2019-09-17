@@ -15,7 +15,12 @@ import {
     StudyFilterConfig,
     StudyPageConfig,
     DicomMode,
-    SelectDropdown, DicomLevel, UniqueSelectIdObject, DicomSelectObject, Quantity, DicomResponseType
+    SelectDropdown,
+    DicomLevel,
+    UniqueSelectIdObject,
+    DicomSelectObject,
+    Quantity,
+    DicomResponseType
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {Observable} from "rxjs/Observable";
@@ -63,6 +68,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
 import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
 import {UploadDicomComponent} from "../../widgets/dialogs/upload-dicom/upload-dicom.component";
+import {SelectionActionElement} from "./selection-action-element.models";
 
 
 @Component({
@@ -152,7 +158,7 @@ export class StudyComponent implements OnInit{
         active:false
     };
     studyWebService:StudyWebService;
-    selectedElements:SelectionsDicomObjects;
+    selectedElements:SelectionActionElement;
     tableParam:TableParam = {
         tableSchema:this.getSchema(),
         config:{
@@ -185,11 +191,11 @@ export class StudyComponent implements OnInit{
     actionsSelections = {
         placeholder: "Actions for selections",
         options:[
+            new SelectDropdown("toggle_checkboxes","Toggle checkboxes", "Toggle checkboxes for selection"),
             new SelectDropdown("export_object","Export selections", "Export selected studies, series or instances"),
             new SelectDropdown("reject_object","Reject selections", "Reject selected studies, series or instances"),
             new SelectDropdown("restore_object","Restore selections", "Restore selected studies, series or instances"),
-            new SelectDropdown("delete_object","Delete selections", "Delete selected studies, series or instances permanently"),
-            new SelectDropdown("toggle_checkboxes","Toggle checkboxes", "Toggle checkboxes for selection")
+            new SelectDropdown("delete_object","Delete selections", "Delete selected studies, series or instances permanently")
         ],
         model:undefined
     };
@@ -225,7 +231,7 @@ export class StudyComponent implements OnInit{
     ngOnInit() {
         console.log("this.service",this.appService);
         this.largeIntFormat = new LargeIntFormatPipe();
-        this.resetSelectionObject();
+        this.resetSetSelectionObject();
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
@@ -241,16 +247,9 @@ export class StudyComponent implements OnInit{
         })
     }
 
-    resetSelectionObject(){
-        this.selectedElements = new SelectionsDicomObjects({
-            instance:{},
-            series:{},
-            patient:{},
-            study:{}
-        });
-    }
 
-    setTopToTableHeder(){
+
+    setTopToTableHeader(){
         if(this.stickyHeaderView.nativeElement.scrollHeight && this.stickyHeaderView.nativeElement.scrollHeight > 0 && this.tableParam.config.headerTop != `${this.stickyHeaderView.nativeElement.scrollHeight}px`){
             this.tableParam.config.headerTop = `${this.stickyHeaderView.nativeElement.scrollHeight}px`;
         }
@@ -305,29 +304,111 @@ export class StudyComponent implements OnInit{
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
             this.tableParam.tableSchema  = this.getSchema();
         }
-        //TODO
-        // if(_.size(this.selectedElements) > 0){
-            if(e === "export_object"){
-                // Object.keys(this.selectedElements).forEach((id)=>{
-                //     let object:DicomSelectObject = <DicomSelectObject>this.selectedElements[e.dicomLevel];
-/*                    if(object.dicomLevel === "instance"){
-                        this.exportInstance(object.object);
-                    }
-                    if(object.dicomLevel === "study"){
-                        this.exportStudy(object.object);
-                    }
-                    if(object.dicomLevel === "series"){
-                        this.exportSeries(object.object);
-                    }*/
-                // });
-            }
-        // }
+        if(e === "export_object"){
+            this.exporter(
+                    undefined,
+                'Export selected objects',
+                'Object will not be sent!',
+                'single',
+                    undefined,
+                    undefined,
+                   this.selectedElements
+            );
+        }
+        if(e === "reject_object" || e === "restore_object"){
+            this.rejectRestoreMultipleObjects();
+        }
 
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
         },1);
     }
+    checkboxFunctions = false;
+    selectionAction(id){
+        console.log("this.patient",this.patients);
+        switch (id){
+            case "checkbox_functions":{
+                this.checkboxFunctions = !this.checkboxFunctions;
+                break;
+            }
+            case "copy":{
+                break;
+            }
+            case "cut":{
+                break;
+            }
+            case "patient_merge":{
+                break;
+            }
+            case "paste":{
+                break;
+            }
+            case 'remove_selection':{
+                this.resetSetSelectionObject();
+                break;
+            }
+            case 'uncheck_selection_study':{
+                this.resetSetSelectionObject(['study'],false);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'check_selection_study':{
+                this.resetSetSelectionObject(['study'],true);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'check_selection_patient':{
+                this.resetSetSelectionObject(['patient'],true);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'uncheck_selection_patient':{
+                this.resetSetSelectionObject(['patient'],false);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'hide_checkboxes':{
+                this.resetSetSelectionObject();
+                this.tableParam.config.showCheckboxes = false;
+                this.tableParam.tableSchema  = this.getSchema();
+                break;
+            }
+        }
+    }
 
+    resetSetSelectionObject(resetIds?:string[], selectedValue?:boolean){
+        let newObject = {};
+        selectedValue = selectedValue || false;
+        resetIds = resetIds || [
+            "instance",
+            "series",
+            "patient",
+            "study"
+        ];
+        resetIds.forEach(id=>{
+            newObject[id] = {};
+        });
+
+        this.selectedElements = new SelectionsDicomObjects(newObject);
+
+        this.patients.forEach(patient=>{
+            if(resetIds.indexOf("patient") > -1){
+                patient.selected = selectedValue;
+            }
+            if(patient.studies && resetIds.indexOf("study") > -1)
+                patient.studies.forEach(study=>{
+                    study.selected = selectedValue;
+                    if(study.series && resetIds.indexOf("series") > -1)
+                        study.series.forEach(serie=>{
+                            serie.selected = selectedValue;
+                            if(serie.instances && resetIds.indexOf("instance") > -1)
+                                serie.instances.forEach(instance=>{
+                                    instance.selected = selectedValue;
+                                })
+                        })
+                })
+        })
+    }
 
     select(object, dicomLevel:DicomLevel){
         this.selectedElements.toggle(dicomLevel, this.service.getObjectUniqueId(object.attrs, dicomLevel), object);
@@ -992,7 +1073,7 @@ export class StudyComponent implements OnInit{
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
                 if(res){
-                    this.setTopToTableHeder();
+                    this.setTopToTableHeader();
                     let index = 0;
                     let patient: PatientDicom;
                     let study: StudyDicom;
@@ -1194,8 +1275,8 @@ export class StudyComponent implements OnInit{
         }
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
-    moreFunctionFilterPipe(value, internal){
-        console.log("value",value);
+    moreFunctionFilterPipe(value, args){
+        let internal = args[0];
         return value.filter(option=>{
             console.log("option",option);
             switch (option.value) {
@@ -1209,6 +1290,23 @@ export class StudyComponent implements OnInit{
                     return internal;
                 case "export_multiple":
                     return internal;
+            }
+            return true;
+        });
+    }
+    actionsSelectionsFilterPipe(value, args){
+        console.log("args",args);
+        let internal = args[0];
+        let trashActive = args[1];
+        return value.filter(option=>{
+            if(option.value === "delete_object"){
+                return internal && trashActive
+            }
+            if(option.value === "restore_object"){
+                return internal && trashActive
+            }
+            if(option.value === "reject_object"){
+                return !trashActive
             }
             return true;
         });
@@ -1532,16 +1630,12 @@ export class StudyComponent implements OnInit{
 
     deleteStudy(study){
         console.log('study', study);
-        // if(study.attrs['00201208'].Value[0] === 0){
         this.confirm({
             content: 'Are you sure you want to delete this study?'
         }).subscribe(result => {
             this.cfpLoadingBar.start();
             if (result){
                 this.service.deleteStudy(_.get(study,"attrs['0020000D'].Value[0]"),this.studyWebService.selectedWebService)
-/*                this.$http.delete(
-                    '../aets/' + this.aet + '/rs/studies/' + study.attrs['0020000D'].Value[0]
-                )*/
                 .subscribe(
                     (response) => {
                         this.appService.showMsg('Study deleted successfully!');
@@ -1557,9 +1651,51 @@ export class StudyComponent implements OnInit{
         });
     };
 
+
+    rejectRestoreMultipleObjects(){
+        let msg = "";
+        let select: any = [];
+        let rejectionRestoreService = (rejectionCode)=>{
+            this.cfpLoadingBar.start();
+            this.service.rejectRestoreMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService,rejectionCode).subscribe(res=>{
+                this.appService.showMsg(msg);
+            this.cfpLoadingBar.complete();
+            },err=>{
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            })
+        };
+
+        if (this.trash.active) {
+            msg = 'Objects restored successfully!';
+            rejectionRestoreService(this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator);
+        }else{
+            msg = 'Objects rejected successfully!';
+            _.forEach(this.trash.rjnotes, (m, i) => {
+                select.push({
+                    title: m.codeMeaning,
+                    value: m.codeValue + '^' + m.codingSchemeDesignator,
+                    label: m.label
+                });
+            });
+            let parameters: any = {
+                content: 'Select rejected type',
+                select: select,
+                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
+                saveButton: 'REJECT'
+            };
+            this.confirm(parameters).subscribe(result => {
+                if (result) {
+                    rejectionRestoreService(parameters.result.select);
+                }
+            });
+        }
+
+    }
     rejectStudy(study) {
         let $this = this;
         if (this.trash.active) {
+            //restore
             this.service.rejectStudy(study.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
             .subscribe(
                 (res) => {
@@ -1775,7 +1911,6 @@ export class StudyComponent implements OnInit{
 
     retrieveMultipleStudies(){
         this.exporter(
-            // `/aets/${this.aet}/dimse/${this.externalAET}/studies/query:${this.queryAET}/export/dicom:${destinationAET}`,
             '',
             'Retrieve matching studies depending on selected filters, from external C-MOVE SCP',
             '',
@@ -1825,12 +1960,13 @@ export class StudyComponent implements OnInit{
             "instance"
         );
     };
-    exporter(url, title, warning, mode, objectAttr, dicomMode){
+    exporter(url, title, warning, mode, objectAttr, dicomMode, multipleObjects?:SelectionActionElement){
         let $this = this;
         let id;
         let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
+        let singleUrlSuffix = "";
         _.forEach(this.exporters, (m, i) => {
             if (m.id.indexOf(':') > -1){
                 dicomPrefixes.push(m);
@@ -1884,55 +2020,76 @@ export class StudyComponent implements OnInit{
                         }${
                             this.appService.param(this.createStudyFilterParams())
                         }`;
-                    console.log("urlrest",urlRest);
                 }else{
                     if(mode === 'multipleExport'){
-                        let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
+                        let checkbox = `${
+                            (result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''
+                        }${
+                            (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
+                        }`;
                         if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
                             checkbox = '&' + checkbox;
-                        urlRest = `${this.service.getDicomURL("export",this.studyWebService.selectedWebService)}/${result.selectedExporter}?${batchID}${this.appService.param(this.createStudyFilterParams())}${checkbox}`;
+                        urlRest = `${
+                            this.service.getDicomURL("export",this.studyWebService.selectedWebService)
+                        }/${
+                            result.selectedExporter
+                        }?${
+                            batchID
+                        }${
+                            this.appService.param(this.createStudyFilterParams())
+                        }${
+                            checkbox
+                        }`;
                     }else{
                         //SINGLE
-                        console.log("deviceName",this.appService.archiveDeviceName);
-                        console.log("deviceName",this.studyWebService.selectedWebService.dicomDeviceName);
-                        if(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName){
-                        // if(this.studyWebService.selectedWebService){
-                            // let param = result.dcmQueueName ? `?${batchID}dcmQueueName=${result.dcmQueueName}` : '';
+                        if(!this.internal){
                             if(result.dcmQueueName){
                                 params['dcmQueueName'] = result.dcmQueueName
                             }
-                            urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                            singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                            // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                         }else{
                             if (result.exportType === 'dicom'){
-                                //id = result.dicomPrefix + result.selectedAet;
                                 id = 'dicom:' + result.selectedAet;
                             }else{
                                 id = result.selectedExporter;
                             }
-                            urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                            // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                            singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                         }
                     }
                 }
-                this.service.export(urlRest)
-                    .subscribe(
-                    (result) => {
-                        $this.appService.setMessage({
-                            'title': 'Info',
-                            'text': $this.service.getMsgFromResponse(result,'Command executed successfully!'),
-                            'status': 'info'
-                        });
+                if(multipleObjects.size > 0){
+                    //TODO
+                    this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
+                        console.log("res",res);
+                        $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
                         $this.cfpLoadingBar.complete();
-                    },
-                    (err) => {
+                    }, err=>{
                         console.log("err",err);
-                        $this.appService.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': $this.service.getMsgFromResponse(err),
-                            'status': 'error'
-                        });
                         $this.cfpLoadingBar.complete();
+                    });
+                }else{
+                    if(singleUrlSuffix){
+                        urlRest = url + singleUrlSuffix;
                     }
-                );
+                    this.service.export(urlRest)
+                        .subscribe(
+                        (result) => {
+                            $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            console.log("err",err);
+                            $this.appService.setMessage({
+                                'title': 'Error ' + err.status,
+                                'text': $this.service.getMsgFromResponse(err),
+                                'status': 'error'
+                            });
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                }
             }
         });
     }

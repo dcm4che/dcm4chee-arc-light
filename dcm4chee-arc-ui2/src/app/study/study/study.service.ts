@@ -5,7 +5,7 @@ import {
     DicomMode,
     DicomResponseType,
     FilterSchema,
-    SelectDropdown,
+    SelectDropdown, SelectedDetailObject,
     UniqueSelectIdObject
 } from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
@@ -33,6 +33,8 @@ import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-lis
 import {RetrieveMonitoringService} from "../../monitoring/external-retrieve/retrieve-monitoring.service";
 import {StudyWebService} from "./study-web-service.model";
 import {PermissionService} from "../../helpers/permissions/permission.service";
+import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
+import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
 
 @Injectable()
@@ -2019,6 +2021,15 @@ export class StudyService {
 
     deleteRejectedInstances = (reject, params) => this.$http.delete(`../reject/${reject}${j4care.param(params)}`);
 
+    rejectRestoreMultipleObjects(multipleObjects:SelectionActionElement, selectedWebService:DcmWebApp, rejectionCode:string){
+        return Observable.forkJoin(multipleObjects.getAllAsArray().filter((element:SelectedDetailObject)=>(element.dicomLevel != "patient")).map((element:SelectedDetailObject)=>{
+            return this.$http.post(
+                `${this.getURL(element.object.attrs,selectedWebService,element.dicomLevel)}/reject/${rejectionCode}`,
+                {},
+                this.jsonHeader
+            );
+        }));
+    }
     rejectStudy(studyAttr, webApp:DcmWebApp, rejectionCode){
         return this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
@@ -2086,7 +2097,19 @@ export class StudyService {
         return endMsg;
     }
 
-    export = (url) => this.$http.post(url,{}, this.jsonHeader);
+    export = (url, objects?:SelectionActionElement, urlSuffix?:string, selectedWebService?:DcmWebApp) => {
+        if(url){
+            return this.$http.post(url,{}, this.jsonHeader);
+        }else{
+            return Observable.forkJoin(objects.getAllAsArray().filter((element:SelectedDetailObject)=>(element.dicomLevel != "patient")).map((element:SelectedDetailObject)=>{
+                return this.$http.post(
+                    this.getURL(element.object.attrs,selectedWebService,element.dicomLevel) + urlSuffix,
+                    {},
+                    this.jsonHeader
+                );
+            }));
+        }
+    };
 
     getQueueNames = () => this.retrieveMonitoringService.getQueueNames();
 

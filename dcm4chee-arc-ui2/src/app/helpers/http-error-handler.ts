@@ -38,7 +38,7 @@ export class HttpErrorHandler {
                             msg = msgObject["msa-3"];
                         }
                         if(_.hasIn(msgObject,"err-8")){
-                            msg = msgObject["err-8"];
+                            msg = msgObject["erSr-8"];
                         }
                         if(_.hasIn(msgObject,"errorMessage")){
                             msg = msgObject["errorMessage"];
