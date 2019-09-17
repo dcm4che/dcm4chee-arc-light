@@ -162,7 +162,7 @@ public class Workitem {
     private CodeEntity scheduledStationGeographicLocationCode;
 
     @ManyToOne
-    @JoinColumn(name = "admid_issuer_fk")
+    @JoinColumn(name = "admission_issuer_fk")
     private IssuerEntity issuerOfAdmissionID;
 
     @ManyToMany

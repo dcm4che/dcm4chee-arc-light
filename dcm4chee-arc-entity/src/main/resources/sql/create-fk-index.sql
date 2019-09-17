@@ -44,7 +44,7 @@ create index FK_49eet5qgcsb32ktsqrf1mj3x2 on study (ref_phys_name_fk) ;
 create index FK_sxccj81423w8o6w2tsb7nshy9 on study_query_attrs (study_fk) ;
 create index FK_105wt9hglqsmtnoxgma9x18vj on verify_observer (observer_name_fk) ;
 create index FK_qjgrn9rfyyt6sv14utk9ijcfq on verify_observer (instance_fk) ;
-create index FK_fvr0yj26cll6stqorf8cjb90e on workitem (admid_issuer_fk) ;
+create index FK_ssbjfh0qifwln5x7ewoq4f35h on workitem (admission_issuer_fk) ;
 create index FK_q2810xq8kodn16416t7wmpe7e on workitem (patient_fk) ;
 create index FK_3mybk75p5pg52e7dhf30llgr2 on workitem (station_class_fk) ;
 create index FK_rl2yjyeglg18q9r0p775yb7iv on workitem (station_location_fk) ;

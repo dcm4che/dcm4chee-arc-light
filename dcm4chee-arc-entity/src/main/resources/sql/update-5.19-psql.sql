@@ -21,7 +21,7 @@ create table workitem (
     version int8,
     worklist_label varchar(255) not null,
     dicomattrs_fk int8 not null,
-    admid_issuer_fk int8,
+    admission_issuer_fk int8,
     patient_fk int8 not null,
     station_class_fk int8,
     station_location_fk int8,
@@ -46,7 +46,7 @@ alter table rel_workitem_perf_code add constraint FK_8g3s4065mf5w2qc1ke71bics0 f
 alter table workitem add constraint UK_ymhqn60mmlk5neh49ba7sxy0  unique (dicomattrs_fk);
 alter table workitem add constraint UK_qy5pmj9p4spj7iwjhbh4hl9eq  unique (sop_iuid);
 alter table workitem add constraint FK_ymhqn60mmlk5neh49ba7sxy0 foreign key (dicomattrs_fk) references dicomattrs;
-alter table workitem add constraint FK_fvr0yj26cll6stqorf8cjb90e foreign key (admid_issuer_fk) references issuer;
+alter table workitem add constraint FK_ssbjfh0qifwln5x7ewoq4f35h foreign key (admission_issuer_fk) references issuer;
 alter table workitem add constraint FK_q2810xq8kodn16416t7wmpe7e foreign key (patient_fk) references patient;
 alter table workitem add constraint FK_3mybk75p5pg52e7dhf30llgr2 foreign key (station_class_fk) references code;
 alter table workitem add constraint FK_rl2yjyeglg18q9r0p775yb7iv foreign key (station_location_fk) references code;
@@ -77,7 +77,7 @@ create index UK_qac34nek81rs9kgj7l92osv6g on workitem_req (study_iuid);
 create index FK_idrnml8s7gdgs04fefuf5f8h4 on rel_workitem_perf_code (perf_code_fk) ;
 create index FK_8g3s4065mf5w2qc1ke71bics0 on rel_workitem_perf_code (workitem_fk) ;
 
-create index FK_fvr0yj26cll6stqorf8cjb90e on workitem (admid_issuer_fk) ;
+create index FK_ssbjfh0qifwln5x7ewoq4f35h on workitem (admission_issuer_fk) ;
 create index FK_q2810xq8kodn16416t7wmpe7e on workitem (patient_fk) ;
 create index FK_3mybk75p5pg52e7dhf30llgr2 on workitem (station_class_fk) ;
 create index FK_rl2yjyeglg18q9r0p775yb7iv on workitem (station_location_fk) ;
