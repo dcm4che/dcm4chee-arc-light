@@ -56,6 +56,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+@NamedQuery(
+        name=Workitem.FIND_BY_SOP_IUID,
+        query="select ups from Workitem ups where ups.sopInstanceUID = ?1")
 @Entity
 @Table(name = "workitem",
         uniqueConstraints = @UniqueConstraint(columnNames = "sop_iuid" ),
@@ -73,6 +76,8 @@ import java.util.Date;
                 @Index(columnList = "ups_state")
         })
 public class Workitem {
+
+    public static final String FIND_BY_SOP_IUID = "Workitem.findBySopIUID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

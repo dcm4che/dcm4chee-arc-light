@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
 
@@ -84,7 +85,10 @@ public class UPSServiceEJB {
     @Inject
     private IssuerService issuerService;
 
-    public Workitem createWorkitem(UPSContext ctx) {
+    public boolean createWorkitem(UPSContext ctx) {
+        if (alreadyExists(ctx)) {
+            return false;
+        }
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
@@ -118,7 +122,20 @@ public class UPSServiceEJB {
                 arcDev.getFuzzyStr());
         workitem.setAttributes(attrs, filter);
         em.persist(workitem);
-        return workitem;
+        LOG.info("{}: Create {}", ctx, workitem);
+        return true;
+    }
+
+    private boolean alreadyExists(UPSContext ctx) {
+        try {
+            Workitem workitem = em.createNamedQuery(Workitem.FIND_BY_SOP_IUID, Workitem.class)
+                    .setParameter(1, ctx.getSopInstanceUID())
+                    .getSingleResult();
+            LOG.info("{}: {} already exists", ctx, workitem);
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
     private void setReferencedRequests(Collection<WorkitemRequest> referencedRequests,

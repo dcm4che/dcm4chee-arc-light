@@ -87,6 +87,8 @@ public interface QueryService {
 
     Query createMWLQuery(QueryContext ctx);
 
+    Query createUPSQuery(QueryContext ctx);
+
     Attributes getSeriesAttributes(QueryContext context, Long seriesPk);
 
     void addLocationAttributes(Attributes attrs, Long instancePk);

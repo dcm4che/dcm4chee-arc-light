@@ -254,6 +254,9 @@
     "/aets/{aet}/rs/mwlitems/count": {
       "$ref": "paths/mwlItemsCount.json"
     },
+    "/aets/{aet}/rs/workitems/count": {
+      "$ref": "paths/workitemsCount.json"
+    },
     "/aets/{aet}/rs/studies/size": {
       "$ref": "paths/studiesSize.json"
     },

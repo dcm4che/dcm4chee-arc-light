@@ -9,7 +9,8 @@
       },
       "multipart/related;type=application/dicom+xml": {
         "schema": {
-          "$ref": "schemas.json#/attributes"
+          "type": "string",
+          "format": "binary"
         }
       },
       "multipart/related;type=application/dicom+json": {
@@ -53,9 +54,10 @@
           "$ref": "schemas.json#/attributes"
         }
       },
-      "application/json": {
+      "application/dicom+xml": {
         "schema": {
-          "$ref": "schemas.json#/attributes"
+          "type": "string",
+          "format": "binary"
         }
       }
     }
@@ -68,9 +70,10 @@
           "$ref": "schemas.json#/attributes"
         }
       },
-      "application/json": {
+      "application/dicom+xml": {
         "schema": {
-          "$ref": "schemas.json#/attributes"
+          "type": "string",
+          "format": "binary"
         }
       }
     }
@@ -83,9 +86,10 @@
           "$ref": "schemas.json#/attributes"
         }
       },
-      "application/json": {
+      "application/dicom+xml": {
         "schema": {
-          "$ref": "schemas.json#/attributes"
+          "type": "string",
+          "format": "binary"
         }
       }
     }

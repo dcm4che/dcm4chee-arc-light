@@ -275,6 +275,13 @@ public class QidoRS {
 
     @GET
     @NoCache
+    @Path("/workitems")
+    public Response searchForUPS() {
+        return search("SearchForUPS", Model.UPS, null, null, null);
+    }
+
+    @GET
+    @NoCache
     @Path("/patients/count")
     @Produces("application/json")
     public Response countPatients() {
@@ -343,6 +350,14 @@ public class QidoRS {
 
     @GET
     @NoCache
+    @Path("/workitems/count")
+    @Produces("application/json")
+    public Response countUPS() {
+        return count("CountUPS", Model.UPS, null, null);
+    }
+
+    @GET
+    @NoCache
     @Path("/studies/size")
     @Produces("application/json")
     public Response sizeOfStudies() {
@@ -387,7 +402,7 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         try {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
-            ctx.setReturnKeys(queryAttrs.isIncludeAll()
+            ctx.setReturnKeys(queryAttrs.isIncludeAll() || qido == null
                     ? null
                     : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
                     ? queryAttrs.getReturnKeys(qido.includetags)
@@ -586,6 +601,21 @@ public class QidoRS {
             @Override
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
+        },
+        UPS(null, UID.UnifiedProcedureStepPullSOPClass) {
+            @Override
+            Query createQuery(QueryService service, QueryContext ctx) {
+                return service.createUPSQuery(ctx);
+            }
+
+            @Override
+            public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
+                return null;
+            }
+
+            @Override
+            public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
+            }
         };
 
         final QueryRetrieveLevel2 qrLevel;
@@ -774,6 +804,9 @@ public class QidoRS {
             case MWL:
                 return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.MWL).getSelection());
+            case UPS:
+                return allNonSeqTags(match, tags,
+                        arcDev.getAttributeFilter(Entity.UPS).getSelection());
         }
         return allNonSeqTags(match, tags);
     }

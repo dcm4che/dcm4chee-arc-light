@@ -50,12 +50,9 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.ups.UPSAlreadyExistsException;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
-import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -95,18 +92,6 @@ public class UpsRS {
     @QueryParam("charset")
     private String charset;
 
-    @QueryParam("fuzzymatching")
-    @Pattern(regexp = "true|false")
-    private String fuzzymatching;
-
-    @QueryParam("offset")
-    @Pattern(regexp = "0|([1-9]\\d{0,4})")
-    private String offset;
-
-    @QueryParam("limit")
-    @Pattern(regexp = "[1-9]\\d{0,4}")
-    private String limit;
-
     @QueryParam("deletionlock")
     @Pattern(regexp = "true|false")
     private String deletionlock;
@@ -126,17 +111,8 @@ public class UpsRS {
     @Inject
     private UPSService service;
 
-    private QueryAttributes queryAttributes;
     private ArchiveAEExtension arcAE;
     private ResponseMediaType responseMediaType;
-
-    @GET
-    @NoCache
-    @Path("/workitems")
-    public Response searchForWorkitems() {
-        //TODO
-        return Response.noContent().build();
-    }
 
     @POST
     @Path("/workitems")
@@ -151,7 +127,7 @@ public class UpsRS {
 
     @POST
     @Path("/workitems")
-    @Consumes("multipart/related;type=application/dicom+xml")
+    @Consumes("application/dicom+xml")
     public Response createXMLWorkitem(
             @QueryParam("workitem")
             @Pattern(regexp = "^([0-2])((\\.0)|(\\.[1-9][0-9]*))*")
@@ -170,19 +146,16 @@ public class UpsRS {
     public void validate() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
-        queryAttributes = new QueryAttributes(uriInfo, null);
     }
 
     private Response createWorkitem(String iuid, Attributes workitem) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setSopInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
         ctx.setAttributes(workitem);
-        try {
-            service.createWorkitem(ctx);
-        } catch (UPSAlreadyExistsException e) {
-            return Response.status(Response.Status.CONFLICT).build();
-        }
-        return Response.created(locationOf(ctx)).build();
+        return (service.createWorkitem(ctx)
+                ? Response.created(locationOf(ctx))
+                : Response.status(Response.Status.CONFLICT))
+                .build();
     }
 
     private URI locationOf(UPSContext ctx) {

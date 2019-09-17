@@ -90,4 +90,11 @@ public class UPSContextImpl implements UPSContext {
     public void setAttributes(Attributes attributes) {
         this.attributes = attributes;
     }
+
+    @Override
+    public String toString() {
+        return httpRequestInfo.requesterUserID +
+                '@' + httpRequestInfo.requesterHost +
+                "->" + archiveAEExtension.getApplicationEntity().getAETitle();
+    }
 }

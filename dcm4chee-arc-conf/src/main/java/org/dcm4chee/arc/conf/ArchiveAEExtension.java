@@ -169,9 +169,9 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public String defaultWorklistLabel() {
-        return Objects.requireNonNull(defaultWorklistLabel,
-                () -> Objects.requireNonNull(getArchiveDeviceExtension().getDefaultWorklistLabel(),
-                        ae::getAETitle));
+        return defaultCharacterSet != null
+                ? defaultWorklistLabel
+                : StringUtils.maskNull(getArchiveDeviceExtension().getDefaultWorklistLabel(), ae.getAETitle());
     }
 
     public String[] getObjectStorageIDs() {

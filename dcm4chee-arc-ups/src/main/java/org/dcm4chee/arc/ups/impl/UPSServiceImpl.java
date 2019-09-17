@@ -69,7 +69,7 @@ public class UPSServiceImpl implements UPSService {
     }
 
     @Override
-    public void createWorkitem(UPSContext ctx) {
-        ejb.createWorkitem(ctx);
+    public boolean createWorkitem(UPSContext ctx) {
+        return ejb.createWorkitem(ctx);
     }
 }

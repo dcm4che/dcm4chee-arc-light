@@ -112,6 +112,13 @@ public class QueryBuilder {
         return result;
     }
 
+    public List<Order> orderWorkitems(Join<Workitem, Patient> patient, Root<Workitem> workitem, List<OrderByTag> orderByTags) {
+        List<Order> result = new ArrayList<>(orderByTags.size());
+        for (OrderByTag orderByTag : orderByTags)
+            orderWorkitems(patient, workitem, orderByTag, result);
+        return result;
+    }
+
     private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
@@ -232,6 +239,16 @@ public class QueryBuilder {
         return false;
     }
 
+    private boolean orderWorkitems(Join<Workitem, Patient> patient, Root<Workitem> workitem, OrderByTag orderByTag, List<Order> result) {
+        if (patient != null && orderPatients(patient, orderByTag, result))
+            return true;
+
+        switch (orderByTag.tag) {
+            //TODO
+        }
+        return false;
+    }
+
     private <Z, X> boolean orderPersonName(
             From<Z, X> entity, SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute,
             OrderByTag orderByTag, List<Order> result) {
@@ -322,6 +339,15 @@ public class QueryBuilder {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
         mwlItemLevelPredicates(predicates, q, mwlItem, keys, queryParam);
+        return predicates;
+    }
+
+    public <T> List<Predicate> workitemPredicates(CriteriaQuery<T> q,
+            Join<Workitem, Patient> patient, Root<Workitem> workitem,
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
+        workitemLevelPredicates(predicates, q, workitem, keys, queryParam);
         return predicates;
     }
 
@@ -652,6 +678,11 @@ public class QueryBuilder {
         SPSStatus[] hideSPSWithStatusFromMWL = queryParam.getHideSPSWithStatusFromMWL();
         if (hideSPSWithStatusFromMWL.length > 0)
             predicates.add(mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not());
+    }
+
+    private <T> void workitemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+            Root<Workitem> workitem, Attributes keys, QueryParam queryParam) {
+        //TODO
     }
 
     public <T> void hideRejectedInstance(List<Predicate> predicates, CriteriaQuery<T> q,

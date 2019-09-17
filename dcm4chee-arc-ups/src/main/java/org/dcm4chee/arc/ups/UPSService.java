@@ -52,5 +52,5 @@ public interface UPSService {
 
     UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE);
 
-    void createWorkitem(UPSContext ctx);
+    boolean createWorkitem(UPSContext ctx);
 }

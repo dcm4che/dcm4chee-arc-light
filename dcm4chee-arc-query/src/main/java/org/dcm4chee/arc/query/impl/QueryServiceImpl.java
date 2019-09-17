@@ -183,6 +183,12 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Query createUPSQuery(QueryContext ctx) {
+        queryEvent.fire(ctx);
+        return new UPSQuery(ctx, em);
+    }
+
+    @Override
     public Attributes getSeriesAttributes(QueryContext context, Long seriesPk) {
         return ejb.getSeriesAttributes(seriesPk, context);
     }
