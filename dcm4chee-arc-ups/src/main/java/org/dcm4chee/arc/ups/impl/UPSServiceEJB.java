@@ -118,7 +118,7 @@ public class UPSServiceEJB {
         setHumanPerformerCodes(workitem.getHumanPerformerCodes(),
                 attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
         setReferencedRequests(workitem.getReferencedRequests(),
-                attrs.getSequence(Tag.RequestAttributesSequence),
+                attrs.getSequence(Tag.ReferencedRequestSequence),
                 arcDev.getFuzzyStr());
         workitem.setAttributes(attrs, filter);
         em.persist(workitem);
