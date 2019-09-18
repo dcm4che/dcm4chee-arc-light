@@ -48,15 +48,13 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.dcm4chee.arc.entity.Instance_.contentItems;
 
@@ -410,7 +408,7 @@ public class QueryBuilder {
         return join.on(cb.equal(join.get(SeriesQueryAttributes_.viewID), viewID));
     }
 
-    public void uidsPredicate(List<Predicate> x, Path<String> path, String[] values) {
+    public void uidsPredicate(List<Predicate> x, Path<String> path, String... values) {
         if (!isUniversalMatching(values))
             x.add(values.length == 1 ? cb.equal(path, values[0]) : path.in(values));
     }
@@ -682,7 +680,54 @@ public class QueryBuilder {
 
     private <T> void workitemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Root<Workitem> workitem, Attributes keys, QueryParam queryParam) {
-        //TODO
+        uidsPredicate(predicates, workitem.get(Workitem_.replacedSOPInstanceUID),
+                getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
+                Tag.ReferencedSOPInstanceUID, "*"));
+        uidsPredicate(predicates, workitem.get(Workitem_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
+        Optional<SPSPriority> spsPriority = Stream.of(SPSPriority.values())
+                .filter(priority -> priority.name().equals(keys.getString(Tag.ScheduledProcedureStepPriority)))
+                .findFirst();
+        spsPriority.ifPresent(priority -> predicates.add(cb.equal(workitem.get(Workitem_.spsPriority), priority)));
+        dateRange(predicates, workitem.get(Workitem_.updatedTime),
+                keys.getDateRange(Tag.ScheduledProcedureStepModificationDateTime));
+        anyOf(predicates, workitem.get(Workitem_.spsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
+        anyOf(predicates, workitem.get(Workitem_.worklistLabel), keys.getStrings(Tag.WorklistLabel), true);
+        code(predicates, workitem.get(Workitem_.scheduledStationNameCode),
+                keys.getNestedDataset(Tag.ScheduledStationNameCodeSequence));
+        code(predicates, workitem.get(Workitem_.scheduledStationClassCode),
+                keys.getNestedDataset(Tag.ScheduledStationClassCodeSequence));
+        code(predicates, workitem.get(Workitem_.scheduledStationGeographicLocationCode),
+                keys.getNestedDataset(Tag.ScheduledStationGeographicLocationCodeSequence));
+        Attributes scheduledHumanPerformersSequence = keys.getNestedDataset(Tag.ScheduledHumanPerformersSequence);
+        if (scheduledHumanPerformersSequence != null)
+            performerCode(predicates, q, workitem,
+                scheduledHumanPerformersSequence.getSequence(Tag.HumanPerformerCodeSequence).get(0));
+        dateRange(predicates, workitem.get(Workitem_.scheduledStartDateAndTime),
+                keys.getDateRange(Tag.ScheduledProcedureStepStartDateAndTime), FormatDate.DT);
+        dateRange(predicates, workitem.get(Workitem_.expectedCompletionDateAndTime),
+                keys.getDateRange(Tag.ExpectedCompletionDateTime), FormatDate.DT);
+        dateRange(predicates, workitem.get(Workitem_.scheduledProcedureStepExpirationDateTime),
+                keys.getDateRange(Tag.ScheduledProcedureStepExpirationDateTime), FormatDate.DT);
+        code(predicates, workitem.get(Workitem_.scheduledWorkitemCode),
+                keys.getNestedDataset(Tag.ScheduledWorkitemCodeSequence));
+        Optional<InputReadinessState> inputReadinessState = Stream.of(InputReadinessState.values())
+                .filter(readiness -> readiness.name().equals(keys.getString(Tag.InputReadinessState)))
+                .findFirst();
+        inputReadinessState.ifPresent(
+                readiness -> predicates.add(cb.equal(workitem.get(Workitem_.inputReadinessState), readiness)));
+        String admissionID = keys.getString(Tag.AdmissionID, "*");
+        if (!isUniversalMatching(admissionID)) {
+            Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
+            if (issuer != null)
+              idWithIssuer(predicates, workitem, Workitem_.admissionID, Workitem_.issuerOfAdmissionID, admissionID, issuer);
+            else
+                predicates.add(cb.equal(workitem.get(Workitem_.admissionID), admissionID));
+        }
+        workitemRequestAttributes(predicates, q, workitem, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
+    }
+
+    private static String getString(Attributes item, int tag, String defVal) {
+        return item != null ? item.getString(tag, defVal) : defVal;
     }
 
     public <T> void hideRejectedInstance(List<Predicate> predicates, CriteriaQuery<T> q,
@@ -720,8 +765,8 @@ public class QueryBuilder {
 
     private <Z, X> void idWithIssuer(List<Predicate> predicates, From<Z, X> entity,
             SingularAttribute<X, String> idAttribute, SingularAttribute<X, IssuerEntity> issuerAttribute,
-            String accNo, Issuer issuer) {
-        if (wildCard(predicates, entity.get(idAttribute), accNo) && issuer != null)
+            String id, Issuer issuer) {
+        if (wildCard(predicates, entity.get(idAttribute), id) && issuer != null)
             issuer(predicates, entity.join(issuerAttribute, JoinType.LEFT), issuer);
     }
 
@@ -911,6 +956,20 @@ public class QueryBuilder {
         }
     }
 
+    private <T, Z> void performerCode(List<Predicate> predicates, CriteriaQuery<T> q,
+                                      From<Z, Workitem> workitem, Attributes item) {
+        if (isUniversalMatching(item))
+            return;
+
+        Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
+        From<Z, Workitem> sqWorkitem = correlate(sq, workitem);
+        CollectionJoin<Workitem, CodeEntity> code = sqWorkitem.join(Workitem_.humanPerformerCodes);
+        List<Predicate> y = new ArrayList<>();
+        code(y, code, item);
+        if (!y.isEmpty())
+            predicates.add(cb.exists(sq.select(code).where(y.toArray(new Predicate[0]))));
+    }
+
     private <T, Z> void requestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Series> series,
             Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
@@ -946,6 +1005,39 @@ public class QueryBuilder {
         if (!requestPredicates.isEmpty()) {
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
         }
+    }
+
+    private <T, Z> void workitemRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Workitem> workitem,
+                                          Attributes item, QueryParam queryParam) {
+        if (isUniversalMatching(item))
+            return;
+
+        Subquery<WorkitemRequest> sq = q.subquery(WorkitemRequest.class);
+        From<Z, Workitem> sqWorkitem = correlate(sq, workitem);
+        Join<Workitem, WorkitemRequest> request = sqWorkitem.join(Workitem_.referencedRequests);
+        List<Predicate> requestPredicates = new ArrayList<>();
+        String accNo = item.getString(Tag.AccessionNumber, "*");
+        if (!isUniversalMatching(accNo)) {
+            Issuer issuerOfAccessionNumber = Issuer.valueOf(item
+                    .getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+            if (issuerOfAccessionNumber == null)
+                issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
+            idWithIssuer(requestPredicates, request,
+                    WorkitemRequest_.accessionNumber, WorkitemRequest_.issuerOfAccessionNumber,
+                    accNo, issuerOfAccessionNumber);
+        }
+        anyOf(requestPredicates,
+                request.get(WorkitemRequest_.requestingService),
+                item.getStrings(Tag.RequestingService), true);
+        personName(requestPredicates, q, request, WorkitemRequest_.requestingPhysician,
+                item.getString(Tag.RequestingPhysician, "*"), queryParam);
+        anyOf(requestPredicates,
+                request.get(WorkitemRequest_.requestedProcedureID),
+                item.getStrings(Tag.RequestedProcedureID), false);
+        uidsPredicate(requestPredicates, request.get(WorkitemRequest_.studyInstanceUID),
+                item.getStrings(Tag.StudyInstanceUID));
+        if (!requestPredicates.isEmpty())
+            predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
     }
 
     private static <T, Z, X> From<Z, X> correlate(Subquery<T> sq, From<Z, X> parent) {
