@@ -71,6 +71,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -134,6 +135,18 @@ public class UpsRS {
             String iuid,
             InputStream in) {
         return createWorkitem(iuid, parseXML(in));
+    }
+
+    @GET
+    @Path("/workitems/{workitem}")
+    public Response retrieveWorkitem(@PathParam("workitem") String iuid) {
+        ResponseMediaType responseMediaType = getResponseMediaType();
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setSopInstanceUID(iuid);
+        return (service.getWorkitem(ctx)
+                ? Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type)
+                : Response.status(Response.Status.NOT_FOUND))
+                .build();
     }
 
     @Override
@@ -210,14 +223,35 @@ public class UpsRS {
     private static ResponseMediaType selectResponseMediaType(MediaType acceptableMediaType) {
         return MediaTypes.APPLICATION_DICOM_JSON_TYPE.isCompatible(acceptableMediaType)
                 ? ResponseMediaType.DICOM_JSON
-                : MediaTypes.APPLICATION_DICOM_XML_TYPE.isCompatible(
-                        MediaTypes.getMultiPartRelatedType(acceptableMediaType))
-                ? ResponseMediaType.MULTIPART_DICOM_XML
+                : MediaTypes.APPLICATION_DICOM_XML_TYPE.isCompatible(acceptableMediaType)
+                ? ResponseMediaType.DICOM_XML
                 : null;
     }
 
     private enum ResponseMediaType {
-        DICOM_JSON,
-        MULTIPART_DICOM_XML;
+        DICOM_XML(MediaTypes.APPLICATION_DICOM_XML_TYPE, DicomXMLOutput::new){
+            @Override
+            Object entity(Attributes attrs) {
+                return new DicomXMLOutput(attrs);
+            }
+        },
+        DICOM_JSON(MediaTypes.APPLICATION_DICOM_JSON_TYPE, DicomJSONOutput::new){
+            @Override
+            Object entity(Attributes attrs) {
+                return new DicomJSONOutput(attrs);
+            }
+        };
+
+        final MediaType type;
+        private final Function<Attributes, Object> toEntity;
+
+        ResponseMediaType(MediaType type, Function<Attributes, Object> toEntity) {
+            this.type = type;
+            this.toEntity = toEntity;
+        }
+
+        Object entity(Attributes attrs) {
+            return toEntity.apply(attrs);
+        }
     }
 }

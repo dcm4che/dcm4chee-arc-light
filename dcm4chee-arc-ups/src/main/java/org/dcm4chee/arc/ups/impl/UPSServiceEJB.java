@@ -126,6 +126,16 @@ public class UPSServiceEJB {
         return true;
     }
 
+    public Workitem getWorkitem(UPSContext ctx) {
+        try {
+            return em.createNamedQuery(Workitem.FIND_BY_SOP_IUID_EAGER, Workitem.class)
+                    .setParameter(1, ctx.getSopInstanceUID())
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     private boolean alreadyExists(UPSContext ctx) {
         try {
             Workitem workitem = em.createNamedQuery(Workitem.FIND_BY_SOP_IUID, Workitem.class)

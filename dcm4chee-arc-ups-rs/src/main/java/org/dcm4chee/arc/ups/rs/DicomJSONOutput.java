@@ -39,20 +39,38 @@
  *
  */
 
-package org.dcm4chee.arc.ups;
+package org.dcm4chee.arc.ups.rs;
 
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.io.SAXTransformer;
+import org.dcm4che3.json.JSONWriter;
+
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.transform.stream.StreamResult;
+import java.io.OutputStream;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Sep 2019
  */
-public interface UPSService {
+public class DicomJSONOutput implements StreamingOutput {
+    private final Attributes attrs;
 
-    UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE);
+    public DicomJSONOutput(Attributes attrs) {
+        this.attrs = attrs;
+    }
 
-    boolean createWorkitem(UPSContext ctx);
-
-    boolean getWorkitem(UPSContext ctx);
+    @Override
+    public void write(OutputStream out) {
+        JsonGenerator gen = Json.createGenerator(out);
+        JSONWriter writer = new JSONWriter(gen);
+        gen.writeStartArray();
+        writer.write(attrs);
+        gen.writeEnd();
+        gen.flush();
+    }
 }

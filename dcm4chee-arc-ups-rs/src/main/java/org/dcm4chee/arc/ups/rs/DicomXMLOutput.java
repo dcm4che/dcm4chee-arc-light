@@ -39,62 +39,34 @@
  *
  */
 
-package org.dcm4chee.arc.ups.impl;
+package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.data.VR;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.Workitem;
-import org.dcm4chee.arc.entity.Workitem_;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.ups.UPSContext;
-import org.dcm4chee.arc.ups.UPSService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4che3.io.SAXTransformer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.transform.stream.StreamResult;
+import java.io.OutputStream;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Sep 2019
  */
-@ApplicationScoped
-public class UPSServiceImpl implements UPSService {
+public class DicomXMLOutput implements StreamingOutput {
+    private final Attributes attrs;
 
-    private static Logger LOG = LoggerFactory.getLogger(UPSServiceImpl.class);
-
-    @Inject
-    private UPSServiceEJB ejb;
-
-    @Override
-    public UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE) {
-        return new UPSContextImpl(httpRequestInfo, arcAE);
+    public DicomXMLOutput(Attributes attrs) {
+        this.attrs = attrs;
     }
 
     @Override
-    public boolean createWorkitem(UPSContext ctx) {
-        return ejb.createWorkitem(ctx);
-    }
-
-    @Override
-    public boolean getWorkitem(UPSContext ctx) {
-        Workitem workitem = ejb.getWorkitem(ctx);
-        if (workitem == null) {
-            return false;
+    public void write(OutputStream out) {
+        try {
+            SAXTransformer.getSAXWriter(new StreamResult(out)).write(attrs);
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
-        Attributes upsAttrs = workitem.getAttributes();
-        Attributes patAttrs = workitem.getPatient().getAttributes();
-        Attributes.unifyCharacterSets(patAttrs, upsAttrs);
-        Attributes attrs = new Attributes(patAttrs.size() + upsAttrs.size() + 3);
-        attrs.addAll(patAttrs);
-        attrs.addAll(upsAttrs);
-        attrs.setString(Tag.SOPClassUID, VR.UI, UID.UnifiedProcedureStepPushSOPClass);
-        attrs.setString(Tag.SOPInstanceUID, VR.UI, workitem.getSopInstanceUID());
-        attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT, workitem.getUpdatedTime());
-        ctx.setAttributes(attrs);
-        return true;
     }
 }

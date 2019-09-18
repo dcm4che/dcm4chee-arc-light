@@ -59,6 +59,13 @@ import java.util.Date;
 @NamedQuery(
         name=Workitem.FIND_BY_SOP_IUID,
         query="select ups from Workitem ups where ups.sopInstanceUID = ?1")
+@NamedQuery(
+        name=Workitem.FIND_BY_SOP_IUID_EAGER,
+        query="select ups from Workitem ups " +
+                "join fetch ups.patient p " +
+                "join fetch ups.attributesBlob " +
+                "join fetch p.attributesBlob " +
+                "where ups.sopInstanceUID = ?1")
 @Entity
 @Table(name = "workitem",
         uniqueConstraints = @UniqueConstraint(columnNames = "sop_iuid" ),
@@ -78,6 +85,7 @@ import java.util.Date;
 public class Workitem {
 
     public static final String FIND_BY_SOP_IUID = "Workitem.findBySopIUID";
+    public static final String FIND_BY_SOP_IUID_EAGER = "Workitem.findBySopIUIDEager";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -288,6 +296,10 @@ public class Workitem {
             referencedRequests = new ArrayList<>();
         }
         return referencedRequests;
+    }
+
+    public Patient getPatient() {
+        return patient;
     }
 
     public void setPatient(Patient patient) {
