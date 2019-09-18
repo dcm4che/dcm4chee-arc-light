@@ -46,6 +46,8 @@ import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -53,6 +55,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -138,15 +141,18 @@ public class UpsRS {
     }
 
     @GET
+    @NoCache
     @Path("/workitems/{workitem}")
     public Response retrieveWorkitem(@PathParam("workitem") String iuid) {
         ResponseMediaType responseMediaType = getResponseMediaType();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setSopInstanceUID(iuid);
-        return (service.getWorkitem(ctx)
-                ? Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type)
-                : Response.status(Response.Status.NOT_FOUND))
-                .build();
+        try {
+            service.findWorkitem(ctx);
+        } catch (DicomServiceException e) {
+            return Response.status(ngetToHttpStatus(e.getStatus())).build();
+        }
+        return Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type).build();
     }
 
     @Override
@@ -161,14 +167,45 @@ public class UpsRS {
                 request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
     }
 
+    private String baseURL() {
+        StringBuffer sb = request.getRequestURL();
+        sb.setLength(sb.lastIndexOf("/workitems" + 10));
+        return sb.toString();
+    }
+
     private Response createWorkitem(String iuid, Attributes workitem) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setSopInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
         ctx.setAttributes(workitem);
-        return (service.createWorkitem(ctx)
-                ? Response.created(locationOf(ctx))
-                : Response.status(Response.Status.CONFLICT))
-                .build();
+        try {
+            service.createWorkitem(ctx);
+        } catch (DicomServiceException e) {
+            return Response.status(ncreateToHttpStatus(e.getStatus())).build();
+        }
+        return Response.created(locationOf(ctx)).build();
+    }
+
+    private static Response.Status ncreateToHttpStatus(int status) {
+        switch (status) {
+            case Status.DuplicateSOPinstance:
+                return Response.Status.CONFLICT;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private static Response.Status nsetToHttpStatus(int status) {
+        switch (status) {
+
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private static Response.Status ngetToHttpStatus(int status) {
+        switch (status) {
+            case Status.NoSuchUPSInstance:
+                return Response.Status.NOT_FOUND;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
     private URI locationOf(UPSContext ctx) {

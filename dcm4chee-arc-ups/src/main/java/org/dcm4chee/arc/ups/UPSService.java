@@ -41,7 +41,9 @@
 
 package org.dcm4chee.arc.ups;
 
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.Workitem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 /**
@@ -52,7 +54,7 @@ public interface UPSService {
 
     UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE);
 
-    boolean createWorkitem(UPSContext ctx);
+    Workitem createWorkitem(UPSContext ctx) throws DicomServiceException;
 
-    boolean getWorkitem(UPSContext ctx);
+    Workitem findWorkitem(UPSContext ctx) throws DicomServiceException;
 }

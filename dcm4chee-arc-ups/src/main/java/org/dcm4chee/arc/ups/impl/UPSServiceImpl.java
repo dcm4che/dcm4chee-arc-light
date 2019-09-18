@@ -45,9 +45,9 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Workitem;
-import org.dcm4chee.arc.entity.Workitem_;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
@@ -75,16 +75,14 @@ public class UPSServiceImpl implements UPSService {
     }
 
     @Override
-    public boolean createWorkitem(UPSContext ctx) {
+    public Workitem createWorkitem(UPSContext ctx) throws DicomServiceException {
+        Attributes attrs = ctx.getAttributes();
         return ejb.createWorkitem(ctx);
     }
 
     @Override
-    public boolean getWorkitem(UPSContext ctx) {
-        Workitem workitem = ejb.getWorkitem(ctx);
-        if (workitem == null) {
-            return false;
-        }
+    public Workitem findWorkitem(UPSContext ctx) throws DicomServiceException {
+        Workitem workitem = ejb.findWorkitem(ctx);
         Attributes upsAttrs = workitem.getAttributes();
         Attributes patAttrs = workitem.getPatient().getAttributes();
         Attributes.unifyCharacterSets(patAttrs, upsAttrs);
@@ -95,6 +93,6 @@ public class UPSServiceImpl implements UPSService {
         attrs.setString(Tag.SOPInstanceUID, VR.UI, workitem.getSopInstanceUID());
         attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT, workitem.getUpdatedTime());
         ctx.setAttributes(attrs);
-        return true;
+        return workitem;
     }
 }

@@ -42,12 +42,13 @@
 package org.dcm4chee.arc.ups.impl;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -85,13 +86,10 @@ public class UPSServiceEJB {
     @Inject
     private IssuerService issuerService;
 
-    public boolean createWorkitem(UPSContext ctx) {
-        if (alreadyExists(ctx)) {
-            return false;
-        }
+    public Workitem createWorkitem(UPSContext ctx) throws DicomServiceException {
+        checkDuplicate(ctx);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
         Attributes attrs = ctx.getAttributes();
         if (!attrs.containsValue(Tag.WorklistLabel)) {
             attrs.setString(Tag.WorklistLabel, VR.LO, arcAE.defaultWorklistLabel());
@@ -120,31 +118,29 @@ public class UPSServiceEJB {
         setReferencedRequests(workitem.getReferencedRequests(),
                 attrs.getSequence(Tag.ReferencedRequestSequence),
                 arcDev.getFuzzyStr());
-        workitem.setAttributes(attrs, filter);
+        workitem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
         em.persist(workitem);
         LOG.info("{}: Create {}", ctx, workitem);
-        return true;
+        return workitem;
     }
 
-    public Workitem getWorkitem(UPSContext ctx) {
+    public Workitem findWorkitem(UPSContext ctx) throws DicomServiceException {
         try {
             return em.createNamedQuery(Workitem.FIND_BY_SOP_IUID_EAGER, Workitem.class)
                     .setParameter(1, ctx.getSopInstanceUID())
                     .getSingleResult();
         } catch (NoResultException e) {
-            return null;
+            throw new DicomServiceException(Status.NoSuchUPSInstance, "No such UPS Instance");
         }
     }
 
-    private boolean alreadyExists(UPSContext ctx) {
+    private void checkDuplicate(UPSContext ctx) throws DicomServiceException {
         try {
-            Workitem workitem = em.createNamedQuery(Workitem.FIND_BY_SOP_IUID, Workitem.class)
+            em.createNamedQuery(Workitem.FIND_BY_SOP_IUID, Workitem.class)
                     .setParameter(1, ctx.getSopInstanceUID())
                     .getSingleResult();
-            LOG.info("{}: {} already exists", ctx, workitem);
-            return true;
+            throw new DicomServiceException(Status.DuplicateSOPinstance, "Duplicate UPS Instance");
         } catch (NoResultException e) {
-            return false;
         }
     }
 
