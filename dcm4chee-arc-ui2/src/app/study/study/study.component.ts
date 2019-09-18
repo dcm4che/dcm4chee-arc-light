@@ -232,7 +232,8 @@ export class StudyComponent implements OnInit{
     ngOnInit() {
         console.log("this.service",this.appService);
         this.largeIntFormat = new LargeIntFormatPipe();
-        this.resetSetSelectionObject();
+        // this.resetSetSelectionObject();
+        this.selectedElements = new SelectionActionElement({});
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
           this.studyConfig.tab = params.tab;
@@ -396,7 +397,9 @@ export class StudyComponent implements OnInit{
             newObject[id] = {};
         });
 
-        this.selectedElements.reset();
+        if(this.selectedElements){
+            this.selectedElements.reset();
+        }
 
         this.patients.forEach(patient=>{
             if(resetIds.indexOf("patient") > -1){

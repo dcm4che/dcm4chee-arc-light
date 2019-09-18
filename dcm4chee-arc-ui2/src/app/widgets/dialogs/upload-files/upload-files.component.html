@@ -19,10 +19,10 @@
                 </mat-select>
             </ng-container>
             <label title="Series Description">Series Number:</label><input type="number" [(ngModel)]="seriesNumber"><br>
-            <label title="Series Description">Instance Number:</label><input type="number" [(ngModel)]="instanceNumber"><br>
+            <!--<label title="Series Description">Instance Number:</label><input type="number" [(ngModel)]="instanceNumber"><br>-->
             <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
             <label>Chose a File to upload:</label><br>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,video/mp4,application/pdf">
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,video/mp4,application/pdf" multiple>
             <div mat-dialog-content>
                 <ng-container *ngIf="showFileList">
                     <div class="upload_state" *ngFor="let file of fileList">

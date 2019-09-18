@@ -81,13 +81,24 @@ export class UploadFilesComponent implements OnInit {
         let descriptionPart;
         let token;
         this.showFileList = true;
+        let instanceNumber;
+        let seriesNumber;
         // this.fileList = this.file;
         this._keycloakService.getToken().subscribe((response) => {
             if(!this.mainservice.global.notSecure){
                 token = response.token;
             }
+            if(!this.instanceNumber){
+                this.instanceNumber = 1;
+            }
+            if(!this.seriesNumber && this.seriesNumber != 0){
+                this.seriesNumber = 0;
+            }
             if (this.fileList) {
                 _.forEach(this.fileList, (file, i) => {
+                    console.log("i",i);
+                    instanceNumber = this.instanceNumber + i;
+                    seriesNumber = this.seriesNumber + i;
                     let transfareSyntax;
                     switch (file.type) {
                         case "image/jpeg":
@@ -122,10 +133,10 @@ export class UploadFilesComponent implements OnInit {
                                             reader.readAsArrayBuffer(file);
                                             reader.onload = function (e) {*/
 
-                        $this.xmlHttpRequest = new XMLHttpRequest();
+                        let xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
                         let url = this.uploadDicomService.getUrlFromWebApp(this.selectedWebApp);
-                        $this.xmlHttpRequest.open('POST', url, true);
+                        xmlHttpRequest.open('POST', url, true);
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
@@ -144,27 +155,29 @@ export class UploadFilesComponent implements OnInit {
                         studyObject["00200013"] = {
                             "vr": "IS",
                             "Value": [
-                                this.instanceNumber || 1
+                                instanceNumber || 1
                             ]
                         };
                         studyObject["00200011"] = {
                             "vr": "IS",
                             "Value": [
-                                this.seriesNumber || 0
+                                seriesNumber || 0
                             ]
                         };
-                        studyObject["0020000E"] = {
-                            "vr": "UI",
-                            "Value": [
-                                `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}`
-                            ]
-                        };
-                        studyObject["00080018"] = {
-                            "vr": "UI",
-                            "Value": [
-                                `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}.${(this.instanceNumber || 1)}`
-                            ]
-                        };
+                        if(_.hasIn(studyObject, "0020000D.Value[0]")){
+                            studyObject["0020000E"] = {
+                                "vr": "UI",
+                                "Value": [
+                                    `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}`
+                                ]
+                            };
+                        }
+/*                            studyObject["00080018"] = {
+                                "vr": "UI",
+                                "Value": [
+                                    `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}.${(this.instanceNumber || 1)}`
+                                ]
+                            };*/
 
                         if (file.type === "application/pdf") {
                             studyObject["00420011"] = {
@@ -265,49 +278,50 @@ export class UploadFilesComponent implements OnInit {
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
 
-                        $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
-                        $this.xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
+                        xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
+                        xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
                         if(!this.mainservice.global.notSecure) {
-                            $this.xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                            xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
                         }
-                        $this.xmlHttpRequest.upload.onprogress = function (e) {
+                        xmlHttpRequest.upload.onprogress = function (e) {
                             if (e.lengthComputable) {
                                 $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
                             }
                         };
-                        $this.xmlHttpRequest.onreadystatechange = () => {
-                            if ($this.xmlHttpRequest.readyState === 4) {
-                                if ($this.xmlHttpRequest.status === 200) {
-                                    console.log('in response', JSON.parse($this.xmlHttpRequest.response));
+                        xmlHttpRequest.onreadystatechange = () => {
+                            if (xmlHttpRequest.readyState === 4) {
+                                if (xmlHttpRequest.status === 200) {
                                     $this.percentComplete[file.name]['showLoader'] = false;
                                     $this.percentComplete[file.name]['showTicker'] = true;
+                                    console.log('in response', JSON.parse(xmlHttpRequest.response));
                                 } else {
                                     $this.percentComplete[file.name]['showLoader'] = false;
-                                    console.log('in respons error', $this.xmlHttpRequest.status);
-                                    console.log('statusText', $this.xmlHttpRequest.statusText);
+                                    console.log('in respons error', xmlHttpRequest.status);
+                                    console.log('statusText', xmlHttpRequest.statusText);
                                     $this.percentComplete[file.name]['value'] = 0;
-                                    $this.percentComplete[file.name]['status'] = $this.xmlHttpRequest.status + ' ' + $this.xmlHttpRequest.statusText;
+                                    $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
                                 }
                             }
                             // $this.percentComplete[file.name]['showLoader'] = true;
                         };
-                        $this.xmlHttpRequest.upload.onloadstart = function (e) {
+                        xmlHttpRequest.upload.onloadstart = function (e) {
                             $this.percentComplete[file.name]['value'] = 1;
                         };
-                        $this.xmlHttpRequest.upload.onloadend = function (e) {
-                            if ($this.xmlHttpRequest.status === 200) {
+                        xmlHttpRequest.upload.onloadend = function (e) {
+                            if (xmlHttpRequest.status === 200) {
                                 $this.percentComplete[file.name]['showLoader'] = false;
+                                $this.percentComplete[file.name]['showTicker'] = true;
                                 $this.percentComplete[file.name]['value'] = 100;
                             }
                         };
                         //Send the binary data
-                        // $this.xmlHttpRequest.send(payload);
-                        $this.xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
+                        // xmlHttpRequest.send(payload);
+                        xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
                         // };
                     } else {
                         $this.mainservice.setMessage({
                             'title': 'Error',
-                            'text': `Filetype "${file.type}" not allowed!`,
+                            'text': `File type "${file.type}" not allowed!`,
                             'status': 'error'
                         });
                         $this.fileList = [];
