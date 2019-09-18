@@ -237,12 +237,33 @@ public class QueryBuilder {
         return false;
     }
 
-    private boolean orderWorkitems(Join<Workitem, Patient> patient, Root<Workitem> workitem, OrderByTag orderByTag, List<Order> result) {
+    private <Z> boolean orderWorkitems(Join<Workitem, Patient> patient, Root<Workitem> workitem, OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
 
         switch (orderByTag.tag) {
-            //TODO
+            case Tag.SOPInstanceUID:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.sopInstanceUID)));
+            case Tag.ScheduledProcedureStepPriority:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.spsPriority)));
+            case Tag.ScheduledProcedureStepModificationDateTime:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.updatedTime)));
+            case Tag.ProcedureStepLabel:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.spsLabel)));
+            case Tag.WorklistLabel:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.worklistLabel)));
+            case Tag.ScheduledProcedureStepStartDateTime:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.scheduledStartDateAndTime)));
+            case Tag.ExpectedCompletionDateTime:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.expectedCompletionDateAndTime)));
+            case Tag.ScheduledProcedureStepExpirationDateTime:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.scheduledProcedureStepExpirationDateTime)));
+            case Tag.InputReadinessState:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.inputReadinessState)));
+            case Tag.AdmissionID:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.admissionID)));
+            case Tag.ProcedureStepState:
+                return result.add(orderByTag.order(cb, workitem.get(Workitem_.procedureStepState)));
         }
         return false;
     }
@@ -680,9 +701,6 @@ public class QueryBuilder {
 
     private <T> void workitemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Root<Workitem> workitem, Attributes keys, QueryParam queryParam) {
-        uidsPredicate(predicates, workitem.get(Workitem_.replacedSOPInstanceUID),
-                getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
-                Tag.ReferencedSOPInstanceUID, "*"));
         uidsPredicate(predicates, workitem.get(Workitem_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
         Optional<SPSPriority> spsPriority = Stream.of(SPSPriority.values())
                 .filter(priority -> priority.name().equals(keys.getString(Tag.ScheduledProcedureStepPriority)))
@@ -724,6 +742,13 @@ public class QueryBuilder {
                 predicates.add(cb.equal(workitem.get(Workitem_.admissionID), admissionID));
         }
         workitemRequestAttributes(predicates, q, workitem, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
+        uidsPredicate(predicates, workitem.get(Workitem_.replacedSOPInstanceUID),
+                getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
+                        Tag.ReferencedSOPInstanceUID, "*"));
+        Optional<UPSState> upsState = Stream.of(UPSState.values())
+                .filter(state -> state.name().equals(keys.getString(Tag.ProcedureStepState)))
+                .findFirst();
+        upsState.ifPresent(state -> predicates.add(cb.equal(workitem.get(Workitem_.procedureStepState), state)));
     }
 
     private static String getString(Attributes item, int tag, String defVal) {
