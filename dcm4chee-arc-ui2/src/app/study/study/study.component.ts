@@ -214,6 +214,7 @@ export class StudyComponent implements OnInit{
         size:[]
     };
     internal = true;
+    checkboxFunctions = false;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -249,6 +250,7 @@ export class StudyComponent implements OnInit{
 
 
 
+    //
     setTopToTableHeader(){
         if(this.stickyHeaderView.nativeElement.scrollHeight && this.stickyHeaderView.nativeElement.scrollHeight > 0 && this.tableParam.config.headerTop != `${this.stickyHeaderView.nativeElement.scrollHeight}px`){
             this.tableParam.config.headerTop = `${this.stickyHeaderView.nativeElement.scrollHeight}px`;
@@ -323,7 +325,6 @@ export class StudyComponent implements OnInit{
             this.actionsSelections.model = undefined;
         },1);
     }
-    checkboxFunctions = false;
     selectionAction(id){
         console.log("this.patient",this.patients);
         switch (id){
@@ -332,12 +333,18 @@ export class StudyComponent implements OnInit{
                 break;
             }
             case "copy":{
+                this.selectedElements.action = id;
+                this.resetSetSelectionObject();
                 break;
             }
             case "cut":{
+                this.selectedElements.action = id;
+                this.resetSetSelectionObject();
                 break;
             }
             case "patient_merge":{
+                this.selectedElements.action = "merge";
+                this.resetSetSelectionObject();
                 break;
             }
             case "paste":{
@@ -389,7 +396,7 @@ export class StudyComponent implements OnInit{
             newObject[id] = {};
         });
 
-        this.selectedElements = new SelectionsDicomObjects(newObject);
+        this.selectedElements.reset();
 
         this.patients.forEach(patient=>{
             if(resetIds.indexOf("patient") > -1){
@@ -424,6 +431,7 @@ export class StudyComponent implements OnInit{
             };
             object.selected = true;
         }*/
+        console.log("selectedElements",this.selectedElements);
     }
     actions(id, model){
         console.log("id",id);

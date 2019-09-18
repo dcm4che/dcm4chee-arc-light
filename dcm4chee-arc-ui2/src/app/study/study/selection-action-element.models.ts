@@ -21,9 +21,15 @@ export class SelectionActionElement {
 
     toggle(dicomLevel:DicomLevel,uniqueSelectIdObject:UniqueSelectIdObject, object){
         if(this.action){
-            this.postActionElements.toggle(dicomLevel,uniqueSelectIdObject, object)
+            if(!this.postActionElements){
+                this.postActionElements = new SelectionsDicomObjects();
+            }
+            this.postActionElements.toggle(dicomLevel,uniqueSelectIdObject, object);
         }else{
-            this.preActionElements.toggle(dicomLevel,uniqueSelectIdObject, object)
+            if(!this.preActionElements){
+                this.preActionElements = new SelectionsDicomObjects();
+            }
+            this.preActionElements.toggle(dicomLevel,uniqueSelectIdObject, object);
         }
     }
     get size() {
@@ -38,5 +44,16 @@ export class SelectionActionElement {
         return this.preActionElements.getAllAsArray();
     }
 
+    reset(all?:boolean){
+        if(all){
+            this.action = undefined;
+            this.preActionElements = new SelectionsDicomObjects();
+            this.postActionElements = new SelectionsDicomObjects();
+        }else{
+            if(this.action){
+                this.preActionElements = new SelectionsDicomObjects();
+            }
+        }
+    }
 
 }
