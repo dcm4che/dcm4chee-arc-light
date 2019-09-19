@@ -52,5 +52,8 @@ DCM4CHE.TransferSyntax = (function (dictionary) {
 "1.2.840.10008.1.2.5":"RLE Lossless",
 "1.2.840.10008.1.2.6.1":"RFC 2557 MIME encapsulation (Retired)",
 "1.2.840.10008.1.2.6.2":"XML Encoding (Retired)",
+"1.2.840.10008.1.2.7.1":"SMPTE ST 2110-20 Uncompressed Progressive Active Video",
+"1.2.840.10008.1.2.7.2":"SMPTE ST 2110-20 Uncompressed Interlaced Active Video",
+"1.2.840.10008.1.2.7.3":"SMPTE ST 2110-30 PCM Digital Audio",
 "1.2.840.10008.1.20":"Papyrus 3 Implicit VR Little Endian (Retired)"
 }));

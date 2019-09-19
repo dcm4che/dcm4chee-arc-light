@@ -892,6 +892,8 @@ class ArchiveDeviceFactory {
             UID.RTIonBeamsTreatmentRecordStorage,
             UID.RTPhysicianIntentStorage,
             UID.RTSegmentAnnotationStorage,
+            UID.RTRadiationSetStorage,
+            UID.CArmPhotonElectronRadiationStorage,
             UID.RTBeamsDeliveryInstructionStorage,
             UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
             UID.PrivateAgfaArrivalTransaction,
